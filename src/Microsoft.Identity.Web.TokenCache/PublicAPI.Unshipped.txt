@@ -1,0 +1,74 @@
+﻿abstract Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(string! cacheKey) -> System.Threading.Tasks.Task<byte[]?>!
+abstract Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(string! cacheKey) -> System.Threading.Tasks.Task!
+abstract Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.ClaimsPrincipalExtensions
+Microsoft.Identity.Web.TokenCacheExtensions
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.CacheSerializerHints() -> void
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.CancellationToken.get -> System.Threading.CancellationToken
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.CancellationToken.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.SuggestedCacheExpiry.get -> System.DateTimeOffset?
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.SuggestedCacheExpiry.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.MsalDistributedTokenCacheAdapter(Microsoft.Extensions.Caching.Distributed.IDistributedCache! distributedCache, Microsoft.Extensions.Options.IOptions<Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions!>! distributedCacheOptions, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter!>! logger, System.IServiceProvider? serviceProvider = null) -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.DisableL1Cache.get -> bool
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.DisableL1Cache.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.EnableAsyncL2Write.get -> bool
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.EnableAsyncL2Write.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.Encrypt.get -> bool
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.Encrypt.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1CacheOptions.get -> Microsoft.Extensions.Caching.Memory.MemoryCacheOptions!
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.L1CacheOptions.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.MsalDistributedTokenCacheAdapterOptions() -> void
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.OnL2CacheFailure.get -> System.Func<System.Exception!, bool>?
+Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapterOptions.OnL2CacheFailure.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider
+Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.ClearAsync(string! homeAccountId) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache! tokenCache) -> void
+Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache! tokenCache) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow.get -> System.TimeSpan
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.AbsoluteExpirationRelativeToNow.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.MsalMemoryTokenCacheOptions() -> void
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.MsalMemoryTokenCacheProvider(Microsoft.Extensions.Caching.Memory.IMemoryCache! memoryCache, Microsoft.Extensions.Options.IOptions<Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions!>! cacheOptions) -> void
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ClearAsync(string! homeAccountId) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.Initialize(Microsoft.Identity.Client.ITokenCache! tokenCache) -> void
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.InitializeAsync(Microsoft.Identity.Client.ITokenCache! tokenCache) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.MsalAbstractTokenCacheProvider(Microsoft.AspNetCore.DataProtection.IDataProtector? dataProtector = null) -> void
+Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.MsalAbstractTokenCacheProvider(Microsoft.AspNetCore.DataProtection.IDataProtector? dataProtector, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider!>! logger) -> void
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(string! cacheKey) -> System.Threading.Tasks.Task<byte[]?>!
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.ReadCacheBytesAsync(string! cacheKey, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task<byte[]?>!
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(string! cacheKey) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.RemoveKeyAsync(string! cacheKey, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints? cacheSerializerHints) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(string! cacheKey) -> System.Threading.Tasks.Task<byte[]?>!
+override Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.ReadCacheBytesAsync(string! cacheKey, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task<byte[]?>!
+override Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.RemoveKeyAsync(string! cacheKey) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes) -> System.Threading.Tasks.Task!
+override Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task!
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDisplayName(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetDomainHint(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeObjectId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetHomeTenantId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetLoginHint(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetMsalAccountId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetNameIdentifierId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetObjectId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetTenantId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.ClaimsPrincipalExtensions.GetUserFlowId(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
+static Microsoft.Identity.Web.TokenCacheExtensions.AddDistributedTokenCache(this Microsoft.Identity.Client.IConfidentialClientApplication! confidentialClientApp, System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!>! initializeDistributedCache) -> Microsoft.Identity.Client.IConfidentialClientApplication!
+static Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(this Microsoft.Identity.Client.IConfidentialClientApplication! confidentialClientApp) -> Microsoft.Identity.Client.IConfidentialClientApplication!
+static Microsoft.Identity.Web.TokenCacheExtensions.AddInMemoryTokenCache(this Microsoft.Identity.Client.IConfidentialClientApplication! confidentialClientApp, System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!>! initializeMemoryCache) -> Microsoft.Identity.Client.IConfidentialClientApplication!
+static Microsoft.Identity.Web.TokenCacheProviders.Distributed.DistributedTokenCacheAdapterExtension.AddDistributedTokenCaches(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.TokenCacheProviders.InMemory.InMemoryTokenCacheProviderExtension.AddInMemoryTokenCaches(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+virtual Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.GetSuggestedCacheKey(Microsoft.Identity.Client.TokenCacheNotificationArgs! args) -> string!
+virtual Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.OnBeforeWriteAsync(Microsoft.Identity.Client.TokenCacheNotificationArgs! args) -> System.Threading.Tasks.Task!
+virtual Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.ReadCacheBytesAsync(string! cacheKey, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task<byte[]?>!
+virtual Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.RemoveKeyAsync(string! cacheKey, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task!
+virtual Microsoft.Identity.Web.TokenCacheProviders.MsalAbstractTokenCacheProvider.WriteCacheBytesAsync(string! cacheKey, byte[]! bytes, Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints! cacheSerializerHints) -> System.Threading.Tasks.Task!

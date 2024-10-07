@@ -20,4 +20,11 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\BannedSymbols.txt" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+    <!--RS0031: The list of banned symbols contains a duplicate-->
+    <NoWarn>RS0031</NoWarn>
+  </PropertyGroup>
 </Project>

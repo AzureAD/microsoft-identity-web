@@ -1,0 +1,23 @@
+﻿#nullable enable
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.AccountController(Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.MicrosoftIdentityOptions!>! microsoftIdentityOptionsMonitor) -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(string! redirectUri, string! scope, string! loginHint, string! domainHint, string! claims, string! policy, string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.EditProfile(string! scheme) -> System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult!>!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.ResetPassword(string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(string! scheme, string! redirectUri) -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel.AccessDeniedModel() -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel.OnGet() -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.Error.get -> Microsoft.Identity.Web.ILoginErrorAccessor!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.ErrorModel(Microsoft.Identity.Web.ILoginErrorAccessor! errorAccessor) -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.OnGet() -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.RequestId.get -> string?
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.RequestId.set -> void
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.ErrorModel.ShowRequestId.get -> bool
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.SignedOutModel
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.SignedOutModel.OnGet() -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.SignedOutModel.SignedOutModel() -> void
+Microsoft.Identity.Web.UI.ServiceCollectionExtensions
+static Microsoft.Identity.Web.UI.ServiceCollectionExtensions.AddMicrosoftIdentityUI(this Microsoft.Extensions.DependencyInjection.IMvcBuilder! builder) -> Microsoft.Extensions.DependencyInjection.IMvcBuilder!

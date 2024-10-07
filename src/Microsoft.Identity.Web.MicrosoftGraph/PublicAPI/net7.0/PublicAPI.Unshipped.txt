@@ -1,0 +1,21 @@
+Microsoft.Identity.Web.BaseRequestExtensions
+Microsoft.Identity.Web.GraphServiceCollectionExtensions
+Microsoft.Identity.Web.MicrosoftGraphExtensions
+Microsoft.Identity.Web.MicrosoftGraphOptions
+Microsoft.Identity.Web.MicrosoftGraphOptions.BaseUrl.get -> string!
+Microsoft.Identity.Web.MicrosoftGraphOptions.BaseUrl.set -> void
+Microsoft.Identity.Web.MicrosoftGraphOptions.MicrosoftGraphOptions() -> void
+Microsoft.Identity.Web.MicrosoftGraphOptions.Scopes.get -> string?
+Microsoft.Identity.Web.MicrosoftGraphOptions.Scopes.set -> void
+static Microsoft.Identity.Web.BaseRequestExtensions.WithAppOnly<T>(this T baseRequest, bool appOnly = true, string? tenant = null) -> T
+static Microsoft.Identity.Web.BaseRequestExtensions.WithAuthenticationOptions<T>(this T baseRequest, System.Action<Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!>! overrideAuthenticationOptions) -> T
+static Microsoft.Identity.Web.BaseRequestExtensions.WithAuthenticationScheme<T>(this T baseRequest, string! authenticationScheme) -> T
+static Microsoft.Identity.Web.BaseRequestExtensions.WithScopes<T>(this T baseRequest, params string![]! scopes) -> T
+static Microsoft.Identity.Web.BaseRequestExtensions.WithUser<T>(this T baseRequest, System.Security.Claims.ClaimsPrincipal! user) -> T
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddMicrosoftGraph(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddMicrosoftGraph(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Microsoft.Identity.Web.MicrosoftGraphOptions!>! configureMicrosoftGraphOptions) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, Microsoft.Extensions.Configuration.IConfigurationSection! configurationSection) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, string! graphBaseUrl = "https://graph.microsoft.com/v1.0", string! defaultScopes = "user.read") -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Action<Microsoft.Identity.Web.MicrosoftGraphOptions!>! configureMicrosoftGraphOptions) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Func<Microsoft.Graph.IAuthenticationProvider!, Microsoft.Graph.GraphServiceClient!>! graphServiceClientFactory, System.Collections.Generic.IEnumerable<string!>! initialScopes) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraphAppOnly(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Func<Microsoft.Graph.IAuthenticationProvider!, Microsoft.Graph.GraphServiceClient!>! graphServiceClientFactory) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!

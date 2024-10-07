@@ -1,0 +1,59 @@
+#nullable enable
+Microsoft.Identity.Web.Diagnostics.OsHelper
+Microsoft.Identity.Web.Diagnostics.OsHelper.OsHelper() -> void
+Microsoft.Identity.Web.Throws
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsLinuxPlatform() -> bool
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsMacPlatform() -> bool
+static Microsoft.Identity.Web.Diagnostics.OsHelper.IsWindowsPlatform() -> bool
+static Microsoft.Identity.Web.Throws.ArgumentException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentException(string! paramName, string? message, System.Exception? innerException) -> void
+static Microsoft.Identity.Web.Throws.ArgumentNullException(string! paramName) -> void
+static Microsoft.Identity.Web.Throws.ArgumentNullException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName, object? actualValue, string? message) -> void
+static Microsoft.Identity.Web.Throws.ArgumentOutOfRangeException(string! paramName, string? message) -> void
+static Microsoft.Identity.Web.Throws.IfBufferTooSmall(int bufferSize, int requiredSize, string! paramName = "") -> void
+static Microsoft.Identity.Web.Throws.IfMemberNull<TParameter, TMember>(TParameter argument, TMember member, string! paramName = "", string! memberName = "") -> TMember
+static Microsoft.Identity.Web.Throws.IfNull<T>(T argument, string! paramName = "") -> T
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty(string? argument, string! paramName = "") -> string!
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty<T>(System.Collections.Generic.ICollection<T>? argument, string! paramName = "") -> System.Collections.Generic.ICollection<T>!
+static Microsoft.Identity.Web.Throws.IfNullOrEmpty<T>(System.Collections.Generic.IReadOnlyCollection<T>? argument, string! paramName = "") -> System.Collections.Generic.IReadOnlyCollection<T>!
+static Microsoft.Identity.Web.Throws.IfNullOrMemberNull<TParameter, TMember>(TParameter argument, TMember member, string! paramName = "", string! memberName = "") -> TMember
+static Microsoft.Identity.Web.Throws.IfNullOrWhitespace(string? argument, string! paramName = "") -> string!
+static Microsoft.Identity.Web.Throws.IfOutOfRange<T>(T argument, string! paramName = "") -> T
+static Microsoft.Identity.Web.Throws.InvalidOperationException(string! message) -> void
+static Microsoft.Identity.Web.Throws.InvalidOperationException(string! message, System.Exception? innerException) -> void
+System.Diagnostics.CodeAnalysis.AllowNullAttribute
+System.Diagnostics.CodeAnalysis.AllowNullAttribute.AllowNullAttribute() -> void
+System.Diagnostics.CodeAnalysis.DisallowNullAttribute
+System.Diagnostics.CodeAnalysis.DisallowNullAttribute.DisallowNullAttribute() -> void
+System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute
+System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.DoesNotReturnAttribute() -> void
+System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute
+System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.DoesNotReturnIfAttribute(bool parameterValue) -> void
+System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue.get -> bool
+System.Diagnostics.CodeAnalysis.MaybeNullAttribute
+System.Diagnostics.CodeAnalysis.MaybeNullAttribute.MaybeNullAttribute() -> void
+System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute
+System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.MaybeNullWhenAttribute(bool returnValue) -> void
+System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue.get -> bool
+System.Diagnostics.CodeAnalysis.MemberNotNullAttribute
+System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.MemberNotNullAttribute(params string![]! members) -> void
+System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.MemberNotNullAttribute(string! member) -> void
+System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.Members.get -> string![]!
+System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute
+System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.MemberNotNullWhenAttribute(bool returnValue, params string![]! members) -> void
+System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.MemberNotNullWhenAttribute(bool returnValue, string! member) -> void
+System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members.get -> string![]!
+System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue.get -> bool
+System.Diagnostics.CodeAnalysis.NotNullAttribute
+System.Diagnostics.CodeAnalysis.NotNullAttribute.NotNullAttribute() -> void
+System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute
+System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.NotNullIfNotNullAttribute(string! parameterName) -> void
+System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName.get -> string!
+System.Diagnostics.CodeAnalysis.NotNullWhenAttribute
+System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.NotNullWhenAttribute(bool returnValue) -> void
+System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue.get -> bool
+System.Runtime.CompilerServices.CallerArgumentExpressionAttribute
+System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.CallerArgumentExpressionAttribute(string! parameterName) -> void
+System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.ParameterName.get -> string!

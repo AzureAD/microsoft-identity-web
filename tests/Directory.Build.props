@@ -63,5 +63,12 @@
         true
     </EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <NoWarn>RS0037</NoWarn>
+  </PropertyGroup>
+
 </Project>

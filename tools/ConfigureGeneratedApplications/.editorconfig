@@ -1,0 +1,8 @@
+# Code files
+[*.{cs}]
+
+# RS0016: Add public types and members to the declared API
+dotnet_diagnostic.RS0016.severity = none
+
+# RS0051: Add internal types and members to the declared API
+dotnet_diagnostic.RS0051.severity = none

@@ -1,0 +1,3 @@
+﻿Microsoft.Identity.Web.UI.MicrosoftIdentityAccountControllerFeatureProvider
+Microsoft.Identity.Web.UI.MicrosoftIdentityAccountControllerFeatureProvider.MicrosoftIdentityAccountControllerFeatureProvider() -> void
+Microsoft.Identity.Web.UI.MicrosoftIdentityAccountControllerFeatureProvider.PopulateFeature(System.Collections.Generic.IEnumerable<Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPart> parts, Microsoft.AspNetCore.Mvc.Controllers.ControllerFeature feature) -> void
