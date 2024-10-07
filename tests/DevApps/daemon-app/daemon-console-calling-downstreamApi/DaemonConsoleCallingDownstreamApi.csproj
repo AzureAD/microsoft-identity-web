@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWip)' != 'true'">
-    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.2.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWip)' == 'true'">
