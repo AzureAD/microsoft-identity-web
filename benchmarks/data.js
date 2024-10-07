@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728096745345,
+  "lastUpdate": 1728341367280,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -6840,6 +6840,42 @@ window.BENCHMARK_DATA = {
             "value": 10460.40262819686,
             "unit": "ns",
             "range": "± 57.620344547266484"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cf355d172dbae9640890797e26f9bf23bc7149a1",
+          "message": "Enable PublicApiAnalyzers (#3055)\n\n* Enable PublicApiAnalyzers\r\n\r\n* Add internal api tracking\r\n\r\n* remove api files in tests\r\nupdate global suppressions and null annotations\r\ndisable warnings where not appropriate\r\nfix markshipped script",
+          "timestamp": "2024-10-07T15:46:08-07:00",
+          "tree_id": "add6a67c0f7a7d532941f3b7f85505ed7013165e",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/cf355d172dbae9640890797e26f9bf23bc7149a1"
+        },
+        "date": 1728341366719,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9826.29522503547,
+            "unit": "ns",
+            "range": "± 62.59243188723866"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10483.707097462246,
+            "unit": "ns",
+            "range": "± 62.76249049797258"
           }
         ]
       }
