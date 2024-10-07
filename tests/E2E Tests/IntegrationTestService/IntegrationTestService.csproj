@@ -22,4 +22,9 @@
     <ProjectReference Include="..\..\Microsoft.Identity.Web.Test.Common\Microsoft.Identity.Web.Test.Common.csproj" />
     <PackageReference Include="Microsoft.Identity.Lab.Api" Version="$(MicrosoftIdentityLabApiVersion)" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+  </PropertyGroup>
 </Project>

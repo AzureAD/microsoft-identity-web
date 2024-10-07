@@ -1,2 +1,0 @@
-﻿Microsoft.Identity.Web.Test.Common.TestHelpers.MsalTestTokenCacheProvider.Count.set -> void
-static Microsoft.Identity.Web.Test.Common.Mocks.QueryStringParser.SplitWithQuotes(string input, char delimiter) -> System.Collections.Generic.IReadOnlyList<string>

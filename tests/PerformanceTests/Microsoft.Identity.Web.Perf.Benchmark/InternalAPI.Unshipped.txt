@@ -1,2 +1,0 @@
-﻿Microsoft.Identity.Web.Perf.Benchmark.Program
-Microsoft.Identity.Web.Perf.Benchmark.Program.Program() -> void

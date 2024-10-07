@@ -1,2 +1,0 @@
-﻿static WebAppUiTests.UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(System.Uri keyvaultUri, string keyvaultSecretName, Azure.Core.TokenCredential creds) -> System.Threading.Tasks.Task<string>
-static WebAppUiTests.UiTestHelpers.StartAndVerifyProcessesAreRunning(System.Collections.Generic.List<WebAppUiTests.ProcessStartOptions> processDataEntries, out System.Collections.Generic.Dictionary<string, System.Diagnostics.Process> processes) -> bool

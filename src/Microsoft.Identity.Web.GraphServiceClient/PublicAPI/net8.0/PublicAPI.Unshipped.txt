@@ -1,3 +1,4 @@
+#nullable enable
 Microsoft.Identity.Web.GraphAuthenticationOptions
 Microsoft.Identity.Web.GraphAuthenticationOptions.BaseUrl.get -> string!
 Microsoft.Identity.Web.GraphAuthenticationOptions.GraphAuthenticationOptions() -> void
