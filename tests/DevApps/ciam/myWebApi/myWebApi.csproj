@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWIP)' == 'false' ">
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWIP)' == 'true' ">
