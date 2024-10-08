@@ -14,11 +14,11 @@
         "_justification": "Cert used for running tests."
       },
       {
-        "file": "*.Shipped.txt",
+        "file": "InternalAPI.Shipped.txt",
         "_justification": "Shipped public API."
       },
       {
-        "file": "*.Unshipped.txt",
+        "file": "*InternalAPI.Unshipped.txt",
         "_justification": "Unshipped public API."
       }
     ]
