@@ -20,12 +20,9 @@ namespace Microsoft.Identity.Web.Test
 {
     public class CacheEncryptionTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         // These fields won't be null in tests, as tests call BuildTheRequiredServices()
-        private TestMsalDistributedTokenCacheAdapter _testCacheAdapter;
-        private IServiceProvider _provider;
-
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private TestMsalDistributedTokenCacheAdapter? _testCacheAdapter;
+        private IServiceProvider? _provider;
 
         [Theory]
         [InlineData(true)]
@@ -41,11 +38,9 @@ namespace Microsoft.Identity.Web.Test
             _testCacheAdapter.Initialize(tokenCache);
 
             // Act
-#pragma warning disable xUnit1030 // Do not call ConfigureAwait(false) in XUnit test method, trying temporarily to see if it fixes the test
-            await tokenCache._beforeAccess(args).ConfigureAwait(false);
+            await tokenCache._beforeAccess(args);
             tokenCache.cache = cache;
-            await tokenCache._afterAccess(args).ConfigureAwait(false);
-#pragma warning restore xUnit1030 // Do not call ConfigureAwait(false) in test method
+            await tokenCache._afterAccess(args);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
@@ -56,7 +51,12 @@ namespace Microsoft.Identity.Web.Test
         private byte[] GetFirstCacheValue(MemoryCache memoryCache)
         {
             IDictionary memoryCacheContent;
-#if NET7_0_OR_GREATER
+# if NET6_0 
+            memoryCacheContent = (memoryCache
+                .GetType()
+                .GetProperty("StringKeyEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(_testCacheAdapter._memoryCache) as IDictionary)!;            
+#elif NET7_0
             dynamic content1 = memoryCache
                 .GetType()
                 .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
@@ -64,6 +64,15 @@ namespace Microsoft.Identity.Web.Test
             memoryCacheContent = (content1?
                 .GetType()
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(content1) as IDictionary)!;
+#elif NET8_0_OR_GREATER
+            dynamic content1 = memoryCache
+                .GetType()
+                .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(memoryCache)!;
+            memoryCacheContent = (content1?
+                .GetType()
+                .GetField("_stringEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(content1) as IDictionary)!;
 #else
             memoryCacheContent = (memoryCache
