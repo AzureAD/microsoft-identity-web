@@ -1,3 +1,7 @@
+3.2.2
+=========
+- Updated to Microsoft.IdentityModel.* 8.1.2
+
 3.2.1
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.1
