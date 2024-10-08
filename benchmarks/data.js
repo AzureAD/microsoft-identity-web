@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728424711130,
+  "lastUpdate": 1728428444201,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7020,6 +7020,42 @@ window.BENCHMARK_DATA = {
             "value": 10412.835466142134,
             "unit": "ns",
             "range": "± 66.81254234920037"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "103777376+JoshLozensky@users.noreply.github.com",
+            "name": "JLoze",
+            "username": "JoshLozensky"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cc337161f76a988566d5da90323c1b16e1769e49",
+          "message": "trying fix for encryption test (#3066)\n\n* trying fix\r\n\r\n* Fix test issues with null refs\r\n\r\n* Update Microsoft.Extensions.Caching.Memory versions\r\n\r\n* Fix warnings that would become TSA issues\r\n\r\n---------\r\n\r\nCo-authored-by: Jean-Marc Prieur <jmprieur@microsoft.com>",
+          "timestamp": "2024-10-08T15:57:26-07:00",
+          "tree_id": "a6c27796c8cdfba85c8002f0908f2d8fc225f4c2",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/cc337161f76a988566d5da90323c1b16e1769e49"
+        },
+        "date": 1728428443017,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9858.728304238155,
+            "unit": "ns",
+            "range": "± 149.5301198016989"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10353.43407105563,
+            "unit": "ns",
+            "range": "± 55.28042497799667"
           }
         ]
       }
