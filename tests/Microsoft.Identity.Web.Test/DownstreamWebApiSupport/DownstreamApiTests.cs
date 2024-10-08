@@ -291,7 +291,7 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("serialized", await (result?.ReadAsStringAsync()));
+            Assert.Equal("serialized", await (result?.ReadAsStringAsync()!));
         }
 
         [Fact]
