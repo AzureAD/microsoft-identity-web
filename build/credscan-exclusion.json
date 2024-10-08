@@ -12,6 +12,14 @@
       {
         "file": "SelfSignedTestCert.pfx",
         "_justification": "Cert used for running tests."
+      },
+      {
+        "file": "*.Shipped.txt",
+        "_justification": "Shipped public API."
+      },
+      {
+        "file": "*.Unshipped.txt",
+        "_justification": "Unshipped public API."
       }
     ]
   }
