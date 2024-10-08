@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             byte[] cache = new byte[] { 1, 2, 3, 4 };
             BuildTheRequiredServices(isEncrypted);
-            _testCacheAdapter = (_provider.GetRequiredService<IMsalTokenCacheProvider>() as TestMsalDistributedTokenCacheAdapter)!;
+            _testCacheAdapter = (_provider!.GetRequiredService<IMsalTokenCacheProvider>() as TestMsalDistributedTokenCacheAdapter)!;
             TestTokenCache tokenCache = new TestTokenCache();
             TokenCacheNotificationArgs args = InstantiateTokenCacheNotificationArgs(tokenCache);
             _testCacheAdapter.Initialize(tokenCache);
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Test
             memoryCacheContent = (memoryCache
                 .GetType()
                 .GetProperty("StringKeyEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(_testCacheAdapter._memoryCache) as IDictionary)!;            
+                .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;            
 #elif NET7_0
             dynamic content1 = memoryCache
                 .GetType()
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.Test
             memoryCacheContent = (memoryCache
                 .GetType()
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(_testCacheAdapter._memoryCache) as IDictionary)!;
+                .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;
 #endif
             var firstEntry = memoryCacheContent.Values.OfType<object>().First();
             var firstEntryValue = firstEntry.GetType()
