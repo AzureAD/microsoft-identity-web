@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Test
             memoryCacheContent = (memoryCache
                 .GetType()
                 .GetProperty("StringKeyEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;            
+                .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;
 #elif NET7_0
             dynamic content1 = memoryCache
                 .GetType()
@@ -66,6 +66,15 @@ namespace Microsoft.Identity.Web.Test
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(content1) as IDictionary)!;
 #elif NET8_0_OR_GREATER
+            dynamic content1 = memoryCache
+                .GetType()
+                .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(memoryCache)!;
+            memoryCacheContent = (content1?
+                .GetType()
+                .GetField("_stringEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(content1) as IDictionary)!;
+#elif NET9_0_OR_GREATER
             dynamic content1 = memoryCache
                 .GetType()
                 .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
