@@ -41,9 +41,11 @@ namespace Microsoft.Identity.Web.Test
             _testCacheAdapter.Initialize(tokenCache);
 
             // Act
-            await tokenCache._beforeAccess(args);
+#pragma warning disable xUnit1030 // Do not call ConfigureAwait(false) in XUnit test method, trying temporarily to see if it fixes the test
+            await tokenCache._beforeAccess(args).ConfigureAwait(false);
             tokenCache.cache = cache;
-            await tokenCache._afterAccess(args);
+            await tokenCache._afterAccess(args).ConfigureAwait(false);
+#pragma warning restore xUnit1030 // Do not call ConfigureAwait(false) in test method
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
