@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728431338239,
+  "lastUpdate": 1728440466662,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7092,6 +7092,42 @@ window.BENCHMARK_DATA = {
             "value": 10496.77131709346,
             "unit": "ns",
             "range": "± 58.02464860236756"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a57f60356ab1df2f1c9026fa0b4ef9696ba40149",
+          "message": "Bump System.Text.Json in /tools/ConfigureGeneratedApplications (#3069)\n\nBumps [System.Text.Json](https://github.com/dotnet/runtime) from 8.0.4 to 8.0.5.\r\n- [Release notes](https://github.com/dotnet/runtime/releases)\r\n- [Commits](https://github.com/dotnet/runtime/compare/v8.0.4...v8.0.5)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: System.Text.Json\r\n  dependency-type: direct:production\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2024-10-08T19:17:44-07:00",
+          "tree_id": "fe60a171e6459119c8584af79b7126be79f9a902",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a57f60356ab1df2f1c9026fa0b4ef9696ba40149"
+        },
+        "date": 1728440465876,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeader",
+            "value": 9960.82206916809,
+            "unit": "ns",
+            "range": "± 76.09966601439432"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirer",
+            "value": 10585.992467880249,
+            "unit": "ns",
+            "range": "± 70.74335950007006"
           }
         ]
       }
