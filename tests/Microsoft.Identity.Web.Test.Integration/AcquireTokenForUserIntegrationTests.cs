@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var result = await AcquireTokenForLabUserAsync();
 
             // Act
-            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result).ConfigureAwait(false);
+            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var result = await AcquireTokenForLabUserAsync();
 
             // Act
-            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result).ConfigureAwait(false);
+            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web.Test.Integration
               );
 
                 // Act
-                var result = await AcquireTokenForLabUserAsync().ConfigureAwait(false);
+                var result = await AcquireTokenForLabUserAsync();
                 HttpResponseMessage response = await CreateHttpResponseMessageAsync(
                     TestConstants.SecurePage2GetTokenForUserAsync,
                     client,

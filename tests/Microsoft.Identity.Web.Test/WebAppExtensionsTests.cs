@@ -235,7 +235,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
-            await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEventAsync(services, redirectFunc).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEventAsync(services, redirectFunc);
         }
 
         [Fact]
@@ -257,7 +257,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication()
                     .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
-            await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEventAsync(services, redirectFunc).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApp_TestRedirectToIdentityProviderEventAsync(services, redirectFunc);
         }
 
         [Fact]
@@ -281,7 +281,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
-            await AddMicrosoftIdentityWebApp_TestB2cSpecificSetupAsync(services, remoteFailureFuncMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApp_TestB2cSpecificSetupAsync(services, remoteFailureFuncMock);
         }
 
         [Fact]
@@ -312,7 +312,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApp(_configureMsOptions, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
 
-            await AddMicrosoftIdentityWebApp_TestB2cSpecificSetupAsync(services, remoteFailureFuncMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebApp_TestB2cSpecificSetupAsync(services, remoteFailureFuncMock);
         }
 
         [Fact]
@@ -355,9 +355,9 @@ namespace Microsoft.Identity.Web.Test
             var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
 
             AddMicrosoftIdentityWebAppCallsWebApi_TestCommon(services, provider, oidcOptions, initialScopes);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestAuthorizationCodeReceivedEventAsync(provider, oidcOptions, authCodeReceivedFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(provider, oidcOptions, tokenValidatedFuncMock).ConfigureAwait(false);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestAuthorizationCodeReceivedEventAsync(provider, oidcOptions, authCodeReceivedFuncMock, tokenAcquisitionMock);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(provider, oidcOptions, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
         [Fact]
@@ -400,9 +400,9 @@ namespace Microsoft.Identity.Web.Test
             var oidcOptions = provider.GetRequiredService<IOptionsFactory<OpenIdConnectOptions>>().Create(OidcScheme);
 
             AddMicrosoftIdentityWebAppCallsWebApi_TestCommon(services, provider, oidcOptions, initialScopes);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestAuthorizationCodeReceivedEventAsync(provider, oidcOptions, authCodeReceivedFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(provider, oidcOptions, tokenValidatedFuncMock).ConfigureAwait(false);
-            await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock).ConfigureAwait(false);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestAuthorizationCodeReceivedEventAsync(provider, oidcOptions, authCodeReceivedFuncMock, tokenAcquisitionMock);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(provider, oidcOptions, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
         [Fact]

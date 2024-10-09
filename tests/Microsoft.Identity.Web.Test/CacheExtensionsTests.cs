@@ -289,13 +289,13 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task CacheKeyExtensibilityAsync()
         {
-            var result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: false).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: false).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: false).ConfigureAwait(false);
+            var result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: false);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: false);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: false);
 
-            result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: true).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: true).ConfigureAwait(false);
-            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: true).ConfigureAwait(false);
+            result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: true);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: true);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: true);
         }
 
         private enum CacheType

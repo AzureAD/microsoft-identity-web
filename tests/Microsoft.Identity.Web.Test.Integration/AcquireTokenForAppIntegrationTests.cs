@@ -120,14 +120,14 @@ namespace Microsoft.Identity.Web.Test.Integration
             async Task tokenResultAsync() =>
                 await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
 
-            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(tokenResultAsync).ConfigureAwait(false);
+            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(tokenResultAsync);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message, System.StringComparison.OrdinalIgnoreCase);
 
             // Act & Assert
             async Task authResultAsync() =>
                 await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
 
-            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync).ConfigureAwait(false);
+            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
 
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);
@@ -211,7 +211,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             async Task resultAsync() =>
                 await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
 
-            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(resultAsync).ConfigureAwait(false);
+            ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(resultAsync);
 
             Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex.Message, System.StringComparison.OrdinalIgnoreCase);
 
@@ -219,7 +219,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             async Task authResultAsync() =>
                 await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
 
-            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync).ConfigureAwait(false);
+            ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync);
 
             Assert.Contains(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
             Assert.Equal(0, _msalTestTokenCacheProvider.Count);

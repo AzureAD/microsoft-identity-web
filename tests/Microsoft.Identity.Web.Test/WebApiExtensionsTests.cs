@@ -293,7 +293,7 @@ namespace Microsoft.Identity.Web.Test
 
             configMock.Received(1).GetSection(ConfigSectionName);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock);
         }
 
 #if NET8_0
@@ -332,7 +332,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(configuredAppOptions, o => o.Action == _configureAppOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock);
         }
 
         private async Task AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(IServiceCollection services, ServiceProvider provider, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
