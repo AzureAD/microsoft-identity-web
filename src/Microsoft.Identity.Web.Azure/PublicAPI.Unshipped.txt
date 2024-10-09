@@ -1,0 +1,8 @@
+﻿Microsoft.Identity.Web.TokenAcquirerAppTokenCredential
+Microsoft.Identity.Web.TokenAcquirerAppTokenCredential.TokenAcquirerAppTokenCredential(Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer) -> void
+Microsoft.Identity.Web.TokenAcquirerTokenCredential
+Microsoft.Identity.Web.TokenAcquirerTokenCredential.TokenAcquirerTokenCredential(Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer) -> void
+override Microsoft.Identity.Web.TokenAcquirerAppTokenCredential.GetToken(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> Azure.Core.AccessToken
+override Microsoft.Identity.Web.TokenAcquirerAppTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<Azure.Core.AccessToken>
+override Microsoft.Identity.Web.TokenAcquirerTokenCredential.GetToken(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> Azure.Core.AccessToken
+override Microsoft.Identity.Web.TokenAcquirerTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<Azure.Core.AccessToken>

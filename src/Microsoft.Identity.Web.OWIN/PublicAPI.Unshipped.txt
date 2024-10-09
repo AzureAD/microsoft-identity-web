@@ -1,0 +1,15 @@
+﻿Microsoft.Identity.Web.ApiControllerExtensions
+Microsoft.Identity.Web.AppBuilderExtension
+Microsoft.Identity.Web.ControllerBaseExtensions
+Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory
+Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.OwinTokenAcquirerFactory() -> void
+override Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.DefineConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder! builder) -> string!
+override Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.PreBuild() -> void
+static Microsoft.Identity.Web.ApiControllerExtensions.GetAuthorizationHeaderProvider(this System.Web.Http.ApiController! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider!
+static Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamApi(this System.Web.Http.ApiController! _) -> Microsoft.Identity.Abstractions.IDownstreamApi!
+static Microsoft.Identity.Web.ApiControllerExtensions.GetGraphServiceClient(this System.Web.Http.ApiController! _) -> Microsoft.Graph.GraphServiceClient!
+static Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApi(this Owin.IAppBuilder! app, Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory! tokenAcquirerFactory, System.Action<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>? configureMicrosoftIdentityApplicationOptions = null, System.Action<Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions!>? updateOptions = null, string! configurationSection = "AzureAd") -> Owin.IAppBuilder!
+static Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(this Owin.IAppBuilder! app, Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory! tokenAcquirerFactory, System.Action<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>? configureMicrosoftIdentityApplicationOptions = null, System.Action<Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions!>? updateOptions = null, string! configurationSection = "AzureAd") -> Owin.IAppBuilder!
+static Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider!
+static Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamApi(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IDownstreamApi!
+static Microsoft.Identity.Web.ControllerBaseExtensions.GetGraphServiceClient(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Graph.GraphServiceClient!

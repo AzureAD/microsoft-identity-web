@@ -1,0 +1,18 @@
+# NOTE: Requires **VS2019 16.3** or later
+
+# Rules for files in tests directory
+
+# Code files
+[*.{cs,txt}]
+
+# RS0016: Add public types and members to the declared API
+dotnet_diagnostic.RS0016.severity = none
+
+RS0037: Enable tracking of nullability of reference types in the declared API
+dotnet_diagnostic.RS0037.severity = none
+
+# RS0031: The list of banned symbols contains a duplicate
+dotnet_diagnostic.RS0031.severity = none
+
+# RS0051: Add internal types and members to the declared API
+dotnet_diagnostic.RS0051.severity = none

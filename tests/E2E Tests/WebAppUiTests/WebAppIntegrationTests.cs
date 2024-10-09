@@ -28,7 +28,7 @@ namespace WebAppUiTests
             IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync(UrlString);
-            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
 
             try
             {

@@ -1,0 +1,16 @@
+#nullable enable
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetAuthenticatedUserAsync(System.Security.Claims.ClaimsPrincipal? user) -> System.Threading.Tasks.Task<System.Security.Claims.ClaimsPrincipal?>!
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetCurrentRedirectUri(Microsoft.Identity.Web.MergedOptions! mergedOptions) -> string?
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetOptions(string? authenticationScheme, out string! effectiveAuthenticationScheme) -> Microsoft.Identity.Web.MergedOptions!
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetTokenUsedToCallWebAPI() -> Microsoft.IdentityModel.Tokens.SecurityToken?
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.GetUserFromRequest() -> System.Security.Claims.ClaimsPrincipal?
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.OwinTokenAcquisitionHost(Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.MicrosoftIdentityOptions!>! microsoftIdentityOptionsMonitor, Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsMonitor, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Client.ConfidentialClientApplicationOptions!>! ccaOptionsMonitor, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! MicrosoftIdentityApplicationOptionsMonitor) -> void
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.SetHttpResponse(System.Net.HttpStatusCode statusCode, string! wwwAuthenticate) -> void
+Microsoft.Identity.Web.Hosts.OwinTokenAcquisitionHost.SetSession(string! key, string! value) -> void
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer.get -> string?
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.OpenIdConnectCachingSecurityTokenProvider(string! metadataEndpoint) -> void
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.SecurityKeys.get -> System.Collections.Generic.IEnumerable<Microsoft.IdentityModel.Tokens.SecurityKey!>?
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider._configManager -> Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration!>!

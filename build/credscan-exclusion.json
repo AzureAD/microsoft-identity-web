@@ -12,6 +12,14 @@
       {
         "file": "SelfSignedTestCert.pfx",
         "_justification": "Cert used for running tests."
+      },
+      {
+        "file": "InternalAPI.Shipped.txt",
+        "_justification": "Shipped public API."
+      },
+      {
+        "file": "*InternalAPI.Unshipped.txt",
+        "_justification": "Unshipped public API."
       }
     ]
   }

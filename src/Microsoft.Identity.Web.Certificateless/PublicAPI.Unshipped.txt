@@ -1,0 +1,25 @@
+﻿#nullable enable
+abstract Microsoft.Identity.Web.ClientAssertionProviderBase.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.ClientAssertion!>!
+Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion
+Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion.AzureIdentityForKubernetesClientAssertion(Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion.AzureIdentityForKubernetesClientAssertion(string? filePath, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+Microsoft.Identity.Web.CertificatelessOptions
+Microsoft.Identity.Web.CertificatelessOptions.CertificatelessOptions() -> void
+Microsoft.Identity.Web.CertificatelessOptions.IsEnabled.get -> bool
+Microsoft.Identity.Web.CertificatelessOptions.IsEnabled.set -> void
+Microsoft.Identity.Web.CertificatelessOptions.ManagedIdentityClientId.get -> string?
+Microsoft.Identity.Web.CertificatelessOptions.ManagedIdentityClientId.set -> void
+Microsoft.Identity.Web.ClientAssertion
+Microsoft.Identity.Web.ClientAssertion.ClientAssertion(string! signedAssertion, System.DateTimeOffset? expiry) -> void
+Microsoft.Identity.Web.ClientAssertion.Expiry.get -> System.DateTimeOffset?
+Microsoft.Identity.Web.ClientAssertion.SignedAssertion.get -> string!
+Microsoft.Identity.Web.ClientAssertionProviderBase
+Microsoft.Identity.Web.ClientAssertionProviderBase.ClientAssertionProviderBase() -> void
+Microsoft.Identity.Web.ClientAssertionProviderBase.Expiry.get -> System.DateTimeOffset?
+Microsoft.Identity.Web.ClientAssertionProviderBase.GetSignedAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<string!>!
+Microsoft.Identity.Web.ManagedIdentityClientAssertion
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId) -> void
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) -> void
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger) -> void
+override Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.ClientAssertion!>!
+override Microsoft.Identity.Web.ManagedIdentityClientAssertion.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.ClientAssertion!>!

@@ -15,9 +15,9 @@
     <MicrosoftNetTestSdkVersion>17.4.0</MicrosoftNetTestSdkVersion>
 		<!--GHSA-5crp-9r3c-p9vr-->
 		<NewtonsoftJsonVersion>13.0.2</NewtonsoftJsonVersion>
-		<XunitVersion>2.4.2</XunitVersion>
-		<XunitRunnerVisualStudioVersion>2.4.5</XunitRunnerVisualStudioVersion>
-    <XunitAssertVersion>2.4.2</XunitAssertVersion>
+		<XunitVersion>2.9.2</XunitVersion>
+		<XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
+    <XunitAssertVersion>2.9.2</XunitAssertVersion>
     <XunitExtensibilityCoreVersion>2.4.2</XunitExtensibilityCoreVersion>
     <NSubstituteVersion>4.2.2</NSubstituteVersion>
     <NSubstituteAnalyzersCSharpVersion>1.0.13</NSubstituteAnalyzersCSharpVersion>
@@ -63,5 +63,12 @@
         true
     </EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <NoWarn>RS0037</NoWarn>
+  </PropertyGroup>
+
 </Project>

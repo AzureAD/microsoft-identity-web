@@ -28,4 +28,28 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Remove="PublicAPI/net6.0/InternalAPI.Shipped.txt" />
+    <None Remove="PublicAPI\net7.0\InternalAPI.Shipped.txt" />
+    <None Remove="PublicAPI\net7.0\InternalAPI.Unshipped.txt" />
+    <None Remove="PublicAPI\net9.0\InternalAPI.Shipped.txt" />
+    <None Remove="PublicAPI\net9.0\InternalAPI.Unshipped.txt" />
+    <None Remove="PublicAPI\net8.0\InternalAPI.Shipped.txt" />
+    <None Remove="PublicAPI\net8.0\InternalAPI.Unshipped.txt" />
+    <None Remove="PublicAPI\netstandard2.0\InternalAPI.Shipped.txt" />
+    <None Remove="PublicAPI\netstandard2.0\InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net7.0\InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net7.0\InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net9.0\InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net9.0\InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net8.0\InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\net8.0\InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\netstandard2.0\InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\netstandard2.0\InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+  
 </Project>

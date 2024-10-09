@@ -1,0 +1,150 @@
+const Microsoft.Identity.Web.ClaimConstants.Acr = "acr" -> string!
+const Microsoft.Identity.Web.ClaimConstants.ClientInfo = "client_info" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Name = "name" -> string!
+const Microsoft.Identity.Web.ClaimConstants.NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" -> string!
+const Microsoft.Identity.Web.ClaimConstants.ObjectId = "http://schemas.microsoft.com/identity/claims/objectidentifier" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Oid = "oid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.PreferredUserName = "preferred_username" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Role = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Roles = "roles" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Scope = "http://schemas.microsoft.com/identity/claims/scope" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Scp = "scp" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Sub = "sub" -> string!
+const Microsoft.Identity.Web.ClaimConstants.TenantId = "http://schemas.microsoft.com/identity/claims/tenantid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Tfp = "tfp" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Tid = "tid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier = "uid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier = "utid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.UserFlow = "http://schemas.microsoft.com/claims/authnclassreference" -> string!
+const Microsoft.Identity.Web.Constants.AzureAd = "AzureAd" -> string!
+const Microsoft.Identity.Web.Constants.AzureAdB2C = "AzureAdB2C" -> string!
+const Microsoft.Identity.Web.Constants.Bearer = "Bearer" -> string!
+const Microsoft.Identity.Web.Constants.Claims = "claims" -> string!
+const Microsoft.Identity.Web.Constants.DomainHint = "domain_hint" -> string!
+const Microsoft.Identity.Web.Constants.ErrorPath = "/MicrosoftIdentity/Account/Error" -> string!
+const Microsoft.Identity.Web.Constants.LoginHint = "login_hint" -> string!
+const Microsoft.Identity.Web.Constants.Policy = "policy" -> string!
+const Microsoft.Identity.Web.Constants.ResetPasswordPath = "/MicrosoftIdentity/Account/ResetPassword" -> string!
+const Microsoft.Identity.Web.Constants.ReturnUrl = "ReturnUrl" -> string!
+const Microsoft.Identity.Web.Constants.Scope = "scope" -> string!
+const Microsoft.Identity.Web.Constants.SpaAuthCode = "SpaAuthCode" -> string!
+Microsoft.Identity.Web.ApplicationBuilderExtensions
+Microsoft.Identity.Web.ClaimConstants
+Microsoft.Identity.Web.Constants
+Microsoft.Identity.Web.Experimental.CerticateObserverAction
+Microsoft.Identity.Web.Experimental.CerticateObserverAction.Deselected = 1 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
+Microsoft.Identity.Web.Experimental.CerticateObserverAction.Selected = 0 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Action.get -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Action.set -> void
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Certificate.get -> System.Security.Cryptography.X509Certificates.X509Certificate2?
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Certificate.set -> void
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CertificateChangeEventArg() -> void
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CredentialDescription.get -> Microsoft.Identity.Abstractions.CredentialDescription?
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CredentialDescription.set -> void
+Microsoft.Identity.Web.Experimental.ICertificatesObserver
+Microsoft.Identity.Web.Experimental.ICertificatesObserver.OnClientCertificateChanged(Microsoft.Identity.Web.Experimental.CertificateChangeEventArg! e) -> void
+Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider
+Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.BaseAuthorizationHeaderProvider(System.IServiceProvider! serviceProvider) -> void
+Microsoft.Identity.Web.Internal.WebApiBuilders
+Microsoft.Identity.Web.ITokenAcquisition
+Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(string! scope, string? authenticationScheme, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(string! scope, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, string? authenticationScheme, string? tenantId = null, string? userFlow = null, System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, string? tenantId = null, string? userFlow = null, System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForAppAsync(string! scope, string? authenticationScheme, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.AuthenticationResult!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForAppAsync(string! scope, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.AuthenticationResult!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, string? authenticationScheme, string? tenantId = null, string? userFlow = null, System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.AuthenticationResult!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, string? tenantId = null, string? userFlow = null, System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.AuthenticationResult!>!
+Microsoft.Identity.Web.ITokenAcquisition.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
+Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Client.MsalUiRequiredException! msalServiceException, Microsoft.AspNetCore.Http.HttpResponse? httpResponse = null) -> void
+Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Client.MsalUiRequiredException! msalServiceException, string? authenticationScheme, Microsoft.AspNetCore.Http.HttpResponse? httpResponse = null) -> void
+Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Client.MsalUiRequiredException! msalServiceException, Microsoft.AspNetCore.Http.HttpResponse? httpResponse = null) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder
+Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddDistributedTokenCaches() -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.AddInMemoryTokenCaches(System.Action<Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions!>? configureOptions = null, System.Action<Microsoft.Extensions.Caching.Memory.MemoryCacheOptions!>? memoryCacheOptions = null) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder
+Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.ConfigurationSection.get -> Microsoft.Extensions.Configuration.IConfigurationSection?
+Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.ConfigurationSection.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection = null) -> void
+Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+Microsoft.Identity.Web.MicrosoftIdentityOptions
+Microsoft.Identity.Web.MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCertificates.get -> System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCertificates.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCredentials.get -> System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCredentials.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCredentialsUsingManagedIdentity.get -> Microsoft.Identity.Web.CertificatelessOptions?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientCredentialsUsingManagedIdentity.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.DefaultUserFlow.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.Domain.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.Domain.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.EditProfilePolicyId.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.EditProfilePolicyId.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ErrorPath.get -> Microsoft.AspNetCore.Http.PathString?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ErrorPath.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ExtraQueryParameters.get -> System.Collections.Generic.IDictionary<string!, string!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ExtraQueryParameters.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.Instance.get -> string!
+Microsoft.Identity.Web.MicrosoftIdentityOptions.Instance.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.LegacyCacheCompatibilityEnabled.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.LegacyCacheCompatibilityEnabled.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.MicrosoftIdentityOptions() -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath.get -> Microsoft.AspNetCore.Http.PathString?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPolicyId.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPolicyId.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.SendX5C.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.SendX5C.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.SignUpSignInPolicyId.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.SignUpSignInPolicyId.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TenantId.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TenantId.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates.get -> System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCredentials.get -> System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCredentials.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UserAssignedManagedIdentityClientId.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UserAssignedManagedIdentityClientId.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.WithSpaAuthCode.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.WithSpaAuthCode.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.MicrosoftIdentityWebChallengeUserException(Microsoft.Identity.Client.MsalUiRequiredException! msalUiRequiredException, string![]! scopes, string? userflow = null) -> void
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.MsalUiRequiredException.get -> Microsoft.Identity.Client.MsalUiRequiredException!
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.MsalUiRequiredException.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Scopes.get -> string![]!
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Scopes.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Userflow.get -> string?
+Microsoft.Identity.Web.MicrosoftIdentityWebChallengeUserException.Userflow.set -> void
+Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens
+Microsoft.Identity.Web.ServiceCollectionExtensions
+Microsoft.Identity.Web.TokenAcquirerFactory
+Microsoft.Identity.Web.TokenAcquirerFactory.Build() -> System.IServiceProvider!
+Microsoft.Identity.Web.TokenAcquirerFactory.Configuration.get -> Microsoft.Extensions.Configuration.IConfiguration!
+Microsoft.Identity.Web.TokenAcquirerFactory.Configuration.set -> void
+Microsoft.Identity.Web.TokenAcquirerFactory.GetTokenAcquirer(Microsoft.Identity.Abstractions.IdentityApplicationOptions! applicationIdentityOptions) -> Microsoft.Identity.Abstractions.ITokenAcquirer!
+Microsoft.Identity.Web.TokenAcquirerFactory.GetTokenAcquirer(string! authority, string! clientId, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, string? region = null) -> Microsoft.Identity.Abstractions.ITokenAcquirer!
+Microsoft.Identity.Web.TokenAcquirerFactory.GetTokenAcquirer(string! optionName = "") -> Microsoft.Identity.Abstractions.ITokenAcquirer!
+Microsoft.Identity.Web.TokenAcquirerFactory.ServiceProvider.get -> System.IServiceProvider?
+Microsoft.Identity.Web.TokenAcquirerFactory.ServiceProvider.set -> void
+Microsoft.Identity.Web.TokenAcquirerFactory.Services.get -> Microsoft.Extensions.DependencyInjection.ServiceCollection!
+Microsoft.Identity.Web.TokenAcquirerFactory.TokenAcquirerFactory() -> void
+Microsoft.Identity.Web.TokenAcquisitionOptions
+Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken.get -> System.Threading.CancellationToken
+Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken.set -> void
+Microsoft.Identity.Web.TokenAcquisitionOptions.Clone() -> Microsoft.Identity.Web.TokenAcquisitionOptions!
+Microsoft.Identity.Web.TokenAcquisitionOptions.PoPConfiguration.get -> Microsoft.Identity.Client.AppConfig.PoPAuthenticationConfiguration?
+Microsoft.Identity.Web.TokenAcquisitionOptions.PoPConfiguration.set -> void
+Microsoft.Identity.Web.TokenAcquisitionOptions.TokenAcquisitionOptions() -> void
+static Microsoft.Identity.Web.ApplicationBuilderExtensions.UseTokenAcquirerFactory(this Microsoft.AspNetCore.Builder.IApplicationBuilder! applicationBuilder) -> Microsoft.AspNetCore.Builder.IApplicationBuilder!
+static Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(System.Action<Microsoft.Identity.Client.ConfidentialClientApplicationOptions!>! configureConfidentialClientApplicationOptions, string! authenticationScheme, Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfigurationSection? configuration) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens.GetBootstrapToken(this System.Security.Principal.IPrincipal! claimsPrincipal) -> Microsoft.IdentityModel.Tokens.SecurityToken?
+static Microsoft.Identity.Web.ServiceCollectionExtensions.AddTokenAcquisition(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, bool isTokenAcquisitionSingleton = false) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance(string! configSection = "AzureAd") -> Microsoft.Identity.Web.TokenAcquirerFactory!
+static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance<T>(string! configSection = "AzureAd") -> T!
+virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? downstreamApiOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+virtual Microsoft.Identity.Web.TokenAcquirerFactory.DefineConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder! builder) -> string!
+virtual Microsoft.Identity.Web.TokenAcquirerFactory.PreBuild() -> void

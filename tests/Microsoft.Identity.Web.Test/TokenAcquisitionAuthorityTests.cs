@@ -70,7 +70,9 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(JwtBearerDefaults.AuthenticationScheme)]
         [InlineData(OpenIdConnectDefaults.AuthenticationScheme)]
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(null)]
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
         public void VerifyCorrectSchemeTests(string scheme)
         {
             BuildTheRequiredServices();

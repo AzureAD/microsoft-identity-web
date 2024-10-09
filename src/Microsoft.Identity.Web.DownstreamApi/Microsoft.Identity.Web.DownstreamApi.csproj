@@ -35,5 +35,12 @@
       <DependentUpon>DownstreamApi.HttpMethods.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+  
 </Project>

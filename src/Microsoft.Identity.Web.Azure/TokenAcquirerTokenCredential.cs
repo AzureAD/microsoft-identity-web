@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
-            AcquireTokenResult result = _tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, cancellationToken:cancellationToken)
+            AcquireTokenResult result = _tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, cancellationToken: cancellationToken)
                 .GetAwaiter()
                 .GetResult();
             return new AccessToken(result.AccessToken!, result.ExpiresOn);
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
-            AcquireTokenResult result = await _tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, cancellationToken:cancellationToken).ConfigureAwait(false);
+            AcquireTokenResult result = await _tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, cancellationToken: cancellationToken).ConfigureAwait(false);
             return new AccessToken(result.AccessToken!, result.ExpiresOn);
         }
     }
