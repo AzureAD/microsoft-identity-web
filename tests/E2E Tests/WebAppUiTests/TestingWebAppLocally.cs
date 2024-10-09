@@ -43,7 +43,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         var clientEnvVars = new Dictionary<string, string>();
 
-        await ExecuteWebAppCallsGraphFlowAsync(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName).ConfigureAwait(false);
+        await ExecuteWebAppCallsGraphFlowAsync(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName);
     }
 
     [Theory]
@@ -61,7 +61,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             {"AzureAd__Instance", "" }
         };
 
-        await ExecuteWebAppCallsGraphFlowAsync("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam).ConfigureAwait(false);
+        await ExecuteWebAppCallsGraphFlowAsync("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam);
     }
 
     private async Task ExecuteWebAppCallsGraphFlowAsync(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)

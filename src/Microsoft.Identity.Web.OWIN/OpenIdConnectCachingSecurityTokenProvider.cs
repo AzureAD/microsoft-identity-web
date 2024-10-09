@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
             _metadataEndpoint = metadataEndpoint;
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(metadataEndpoint, new OpenIdConnectConfigurationRetriever());
 
-            _ = RetrieveMetadataAsync();
+            RetrieveMetadata();
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                _ = RetrieveMetadataAsync();
+                RetrieveMetadata();
                 _synclock.EnterReadLock();
                 try
                 {
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                _ = RetrieveMetadataAsync();
+                RetrieveMetadata();
                 _synclock.EnterReadLock();
                 try
                 {
@@ -76,12 +76,14 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task RetrieveMetadataAsync()
+        private void RetrieveMetadata()
         {
             _synclock.EnterWriteLock();
             try
             {
-                OpenIdConnectConfiguration config = await _configManager.GetConfigurationAsync();
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                OpenIdConnectConfiguration config = Task.Run(_configManager.GetConfigurationAsync).Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
                 _issuer = config.Issuer;
                 _keys = config.SigningKeys;
             }
