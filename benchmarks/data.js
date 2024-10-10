@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728528591893,
+  "lastUpdate": 1728577894858,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7308,6 +7308,42 @@ window.BENCHMARK_DATA = {
             "value": 10312.822751764666,
             "unit": "ns",
             "range": "± 49.752263167392506"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "127992899+westin-m@users.noreply.github.com",
+            "name": "Westin Musser",
+            "username": "westin-m"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a63e6fde052b96a1b5fe2bdcc63cdc317a9567e8",
+          "message": "Onboard Id Web to Threading Analyzers (#3041)\n\n* first set of changes\r\n\r\n* Add async suffix to methods that return an awaitable type\r\n\r\n* next set of analyzer warning cleanup\r\n\r\n* update tests\r\n\r\n* more async renames\r\n\r\n* PR feedback\r\n\r\n* undo public api changes\r\n\r\n* pr feedback\r\n\r\n* pr feedback\r\n\r\n* fix api issues, xunit warnings\r\n\r\n* Update AcquireTokenForAppIntegrationTests.cs\r\n\r\nremove configureawait from theory test",
+          "timestamp": "2024-10-10T09:28:12-07:00",
+          "tree_id": "aa8fb76e24a8c686e2184b27ee245b0c1f849a62",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/a63e6fde052b96a1b5fe2bdcc63cdc317a9567e8"
+        },
+        "date": 1728577894240,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9789.203885396322,
+            "unit": "ns",
+            "range": "± 87.35618113828716"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10706.879330226353,
+            "unit": "ns",
+            "range": "± 86.5171977523121"
           }
         ]
       }
