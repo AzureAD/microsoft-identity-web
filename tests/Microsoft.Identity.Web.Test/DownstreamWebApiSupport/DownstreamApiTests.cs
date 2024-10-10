@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task UpdateRequestAsync_WithContent_AddsContentToRequest()
+        public async Task UpdateRequestAsync_WithContent_AddsContentToRequestAsync()
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.Tests
         [InlineData(true)]
         [InlineData(false)]
 
-        public async Task UpdateRequestAsync_WithScopes_AddsAuthorizationHeaderToRequest(bool appToken)
+        public async Task UpdateRequestAsync_WithScopes_AddsAuthorizationHeaderToRequestAsync(bool appToken)
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
@@ -126,26 +126,27 @@ namespace Microsoft.Identity.Web.Tests
             _options.Serializer = o => new StringContent("serialized");
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal("serialized", await result.ReadAsStringAsync());
+            Assert.Equal("serialized", result);
         }
 
         [Fact]
-        public async Task SerializeInput_WithStringAndContentType_ReturnsStringContent()
+        public async Task SerializeInput_WithStringAndContentType_ReturnsStringContentAsync()
         {
             // Arrange
             var input = "test";
             _options.ContentType = "text/plain";
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.IsType<StringContent>(result);
-            Assert.Equal(input, await result.ReadAsStringAsync());
+            Assert.IsType<StringContent>(httpContent);
+            Assert.Equal(input, result);
         }
 
         [Fact]
@@ -155,11 +156,12 @@ namespace Microsoft.Identity.Web.Tests
             var input = new byte[] { 1, 2, 3 };
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsByteArrayAsync()!;
 
             // Assert
-            Assert.IsType<ByteArrayContent>(result);
-            Assert.Equal(input, await result.ReadAsByteArrayAsync());
+            Assert.IsType<ByteArrayContent>(httpContent);
+            Assert.Equal(input, result);
         }
 
         [Fact]
@@ -169,11 +171,12 @@ namespace Microsoft.Identity.Web.Tests
             var input = new MemoryStream(Encoding.UTF8.GetBytes("test"));
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options);
+            var httpContent = DownstreamApi.SerializeInput(input, _options);
+            var result = await httpContent?.ReadAsStreamAsync()!;
 
             // Assert
-            Assert.IsType<StreamContent>(result);
-            Assert.Equal("test", new StreamReader(await result.ReadAsStreamAsync()).ReadToEnd());
+            Assert.IsType<StreamContent>(httpContent);
+            Assert.Equal("test", await new StreamReader(result).ReadToEndAsync());
         }
 
         [Fact]
@@ -190,18 +193,18 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task DeserializeOutput_ThrowsHttpRequestException_WhenResponseIsNotSuccessful()
+        public async Task DeserializeOutput_ThrowsHttpRequestException_WhenResponseIsNotSuccessfulAsync()
         {
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.BadRequest);
             var options = new DownstreamApiOptions();
 
             // Act and Assert
-            await Assert.ThrowsAsync<HttpRequestException>(() => DownstreamApi.DeserializeOutput<HttpContent>(response, options));
+            await Assert.ThrowsAsync<HttpRequestException>(() => DownstreamApi.DeserializeOutputAsync<HttpContent>(response, options));
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDefault_WhenContentIsNull()
+        public async Task DeserializeOutput_ReturnsDefault_WhenContentIsNullAsync()
         {
             // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -211,14 +214,14 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<HttpContent>(response, options);
+            var result = await DownstreamApi.DeserializeOutputAsync<HttpContent>(response, options);
 
             // Assert
             Assert.Empty(result!.Headers);
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsContent_WhenOutputTypeIsHttpContent()
+        public async Task DeserializeOutput_ReturnsContent_WhenOutputTypeIsHttpContentAsync()
         {
             // Arrange
             var content = new StringContent("test");
@@ -229,14 +232,14 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<HttpContent>(response, options);
+            var result = await DownstreamApi.DeserializeOutputAsync<HttpContent>(response, options);
 
             // Assert
             Assert.Equal(content, result);
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenDeserializerIsProvided()
+        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenDeserializerIsProvidedAsync()
         {
             // Arrange
             var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
@@ -250,7 +253,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<Person>(response, options);
+            var result = await DownstreamApi.DeserializeOutputAsync<Person>(response, options);
 
             // Assert
             Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
@@ -259,7 +262,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDeserializedContent()
+        public async Task DeserializeOutput_ReturnsDeserializedContentAsync()
         {
             // Arrange
             var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
@@ -270,7 +273,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<Person>(response, options);
+            var result = await DownstreamApi.DeserializeOutputAsync<Person>(response, options);
 
             // Assert
             Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
@@ -280,22 +283,22 @@ namespace Microsoft.Identity.Web.Tests
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public async Task SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvided()
+        public async Task SerializeInput_WithSerializer_ReturnsSerializedContent_WhenJsonTypeInfoProvidedAsync()
         {
             // Arrange
             var input = new Person();
             _options.Serializer = o => new StringContent("serialized");
 
             // Act
-            var result = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+            var httpContent = DownstreamApi.SerializeInput(input, _options, CustomJsonContext.Default.Person);
+            string result = await httpContent?.ReadAsStringAsync()!;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal("serialized", await (result?.ReadAsStringAsync()!));
+            Assert.Equal("serialized", result);
         }
 
         [Fact]
-        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvided()
+        public async Task DeserializeOutput_ReturnsDeserializedContent_WhenJsonTypeInfoProvidedAsync()
         {
             // Arrange
             var content = new StringContent("{\"Name\":\"John\",\"Age\":30}", Encoding.UTF8, "application/json");
@@ -306,7 +309,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            var result = await DownstreamApi.DeserializeOutput<Person>(response, options, CustomJsonContext.Default.Person);
+            var result = await DownstreamApi.DeserializeOutputAsync<Person>(response, options, CustomJsonContext.Default.Person);
 
             // Assert
             Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
@@ -316,7 +319,7 @@ namespace Microsoft.Identity.Web.Tests
 #endif
 
         [Fact]
-        public async Task DeserializeOutput_ThrowsNotSupportedException_WhenContentTypeIsNotSupported()
+        public async Task DeserializeOutput_ThrowsNotSupportedException_WhenContentTypeIsNotSupportedAsync()
         {
             // Arrange
             var content = new StringContent("test", Encoding.UTF8, "application/xml");
@@ -327,7 +330,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act and Assert
-            await Assert.ThrowsAsync<NotSupportedException>(() => DownstreamApi.DeserializeOutput<string>(response, options));
+            await Assert.ThrowsAsync<NotSupportedException>(() => DownstreamApi.DeserializeOutputAsync<string>(response, options));
         }
     }
 

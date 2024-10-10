@@ -24,8 +24,8 @@ readonly Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedT
 readonly Microsoft.Identity.Web.TokenCacheProviders.Distributed.MsalDistributedTokenCacheAdapter._memoryCache -> Microsoft.Extensions.Caching.Memory.MemoryCache?
 static Microsoft.Identity.Web.TokenCacheExtensions.AddTokenCaches(this Microsoft.Identity.Client.IConfidentialClientApplication! confidentialClientApp, System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection!>! initializeCaches) -> Microsoft.Identity.Client.IConfidentialClientApplication!
 static Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.DefaultAbsoluteExpirationRelativeToNow -> System.TimeSpan
-static Microsoft.Identity.Web.TokenCacheProviders.Utility.Measure(this System.Threading.Tasks.Task! task) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.TokenCacheProviders.MeasureDurationResult>!
-static Microsoft.Identity.Web.TokenCacheProviders.Utility.Measure<TResult>(this System.Threading.Tasks.Task<TResult>! task) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.TokenCacheProviders.MeasureDurationResult<TResult>>!
+static Microsoft.Identity.Web.TokenCacheProviders.Utility.MeasureAsync(this System.Threading.Tasks.Task! task) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.TokenCacheProviders.MeasureDurationResult>!
+static Microsoft.Identity.Web.TokenCacheProviders.Utility.MeasureAsync<TResult>(this System.Threading.Tasks.Task<TResult>! task) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.TokenCacheProviders.MeasureDurationResult<TResult>>!
 static readonly Microsoft.Identity.Web.LoggingEventId.BackPropagateL2toL1 -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.CacheDeserializationError -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.DistributedCacheConnectionError -> Microsoft.Extensions.Logging.EventId

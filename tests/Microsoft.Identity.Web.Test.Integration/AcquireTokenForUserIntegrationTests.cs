@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var result = await AcquireTokenForLabUserAsync();
 
             // Act
-            HttpResponseMessage response = await CreateHttpResponseMessage(webApiUrl, client, result);
+            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             var result = await AcquireTokenForLabUserAsync();
 
             // Act
-            HttpResponseMessage response = await CreateHttpResponseMessage(webApiUrl, client, result);
+            HttpResponseMessage response = await CreateHttpResponseMessageAsync(webApiUrl, client, result);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
 #if NET7_0
         [Fact]
-        public async Task TestSigningKeyIssuer()
+        public async Task TestSigningKeyIssuerAsync()
         {
             // Arrange
             string authority = "http://localhost:1234";
@@ -120,7 +120,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
                 // Act
                 var result = await AcquireTokenForLabUserAsync();
-                HttpResponseMessage response = await CreateHttpResponseMessage(
+                HttpResponseMessage response = await CreateHttpResponseMessageAsync(
                     TestConstants.SecurePage2GetTokenForUserAsync,
                     client,
                     result);
@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 #endif
 
 
-        private static async Task<HttpResponseMessage> CreateHttpResponseMessage(string webApiUrl, HttpClient client, AuthenticationResult result)
+        private static async Task<HttpResponseMessage> CreateHttpResponseMessageAsync(string webApiUrl, HttpClient client, AuthenticationResult result)
         {
             HttpResponseMessage response;
             using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(

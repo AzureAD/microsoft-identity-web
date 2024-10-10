@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnRedirectToIdentityProvider_CompletesSuccessfully()
+        public async Task Subscribe_OnRedirectToIdentityProvider_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnRedirectToIdentityProvider = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnMessageReceived_CompletesSuccessfully()
+        public async Task Subscribe_OnMessageReceived_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnMessageReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnAuthorizationCodeReceived_CompletesSuccessfully()
+        public async Task Subscribe_OnAuthorizationCodeReceived_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnAuthorizationCodeReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnTokenResponseReceived_CompletesSuccessfully()
+        public async Task Subscribe_OnTokenResponseReceived_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnTokenResponseReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnTokenValidated_CompletesSuccessfully()
+        public async Task Subscribe_OnTokenValidated_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnTokenValidated = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnUserInformationReceived_CompletesSuccessfully()
+        public async Task Subscribe_OnUserInformationReceived_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnUserInformationReceived = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -109,7 +109,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnAuthenticationFailed_CompletesSuccessfully()
+        public async Task Subscribe_OnAuthenticationFailed_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnAuthenticationFailed = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -119,7 +119,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnRemoteSignOut_CompletesSuccessfully()
+        public async Task Subscribe_OnRemoteSignOut_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnRemoteSignOut = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnRedirectToIdentityProviderForSignOut_CompletesSuccessfully()
+        public async Task Subscribe_OnRedirectToIdentityProviderForSignOut_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnRedirectToIdentityProviderForSignOut = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         }
 
         [Fact]
-        public async Task Subscribe_OnSignedOutCallbackRedirect_CompletesSuccessfully()
+        public async Task Subscribe_OnSignedOutCallbackRedirect_CompletesSuccessfullyAsync()
         {
             _openIdEvents.OnSignedOutCallbackRedirect = _eventHandler;
             _openIdDiagnostics.Subscribe(_openIdEvents);

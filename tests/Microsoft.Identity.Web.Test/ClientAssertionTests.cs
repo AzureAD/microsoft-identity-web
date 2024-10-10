@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test
     public class ClientAssertionTests
     {
         [Fact]
-        public async Task TestClientAssertion()
+        public async Task TestClientAssertionAsync()
         {
             TestClientAssertion clientAssertionDescription = new TestClientAssertion();
             AssertionRequestOptions options = new AssertionRequestOptions();

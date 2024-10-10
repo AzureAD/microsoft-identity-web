@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Perf.Client
                 var options = new TestRunnerOptions();
                 configuration.Bind("TestRunner", options);
 
-                await new TestRunner(options).Run();
+                await new TestRunner(options).RunAsync();
             }
             catch (Exception ex)
             {

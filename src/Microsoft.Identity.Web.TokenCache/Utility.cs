@@ -14,7 +14,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
     {
         internal static readonly Stopwatch s_watch = Stopwatch.StartNew();
 
-        internal static async Task<MeasureDurationResult> Measure(this Task task)
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+        internal static async Task<MeasureDurationResult> MeasureAsync(this Task task)
         {
             _ = Throws.IfNull(task);
 
@@ -24,7 +25,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
             return new MeasureDurationResult(s_watch.Elapsed.Ticks - startTicks);
         }
 
-        internal static async Task<MeasureDurationResult<TResult>> Measure<TResult>(this Task<TResult> task)
+        internal static async Task<MeasureDurationResult<TResult>> MeasureAsync<TResult>(this Task<TResult> task)
         {
             _ = Throws.IfNull(task);
 
@@ -33,5 +34,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
 
             return new MeasureDurationResult<TResult>(taskResult, s_watch.Elapsed.Ticks - startTicks);
         }
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
     }
 }

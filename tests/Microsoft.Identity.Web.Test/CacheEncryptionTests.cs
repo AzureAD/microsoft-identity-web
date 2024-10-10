@@ -30,12 +30,12 @@ namespace Microsoft.Identity.Web.Test
         public async Task EncryptionTestAsync(bool isEncrypted)
         {
             // Arrange
-            byte[] cache = new byte[] { 1, 2, 3, 4 };
+            byte[] cache = [1, 2, 3, 4];
             BuildTheRequiredServices(isEncrypted);
             _testCacheAdapter = (_provider!.GetRequiredService<IMsalTokenCacheProvider>() as TestMsalDistributedTokenCacheAdapter)!;
             TestTokenCache tokenCache = new TestTokenCache();
             TokenCacheNotificationArgs args = InstantiateTokenCacheNotificationArgs(tokenCache);
-            _testCacheAdapter.Initialize(tokenCache);
+            await _testCacheAdapter.InitializeAsync(tokenCache);
 
             // Act
             await tokenCache._beforeAccess(args);

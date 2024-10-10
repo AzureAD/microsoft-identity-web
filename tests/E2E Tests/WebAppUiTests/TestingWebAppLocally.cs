@@ -37,20 +37,20 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
     [Fact]
     [SupportedOSPlatform("windows")]
-    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPassword()
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordAsync()
     {
         LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
 
         var clientEnvVars = new Dictionary<string, string>();
 
-        await ExecuteWebAppCallsGraphFlow(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName);
+        await ExecuteWebAppCallsGraphFlowAsync(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName);
     }
 
     [Theory]
     [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
     [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
     [SupportedOSPlatform("windows")]
-    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPassword(string authority)
+    public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPasswordAsync(string authority)
     {
         var clientEnvVars = new Dictionary<string, string>
         {
@@ -61,10 +61,10 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             {"AzureAd__Instance", "" }
         };
 
-        await ExecuteWebAppCallsGraphFlow("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam);
+        await ExecuteWebAppCallsGraphFlowAsync("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam);
     }
 
-    private async Task ExecuteWebAppCallsGraphFlow(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
+    private async Task ExecuteWebAppCallsGraphFlowAsync(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
     {
         // Arrange
         Process? process = null;
@@ -104,7 +104,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             // Act
             Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph.");
             string email = upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPassword(page, email, credential, _output);
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, credential, _output);
 
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);

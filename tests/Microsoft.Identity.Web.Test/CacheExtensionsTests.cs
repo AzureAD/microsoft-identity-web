@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task SingletonMsal_ResultsInCorrectCacheEntries_Test()
+        public async Task SingletonMsal_ResultsInCorrectCacheEntries_TestAsync()
         {
             var tenantId1 = "tenant1";
             var tenantId2 = "tenant2";
@@ -234,7 +234,7 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-        private async Task<AuthenticationResult> GetTokensAssociatedWithKey(string? cachePartition, bool expectCacheHit)
+        private async Task<AuthenticationResult> GetTokensAssociatedWithKeyAsync(string? cachePartition, bool expectCacheHit)
         {
             MockHttpMessageHandler? handler = null;
             MockHttpClientFactory? mockHttpClient = null;
@@ -287,15 +287,15 @@ namespace Microsoft.Identity.Web.Test
         #endregion
 
         [Fact]
-        public async Task CacheKeyExtensibility()
+        public async Task CacheKeyExtensibilityAsync()
         {
-            var result = await GetTokensAssociatedWithKey("foo", expectCacheHit: false);
-            result = await GetTokensAssociatedWithKey("bar", expectCacheHit: false);
-            result = await GetTokensAssociatedWithKey(null, expectCacheHit: false);
+            var result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: false);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: false);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: false);
 
-            result = await GetTokensAssociatedWithKey("foo", expectCacheHit: true);
-            result = await GetTokensAssociatedWithKey("bar", expectCacheHit: true);
-            result = await GetTokensAssociatedWithKey(null, expectCacheHit: true);
+            result = await GetTokensAssociatedWithKeyAsync("foo", expectCacheHit: true);
+            result = await GetTokensAssociatedWithKeyAsync("bar", expectCacheHit: true);
+            result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: true);
         }
 
         private enum CacheType

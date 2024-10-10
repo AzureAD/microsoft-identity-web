@@ -153,7 +153,7 @@ namespace TokenAcquirerTests
                 }
             });
 
-            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
         [IgnoreOnAzureDevopsFact]
@@ -171,7 +171,7 @@ namespace TokenAcquirerTests
                 option.ClientCredentials = s_clientCredentials;
             });
 
-            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
         [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
@@ -188,7 +188,7 @@ namespace TokenAcquirerTests
                 option.ClientCredentials = s_clientCredentials;
             });
 
-            await CreateGraphClientAndAssert(tokenAcquirerFactory, services);
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
         [IgnoreOnAzureDevopsFact]
@@ -230,7 +230,7 @@ namespace TokenAcquirerTests
 
         [IgnoreOnAzureDevopsFact]
         //[Fact]
-        public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphore()
+        public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphoreAsync()
         {
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
@@ -381,7 +381,7 @@ namespace TokenAcquirerTests
             return keyId;
         }
 
-        private static async Task CreateGraphClientAndAssert(TokenAcquirerFactory tokenAcquirerFactory, IServiceCollection services)
+        private static async Task CreateGraphClientAndAssertAsync(TokenAcquirerFactory tokenAcquirerFactory, IServiceCollection services)
         {
             services.AddInMemoryTokenCaches();
             services.AddMicrosoftGraph();
@@ -409,7 +409,7 @@ namespace TokenAcquirerTests
     {
         [OnlyOnAzureDevopsFact]
         //[Fact]
-        public async Task AcquireTokenWithManagedIdentity_UserAssigned()
+        public async Task AcquireTokenWithManagedIdentity_UserAssignedAsync()
         {
             // Arrange
             const string scope = "https://vault.azure.net/.default";

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
@@ -74,6 +75,29 @@ namespace Microsoft.Identity.Web
 
             return certDescription?.Certificate;
         }
+        
+        /// <summary>
+        /// Load the first certificate from the certificate description list.
+        /// </summary>
+        /// <param name="certificateDescriptions">Description of the certificates.</param>
+        /// <returns>First certificate in the certificate description list.</returns>
+        public static async Task<X509Certificate2?> LoadFirstCertificateAsync(IEnumerable<CertificateDescription> certificateDescriptions)
+        {
+            DefaultCertificateLoader defaultCertificateLoader = new(null);
+            CertificateDescription? certDescription = null;
+            foreach (var c in certificateDescriptions)
+            {
+                await defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).ConfigureAwait(false);
+                if (c.Certificate != null)
+                {
+                    certDescription = c;
+                    break;
+                }
+            };
+
+            return certDescription?.Certificate;
+        }
+
 
         /// <summary>
         /// Load all the certificates from the certificate description list.
@@ -97,7 +121,7 @@ namespace Microsoft.Identity.Web
             {
                 foreach (var certDescription in certificateDescriptions)
                 {
-                    LoadCredentialsIfNeededAsync(certDescription).GetAwaiter().GetResult();
+                    _ = LoadCredentialsIfNeededAsync(certDescription);
                     if (certDescription.Certificate != null)
                     {
                         yield return certDescription.Certificate;
@@ -147,6 +171,15 @@ namespace Microsoft.Identity.Web
         public void LoadIfNeeded(CertificateDescription certificateDescription)
         {
             LoadCredentialsIfNeededAsync(certificateDescription).GetAwaiter().GetResult();
+        }
+        
+        /// <summary>
+        /// Load the certificate from the description, if needed.
+        /// </summary>
+        /// <param name="certificateDescription">Description of the certificate.</param>
+        public async Task LoadIfNeededAsync(CertificateDescription certificateDescription)
+        {
+            await LoadCredentialsIfNeededAsync(certificateDescription);
         }
     }
 }
