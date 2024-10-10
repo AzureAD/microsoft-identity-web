@@ -76,3 +76,5 @@ jobs:
 
     - name: Coverage Diff
       uses: greatwizard/coverage-diff-action@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
