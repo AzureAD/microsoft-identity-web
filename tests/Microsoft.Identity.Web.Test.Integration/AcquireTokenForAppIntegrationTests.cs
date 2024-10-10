@@ -118,14 +118,14 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task tokenResultAsync() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant);
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(tokenResultAsync);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex.Message, System.StringComparison.OrdinalIgnoreCase);
 
             // Act & Assert
             async Task authResultAsync() =>
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: metaTenant);
 
             ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync);
             Assert.Contains(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, ex2.Message, System.StringComparison.OrdinalIgnoreCase);
@@ -209,7 +209,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task resultAsync() =>
-                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
+                await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_userReadScope.First());
 
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(resultAsync);
 
@@ -217,7 +217,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // Act & Assert
             async Task authResultAsync() =>
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.First()).ConfigureAwait(false);
+                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_userReadScope.First());
 
             ArgumentException ex2 = await Assert.ThrowsAsync<ArgumentException>(authResultAsync);
 
