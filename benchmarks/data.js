@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728577894858,
+  "lastUpdate": 1728668226769,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7344,6 +7344,42 @@ window.BENCHMARK_DATA = {
             "value": 10706.879330226353,
             "unit": "ns",
             "range": "± 86.5171977523121"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brettwhite@microsoft.com",
+            "name": "msbw2",
+            "username": "msbw2"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "894905f494b46e7f200f8157c7474a431e2b1dfd",
+          "message": "Update .NET 9 to RC 2 (#3082)",
+          "timestamp": "2024-10-11T10:33:40-07:00",
+          "tree_id": "5017a4a318c9a6ba2e422a8d7da721df7b08d08c",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/894905f494b46e7f200f8157c7474a431e2b1dfd"
+        },
+        "date": 1728668225469,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9798.92539469401,
+            "unit": "ns",
+            "range": "± 103.92891168084485"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10529.274554548592,
+            "unit": "ns",
+            "range": "± 63.606429977070896"
           }
         ]
       }
