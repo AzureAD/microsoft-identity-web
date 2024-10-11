@@ -452,7 +452,6 @@ namespace Microsoft.Identity.Web
                     return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
                 }
             }
-
             return downstreamApiResult;
         }
 

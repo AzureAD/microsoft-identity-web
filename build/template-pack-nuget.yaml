@@ -16,6 +16,8 @@ steps:
     nobuild: '${{parameters.NoBuild}}'
     packagesToPack: '${{ parameters.ProjectRootPath }}\${{ parameters.AssemblyName }}.csproj'
     IncludeSymbols: true
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     verbosityPack: normal
     packDirectory:
     arguments: '--configuration ${{ parameters.BuildConfiguration }}'

@@ -17,6 +17,8 @@ steps:
     command: 'custom'
     custom: 'build'
     projects: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=${{ parameters.MicrosoftIdentityWebVersion }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
@@ -27,6 +29,8 @@ steps:
   inputs:
     command: custom
     custom: msbuild
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     project: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=false -p:MicrosoftIdentityWebVersion=${{ parameters.MicrosoftIdentityWebVersion }} -p:SourceLinkCreate=true'
 
@@ -37,6 +41,8 @@ steps:
   condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
   inputs:
     command: run
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
 
