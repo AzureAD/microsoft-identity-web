@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728682380800,
+  "lastUpdate": 1728924532050,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7416,6 +7416,42 @@ window.BENCHMARK_DATA = {
             "value": 10419.763226693136,
             "unit": "ns",
             "range": "± 56.458036104197134"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brettwhite@microsoft.com",
+            "name": "msbw2",
+            "username": "msbw2"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bf77c78f24cb2d0c9e91756801b0bacc7bbe9dfd",
+          "message": "Fix reflection in MemoryCache tests to support both versions seen in .NET 9 RCs (#3085)",
+          "timestamp": "2024-10-14T09:45:31-07:00",
+          "tree_id": "f7b4aa72c24f243d2c63f0a002cb71e37721c395",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/bf77c78f24cb2d0c9e91756801b0bacc7bbe9dfd"
+        },
+        "date": 1728924531407,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9706.446113021286,
+            "unit": "ns",
+            "range": "± 110.29602843244822"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10571.235217007723,
+            "unit": "ns",
+            "range": "± 75.73976134769676"
           }
         ]
       }
