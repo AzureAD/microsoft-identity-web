@@ -14,7 +14,10 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: NuGet Authenticate
   inputs:
-      nuGetServiceConnections: 'Internal Analyzers'
+      nuGetServiceConnections: 'IDDP Feed'
+
+- script: dotnet nuget update source NuGet --source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json --configfile  "$(Build.SourcesDirectory)\Nuget.config"
+  displayName: 'Add NuGet Source for MISE'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln'
