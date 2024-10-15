@@ -60,7 +60,12 @@ jobs:
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net7.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
     
     - name: Test with .NET 8.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura' --publishTestResults=true --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+
+    - name: PublishCodeCoverageResults@1
+      uses: 'Cobertura'
+      with:
+        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
     - name: Test with .NET 9.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true -p:TargetNet9=True --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
@@ -72,9 +77,4 @@ jobs:
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net472 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Test with .NET standard2.0
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
-
-    - name: Coverage Diff
-      uses: greatwizard/coverage-diff-action@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)
