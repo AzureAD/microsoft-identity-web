@@ -1,0 +1,17 @@
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProvider
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProvider.AuthenticateRequestAsync(System.Net.Http.HttpRequestMessage request) -> System.Threading.Tasks.Task
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProvider.TokenAcquisitionAuthenticationProvider(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider authorizationHeaderProvider, Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption options) -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AppOnly.get -> bool?
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AppOnly.set -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthenticationScheme.get -> string
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthenticationScheme.set -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthorizationHeaderProviderOptions.get -> System.Action<Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions>
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthorizationHeaderProviderOptions.set -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.Scopes.get -> string[]
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.Scopes.set -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.Tenant.get -> string
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.Tenant.set -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.TokenAcquisitionAuthenticationProviderOption() -> void
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.User.get -> System.Security.Claims.ClaimsPrincipal
+Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.User.set -> void
