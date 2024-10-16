@@ -352,10 +352,55 @@ namespace Microsoft.Identity.Web
         internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
-            return await DeserializeOutputImplAsync<TOutput>(response, effectiveOptions, null);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
+            }
+
+            HttpContent content = response.Content;
+
+            if (content == null)
+            {
+                return default;
+            }
+
+            string? mediaType = content.Headers.ContentType?.MediaType;
+
+            if (effectiveOptions.Deserializer != null)
+            {
+                return effectiveOptions.Deserializer(content) as TOutput;
+            }
+            else if (typeof(TOutput).IsAssignableFrom(typeof(HttpContent)))
+            {
+                return content as TOutput;
+            }
+            else
+            {
+                string stringContent = await content.ReadAsStringAsync();
+                if (mediaType == "application/json")
+                {
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                }
+                if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Handle other content types here
+                    throw new NotSupportedException("Content type not supported. Provide your own deserializer. ");
+                }
+                return stringContent as TOutput;
+            }
         }
 
-        private static async Task<TOutput?> DeserializeOutputImplAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
+        private static async Task<TOutput?> DeserializeOutputImplAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
              where TOutput : class
         {
             try
@@ -395,14 +440,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    if (outputJsonTypeInfo != null)
-                    {
-                        return JsonSerializer.Deserialize<TOutput>(stringContent, outputJsonTypeInfo);
-                    }
-                    else
-                    {
-                        return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    }
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, outputJsonTypeInfo);
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
