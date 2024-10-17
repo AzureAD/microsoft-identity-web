@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728924532050,
+  "lastUpdate": 1729179468945,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7452,6 +7452,42 @@ window.BENCHMARK_DATA = {
             "value": 10571.235217007723,
             "unit": "ns",
             "range": "± 75.73976134769676"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "106561208+SaurabhMSFT@users.noreply.github.com",
+            "name": "Saurabh Gautam",
+            "username": "SaurabhMSFT"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4494d847fd45d6f2d1fa1217d932ff4b773627ee",
+          "message": "Use nuget config file (#3083)",
+          "timestamp": "2024-10-17T16:34:13+01:00",
+          "tree_id": "23ba0c5c1f249dc3c1760dfc268133f789012737",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/4494d847fd45d6f2d1fa1217d932ff4b773627ee"
+        },
+        "date": 1729179468119,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9884.597702707562,
+            "unit": "ns",
+            "range": "± 111.3634185226477"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10673.14590890067,
+            "unit": "ns",
+            "range": "± 104.76364474071198"
           }
         ]
       }
