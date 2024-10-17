@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729179468945,
+  "lastUpdate": 1729181089228,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7488,6 +7488,42 @@ window.BENCHMARK_DATA = {
             "value": 10673.14590890067,
             "unit": "ns",
             "range": "± 104.76364474071198"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "34331512+pmaytak@users.noreply.github.com",
+            "name": "Peter",
+            "username": "pmaytak"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "36e1fd7c8795b14fd174fd15385b2261ed58c930",
+          "message": " Fix EncryptionTestAsync on .NET 9 (#3088)\n\n* Fix EncryptionTestAsync\r\n\r\n* Fix action name.",
+          "timestamp": "2024-10-17T09:01:25-07:00",
+          "tree_id": "18ee40a8c1ddfd4385e21850f375c0c6808aa171",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/36e1fd7c8795b14fd174fd15385b2261ed58c930"
+        },
+        "date": 1729181088588,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9716.066027714656,
+            "unit": "ns",
+            "range": "± 79.00999078881809"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10543.292504824125,
+            "unit": "ns",
+            "range": "± 56.73638068280537"
           }
         ]
       }
