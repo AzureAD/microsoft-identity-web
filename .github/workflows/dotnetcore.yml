@@ -1,4 +1,4 @@
-name: Build and run Id Web tests
+name: "Id Web GitHub Action Test"
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: windows-latest
     continue-on-error: true
-    name: IdWeb GitHub Action Test
+    name: "Id Web GitHub Action Test"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2.3.4
