@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729181089228,
+  "lastUpdate": 1729185909935,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7524,6 +7524,42 @@ window.BENCHMARK_DATA = {
             "value": 10543.292504824125,
             "unit": "ns",
             "range": "± 56.73638068280537"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "34331512+pmaytak@users.noreply.github.com",
+            "name": "Peter",
+            "username": "pmaytak"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e01306a40d3c8d6b7fcba5b44ce1171fdff7ceb8",
+          "message": "Update GitHub Action to run unit tests (#3089)\n\n* Update GitHub Action to run unit tests - fix filters, update task versions.\r\n\r\n* Fix test filters.\r\n\r\n* Set verbosity to normal",
+          "timestamp": "2024-10-17T10:21:48-07:00",
+          "tree_id": "fc92c19db1e9513fe5d27e2f1c00946aa3710f38",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/e01306a40d3c8d6b7fcba5b44ce1171fdff7ceb8"
+        },
+        "date": 1729185909166,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9898.213773493182,
+            "unit": "ns",
+            "range": "± 173.82029456821678"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10602.53601878773,
+            "unit": "ns",
+            "range": "± 62.79817130504922"
           }
         ]
       }
