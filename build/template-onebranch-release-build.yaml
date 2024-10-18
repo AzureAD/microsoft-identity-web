@@ -9,8 +9,6 @@ steps:
  
 # Bootstrap the build
 - template: template-install-dependencies.yaml
-  parameters:
-    authenticateForFeed: 'false'
  
 # Nuget Restore and Build Microsoft.Identity.Web.sln
 - template: template-restore-build-MSIdentityWeb.yaml
