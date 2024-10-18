@@ -16,6 +16,7 @@ steps:
     if ($nugetSourceIsExternal) {
         dotnet nuget remove source NuGet
         dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP
+        dotnet nuget list source
     }
   displayName: 'Remove external "NuGet" Source and add "IDDP artifacts" as a NuGet Source, if needed.'
 
