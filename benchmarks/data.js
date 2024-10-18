@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729185909935,
+  "lastUpdate": 1729270713209,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7560,6 +7560,42 @@ window.BENCHMARK_DATA = {
             "value": 10602.53601878773,
             "unit": "ns",
             "range": "± 62.79817130504922"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ef06ec5f94036aaca4de1dfdd9d7790c81033c1b",
+          "message": "Update template-install-dependencies.yaml (#3092)\n\n* Update template-install-dependencies.yaml\r\n\r\n* Update template-onebranch-release-build.yaml",
+          "timestamp": "2024-10-18T09:55:03-07:00",
+          "tree_id": "80d3dd45307d761abe4070cb69d7b96cb80ce6f8",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/ef06ec5f94036aaca4de1dfdd9d7790c81033c1b"
+        },
+        "date": 1729270711965,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9804.055440442315,
+            "unit": "ns",
+            "range": "± 94.14100072989699"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10541.500629216975,
+            "unit": "ns",
+            "range": "± 82.23880784315092"
           }
         ]
       }
