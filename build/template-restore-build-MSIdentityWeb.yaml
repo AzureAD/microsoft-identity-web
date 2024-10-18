@@ -18,9 +18,11 @@ steps:
 
 - script: dotnet nuget remove source NuGet
   displayName: 'Remove external "NuGet" Source'
+  continueOnError: true # could have been run already in a different job on the same machine
 
 - script: dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP
   displayName: 'Add IDDP artifacts as NuGet Source'
+  continueOnError: true # could have been run already in a different job on the same machine
 
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln'
