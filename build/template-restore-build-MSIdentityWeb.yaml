@@ -11,13 +11,16 @@ steps:
     dotnet workload restore $(IdWebSourceDir)tests\DevApps\blazorwasm-b2c\blazorwasm2-b2c.csproj
   displayName: 'Install wasm-tools'
 
-- task: NuGetAuthenticate@1
-  displayName: NuGet Authenticate
-  inputs:
-      nuGetServiceConnections: 'IDDP Feed'
+# - task: NuGetAuthenticate@1
+#   displayName: NuGet Authenticate
+#   inputs:
+#       nuGetServiceConnections: 'IDDP Feed'
 
-- script: dotnet nuget update source NuGet --source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json --configfile  "$(Build.SourcesDirectory)\Nuget.config"
-  displayName: 'Add NuGet Source for MISE'
+- script: dotnet nuget remove source NuGet
+  displayName: 'Remove external "NuGet" Source'
+
+- script: dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP
+  displayName: 'Add IDDP artifacts as NuGet Source'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build solution Microsoft.Identity.Web.sln'
@@ -25,8 +28,6 @@ steps:
     command: 'custom'
     custom: 'build'
     projects: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
-    feedsToUse: 'config'
-    nugetConfigPath: NuGet.config
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=${{ parameters.MicrosoftIdentityWebVersion }} -p:SourceLinkCreate=true'
 
 # This task is needed so that the 1CS Rolsyn analyzers task works.
