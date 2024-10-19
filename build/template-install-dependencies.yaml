@@ -1,6 +1,4 @@
 #template-install-dependencies.yaml
-parameters:
-  authenticateForFeed: 'true'
   
 #install dotnet core
 
@@ -48,9 +46,6 @@ steps:
     
 - task: NuGetAuthenticate@1
   displayName: NuGet Authenticate
-  condition: eq('${{ parameters.authenticateForFeed }}', 'true')
-  inputs:
-      nuGetServiceConnections: 'IDDP Feed'
 
 - powershell: |
    $kvSecretBytes = [System.Convert]::FromBase64String('$(LabAuth)')
