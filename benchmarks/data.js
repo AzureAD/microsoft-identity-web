@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1729270713209,
+  "lastUpdate": 1729306452747,
   "repoUrl": "https://github.com/AzureAD/microsoft-identity-web",
   "entries": {
     "TokenAcquisitionBenchmarks": [
@@ -7596,6 +7596,42 @@ window.BENCHMARK_DATA = {
             "value": 10541.500629216975,
             "unit": "ns",
             "range": "± 82.23880784315092"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jmprieur@microsoft.com",
+            "name": "Jean-Marc Prieur",
+            "username": "jmprieur"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d803d1bd46906e09f5652f85d05cbf6db22e75af",
+          "message": "Fix DevEx and IDDP builds (#3093)\n\n* Fix build\r\n\r\n* Nuget authenticate without source\r\n\r\n* resilience to jobs\r\n\r\n* Cleaner way to remove the external feed and add the internal one\r\n\r\n* Adding a display",
+          "timestamp": "2024-10-18T19:50:59-07:00",
+          "tree_id": "3f2c6b76117aec47e85712aa2ccd7cbf4aede790",
+          "url": "https://github.com/AzureAD/microsoft-identity-web/commit/d803d1bd46906e09f5652f85d05cbf6db22e75af"
+        },
+        "date": 1729306452139,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.CreateAuthorizationHeaderAsync",
+            "value": 9771.249556385386,
+            "unit": "ns",
+            "range": "± 152.99463631091248"
+          },
+          {
+            "name": "Benchmarks.TokenAcquisitionBenchmark.GetTokenAcquirerAsync",
+            "value": 10593.287264142718,
+            "unit": "ns",
+            "range": "± 120.98541926068084"
           }
         ]
       }
