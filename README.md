@@ -1,6 +1,6 @@
 # Microsoft Identity Web
 
-[Microsoft Identity Web](https://www.nuget.org/packages/Microsoft.Identity.Web) is a library which contains a set of reusable classes used in conjunction with ASP.NET Core for integrating with the [Microsoft identity platform](https://docs.microsoft.com/en-us/azure/active-directory/develop/) (formerly *Azure AD v2.0 endpoint*) and [AAD B2C](https://docs.microsoft.com/en-us/azure/active-directory-b2c/).
+[Microsoft Identity Web](https://www.nuget.org/packages/Microsoft.Identity.Web) is a library which contains a set of reusable classes used in conjunction with ASP.NET Core for integrating with the [Microsoft identity platform](https://learn.microsoft.com/azure/active-directory/develop/) (formerly *Azure AD v2.0 endpoint*) and [AAD B2C](https://learn.microsoft.com/azure/active-directory-b2c/).
 
 This library is for specific usage with:
 
@@ -9,7 +9,7 @@ This library is for specific usage with:
 
 Quick links:
 
-| [Conceptual documentation](https://github.com/AzureAD/microsoft-identity-web/wiki) | [Getting Started](https://github.com/AzureAD/microsoft-identity-web/wiki#getting-started-with-microsoft-identity-web) | [Reference documentation](https://docs.microsoft.com/en-us/dotnet/api/microsoft.identity.web?view=azure-dotnet-preview) | [Sample Code Web App](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples) | [Sample Code Web API](https://github.com/AzureAD/microsoft-identity-web/wiki/web-api-samples) | [Support](README.md#community-help-and-support) |
+| [Conceptual documentation](https://github.com/AzureAD/microsoft-identity-web/wiki) | [Getting Started](https://github.com/AzureAD/microsoft-identity-web/wiki#getting-started-with-microsoft-identity-web) | [Reference documentation](https://learn.microsoft.com/dotnet/api/microsoft.identity.web?view=azure-dotnet-preview) | [Sample Code Web App](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples) | [Sample Code Web API](https://github.com/AzureAD/microsoft-identity-web/wiki/web-api-samples) | [Support](README.md#community-help-and-support) |
 | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
 
 ## Nuget package

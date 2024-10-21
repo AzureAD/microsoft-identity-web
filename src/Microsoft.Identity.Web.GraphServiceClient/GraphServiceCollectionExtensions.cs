@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The service collection to chain.</returns>
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, Action<GraphServiceClientOptions> configureMicrosoftGraphOptions)
         {
-            // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
+            // https://learn.microsoft.com/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
             services.AddOptions<GraphServiceClientOptions>().Configure(configureMicrosoftGraphOptions);
 
             // Add the Graph Service client depending on the lifetime of ITokenAcquisition

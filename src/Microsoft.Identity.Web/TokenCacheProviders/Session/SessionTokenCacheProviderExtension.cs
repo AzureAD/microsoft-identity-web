@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <remarks>
         /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-        /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
+        /// The latest guidance is provided at https://learn.microsoft.com/aspnet/core/fundamentals/app-state.
         ///
         /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
         /// <code>
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </summary>
         /// <remarks>
         /// For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-        /// The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
+        /// The latest guidance is provided at https://learn.microsoft.com/aspnet/core/fundamentals/app-state.
         ///
         /// In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
         /// <code>
