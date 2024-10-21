@@ -338,7 +338,7 @@ namespace Microsoft.Identity.App.MicrosoftIdentityPlatformApplication
             ServicePrincipal servicePrincipal,
             IEnumerable<IGrouping<string, ResourceAndScope>>? scopesPerResource)
         {
-            // Changed: https://learn.microsoft.com/en-us/graph/permissions-grant-via-msgraph?tabs=csharp&pivots=grant-application-permissions#step-2-grant-an-app-role-to-a-client-service-principal
+            // Changed: https://learn.microsoft.com/graph/permissions-grant-via-msgraph?tabs=csharp&pivots=grant-application-permissions#step-2-grant-an-app-role-to-a-client-service-principal
 
             // Consent to the scopes
             if (scopesPerResource != null)

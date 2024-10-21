@@ -212,7 +212,7 @@ namespace Microsoft.Identity.Web
         /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
         /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
-        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+        /// 2) or the <a href='https://learn.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
         /// in web APIs, for the user account that is ascertained from claims provided in the current claims principal.
         /// instance of the current HttpContext.
         /// </summary>
@@ -522,7 +522,7 @@ namespace Microsoft.Identity.Web
         /// Typically used from a web app or web API controller, this method retrieves an access token
         /// for a downstream API using;
         /// 1) the token cache (for web apps and web APIs) if a token exists in the cache
-        /// 2) or the <a href='https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
+        /// 2) or the <a href='https://learn.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow'>on-behalf-of flow</a>
         /// in web APIs, for the user account that is ascertained from the claims provided in the current claims principal.
         /// instance of the current HttpContext.
         /// </summary>

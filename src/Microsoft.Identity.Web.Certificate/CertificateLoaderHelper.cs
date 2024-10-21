@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web
             return X509KeyStorageFlags.MachineKeySet;
 #else
             // This is for app developers using a Mac. MacOS does not support the EphemeralKeySet flag.
-            // See https://learn.microsoft.com/en-us/dotnet/standard/security/cross-platform-cryptography#write-a-pkcs12pfx
+            // See https://learn.microsoft.com/dotnet/standard/security/cross-platform-cryptography#write-a-pkcs12pfx
             if (OsHelper.IsMacPlatform())
             {
                 return X509KeyStorageFlags.DefaultKeySet;

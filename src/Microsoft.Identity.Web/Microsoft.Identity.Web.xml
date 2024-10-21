@@ -289,7 +289,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions)">
             <summary>
-            Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
+            Handles SameSite cookies according to the ASP.NET Core documentation at https://learn.microsoft.com/aspnet/core/security/samesite.
             The default list of user agents that disallow "SameSite=None",
             was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
             </summary>
@@ -298,7 +298,7 @@
         </member>
         <member name="M:Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(Microsoft.AspNetCore.Builder.CookiePolicyOptions,System.Func{System.String,System.Boolean})">
             <summary>
-            Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
+            Handles SameSite cookies according to the ASP.NET Core documentation at https://learn.microsoft.com/aspnet/core/security/samesite.
             The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
             </summary>
             <param name="options"><see cref="T:Microsoft.AspNetCore.Builder.CookiePolicyOptions"/>to update.</param>
@@ -1816,7 +1816,7 @@
              </summary>
              <remarks>
              For this session cache to work effectively, the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state
+             The latest guidance is provided at https://learn.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1909,7 +1909,7 @@
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
+             The latest guidance is provided at https://learn.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
@@ -1933,7 +1933,7 @@
              </summary>
              <remarks>
              For this session cache to work effectively the ASP.NET Core session has to be configured properly.
-             The latest guidance is provided at https://docs.microsoft.com/aspnet/core/fundamentals/app-state.
+             The latest guidance is provided at https://learn.microsoft.com/aspnet/core/fundamentals/app-state.
             
              In the method <c>public void ConfigureServices(IServiceCollection services)</c> in Startup.cs, add the following:
              <code>
