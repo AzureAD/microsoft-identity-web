@@ -34,7 +34,7 @@ namespace WebApp_OpenIDConnect_DotNet
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-                // Handling SameSite cookie according to https://learn.microsoft.com/aspnet/core/security/samesite
+                // Handles SameSite cookies according to https://learn.microsoft.com/aspnet/core/security/samesite.
                 options.HandleSameSiteCookieCompatibility();
             });
 
