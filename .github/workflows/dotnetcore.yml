@@ -54,7 +54,7 @@ jobs:
       run: msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
 
     - name: Test with .NET 6.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --collect "XPlat Code Coverage" --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net6.0 -p:FROM_GITHUB_ACTION=true --configuration Release --collect "XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
