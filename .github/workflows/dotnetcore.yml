@@ -62,10 +62,10 @@ jobs:
     - name: Test with .NET 8.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -p:FROM_GITHUB_ACTION=true --configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura' --publishTestResults=true --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
-    - name: PublishCodeCoverageResults@1
-      uses: 'Cobertura'
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
       with:
-        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+        path: "$(Agent.TempDirectory)/**/coverage.cobertura.xml"
 
     - name: Test with .NET 9.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true -p:TargetNet9=True --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
