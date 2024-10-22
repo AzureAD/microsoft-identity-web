@@ -152,7 +152,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions)
         {
             // need to lock to avoid threading issues with code outside of this library
-            // https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+            // https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
             lock (httpContext)
             {
                 return UriHelper.BuildAbsolute(
@@ -187,7 +187,7 @@ namespace Microsoft.Identity.Web
             var httpContext = CurrentHttpContext;
             if (httpContext != null)
             {
-                // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+                // Need to lock due to https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
                 lock (httpContext)
                 {
                     return httpContext.User;

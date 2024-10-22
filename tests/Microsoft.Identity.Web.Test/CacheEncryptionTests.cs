@@ -79,12 +79,9 @@ namespace Microsoft.Identity.Web.Test
                 .GetType()
                 .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(memoryCache)!;
-            Type? content1Type = content1?.GetType();
-            // The internals of CoherentState seem to change between .NET 9 RCs
-            memoryCacheContent = ((
-                content1Type?.GetProperty("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic) ??
-                content1Type?.GetProperty("_stringEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                )
+            memoryCacheContent = (content1?
+                .GetType()
+                .GetProperty("StringEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(content1) as IDictionary)!;
 #else
             memoryCacheContent = (memoryCache
