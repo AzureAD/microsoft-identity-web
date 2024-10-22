@@ -1,1 +1,45 @@
-﻿#nullable enable
+#nullable enable
+Microsoft.Identity.Web.CertificateDescription
+Microsoft.Identity.Web.CertificateDescription.Certificate.get -> System.Security.Cryptography.X509Certificates.X509Certificate2?
+Microsoft.Identity.Web.CertificateDescription.Certificate.set -> void
+Microsoft.Identity.Web.CertificateDescription.CertificateDescription() -> void
+Microsoft.Identity.Web.CertificateDescription.CertificateDescription(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription) -> void
+Microsoft.Identity.Web.CertificateDescription.SourceType.get -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateDescription.SourceType.set -> void
+Microsoft.Identity.Web.CertificateDescription.X509KeyStorageFlags.get -> System.Security.Cryptography.X509Certificates.X509KeyStorageFlags
+Microsoft.Identity.Web.CertificateDescription.X509KeyStorageFlags.set -> void
+Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.Base64Encoded = 2 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.Certificate = 0 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.KeyVault = 1 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.Path = 3 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName = 5 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint = 4 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.DefaultCertificateLoader
+Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader() -> void
+Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
+Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
+Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.DefaultCredentialsLoader
+Microsoft.Identity.Web.DefaultCredentialsLoader.CredentialSourceLoaders.get -> System.Collections.Generic.IDictionary<Microsoft.Identity.Abstractions.CredentialSource, Microsoft.Identity.Abstractions.ICredentialSourceLoader!>!
+Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader() -> void
+Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCredentialsLoader!>? logger) -> void
+Microsoft.Identity.Web.DefaultCredentialsLoader.LoadCredentialsIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.DefaultCredentialsLoader.LoadFirstValidCredentialsAsync(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! credentialDescriptions, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.CredentialDescription?>!
+Microsoft.Identity.Web.DefaultCredentialsLoader.ResetCredentials(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! credentialDescriptions) -> void
+Microsoft.Identity.Web.ICertificateLoader
+Microsoft.Identity.Web.ICertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
+static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue, string! password) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2! x509certificate2) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromKeyVault(string! keyVaultUrl, string! keyVaultCertificateName) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromPath(string! path, string? password = null) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromStoreWithDistinguishedName(string! certificateDistinguishedName, System.Security.Cryptography.X509Certificates.StoreLocation certificateStoreLocation = System.Security.Cryptography.X509Certificates.StoreLocation.CurrentUser, System.Security.Cryptography.X509Certificates.StoreName certificateStoreName = System.Security.Cryptography.X509Certificates.StoreName.My) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromStoreWithThumbprint(string! certificateThumbprint, System.Security.Cryptography.X509Certificates.StoreLocation certificateStoreLocation = System.Security.Cryptography.X509Certificates.StoreLocation.CurrentUser, System.Security.Cryptography.X509Certificates.StoreName certificateStoreName = System.Security.Cryptography.X509Certificates.StoreName.My) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.DefaultCertificateLoader.LoadAllCertificates(System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>! certificateDescriptions) -> System.Collections.Generic.IEnumerable<System.Security.Cryptography.X509Certificates.X509Certificate2?>!
+static Microsoft.Identity.Web.DefaultCertificateLoader.LoadFirstCertificate(System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>! certificateDescriptions) -> System.Security.Cryptography.X509Certificates.X509Certificate2?
+static Microsoft.Identity.Web.DefaultCertificateLoader.LoadFirstCertificateAsync(System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>! certificateDescriptions) -> System.Threading.Tasks.Task<System.Security.Cryptography.X509Certificates.X509Certificate2?>!
+static Microsoft.Identity.Web.DefaultCertificateLoader.ResetCertificates(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>? credentialDescription) -> void
+static Microsoft.Identity.Web.DefaultCertificateLoader.ResetCertificates(System.Collections.Generic.IEnumerable<Microsoft.Identity.Web.CertificateDescription!>? certificateDescriptions) -> void
+static Microsoft.Identity.Web.DefaultCertificateLoader.UserAssignedManagedIdentityClientId.get -> string?
+static Microsoft.Identity.Web.DefaultCertificateLoader.UserAssignedManagedIdentityClientId.set -> void

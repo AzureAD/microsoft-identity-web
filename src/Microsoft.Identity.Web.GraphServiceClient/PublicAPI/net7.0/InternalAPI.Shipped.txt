@@ -1,0 +1,6 @@
+#nullable enable
+Microsoft.Identity.Web.GraphAuthenticationProvider
+Microsoft.Identity.Web.GraphAuthenticationProvider.AuthenticateRequestAsync(Microsoft.Kiota.Abstractions.RequestInformation! request, System.Collections.Generic.Dictionary<string!, object!>? additionalAuthenticationContext = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.GraphAuthenticationProvider.GraphAuthenticationProvider(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! authorizationHeaderProvider, Microsoft.Identity.Web.GraphServiceClientOptions! defaultAuthenticationOptions) -> void
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddGraphServiceClient(Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> void
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddGraphServiceClientWithLifetime(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime) -> void

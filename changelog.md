@@ -313,7 +313,7 @@ Support new AzureAD key issuer validator in AddMicrosoftIdentityWebApi by defaul
 - Update to MSAL 4.54.0
 
 ### New Features
-- **Id Web now supports [trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
+- **Id Web now supports [trimming](https://learn.microsoft.com/dotnet/core/deploying/trimming/trim-self-contained)**. See [#2210](https://github.com/AzureAD/microsoft-identity-web/pull/2210)
 
 2.10.0
 ==========
@@ -616,7 +616,7 @@ Update to Microsoft.Graph 4.8.0, Microsoft.Graph.Beta 4.18.0-preview, Microsoft.
 ### New Features:
 **A new assembly, [Microsoft.IdentityModel.Validators](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/tree/dev/src/Microsoft.IdentityModel.Validators), is now leveraged in Microsoft.Identity.Web as the AadIssuerValidator. It provides an issuer validator for the Microsoft identity platform (AAD and AAD B2C)**, working for single and multi-tenant applications and v1 and v2 token types. See [Identity.Model](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/pull/1736) and [#1487](https://github.com/AzureAD/microsoft-identity-web/issues/1487). The `MicrosoftIdentityIssuerValidatorFactory` is still in Microsoft.Identity.Web and leverages this new Identity.Model library
 
-**Microsoft.Identity.Web now supports authentication handlers other than JwtBearer,** and the token acquisition in web API understands a higher level abstraction of [SecurityToken](https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.securitytoken?view=azure-dotnet), not only `JwtSecurityToken` . See [#1498](https://github.com/AzureAD/microsoft-identity-web/pull/1498).
+**Microsoft.Identity.Web now supports authentication handlers other than JwtBearer,** and the token acquisition in web API understands a higher level abstraction of [SecurityToken](https://learn.microsoft.com/dotnet/api/microsoft.identitymodel.tokens.securitytoken?view=azure-dotnet), not only `JwtSecurityToken` . See [#1498](https://github.com/AzureAD/microsoft-identity-web/pull/1498).
 
 ### Bug Fixes:
 **Make `Certificate` in `CertificateDescription.cs` `protected internal`.** See [#1484](https://github.com/AzureAD/microsoft-identity-web/pull/1484).
@@ -1105,7 +1105,7 @@ services.AddProtectedWebApi() | services.AddAuthentication().AddMicrosoftWebApi(
 
 - See the [wiki](https://aka.ms/ms-id-web/net5) for migration assistance and more information on the new API.
 - Rename `MsalMemoryTokenCacheOptions.SlidingExpiration` to align with ASP.NET Core and use `AbsoluteExpirationRelativeToNow`. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/250).
-- Removed the `ForceHttpsRedirectUris`, `RedirectUri`, and `PostLogoutRedirectUri` options from `MicrosoftIdentityOptions`. ASP.NET Core recommends the [following guidance](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-3.1) on working with proxies. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/223).
+- Removed the `ForceHttpsRedirectUris`, `RedirectUri`, and `PostLogoutRedirectUri` options from `MicrosoftIdentityOptions`. ASP.NET Core recommends the [following guidance](https://learn.microsoft.com/aspnet/core/host-and-deploy/proxy-load-balancer) on working with proxies. See [issue for more details](https://github.com/AzureAD/microsoft-identity-web/issues/223).
 - Removed the `SingletonTokenAcquisition` property from `MicrosoftIdentityOptions`. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/249).
 - Microsoft Identity Web now has an `MsalDistributedTokenCacheAdapterOptions` class inheriting from `DistributedCacheEntryOptions` so the token cache serialization can expose their own options. See [issue for details](https://github.com/AzureAD/microsoft-identity-web/issues/251).
 
