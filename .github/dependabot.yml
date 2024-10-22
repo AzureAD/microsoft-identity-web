@@ -11,6 +11,9 @@ updates:
       interval: "daily"
     allow:
       - dependency-name: "Microsoft.Identity*"
+    ignore:
+        # We do not want this leaving 5.5.0 since we don't use it and it could break customers
+      - dependency-name: "Microsoft.IdentityModel.Protocols.WsFederation"
     labels:
       - "dependabot"
       - "dependencies"
