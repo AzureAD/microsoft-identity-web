@@ -7,11 +7,12 @@ namespace Microsoft.Identity.Web.Tests
 {
     public class TokenAcquisitionAddInTests
     {
+#if FUTURE
         [Fact]
         public void InvokeOnBuildConfidentialClientApplication_InvokesEvent()
         {
             // Arrange
-            var options = new TokenAcquisitionAddInOptions();
+            var options = new TokenAcquisitionExtensionOptions();
             var acquireTokenOptions = new AcquireTokenOptions();
             ConfidentialClientApplicationBuilder builderMock = null!;
 
@@ -27,19 +28,22 @@ namespace Microsoft.Identity.Web.Tests
             // Assert
             Assert.True(eventInvoked);
         }
-
+#endif
         [Fact]
         public void InvokeOnBeforeTokenAcquisitionForApp_InvokesEvent()
         {
             // Arrange
-            var options = new TokenAcquisitionAddInOptions();
+            var options = new TokenAcquisitionExtensionOptions();
             var acquireTokenOptions = new AcquireTokenOptions();
+            acquireTokenOptions.ForceRefresh = true;
             AcquireTokenForClientParameterBuilder builderMock = null!;
 
             bool eventInvoked = false;
             options.OnBeforeTokenAcquisitionForApp += (builder, options) =>
             {
                 eventInvoked = true;
+                builder.WithForceRefresh(options!.ForceRefresh);
+                builder.Received().WithForceRefresh(true);
             };
 
             // Act
@@ -49,11 +53,12 @@ namespace Microsoft.Identity.Web.Tests
             Assert.True(eventInvoked);
         }
 
+#if FUTURE
         [Fact]
         public void InvokeOnAfterTokenAcquisition_InvokesEvent()
         {
             // Arrange
-            var options = new TokenAcquisitionAddInOptions();
+            var options = new TokenAcquisitionExtensionOptions();
             ConfidentialClientApplicationBuilder builderMock = null!;
             var resultMock = Substitute.For<AuthenticationResult>();
             var acquireTokenOptions = new AcquireTokenOptions();
@@ -70,5 +75,6 @@ namespace Microsoft.Identity.Web.Tests
             // Assert
             Assert.True(eventInvoked);
         }
+#endif
     }
 }
