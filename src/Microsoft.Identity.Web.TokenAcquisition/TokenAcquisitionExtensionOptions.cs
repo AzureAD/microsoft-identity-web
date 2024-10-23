@@ -12,42 +12,6 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class TokenAcquisitionExtensionOptions
     {
-#if FUTURE
-        /// <summary>
-        /// Event fired when the MSAL application needs to be built.
-        /// </summary>
-        public event BuildApplication? OnBuildConfidentialClientApplication;
-
-        /// <summary>
-        /// Event fired when an authentication result is available.
-        /// </summary>
-        public event AfterTokenAcquisition? OnAfterTokenAcquisition;
-
-        /// <summary>
-        /// Invoke the OnBuildConfidentialClientApplication event.
-        /// </summary>
-        internal void InvokeOnBuildConfidentialClientApplication(ConfidentialClientApplicationBuilder builder,
-                                                                 AcquireTokenOptions? acquireTokenOptions)
-        {
-            if (OnBuildConfidentialClientApplication != null)
-            {
-                OnBuildConfidentialClientApplication(builder, acquireTokenOptions);
-            }
-        }
-
-        /// <summary>
-        /// Invoke the OnAfterTokenAcquisition event.
-        /// </summary>
-        internal void InvokeOnAfterTokenAcquisition(AuthenticationResult result,
-                                                    AcquireTokenOptions? acquireTokenOptions)
-        {
-            if (OnAfterTokenAcquisition != null)
-            {
-                OnAfterTokenAcquisition(result, acquireTokenOptions);
-            }
-        }
-#endif
-
         /// <summary>
         /// Event fired when a client credential flow request is being built.
         /// </summary>        
@@ -64,6 +28,5 @@ namespace Microsoft.Identity.Web
                 OnBeforeTokenAcquisitionForApp(builder, acquireTokenOptions);
             }
         }
-
     }
 }
