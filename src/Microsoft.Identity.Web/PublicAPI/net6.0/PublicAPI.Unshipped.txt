@@ -208,7 +208,6 @@ static Microsoft.Identity.Web.AppServicesAuthenticationInformation.LogoutUrl.get
 static Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension.AuthenticateAzureFunctionAsync(this Microsoft.AspNetCore.Http.HttpContext! httpContext) -> System.Threading.Tasks.Task<(bool, Microsoft.AspNetCore.Mvc.IActionResult?)>!
 static Microsoft.Identity.Web.ClaimsPrincipalFactory.FromHomeTenantIdAndHomeObjectId(string! homeTenantId, string! homeObjectId) -> System.Security.Claims.ClaimsPrincipal!
 static Microsoft.Identity.Web.ClaimsPrincipalFactory.FromTenantIdAndObjectId(string! tenantId, string! objectId) -> System.Security.Claims.ClaimsPrincipal!
-static Microsoft.Identity.Web.ClaimsPrincipalFactory.FromUsernamePassword(string! username, string! password) -> System.Security.Claims.ClaimsPrincipal!
 static Microsoft.Identity.Web.CookiePolicyOptionsExtensions.DisallowsSameSiteNone(string! userAgent) -> bool
 static Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(this Microsoft.AspNetCore.Builder.CookiePolicyOptions! options) -> Microsoft.AspNetCore.Builder.CookiePolicyOptions!
 static Microsoft.Identity.Web.CookiePolicyOptionsExtensions.HandleSameSiteCookieCompatibility(this Microsoft.AspNetCore.Builder.CookiePolicyOptions! options, System.Func<string!, bool>! disallowsSameSiteNone) -> Microsoft.AspNetCore.Builder.CookiePolicyOptions!
