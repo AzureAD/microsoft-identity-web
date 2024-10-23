@@ -54,28 +54,30 @@ namespace Microsoft.Identity.Web.Tests
                                .WithClientSecret(TestConstants.ClientSecret)
                                .Build();
                 AcquireTokenForClientParameterBuilder builder = confidentialApp.AcquireTokenForClient(new string[] { "scope" });
+                //Populate Cache
+                var result = await builder.ExecuteAsync();
+                Assert.NotNull(result);
+                Assert.True(result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider);
 
                 bool eventInvoked = false;
                 options.OnBeforeTokenAcquisitionForApp += async (builder, options) =>
                 {
                     eventInvoked = true;
-                    var result = await builder.ExecuteAsync().ConfigureAwait(false);
-                    Assert.NotNull(result);
-                    Assert.True(result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider);
 
-                    //Ensure ForceRefresh is set on the builder
+                    //Set ForceRefresh on the builder
                     builder.WithForceRefresh(options!.ForceRefresh);
-                    result = await builder.ExecuteAsync().ConfigureAwait(false);
-                    Assert.NotNull(result);
-                    Assert.True(result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider);
                 };
-
 
                 // Act
                 options.InvokeOnBeforeTokenAcquisitionForApp(builder, acquireTokenOptions);
 
+                //Ensure ForceRefresh is set on the builder
+                result = await builder.ExecuteAsync();
+
                 // Assert
                 Assert.True(eventInvoked);
+                Assert.NotNull(result);
+                Assert.True(result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider);
             }
         }
 
