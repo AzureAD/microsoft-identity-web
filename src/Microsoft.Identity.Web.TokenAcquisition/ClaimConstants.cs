@@ -99,5 +99,15 @@ namespace Microsoft.Identity.Web
         /// Name Identifier ID claim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier".
         /// </summary>
         public const string NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+        /// <summary>
+        /// Username claims for ROPC flow.
+        /// </summary>
+        public const string Username = "x-ms-username";
+
+        /// <summary>
+        /// Password claims for ROPC flow.
+        /// </summary>
+        public const string Password = "x-ms-password";
     }
 }

@@ -12,7 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
@@ -89,6 +91,31 @@ namespace TokenAcquirerTests
 
             Assert.Equal(tokenAcquirerA, tokenAcquirerB);
             Assert.NotEqual(tokenAcquirerA, tokenAcquirerC);
+        }
+
+        [Fact]
+        public async Task AcquireToken_ROPC_CCAasync()
+        {
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            _ = tokenAcquirerFactory.Build();
+
+            var labResponse = await LabUserHelper.GetDefaultUserAsync();
+
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/organizations",
+               clientId: "88f91eac-c606-4c67-a0e2-a5e8a186854f",
+               clientCredentials: new[]
+               {
+                   CertificateDescription.FromStoreWithDistinguishedName("CN=LabAuth.MSIDLab.com")
+               });
+
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
+
+            var result = await tokenAcquirer.GetTokenForUserAsync(
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user).ConfigureAwait(false);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.AccessToken);
         }
 
         [Fact]
