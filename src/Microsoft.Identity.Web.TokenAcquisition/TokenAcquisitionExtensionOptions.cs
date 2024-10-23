@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// Options for TokenAcquisition add-ins. These options consist in a set of events, that can be subscribed to by add-ins
     /// or parts of the add-ins.
     /// </summary>
-    public class TokenAcquisitionExtensionOptions
+    public partial class TokenAcquisitionExtensionOptions
     {
         /// <summary>
         /// Event fired when a client credential flow request is being built.
