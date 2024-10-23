@@ -103,11 +103,11 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Username claims for ROPC flow.
         /// </summary>
-        public const string Username = "x-ms-username";
+        public const string Username = "xms-username";
 
         /// <summary>
         /// Password claims for ROPC flow.
         /// </summary>
-        public const string Password = "x-ms-password";
+        public const string Password = "xms-password";
     }
 }

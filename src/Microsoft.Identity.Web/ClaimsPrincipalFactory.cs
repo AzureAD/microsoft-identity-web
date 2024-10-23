@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="username">UPN of the user for example username@domain.</param>
         /// <param name="password">Password for the user.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="ClaimsPrincipal"/> containing these two claims.</returns>
         public static ClaimsPrincipal FromUsernamePassword(string username, string password)
         {
             if (AppContextSwitches.UseClaimsIdentityType)
