@@ -116,6 +116,13 @@ namespace TokenAcquirerTests
 
             Assert.NotNull(result);
             Assert.NotNull(result.AccessToken);
+
+            var result2 = await tokenAcquirer.GetTokenForUserAsync(
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user).ConfigureAwait(false);
+
+            Assert.NotNull(result2);
+            Assert.NotNull(result2.AccessToken);
+            Assert.Equal(result.AccessToken, result2.AccessToken);
         }
 
         [Fact]

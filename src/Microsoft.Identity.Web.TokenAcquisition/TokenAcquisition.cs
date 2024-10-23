@@ -332,6 +332,26 @@ namespace Microsoft.Identity.Web
                 string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
 
+                var accounts = await application.GetAccountsAsync().ConfigureAwait(false);
+                var account = accounts.FirstOrDefault(account => account.Username == username);
+                
+                if (account != null)
+                {
+                    try
+                    {
+                        // Silent flow
+                        return await application.AcquireTokenSilent(
+                            scopes.Except(_scopesRequestedByMsal),
+                            account)
+                            .ExecuteAsync()
+                            .ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Ignore this exception as we will retry with ROPC
+                    }
+                }
+
                 // ROPC flow
                 var authenticationResult = await ((IByUsernameAndPassword)application).AcquireTokenByUsernamePassword(
                     scopes.Except(_scopesRequestedByMsal),
