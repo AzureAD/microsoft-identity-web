@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         private const int Fourteen = 14;
 
         /// <summary>
-        /// Handles SameSite cookie issue according to the https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1.
+        /// Handles SameSite cookies according to the ASP.NET Core documentation at https://learn.microsoft.com/aspnet/core/security/samesite.
         /// The default list of user agents that disallow "SameSite=None",
         /// was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Handles SameSite cookie issue according to the docs: https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
+        /// Handles SameSite cookies according to the ASP.NET Core documentation at https://learn.microsoft.com/aspnet/core/security/samesite.
         /// The default list of user agents that disallow "SameSite=None", was taken from https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/.
         /// </summary>
         /// <param name="options"><see cref="CookiePolicyOptions"/>to update.</param>
