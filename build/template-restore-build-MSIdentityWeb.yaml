@@ -25,6 +25,8 @@ steps:
   inputs:
     command: 'custom'
     custom: 'build'
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     projects: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=${{ parameters.MicrosoftIdentityWebVersion }} -p:SourceLinkCreate=true'
 
@@ -52,8 +54,6 @@ steps:
     nugetConfigPath: NuGet.config
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
-    feedsToUse: 'config'
-    nugetConfigPath: NuGet.config
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
