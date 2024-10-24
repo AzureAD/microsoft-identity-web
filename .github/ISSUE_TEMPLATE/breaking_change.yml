@@ -14,7 +14,7 @@ body:
       description: Brief description of the breaking change.
     validations:
       required: true
-  - type: text
+  - type: input
     id: version
     attributes:
       label: Version
