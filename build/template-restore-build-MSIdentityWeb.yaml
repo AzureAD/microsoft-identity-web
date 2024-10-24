@@ -52,6 +52,8 @@ steps:
     nugetConfigPath: NuGet.config
     projects: '$(IdWebSourceDir)tests\DevApps\daemon-app\Daemon-app\Daemon-app.csproj'
     arguments: '-f net7.0'
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
   displayName: 'Component Detection'
