@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
         protected readonly ICertificatesObserver? _certificatesObserver;
-        protected readonly IOptionsMonitor<TokenAcquisitionAddInOptions>? tokenAcquisitionAddInOptionsMonitor;
+        protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
-            tokenAcquisitionAddInOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionAddInOptions>>();
+            tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
         }
 
 #if NET6_0_OR_GREATER
@@ -387,7 +387,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            TokenAcquisitionAddInOptions? addInOptions = tokenAcquisitionAddInOptionsMonitor?.CurrentValue;
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
 
             // Use MSAL to get the right token to call the API

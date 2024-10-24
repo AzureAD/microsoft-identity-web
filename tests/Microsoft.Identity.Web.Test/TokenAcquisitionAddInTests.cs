@@ -1,74 +1,64 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using NSubstitute;
+using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web.Tests
 {
     public class TokenAcquisitionAddInTests
     {
         [Fact]
-        public void InvokeOnBuildConfidentialClientApplication_InvokesEvent()
+        public async Task InvokeOnBeforeTokenAcquisitionForApp_InvokesEvent()
         {
             // Arrange
-            var options = new TokenAcquisitionAddInOptions();
+            var options = new TokenAcquisitionExtensionOptions();
             var acquireTokenOptions = new AcquireTokenOptions();
-            ConfidentialClientApplicationBuilder builderMock = null!;
+            acquireTokenOptions.ForceRefresh = true;
 
-            bool eventInvoked = false;
-            options.OnBuildConfidentialClientApplication += (builder, options) =>
-            {
-                eventInvoked = true;
-            };
+            //Configure mocks
+            using MockHttpClientFactory mockHttpClient = new();
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
 
-            // Act
-            options.InvokeOnBuildConfidentialClientApplication(builderMock, acquireTokenOptions);
+            var confidentialApp = ConfidentialClientApplicationBuilder
+                           .Create(TestConstants.ClientId)
+                           .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithHttpClientFactory(mockHttpClient)
+                           .WithInstanceDiscovery(false)
+                           .WithClientSecret(TestConstants.ClientSecret)
+                           .Build();
 
-            // Assert
-            Assert.True(eventInvoked);
-        }
+            AcquireTokenForClientParameterBuilder builder = confidentialApp.AcquireTokenForClient(new string[] { "scope" });
 
-        [Fact]
-        public void InvokeOnBeforeTokenAcquisitionForApp_InvokesEvent()
-        {
-            // Arrange
-            var options = new TokenAcquisitionAddInOptions();
-            var acquireTokenOptions = new AcquireTokenOptions();
-            AcquireTokenForClientParameterBuilder builderMock = null!;
+            //Populate Cache
+            var result = await builder.ExecuteAsync();
+            Assert.NotNull(result);
+            Assert.True(result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider);
 
             bool eventInvoked = false;
             options.OnBeforeTokenAcquisitionForApp += (builder, options) =>
             {
                 eventInvoked = true;
+
+                //Set ForceRefresh on the builder
+                builder.WithForceRefresh(options!.ForceRefresh);
             };
 
             // Act
-            options.InvokeOnBeforeTokenAcquisitionForApp(builderMock, acquireTokenOptions);
+            options.InvokeOnBeforeTokenAcquisitionForApp(builder, acquireTokenOptions);
+
+            //Ensure ForceRefresh is set on the builder
+            result = await builder.ExecuteAsync();
 
             // Assert
             Assert.True(eventInvoked);
-        }
-
-        [Fact]
-        public void InvokeOnAfterTokenAcquisition_InvokesEvent()
-        {
-            // Arrange
-            var options = new TokenAcquisitionAddInOptions();
-            ConfidentialClientApplicationBuilder builderMock = null!;
-            var resultMock = Substitute.For<AuthenticationResult>();
-            var acquireTokenOptions = new AcquireTokenOptions();
-
-            bool eventInvoked = false;
-            options.OnAfterTokenAcquisition += (result, options) =>
-            {
-                eventInvoked = true;
-            };
-
-            // Act
-            options.InvokeOnAfterTokenAcquisition(resultMock, acquireTokenOptions);
-
-            // Assert
-            Assert.True(eventInvoked);
+            Assert.NotNull(result);
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
         }
     }
 }
