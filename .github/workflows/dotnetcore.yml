@@ -1,6 +1,9 @@
 name: "Run unit tests"
 
-permissions: write-all
+permissions:
+    contents: read
+    pull-requests: write
+
 on:
   push:
     branches:
