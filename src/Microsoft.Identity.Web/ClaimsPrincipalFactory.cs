@@ -117,26 +117,12 @@ namespace Microsoft.Identity.Web
         /// <returns>A <see cref="ClaimsPrincipal"/> containing these two claims.</returns>
         public static ClaimsPrincipal FromUsernamePassword(string username, string password)
         {
-            if (AppContextSwitches.UseClaimsIdentityType)
-            {
-#pragma warning disable RS0030 // Do not use banned APIs
-                return new ClaimsPrincipal(
-                    new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimConstants.Username, username),
-                        new Claim(ClaimConstants.Password, password),
-                    }));
-#pragma warning restore RS0030 // Do not use banned APIs
-            }
-            else
-            {
-                return new ClaimsPrincipal(
-                    new CaseSensitiveClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimConstants.Username, username),
-                        new Claim(ClaimConstants.Password, password),
-                    }));
-            }
+            return new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim(ClaimConstants.Username, username),
+                    new Claim(ClaimConstants.Password, password),
+                }));
         }
     }
 }

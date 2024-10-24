@@ -253,7 +253,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationResult? authenticationResult;
 
                 // If the user is not null and has claims xms-username and xms-password, perform ROPC for CCA
-                authenticationResult = await GetAuthenticationResultForConfidentialClientUsingRopcAsync(
+                authenticationResult = await TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(
                     application,
                     scopes,
                     user,
@@ -325,7 +325,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private async Task<AuthenticationResult?> GetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
             {
@@ -350,6 +350,7 @@ namespace Microsoft.Identity.Web
                     {
                         // Ignore this exception as we will retry with ROPC
                     }
+
                 }
 
                 // ROPC flow
