@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web
     internal static class CertificateErrorMessage
     {
         // Configuration IDW10100 = "IDW10100:"
-        public const string ClientSecretAndCertficateNull =
+        public const string ClientSecretAndCertificateNull =
         "IDW10104: Both client secret and client certificate cannot be null or whitespace, " +
         "and only ONE must be included in the configuration of the web app when calling a web API. " +
         "For instance, in the appsettings.json file. ";
@@ -28,6 +28,6 @@ namespace Microsoft.Identity.Web
             "StoreName must be empty or one of '{0}'. ";
 
         // Obsolete messages IDW10800 = "IDW10800:"
-        public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
+        public const string FromStoreWithThumbprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
     }
 }

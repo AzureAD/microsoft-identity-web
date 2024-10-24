@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_Retries401WithClaimsResponseOnce()
+        public async Task DownstreamApi_GetForApp_Retries401WithClaimsResponseOnceAsync()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForUser_Retries401WithClaimsResponseOnce()
+        public async Task DownstreamApi_GetForUser_Retries401WithClaimsResponseOnceAsync()
         {
             BuildRequiredServices("GraphUser", downstreamApiOptions =>
             {
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_DoesntRetrySucessfullResponse()
+        public async Task DownstreamApi_GetForApp_DoesntRetrySucessfullResponseAsync()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForUser_DoesntRetrySucessfullResponse()
+        public async Task DownstreamApi_GetForUser_DoesntRetrySucessfullResponseAsync()
         {
             BuildRequiredServices("GraphUser", downstreamApiOptions =>
             {
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForApp_DoesntRetry401WithoutClaimsResponse()
+        public async Task DownstreamApi_GetForApp_DoesntRetry401WithoutClaimsResponseAsync()
         {
             BuildRequiredServices("GraphApp", downstreamApiOptions =>
             {
@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
         }
 
         [Fact]
-        public async Task DownstreamApi_GetForUser_DoesntRetry401WithoutClaimsResponse()
+        public async Task DownstreamApi_GetForUser_DoesntRetry401WithoutClaimsResponseAsync()
         {
             BuildRequiredServices("GraphUser", downstreamApiOptions =>
             {

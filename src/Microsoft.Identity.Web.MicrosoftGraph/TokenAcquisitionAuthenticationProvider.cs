@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web
         /// <returns>A Task (as this is an async method).</returns>
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
-            // Default options to settings provided during intialization
+            // Default options to settings provided during initialization
             var scopes = _initialOptions.Scopes;
             bool appOnly = _initialOptions.AppOnly ?? false;
             string? tenant = _initialOptions.Tenant ?? null;

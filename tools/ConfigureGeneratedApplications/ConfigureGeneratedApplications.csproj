@@ -9,7 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+    <!--RS0036: Annotate nullability of public types and members in the declared API-->
+    <NoWarn>RS0036</NoWarn>
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <NoWarn>RS0037</NoWarn>
+    <!--RS0051: Add internal types and members to the declared API-->
+    <NoWarn>RS0051</NoWarn>
+  </PropertyGroup>
 
 </Project>

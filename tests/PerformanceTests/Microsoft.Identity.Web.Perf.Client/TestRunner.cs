@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.Perf.Client
             _httpClient.BaseAddress = new Uri(options.TestServiceBaseUri);
         }
 
-        public async Task Run()
+        public async Task RunAsync()
         {
             Console.WriteLine($"Starting test with {_options.NumberOfUsersToTest} users from {_options.StartUserIndex} to {_options.StartUserIndex + _options.NumberOfUsersToTest - 1} using {_options.NumberOfParallelTasks} parallel tasks.");
 
@@ -74,9 +74,9 @@ namespace Microsoft.Identity.Web.Perf.Client
 
                 if (!_options.RunIndefinitely)
                 {
-                    yield return CreateStopProcessingByTimeoutTask(tokenSource);
+                    yield return CreateStopProcessingByTimeoutTaskAsync(tokenSource);
                 }
-                yield return CreateStopProcessingByUserRequestTask(tokenSource);
+                yield return CreateStopProcessingByUserRequestTaskAsync(tokenSource);
                 foreach (Task task in CreateSendRequestsTasks(tokenSource))
                 {
                     yield return task;
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// If so, cancells other tasks.
         /// </summary>
         /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
-        private Task CreateStopProcessingByTimeoutTask(CancellationTokenSource tokenSource)
+        private Task CreateStopProcessingByTimeoutTaskAsync(CancellationTokenSource tokenSource)
         {
             return Task.Run(async () =>
             {
@@ -109,7 +109,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                     }
                 }
 
+#if NET8_0_OR_GREATER
+                await tokenSource.CancelAsync();
+#else
                 tokenSource.Cancel();
+#endif
                 Console.WriteLine("Processing stopped. Duration elapsed.");
             }, tokenSource.Token);
         }
@@ -119,7 +123,7 @@ namespace Microsoft.Identity.Web.Perf.Client
         /// If so, cancells other tasks.
         /// </summary>
         /// <returns>A <see cref="Task"/> that represents this check operation.</returns>
-        private Task CreateStopProcessingByUserRequestTask(CancellationTokenSource tokenSource)
+        private Task CreateStopProcessingByUserRequestTaskAsync(CancellationTokenSource tokenSource)
         {
             return Task.Run(async () =>
             {
@@ -139,7 +143,11 @@ namespace Microsoft.Identity.Web.Perf.Client
                         ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                         if (keyInfo.Key == ConsoleKey.Escape)
                         {
+#if NET8_0_OR_GREATER
+                            await tokenSource.CancelAsync();
+#else
                             tokenSource.Cancel();
+#endif
                             Console.WriteLine("Processing stopped. User cancelled.");
                         }
                     }

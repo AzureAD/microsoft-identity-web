@@ -34,7 +34,7 @@ namespace Benchmarks
         //}
 
         [Benchmark]
-        public async Task CreateAuthorizationHeader()
+        public async Task CreateAuthorizationHeaderAsync()
         {
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = s_serviceProvider!.GetRequiredService<IAuthorizationHeaderProvider>();
@@ -42,7 +42,7 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public async Task GetTokenAcquirer()
+        public async Task GetTokenAcquirerAsync()
         {
             // Get the token acquisition service
             ITokenAcquirer tokenAcquirer = s_tokenAcquirerFactory!.GetTokenAcquirer();

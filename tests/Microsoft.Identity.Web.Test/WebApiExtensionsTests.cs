@@ -264,7 +264,7 @@ namespace Microsoft.Identity.Web.Test
 #else
         [Fact]
 #endif
-        public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigName()
+        public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigNameAsync()
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
@@ -293,7 +293,7 @@ namespace Microsoft.Identity.Web.Test
 
             configMock.Received(1).GetSection(ConfigSectionName);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock);
         }
 
 #if NET8_0
@@ -301,7 +301,7 @@ namespace Microsoft.Identity.Web.Test
 #else
         [Fact]
 #endif
-        public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigActions()
+        public async Task AddMicrosoftIdentityWebApiCallsWebApi_WithConfigActionsAsync()
         {
             var tokenValidatedFuncMock = Substitute.For<Func<TokenValidatedContext, Task>>();
             var config = Substitute.For<IConfiguration>();
@@ -332,10 +332,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(configuredAppOptions, o => o.Action == _configureAppOptions);
             Assert.Contains(configuredMsOptions, o => o.Action == _configureMsOptions);
 
-            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(services, provider, tokenValidatedFuncMock);
+            await AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(services, provider, tokenValidatedFuncMock);
         }
 
-        private async Task AddMicrosoftIdentityWebApiCallsWebApi_TestCommon(IServiceCollection services, ServiceProvider provider, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
+        private async Task AddMicrosoftIdentityWebApiCallsWebApi_TestCommonAsync(IServiceCollection services, ServiceProvider provider, Func<TokenValidatedContext, Task> tokenValidatedFuncMock)
         {
             // Assert correct services added
             Assert.Contains(services, s => s.ServiceType == typeof(IHttpContextAccessor));

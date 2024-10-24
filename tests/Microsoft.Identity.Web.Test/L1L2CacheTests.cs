@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task WriteCache_NegativeExpiry_TestAsync()
         {
             // Arrange & Act
-            await CreateL1L2TestWithSerializerHints(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0);
+            await CreateL1L2TestWithSerializerHintsAsync(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task WriteCacheL1L2_NegativeExpiry_TestAsync()
         {
             // Arrange & Act
-            await CreateL1L2TestWithSerializerHints(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0);
+            await CreateL1L2TestWithSerializerHintsAsync(System.DateTimeOffset.Now - System.TimeSpan.FromHours(1), 0);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange & Act
             var timespan = System.TimeSpan.FromHours(1);
             var expiry = System.DateTimeOffset.UtcNow + timespan;
-            await CreateL1L2TestWithSerializerHints(expiry, 1);
+            await CreateL1L2TestWithSerializerHintsAsync(expiry, 1);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
@@ -114,16 +114,16 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task WriteCacheL1L2_PositiveExpiryAndAbsoluteOptions_TestAsync()
         {
-            await CreateL1L2TestWithAbsoluteOptions(1.5);
+            await CreateL1L2TestWithAbsoluteOptionsAsync(1.5);
         }
 
         [Fact]
         public async Task WriteCacheL1L2_PositiveExpiryAndAbsoluteOptionsLessThanSuggestedExpiry_TestAsync()
         {
-            await CreateL1L2TestWithAbsoluteOptions(.5);
+            await CreateL1L2TestWithAbsoluteOptionsAsync(.5);
         }
 
-        private async Task CreateL1L2TestWithAbsoluteOptions(double time)
+        private async Task CreateL1L2TestWithAbsoluteOptionsAsync(double time)
         {
             // Arrange & Act
             var timespan = System.TimeSpan.FromHours(1);
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Web.Test
             var absoluteOptions = Provider.GetService<IOptions<MsalDistributedTokenCacheAdapterOptions>>();
             Assert.NotNull(absoluteOptions);
             absoluteOptions.Value.AbsoluteExpiration = System.DateTimeOffset.Now + System.TimeSpan.FromHours(time);
-            await CreateL1L2TestWithSerializerHints(suggestedExpiry, 1);
+            await CreateL1L2TestWithSerializerHintsAsync(suggestedExpiry, 1);
 
             // Assert
             Assert.NotNull(_testCacheAdapter._memoryCache);
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
         }
 
-        private async Task CreateL1L2TestWithSerializerHints(
+        private async Task CreateL1L2TestWithSerializerHintsAsync(
             System.DateTimeOffset dateTimeOffset,
             int memoryCacheExpectedCount)
         {

@@ -55,9 +55,9 @@ dotnet tool uninstall --global msidentity-app-sync
 ## Pre-requisites to using the tool
 
 Have an AAD or B2C tenant (or both). 
-- If you want to add an AAD registration, you are usually already signed-in in Visual Studio in a tenant. If needed you can create your own tenant by following this quickstart [Setup a tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant). But be sure to sign-out and sign-in from Visual Studio or Azure CLI so that this tenant is known in the shared token cache.
+- If you want to add an AAD registration, you are usually already signed-in in Visual Studio in a tenant. If needed you can create your own tenant by following this quickstart [Setup a tenant](https://learn.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant). But be sure to sign-out and sign-in from Visual Studio or Azure CLI so that this tenant is known in the shared token cache.
 
-- If you want to add an AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. As well as the sign-up/sign-in policy `--susi-policy-id`. To create a B2C tenant, see [Create a B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant).
+- If you want to add an AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. As well as the sign-up/sign-in policy `--susi-policy-id`. To create a B2C tenant, see [Create a B2C tenant](https://learn.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant).
 
 ## Using the tool
 

@@ -1,0 +1,56 @@
+#nullable enable
+const Microsoft.Identity.Web.CertificateConstants.MediaTypePksc12 = "application/x-pkcs12" -> string!
+const Microsoft.Identity.Web.CertificateConstants.PersonalUserCertificateStorePath = "CurrentUser/My" -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.BothClientSecretAndCertificateProvided = "IDW10105: Both client secret and client certificate, cannot be included in the configuration of the web app when calling a web API. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.ClientSecretAndCertificateNull = "IDW10104: Both client secret and client certificate cannot be null or whitespace, and only ONE must be included in the configuration of the web app when calling a web API. For instance, in the appsettings.json file. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.FromStoreWithThumbprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.IncorrectNumberOfUriSegments = "IDW10702: Number of URI segments is incorrect: {0}, URI: {1}. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. StoreLocation must be one of 'CurrentUser', 'LocalMachine'. StoreName must be empty or one of '{0}'. " -> string!
+const Microsoft.Identity.Web.CertificateErrorMessage.OnlyPkcs12IsSupported = "IDW10701: Only PKCS #12 content type is supported. Found Content-Type: {0}. " -> string!
+Microsoft.Identity.Web.Base64EncodedCertificateLoader
+Microsoft.Identity.Web.Base64EncodedCertificateLoader.Base64EncodedCertificateLoader() -> void
+Microsoft.Identity.Web.Base64EncodedCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.Base64EncodedCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.CertificateConstants
+Microsoft.Identity.Web.CertificateDescription.Container.get -> string?
+Microsoft.Identity.Web.CertificateDescription.Container.set -> void
+Microsoft.Identity.Web.CertificateDescription.ReferenceOrValue.get -> string?
+Microsoft.Identity.Web.CertificateDescription.ReferenceOrValue.set -> void
+Microsoft.Identity.Web.CertificateErrorMessage
+Microsoft.Identity.Web.CertificateLoaderHelper
+Microsoft.Identity.Web.CertificateLoaderHelper.CertificateLoaderHelper() -> void
+Microsoft.Identity.Web.FromPathCertificateLoader
+Microsoft.Identity.Web.FromPathCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.FromPathCertificateLoader.FromPathCertificateLoader() -> void
+Microsoft.Identity.Web.FromPathCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.KeyVaultCertificateLoader
+Microsoft.Identity.Web.KeyVaultCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.KeyVaultCertificateLoader.KeyVaultCertificateLoader() -> void
+Microsoft.Identity.Web.KeyVaultCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader
+Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader.SignedAssertionFilePathCredentialsLoader(Microsoft.Extensions.Logging.ILogger? logger) -> void
+Microsoft.Identity.Web.SignedAssertionFromManagedIdentityCredentialLoader
+Microsoft.Identity.Web.SignedAssertionFromManagedIdentityCredentialLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.SignedAssertionFromManagedIdentityCredentialLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.SignedAssertionFromManagedIdentityCredentialLoader.SignedAssertionFromManagedIdentityCredentialLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCredentialsLoader!>! logger) -> void
+Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader
+Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.StoreWithDistinguishedNameCertificateLoader() -> void
+Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader
+Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader.StoreWithThumbprintCertificateLoader() -> void
+static Microsoft.Identity.Web.Base64EncodedCertificateLoader.LoadFromBase64Encoded(string! certificateBase64, string! password, System.Security.Cryptography.X509Certificates.X509KeyStorageFlags x509KeyStorageFlags) -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+static Microsoft.Identity.Web.Base64EncodedCertificateLoader.LoadFromBase64Encoded(string! certificateBase64, System.Security.Cryptography.X509Certificates.X509KeyStorageFlags x509KeyStorageFlags) -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+static Microsoft.Identity.Web.CertificateLoaderHelper.DetermineX509KeyStorageFlag() -> System.Security.Cryptography.X509Certificates.X509KeyStorageFlags
+static Microsoft.Identity.Web.CertificateLoaderHelper.DetermineX509KeyStorageFlag(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription) -> System.Security.Cryptography.X509Certificates.X509KeyStorageFlags
+static Microsoft.Identity.Web.CertificateLoaderHelper.FindCertificateByCriterium(System.Security.Cryptography.X509Certificates.X509Store! x509Store, System.Security.Cryptography.X509Certificates.X509FindType identifierCriterium, string! certificateIdentifier) -> System.Security.Cryptography.X509Certificates.X509Certificate2?
+static Microsoft.Identity.Web.CertificateLoaderHelper.ParseStoreLocationAndName(string! storeDescription, ref System.Security.Cryptography.X509Certificates.StoreLocation certificateStoreLocation, ref System.Security.Cryptography.X509Certificates.StoreName certificateStoreName) -> void
+static Microsoft.Identity.Web.KeyVaultCertificateLoader.LoadFromKeyVaultAsync(string! keyVaultUrl, string! certificateName, string? managedIdentityClientId, System.Security.Cryptography.X509Certificates.X509KeyStorageFlags x509KeyStorageFlags) -> System.Threading.Tasks.Task<System.Security.Cryptography.X509Certificates.X509Certificate2?>!
+static Microsoft.Identity.Web.KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId.get -> string?
+static Microsoft.Identity.Web.KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId.set -> void

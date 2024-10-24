@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Web
         public string? ResetPasswordPolicyId { get; set; }
 
         /// <summary>
-        /// Gets the default user flow (which is signUpsignIn).
+        /// Gets the default user flow (which is signUpSignIn).
         /// </summary>
         public string? DefaultUserFlow => SignUpSignInPolicyId;
 
@@ -186,7 +186,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Used, when deployed to Azure, to specify explicitly a user assigned managed identity.
-        /// See https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
+        /// See https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.
         /// </summary>
         public string? UserAssignedManagedIdentityClientId { get; set; }
 

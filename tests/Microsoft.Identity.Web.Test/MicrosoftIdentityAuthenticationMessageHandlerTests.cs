@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task MicrosoftIdentityAuthenticationMessageHandler_Adds_AuthorizationHeader(bool useApp)
+        public async Task MicrosoftIdentityAuthenticationMessageHandler_Adds_AuthorizationHeaderAsync(bool useApp)
         {
             // arrange
             var tokenAcquisition = Substitute.For<ITokenAcquisition>();
@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task MicrosoftIdentityAuthenticationMessageHandler_Replaces_AuthorizationHeader(bool useApp)
+        public async Task MicrosoftIdentityAuthenticationMessageHandler_Replaces_AuthorizationHeaderAsync(bool useApp)
         {
             // arrange
             var tokenAcquisition = Substitute.For<ITokenAcquisition>();

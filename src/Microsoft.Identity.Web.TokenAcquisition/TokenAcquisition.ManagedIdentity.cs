@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">The configuration options for the app.</param>
         /// <param name="managedIdentityOptions">The configuration specific to managed identity.</param>
         /// <returns>The application object used to request a token with managed identity.</returns>
-        internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplication(
+        internal async Task<IManagedIdentityApplication> GetOrBuildManagedIdentityApplicationAsync(
             MergedOptions mergedOptions,
             ManagedIdentityOptions managedIdentityOptions)
         {
