@@ -107,5 +107,22 @@ namespace Microsoft.Identity.Web
                     }));
             }
         }
+
+        /// <summary>
+        /// Instantiate a <see cref="ClaimsPrincipal"/> from a username and password.
+        /// This can be used for ROPC flow for testing purposes.
+        /// </summary>
+        /// <param name="username">UPN of the user for example username@domain.</param>
+        /// <param name="password">Password for the user.</param>
+        /// <returns>A <see cref="ClaimsPrincipal"/> containing these two claims.</returns>
+        public static ClaimsPrincipal FromUsernamePassword(string username, string password)
+        {
+            return new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim(ClaimConstants.Username, username),
+                    new Claim(ClaimConstants.Password, password),
+                }));
+        }
     }
 }
