@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
                 PrepareOptions(relativePath, downstreamWebApiOptionsOverride, HttpMethod.Get),
                 user).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutputAsync<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Microsoft.Identity.Web
                user,
                input).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutputAsync<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Microsoft.Identity.Web
                user,
                input).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutputAsync<TOutput>(response).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace Microsoft.Identity.Web
               downstreamWebApiOptionsOverride,
               user).ConfigureAwait(false);
 
-            return await ConvertToOutput<TOutput>(response).ConfigureAwait(false);
+            return await ConvertToOutputAsync<TOutput>(response).ConfigureAwait(false);
         }
 
 #if NET6_0_OR_GREATER
@@ -307,7 +307,7 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
 #endif
-        private static async Task<TOutput?> ConvertToOutput<TOutput>(HttpResponseMessage response)
+        private static async Task<TOutput?> ConvertToOutputAsync<TOutput>(HttpResponseMessage response)
             where TOutput : class
         {
             try

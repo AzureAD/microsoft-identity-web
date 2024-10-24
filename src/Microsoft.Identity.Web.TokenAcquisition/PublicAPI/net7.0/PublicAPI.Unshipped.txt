@@ -1,0 +1,9 @@
+#nullable enable
+Microsoft.Identity.Web.AfterTokenAcquisition
+Microsoft.Identity.Web.BeforeTokenAcquisitionForApp
+Microsoft.Identity.Web.BuildApplication
+Microsoft.Identity.Web.TokenAcquisitionAddInOptions
+Microsoft.Identity.Web.TokenAcquisitionAddInOptions.OnAfterTokenAcquisition -> Microsoft.Identity.Web.AfterTokenAcquisition?
+Microsoft.Identity.Web.TokenAcquisitionAddInOptions.OnBeforeTokenAcquisitionForApp -> Microsoft.Identity.Web.BeforeTokenAcquisitionForApp?
+Microsoft.Identity.Web.TokenAcquisitionAddInOptions.OnBuildConfidentialClientApplication -> Microsoft.Identity.Web.BuildApplication?
+Microsoft.Identity.Web.TokenAcquisitionAddInOptions.TokenAcquisitionAddInOptions() -> void

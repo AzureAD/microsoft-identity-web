@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web
             string accessToken;
             if (httpContext != null)
             {
-                // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+                // Need to lock due to https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
                 lock (httpContext)
                 {
                     accessToken = GetAccessToken(httpContext.Request.Headers);

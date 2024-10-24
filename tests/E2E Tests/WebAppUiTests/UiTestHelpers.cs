@@ -29,13 +29,13 @@ namespace WebAppUiTests
         /// <param name="password">password for sign in</param>
         /// <param name="output">Used to communicate output to the test's Standard Output</param>
         /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
-        public static async Task FirstLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
+        public static async Task FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
             WriteLine(output, $"Logging in ... Entering and submitting user name: {email}.");
             ILocator emailInputLocator = page.GetByPlaceholder(TestConstants.EmailText);
-            await FillEntryBox(emailInputLocator, email);
-            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
+            await FillEntryBoxAsync(emailInputLocator, email);
+            await EnterPassword_MicrosoftIdFlow_ValidPasswordAsync(page, password, staySignedInText);
         }
 
         /// <summary>
@@ -46,13 +46,13 @@ namespace WebAppUiTests
         /// <param name="password">password for sign in</param>
         /// <param name="output">Used to communicate output to the test's Standard Output</param>
         /// <param name="staySignedIn">Whether to select "stay signed in" on login</param>
-        public static async Task SuccessiveLogin_MicrosoftIdFlow_ValidEmailPassword(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
+        public static async Task SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(IPage page, string email, string password, ITestOutputHelper? output = null, bool staySignedIn = false)
         {
             string staySignedInText = staySignedIn ? "Yes" : "No";
 
             WriteLine(output, $"Logging in again in this browsing session... selecting user via email: {email}.");
-            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
-            await EnterPassword_MicrosoftIdFlow_ValidPassword(page, password, staySignedInText);
+            await SelectKnownAccountByEmail_MicrosoftIdFlowAsync(page, email);
+            await EnterPassword_MicrosoftIdFlow_ValidPasswordAsync(page, password, staySignedInText);
         }
 
         /// <summary>
@@ -61,10 +61,10 @@ namespace WebAppUiTests
         /// <param name="page">Playwright Page object the web app is accessed from</param>
         /// <param name="email">email of the user to sign out</param>
         /// <param name="signOutPageUrl">The url for the page arrived at once successfully signed out</param>
-        public static async Task PerformSignOut_MicrosoftIdFlow(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
+        public static async Task PerformSignOut_MicrosoftIdFlowAsync(IPage page, string email, string signOutPageUrl, ITestOutputHelper? output = null)
         {
             WriteLine(output, "Signing out ...");
-            await SelectKnownAccountByEmail_MicrosoftIdFlow(page, email);
+            await SelectKnownAccountByEmail_MicrosoftIdFlowAsync(page, email);
             await page.WaitForURLAsync(signOutPageUrl);
             WriteLine(output, "Sign out page successfully reached.");
         }
@@ -75,7 +75,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="page">page for the playwright browser</param>
         /// <param name="email">user email address to select</param>
-        private static async Task SelectKnownAccountByEmail_MicrosoftIdFlow(IPage page, string email)
+        private static async Task SelectKnownAccountByEmail_MicrosoftIdFlowAsync(IPage page, string email)
         {
             await page.Locator($"[data-test-id=\"{email}\"]").ClickAsync();
         }
@@ -87,7 +87,7 @@ namespace WebAppUiTests
         /// <param name="password">The password for the account you're logging into.</param>
         /// <param name="staySignedInText">"Yes" or "No" to stay signed in for the given browsing session.</param>
         /// <param name="output">The writer for output to the test's console.</param>
-        public static async Task EnterPassword_MicrosoftIdFlow_ValidPassword(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
+        public static async Task EnterPassword_MicrosoftIdFlow_ValidPasswordAsync(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
         {
             // If using an account that has other non-password validation options, the below code should be uncommented
             /* WriteLine(output, "Selecting \"Password\" as authentication method"); 
@@ -95,13 +95,13 @@ namespace WebAppUiTests
 
             WriteLine(output, "Logging in ... entering and submitting password.");
             ILocator passwordInputLocator = page.GetByPlaceholder(TestConstants.PasswordText);
-            await FillEntryBox(passwordInputLocator, password);
+            await FillEntryBoxAsync(passwordInputLocator, password);
 
             WriteLine(output, $"Logging in ... Clicking {staySignedInText} on whether the browser should stay signed in.");
             await page.GetByRole(AriaRole.Button, new() { Name = staySignedInText }).ClickAsync();
         }
 
-        public static async Task FillEntryBox(ILocator entryBox, string entryText)
+        public static async Task FillEntryBoxAsync(ILocator entryBox, string entryText)
         {
             await entryBox.ClickAsync();
             await entryBox.FillAsync(entryText);
@@ -124,7 +124,7 @@ namespace WebAppUiTests
         /// This is not used anywhere by default and will need to be added to the code if desired.
         /// </summary>
         /// <param name="page">The page object whose context the trace will record.</param>
-        public static async Task StartPlaywrightTrace(IPage page)
+        public static async Task StartPlaywrightTraceAsync(IPage page)
         {
             await page.Context.Tracing.StartAsync(new()
             {
@@ -300,7 +300,7 @@ namespace WebAppUiTests
         /// <param name="keyvaultSecretName">The name of the secret</param>
         /// <returns>The value of the secret from key vault</returns>
         /// <exception cref="ArgumentNullException">Throws if no secret name is provided</exception>
-        internal static async Task<string> GetValueFromKeyvaultWitDefaultCreds(Uri keyvaultUri, string keyvaultSecretName, TokenCredential creds)
+        internal static async Task<string> GetValueFromKeyvaultWitDefaultCredsAsync(Uri keyvaultUri, string keyvaultSecretName, TokenCredential creds)
         {
             if (string.IsNullOrEmpty(keyvaultSecretName))
             {

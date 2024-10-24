@@ -112,11 +112,11 @@ namespace Microsoft.Identity.Web
 <# }
    if (hasOutput && framework == "net8")
    { #>
-                return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
 <# } 
    else if (hasOutput)
    {#>
-                return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
 <# } #>
             }
             catch(Exception ex) when (

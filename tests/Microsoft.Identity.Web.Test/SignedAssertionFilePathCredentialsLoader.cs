@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task GetClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion(bool withEnvVariable)
+        public async Task GetClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertionAsync(bool withEnvVariable)
         {
             // Arrange
             var filePath = withEnvVariable ? FilePath : FilePath2;
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
-        public async Task GetClientAssertion_WhenSignedAssertionFileDoesNotExist_ThrowsFileNotFoundException()
+        public async Task GetClientAssertion_WhenSignedAssertionFileDoesNotExist_ThrowsFileNotFoundExceptionAsync()
         {
             // Act
             CredentialDescription credentialDescription = new()

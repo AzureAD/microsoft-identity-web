@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web.Resource
             IEnumerable<Claim> userClaims;
             ClaimsPrincipal user;
 
-            // Need to lock due to https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
+            // Need to lock due to https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
             lock (context)
             {
                 user = context.User;
@@ -77,8 +77,8 @@ namespace Microsoft.Identity.Web.Resource
                     lock (context)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        context.Response.WriteAsync(message);
-                        context.Response.CompleteAsync();
+                        _ = context.Response.WriteAsync(message);
+                        _ = context.Response.CompleteAsync();
                     }
                     
                     throw new UnauthorizedAccessException(message);

@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -140,7 +140,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -153,7 +153,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -166,7 +166,7 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
-            return await DeserializeOutput<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
         }
 
 #if NET8_0_OR_GREATER
@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -208,7 +208,7 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
-            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -232,7 +232,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -247,7 +247,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
-            return await DeserializeOutput<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
         }
 
         internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput> inputJsonTypeInfo)
@@ -255,10 +255,10 @@ namespace Microsoft.Identity.Web
             return SerializeInputImpl(input, effectiveOptions, inputJsonTypeInfo);
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
+        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
              where TOutput : class
         {
-            return await DeserializeOutputImpl<TOutput>(response, effectiveOptions, outputJsonTypeInfo);
+            return await DeserializeOutputImplAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo);
         }
 #endif
 
@@ -349,13 +349,7 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
-        internal static async Task<TOutput?> DeserializeOutput<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
-             where TOutput : class
-        {
-            return await DeserializeOutputImpl<TOutput>(response, effectiveOptions, null);
-        }
-
-        private static async Task<TOutput?> DeserializeOutputImpl<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput>? outputJsonTypeInfo = null)
+        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {
             try
@@ -395,14 +389,58 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    if (outputJsonTypeInfo != null)
-                    {
-                        return JsonSerializer.Deserialize<TOutput>(stringContent, outputJsonTypeInfo);
-                    }
-                    else
-                    {
-                        return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    }
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                }
+                if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Handle other content types here
+                    throw new NotSupportedException("Content type not supported. Provide your own deserializer. ");
+                }
+                return stringContent as TOutput;
+            }
+        }
+
+        private static async Task<TOutput?> DeserializeOutputImplAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
+             where TOutput : class
+        {
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch
+            {
+                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+#if NET5_0_OR_GREATER
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
+#else
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");
+#endif
+            }
+
+            HttpContent content = response.Content;
+
+            if (content == null)
+            {
+                return default;
+            }
+
+            string? mediaType = content.Headers.ContentType?.MediaType;
+
+            if (effectiveOptions.Deserializer != null)
+            {
+                return effectiveOptions.Deserializer(content) as TOutput;
+            }
+            else if (typeof(TOutput).IsAssignableFrom(typeof(HttpContent)))
+            {
+                return content as TOutput;
+            }
+            else
+            {
+                string stringContent = await content.ReadAsStringAsync();
+                if (mediaType == "application/json")
+                {
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, outputJsonTypeInfo);
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {

@@ -42,11 +42,11 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectly()
+        public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectlyAsync()
         {
             // Web app and api environmental variable setup.
             DefaultAzureCredential azureCred = new();
-            string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultClientSecretName, azureCred);
+            string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCredsAsync(_keyvaultUri, KeyvaultClientSecretName, azureCred);
             var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development" },
@@ -60,8 +60,8 @@ namespace WebAppUiTests
             };
 
             // Get email and password from keyvault.
-            string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultEmailName, azureCred);
-            string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCreds(_keyvaultUri, KeyvaultPasswordName, azureCred);
+            string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCredsAsync(_keyvaultUri, KeyvaultEmailName, azureCred);
+            string password = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCredsAsync(_keyvaultUri, KeyvaultPasswordName, azureCred);
 
             // Playwright setup. To see browser UI, set 'Headless = false'.
             const string TraceFileName = TraceClassName + "_TodoAppFunctionsCorrectly";
@@ -138,7 +138,7 @@ namespace WebAppUiTests
                 _output.WriteLine("Starting web app create new todo flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Create New" }).ClickAsync();
                 ILocator titleEntryBox = page.GetByLabel("Title");
-                await UiTestHelpers.FillEntryBox(titleEntryBox, TC.TodoTitle1);
+                await UiTestHelpers.FillEntryBoxAsync(titleEntryBox, TC.TodoTitle1);
                 await Assertions.Expect(page.GetByRole(AriaRole.Cell, new() { Name = TC.TodoTitle1 })).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app create new todo flow successful.");
 

@@ -39,12 +39,12 @@ namespace TokenAcquirerTests
         }
 
         [IgnoreOnAzureDevopsFact]
-        public async Task TestCertificateRotation()
+        public async Task TestCertificateRotationAsync()
         {
             // Prepare the environment
             // -----------------------
             // Create an app registration for a daemon app
-            Application aadApplication = (await CreateDaemonAppRegistrationIfNeeded())!;
+            Application aadApplication = (await CreateDaemonAppRegistrationIfNeededAsync())!;
             DateTimeOffset now = DateTimeOffset.Now;
 
             // Create a certificate expiring in 3 mins, add it to the local cert store
@@ -59,7 +59,7 @@ namespace TokenAcquirerTests
                  now.AddMinutes(ValidityFirstCertInMinutes - 0.25));
 
             // and add it as client creds to the app registration
-            await AddClientCertificatesToApp(aadApplication!, firstCertificate, secondCertificate);
+            await AddClientCertificatesToAppAsync(aadApplication!, firstCertificate, secondCertificate);
 
             // Code for the application
             // ------------------------
@@ -102,7 +102,7 @@ namespace TokenAcquirerTests
             }
             catch (Exception)
             {
-                await RemoveAppAndCertificates(firstCertificate);
+                await RemoveAppAndCertificatesAsync(firstCertificate);
                 Assert.Fail("Failed to acquire token with the first certificate");
             }
             finally
@@ -140,7 +140,7 @@ namespace TokenAcquirerTests
                 }
                 catch (Exception)
                 {
-                    await RemoveAppAndCertificates(firstCertificate, secondCertificate);
+                    await RemoveAppAndCertificatesAsync(firstCertificate, secondCertificate);
                     Assert.Fail("Failed to acquire token with the second certificate");
                 }
             }
@@ -149,10 +149,10 @@ namespace TokenAcquirerTests
             Assert.True(_currentCertificate != null && _currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString());
 
             // Delete both certs from the cert store and remove the app registration
-            await RemoveAppAndCertificates(firstCertificate, secondCertificate);
+            await RemoveAppAndCertificatesAsync(firstCertificate, secondCertificate);
         }
 
-        private async Task RemoveAppAndCertificates(
+        private async Task RemoveAppAndCertificatesAsync(
             X509Certificate2 firstCertificate,
             X509Certificate2? secondCertificate = null,
             Application? application = null,
@@ -181,7 +181,7 @@ namespace TokenAcquirerTests
             }
         }
 
-        private async Task<Application?> CreateDaemonAppRegistrationIfNeeded()
+        private async Task<Application?> CreateDaemonAppRegistrationIfNeededAsync()
         {
             var application = (await _graphServiceClient
                 .Applications
@@ -190,12 +190,12 @@ namespace TokenAcquirerTests
 
             if (application == null)
             {
-                application = await CreateDaemonAppRegistration();
+                application = await CreateDaemonAppRegistrationAsync();
             }
             return application!;
         }
 
-        private async Task<Application?> CreateDaemonAppRegistration()
+        private async Task<Application?> CreateDaemonAppRegistrationAsync()
         {
             // Get the Microsoft Graph service principal and the user.read.all role.
             ServicePrincipal graphSp = (await _graphServiceClient.ServicePrincipals
@@ -281,7 +281,7 @@ namespace TokenAcquirerTests
             return certWithPrivateKey;
         }
 
-        private async Task<Application> AddClientCertificatesToApp(Application application, X509Certificate2 firstCertificate, X509Certificate2 secondCertificate2)
+        private async Task<Application> AddClientCertificatesToAppAsync(Application application, X509Certificate2 firstCertificate, X509Certificate2 secondCertificate2)
         {
             Application update = new()
             {

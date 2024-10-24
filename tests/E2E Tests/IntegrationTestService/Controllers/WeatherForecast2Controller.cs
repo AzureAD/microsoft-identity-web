@@ -70,7 +70,7 @@ namespace IntegrationTestService.Controllers
 
 #if NET8_0_OR_GREATER
         [HttpGet(TestConstants.SecurePage2CallDownstreamWebApiGenericAotInternal)]
-        public async Task<string?> CallDownstreamWebApiGenericAsyncAotInternal()
+        public async Task<string?> CallDownstreamWebApiGenericAsyncAotInternalAsync()
         {
             var user = await _downstreamApi.GetForUserAsync<UserInfo>(
                 TestConstants.SectionNameCalledApi,

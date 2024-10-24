@@ -81,7 +81,9 @@ namespace Microsoft.Identity.Web
             _synclock.EnterWriteLock();
             try
             {
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 OpenIdConnectConfiguration config = Task.Run(_configManager.GetConfigurationAsync).Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
                 _issuer = config.Issuer;
                 _keys = config.SigningKeys;
             }

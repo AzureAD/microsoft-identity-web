@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseWIP)' == 'false' ">
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="$(MicrosoftIdentityWebVersion)" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="$(MicrosoftIdentityWebVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseWIP)' == 'true' ">

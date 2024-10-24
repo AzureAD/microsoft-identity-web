@@ -1,5 +1,5 @@
 #template-install-dependencies.yaml
-
+  
 #install dotnet core
 
 steps:
@@ -26,7 +26,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use .Net Core SDK 9'
   inputs:
-    version: 9.0.100-rc.1.24452.12
+    version: 9.0.100-rc.2.24474.11
     includePreviewVersions: true
   condition: eq(variables['TargetNet9'], 'True')
 
@@ -43,6 +43,9 @@ steps:
     azureSubscription: 'AuthSdkResourceManager'
     KeyVaultName: 'msidlabs'
     SecretsFilter: 'LabAuth'
+    
+- task: NuGetAuthenticate@1
+  displayName: NuGet Authenticate
 
 - powershell: |
    $kvSecretBytes = [System.Convert]::FromBase64String('$(LabAuth)')

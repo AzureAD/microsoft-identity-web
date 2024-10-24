@@ -52,3 +52,12 @@ dotnet_diagnostic.S125.severity = none
 
 # S2699: Tests should include assertions
 dotnet_diagnostic.S2699.severity = none
+
+# RS0016: Add public types and members to the declared API
+dotnet_diagnostic.RS0016.severity = none
+
+# RS0016: Add public types and members to the declared API
+dotnet_diagnostic.RS0037.severity = none
+
+# RS0051: Add internal types and members to the declared API
+dotnet_diagnostic.RS0051.severity = none

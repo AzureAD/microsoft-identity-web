@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
-        public async Task GetAksClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertion()
+        public async Task GetAksClientAssertion_WhenSpecifiedSignedAssertionFileExists_ReturnsClientAssertionAsync()
         {
             // Arrange
             File.WriteAllText(_filePath, _token.ToString());
@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
-        public async Task GetAksClientAssertion_WhenEnvironmentVariablePointsToSignedAssertionFileExists_ReturnsClientAssertion()
+        public async Task GetAksClientAssertion_WhenEnvironmentVariablePointsToSignedAssertionFileExists_ReturnsClientAssertionAsync()
         {
             // Arrange
             File.WriteAllText(_filePath, _token.ToString());
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
-        public async Task GetAksClientAssertion_WhenSignedAssertionFileDoesNotExist_ThrowsFileNotFoundException()
+        public async Task GetAksClientAssertion_WhenSignedAssertionFileDoesNotExist_ThrowsFileNotFoundExceptionAsync()
         {
             // Arrange
             var filePath = "doesNotExist.txt";

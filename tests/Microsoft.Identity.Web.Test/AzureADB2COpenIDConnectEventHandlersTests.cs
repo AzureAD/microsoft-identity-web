@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContext(bool hasClientCredentials)
+        public async Task OnRedirectToIdentityProvider_CustomUserFlow_UpdatesContextAsync(bool hasClientCredentials)
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task OnRedirectToIdentityProvider_DefaultUserFlow_DoesntUpdateContext()
+        public async Task OnRedirectToIdentityProvider_DefaultUserFlow_DoesntUpdateContextAsync()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task OnRemoteFailure_PasswordReset_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_PasswordReset_RedirectsSuccessfullyAsync()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();
@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task OnRemoteFailure_Cancel_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_Cancel_RedirectsSuccessfullyAsync()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();
@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task OnRemoteFailure_OtherException_RedirectsSuccessfully()
+        public async Task OnRemoteFailure_OtherException_RedirectsSuccessfullyAsync()
         {
             var errorAccessor = Substitute.For<ILoginErrorAccessor>();
             var httpContext = Substitute.For<HttpContext>();

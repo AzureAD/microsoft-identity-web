@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [GlobalSetup]
-        public void GlobalSetup()
+        public async Task GlobalSetupAsync()
         {
             CopyDependencies();
             _client = _factory
@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
             {
                 AllowAutoRedirect = false,
             });
-            string accessToken = AcquireTokenForLabUserAsync().GetAwaiter().GetResult().AccessToken;
+            string accessToken = (await AcquireTokenForLabUserAsync()).AccessToken;
             _client.DefaultRequestHeaders.Add(
                 "Authorization",
                 string.Format(
@@ -56,10 +56,10 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         }
 
         [Benchmark]
-        public void GetAccessTokenForUserAsync()
+        public async Task GetAccessTokenForUserAsync()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForUserAsync);
-            HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();    
+            HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);    
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"GetAccessTokenForUserAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
@@ -67,10 +67,10 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         }
 
         [Benchmark]
-        public void GetAccessTokenForAppAsync()
+        public async Task GetAccessTokenForAppAsync()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForAppAsync);
-            HttpResponseMessage response = _client.SendAsync(httpRequestMessage).GetAwaiter().GetResult();
+            HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"GetAccessTokenForAppAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");

@@ -1,0 +1,4 @@
+#nullable enable
+const Microsoft.Identity.Web.Certificateless.CertificatelessConstants.DefaultTokenExchangeUrl = "api://AzureADTokenExchange" -> string!
+Microsoft.Identity.Web.Certificateless.CertificatelessConstants
+Microsoft.Identity.Web.Certificateless.CertificatelessConstants.CertificatelessConstants() -> void
