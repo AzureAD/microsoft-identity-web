@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.81.0-preview" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.64.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
