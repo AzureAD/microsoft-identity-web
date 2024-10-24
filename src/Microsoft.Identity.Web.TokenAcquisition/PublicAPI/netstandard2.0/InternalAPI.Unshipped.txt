@@ -1,5 +1,3 @@
-Microsoft.Identity.Web.TokenAcquisitionAddInOptions.InvokeOnAfterTokenAcquisition(Microsoft.Identity.Client.AuthenticationResult! result, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
-Microsoft.Identity.Web.TokenAcquisitionAddInOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
-Microsoft.Identity.Web.TokenAcquisitionAddInOptions.InvokeOnBuildConfidentialClientApplication(Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
+#nullable enable
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 readonly Microsoft.Identity.Web.TokenAcquisition.tokenAcquisitionExtensionOptionsMonitor -> Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.TokenAcquisitionExtensionOptions!>?
