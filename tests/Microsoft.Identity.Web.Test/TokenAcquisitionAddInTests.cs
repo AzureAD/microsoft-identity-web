@@ -7,11 +7,33 @@ using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 using System.Threading.Tasks;
+using NSubstitute;
 
 namespace Microsoft.Identity.Web.Tests
 {
     public class TokenAcquisitionAddInTests
     {
+        [Fact]
+        public void InvokeOnBuildConfidentialClientApplication_InvokesEvent()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            var acquireTokenOptions = new AcquireTokenOptions();
+            ConfidentialClientApplicationBuilder builderMock = null!;
+
+            bool eventInvoked = false;
+            options.OnBuildConfidentialClientApplication += (builder, options) =>
+            {
+                eventInvoked = true;
+            };
+
+            // Act
+            options.InvokeOnBuildConfidentialClientApplication(builderMock, acquireTokenOptions);
+
+            // Assert
+            Assert.True(eventInvoked);
+        }
+
         [Fact]
         public async Task InvokeOnBeforeTokenAcquisitionForApp_InvokesEvent()
         {
@@ -59,6 +81,28 @@ namespace Microsoft.Identity.Web.Tests
             Assert.True(eventInvoked);
             Assert.NotNull(result);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        }
+
+        [Fact]
+        public void InvokeOnAfterTokenAcquisition_InvokesEvent()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            ConfidentialClientApplicationBuilder builderMock = null!;
+            var resultMock = Substitute.For<AuthenticationResult>();
+            var acquireTokenOptions = new AcquireTokenOptions();
+
+            bool eventInvoked = false;
+            options.OnAfterTokenAcquisition += (result, options) =>
+            {
+                eventInvoked = true;
+            };
+
+            // Act
+            options.InvokeOnAfterTokenAcquisition(resultMock, acquireTokenOptions);
+
+            // Assert
+            Assert.True(eventInvoked);
         }
     }
 }
