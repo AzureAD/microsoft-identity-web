@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
@@ -57,6 +58,7 @@ namespace Microsoft.Identity.Web
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
         protected readonly ICertificatesObserver? _certificatesObserver;
+        protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -104,6 +106,7 @@ namespace Microsoft.Identity.Web
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
+            tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
         }
 
 #if NET6_0_OR_GREATER
@@ -441,12 +444,20 @@ namespace Microsoft.Identity.Web
                 }
             }
 
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
+
             // Use MSAL to get the right token to call the API
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            if (addInOptions!=null)
+            {
+                addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
+            }
 
             // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
             // not be cross tenant operations with such an authority.
@@ -471,6 +482,9 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
+
+                // Extra Parameters are not meant to be used by Token but by extensions
+
                 if (tokenAcquisitionOptions.CorrelationId != null)
                 {
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
