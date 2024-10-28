@@ -1,3 +1,19 @@
+3.3.0
+========
+- Updated to Microsoft.Identity.Client 4.66.0
+- Update system.Text.Json to 8.0.5 CVE-2024-43485
+- Updated to .NET 9 RC2
+ 
+### New features
+- Microsoft.Identity.Web token acquisitio now provides an extensibility mechanism to enlight non-standard features. For details, see [#2975](https://github.com/AzureAD/microsoft-identity-web/issues/2975)
+
+### Fundamentals
+- Split DownstreamApi methods between AoT compatible and incompatible methods by @SaurabhMSFT in https://github.com/AzureAD/microsoft-identity-web/pull/3090
+- ASP.NET Core (and other) cross-link updates by @guardrex in https://github.com/AzureAD/microsoft-identity-web/pull/3096. Thank you!
+- Onboarded to Threading Analyzers. For details, see [#3052](https://github.com/AzureAD/microsoft-identity-web/issues/3052)
+- display code coverage as PR comments
+- Fix flaky EncryptionTestAsync on .NET 9.
+
 3.2.2
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.2
