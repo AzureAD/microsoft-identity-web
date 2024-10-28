@@ -336,7 +336,7 @@ namespace Microsoft.Identity.Web
                 string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
 
                 var accounts = await application.GetAccountsAsync().ConfigureAwait(false);
-                var account = accounts.FirstOrDefault(account => account.Username == username);
+                var account = accounts.Where(account => account.Username == username).FirstOrDefault();
                 
                 if (account != null)
                 {
@@ -349,9 +349,10 @@ namespace Microsoft.Identity.Web
                             .ExecuteAsync()
                             .ConfigureAwait(false);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore this exception as we will retry with ROPC
+                        // Log a message when the silent flow fails and try acquisition through ROPC.
+                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                     }
 
                 }
