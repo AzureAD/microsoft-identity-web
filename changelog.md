@@ -1,3 +1,39 @@
+3.3.0
+========
+### New features
+- Microsoft.Identity.Web token acquisition is now extensible to bring non-standard features. For details, see [], including 1P: https://github.com/AzureAD/microsoft-identity-web/pull/3005
+
+### Fundamentals
+- Split DownstreamApi methods between AoT compatible and incompatible methods by @SaurabhMSFT in https://github.com/AzureAD/microsoft-identity-web/pull/3090
+
+### Documentation
+- ASP.NET Core (and other) cross-link updates by @guardrex in https://github.com/AzureAD/microsoft-identity-web/pull/3096. Thank you!
+
+#### Security
+- update to MSAL 4.66 in https://github.com/AzureAD/microsoft-identity-web/pull/3095, https://github.com/AzureAD/microsoft-identity-web/pull/3098, https://github.com/AzureAD/microsoft-identity-web/pull/3104
+- Address CVEs, in particular update system.Text.Json to 8.0.5 CVE-2024-43485 (https://github.com/AzureAD/microsoft-identity-web/pull/3069, https://github.com/AzureAD/microsoft-identity-web/pull/3074
+- Update Devapps references (https://github.com/AzureAD/microsoft-identity-web/pull/3073, https://github.com/AzureAD/microsoft-identity-web/pull/3072, https://github.com/AzureAD/microsoft-identity-web/pull/3070, https://github.com/AzureAD/microsoft-identity-web/pull/3075
+- Update .NET 9 to RC 2 by @msbw2 in https://github.com/AzureAD/microsoft-identity-web/pull/3082, which involved fixing reflection in MemoryCache tests to support both versions seen in .NET 9 RCs by @msbw2 in https://github.com/AzureAD/microsoft-identity-web/pull/3085
+- Remove swagger UI dependencies in samples by @msbw2 in https://github.com/AzureAD/microsoft-identity-web/pull/3099
+
+#### Shift-left improvements
+- Onboarded to Threading Analyzers by @westin-m in https://github.com/AzureAD/microsoft-identity-web/pull/3041
+- Align editor config with other libraries by @westin-m in https://github.com/AzureAD/microsoft-identity-web/pull/3079
+- Mark IdWeb APIs as shipped by @westin-m in https://github.com/AzureAD/microsoft-identity-web/pull/3086
+- Grouping Dependabot Updates by @JoshLozensky in https://github.com/AzureAD/microsoft-identity-web/pull/3105
+- display code coverage as PR comments by @westin-m in https://github.com/AzureAD/microsoft-identity-web/pull/3107
+
+#### Build improvements
+- Update GitHub Action to run unit tests by @pmaytak in https://github.com/AzureAD/microsoft-identity-web/pull/3089
+- Use nuget config file by @SaurabhMSFT in https://github.com/AzureAD/microsoft-identity-web/pull/3083, https://github.com/AzureAD/microsoft-identity-web/pull/3112
+- Fix DevEx and IDDP builds by @jmprieur in https://github.com/AzureAD/microsoft-identity-web/pull/3093
+- Fix flaky EncryptionTestAsync on .NET 9 by @pmaytak in https://github.com/AzureAD/microsoft-identity-web/pull/3088
+
+## New Contributors
+* @guardrex made their first contribution in https://github.com/AzureAD/microsoft-identity-web/pull/3096
+
+**Full Changelog**: https://github.com/AzureAD/microsoft-identity-web/compare/3.2.2...3.3.0
+
 3.2.2
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.2
