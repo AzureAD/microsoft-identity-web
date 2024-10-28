@@ -17,3 +17,20 @@ updates:
     labels:
       - "dependabot"
       - "dependencies"
+    groups:
+      # Groups all recommended minor and patch updates with a security designation into a single PR
+      security:
+        applies-to: security-updates
+        patterns:
+        - "*"
+        update-types:
+        - "minor"
+        - "patch"
+      # Groups all minor and patch non-security designated version updates into a single PR
+      notsecurity:
+        applies-to: version-updates
+        patterns:
+        - "*"
+        update-types:
+        - "minor"
+        - "patch"
