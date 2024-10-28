@@ -1,7 +1,7 @@
 3.3.0
 ========
 ### New features
-- Microsoft.Identity.Web token acquisition is now extensible to bring non-standard features. For details, see [], including 1P: https://github.com/AzureAD/microsoft-identity-web/pull/3005
+- Microsoft.Identity.Web token acquisition is now extensible to bring non-standard features. For details, see [TokenAcquisitionExtensionOptions](https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.TokenAcquisition/TokenAcquisitionExtensionOptions.cs): https://github.com/AzureAD/microsoft-identity-web/pull/3005
 
 ### Fundamentals
 - Split DownstreamApi methods between AoT compatible and incompatible methods by @SaurabhMSFT in https://github.com/AzureAD/microsoft-identity-web/pull/3090
