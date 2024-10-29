@@ -10,7 +10,17 @@ namespace grpc
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            try
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                System.Console.WriteLine("Message" + ex.Message);
+                System.Console.WriteLine("gRPC Crashed-----------------------------------------------------");
+                throw;
+            }
         }
 
         // Additional configuration is required to successfully run gRPC on macOS.

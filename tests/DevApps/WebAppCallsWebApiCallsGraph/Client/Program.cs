@@ -10,7 +10,17 @@ namespace WebApp_OpenIDConnect_DotNet
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            try
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                System.Console.WriteLine("Message" + ex.Message);
+                System.Console.WriteLine("TodoListClient Crashed-----------------------------------------------------");
+                throw;
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
