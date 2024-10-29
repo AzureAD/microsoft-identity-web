@@ -109,5 +109,10 @@ namespace Microsoft.Identity.Web
         /// Password claims for ROPC flow.
         /// </summary>
         public const string Password = "xms_password";
+
+        /// <summary>
+        /// Account Id claim to store account id for silent flow with ROPC.
+        /// </summary>
+        public const string HomeAccountId = "xms_account_id";
     }
 }

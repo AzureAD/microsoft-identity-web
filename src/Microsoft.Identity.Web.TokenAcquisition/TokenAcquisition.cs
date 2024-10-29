@@ -334,14 +334,14 @@ namespace Microsoft.Identity.Web
             {
                 string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
+                string accountId = user.FindFirst(ClaimConstants.HomeAccountId)?.Value ?? string.Empty;
 
-                var accounts = await application.GetAccountsAsync().ConfigureAwait(false);
-                var account = accounts.Where(account => account.Username == username).FirstOrDefault();
-                
-                if (account != null)
+                if (accountId != null)
                 {
                     try
                     {
+                        var account = await application.GetAccountAsync(accountId).ConfigureAwait(false);
+
                         // Silent flow
                         return await application.AcquireTokenSilent(
                             scopes.Except(_scopesRequestedByMsal),
@@ -364,6 +364,11 @@ namespace Microsoft.Identity.Web
                     password)
                     .ExecuteAsync()
                     .ConfigureAwait(false);
+
+                user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim(ClaimConstants.HomeAccountId, authenticationResult.Account.HomeAccountId.Identifier),
+                }));
 
                 return authenticationResult;
             }
