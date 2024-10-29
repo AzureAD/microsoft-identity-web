@@ -365,10 +365,14 @@ namespace Microsoft.Identity.Web
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                if (user.FindFirst(ClaimConstants.HomeAccountId) == null)
                 {
-                    new Claim(ClaimConstants.HomeAccountId, authenticationResult.Account.HomeAccountId.Identifier),
-                }));
+                    // Add the account id to the user (in case of ROPC flow)
+                    user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.HomeAccountId, authenticationResult.Account.HomeAccountId.Identifier),
+                    }));
+                }
 
                 return authenticationResult;
             }
