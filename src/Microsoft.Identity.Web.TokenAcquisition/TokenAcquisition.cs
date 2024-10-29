@@ -334,13 +334,12 @@ namespace Microsoft.Identity.Web
             {
                 string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
-                string accountId = user.FindFirst(ClaimConstants.HomeAccountId)?.Value ?? string.Empty;
 
-                if (accountId != null)
+                if (user.GetMsalAccountId() != null)
                 {
                     try
                     {
-                        var account = await application.GetAccountAsync(accountId).ConfigureAwait(false);
+                        var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
 
                         // Silent flow
                         return await application.AcquireTokenSilent(
@@ -370,7 +369,8 @@ namespace Microsoft.Identity.Web
                     // Add the account id to the user (in case of ROPC flow)
                     user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
                     {
-                        new Claim(ClaimConstants.HomeAccountId, authenticationResult.Account.HomeAccountId.Identifier),
+                        new Claim(ClaimConstants.UniqueObjectIdentifier, authenticationResult.Account.HomeAccountId.ObjectId),
+                        new Claim(ClaimConstants.UniqueTenantIdentifier, authenticationResult.Account.HomeAccountId.TenantId),
                     }));
                 }
 
