@@ -17,7 +17,14 @@
 3.2.2
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.2
+- **Breaking change** (without major version change. Sorry!) 
+   ClientAssertionProviderBase.GetSignedAssertion now takes an MSAL.NET AssertionRequestOptions. See:
 
+   ```csharp
+   var m = new ManagedIdentityClientAssertion("<some client id>");
+   m.GetSignedAssertion(CancellationToken.None); // this method will break on v3.2.2  
+   ```
+   
 3.2.1
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.1
