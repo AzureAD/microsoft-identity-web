@@ -18,7 +18,7 @@
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.2
 - **Breaking change** (without major version change. Sorry!) 
-   ClientAssertionProviderBase.GetSignedAssertion now takes an MSAL.NET AssertionRequestOptions. See:
+   [ClientAssertionProviderBase.GetSignedAssertion](https://github.com/AzureAD/microsoft-identity-web/blob/195328cc509e3d964bb47f1877a8946b6f136f81/src/Microsoft.Identity.Web.Certificateless/ManagedIdentityClientAssertion.cs#L79) now takes an MSAL.NET AssertionRequestOptions. See:
 
    ```csharp
    var m = new ManagedIdentityClientAssertion("<some client id>");
