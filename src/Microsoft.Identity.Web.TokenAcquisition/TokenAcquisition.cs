@@ -364,7 +364,7 @@ namespace Microsoft.Identity.Web
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                if (user.FindFirst(ClaimConstants.HomeAccountId) == null)
+                if (user.GetMsalAccountId() == null)
                 {
                     // Add the account id to the user (in case of ROPC flow)
                     user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
