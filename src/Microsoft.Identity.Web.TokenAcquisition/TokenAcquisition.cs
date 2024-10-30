@@ -328,6 +328,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
         private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
