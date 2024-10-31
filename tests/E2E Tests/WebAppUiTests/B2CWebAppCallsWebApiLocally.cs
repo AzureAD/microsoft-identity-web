@@ -42,7 +42,7 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectlyAsync()
+        public async Task Susi_B2C_LocalAccount_TodoAppFunctionsCorrectlyAsync()
         {
             // Web app and api environmental variable setup.
             DefaultAzureCredential azureCred = new();

@@ -324,7 +324,6 @@ namespace WebAppUiTests
                                                 processDataEntry.EnvironmentVariables);
 
                 processes.Add(processDataEntry.ExecutableName, process);
-                Thread.Sleep(5000);
             }
 
             //Verify that processes are running
@@ -357,7 +356,6 @@ namespace WebAppUiTests
                                                     processDataEntry.AppLocation,
                                                     processDataEntry.ExecutableName,
                                                     processDataEntry.EnvironmentVariables);
-                    Thread.Sleep(5000);
 
                     //Update process in collection
                     processes[processEntry.Key] = process;
