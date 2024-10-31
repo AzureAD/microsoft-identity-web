@@ -112,13 +112,13 @@ namespace TokenAcquirerTests
             var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
 
             var result = await tokenAcquirer.GetTokenForUserAsync(
-                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user).ConfigureAwait(false);
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
 
             Assert.NotNull(result);
             Assert.NotNull(result.AccessToken);
 
             var result2 = await tokenAcquirer.GetTokenForUserAsync(
-                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user).ConfigureAwait(false);
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
 
             Assert.NotNull(result2);
             Assert.NotNull(result2.AccessToken);
