@@ -17,7 +17,14 @@
 3.2.2
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.2
+- **Breaking change** (without major version change. Sorry!) 
+   [ClientAssertionProviderBase.GetSignedAssertion](https://github.com/AzureAD/microsoft-identity-web/blob/195328cc509e3d964bb47f1877a8946b6f136f81/src/Microsoft.Identity.Web.Certificateless/ManagedIdentityClientAssertion.cs#L79) now takes an MSAL.NET AssertionRequestOptions and the method name has changed from `GetSignedAssertion` to `GetClientAssertionAsync`:
 
+   ```csharp
+   var m = new ManagedIdentityClientAssertion("<some client id>");
+   m.GetSignedAssertion(CancellationToken.None); // this method will break on v3.2.2  
+   ```
+   
 3.2.1
 =========
 - Updated to Microsoft.IdentityModel.* 8.1.1
