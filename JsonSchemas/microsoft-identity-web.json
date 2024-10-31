@@ -1,421 +1,89 @@
 {
-    "$id": "https://microsoft.com/schemas/microsoft.identity.web",
+    "$id": "https://microsoft.com/Mise/schemas/AzureAdSection",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "CertificateSource": {
-            "enum": [
-                "KeyVault",
-                "Base64Encoded",
-                "Path",
-                "StoreWithThumbprint",
-                "StoreWithDistinguishedName"
-            ],
-            "description": "Enumeration of credential sources."
-        },
-        "ClientCredentialSource": {
-            "enum": [
-                "KeyVault",
-                "ClientSecret",
-                "Base64Encoded",
-                "Path",
-                "StoreWithThumbprint",
-                "StoreWithDistinguishedName",
-                "SignedAssertionFromManagedIdentity",
-                "SignedAssertionFilePath",
-                "SignedAssertionFromVault"
-            ],
-            "description": "Enumeration of credential sources."
-        },
-        "DecryptCredentialSource": {
-            "enum": [
-                "KeyVault",
-                "Base64Encoded",
-                "Path",
-                "StoreWithThumbprint",
-                "StoreWithDistinguishedName",
-                "AutoDecryptKeys"
-            ],
-            "description": "Enumeration of credential sources."
-        },
-        "ClientCertificatesDescription": {
+        "AzureAdSection": {
             "type": "object",
             "properties": {
-                "SourceType": {
-                    "$ref": "#/definitions/CertificateSource"
-                }
-            },
-            "required": [
-                "SourceType"
-            ],
-            "anyOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "KeyVault"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "KeyVaultUrl": {
-                                "type": "string"
-                            },
-                            "KeyVaultCertificateName": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "KeyVaultUrl",
-                            "KeyVaultCertificateName"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "Base64Encoded"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "Base64EncodedValue": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "Base64EncodedValue"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "Path"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "CertificateDiskPath": {
-                                "type": "string"
-                            },
-                            "CertificatePassword": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "CertificateDiskPath"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "StoreWithThumbprint"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "CertificateStorePath": {
-                                "type": "string"
-                            },
-                            "CertificateThumbprint": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "CertificateStorePath",
-                            "CertificateThumbprint"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "StoreWithDistinguishedName"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "CertificateStorePath": {
-                                "type": "string"
-                            },
-                            "CertificateDistinguishedName": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "CertificateStorePath",
-                            "CertificateDistinguishedName"
-                        ]
-                    }
-                }
-            ]
-        },
-        "ClientCredentialsDescription": {
-            "type": "object",
-            "properties": {
-                "SourceType": {
-                    "$ref": "#/definitions/ClientCredentialSource"
-                }
-            },
-            "required": [
-                "SourceType"
-            ],
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/ClientCertificatesDescription"
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "ClientSecret"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "ClientSecret": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "ClientSecret"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "SignedAssertionFromManagedIdentity"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "ManagedIdentityClientId": {
-                                "type": "string"
-                            },
-                            "TokenExchangeUrl": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
-                            }
-                        },
-                        "required": [
-                            "SourceType"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "SignedAssertionFilePath"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "SignedAssertionFileDiskPath": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType"
-                        ]
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "SignedAssertionFromVault"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "KeyVaultUrl": {
-                                "type": "string"
-                            },
-                            "KeyVaultCertificateName": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "KeyVaultUrl",
-                            "KeyVaultCertificateName"
-                        ]
-                    }
-                }
-            ]
-        },
-        "AuthorizationHeaderProviderOptions": {
-            "type": "object",
-            "properties": {
-                "BaseUrl": {
-                    "type": [
-                        "string"
-                    ]
-                },
-                "RelativePath": {
+                "Instance": {
                     "type": "string",
-                    "default": ""
+                    "default": "https://login.microsoftonline.com",
+                    "description": "Cloud instance, to be used with TenantId. Exclusive of Authority."
                 },
-                "HttpMethod": {
+                "TenantId": {
+                    "type": "string",
+                    "description": "Tenants accepted by the application."
+                },
+                "ClientId": {
                     "type": "string"
                 },
-                "AcquireTokenOptions": {
-                    "$ref": "#/definitions/AcquireTokenOptions"
-                },
-                "ProtocolScheme": {
+                "Authority": {
                     "type": "string",
-                    "default": "Bearer"
+                    "description": "The IdP authority. Exclusive of Instance + TenantId."
                 },
-                "RequestAppToken": {
-                    "type": "boolean",
-                    "default": false
-                }
-            }
-        },
-        "AcquireTokenOptions": {
-            "type": "object",
-            "properties": {
-                "AuthenticationOptionsName": {
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                "ShowPII": {
+                    "type": "boolean"
                 },
                 "ExtraQueryParameters": {
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
-                "ExtraHeadersParameters": {
-                    "type": [
-                        "object",
-                        "null"
-                    ]
+                "AzureRegion": {
+                    "type": "string"
                 },
-                "Claims": {
-                    "type": [
-                        "string"
-                    ]
+                "ClientCredentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "./Credentials.json#/definitions/ClientCredentialsDescription"
+                    }
                 },
-                "ForceRefresh": {
-                    "type": "boolean",
-                    "default": false
+                "SendX5C": {
+                    "type": "boolean"
                 },
-                "ManagedIdentity": {
-                    "$ref": "#/definitions/ManagedIdentityOptions"
-                },
-                "LongRunningWebApiSessionKey": {
-                    "type": [
-                        "string"
-                    ]
-                },
-                "Tenant": {
-                    "type": [
-                        "string"
-                    ]
-                }
-            }
-        },
-        "ManagedIdentityOptions": {
-            "type": "object",
-            "properties": {
-                "UserAssignedClientId": {
-                    "type": [
-                        "string"
-                    ]
-                }
-            }
-        },
-        "DownstreamApiOptions": {
-            "type": "object",
-            "allOf": [
-                {
-                    "$ref": "#/definitions/AuthorizationHeaderProviderOptions"
-                }
-            ],
-            "properties": {
-                "Scopes": {
-                    "type": [
-                        "array"
-                    ],
+                "ClientCapabilities": {
+                    "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "AcceptHeader": {
-                    "type": "string",
-                    "default": "application/json"
+                "Audiences": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
-                "ContentType": {
-                    "type": "string",
-                    "default": "application/json"
-                }
-            },
-            "required": [
-                "Scopes"
-            ]
-        },
-        "TokenDecryptionCredentialsDescription": {
-            "type": "object",
-            "properties": {
-                "SourceType": {
-                    "$ref": "#/definitions/DecryptCredentialSource"
-                }
-            },
-            "required": [
-                "SourceType"
-            ],
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/ClientCertificatesDescription"
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "SourceType": {
-                                "const": "AutoDecryptKeys"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "DecryptKeysAuthenticationOptions": {
-                                "$ref": "#/definitions/AuthorizationHeaderProviderOptions"
-                            }
-                        },
-                        "required": [
-                            "SourceType",
-                            "DecryptKeysAuthenticationOptions"
-                        ]
+                "TokenDecryptionCredentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "./Credentials.json#/definitions/TokenDecryptionCredentialsDescription"
                     }
                 }
+            },
+            "required": [
+                "Instance",
+                "TenantId",
+                "ClientId"
             ]
         }
-    }
+    },
+    "type": "object",
+    "properties": {
+        "Version": {
+            "type": "string"
+        },
+        "AzureAd": {
+            "$ref": "#/definitions/AzureAdSection"
+        },
+        "DownstreamApis": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "./Credentials.json#/definitions/DownstreamApiOptions"
+            }
+        }
+    },
+    "required": [
+        "AzureAd"
+    ]
 }
