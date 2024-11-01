@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web.Test
     public class TestDistributedCache : IDistributedCache
     {
         internal readonly ConcurrentDictionary<string, Entry> _dict = new ConcurrentDictionary<string, Entry>();
-        internal static ManualResetEventSlim ResetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
+        internal ManualResetEventSlim ResetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
 
         public byte[]? Get(string key)
         {
