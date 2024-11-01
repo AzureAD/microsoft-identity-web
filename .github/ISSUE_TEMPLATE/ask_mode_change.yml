@@ -48,7 +48,8 @@ body:
       description: Check the boxes of the other ID4S libraries to be released.
       options:
         - label: Microsoft.Identity.Abstractions
-        - label: Microsoft.IdentityModel
+        - label: Microsoft.IdentityModel.*
+        - label: Microsoft.Identity.Client
   - type: textarea
     id: reason
     attributes:
