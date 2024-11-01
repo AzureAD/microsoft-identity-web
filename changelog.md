@@ -1,3 +1,15 @@
+3.3.1
+========
+- Updated to Microsoft.Identity.Model.* 8.2.0
+
+### Supportability
+- Added JSON schema support for Microsoft.Identity.Web configuration. This allows for schema validation in the `appsettings.json`, improving configuration accuracy and developer experience. To use it, add the following at the top of your appsettings.json:
+`"$schema": "https://raw.githubusercontent.com/AzureAD/microsoft-identity-web/refs/heads/jmprieur/jsonschema/JsonSchemas/microsoft-identity-web.json"`
+This update enhances the configuration process by providing clear structure and validation for settings used in Microsoft.Identity.Web. See PR [#3119](https://github.com/AzureAD/microsoft-identity-web/pull/3119) for details.
+
+### Fundamentals
+- Fix a flaky test in the L1L2Cache tests. See PR [#3122](https://github.com/AzureAD/microsoft-identity-web/pull/3122) for details.
+
 3.3.0
 ========
 - Updated to Microsoft.Identity.Client 4.66.0
