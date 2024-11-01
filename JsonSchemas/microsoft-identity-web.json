@@ -1,0 +1,89 @@
+{
+    "$id": "https://microsoft.com/Mise/schemas/AzureAdSection",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "AzureAdSection": {
+            "type": "object",
+            "properties": {
+                "Instance": {
+                    "type": "string",
+                    "default": "https://login.microsoftonline.com",
+                    "description": "Cloud instance, to be used with TenantId. Exclusive of Authority."
+                },
+                "TenantId": {
+                    "type": "string",
+                    "description": "Tenants accepted by the application."
+                },
+                "ClientId": {
+                    "type": "string"
+                },
+                "Authority": {
+                    "type": "string",
+                    "description": "The IdP authority. Exclusive of Instance + TenantId."
+                },
+                "ShowPII": {
+                    "type": "boolean"
+                },
+                "ExtraQueryParameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "AzureRegion": {
+                    "type": "string"
+                },
+                "ClientCredentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "./Credentials.json#/definitions/ClientCredentialsDescription"
+                    }
+                },
+                "SendX5C": {
+                    "type": "boolean"
+                },
+                "ClientCapabilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "Audiences": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "TokenDecryptionCredentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "./Credentials.json#/definitions/TokenDecryptionCredentialsDescription"
+                    }
+                }
+            },
+            "required": [
+                "Instance",
+                "TenantId",
+                "ClientId"
+            ]
+        }
+    },
+    "type": "object",
+    "properties": {
+        "Version": {
+            "type": "string"
+        },
+        "AzureAd": {
+            "$ref": "#/definitions/AzureAdSection"
+        },
+        "DownstreamApis": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "./Credentials.json#/definitions/DownstreamApiOptions"
+            }
+        }
+    },
+    "required": [
+        "AzureAd"
+    ]
+}
