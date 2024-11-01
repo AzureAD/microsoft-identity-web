@@ -12,12 +12,14 @@ steps:
   displayName: 'Install wasm-tools'
 
 - powershell: |
+    Push-Location $(IdWebSourceDir)
     $nugetSourceIsExternal = (dotnet nuget list source --format Short).Contains("https://api.nuget.org/v3/index.json")
     if ($nugetSourceIsExternal) {
         dotnet nuget remove source NuGet
         dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP
         dotnet nuget list source
     }
+    Pop-Location
   displayName: 'Remove external "NuGet" Source and add "IDDP artifacts" as a NuGet Source, if needed.'
 
 - task: DotNetCoreCLI@2
@@ -25,6 +27,8 @@ steps:
   inputs:
     command: 'custom'
     custom: 'build'
+    feedsToUse: 'config'
+    nugetConfigPath: NuGet.config
     projects: '$(IdWebSourceDir)Microsoft.Identity.Web.sln'
     arguments: '-p:configuration=${{ parameters.BuildConfiguration }} -p:RunCodeAnalysis=true -p:MicrosoftIdentityWebVersion=${{ parameters.MicrosoftIdentityWebVersion }} -p:SourceLinkCreate=true'
 
