@@ -1,6 +1,6 @@
 # This issue template is for use in opening issues that document Ask Mode Changes, for features or changes that come after the release candidate deadline.
 
-name: "IdentityWeb Ask Mode Change"
+name: "Microsoft.Identity.Web Ask Mode Change"
 description: Request an exception to release a feature or add any changes after the release candidate deadline, excludes fixes for preview regressions.
 title: "[Ask Mode Change]: "
 labels: "Ask Mode Change"
