@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [CollectionDefinition(nameof(L1L2CacheTests), DisableParallelization = true)]
     public class L1L2CacheTests
     {
         private const string DefaultCacheKey = "default-key";
@@ -51,12 +52,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache._dict);
 
             // Act
-            TestDistributedCache.ResetEvent.Reset();
+            L2Cache.ResetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache);
 
             // Assert
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
-            TestDistributedCache.ResetEvent.Wait();
+            L2Cache.ResetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 
@@ -168,12 +169,12 @@ namespace Microsoft.Identity.Web.Test
             cacheSerializerHints.SuggestedCacheExpiry = dateTimeOffset;
 
             // Act
-            TestDistributedCache.ResetEvent.Reset();
+            L2Cache.ResetEvent.Reset();
             await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache, cacheSerializerHints);
 
             // Assert
             Assert.Equal(memoryCacheExpectedCount, _testCacheAdapter._memoryCache.Count);
-            TestDistributedCache.ResetEvent.Wait();
+            L2Cache.ResetEvent.Wait();
             Assert.Single(L2Cache._dict);
         }
 

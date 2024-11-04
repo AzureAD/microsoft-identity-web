@@ -13,6 +13,8 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void TestTokenAcquisitionHostNotAspNetCore()
         {
+            TokenAcquirerFactory.ResetDefaultInstance();
+
             // When not adding Services.AddAuthentication, the host should be 
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             var host = tokenAcquirerFactory.Services.First(s => s.ServiceType.FullName == "Microsoft.Identity.Web.ITokenAcquisitionHost");
