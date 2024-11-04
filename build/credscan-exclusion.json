@@ -20,6 +20,10 @@
       {
         "file": "*InternalAPI.Unshipped.txt",
         "_justification": "Unshipped public API."
+      },
+      {
+        "file": "ClaimConstants.cs",
+        "_justification": "Constant contains the word Password as it is for the ROPC flow password claim constant."
       }
     ]
   }

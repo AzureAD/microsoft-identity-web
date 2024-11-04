@@ -254,6 +254,21 @@ namespace Microsoft.Identity.Web
             try
             {
                 AuthenticationResult? authenticationResult;
+
+                // If the user is not null and has claims xms-username and xms-password, perform ROPC for CCA
+                authenticationResult = await TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(
+                    application,
+                    scopes,
+                    user,
+                    mergedOptions,
+                    tokenAcquisitionOptions).ConfigureAwait(false);
+
+                if (authenticationResult != null)
+                {
+                    LogAuthResult(authenticationResult);
+                    return authenticationResult;
+                }
+
                 // Access token will return if call is from a web API
                 authenticationResult = await GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
                     application,
@@ -311,6 +326,59 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
+        }
+
+        // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
+        private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
+            {
+                string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
+                string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
+
+                if (user.GetMsalAccountId() != null)
+                {
+                    try
+                    {
+                        var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
+
+                        // Silent flow
+                        return await application.AcquireTokenSilent(
+                            scopes.Except(_scopesRequestedByMsal),
+                            account)
+                            .ExecuteAsync()
+                            .ConfigureAwait(false);
+                    }
+                    catch (MsalException ex)
+                    {
+                        // Log a message when the silent flow fails and try acquisition through ROPC.
+                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                    }
+
+                }
+
+                // ROPC flow
+                var authenticationResult = await ((IByUsernameAndPassword)application).AcquireTokenByUsernamePassword(
+                    scopes.Except(_scopesRequestedByMsal),
+                    username,
+                    password)
+                    .ExecuteAsync()
+                    .ConfigureAwait(false);
+
+                if (user.GetMsalAccountId() == null)
+                {
+                    // Add the account id to the user (in case of ROPC flow)
+                    user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimConstants.UniqueObjectIdentifier, authenticationResult.Account.HomeAccountId.ObjectId),
+                        new Claim(ClaimConstants.UniqueTenantIdentifier, authenticationResult.Account.HomeAccountId.TenantId),
+                    }));
+                }
+
+                return authenticationResult;
+            }
+
+            return null;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
