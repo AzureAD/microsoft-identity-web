@@ -349,7 +349,7 @@ namespace Microsoft.Identity.Web
                             .ExecuteAsync()
                             .ConfigureAwait(false);
                     }
-                    catch (Exception ex)
+                    catch (MsalException ex)
                     {
                         // Log a message when the silent flow fails and try acquisition through ROPC.
                         Logger.TokenAcquisitionError(_logger, ex.Message, ex);
