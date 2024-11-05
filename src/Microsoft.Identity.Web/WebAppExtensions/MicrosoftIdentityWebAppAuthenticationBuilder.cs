@@ -186,17 +186,19 @@ namespace Microsoft.Identity.Web
                                        var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
                                        if (uniqueTenantIdentifierClaim != null)
                                        {
-                                           throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                           context.Fail(new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                            {
                                                Claim = uniqueTenantIdentifierClaim
-                                           };
+                                           });
+                                           return;
                                        }
                                        if (uniqueObjectIdentifierClaim != null)
                                        {
-                                           throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                           context.Fail(new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                            {
                                                Claim = uniqueObjectIdentifierClaim
-                                           };
+                                           });
+                                           return;
                                        }
 
                                        identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));

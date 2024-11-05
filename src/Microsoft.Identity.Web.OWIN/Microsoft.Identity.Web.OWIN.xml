@@ -79,21 +79,15 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer">
+        <member name="T:Microsoft.Identity.Web.OWIN.InternalClaimDetectedException">
             <summary>
-            Gets the issuer the credentials are for.
+            The exception that is thrown when an internal ID Token claim used by Microsoft.Identity.Web internally is detected in the user's ID Token.
             </summary>
-            <value>
-            The issuer the credentials are for.
-            </value>
         </member>
-        <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.SecurityKeys">
+        <member name="P:Microsoft.Identity.Web.OWIN.InternalClaimDetectedException.Claim">
             <summary>
-            Gets all known security keys.
+            Gets or sets the invalid claim.
             </summary>
-            <value>
-            All known security keys.
-            </value>
         </member>
         <member name="T:Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory">
             <summary>
@@ -111,6 +105,22 @@
             <summary>
             Pre-build action. Ensures that the host is an OWIN host.
             </summary>
+        </member>
+        <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer">
+            <summary>
+            Gets the issuer the credentials are for.
+            </summary>
+            <value>
+            The issuer the credentials are for.
+            </value>
+        </member>
+        <member name="P:Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.SecurityKeys">
+            <summary>
+            Gets all known security keys.
+            </summary>
+            <value>
+            All known security keys.
+            </value>
         </member>
     </members>
 </doc>
