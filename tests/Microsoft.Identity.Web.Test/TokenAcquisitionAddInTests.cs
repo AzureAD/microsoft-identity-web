@@ -7,6 +7,7 @@ using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client.Extensibility;
 
 namespace Microsoft.Identity.Web.Tests
 {
@@ -54,6 +55,52 @@ namespace Microsoft.Identity.Web.Tests
 
             //Ensure ForceRefresh is set on the builder
             result = await builder.ExecuteAsync();
+
+            // Assert
+            Assert.True(eventInvoked);
+            Assert.NotNull(result);
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        }
+
+        [Fact]
+        public async Task InvokeOnBeforeTokenAcquisitionForUsernamePassword_InvokesEvent()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            var acquireTokenOptions = new AcquireTokenOptions();
+            acquireTokenOptions.ForceRefresh = true;
+
+            //Configure mocks
+            using MockHttpClientFactory mockHttpClient = new();
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+
+            var confidentialApp = ConfidentialClientApplicationBuilder
+                           .Create(TestConstants.ClientId)
+                           .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithHttpClientFactory(mockHttpClient)
+                           .WithInstanceDiscovery(false)
+                           .WithClientSecret(TestConstants.ClientSecret)
+                           .Build();
+
+            AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)confidentialApp)
+                .AcquireTokenByUsernamePassword(new string[] { "scope" }, "username", "something");
+
+            bool eventInvoked = false;
+            options.OnBeforeTokenAcquisitionForUsernamePassword += (builder, options) =>
+            {
+                MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
+                extension.OnBeforeTokenRequestHandler = async (request) =>
+                {
+                    eventInvoked = true;
+                };
+
+                builder.WithAuthenticationExtension(extension);
+            };
+
+            // Act
+            options.InvokeOnBeforeTokenAcquisitionForUsernamePassword(builder, acquireTokenOptions);
+
+            var result = await builder.ExecuteAsync();
 
             // Assert
             Assert.True(eventInvoked);

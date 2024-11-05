@@ -357,13 +357,23 @@ namespace Microsoft.Identity.Web
 
                 }
 
+                // Check for extension options for the ROPC flow
+                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
                 // ROPC flow
-                var authenticationResult = await ((IByUsernameAndPassword)application).AcquireTokenByUsernamePassword(
-                    scopes.Except(_scopesRequestedByMsal),
-                    username,
-                    password)
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
+                AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)application)
+                    .AcquireTokenByUsernamePassword(
+                        scopes.Except(_scopesRequestedByMsal),
+                        username,
+                        password);
+
+                if (addInOptions != null)
+                {
+                    addInOptions.InvokeOnBeforeTokenAcquisitionForUsernamePassword(builder, tokenAcquisitionOptions);
+                }
+
+                var authenticationResult = await builder.ExecuteAsync()
+                .ConfigureAwait(false);
 
                 if (user.GetMsalAccountId() == null)
                 {
