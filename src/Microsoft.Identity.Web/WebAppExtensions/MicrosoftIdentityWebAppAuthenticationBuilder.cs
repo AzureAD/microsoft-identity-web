@@ -179,8 +179,29 @@ namespace Microsoft.Identity.Web
 
                                if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                                {
-                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   var identity = context!.Principal!.Identities.FirstOrDefault();
+                                   if (identity != null)
+                                   {
+                                       var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+                                       var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+                                       if (uniqueTenantIdentifierClaim != null)
+                                       {
+                                           throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                           {
+                                               Claim = uniqueTenantIdentifierClaim
+                                           };
+                                       }
+                                       if (uniqueObjectIdentifierClaim != null)
+                                       {
+                                           throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                           {
+                                               Claim = uniqueObjectIdentifierClaim
+                                           };
+                                       }
+
+                                       identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                       identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   }
                                }
                            }
                            await onTokenValidatedHandler(context).ConfigureAwait(false);

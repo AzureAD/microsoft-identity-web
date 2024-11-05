@@ -175,6 +175,23 @@ namespace Microsoft.Identity.Web
 
                                 if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                                 {
+                                    var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+                                    var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+                                    if (uniqueTenantIdentifierClaim != null)
+                                    {
+                                        throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                        {
+                                            Claim = uniqueTenantIdentifierClaim,
+                                        };
+                                    }
+                                    if (uniqueObjectIdentifierClaim != null)
+                                    {
+                                        throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                        {
+                                            Claim = uniqueObjectIdentifierClaim
+                                        };
+                                    }
+
                                     context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
                                     context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                                 }
@@ -187,6 +204,23 @@ namespace Microsoft.Identity.Web
 
                             if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                             {
+                                var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+                                var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+                                if (uniqueTenantIdentifierClaim != null)
+                                {
+                                    throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                    {
+                                        Claim = uniqueTenantIdentifierClaim
+                                    };
+                                }
+                                if (uniqueObjectIdentifierClaim != null)
+                                {
+                                    throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
+                                    {
+                                        Claim = uniqueObjectIdentifierClaim
+                                    };
+                                }
+
                                 context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
                                 context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
                             }
