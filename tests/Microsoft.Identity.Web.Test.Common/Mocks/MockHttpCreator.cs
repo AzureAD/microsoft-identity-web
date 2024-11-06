@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Identity.Web.Util;
@@ -54,6 +56,18 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             };
 
             return handler;
+        }
+
+        public static MockHttpMessageHandler CreateHandlerToValidatePostData(
+            HttpMethod expectedMethod,
+            IDictionary<string, string> expectedPostData)
+        {
+            return new MockHttpMessageHandler()
+            {
+                ExpectedMethod = expectedMethod,
+                ExpectedPostData = expectedPostData,
+                ResponseMessage = CreateSuccessfulClientCredentialTokenResponseMessage(),
+            };
         }
     }
 }

@@ -8,6 +8,8 @@ using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Graph;
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web.Tests
 {
@@ -72,7 +74,9 @@ namespace Microsoft.Identity.Web.Tests
 
             //Configure mocks
             using MockHttpClientFactory mockHttpClient = new();
-            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
+                System.Net.Http.HttpMethod.Post,
+                new Dictionary<string, string>() { { "x-ms-test", "test" } }));
 
             var confidentialApp = ConfidentialClientApplicationBuilder
                            .Create(TestConstants.ClientId)
@@ -89,9 +93,11 @@ namespace Microsoft.Identity.Web.Tests
             options.OnBeforeTokenAcquisitionForUsernamePassword += (builder, options) =>
             {
                 MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
-                extension.OnBeforeTokenRequestHandler = async (request) =>
+                extension.OnBeforeTokenRequestHandler = (request) =>
                 {
                     eventInvoked = true;
+                    request.BodyParameters.Add("x-ms-test", "test");
+                    return Task.CompletedTask;
                 };
 
                 builder.WithAuthenticationExtension(extension);
