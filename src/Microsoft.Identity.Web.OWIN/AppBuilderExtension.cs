@@ -177,14 +177,14 @@ namespace Microsoft.Identity.Web
                                 {
                                     var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
                                     var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                    if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.Ordinal))
+                                    if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
                                     {
                                         throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                         {
                                             Claim = uniqueTenantIdentifierClaim,
                                         };
                                     }
-                                    if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.Ordinal))
+                                    if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
                                     {
                                         throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                         {
@@ -206,14 +206,14 @@ namespace Microsoft.Identity.Web
                             {
                                 var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
                                 var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.Ordinal))
+                                if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
                                 {
                                     throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                     {
                                         Claim = uniqueTenantIdentifierClaim
                                     };
                                 }
-                                if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.Ordinal))
+                                if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
                                 {
                                     throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
                                     {
