@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             }
 
             Assert.Equal(ExpectedMethod, request.Method);
-
+            await ValidatePostDataAsync(request);
             
 
             return ResponseMessage;
