@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Meta-tenant identifiers which are not allowed in client credentials.
         /// </summary>
-        private readonly HashSet<string> _metaTenantIdentifiers = new HashSet<string>(
+        private static readonly HashSet<string> _metaTenantIdentifiers = new HashSet<string>(
             new[]
             {
                 Constants.Common,
@@ -398,6 +398,32 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Resolves the tenant based on if the tenant is already set or the TenantId configured
+        /// in the options or the AppHomeTenantId if the TenantId is a meta tenant.
+        /// </summary>
+        /// <param name="tenant">Provided tenant or null if not provided</param>
+        /// <param name="mergedOptions">Merged configuration from which to retrieve tenant value as necessary</param>
+        /// <returns>Resolved tenant</returns>
+        internal static string? ResolveTenant(string? tenant, MergedOptions mergedOptions)
+        {
+            if (string.IsNullOrEmpty(tenant))
+            {
+                tenant = mergedOptions.TenantId;
+                if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant!) && !string.IsNullOrEmpty(mergedOptions.AppHomeTenantId))
+                {
+                    tenant = mergedOptions.AppHomeTenantId;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant!))
+            {
+                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
+            }
+
+            return tenant;
+        }
+
+        /// <summary>
         /// Acquires an authentication result from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using either a client credentials or managed identity flow. See https://aka.ms/msal-net-client-credentials for client credentials or
         /// https://aka.ms/Entra/ManagedIdentityOverview for managed identity.
@@ -427,15 +453,7 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
 
-            if (string.IsNullOrEmpty(tenant))
-            {
-                tenant = mergedOptions.TenantId;
-            }
-
-            if (!string.IsNullOrEmpty(tenant) && _metaTenantIdentifiers.Contains(tenant!))
-            {
-                throw new ArgumentException(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, nameof(tenant));
-            }
+            tenant = ResolveTenant(tenant, mergedOptions);
 
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
