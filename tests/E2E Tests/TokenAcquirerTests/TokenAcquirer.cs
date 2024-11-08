@@ -103,11 +103,8 @@ namespace TokenAcquirerTests
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
                authority: "https://login.microsoftonline.com/organizations",
-               clientId: "88f91eac-c606-4c67-a0e2-a5e8a186854f",
-               clientCredentials: new[]
-               {
-                   CertificateDescription.FromStoreWithDistinguishedName("CN=LabAuth.MSIDLab.com")
-               });
+               clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
+               clientCredentials: s_clientCredentials);
 
             var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
 

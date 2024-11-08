@@ -37,6 +37,7 @@ namespace Microsoft.Identity.Web
 
         // Properties of ConfidentialClientApplication which are not in MicrosoftIdentityOptions
         public AadAuthorityAudience AadAuthorityAudience { get; set; }
+        public string? AppHomeTenantId { get; set; }
         public AzureCloudInstance AzureCloudInstance { get; set; }
         public string? AzureRegion { get; set; }
         public IEnumerable<string>? ClientCapabilities { get; set; }
@@ -536,6 +537,8 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions.TenantId = microsoftIdentityApplicationOptions.TenantId;
             }
+
+            mergedOptions.AppHomeTenantId = microsoftIdentityApplicationOptions.AppHomeTenantId;
 
             mergedOptions.WithSpaAuthCode |= microsoftIdentityApplicationOptions.WithSpaAuthCode;
 
