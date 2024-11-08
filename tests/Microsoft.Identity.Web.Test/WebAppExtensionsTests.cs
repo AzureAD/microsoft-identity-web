@@ -360,8 +360,8 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("uid","user-uid")]
-        [InlineData("utid","user-utid")]
+        [InlineData(ClaimConstants.UniqueObjectIdentifier, "user-uid")]
+        [InlineData(ClaimConstants.UniqueTenantIdentifier, "user-utid")]
         public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDiffer(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
@@ -407,14 +407,14 @@ namespace Microsoft.Identity.Web.Test
                 {
                     Assert.False(tokenValidatedContext.Result.Succeeded);
                     Assert.NotNull(tokenValidatedContext.Result.Failure);
-                    Assert.IsType<InternalClaimDetectedException>(tokenValidatedContext.Result.Failure);
+                    Assert.IsType<System.Security.Authentication.AuthenticationException>(tokenValidatedContext.Result.Failure);
                 });
             await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
         [Theory]
-        [InlineData("uid", TestConstants.Uid)]
-        [InlineData("utid", TestConstants.Utid)]
+        [InlineData(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid)]
+        [InlineData(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid)]
         public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqual(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
@@ -509,8 +509,8 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("uid", "user-uid")]
-        [InlineData("utid", "user-utid")]
+        [InlineData(ClaimConstants.UniqueObjectIdentifier, "user-uid")]
+        [InlineData(ClaimConstants.UniqueTenantIdentifier, "user-utid")]
         public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDiffer(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
@@ -556,14 +556,14 @@ namespace Microsoft.Identity.Web.Test
                 {
                     Assert.False(tokenValidatedContext.Result.Succeeded);
                     Assert.NotNull(tokenValidatedContext.Result.Failure);
-                    Assert.IsType<InternalClaimDetectedException>(tokenValidatedContext.Result.Failure);
+                    Assert.IsType<System.Security.Authentication.AuthenticationException>(tokenValidatedContext.Result.Failure);
                 });
             await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
         [Theory]
-        [InlineData("uid", TestConstants.Uid)]
-        [InlineData("utid", TestConstants.Utid)]
+        [InlineData(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid)]
+        [InlineData(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid)]
         public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqual(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,6 +17,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 using Microsoft.Owin.Security.Jwt;
+using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OAuth;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
@@ -175,22 +178,7 @@ namespace Microsoft.Identity.Web
 
                                 if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                                 {
-                                    var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
-                                    var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                    if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
-                                        {
-                                            Claim = uniqueTenantIdentifierClaim,
-                                        };
-                                    }
-                                    if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
-                                        {
-                                            Claim = uniqueObjectIdentifierClaim
-                                        };
-                                    }
+                                    RejectInternalClaims(context.AuthenticationTicket.Identity, clientInfoFromServer.UniqueTenantIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
 
                                     context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
                                     context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
@@ -204,22 +192,7 @@ namespace Microsoft.Identity.Web
 
                             if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
                             {
-                                var uniqueTenantIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
-                                var uniqueObjectIdentifierClaim = context.AuthenticationTicket.Identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueTenantIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
-                                    {
-                                        Claim = uniqueTenantIdentifierClaim
-                                    };
-                                }
-                                if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    throw new InternalClaimDetectedException($"The claim \"{ClaimConstants.UniqueObjectIdentifier}\" is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token.")
-                                    {
-                                        Claim = uniqueObjectIdentifierClaim
-                                    };
-                                }
+                                RejectInternalClaims(context.AuthenticationTicket.Identity, clientInfoFromServer.UniqueTenantIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
 
                                 context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
                                 context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
@@ -271,6 +244,28 @@ namespace Microsoft.Identity.Web
             updateOptions?.Invoke(options);
 
             return app.UseOpenIdConnectAuthentication(options);
+        }
+
+        /// <summary>
+        /// Rejects the internal claims, if present.
+        /// </summary>
+        /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user</param>
+        /// <param name="uniqueTenantIdentifier">The tenant identifier (i.e. <see cref="ClaimConstants.UniqueTenantIdentifier"/>>)</param>
+        /// <param name="uniqueObjectIdentifier">The object identifier (i.e. <see cref="ClaimConstants.UniqueObjectIdentifier"/>>)</param>
+        /// <exception cref="AuthenticationException">The <see cref="ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
+        private static void RejectInternalClaims(ClaimsIdentity identity, string uniqueTenantIdentifier, string uniqueObjectIdentifier)
+        {
+            var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+            if (uniqueTenantIdentifierClaim != null && !string.Equals(uniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier));
+            }
+
+            var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+            if (uniqueObjectIdentifierClaim != null && !string.Equals(uniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier));
+            }
         }
     }
 }
