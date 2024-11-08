@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web.Tests
                 .AcquireTokenByUsernamePassword(new string[] { "scope" }, "username", "something");
 
             bool eventInvoked = false;
-            options.OnBeforeTokenAcquisitionForUsernamePassword += (builder, options) =>
+            options.OnBeforeTokenAcquisitionForTestUser += (builder, options) =>
             {
                 MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
                 extension.OnBeforeTokenRequestHandler = (request) =>
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            options.InvokeOnBeforeTokenAcquisitionForUsernamePassword(builder, acquireTokenOptions);
+            options.InvokeOnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions);
 
             var result = await builder.ExecuteAsync();
 

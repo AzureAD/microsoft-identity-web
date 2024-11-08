@@ -32,17 +32,17 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Event fired when a ROPC flow request is being built.
         /// </summary>        
-        public event BeforeTokenAcquisitionForUsernamePassword? OnBeforeTokenAcquisitionForUsernamePassword;
+        public event BeforeTokenAcquisitionForTestUser? OnBeforeTokenAcquisitionForTestUser;
 
         /// <summary>
-        /// Invoke the BeforeTokenAcquisitionForUsernamePassword event.
+        /// Invoke the BeforeTokenAcquisitionForTestUser event.
         /// </summary>
-        internal void InvokeOnBeforeTokenAcquisitionForUsernamePassword(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
+        internal void InvokeOnBeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
                                                            AcquireTokenOptions? acquireTokenOptions)
         {
-            if (OnBeforeTokenAcquisitionForUsernamePassword != null)
+            if (OnBeforeTokenAcquisitionForTestUser != null)
             {
-                OnBeforeTokenAcquisitionForUsernamePassword(builder, acquireTokenOptions);
+                OnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions);
             }
         }
     }

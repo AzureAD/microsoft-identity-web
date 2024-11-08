@@ -369,7 +369,7 @@ namespace Microsoft.Identity.Web
 
                 if (addInOptions != null)
                 {
-                    addInOptions.InvokeOnBeforeTokenAcquisitionForUsernamePassword(builder, tokenAcquisitionOptions);
+                    addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions);
                 }
 
                 var authenticationResult = await builder.ExecuteAsync()
