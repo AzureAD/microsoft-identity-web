@@ -26,8 +26,7 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472; netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
+    <TargetFrameworks>net462; net472; netstandard2.0; net6.0; net7.0; net8.0; net9.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -42,9 +41,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
-    <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
-      true
-    </EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
+    <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>true</EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
@@ -92,8 +89,6 @@
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftIdentityAbstractionsVersion>7.2.0</MicrosoftIdentityAbstractionsVersion>
-    <NetNineRuntimeVersion>9.0.0-rc.2.24473.5</NetNineRuntimeVersion>
-    <AspNetCoreNineRuntimeVersion>9.0.0-rc.2.24474.3</AspNetCoreNineRuntimeVersion>
     <!--CVE-2024-43485-->
     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
@@ -103,6 +98,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
+    <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
