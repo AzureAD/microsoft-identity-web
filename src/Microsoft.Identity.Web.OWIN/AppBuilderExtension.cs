@@ -247,7 +247,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Rejects the internal claims, if present.
+        /// The SDK injects 2 claims named uuid and utid into the ClaimsPrincipal, from ESTS's client_info. These represent 
+        /// the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
+        /// scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
+        /// a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
+        
         /// </summary>
         /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user</param>
         /// <param name="uniqueTenantIdentifier">The tenant identifier (i.e. <see cref="ClaimConstants.UniqueTenantIdentifier"/>>)</param>
