@@ -13,4 +13,11 @@ namespace Microsoft.Identity.Web
     /// <param name="builder">Builder</param>
     /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
     public delegate void BeforeTokenAcquisitionForApp(AcquireTokenForClientParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions);
+
+    /// <summary>
+    /// Signature for token acquisition extensions that act on the request builder, for ROPC flow.
+    /// </summary>
+    /// <param name="builder">Builder</param>
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    public delegate void BeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions);
 }
