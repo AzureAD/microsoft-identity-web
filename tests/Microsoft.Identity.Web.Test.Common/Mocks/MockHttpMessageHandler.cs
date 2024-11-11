@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Core;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
@@ -26,6 +27,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         public string ExpectedUrl { get; set; }
 
         public HttpMethod ExpectedMethod { get; set; }
+
+        public IDictionary<string, string> ExpectedPostData { get; set; }
 
         public Exception ExceptionToThrow { get; set; }
 
@@ -78,14 +81,28 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             }
 
             Assert.Equal(ExpectedMethod, request.Method);
+            await ValidatePostDataAsync(request);
+            
 
+            return ResponseMessage;
+        }
+
+        private async Task ValidatePostDataAsync(HttpRequestMessage request)
+        {
             if (request.Method != HttpMethod.Get && request.Content != null)
             {
                 string postData = await request.Content.ReadAsStringAsync();
                 ActualRequestPostData = QueryStringParser.ParseKeyValueList(postData, '&', true, false);
             }
 
-            return ResponseMessage;
+            if (ExpectedPostData != null)
+            {
+                foreach (string key in ExpectedPostData.Keys)
+                {
+                    Assert.True(ActualRequestPostData.ContainsKey(key));
+                    Assert.Equal(ExpectedPostData[key], ActualRequestPostData[key]);
+                }
+            }
         }
     }
 }
