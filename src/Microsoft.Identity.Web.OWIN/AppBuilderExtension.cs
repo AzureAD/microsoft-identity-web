@@ -176,12 +176,23 @@ namespace Microsoft.Identity.Web
                             {
                                 ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                                if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                if (clientInfoFromServer != null)
                                 {
-                                    RejectInternalClaims(context.AuthenticationTicket.Identity, clientInfoFromServer.UniqueTenantIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                    if (clientInfoFromServer.UniqueTenantIdentifier != null)
+                                    {
+                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
+                                    }
 
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                    if (clientInfoFromServer.UniqueObjectIdentifier != null)
+                                    {
+                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                    }
+
+                                    if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                    {
+                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                    }
                                 }
                                 context.OwinContext.Environment.Remove(ClaimConstants.ClientInfo);
                             }
@@ -251,24 +262,17 @@ namespace Microsoft.Identity.Web
         /// the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
         /// scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
         /// a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
-        
         /// </summary>
         /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user</param>
-        /// <param name="uniqueTenantIdentifier">The tenant identifier (i.e. <see cref="ClaimConstants.UniqueTenantIdentifier"/>>)</param>
-        /// <param name="uniqueObjectIdentifier">The object identifier (i.e. <see cref="ClaimConstants.UniqueObjectIdentifier"/>>)</param>
+        /// <param name="claimType">The claim type</param>
+        /// <param name="claimValue">The claim value</param>
         /// <exception cref="AuthenticationException">The <see cref="ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
-        private static void RejectInternalClaims(ClaimsIdentity identity, string uniqueTenantIdentifier, string uniqueObjectIdentifier)
+        private static void RejectInternalClaims(ClaimsIdentity identity, string claimType, string claimValue)
         {
-            var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
-            if (uniqueTenantIdentifierClaim != null && !string.Equals(uniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+            var identityClaim = identity.FindFirst(c => c.Type == claimType);
+            if (identityClaim != null && !string.Equals(claimValue, identityClaim.Value, StringComparison.OrdinalIgnoreCase))
             {
-                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier));
-            }
-
-            var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-            if (uniqueObjectIdentifierClaim != null && !string.Equals(uniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier));
+                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, claimType));
             }
         }
     }
