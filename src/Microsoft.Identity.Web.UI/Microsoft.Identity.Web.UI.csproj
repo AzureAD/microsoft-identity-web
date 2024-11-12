@@ -5,7 +5,8 @@
     <Product>Microsoft Identity Web UI</Product>
     <Description>This package enables UI for ASP.NET Core Web apps that use Microsoft.Identity.Web.</Description>
     <ProjectGuid>{C6CB0D5B-917A-4127-9984-7592C757BBDE}</ProjectGuid>
-    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
