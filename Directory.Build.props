@@ -34,7 +34,7 @@
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET6_0_OR_GREATER'">
@@ -77,7 +77,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
