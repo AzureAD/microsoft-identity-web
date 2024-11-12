@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Identity.Abstractions;
-#if !NETSTANDARD2_0 && !NET462 && !NET472
+
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 using Microsoft.Identity.Client;
 
@@ -52,6 +54,12 @@ namespace Microsoft.Identity.Web
         internal bool MergedWithCca { get; set; }
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
         internal bool PreserveAuthority { get; set; }
+
+        /// <summary>
+        /// Id Web will modify the instance so that it can be used by MSAL.
+        /// This modifies this property so that the original value is not changed.
+        /// </summary>
+        internal string? PreparedInstance { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -466,14 +474,14 @@ namespace Microsoft.Identity.Web
             if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
 #if !NETSTANDARD2_0 && !NET462 && !NET472
-                Instance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
+                PreparedInstance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
 #else
-                Instance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
+                PreparedInstance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
 #endif
             }
             else
             {
-                Instance = Instance.TrimEnd('/') + "/";
+                PreparedInstance = Instance.TrimEnd('/') + "/";
             }
         }
 

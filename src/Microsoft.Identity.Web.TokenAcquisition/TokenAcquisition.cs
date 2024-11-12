@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web
                 if (mergedOptions.IsB2C)
                 {
 
-                    var authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{authCodeRedemptionParameters.UserFlow ?? mergedOptions.DefaultUserFlow}";
+                    var authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{authCodeRedemptionParameters.UserFlow ?? mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
 
@@ -754,7 +754,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
         {
-            string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
             try
@@ -773,6 +772,8 @@ namespace Microsoft.Identity.Web
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
                 }
 
+                string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
+
                 // The redirect URI is not needed for OBO
                 if (!string.IsNullOrEmpty(currentUri))
                 {
@@ -788,12 +789,12 @@ namespace Microsoft.Identity.Web
                 }
                 else if (mergedOptions.IsB2C)
                 {
-                    authority = $"{mergedOptions.Instance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
+                    authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
                 {
-                    authority = $"{mergedOptions.Instance}{mergedOptions.TenantId}/";
+                    authority = $"{mergedOptions.PreparedInstance}{mergedOptions.TenantId}/";
                     builder.WithAuthority(authority);
                 }
 
