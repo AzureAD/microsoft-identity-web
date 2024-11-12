@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -19,5 +20,5 @@ namespace Microsoft.Identity.Web
     /// </summary>
     /// <param name="builder">Builder</param>
     /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
-    public delegate void BeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions);
+    public delegate void BeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
 }
