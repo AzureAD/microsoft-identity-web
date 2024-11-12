@@ -5,7 +5,7 @@
     <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
