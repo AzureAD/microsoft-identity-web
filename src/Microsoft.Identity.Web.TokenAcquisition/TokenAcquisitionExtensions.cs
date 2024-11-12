@@ -20,5 +20,6 @@ namespace Microsoft.Identity.Web
     /// </summary>
     /// <param name="builder">Builder</param>
     /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    /// <param name="user">User claims.</param>
     public delegate void BeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
 }
