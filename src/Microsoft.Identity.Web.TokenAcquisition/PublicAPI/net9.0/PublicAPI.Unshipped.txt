@@ -2,4 +2,5 @@
 Microsoft.Identity.Web.BeforeTokenAcquisitionForApp
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForApp -> Microsoft.Identity.Web.BeforeTokenAcquisitionForApp?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUser -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser?
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.TokenAcquisitionExtensionOptions() -> void
