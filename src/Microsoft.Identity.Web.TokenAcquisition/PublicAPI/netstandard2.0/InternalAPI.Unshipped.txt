@@ -2,5 +2,6 @@
 Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.get -> string?
 Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.set -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUser(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 readonly Microsoft.Identity.Web.TokenAcquisition.tokenAcquisitionExtensionOptionsMonitor -> Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.TokenAcquisitionExtensionOptions!>?
 static Microsoft.Identity.Web.TokenAcquisition.ResolveTenant(string? tenant, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> string?
