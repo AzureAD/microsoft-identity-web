@@ -41,10 +41,7 @@ namespace Microsoft.Identity.Web
         internal void InvokeOnBeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
                                                            AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
         {
-            if (OnBeforeTokenAcquisitionForTestUser != null)
-            {
-                OnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions, user);
-            }
+            OnBeforeTokenAcquisitionForTestUser?.Invoke(builder, acquireTokenOptions, user);
         }
     }
 }
