@@ -26,8 +26,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use .Net Core SDK 9'
   inputs:
-    version: 9.0.100-rc.2.24474.11
-    includePreviewVersions: true
+    version: 9.x
   condition: eq(variables['TargetNet9'], 'True')
 
 # Run Nuget Tool Installer
