@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net462; net472; net6.0; net7.0; net8.0; net9.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0; net462; net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
@@ -11,17 +11,17 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-		<MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
-		<!--GHSA-5crp-9r3c-p9vr-->
-		<NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
-		<XunitVersion>2.9.2</XunitVersion>
-		<XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
+    <!--GHSA-5crp-9r3c-p9vr-->
+    <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+    <XunitVersion>2.9.2</XunitVersion>
+    <XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
     <XunitAssertVersion>2.9.2</XunitAssertVersion>
     <XunitExtensibilityCoreVersion>2.9.2</XunitExtensibilityCoreVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
     <NSubstituteAnalyzersCSharpVersion>1.0.17</NSubstituteAnalyzersCSharpVersion>
-		<CoverletCollectorVersion>6.0.2</CoverletCollectorVersion>
+    <CoverletCollectorVersion>6.0.2</CoverletCollectorVersion>
     <SeleniumWebDriverVersion>4.8.0</SeleniumWebDriverVersion>
     <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
     <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
@@ -36,7 +36,7 @@
     <MicrosoftIdentityLabApiVersion>1.0.2</MicrosoftIdentityLabApiVersion>
     <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>
     <SystemTextRegularExpressions>4.3.1</SystemTextRegularExpressions>
-	</PropertyGroup>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <DefineConstants>$(DefineConstants);AZURE_DEVOPS_BUILD</DefineConstants>
