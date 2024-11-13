@@ -22,10 +22,10 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Setup .NET 9.0.x
+    - name: Setup .NET 8.0.x
       uses: actions/setup-dotnet@v4.0.1
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 8.0.x
 
     - name: Runs powershell script
       id: aot-powershell
