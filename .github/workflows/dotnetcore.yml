@@ -20,29 +20,14 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    continue-on-error: true
+    continue-on-error: false
     name: "Build and run unit tests"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4.2.1
 
-    - name: Setup .NET 6.0.x
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: 6.0.x
-
-    - name: Setup .NET 7.0.x
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: 7.0.x
-
-    - name: Setup .NET 8.0.x
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: 8.0.x
-
     - name: Setup .NET 9.0.x
-      uses: actions/setup-dotnet@v4.0.1
+      uses: actions/setup-dotnet@v4.1.0
       with:
         dotnet-version: 9.0.x
 
@@ -64,14 +49,14 @@ jobs:
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
     - name: Test with .NET 9.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net9.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
     - name: Create code coverage report
       run: |
-        dotnet tool install -g dotnet-reportgenerator-globaltool
+        dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.4.1
         reportgenerator -reports:./**/coverage.cobertura.xml -targetdir:CodeCoverage -reporttypes:'MarkdownSummaryGithub;Cobertura'
 
-    - name: Write Coverage to Job Summary
+    - name: Write coverage to job summary
       shell: bash
       run: |
         cat CodeCoverage/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
@@ -79,7 +64,7 @@ jobs:
         echo $(cat CodeCoverage/SummaryGithub.md) >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
-    - name: Comment Coverage in PR
+    - name: Comment coverage in PR
       uses: actions/github-script@v7
       id: comment
       with:
@@ -90,9 +75,6 @@ jobs:
             repo: context.repo.repo,
             body: process.env.COMMENT_CONTENT_ENV_VAR
           })
-
-    - name: Test with .NET 9.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v normal -p:FROM_GITHUB_ACTION=true -p:TargetNet9=True --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
     - name: Test with .NET 462
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net462 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"

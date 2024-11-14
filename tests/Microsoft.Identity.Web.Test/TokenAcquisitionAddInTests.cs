@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Graph;
 using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace Microsoft.Identity.Web.Tests
 {
@@ -76,7 +78,7 @@ namespace Microsoft.Identity.Web.Tests
             using MockHttpClientFactory mockHttpClient = new();
             mockHttpClient.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
                 System.Net.Http.HttpMethod.Post,
-                new Dictionary<string, string>() { { "x-ms-test", "test" } }));
+                new Dictionary<string, string>() { { "x-ms-user", "username" } }));
 
             var confidentialApp = ConfidentialClientApplicationBuilder
                            .Create(TestConstants.ClientId)
@@ -90,21 +92,28 @@ namespace Microsoft.Identity.Web.Tests
                 .AcquireTokenByUsernamePassword(new string[] { "scope" }, "username", "something");
 
             bool eventInvoked = false;
-            options.OnBeforeTokenAcquisitionForTestUser += (builder, options) =>
+            options.OnBeforeTokenAcquisitionForTestUser += (builder, options, user) =>
             {
                 MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
                 extension.OnBeforeTokenRequestHandler = (request) =>
                 {
                     eventInvoked = true;
-                    request.BodyParameters.Add("x-ms-test", "test");
+                    request.BodyParameters.Add("x-ms-user", user.FindFirst("user")?.Value);
                     return Task.CompletedTask;
                 };
 
                 builder.WithAuthenticationExtension(extension);
             };
 
+            var user = new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim("user", "username"),
+                    new Claim("assertion", "assertion"),
+                }));
+
             // Act
-            options.InvokeOnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions);
+            options.InvokeOnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions, user);
 
             var result = await builder.ExecuteAsync();
 
