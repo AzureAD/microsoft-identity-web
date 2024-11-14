@@ -34,7 +34,6 @@ jobs:
     - name: 'Setup MSBuild'
       uses: microsoft/setup-msbuild@v2
       with:
-        vs-version: '17.12'
         vs-prerelease: true
         msbuild-architecture: x64
 
