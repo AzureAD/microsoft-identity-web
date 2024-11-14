@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Security.Claims;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
@@ -38,12 +39,9 @@ namespace Microsoft.Identity.Web
         /// Invoke the BeforeTokenAcquisitionForTestUser event.
         /// </summary>
         internal void InvokeOnBeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
-                                                           AcquireTokenOptions? acquireTokenOptions)
+                                                           AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
         {
-            if (OnBeforeTokenAcquisitionForTestUser != null)
-            {
-                OnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions);
-            }
+            OnBeforeTokenAcquisitionForTestUser?.Invoke(builder, acquireTokenOptions, user);
         }
     }
 }
