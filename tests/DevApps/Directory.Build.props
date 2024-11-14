@@ -1,8 +1,9 @@
 <Project>
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0</TargetFrameworks>
-    <!-- <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks> -->
+    <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
+    <TargetNet9>True</TargetNet9>
+    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
     <LangVersion>12</LangVersion>
