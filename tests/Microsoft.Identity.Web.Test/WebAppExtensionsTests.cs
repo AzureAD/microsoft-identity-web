@@ -912,10 +912,7 @@ namespace Microsoft.Identity.Web.Test
             // needs to be updated. For this uncomment the variable "filePath" and line 893 below, then run the test
             // and diff the files to find what are the new properties.
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
-#if NET9_0_OR_GREATER
-            int expectedNumberOfProperties = 62;
-            //string filePath = @"C:\temp\net9.txt";
-#elif NET8_0
+#if NET8_0_OR_GREATER
             int expectedNumberOfProperties = 60;
             //string filePath = @"C:\temp\net8.txt";
 #else
