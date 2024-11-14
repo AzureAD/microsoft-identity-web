@@ -2,8 +2,8 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net6.0; net7.0; net8.0; net462; net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0; net462; net472</TargetFrameworks>
+    <!-- <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks> -->
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
@@ -12,15 +12,15 @@
 
   <PropertyGroup Label="Common dependency versions">
 		<MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
-    <MicrosoftNetTestSdkVersion>17.4.0</MicrosoftNetTestSdkVersion>
+    <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
 		<!--GHSA-5crp-9r3c-p9vr-->
-		<NewtonsoftJsonVersion>13.0.2</NewtonsoftJsonVersion>
+		<NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
 		<XunitVersion>2.9.2</XunitVersion>
 		<XunitRunnerVisualStudioVersion>2.8.2</XunitRunnerVisualStudioVersion>
     <XunitAssertVersion>2.9.2</XunitAssertVersion>
     <XunitExtensibilityCoreVersion>2.9.2</XunitExtensibilityCoreVersion>
-    <NSubstituteVersion>4.2.2</NSubstituteVersion>
-    <NSubstituteAnalyzersCSharpVersion>1.0.13</NSubstituteAnalyzersCSharpVersion>
+    <NSubstituteVersion>5.3.0</NSubstituteVersion>
+    <NSubstituteAnalyzersCSharpVersion>1.0.17</NSubstituteAnalyzersCSharpVersion>
 		<CoverletCollectorVersion>6.0.2</CoverletCollectorVersion>
     <SeleniumWebDriverVersion>4.8.0</SeleniumWebDriverVersion>
     <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
@@ -47,7 +47,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <MicrosoftAspNetCoreMvcTestingVersion>8.0.0-preview.5.23302.2</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>8.0.10</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.6.3</MicrosoftNetTestSdkVersion>
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
   </PropertyGroup>
