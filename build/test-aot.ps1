@@ -27,8 +27,6 @@ if ($LastExitCode -ne 0)
 $runtime = if ($IsWindows) {  "win-x64" } elseif ($IsMacOS) { "macos-x64"} else {"linux-x64"}
 $app = if ($IsWindows ) {"./$projectName.exe" } else {"./$projectName" }
 
-Push-Location $rootDirectory/tests/$projectName/bin/Release/$targetNetFramework/$runtime
-
 Write-Host "Executing test App..."
 $app
 Write-Host "Finished executing test App"
