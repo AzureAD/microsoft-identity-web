@@ -1,3 +1,13 @@
+3.4.0
+========
+- Updated to Microsoft.IdentityModel.* 8.2.1
+- Updated to Microsoft.Identity.Abstractions 7.2.0
+
+### New features
+- Add ROPC flow support for confidential client applications. See [3091](https://github.com/AzureAD/microsoft-identity-web/issues/3091), [3129](https://github.com/AzureAD/microsoft-identity-web/issues/3129), [3139](https://github.com/AzureAD/microsoft-identity-web/issues/3139).
+- Allow multi-tenant applications to specify the AppHomeTenantId to be used for client credentials. See [3121](https://github.com/AzureAD/microsoft-identity-web/issues/3121), [3132](https://github.com/AzureAD/microsoft-identity-web/pull/3132).
+- Update to use .NET 9 GA. See [3127](https://github.com/AzureAD/microsoft-identity-web/issues/3127).
+
 3.3.1
 ========
 - Updated to Microsoft.IdentityModel.* 8.2.0
