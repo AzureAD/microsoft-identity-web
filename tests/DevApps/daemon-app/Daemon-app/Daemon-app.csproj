@@ -6,7 +6,7 @@
     <RootNamespace>Daemon_app</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>11</LangVersion>
+    <LangVersion>13</LangVersion>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
