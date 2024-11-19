@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 
     <Title>Microsoft Identity Web, Microsoft Graph v5+ helper</Title>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph" Version="5.40.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.51.0" />
   </ItemGroup>
 
   <ItemGroup>

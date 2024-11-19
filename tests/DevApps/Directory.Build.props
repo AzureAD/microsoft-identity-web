@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNet9)'== 'True'">$(TargetFrameworks); net9.0</TargetFrameworks>
+    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
     <LangVersion>13</LangVersion>
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <SystemDrawingCommon>9.0.0-rc.2.24474.1</SystemDrawingCommon>
+    <SystemDrawingCommon>9.0.0</SystemDrawingCommon>
   </PropertyGroup>
 
   <ItemGroup>
