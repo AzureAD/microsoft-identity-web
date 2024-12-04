@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string UsGovIssuer = "https://login.microsoftonline.us/" + UsGovTenantId + "/v2.0";
         public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
-        public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
+        public const string V1Issuer = "https://sts.windows.net/" + TenantIdAsGuid + "/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
         public const string GraphBaseUrl = "https://graph.microsoft.com/v1.0";
 
