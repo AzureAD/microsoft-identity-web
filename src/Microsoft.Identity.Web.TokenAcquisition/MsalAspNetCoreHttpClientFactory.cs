@@ -3,6 +3,7 @@
 
 using System.Net.Http;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Diagnostics;
 
 namespace Microsoft.Identity.Web
 {

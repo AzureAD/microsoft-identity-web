@@ -6,10 +6,12 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.Diagnostics
 {
     internal static class IdHelper
     {
+        private const string IDWebSku = "IDWeb.";
+
         private static readonly Lazy<string> s_idWebVersion = new Lazy<string>(
            () =>
            {
@@ -34,9 +36,14 @@ namespace Microsoft.Identity.Web
                return version[1];
            });
 
+        public static string GetIdWebVersion()
+        {
+            return s_idWebVersion.Value;
+        }
+
         public static string CreateTelemetryInfo()
         {
-            return string.Format(CultureInfo.InvariantCulture, Constants.IDWebSku + s_idWebVersion.Value);
+            return string.Format(CultureInfo.InvariantCulture, IDWebSku + GetIdWebVersion());
         }
     }
 }
