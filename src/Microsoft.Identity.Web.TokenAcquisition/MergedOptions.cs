@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Identity.Abstractions;
 
-#if !NETSTANDARD2_0 && !NETFRAMEWORK
+#if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 #endif
 using Microsoft.Identity.Client;
 

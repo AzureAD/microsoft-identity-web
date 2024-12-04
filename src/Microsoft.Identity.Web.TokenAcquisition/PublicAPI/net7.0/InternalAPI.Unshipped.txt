@@ -1,7 +1,6 @@
 #nullable enable
 Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.get -> string?
 Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.set -> void
-Microsoft.Identity.Web.MergedOptions.MergedOptions(Microsoft.Identity.Web.MergedOptions! other) -> void
 Microsoft.Identity.Web.MergedOptions.PreparedInstance.get -> string?
 Microsoft.Identity.Web.MergedOptions.PreparedInstance.set -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
