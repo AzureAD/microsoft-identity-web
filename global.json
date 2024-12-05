@@ -3,7 +3,7 @@
         "Microsoft.Build.NoTargets": "3.7.56"
     },
     "sdk": {
-        "version": "9.0.0",
+        "version": "9.0.101",
         "rollForward": "latestFeature"
     }
 }
