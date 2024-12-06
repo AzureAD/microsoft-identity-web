@@ -80,7 +80,7 @@
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.3.0</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.66.1</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.66.2</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
@@ -91,7 +91,7 @@
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftIdentityAbstractionsVersion>7.2.0</MicrosoftIdentityAbstractionsVersion>
     <!--CVE-2024-43485-->
-    <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
+    <SystemTextJsonVersion>9.0.0</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
     <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
