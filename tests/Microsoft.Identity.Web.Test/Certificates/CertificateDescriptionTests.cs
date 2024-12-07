@@ -78,7 +78,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         [Fact]
         public void TestFromCertificate()
         {
-            using X509Certificate2 certificate2 = new X509Certificate2(new byte[0]);
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
+            using X509Certificate2 certificate2 = new([]);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
             CertificateDescription certificateDescription =
                 CertificateDescription.FromCertificate(certificate2);
         }
