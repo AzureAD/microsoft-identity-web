@@ -1,3 +1,27 @@
+3.5.0
+========
+- Updated to Microsoft.IdentityModel.* 8.3.0
+
+## Bug fixes
+* Ensure Singleton registration for TokenAcquisition Services when TokenAcquirerFactory is null. See https://github.com/AzureAD/microsoft-identity-web/pull/3155
+* Dont modify the merged options when building the confidential client. See https://github.com/AzureAD/microsoft-identity-web/pull/3137
+
+## Fundamentals
+* Install all .NET versions in pipeline, including .NET 9. See https://github.com/AzureAD/microsoft-identity-web/pull/3152
+* Upgrade to C# 13. See https://github.com/AzureAD/microsoft-identity-web/pull/3138
+* Specify sdk version in global.json. See https://github.com/AzureAD/microsoft-identity-web/pull/3156
+* Disable Coverage PR comments. See in https://github.com/AzureAD/microsoft-identity-web/pull/3159
+
+3.4.0
+========
+- Updated to Microsoft.IdentityModel.* 8.2.1
+- Updated to Microsoft.Identity.Abstractions 7.2.0
+
+### New features
+- Add ROPC flow support for confidential client applications. See [3091](https://github.com/AzureAD/microsoft-identity-web/issues/3091), [3129](https://github.com/AzureAD/microsoft-identity-web/issues/3129), [3139](https://github.com/AzureAD/microsoft-identity-web/issues/3139).
+- Allow multi-tenant applications to specify the AppHomeTenantId to be used for client credentials. See [3121](https://github.com/AzureAD/microsoft-identity-web/issues/3121), [3132](https://github.com/AzureAD/microsoft-identity-web/pull/3132).
+- Update to use .NET 9 GA. See [3127](https://github.com/AzureAD/microsoft-identity-web/issues/3127).
+
 3.3.1
 ========
 - Updated to Microsoft.IdentityModel.* 8.2.0

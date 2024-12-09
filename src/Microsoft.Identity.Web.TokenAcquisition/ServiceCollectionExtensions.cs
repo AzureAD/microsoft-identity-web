@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null && authenticationHeaderCreator != null && tokenAcquirerFactory != null)
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null && authenticationHeaderCreator != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
                 {
@@ -77,8 +77,13 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionInternalService);
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
-                    services.Remove(tokenAcquirerFactory);
-                    tokenAcquirerFactory = null;
+
+                    // To support ASP.NET Core 2.x on .NET FW. It won't use the TokenAcquirerFactory.GetDefaultInstance()
+                    if (tokenAcquirerFactory != null)
+                    {
+                        services.Remove(tokenAcquirerFactory);
+                        tokenAcquirerFactory = null;
+                    }
                 }
                 else
                 {
