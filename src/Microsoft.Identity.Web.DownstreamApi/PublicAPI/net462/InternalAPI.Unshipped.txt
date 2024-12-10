@@ -1,1 +1,1 @@
-bn 
+static Microsoft.Identity.Web.DownstreamApi.CallerSDKDetails.get -> System.Collections.Generic.Dictionary<string!, string!>!
