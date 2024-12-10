@@ -1,0 +1,6 @@
+Microsoft.Identity.Web.Diagnostics.IdHelper
+Microsoft.Identity.Web.IdHelper
+static Microsoft.Identity.Web.Diagnostics.IdHelper.CreateTelemetryInfo() -> string!
+static Microsoft.Identity.Web.Diagnostics.IdHelper.GetIdWebVersion() -> string!
+static Microsoft.Identity.Web.IdHelper.CreateTelemetryInfo() -> string!
+static Microsoft.Identity.Web.IdHelper.GetIdWebVersion() -> string!
