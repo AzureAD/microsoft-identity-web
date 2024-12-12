@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -451,7 +452,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal async Task<HttpResponseMessage> CallApiInternalAsync(
+        internal /* for tests */ async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
             DownstreamApiOptions effectiveOptions,
             bool appToken,
@@ -494,7 +495,7 @@ namespace Microsoft.Identity.Web
             return downstreamApiResult;
         }
 
-        internal async Task UpdateRequestAsync(
+        internal /* internal for test */ async Task UpdateRequestAsync(
             HttpRequestMessage httpRequestMessage,
             HttpContent? content,
             DownstreamApiOptions effectiveOptions,
@@ -502,6 +503,8 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user,
             CancellationToken cancellationToken)
         {
+            AddCallerSDKTelemetry(effectiveOptions);
+
             if (content != null)
             {
                 httpRequestMessage.Content = content;
@@ -531,6 +534,27 @@ namespace Microsoft.Identity.Web
             }
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+        }
+
+        internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
+          {
+              { "caller-sdk-id", "IdWeb_1" },  
+              { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
+          };
+
+        private static void AddCallerSDKTelemetry(DownstreamApiOptions effectiveOptions)
+        {
+            if (effectiveOptions.AcquireTokenOptions.ExtraQueryParameters == null)
+            {
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters = CallerSDKDetails;
+            }
+            else
+            {
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] =
+                    CallerSDKDetails["caller-sdk-id"];
+                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
+                    CallerSDKDetails["caller-sdk-ver"];
+            }
         }
     }
 }

@@ -49,14 +49,51 @@ namespace Microsoft.Identity.Web.Tests
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
             var content = new StringContent("test content");
+            var options = new DownstreamApiOptions();
 
             // Act
-            await _input.UpdateRequestAsync(httpRequestMessage, content, new DownstreamApiOptions(), false, null, CancellationToken.None);
+            await _input.UpdateRequestAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(content, httpRequestMessage.Content);
             Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
             Assert.Equal("text/plain", httpRequestMessage.Content?.Headers.ContentType?.MediaType);
+            Assert.Equal(options.AcquireTokenOptions.ExtraQueryParameters, DownstreamApi.CallerSDKDetails);
+        }
+
+
+        [Fact]
+        public async Task UpdateRequestAsync_AddsToExtraQP()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions() {  
+                AcquireTokenOptions = new AcquireTokenOptions() { 
+                    ExtraQueryParameters = new Dictionary<string, string>() 
+                    { 
+                        { "n1", "v1" },
+                        { "n2", "v2" },
+                        { "caller-sdk-id", "bogus" } // value will be overwritten by the SDK
+                    }
+                } };
+
+            // Act
+            await _input.UpdateRequestAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(content, httpRequestMessage.Content);
+            Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
+            Assert.Equal("text/plain", httpRequestMessage.Content?.Headers.ContentType?.MediaType);
+            Assert.Equal("v1", options.AcquireTokenOptions.ExtraQueryParameters["n1"]);
+            Assert.Equal("v2", options.AcquireTokenOptions.ExtraQueryParameters["n2"]);
+            Assert.Equal(
+                DownstreamApi.CallerSDKDetails["caller-sdk-id"], 
+                options.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] );
+            Assert.Equal(
+                DownstreamApi.CallerSDKDetails["caller-sdk-ver"],
+                options.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"]);
+
         }
 
         [Theory]
@@ -83,6 +120,7 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal("ey", httpRequestMessage.Headers.Authorization?.Parameter);
             Assert.Equal("Bearer", httpRequestMessage.Headers.Authorization?.Scheme);
             Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
+            Assert.Equal(options.AcquireTokenOptions.ExtraQueryParameters, DownstreamApi.CallerSDKDetails);
         }
 
         [Fact]
