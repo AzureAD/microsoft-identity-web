@@ -10,6 +10,8 @@ namespace Microsoft.Identity.Web
 {
     internal static class IdHelper
     {
+        private const string IDWebSku = "IDWeb.";
+
         private static readonly Lazy<string> s_idWebVersion = new Lazy<string>(
            () =>
            {
@@ -34,9 +36,14 @@ namespace Microsoft.Identity.Web
                return version[1];
            });
 
-        public static string CreateTelemetryInfo()
+        internal static string GetIdWebVersion()
         {
-            return string.Format(CultureInfo.InvariantCulture, Constants.IDWebSku + s_idWebVersion.Value);
+            return s_idWebVersion.Value;
+        }
+
+        internal static string CreateTelemetryInfo()
+        {
+            return string.Format(CultureInfo.InvariantCulture, IDWebSku + s_idWebVersion.Value);
         }
     }
 }
