@@ -161,18 +161,21 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>5.0.12-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>5.0.0</MicrosoftExtensionsCachingMemoryVersion>
-    <!-- Microsoft.Extensions.Hosting 5.* are obsoleted -->
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.0.0-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.0-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
+    <!-- Microsoft.Extensions.* 5.* are obsoleted -->
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>5.0.8</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
 
     <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
-    <MicrosoftExtensionsLoggingVersion>5.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>6.0.0</SystemTextEncodingsWebVersion>
+
+    <!-- 6.0.0 as 5.x are deprecated -->
+    <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
+
 
     <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
     <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
