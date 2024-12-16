@@ -176,7 +176,6 @@
     <!-- 6.0.0 as 5.x are deprecated -->
     <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
 
-
     <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
     <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
