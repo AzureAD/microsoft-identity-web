@@ -39,18 +39,22 @@ namespace Microsoft.Identity.Web
 
         internal static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, X509KeyStorageFlags x509KeyStorageFlags)
         {
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
             return new X509Certificate2(
                 Convert.FromBase64String(certificateBase64),
                 (string?)null,
                 x509KeyStorageFlags);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
         }
 
         internal static X509Certificate2 LoadFromBase64Encoded(string certificateBase64, string password, X509KeyStorageFlags x509KeyStorageFlags)
         {
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
             return new X509Certificate2(
                 Convert.FromBase64String(certificateBase64),
                 password,
                 x509KeyStorageFlags);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
         }
     }
 }

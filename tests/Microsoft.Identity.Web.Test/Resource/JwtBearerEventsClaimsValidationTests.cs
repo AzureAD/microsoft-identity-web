@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public async Task TokenValidated_MissingScopesAndRoles_AuthenticationFailsAsync()
         {
-            Assert.True(_tokenContext.Result.Succeeded);
+            Assert.True(_tokenContext.Result!.Succeeded);
             await _jwtEvents.TokenValidated(_tokenContext);
             Assert.False(_tokenContext.Result.Succeeded);
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web.Test.Resource
         [Fact]
         public async Task TokenValidated_WithScopesAndRoles_AuthenticationSucceedsAsync()
         {
-            Assert.True(_tokenContext.Result.Succeeded);
+            Assert.True(_tokenContext.Result!.Succeeded);
             await _jwtEvents.TokenValidated(_tokenContext);
             Assert.True(_tokenContext.Result.Succeeded);
         }
