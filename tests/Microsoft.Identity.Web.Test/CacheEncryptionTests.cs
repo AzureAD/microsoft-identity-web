@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Test
         private byte[] GetFirstCacheValue(MemoryCache memoryCache)
         {
             IDictionary memoryCacheContent;
-# if NET6_0 
+# if NET6_0 || NET462
             memoryCacheContent = (memoryCache
                 .GetType()
                 .GetProperty("StringKeyEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.Test
                 .GetType()
                 .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;
-#endif
+#endif // NET472
             var firstEntry = memoryCacheContent.Values.OfType<object>().First();
             var firstEntryValue = firstEntry.GetType()
                 .GetProperty("Value")!
