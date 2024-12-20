@@ -73,6 +73,7 @@ const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextAndHttpResponseAreNull
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextIsNull = "IDW10001: HttpContext is null. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.IncorrectNumberOfUriSegments = "IDW10702: Number of URI segments is incorrect: {0}, URI: {1}. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. " -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.InternalClaimDetected = "IDW10305: The claim '{0}' is reserved for internal use by this library. To ensure proper functionality and avoid conflicts, please remove or rename this claim in your ID Token. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.InvalidAssertion = "IDW10504: Invalid assertion: contains unsupported character(s)." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. StoreLocation must be one of 'CurrentUser', 'LocalMachine'. StoreName must be empty or one of '{0}'. " -> string!

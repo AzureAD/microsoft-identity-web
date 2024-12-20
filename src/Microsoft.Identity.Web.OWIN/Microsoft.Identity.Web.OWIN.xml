@@ -55,6 +55,15 @@
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.RejectInternalClaims(System.Security.Claims.ClaimsIdentity,System.String,System.String)">
+            <summary>
+            Rejects the internal claims, if present.
+            </summary>
+            <param name="identity">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> associated to the logged-in user</param>
+            <param name="uniqueTenantIdentifier">The tenant identifier (i.e. <see cref="F:Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier"/>>)</param>
+            <param name="uniqueObjectIdentifier">The object identifier (i.e. <see cref="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier"/>>)</param>
+            <exception cref="T:System.Security.Authentication.AuthenticationException">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
+        </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
             Extension methods to retrieve a Graph service client and interfaces used
