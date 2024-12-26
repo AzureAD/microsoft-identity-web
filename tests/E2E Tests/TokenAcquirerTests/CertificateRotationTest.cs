@@ -271,7 +271,9 @@ namespace TokenAcquirerTests
             var cert = req.CreateSelfSigned(notBefore.HasValue ? notBefore.Value : DateTimeOffset.Now, expiry);
 
             byte[] bytes = cert.Export(X509ContentType.Pfx, (string?)null);
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
             X509Certificate2 certWithPrivateKey = new(bytes);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
 
             // Add it to the local cert store.
             X509Store x509Store = new(StoreName.My, StoreLocation.CurrentUser);
