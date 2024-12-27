@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(UseWip)' != 'true'">
-		<PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="3.3.0" />
+		<PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="3.5.0" />
 	</ItemGroup>
 
   <ItemGroup Condition="'$(UseWip)' == 'true'">
