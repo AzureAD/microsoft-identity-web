@@ -80,9 +80,7 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             IConfidentialClientApplication app = CreateBuilder();
-#pragma warning disable SYSLIB0057 // Type or member is obsolete
-            using X509Certificate2 clientCertificate = new([]);
-#pragma warning restore SYSLIB0057 // Type or member is obsolete
+            var clientCertificate = new X509Certificate2(new byte[0]);
             var jwkClaim = "jwk_claim";
             var clientId = "client_id";
 
@@ -101,9 +99,7 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             IConfidentialClientApplication app = CreateBuilder();
-#pragma warning disable SYSLIB0057 // Type or member is obsolete
-            using X509Certificate2 clientCertificate = new([]);
-#pragma warning restore SYSLIB0057 // Type or member is obsolete
+            var clientCertificate = new X509Certificate2(new byte[0]);
             var popPublicKey = "pop_key";
             var clientId = "client_id";
 

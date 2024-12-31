@@ -26,12 +26,10 @@ namespace Microsoft.Identity.Web
         {
             X509KeyStorageFlags x509KeyStorageFlags = CertificateLoaderHelper.DetermineX509KeyStorageFlag();
 
-#pragma warning disable SYSLIB0057 // Type or member is obsolete
             return new X509Certificate2(
                 certificateFileName,
                 password,
                 x509KeyStorageFlags);
-#pragma warning restore SYSLIB0057 // Type or member is obsolete
         }
     }
 }
