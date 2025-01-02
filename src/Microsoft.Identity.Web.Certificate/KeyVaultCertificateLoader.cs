@@ -98,10 +98,12 @@ namespace Microsoft.Identity.Web
             // Return a certificate with only the public key if the private key is not exportable.
             if (certificate.Policy?.Exportable != true)
             {
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
                 return new X509Certificate2(
                     certificate.Cer,
                     (string?)null,
                     x509KeyStorageFlags);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
             }
 
             // Parse the secret ID and version to retrieve the private key.
