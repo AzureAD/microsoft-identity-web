@@ -201,12 +201,23 @@ namespace Microsoft.Identity.Web
                         {
                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                            if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                            if (clientInfoFromServer != null)
                             {
-                                RejectInternalClaims(context.AuthenticationTicket.Identity, clientInfoFromServer.UniqueTenantIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                if (clientInfoFromServer.UniqueTenantIdentifier != null)
+                                {
+                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
+                                }
 
-                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                if (clientInfoFromServer.UniqueObjectIdentifier != null)
+                                {
+                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                }
+
+                                if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                {
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                }
                             }
                             httpContext.Session.Remove(ClaimConstants.ClientInfo);
                         }
