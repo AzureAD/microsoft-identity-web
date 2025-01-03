@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <NoWarn>NU1605</NoWarn>
+    <NoWarn>$(NoWarn);NETSDK1138;NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
