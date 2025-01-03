@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,6 +17,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 using Microsoft.Owin.Security.Jwt;
+using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OAuth;
 using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
@@ -173,10 +176,23 @@ namespace Microsoft.Identity.Web
                             {
                                 ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                                if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                if (clientInfoFromServer != null)
                                 {
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                    if (clientInfoFromServer.UniqueTenantIdentifier != null)
+                                    {
+                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
+                                    }
+
+                                    if (clientInfoFromServer.UniqueObjectIdentifier != null)
+                                    {
+                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                    }
+
+                                    if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                    {
+                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                    }
                                 }
                                 context.OwinContext.Environment.Remove(ClaimConstants.ClientInfo);
                             }
@@ -185,10 +201,23 @@ namespace Microsoft.Identity.Web
                         {
                             ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                            if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                            if (clientInfoFromServer != null)
                             {
-                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                if (clientInfoFromServer.UniqueTenantIdentifier != null)
+                                {
+                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
+                                }
+
+                                if (clientInfoFromServer.UniqueObjectIdentifier != null)
+                                {
+                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
+                                }
+
+                                if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                {
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                }
                             }
                             httpContext.Session.Remove(ClaimConstants.ClientInfo);
                         }
@@ -237,6 +266,25 @@ namespace Microsoft.Identity.Web
             updateOptions?.Invoke(options);
 
             return app.UseOpenIdConnectAuthentication(options);
+        }
+
+        /// <summary>
+        /// The SDK injects 2 claims named uuid and utid into the ClaimsPrincipal, from ESTS's client_info. These represent 
+        /// the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
+        /// scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
+        /// a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
+        /// </summary>
+        /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user</param>
+        /// <param name="claimType">The claim type</param>
+        /// <param name="claimValue">The claim value</param>
+        /// <exception cref="AuthenticationException">The <see cref="ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
+        private static void RejectInternalClaims(ClaimsIdentity identity, string claimType, string claimValue)
+        {
+            var identityClaim = identity.FindFirst(c => c.Type == claimType);
+            if (identityClaim != null && !string.Equals(claimValue, identityClaim.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, claimType));
+            }
         }
     }
 }

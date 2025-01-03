@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
@@ -41,6 +42,15 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
                     new Claim(ClaimConstants.Scope, string.Join(' ', userScopes)),
                     new Claim(ClaimConstants.Roles, string.Join(' ', userRoles)),
                 }));
+
+            return httpContext;
+        }
+
+        public static HttpContext CreateHttpContext(IEnumerable<Claim> claims)
+        {
+            var httpContext = CreateHttpContext();
+
+            httpContext.User = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity(claims));
 
             return httpContext;
         }

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -177,10 +179,37 @@ namespace Microsoft.Identity.Web
                            {
                                ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
 
-                               if (clientInfoFromServer != null && clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                               if (clientInfoFromServer != null)
                                {
-                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                   context!.Principal!.Identities.FirstOrDefault()?.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                   var identity = context!.Principal!.Identities.FirstOrDefault();
+                                   if (identity != null)
+                                   {
+                                       if (clientInfoFromServer.UniqueTenantIdentifier != null)
+                                       {
+                                           var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+                                           if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+                                           {
+                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier)));
+                                               return;
+                                           }
+                                       }
+
+                                       if (clientInfoFromServer.UniqueObjectIdentifier != null)
+                                       {
+                                           var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+                                           if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+                                           {
+                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier)));
+                                               return;
+                                           }
+                                       }
+
+                                       if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
+                                       {
+                                           identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
+                                           identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
+                                       }
+                                   }
                                }
                            }
                            await onTokenValidatedHandler(context).ConfigureAwait(false);
