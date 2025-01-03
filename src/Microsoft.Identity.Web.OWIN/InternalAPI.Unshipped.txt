@@ -1,0 +1,1 @@
+Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.OpenIdConnectCachingSecurityTokenProvider(Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration!>! configManager, System.TimeProvider! timeProvider) -> void
