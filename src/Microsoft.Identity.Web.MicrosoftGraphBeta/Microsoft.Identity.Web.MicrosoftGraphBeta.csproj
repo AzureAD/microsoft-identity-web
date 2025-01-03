@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 
     <Title>Microsoft Identity Web, Microsoft Graph helper</Title>
@@ -9,6 +9,7 @@
       that call Microsoft Graph Beta.
     </Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
