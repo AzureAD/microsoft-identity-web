@@ -44,6 +44,11 @@ jobs:
     # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
+    - name: Setup .NET 8.0.x
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+        
     - name: Setup .NET 9.0.x
       uses: actions/setup-dotnet@v4
       with:
