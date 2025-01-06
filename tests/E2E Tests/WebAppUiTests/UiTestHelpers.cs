@@ -142,8 +142,13 @@ namespace WebAppUiTests
         /// <param name="executableName">The name of the executable that launches the process.</param>
         /// <param name="portNumber">The port for the process to listen on.</param>
         /// <param name="isHttp">If the launch URL is http or https. Default is https.</param>
+        /// <param name="maxRetries">Optionally, maximum number of retries if the process exited prematurely.</param>
         /// <returns>The started process.</returns>
-        public static Process StartProcessLocally(string testAssemblyLocation, string appLocation, string executableName, Dictionary<string, string>? environmentVariables = null)
+        public static Process StartProcessLocally(
+            string testAssemblyLocation,
+            string appLocation, string executableName,
+            Dictionary<string, string>? environmentVariables = null,
+            int maxRetries = 0)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
             ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName)
@@ -161,7 +166,12 @@ namespace WebAppUiTests
                 }
             }
 
-            Process? process = Process.Start(processStartInfo);
+            var currentAttempt = 1;
+            Process? process;
+            do
+            {
+                process = Process.Start(processStartInfo);
+            } while (currentAttempt++ <= maxRetries && ProcessIsAlive(process));
 
             if (process == null)
             {
@@ -275,9 +285,9 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="process">Process to check</param>
         /// <returns>True if alive false if not</returns>
-        public static bool ProcessIsAlive(Process process)
+        public static bool ProcessIsAlive(Process? process)
         {
-            return !process.HasExited;
+            return process != null && !process.HasExited;
         }
 
         /// <summary>
@@ -321,7 +331,8 @@ namespace WebAppUiTests
                                                 processDataEntry.TestAssemblyLocation,
                                                 processDataEntry.AppLocation,
                                                 processDataEntry.ExecutableName,
-                                                processDataEntry.EnvironmentVariables);
+                                                processDataEntry.EnvironmentVariables,
+                                                5);
 
                 processes.Add(processDataEntry.ExecutableName, process);
                 Thread.Sleep(5000);
