@@ -331,8 +331,7 @@ namespace WebAppUiTests
                                                 processDataEntry.TestAssemblyLocation,
                                                 processDataEntry.AppLocation,
                                                 processDataEntry.ExecutableName,
-                                                processDataEntry.EnvironmentVariables,
-                                                5);
+                                                processDataEntry.EnvironmentVariables);
 
                 processes.Add(processDataEntry.ExecutableName, process);
                 Thread.Sleep(5000);
