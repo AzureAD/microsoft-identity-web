@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
     <!--GHSA-5crp-9r3c-p9vr-->
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
@@ -43,11 +43,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <MicrosoftAspNetCoreMvcTestingVersion>8.0.10</MicrosoftAspNetCoreMvcTestingVersion>
+    <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
