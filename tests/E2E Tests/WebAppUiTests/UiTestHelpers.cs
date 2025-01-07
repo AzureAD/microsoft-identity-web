@@ -146,7 +146,8 @@ namespace WebAppUiTests
         /// <returns>The started process.</returns>
         public static Process StartProcessLocally(
             string testAssemblyLocation,
-            string appLocation, string executableName,
+            string appLocation,
+            string executableName,
             Dictionary<string, string>? environmentVariables = null,
             int maxRetries = 0)
         {
