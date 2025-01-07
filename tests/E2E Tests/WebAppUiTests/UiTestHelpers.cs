@@ -182,8 +182,17 @@ namespace WebAppUiTests
             else
             {
                 // Log the output and error streams
-                process.OutputDataReceived += (sender, e) => output.WriteLine(e?.Data ?? "null output data received.");
-                process.ErrorDataReceived += (sender, e) => output.WriteLine(e?.Data ?? "null error data received.");
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    output.WriteLine($"{process.Id} ");
+                    output.WriteLine(e?.Data ?? "null output data received.");
+                };
+
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    output.WriteLine($"{process.Id} ");
+                    output.WriteLine(e?.Data ?? "null error data received.");
+                };
 
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
