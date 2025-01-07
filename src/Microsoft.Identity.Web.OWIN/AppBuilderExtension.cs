@@ -161,6 +161,12 @@ namespace Microsoft.Identity.Web
                         }
                         context.ProtocolMessage.SetParameter(ClaimConstants.ClientInfo, Constants.One);
                         context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
+
+                        if (context.ProtocolMessage.IssuerAddress != null && context.ProtocolMessage.IssuerAddress.EndsWith("/authorize", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.ProtocolMessage.RedirectUri = context.Request.Uri.ToString();
+                        }
+
                         return Task.CompletedTask;
                     },
 
