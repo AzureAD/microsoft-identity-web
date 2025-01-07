@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Microsoft.Identity.Lab.Api;
@@ -42,7 +41,7 @@ namespace WebAppUiTests
 
         [Fact]
         [SupportedOSPlatform("windows")]
-        public async Task Susi_B2C_LocalAccount_TodoAppFucntionsCorrectlyAsync()
+        public async Task Susi_B2C_LocalAccount_TodoAppFunctionsCorrectlyAsync()
         {
             // Web app and api environmental variable setup.
             DefaultAzureCredential azureCred = new();
@@ -77,11 +76,11 @@ namespace WebAppUiTests
             {
                 // Start the web app and api processes.
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
-                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
+                serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, _output, serviceEnvVars);
                 await Task.Delay(3000);
-                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
+                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, _output, clientEnvVars, 5);
 
-                if (!UiTestHelpers.ProcessesAreAlive(new List<Process>() { clientProcess, serviceProcess }))
+                if (!UiTestHelpers.ProcessesAreAlive([clientProcess, serviceProcess]))
                 {
                     Assert.Fail(TC.WebAppCrashedString);
                 }

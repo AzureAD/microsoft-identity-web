@@ -5,16 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Versioning;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Lab.Api;
-using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
 using Process = System.Diagnostics.Process;
-using System.Linq;
-using System.Text;
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
@@ -82,7 +80,7 @@ namespace WebAppUiTests
                 var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, serviceEnvVars);
                 var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, clientEnvVars);
 
-                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { /*grpcProcessOptions,*/ serviceProcessOptions, clientProcessOptions }, out processes);
+                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { /*grpcProcessOptions,*/ serviceProcessOptions, clientProcessOptions }, _output, out processes);
 
                 if (!areProcessesRunning)
                 {
@@ -219,7 +217,7 @@ namespace WebAppUiTests
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
                 var serviceProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebApiPath, TC.s_myWebApiExe, serviceEnvVars);
                 var clientProcessOptions = new ProcessStartOptions(_testAssemblyLocation, _devAppPathCiam + TC.s_myWebAppPath, TC.s_myWebAppExe, clientEnvVars);
-                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { serviceProcessOptions, clientProcessOptions }, out processes);
+                bool areProcessesRunning = UiTestHelpers.StartAndVerifyProcessesAreRunning(new List<ProcessStartOptions> { serviceProcessOptions, clientProcessOptions }, _output, out processes);
 
                 if (!areProcessesRunning)
                 {
