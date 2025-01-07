@@ -170,6 +170,7 @@ namespace WebAppUiTests
             Process? process;
             do
             {
+                Thread.Sleep(1000 * currentAttempt++); // Exponential backoff
                 process = Process.Start(processStartInfo);
             } while (currentAttempt++ <= maxRetries && ProcessIsAlive(process));
 
@@ -179,6 +180,13 @@ namespace WebAppUiTests
             }
             else
             {
+                // Log the output and error streams
+                process.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
+                process.ErrorDataReceived += (sender, e) => Console.Error.WriteLine(e.Data);
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
                 return process;
             }
         }
