@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Playwright;
 using Xunit.Abstractions;
 
@@ -148,6 +147,7 @@ namespace WebAppUiTests
             string testAssemblyLocation,
             string appLocation,
             string executableName,
+            ITestOutputHelper output,
             Dictionary<string, string>? environmentVariables = null,
             int maxRetries = 0)
         {
@@ -171,7 +171,7 @@ namespace WebAppUiTests
             Process? process;
             do
             {
-                Thread.Sleep(1000 * currentAttempt++); // Exponential backoff
+                Thread.Sleep(1000 * currentAttempt++); // linear backoff
                 process = Process.Start(processStartInfo);
             } while (currentAttempt++ <= maxRetries && ProcessIsAlive(process));
 
@@ -182,8 +182,8 @@ namespace WebAppUiTests
             else
             {
                 // Log the output and error streams
-                process.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
-                process.ErrorDataReceived += (sender, e) => Console.Error.WriteLine(e.Data);
+                process.OutputDataReceived += (sender, e) => output.WriteLine(e.Data);
+                process.ErrorDataReceived += (sender, e) => output.WriteLine(e.Data);
 
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -329,7 +329,7 @@ namespace WebAppUiTests
             return (await client.GetSecretAsync(keyvaultSecretName)).Value.Value;
         }
 
-        internal static bool StartAndVerifyProcessesAreRunning(List<ProcessStartOptions> processDataEntries, out Dictionary<string, Process> processes)
+        internal static bool StartAndVerifyProcessesAreRunning(List<ProcessStartOptions> processDataEntries, ITestOutputHelper output, out Dictionary<string, Process> processes)
         {
             processes = new Dictionary<string, Process>();
 
@@ -340,6 +340,7 @@ namespace WebAppUiTests
                                                 processDataEntry.TestAssemblyLocation,
                                                 processDataEntry.AppLocation,
                                                 processDataEntry.ExecutableName,
+                                                output,
                                                 processDataEntry.EnvironmentVariables);
 
                 processes.Add(processDataEntry.ExecutableName, process);
@@ -351,7 +352,7 @@ namespace WebAppUiTests
             {
                 if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
                 {
-                    RestartProcesses(processes, processDataEntries);
+                    RestartProcesses(processes, processDataEntries , output);
                 }
             }
 
@@ -363,7 +364,7 @@ namespace WebAppUiTests
             return true;
         }
 
-        static void RestartProcesses(Dictionary<string, Process> processes, List<ProcessStartOptions> processDataEntries)
+        static void RestartProcesses(Dictionary<string, Process> processes, List<ProcessStartOptions> processDataEntries, ITestOutputHelper output)
         {
             //attempt to restart failed processes
             foreach (KeyValuePair<string, Process> processEntry in processes)
@@ -375,6 +376,7 @@ namespace WebAppUiTests
                                                     processDataEntry.TestAssemblyLocation,
                                                     processDataEntry.AppLocation,
                                                     processDataEntry.ExecutableName,
+                                                    output, 
                                                     processDataEntry.EnvironmentVariables);
                     Thread.Sleep(5000);
 

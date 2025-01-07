@@ -76,7 +76,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         try
         {
-            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable, clientEnvVars);
+            process = UiTestHelpers.StartProcessLocally(_uiTestAssemblyLocation, _devAppPath, _devAppExecutable, _output, clientEnvVars);
 
             if (!UiTestHelpers.ProcessIsAlive(process))
             { Assert.Fail(TC.WebAppCrashedString); }
