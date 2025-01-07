@@ -21,24 +21,10 @@ namespace OwinWebApp
 
             app.AddMicrosoftIdentityWebApp(factory);
             factory.Services
-                .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
                 .AddMicrosoftGraph()
                 .AddDownstreamApi("DownstreamAPI1", factory.Configuration.GetSection("DownstreamAPI"))
                 .AddInMemoryTokenCaches();
             factory.Build();
-
-            /*
-            app.AddMicrosoftIdentityWebApp(configureServices: services =>
-            {
-                services
-                .Configure<ConfidentialClientApplicationOptions>(options => { options.RedirectUri = "https://localhost:44386/"; })
-                .AddMicrosoftGraph()
-               // WE cannot do that today: Configuration is not available.
-               // .AddDownstreamApi("CalledApi", null)
-                .AddInMemoryTokenCaches();
-            });
-            */
-
         }
     }
 }

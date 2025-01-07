@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web.Hosts;
@@ -34,7 +35,8 @@ namespace Microsoft.Identity.Web.OWIN
                 ["AzureAd:SignedOutCallbackPath"] = ConfigurationManager.AppSettings["ida:PostLogoutRedirectUri"],
                 ["AzureAd:RedirectUri"] = ConfigurationManager.AppSettings["ida:RedirectUri"],
             });
-            return HttpContext.Current.Request.PhysicalApplicationPath;
+
+            return HostingEnvironment.MapPath("~/");
         }
 
         /// <summary>

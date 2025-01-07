@@ -57,11 +57,14 @@
         </member>
         <member name="M:Microsoft.Identity.Web.AppBuilderExtension.RejectInternalClaims(System.Security.Claims.ClaimsIdentity,System.String,System.String)">
             <summary>
-            Rejects the internal claims, if present.
+            The SDK injects 2 claims named uuid and utid into the ClaimsPrincipal, from ESTS's client_info. These represent 
+            the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
+            scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
+            a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
             </summary>
             <param name="identity">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> associated to the logged-in user</param>
-            <param name="uniqueTenantIdentifier">The tenant identifier (i.e. <see cref="F:Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier"/>>)</param>
-            <param name="uniqueObjectIdentifier">The object identifier (i.e. <see cref="F:Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier"/>>)</param>
+            <param name="claimType">The claim type</param>
+            <param name="claimValue">The claim value</param>
             <exception cref="T:System.Security.Authentication.AuthenticationException">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
         </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
