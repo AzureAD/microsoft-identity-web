@@ -173,7 +173,7 @@ namespace WebAppUiTests
             {
                 Thread.Sleep(1000 * currentAttempt++); // linear backoff
                 process = Process.Start(processStartInfo);
-            } while (currentAttempt++ <= maxRetries && ProcessIsAlive(process));
+            } while (currentAttempt++ <= maxRetries && !ProcessIsAlive(process));
 
             if (process == null)
             {
@@ -181,30 +181,17 @@ namespace WebAppUiTests
             }
             else
             {
-                LogOutputErrorStreams(process, output);
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
+                };
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
+                };
 
                 return process;
             }
-        }
-
-        /// <summary>
-        /// Logs the output and error streams of a process.
-        /// </summary>
-        /// <param name="process"></param>
-        /// <param name="output"></param>
-        private static void LogOutputErrorStreams(Process process, ITestOutputHelper output)
-        {
-            process.OutputDataReceived += (sender, e) =>
-            {
-                output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
-            };
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
-            };
-
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
         }
 
         /// <summary>
@@ -271,6 +258,10 @@ namespace WebAppUiTests
                 {
                     processQueue.Enqueue(child);
                 }
+                _ = currentProcess.WaitForExitAsync();
+                currentProcess.StandardOutput.Close();
+                currentProcess.StandardError.Close();
+
                 currentProcess.Kill();
                 currentProcess.Close();
             }
