@@ -49,7 +49,7 @@ namespace WebAppUiTests
             var grpcEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + GrpcPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + GrpcPort}
             };
             var serviceEnvVars = new Dictionary<string, string>
             {
@@ -59,7 +59,7 @@ namespace WebAppUiTests
             var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
             };
 
             Dictionary<string, Process>? processes = null;
@@ -109,7 +109,7 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostHttpUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
@@ -179,8 +179,8 @@ namespace WebAppUiTests
         }
 
         [Theory]
-        [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
-        [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+        [InlineData("http://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+        [InlineData("http://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamAsync(string authority)
         {
@@ -198,7 +198,7 @@ namespace WebAppUiTests
                 {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
                 {"AzureAd__Authority", authority},
                 {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebAppCiamPort}
             };
 
             Dictionary<string, Process>? processes = null;
@@ -245,7 +245,7 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostHttpUrl + WebAppCiamPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
@@ -341,7 +341,7 @@ namespace WebAppUiTests
             {
                 try
                 {
-                    await page.GotoAsync(TC.LocalhostUrl + port);
+                    await page.GotoAsync(TC.LocalhostHttpUrl + port);
                     break;
                 }
                 catch (PlaywrightException ex)

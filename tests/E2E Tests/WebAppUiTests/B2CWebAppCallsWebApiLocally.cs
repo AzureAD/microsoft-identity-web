@@ -55,7 +55,7 @@ namespace WebAppUiTests
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {"AzureAdB2C__ClientSecret", clientSecret},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
             };
 
             // Get email and password from keyvault.
@@ -92,7 +92,7 @@ namespace WebAppUiTests
                 {
                     try
                     {
-                        await page.GotoAsync(TC.LocalhostUrl + TodoListClientPort);
+                        await page.GotoAsync(TC.LocalhostHttpUrl + TodoListClientPort);
                         break;
                     }
                     catch (PlaywrightException ex)
