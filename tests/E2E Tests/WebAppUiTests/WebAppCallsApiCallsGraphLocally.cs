@@ -233,7 +233,6 @@ namespace WebAppUiTests
                 }
 
                 page = await NavigateToWebAppAsync(context, WebAppCiamPort);
-                 _output.WriteLine("WebApp HTML: " + await page.InnerHTMLAsync("html"));
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
