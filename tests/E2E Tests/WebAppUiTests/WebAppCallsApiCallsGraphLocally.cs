@@ -179,8 +179,8 @@ namespace WebAppUiTests
         }
 
         [Theory]
-        [InlineData("http://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
-        [InlineData("http://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+        [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+        [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
         [SupportedOSPlatform("windows")]
         public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordCreds_CallsDownStreamApiWithCiamAsync(string authority)
         {
@@ -233,6 +233,7 @@ namespace WebAppUiTests
                 }
 
                 page = await NavigateToWebAppAsync(context, WebAppCiamPort);
+                 _output.WriteLine("WebApp HTML: " + await page.InnerHTMLAsync("html"));
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
@@ -258,7 +259,7 @@ namespace WebAppUiTests
             }
             catch (Exception ex)
             {
-                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
+                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriate test runs.
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
