@@ -175,7 +175,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string PasswordText = "Password";
         public const string TodoTitle1 = "Testing create todo item";
         public const string TodoTitle2 = "Testing edit todo item";
-        public const string LocalhostUrl = @"https://localhost:";
+        public const string LocalhostHttpsUrl = @"https://localhost:";
+        public const string LocalhostHttpUrl = @"http://localhost:";
         public const string KestrelEndpointEnvVar = "Kestrel:Endpoints:Http:Url";
         public const string HttpStarColon = "http://*:";
         public const string HttpsStarColon = "https://*:";

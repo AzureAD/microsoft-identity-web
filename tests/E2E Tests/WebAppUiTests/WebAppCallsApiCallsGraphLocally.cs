@@ -49,7 +49,7 @@ namespace WebAppUiTests
             var grpcEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + GrpcPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + GrpcPort}
             };
             var serviceEnvVars = new Dictionary<string, string>
             {
@@ -59,7 +59,7 @@ namespace WebAppUiTests
             var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + TodoListClientPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
             };
 
             Dictionary<string, Process>? processes = null;
@@ -109,7 +109,7 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + TodoListClientPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostHttpUrl + TodoListClientPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
@@ -198,7 +198,7 @@ namespace WebAppUiTests
                 {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
                 {"AzureAd__Authority", authority},
                 {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
-                {TC.KestrelEndpointEnvVar, TC.HttpsStarColon + WebAppCiamPort}
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebAppCiamPort}
             };
 
             Dictionary<string, Process>? processes = null;
@@ -245,7 +245,7 @@ namespace WebAppUiTests
                 // Sign out
                 _output.WriteLine("Starting web app sign-out flow.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign out" }).ClickAsync();
-                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostUrl + WebAppCiamPort + SignOutPageUriPath, _output);
+                await UiTestHelpers.PerformSignOut_MicrosoftIdFlowAsync(page, email, TC.LocalhostHttpUrl + WebAppCiamPort + SignOutPageUriPath, _output);
                 _output.WriteLine("Web app sign out successful.");
 
                 // Sign in again using Todo List button
@@ -258,7 +258,7 @@ namespace WebAppUiTests
             }
             catch (Exception ex)
             {
-                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriet test runs.
+                //Adding guid incase of multiple test runs. This will allow screenshots to be matched to their appropriate test runs.
                 var guid = Guid.NewGuid().ToString();
                 try
                 {
@@ -341,7 +341,7 @@ namespace WebAppUiTests
             {
                 try
                 {
-                    await page.GotoAsync(TC.LocalhostUrl + port);
+                    await page.GotoAsync(TC.LocalhostHttpUrl + port);
                     break;
                 }
                 catch (PlaywrightException ex)

@@ -173,7 +173,7 @@ namespace WebAppUiTests
             {
                 Thread.Sleep(1000 * currentAttempt++); // linear backoff
                 process = Process.Start(processStartInfo);
-            } while (currentAttempt++ <= maxRetries && ProcessIsAlive(process));
+            } while (currentAttempt++ <= maxRetries && !ProcessIsAlive(process));
 
             if (process == null)
             {
@@ -181,21 +181,14 @@ namespace WebAppUiTests
             }
             else
             {
-                // Log the output and error streams
                 process.OutputDataReceived += (sender, e) =>
                 {
-                    output.WriteLine($"{process.Id} ");
-                    output.WriteLine(e?.Data ?? "null output data received.");
+                    output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
                 };
-
                 process.ErrorDataReceived += (sender, e) =>
                 {
-                    output.WriteLine($"{process.Id} ");
-                    output.WriteLine(e?.Data ?? "null error data received.");
+                    output.WriteLine(e?.Data == null ? "null output data received." : $"{process.Id} {e.Data}");
                 };
-
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
 
                 return process;
             }
@@ -252,7 +245,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
         [SupportedOSPlatform("windows")]
-        public static void KillProcessTrees(Queue<Process> processQueue)
+        public static async Task KillProcessTreesAsync(Queue<Process> processQueue)
         {
             Process currentProcess;
             while (processQueue.Count > 0)
@@ -265,6 +258,10 @@ namespace WebAppUiTests
                 {
                     processQueue.Enqueue(child);
                 }
+                await currentProcess.WaitForExitAsync();
+                currentProcess.StandardOutput.Close();
+                currentProcess.StandardError.Close();
+
                 currentProcess.Kill();
                 currentProcess.Close();
             }
