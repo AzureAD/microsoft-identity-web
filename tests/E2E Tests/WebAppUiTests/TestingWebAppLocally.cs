@@ -21,7 +21,7 @@ namespace WebAppUiTests;
 [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
-    private const string UrlString = "http://localhost:5001/MicrosoftIdentity/Account/signin";
+    private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
     private const string TraceFileClassName = "TestingWebAppLocally";
     private const string TraceFileClassNameCiam = "TestingWebAppLocallyCiam";
     private readonly ITestOutputHelper _output;
@@ -47,8 +47,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     }
 
     [Theory]
-    [InlineData("http://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
-    [InlineData("http://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
+    [InlineData("https://MSIDLABCIAM6.ciamlogin.com")] // CIAM authority
+    [InlineData("https://login.msidlabsciam.com/fe362aec-5d43-45d1-b730-9755e60dc3b9/v2.0/")] // CIAM CUD Authority
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailWithCiamPasswordAsync(string authority)
     {
