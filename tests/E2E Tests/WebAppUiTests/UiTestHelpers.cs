@@ -245,7 +245,7 @@ namespace WebAppUiTests
         /// </summary>
         /// <param name="processQueue">queue of parent processes</param>
         [SupportedOSPlatform("windows")]
-        public static void KillProcessTrees(Queue<Process> processQueue)
+        public static async Task KillProcessTreesAsync(Queue<Process> processQueue)
         {
             Process currentProcess;
             while (processQueue.Count > 0)
@@ -258,7 +258,7 @@ namespace WebAppUiTests
                 {
                     processQueue.Enqueue(child);
                 }
-                _ = currentProcess.WaitForExitAsync();
+                await currentProcess.WaitForExitAsync();
                 currentProcess.StandardOutput.Close();
                 currentProcess.StandardError.Close();
 

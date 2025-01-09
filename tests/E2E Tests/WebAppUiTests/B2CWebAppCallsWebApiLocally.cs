@@ -167,7 +167,7 @@ namespace WebAppUiTests
                 Queue<Process> processes = new Queue<Process>();
                 if (serviceProcess != null) { processes.Enqueue(serviceProcess); }
                 if (clientProcess != null) { processes.Enqueue(clientProcess); }
-                UiTestHelpers.KillProcessTrees(processes);
+                await UiTestHelpers.KillProcessTreesAsync(processes);
 
                 // Stop tracing and export it into a zip archive.
                 string path = UiTestHelpers.GetTracePath(_testAssemblyPath, TraceFileName);
