@@ -532,7 +532,7 @@ namespace Microsoft.Identity.Web
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
-                    builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                    builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                 }
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.PopPublicKey))
                 {
@@ -982,7 +982,7 @@ namespace Microsoft.Identity.Web
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
                         if (tokenAcquisitionOptions.PoPConfiguration != null)
                         {
-                            builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                            builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                         }
                     }
 
