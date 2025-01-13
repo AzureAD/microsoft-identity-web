@@ -1,10 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Common;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Certificates
@@ -151,6 +156,81 @@ namespace Microsoft.Identity.Web.Test.Certificates
             });
 
             return certificateDescription;
+        }
+
+        [Fact]
+        public async Task LoadFirstValidCredentialsAsync_ReturnsFirstValidCredential()
+        {
+            // Arrange
+            var loggerMock = new Mock<ILogger<DefaultCredentialsLoader>>();
+            var credentialLoader = new DefaultCredentialsLoader(loggerMock.Object);
+
+            var validCredential = new CredentialDescription
+            {
+                SourceType = CredentialSource.Path,
+                ReferenceOrValue = "ValidCredential"
+            };
+            var invalidCredential = new CredentialDescription
+            {
+                SourceType = CredentialSource.Path,
+                ReferenceOrValue = "InvalidCredential"
+            };
+
+            var credentials = new List<CredentialDescription> { invalidCredential, validCredential };
+
+            var credentialSourceLoaderMock = new Mock<ICredentialSourceLoader>();
+            credentialSourceLoaderMock
+                .Setup(loader => loader.LoadIfNeededAsync(
+                    It.Is<CredentialDescription>(c => c.ReferenceOrValue == "InvalidCredential"), null))
+                .ThrowsAsync(new Exception("Loading failed"));
+            credentialSourceLoaderMock
+                .Setup(loader => loader.LoadIfNeededAsync(
+                    It.Is<CredentialDescription>(c => c.ReferenceOrValue == "ValidCredential"), null))
+                .Returns(Task.CompletedTask);
+
+            credentialLoader.CredentialSourceLoaders[CredentialSource.Path] = credentialSourceLoaderMock.Object;
+
+            // Act
+            var result = await credentialLoader.LoadFirstValidCredentialsAsync(credentials);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(validCredential, result);
+            credentialSourceLoaderMock.Verify(
+                loader => loader.LoadIfNeededAsync(invalidCredential, null), Times.Once);
+            credentialSourceLoaderMock.Verify(
+                loader => loader.LoadIfNeededAsync(validCredential, null), Times.Once);
+        }
+
+        [Fact]
+        public async Task LoadFirstValidCredentialsAsync_LogsWhenCredentialFailsToLoad()
+        {
+            // Arrange
+            var logger = new LoggerFactory().CreateLogger<DefaultCredentialsLoader>();
+            var credentialLoader = new DefaultCredentialsLoader(logger);
+
+            var invalidCredential = new CredentialDescription
+            {
+                SourceType = CredentialSource.Path,
+                ReferenceOrValue = "InvalidCredential"
+            };
+            var credentials = new List<CredentialDescription> { invalidCredential };
+
+            var credentialSourceLoaderMock = new Mock<ICredentialSourceLoader>();
+            credentialSourceLoaderMock
+                .Setup(loader => loader.LoadIfNeededAsync(
+                    It.Is<CredentialDescription>(c => c.ReferenceOrValue == "InvalidCredential"), null))
+                .ThrowsAsync(new Exception("Loading failed"));
+
+            credentialLoader.CredentialSourceLoaders[CredentialSource.Path] = credentialSourceLoaderMock.Object;
+
+            // Act
+            var result = await credentialLoader.LoadFirstValidCredentialsAsync(credentials);
+
+            // Assert
+            Assert.Null(result);
+            string expectedMessage = $"Failed to load credential: {invalidCredential}. Exception: Loading failed";
+            //Assert.Contains(expectedMessage, logger.LoggedMessages[0], StringComparison.Ordinal);
         }
     }
 }

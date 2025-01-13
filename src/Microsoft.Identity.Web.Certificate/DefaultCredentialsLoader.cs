@@ -97,16 +97,19 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
         /// Loads first valid credential which is not marked as Skipped. 
         public async Task<CredentialDescription?> LoadFirstValidCredentialsAsync(
-            IEnumerable<CredentialDescription> credentialDescriptions, 
+            IEnumerable<CredentialDescription> credentialDescriptions,
             CredentialSourceLoaderParameters? parameters = null)
         {
             foreach (var credentialDescription in credentialDescriptions)
             {
-                await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
-
-                if (!credentialDescription.Skip)
+                try
                 {
+                    await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
                     return credentialDescription;
+                }
+                catch (Exception ex)
+                {
+                    Logger.CredentialLoadingFailureLog(_logger, credentialDescription, ex.Message, null);
                 }
             }
             return null;

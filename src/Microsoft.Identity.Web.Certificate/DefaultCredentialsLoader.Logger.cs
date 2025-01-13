@@ -23,8 +23,19 @@ namespace Microsoft.Identity.Web
                         nameof(CredentialLoadingFailure)),
             "Failed to load credential {id} from source {sourceType}. Will it be skipped in the future ? {skip}.");
 
+            private static readonly Action<ILogger, string, string, Exception?> s_credentialLoadingFailureLog =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    new EventId(
+                        8,
+                        nameof(CredentialLoadingFailureLog)),
+            "Failed to load credential: {id}. Exception message: {message}. ");
+
             public static void CredentialLoadingFailure(ILogger logger, CredentialDescription cd, Exception? ex)
                 => s_credentialLoadingFailure(logger, cd.Id, cd.SourceType.ToString(), cd.Skip, ex);
+
+            public static void CredentialLoadingFailureLog(ILogger logger, CredentialDescription cd, string message, Exception? ex)
+                => s_credentialLoadingFailureLog(logger, cd.Id, message, ex);
         }
     }
 }
