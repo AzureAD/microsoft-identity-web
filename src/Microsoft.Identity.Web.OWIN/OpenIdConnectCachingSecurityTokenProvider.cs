@@ -14,12 +14,9 @@ namespace Microsoft.Identity.Web
     internal class OpenIdConnectCachingSecurityTokenProvider : IIssuerSecurityKeyProvider
     {
         public readonly ConfigurationManager<OpenIdConnectConfiguration> _configManager;
-        private readonly string _metadataEndpoint;
-        OpenIdConnectConfiguration? _oidcConfig;
 
         public OpenIdConnectCachingSecurityTokenProvider(string metadataEndpoint)
         {
-            _metadataEndpoint = metadataEndpoint;
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(metadataEndpoint, new OpenIdConnectConfigurationRetriever());
 
             RetrieveMetadata();
@@ -31,14 +28,7 @@ namespace Microsoft.Identity.Web
         /// <value>
         /// The issuer the credentials are for.
         /// </value>
-        public string? Issuer
-        {
-            get
-            {
-                RetrieveMetadata();
-                return _oidcConfig!.Issuer;
-            }
-        }
+        public string? Issuer => RetrieveMetadata().Issuer;
 
         /// <summary>
         /// Gets all known security keys.
@@ -46,21 +36,14 @@ namespace Microsoft.Identity.Web
         /// <value>
         /// All known security keys.
         /// </value>
-        public IEnumerable<SecurityKey>? SecurityKeys
-        {
-            get
-            {
-                RetrieveMetadata();
-                return _oidcConfig!.SigningKeys;
-            }
-        }
+        public IEnumerable<SecurityKey>? SecurityKeys => RetrieveMetadata().SigningKeys;
 
-        private void RetrieveMetadata()
+        private OpenIdConnectConfiguration RetrieveMetadata()
         {
             // ConfigurationManager will return the same cached config unless enough time has passed,
             // then the return value will be a new object.
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-            _oidcConfig = _configManager.GetConfigurationAsync().Result;
+            return _configManager.GetConfigurationAsync().Result;
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
         }
     }
