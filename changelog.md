@@ -1,3 +1,17 @@
+3.6.0
+========
+- Updated to Microsoft.IdentityModel.* 8.3.1
+- Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.67.2
+
+## Bug fixes
+- Checks that B2C tokens don't contain the claims used by Identity Web to represent the home tenant and object ID (obtained from the UserInfo endpoint). See https://github.com/AzureAD/microsoft-identity-web/pull/3131
+- Remove explicit locking in `OpenIdConnectCachingSecurityTokenProvider`. See Issue [#3078](https://github.com/AzureAD/microsoft-identity-web/issues/3078)
+
+
+## Fundamentals
+- Fix Null Reference Exception in OwinTokenAcquirerFactory + other OWIN cleanup. See https://github.com/AzureAD/microsoft-identity-web/pull/3183
+- Re-add code coverage comments & scope to src files. See https://github.com/AzureAD/microsoft-identity-web/issues/3177
+
 3.5.0
 ========
 - Updated to Microsoft.IdentityModel.* 8.3.0
