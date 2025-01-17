@@ -4,7 +4,7 @@
 - Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.67.2
 
 ## Bug fixes
-- Add checks to protect the internal claims used by Identity Web. See https://github.com/AzureAD/microsoft-identity-web/pull/3131
+- Checks that B2C tokens don't contain the claims used by Identity Web to represent the home tenant and object ID (obtained from the UserInfo endpoint). See https://github.com/AzureAD/microsoft-identity-web/pull/3131
 - 
 
 ## Fundamentals
