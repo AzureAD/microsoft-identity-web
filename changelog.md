@@ -1,6 +1,6 @@
 3.6.0
 ========
-- Updated to Microsoft.IdentityModel.* 8.4.0
+- Updated to Microsoft.IdentityModel.* 8.3.1
 - Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.67.2
 
 ## Bug fixes
