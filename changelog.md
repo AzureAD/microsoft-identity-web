@@ -5,7 +5,8 @@
 
 ## Bug fixes
 - Checks that B2C tokens don't contain the claims used by Identity Web to represent the home tenant and object ID (obtained from the UserInfo endpoint). See https://github.com/AzureAD/microsoft-identity-web/pull/3131
-- 
+- Remove explicit locking in `OpenIdConnectCachingSecurityTokenProvider`. See Issue [#3078](https://github.com/AzureAD/microsoft-identity-web/issues/3078)
+
 
 ## Fundamentals
 - Fix Null Reference Exception in OwinTokenAcquirerFactory + other OWIN cleanup. See https://github.com/AzureAD/microsoft-identity-web/pull/3183
