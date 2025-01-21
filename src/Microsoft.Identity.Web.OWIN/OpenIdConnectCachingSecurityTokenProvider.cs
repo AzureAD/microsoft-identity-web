@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security.Jwt;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Web
 {
@@ -15,16 +13,10 @@ namespace Microsoft.Identity.Web
     // the OpenID Connect metadata endpoint exposed by the STS by default.
     internal class OpenIdConnectCachingSecurityTokenProvider : IIssuerSecurityKeyProvider
     {
-        public ConfigurationManager<OpenIdConnectConfiguration> _configManager;
-        private string? _issuer;
-        private IEnumerable<SecurityKey>? _keys;
-        private readonly string _metadataEndpoint;
-
-        private readonly ReaderWriterLockSlim _synclock = new ReaderWriterLockSlim();
+        public readonly ConfigurationManager<OpenIdConnectConfiguration> _configManager;
 
         public OpenIdConnectCachingSecurityTokenProvider(string metadataEndpoint)
         {
-            _metadataEndpoint = metadataEndpoint;
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(metadataEndpoint, new OpenIdConnectConfigurationRetriever());
 
             RetrieveMetadata();
@@ -36,22 +28,7 @@ namespace Microsoft.Identity.Web
         /// <value>
         /// The issuer the credentials are for.
         /// </value>
-        public string? Issuer
-        {
-            get
-            {
-                RetrieveMetadata();
-                _synclock.EnterReadLock();
-                try
-                {
-                    return _issuer;
-                }
-                finally
-                {
-                    _synclock.ExitReadLock();
-                }
-            }
-        }
+        public string? Issuer => RetrieveMetadata().Issuer;
 
         /// <summary>
         /// Gets all known security keys.
@@ -59,38 +36,15 @@ namespace Microsoft.Identity.Web
         /// <value>
         /// All known security keys.
         /// </value>
-        public IEnumerable<SecurityKey>? SecurityKeys
-        {
-            get
-            {
-                RetrieveMetadata();
-                _synclock.EnterReadLock();
-                try
-                {
-                    return _keys;
-                }
-                finally
-                {
-                    _synclock.ExitReadLock();
-                }
-            }
-        }
+        public IEnumerable<SecurityKey>? SecurityKeys => RetrieveMetadata().SigningKeys;
 
-        private void RetrieveMetadata()
+        private OpenIdConnectConfiguration RetrieveMetadata()
         {
-            _synclock.EnterWriteLock();
-            try
-            {
+            // ConfigurationManager will return the same cached config unless enough time has passed,
+            // then the return value will be a new object.
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                OpenIdConnectConfiguration config = Task.Run(_configManager.GetConfigurationAsync).Result;
+            return _configManager.GetConfigurationAsync().Result;
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-                _issuer = config.Issuer;
-                _keys = config.SigningKeys;
-            }
-            finally
-            {
-                _synclock.ExitWriteLock();
-            }
         }
     }
 }
