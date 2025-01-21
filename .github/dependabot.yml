@@ -37,8 +37,14 @@ updates:
       # Separate group for ASP.NET dependencies
       aspnet:
         patterns:
-          - "Microsoft.AspNetCore.*"
+        - "Microsoft.AspNetCore.*"
+        update-types:
+        - "minor"
+        - "patch"
       # Separate group for Microsoft.Extensions dependencies
       microsoft-extensions:
         patterns:
-          - "Microsoft.Extensions.*"
+        - "Microsoft.Extensions.*"
+        update-types:
+        - "minor"
+        - "patch"
