@@ -4,5 +4,6 @@
     <EnablePackageValidation>false</EnablePackageValidation>
     <!--RS0016: Add public types and members to the declared API-->
     <NoWarn>RS0016</NoWarn>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 </Project>

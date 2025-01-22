@@ -8,6 +8,7 @@
      <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
      <EnablePackageValidation>false</EnablePackageValidation>
      <RootNamespace>Microsoft.Identity.App</RootNamespace>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
  <ItemGroup>
