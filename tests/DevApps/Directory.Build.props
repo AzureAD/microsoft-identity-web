@@ -6,6 +6,7 @@
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
     <LangVersion>13</LangVersion>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">

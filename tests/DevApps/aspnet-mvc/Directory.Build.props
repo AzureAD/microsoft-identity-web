@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <LangVersion>13</LangVersion>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 </Project>
