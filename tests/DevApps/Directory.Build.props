@@ -8,6 +8,11 @@
     <LangVersion>13</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
+    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
     <SystemDrawingCommon>6.0.0</SystemDrawingCommon>

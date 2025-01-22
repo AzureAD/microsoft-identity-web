@@ -10,6 +10,11 @@
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
+    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftAspNetCoreMvcTestingVersion>7.0.0</MicrosoftAspNetCoreMvcTestingVersion>
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
