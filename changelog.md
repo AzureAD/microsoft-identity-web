@@ -1,3 +1,10 @@
+3.6.2
+========
+- Updated to Microsoft.Identity.Abstractions [8.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/8.0.0)
+
+## Fundamentals
+- Clean-up the tests that were using properties removed in Abstractions 8.0.0. See issue [#3212](https://github.com/AzureAD/microsoft-identity-web/issues/3212) for details.
+
 3.6.1
 ========
 - Updated to Microsoft.Identity.Abstractions [7.2.1](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/7.2.1)
