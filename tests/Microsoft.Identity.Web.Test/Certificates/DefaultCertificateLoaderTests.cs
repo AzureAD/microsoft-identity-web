@@ -55,47 +55,22 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.NotNull(certificateDescription.Certificate);
         }
 
-#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
-        [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
-#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
-        [Theory]
-        public void TestLoadFirstCertificate(
-            CertificateSource certificateSource,
-            string container,
-            string referenceOrValue)
+        [Fact]
+        public void TestLoadFirstCertificate()
         {
-            IEnumerable<CertificateDescription> certDescriptions = CreateCertificateDescriptions(
-                certificateSource,
-                container,
-                referenceOrValue);
-
+            IEnumerable<CertificateDescription> certDescriptions = [CertificateDescription.FromBase64Encoded(TestConstants.CertificateX5c)];
             X509Certificate2? certificate = DefaultCertificateLoader.LoadFirstCertificate(certDescriptions);
 
             Assert.NotNull(certificate);
             Assert.Equal("CN=ACS2ClientCertificate", certificate.Issuer);
         }
 
-#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
-        [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
-#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
-        [Theory]
-        public void TestLoadAllCertificates(
-           CertificateSource certificateSource,
-           string container,
-           string referenceOrValue)
+        [Fact]
+        public void TestLoadAllCertificates()
         {
-            List<CertificateDescription> certDescriptions = CreateCertificateDescriptions(
-                certificateSource,
-                container,
-                referenceOrValue).ToList();
+            List<CertificateDescription> certDescriptions = [CertificateDescription.FromBase64Encoded(TestConstants.CertificateX5c)];
 
-            certDescriptions.Add(new CertificateDescription
-            {
-                SourceType = certificateSource,
-                Container = container,
-                ReferenceOrValue = referenceOrValue,
-            });
-
+            certDescriptions.Add(CertificateDescription.FromBase64Encoded(TestConstants.CertificateX5c));
             certDescriptions.Add(CertificateDescription.FromCertificate(null!));
 
             IEnumerable<X509Certificate2?> certificates = DefaultCertificateLoader.LoadAllCertificates(certDescriptions);
@@ -134,23 +109,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             Assert.NotNull(certificateDescription.Certificate);
             Assert.True(certificateDescription.Certificate.HasPrivateKey);
-        }
-
-        private IEnumerable<CertificateDescription> CreateCertificateDescriptions(
-            CertificateSource certificateSource,
-            string container,
-            string referenceOrValue)
-        {
-            List<CertificateDescription> certificateDescription = new List<CertificateDescription>();
-
-            certificateDescription.Add(new CertificateDescription
-            {
-                SourceType = certificateSource,
-                Container = container,
-                ReferenceOrValue = referenceOrValue,
-            });
-
-            return certificateDescription;
         }
     }
 }
