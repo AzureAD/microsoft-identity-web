@@ -72,7 +72,6 @@ namespace Microsoft.Identity.Web.Tests
             // Arrange
             var options = new TokenAcquisitionExtensionOptions();
             var acquireTokenOptions = new AcquireTokenOptions();
-            acquireTokenOptions.ForceRefresh = true;
 
             //Configure mocks
             using MockHttpClientFactory mockHttpClient = new();

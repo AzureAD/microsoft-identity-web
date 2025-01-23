@@ -123,6 +123,37 @@ namespace TokenAcquirerTests
         }
 
         [Fact]
+        public async Task AcquireToken_ROPC_CCA_WithForceRefresh_async()
+        {
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            _ = tokenAcquirerFactory.Build();
+
+            var labResponse = await LabUserHelper.GetDefaultUserAsync();
+
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/organizations",
+               clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
+               clientCredentials: s_clientCredentials);
+
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
+
+            var result = await tokenAcquirer.GetTokenForUserAsync(
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.AccessToken);
+
+            AcquireTokenOptions options = new AcquireTokenOptions { ForceRefresh = true };
+
+            var result2 = await tokenAcquirer.GetTokenForUserAsync(tokenAcquisitionOptions: options,
+                scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
+
+            Assert.NotNull(result2);
+            Assert.NotNull(result2.AccessToken);
+            Assert.NotEqual(result.AccessToken, result2.AccessToken);
+        }
+
+        [Fact]
         public void AcquireToken_SafeFromMultipleThreads()
         {
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
