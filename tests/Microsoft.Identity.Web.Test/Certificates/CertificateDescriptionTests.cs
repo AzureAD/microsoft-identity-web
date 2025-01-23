@@ -14,8 +14,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         {
             CertificateDescription certificateDescription = CertificateDescription.FromKeyVault(keyVaultUrl, certificateName);
             Assert.Equal(CertificateSource.KeyVault, certificateDescription.SourceType);
-            Assert.Equal(keyVaultUrl, certificateDescription.Container);
-            Assert.Equal(certificateName, certificateDescription.ReferenceOrValue);
+            Assert.Equal(keyVaultUrl, certificateDescription.KeyVaultUrl);
             Assert.Equal(certificateName, certificateDescription.KeyVaultCertificateName);
             Assert.Equal(keyVaultUrl, certificateDescription.KeyVaultUrl);
 #if NET462
@@ -33,11 +32,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         {
             CertificateDescription certificateDescription = CertificateDescription.FromPath(certificatePath, password);
             Assert.Equal(CertificateSource.Path, certificateDescription.SourceType);
-            Assert.Equal(certificatePath, certificateDescription.Container);
-            Assert.Equal(password, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificatePath, certificateDescription.CertificateDiskPath);
             Assert.Equal(password, certificateDescription.CertificatePassword);
-        }
+         }
 
         [Theory]
         [InlineData("440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269")]
@@ -45,7 +42,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
         {
             CertificateDescription certificateDescription = CertificateDescription.FromBase64Encoded(base64Encoded);
             Assert.Equal(CertificateSource.Base64Encoded, certificateDescription.SourceType);
-            Assert.Equal(base64Encoded, certificateDescription.ReferenceOrValue);
             Assert.Equal(base64Encoded, certificateDescription.Base64EncodedValue);
         }
 
@@ -56,8 +52,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             CertificateDescription certificateDescription =
                 CertificateDescription.FromStoreWithDistinguishedName(certificateDistinguishedName, storeLocation, storeName);
             Assert.Equal(CertificateSource.StoreWithDistinguishedName, certificateDescription.SourceType);
-            Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.Container);
-            Assert.Equal(certificateDistinguishedName, certificateDescription.ReferenceOrValue);
             Assert.Equal(certificateDistinguishedName, certificateDescription.CertificateDistinguishedName);
             Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.CertificateStorePath);
         }
@@ -69,8 +63,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             CertificateDescription certificateDescription =
                 CertificateDescription.FromStoreWithThumbprint(certificateThumbprint, storeLocation, storeName);
             Assert.Equal(CertificateSource.StoreWithThumbprint, certificateDescription.SourceType);
-            Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.Container);
-            Assert.Equal(certificateThumbprint, certificateDescription.ReferenceOrValue);
             Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.CertificateStorePath);
             Assert.Equal(certificateThumbprint, certificateDescription.CertificateThumbprint);
         }

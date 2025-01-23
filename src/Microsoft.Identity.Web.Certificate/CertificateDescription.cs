@@ -24,14 +24,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="credentialDescription"></param>
         public CertificateDescription(CredentialDescription credentialDescription)
+            : base(credentialDescription)
         {
             _ = Throws.IfNull(credentialDescription);
 
             // TODO: Check credentialDescription is really a cert
             SourceType = (CertificateSource)credentialDescription.SourceType;
-            Container = credentialDescription.Container;
-            Certificate = credentialDescription.Certificate;
-            ReferenceOrValue = credentialDescription.ReferenceOrValue;
         }
 
         /// <summary>
@@ -160,26 +158,6 @@ namespace Microsoft.Identity.Web
 
         // Should Container and ReferenceOrValue be moved to
         // the tests (As extension methods)
-
-        #region Backwards compatibilty with 1.x
-        /// <summary>
-        /// <inheritdoc/>.
-        /// </summary>
-        internal new string? Container
-        {
-            get { return base.Container; }
-            set { base.Container = value; }
-        }
-
-        /// <summary>
-        /// <inheritdoc/>.
-        /// </summary>
-        internal new string? ReferenceOrValue
-        {
-            get { return base.ReferenceOrValue; }
-            set { base.ReferenceOrValue = value; }
-        }
-
         /// <summary>
         /// <inheritdoc/>.
         /// </summary>
@@ -197,6 +175,5 @@ namespace Microsoft.Identity.Web
             get { return (CertificateSource)base.SourceType; }
             set { base.SourceType = (CredentialSource)value; }
         }
-        #endregion
     }
 }
