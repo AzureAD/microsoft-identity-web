@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(CertificateSource.Path, certificateDescription.SourceType);
             Assert.Equal(certificatePath, certificateDescription.CertificateDiskPath);
             Assert.Equal(password, certificateDescription.CertificatePassword);
-         }
+        }
 
         [Theory]
         [InlineData("440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269")]
