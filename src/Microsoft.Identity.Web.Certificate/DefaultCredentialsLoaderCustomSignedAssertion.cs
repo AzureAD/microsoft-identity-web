@@ -52,19 +52,19 @@ namespace Microsoft.Identity.Web
             // No source loader(s)
             if (CustomSignedAssertionCredentialSourceLoaders == null || !CustomSignedAssertionCredentialSourceLoaders.Any())
             {
-                Logger.CredentialLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.SourceLoadersNullOrEmpty());
+                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.SourceLoadersNullOrEmpty());
             }
 
             // No provider name
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
-                Logger.CredentialLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty());
+                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty());
             }
 
             // No source loader for provider name
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICredentialSourceLoader? sourceLoader))
             {
-                Logger.CredentialLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(credentialDescription.CustomSignedAssertionProviderName!));
+                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(credentialDescription.CustomSignedAssertionProviderName!));
             }
 
             // Load the credentials
