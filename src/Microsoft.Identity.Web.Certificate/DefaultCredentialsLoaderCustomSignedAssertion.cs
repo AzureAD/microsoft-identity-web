@@ -19,21 +19,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
-        public DefaultCredentialsLoader(ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders)
+        public DefaultCredentialsLoader(ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders) : this(logger)
         {
-            _logger = logger ?? new NullLogger<DefaultCredentialsLoader>();
-
-            CredentialSourceLoaders = new Dictionary<CredentialSource, ICredentialSourceLoader>
-            {
-                { CredentialSource.KeyVault, new KeyVaultCertificateLoader() },
-                { CredentialSource.Path, new FromPathCertificateLoader() },
-                { CredentialSource.StoreWithThumbprint, new StoreWithThumbprintCertificateLoader() },
-                { CredentialSource.StoreWithDistinguishedName, new StoreWithDistinguishedNameCertificateLoader() },
-                { CredentialSource.Base64Encoded, new Base64EncodedCertificateLoader() },
-                { CredentialSource.SignedAssertionFromManagedIdentity, new SignedAssertionFromManagedIdentityCredentialLoader(_logger) },
-                { CredentialSource.SignedAssertionFilePath, new SignedAssertionFilePathCredentialsLoader(_logger) }
-            };
-
             var CustomSignedAssertionCredentialSourceLoaders = new Dictionary<string, ICredentialSourceLoader>();
             foreach (var provider in customSignedAssertionProviders)
             {
