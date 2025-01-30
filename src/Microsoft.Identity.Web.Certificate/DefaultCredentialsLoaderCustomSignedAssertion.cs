@@ -35,7 +35,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public IDictionary<string, ICredentialSourceLoader>? CustomSignedAssertionCredentialSourceLoaders { get; }
 
-
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
         {
             CustomSignedAssertionProviderNotFoundException providerNotFoundException;
