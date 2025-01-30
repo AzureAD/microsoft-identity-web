@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -21,11 +20,14 @@ namespace Microsoft.Identity.Web
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
         public DefaultCredentialsLoader(ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders) : this(logger)
         {
-            var CustomSignedAssertionCredentialSourceLoaders = new Dictionary<string, ICredentialSourceLoader>();
+            var sourceLoaderDict = new Dictionary<string, ICredentialSourceLoader>();
+
             foreach (var provider in customSignedAssertionProviders)
             {
-                CustomSignedAssertionCredentialSourceLoaders.Add(provider.Name ?? provider.GetType().FullName!, provider);
+                sourceLoaderDict.Add(provider.Name ?? provider.GetType().FullName!, provider);
             }
+
+            CustomSignedAssertionCredentialSourceLoaders = sourceLoaderDict;
         }
 
         /// <summary>
@@ -36,29 +38,35 @@ namespace Microsoft.Identity.Web
 
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
         {
+            CustomSignedAssertionProviderNotFoundException providerNotFoundException;
+
             // No source loader(s)
             if (CustomSignedAssertionCredentialSourceLoaders == null || !CustomSignedAssertionCredentialSourceLoaders.Any())
             {
-                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.SourceLoadersNullOrEmpty());
+                providerNotFoundException = CustomSignedAssertionProviderNotFoundException.SourceLoadersNullOrEmpty();
             }
 
             // No provider name
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
-                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty());
+                providerNotFoundException = CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty();
             }
 
             // No source loader for provider name
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICredentialSourceLoader? sourceLoader))
             {
-                Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(credentialDescription.CustomSignedAssertionProviderName!));
+                providerNotFoundException = CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(credentialDescription.CustomSignedAssertionProviderName!);
             }
 
             // Load the credentials
             else
             {
                 await sourceLoader.LoadIfNeededAsync(credentialDescription, parameters);
+                return;
             }
+
+            Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, providerNotFoundException);
+            throw providerNotFoundException;
         }
     }
 
