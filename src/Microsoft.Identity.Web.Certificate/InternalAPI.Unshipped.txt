@@ -1,0 +1,5 @@
+Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException
+Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.CustomSignedAssertionProviderNotFoundException(string! message) -> void
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(string! name) -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty() -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.SourceLoadersNullOrEmpty() -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!

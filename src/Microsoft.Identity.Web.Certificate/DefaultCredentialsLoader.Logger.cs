@@ -25,6 +25,21 @@ namespace Microsoft.Identity.Web
 
             public static void CredentialLoadingFailure(ILogger logger, CredentialDescription cd, Exception? ex)
                 => s_credentialLoadingFailure(logger, cd.Id, cd.SourceType.ToString(), cd.Skip, ex);
+
+            private static readonly Action<ILogger, string, string, bool, Exception?> s_customSignedAssertionProviderLoadingFailure =
+                LoggerMessage.Define<string, string, bool>(
+                    LogLevel.Information,
+                    new EventId(
+                        7,
+                        nameof(CustomSignedAssertionProviderLoadingFailure)),
+            "Failed to find custom signed assertion provider {name} from source {sourceType}. Will it be skipped in the future ? {skip}.");
+
+            public static void CustomSignedAssertionProviderLoadingFailure(
+                ILogger logger,
+                CredentialDescription cd,
+                string providerName,
+                CustomSignedAssertionProviderNotFoundException ex
+                ) => s_customSignedAssertionProviderLoadingFailure(logger, cd.CustomSignedAssertionProviderName, cd.SourceType.ToString(), cd.Skip, ex);
         }
     }
 }
