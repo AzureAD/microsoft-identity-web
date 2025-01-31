@@ -34,6 +34,7 @@
     <MicrosoftApplicationInsightsEventCounterCollectionVersion>2.22.0</MicrosoftApplicationInsightsEventCounterCollectionVersion>
     <MicrosoftExtensionsCachingStackExchangeRedisVersion>6.0.12</MicrosoftExtensionsCachingStackExchangeRedisVersion>
     <MicrosoftPlaywrightVersion>1.48.0</MicrosoftPlaywrightVersion>
+    <MoqVersion>4.20.72</MoqVersion>
     <StackExchangeRedisVersion>2.2.4</StackExchangeRedisVersion>
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>

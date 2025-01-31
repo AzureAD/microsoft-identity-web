@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Web
             public static void CustomSignedAssertionProviderLoadingFailure(
                 ILogger logger,
                 CredentialDescription cd,
-                CustomSignedAssertionProviderNotFoundException ex
+                Exception ex
                 ) => s_customSignedAssertionProviderLoadingFailure(logger, cd.CustomSignedAssertionProviderName ?? "NameMissing", cd.SourceType.ToString(), cd.Skip, ex);
         }
     }

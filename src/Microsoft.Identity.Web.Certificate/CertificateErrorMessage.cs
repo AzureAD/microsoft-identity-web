@@ -16,6 +16,9 @@ namespace Microsoft.Identity.Web
         public const string BothClientSecretAndCertificateProvided = "IDW10105: Both client secret and client certificate, " +
                    "cannot be included in the configuration of the web app when calling a web API. ";
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
+        public const string CustomProviderNameNullOrEmpty = "IDW10111 The name of the custom signed assertion provider is null or empty.";
+        public const string CustomProviderNotFound = "IDW10112: The custom signed assertion provider with name '{0}' was not found.";
+        public const string CustomProviderSourceLoaderNullOrEmpty = "IDW10113 The dictionary of SourceLoaders for custom signed assertion providers is null or empty.";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";
