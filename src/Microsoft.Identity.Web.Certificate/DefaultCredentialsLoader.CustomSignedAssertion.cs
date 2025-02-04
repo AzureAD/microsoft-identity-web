@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
-
 namespace Microsoft.Identity.Web
 {
     public partial class DefaultCredentialsLoader
