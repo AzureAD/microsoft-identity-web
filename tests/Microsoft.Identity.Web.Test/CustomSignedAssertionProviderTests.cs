@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web.Test
             var loggerMock = new Mock<ILogger<DefaultCredentialsLoader>>();
             loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
-            var loader = new DefaultCredentialsLoader(loggerMock.Object, providerList);
+            var loader = new DefaultCredentialsLoader(providerList, loggerMock.Object);
 
             // Act
             try
@@ -39,15 +39,14 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(expectedMessage, ex.Message);
 
                 // Haven't figured out yet how to get the mock logger to see the log coming from DefaultCredentialsLoader.Logger where it is logged using LogMessage.Define()
-                /*                loggerMock.Verify(
-                                    x =>
-                                    x.Log(
-                                        LogLevel.Information,
-                                        It.IsAny<EventId>(),
-                                        It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage!)),
-                                        It.IsAny<Exception?>(),
-                                        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                                    Times.Once);*/
+                loggerMock.Verify(
+                    x =>
+                    x.Log(
+                        It.IsAny<LogLevel>(),
+                        It.IsAny<EventId>(),
+                        It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage!)),
+                        It.IsAny<Exception>(),
+                        It.Is<Func<It.IsAnyType, Exception?, string>>((v,t) => true)));
                 return;
             }
 
