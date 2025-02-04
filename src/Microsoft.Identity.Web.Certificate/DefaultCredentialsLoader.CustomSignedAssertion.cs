@@ -19,9 +19,9 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
-            var sourceLoaderDict = new Dictionary<string, ICredentialSourceLoader>();
+            var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
 
-            foreach (var provider in customSignedAssertionProviders)
+            foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)
             {
                 sourceLoaderDict.Add(provider.Name ?? provider.GetType().FullName!, provider);
             }
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Dictionary of custom signed assertion credential source loaders, by name (fully qualified type name).
         /// </summary>
-        public IDictionary<string, ICredentialSourceLoader>? CustomSignedAssertionCredentialSourceLoaders { get; }
+        public IDictionary<string, ICustomSignedAssertionProvider>? CustomSignedAssertionCredentialSourceLoaders { get; }
 
 
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
