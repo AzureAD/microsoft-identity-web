@@ -31,6 +31,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Dictionary of custom signed assertion credential source loaders, by name (fully qualified type name).
+        /// The application can add more to process additional credential sources.
         /// </summary>
         public IDictionary<string, ICustomSignedAssertionProvider>? CustomSignedAssertionCredentialSourceLoaders { get; }
 
