@@ -21,6 +21,7 @@ namespace daemon_console
             var benchmarkConfig = ManualConfig.Union(DefaultConfig.Instance, new BenchmarkConfig());
 #endif
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, benchmarkConfig);
+            BenchmarkRunner.Run<GraphServiceClientBenchmark>();
         }
     }
 }
