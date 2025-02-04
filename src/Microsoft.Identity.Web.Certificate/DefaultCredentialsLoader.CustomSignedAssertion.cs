@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -20,13 +18,18 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
-            var sourceLoaderDict = new ConcurrentDictionary<string, ICustomSignedAssertionProvider>();
+            var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
 
             foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)
             {
-                if (sourceLoaderDict.TryAdd(provider.Name ?? provider.GetType().FullName!, provider))
+                string providerName = provider.Name ?? provider.GetType().FullName!;
+                if (sourceLoaderDict.ContainsKey(providerName))
                 {
-                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, provider.Name ?? provider.GetType().FullName!);
+                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, providerName);
+                }
+                else
+                {
+                    sourceLoaderDict.Add(providerName, provider);
                 }
             }
 
@@ -43,7 +46,7 @@ namespace Microsoft.Identity.Web
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
         {
             // No source loader(s)
-            if (CustomSignedAssertionCredentialSourceLoaders == null || !CustomSignedAssertionCredentialSourceLoaders.Any())
+            if (CustomSignedAssertionCredentialSourceLoaders == null || CustomSignedAssertionCredentialSourceLoaders.Count == 0)
             {
                 _logger.LogError(CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty);
             }

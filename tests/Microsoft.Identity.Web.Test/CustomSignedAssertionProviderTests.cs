@@ -15,10 +15,11 @@ namespace Microsoft.Identity.Web.Test
     public class CustomSignedAssertionProviderTests
     {
         [Theory]
-        [MemberData(nameof(CustomSignedAssertionTestData))]
+        [MemberData(nameof(CustomSignedAssertionLoggingTestData))]
         public async Task ProcessCustomSignedAssertionAsync_Tests(
             List<ICustomSignedAssertionProvider> providerList,
             CredentialDescription credentialDescription,
+            LogLevel expectedLogLevel = LogLevel.None,
             string? expectedMessage = null)
         {
             // Arrange
@@ -41,7 +42,7 @@ namespace Microsoft.Identity.Web.Test
                 // This is validating the logging behavior defined by DefaultCredentialsLoader.Logger.CustomSignedAssertionProviderLoadingFailure
                 loggerMock.Verify(
                     x => x.Log(
-                        LogLevel.Information,
+                        expectedLogLevel,
                         It.IsAny<EventId>(),
                         It.Is<It.IsAnyType>((v, t) => true), // In Microsoft.Logging.Abstractions this is a private struct which is why it is defined so loosely.
                         It.IsAny<Exception>(),
@@ -55,7 +56,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 loggerMock.Verify(
                 x => x.Log(
-                    LogLevel.Error,
+                    expectedLogLevel,
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage)),
                     It.IsAny<Exception?>(),
@@ -77,7 +78,7 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-        public static IEnumerable<object[]> CustomSignedAssertionTestData()
+        public static IEnumerable<object[]> CustomSignedAssertionLoggingTestData()
         {
             // No source loaders
             yield return new object[]
@@ -89,6 +90,7 @@ namespace Microsoft.Identity.Web.Test
                         SourceType = CredentialSource.CustomSignedAssertion,
                         Skip = false
                     },
+                    LogLevel.Error,
                     CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
             };
 
@@ -101,6 +103,7 @@ namespace Microsoft.Identity.Web.Test
                         CustomSignedAssertionProviderName = null,
                         SourceType = CredentialSource.CustomSignedAssertion
                     },
+                    LogLevel.Error,
                     CertificateErrorMessage.CustomProviderNameNullOrEmpty
             };
 
@@ -113,6 +116,7 @@ namespace Microsoft.Identity.Web.Test
                         CustomSignedAssertionProviderName = "Provider3",
                         SourceType = CredentialSource.CustomSignedAssertion
                     },
+                    LogLevel.Error,
                     string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
             };
 
@@ -136,12 +140,26 @@ namespace Microsoft.Identity.Web.Test
                     CustomSignedAssertionProviderName = "Provider5",
                     SourceType = CredentialSource.CustomSignedAssertion
                 },
+                LogLevel.Information,
                 FailingCustomSignedAssertionProvider.ExceptionMessage
+            };
+
+            // Multiple providers with the same name
+            yield return new object[]
+            {
+                    new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider6"), new SuccessfulCustomSignedAssertionProvider("Provider6") },
+                    new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider6",
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    },
+                    LogLevel.Warning,
+                    string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNameAlreadyExists, "Provider6")
             };
         }
     }
 
-    // Helper class
+    // Helper class mocking an implementation of ICustomSignedAssertionProvider normally provided by a user where the LoadIfNeededAsync method completes without error.
     internal class SuccessfulCustomSignedAssertionProvider : ICustomSignedAssertionProvider
     {
         public string Name { get; }
@@ -159,6 +177,7 @@ namespace Microsoft.Identity.Web.Test
         }
     }
 
+    // Helper class mocking an implementation of ICustomSignedAssertionProvider normally provided by a user where the LoadIfNeededAsync method throws error.
     internal class FailingCustomSignedAssertionProvider : ICustomSignedAssertionProvider
     {
         public string Name { get; }
