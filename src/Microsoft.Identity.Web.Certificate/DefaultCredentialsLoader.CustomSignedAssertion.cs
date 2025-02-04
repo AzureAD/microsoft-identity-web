@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
             }
 
             // No source loader for provider name
-            else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICredentialSourceLoader? sourceLoader))
+            else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICustomSignedAssertionProvider? sourceLoader))
             {
                 _logger.LogError(CertificateErrorMessage.CustomProviderNotFound, credentialDescription.CustomSignedAssertionProviderName);
             }

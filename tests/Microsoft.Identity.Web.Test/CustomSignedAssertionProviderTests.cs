@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
-using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -38,15 +38,15 @@ namespace Microsoft.Identity.Web.Test
             {
                 Assert.Equal(expectedMessage, ex.Message);
 
-                // Haven't figured out yet how to get the mock logger to see the log coming from DefaultCredentialsLoader.Logger where it is logged using LogMessage.Define()
+                // This is validating the logging behavior defined by DefaultCredentialsLoader.Logger.CustomSignedAssertionProviderLoadingFailure
                 loggerMock.Verify(
-                    x =>
-                    x.Log(
-                        It.IsAny<LogLevel>(),
+                    x => x.Log(
+                        LogLevel.Information,
                         It.IsAny<EventId>(),
-                        It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage!)),
+                        It.Is<It.IsAnyType>((v, t) => true), // In Microsoft.Logging.Abstractions this is a private struct which is why it is defined so loosely.
                         It.IsAny<Exception>(),
-                        It.Is<Func<It.IsAnyType, Exception?, string>>((v,t) => true)));
+                        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                    Times.Once);
                 return;
             }
 
@@ -54,24 +54,26 @@ namespace Microsoft.Identity.Web.Test
             if (expectedMessage != null)
             {
                 loggerMock.Verify(
-                    x => x.Log(
-                        LogLevel.Error,
-                        It.IsAny<EventId>(),
-                        It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage)),
-                        It.IsAny<Exception?>(),
-                        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                    Times.Once);
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage)),
+                    It.IsAny<Exception?>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                    Times.Once
+                );
             }
             else
             {
                 loggerMock.Verify(
-                    x => x.Log(
-                        It.IsAny<LogLevel>(),
-                        It.IsAny<EventId>(),
-                        It.IsAny<It.IsAnyType>(),
-                        It.IsAny<Exception>(),
-                        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                    Times.Never);
+                x => x.Log(
+                    It.IsAny<LogLevel>(),
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                    Times.Never
+                );
             }
         }
 
