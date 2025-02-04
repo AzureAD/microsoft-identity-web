@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,11 +20,14 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
-            var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
+            var sourceLoaderDict = new ConcurrentDictionary<string, ICustomSignedAssertionProvider>();
 
             foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)
             {
-                sourceLoaderDict.Add(provider.Name ?? provider.GetType().FullName!, provider);
+                if (sourceLoaderDict.TryAdd(provider.Name ?? provider.GetType().FullName!, provider))
+                {
+                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, provider.Name ?? provider.GetType().FullName!);
+                }
             }
 
             CustomSignedAssertionCredentialSourceLoaders = sourceLoaderDict;
