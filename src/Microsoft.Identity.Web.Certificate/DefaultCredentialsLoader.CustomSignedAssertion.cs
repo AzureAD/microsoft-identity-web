@@ -19,14 +19,7 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
-#if NET7_0_OR_GREATER
-            ArgumentNullException.ThrowIfNull(customSignedAssertionProviders, nameof(customSignedAssertionProviders));
-# else
-            if (customSignedAssertionProviders is null)
-            {
-                throw new ArgumentNullException(nameof(customSignedAssertionProviders));
-            }
-#endif
+            _ = Throws.IfNull(customSignedAssertionProviders);
             var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
 
             foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)
