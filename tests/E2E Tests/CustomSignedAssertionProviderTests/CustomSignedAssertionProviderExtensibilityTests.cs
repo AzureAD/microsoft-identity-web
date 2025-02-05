@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
 
@@ -32,8 +33,10 @@ namespace CustomSignedAssertionProviderTests
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-            string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
-            //Console.WriteLine(authorizationHeader.Substring(0, authorizationHeader.IndexOf(" ", StringComparison.OrdinalIgnoreCase) + 4) + "...");
+            await Assert.ThrowsAsync<MsalServiceException>(async () =>
+            {
+                await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+            });
         }
     }
 }

@@ -35,6 +35,12 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.UsingSignedAssertionFromVault,
                     "[MsIdWeb] Using signed assertion from {signedAssertionUri} as client credentials. ");
 
+            private static readonly Action<ILogger, string, Exception?> s_usingSignedAssertionFromCustomProvider =
+                LoggerMessage.Define<string>(
+                    LogLevel.Information,
+                    LoggingEventId.UsingSignedAssertionFromCustomProvider,
+                    "[MsIdWeb] Using signed assertion from {signedAssertionUri} as client credentials. ");
+
             private static readonly Action<ILogger, string, Exception?> s_usingCertThumbprint =
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
@@ -49,9 +55,9 @@ namespace Microsoft.Identity.Web
 
             private static readonly Action<ILogger, string, string, Exception?> s_credentialAttemptFailed =
                 LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                LoggingEventId.CredentialLoadAttemptFailed,
-                "[MsIdWeb] Loading the credential from CredentialDescription Id={Id} failed. Will the credential be re-attempted? - {Skip}.");
+                    LogLevel.Information,
+                    LoggingEventId.CredentialLoadAttemptFailed,
+                    "[MsIdWeb] Loading the credential from CredentialDescription Id={Id} failed. Will the credential be re-attempted? - {Skip}.");
 
             /// <summary>
             /// Logger for attempting to use a CredentialDescription with MSAL
@@ -131,6 +137,14 @@ namespace Microsoft.Identity.Web
                 ILogger logger,
                 string signedAssertionUri) => s_usingSignedAssertionFromVault(logger, signedAssertionUri, default!);
 
+            /// <summary>
+            /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="signedAssertionUri"></param>
+            public static void UsingSignedAssertionFromCustomProvider(
+                ILogger logger,
+                string signedAssertionUri) => s_usingSignedAssertionFromCustomProvider(logger, signedAssertionUri, default!);
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.

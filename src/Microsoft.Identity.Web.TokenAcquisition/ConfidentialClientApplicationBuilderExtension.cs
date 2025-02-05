@@ -115,6 +115,14 @@ namespace Microsoft.Identity.Web
                                 return credential;
                             }
                         }
+                        if (credential.SourceType == CredentialSource.CustomSignedAssertion)
+                        {
+                            if (!credential.Skip)
+                            {
+                                Logger.UsingSignedAssertionFromCustomProvider(logger, credential.CustomSignedAssertionProviderName ?? "undefined");
+                                return credential;
+                            }
+                        }
                     }
 
                     if (credential.CredentialType == CredentialType.Certificate)
