@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -18,6 +19,14 @@ namespace Microsoft.Identity.Web
         /// <param name="logger"></param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
+#if NET7_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(customSignedAssertionProviders, nameof(customSignedAssertionProviders));
+# else
+            if (customSignedAssertionProviders is null)
+            {
+                throw new ArgumentNullException(nameof(customSignedAssertionProviders));
+            }
+#endif
             var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
 
             foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)

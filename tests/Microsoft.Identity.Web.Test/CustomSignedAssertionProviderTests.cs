@@ -14,6 +14,15 @@ namespace Microsoft.Identity.Web.Test
 {
     public class CustomSignedAssertionProviderTests
     {
+        [Fact]
+        public void Constructor_NullProviders_ThrowsArgumentNullException()
+        {
+            // Arrange
+            var loggerMock = new CustomLogger<DefaultCredentialsLoader>();
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new DefaultCredentialsLoader(null!, loggerMock));
+        }
+
         [Theory]
         [MemberData(nameof(CustomSignedAssertionLoggingTestData))]
         public async Task ProcessCustomSignedAssertionAsync_Tests(
