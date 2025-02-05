@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
   </ItemGroup>

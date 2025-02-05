@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
@@ -35,8 +37,7 @@ namespace CustomSignedAssertionProviderTests
             }
             catch (Exception ex)
             {
-                _logger.LogError(22, ex.Message);
-                _logger.LogError(42, "Failed to get signed assertion.");
+                _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
                 credentialDescription.Skip = true;
                 throw;
             }
