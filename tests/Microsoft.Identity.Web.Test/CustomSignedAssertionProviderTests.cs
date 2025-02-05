@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -18,7 +17,7 @@ namespace Microsoft.Identity.Web.Test
         public void Constructor_NullProviders_ThrowsArgumentNullException()
         {
             // Arrange
-            var loggerMock = new CustomLogger<DefaultCredentialsLoader>();
+            var loggerMock = new CustomMockLogger<DefaultCredentialsLoader>();
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new DefaultCredentialsLoader(null!, loggerMock));
         }
@@ -29,61 +28,39 @@ namespace Microsoft.Identity.Web.Test
             List<ICustomSignedAssertionProvider> providerList,
             CredentialDescription credentialDescription,
             LogLevel expectedLogLevel = LogLevel.None,
-            string? expectedMessage = null)
+            string? expectedLogMessage = null,
+            string? expectedExceptionMessage = null)
         {
             // Arrange
-            var loggedMessages = new List<string>();
-            var loggerMock = new Mock<ILogger<DefaultCredentialsLoader>>();
-            loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+            var loggerMock = new CustomMockLogger<DefaultCredentialsLoader>();
 
-            var loader = new DefaultCredentialsLoader(providerList, loggerMock.Object);
+            var loader = new DefaultCredentialsLoader(providerList, loggerMock);
 
             // Act
             try
             {
                 await loader.LoadCredentialsIfNeededAsync(credentialDescription, null);
-
             }
             catch (Exception ex)
             {
-                Assert.Equal(expectedMessage, ex.Message);
+                Assert.Equal(expectedExceptionMessage, ex.Message);
 
                 // This is validating the logging behavior defined by DefaultCredentialsLoader.Logger.CustomSignedAssertionProviderLoadingFailure
-                loggerMock.Verify(
-                    x => x.Log(
-                        expectedLogLevel,
-                        It.IsAny<EventId>(),
-                        It.Is<It.IsAnyType>((v, t) => true), // In Microsoft.Logging.Abstractions this is a private struct which is why it is defined so loosely.
-                        It.IsAny<Exception>(),
-                        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                    Times.Once);
+                if (expectedLogMessage is not null)
+                {
+                    Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel && log.Message.Contains(expectedLogMessage, StringComparison.InvariantCulture));
+                }
                 return;
             }
 
             // Assert
-            if (expectedMessage != null)
+            if (expectedLogMessage != null)
             {
-                loggerMock.Verify(
-                x => x.Log(
-                    expectedLogLevel,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(expectedMessage)),
-                    It.IsAny<Exception?>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                    Times.Once
-                );
+                Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel && log.Message.Contains(expectedLogMessage, StringComparison.InvariantCulture));
             }
             else
             {
-                loggerMock.Verify(
-                x => x.Log(
-                    It.IsAny<LogLevel>(),
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                    Times.Never
-                );
+                Assert.DoesNotContain(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel);
             }
         }
 
@@ -92,80 +69,119 @@ namespace Microsoft.Identity.Web.Test
             // No source loaders
             yield return new object[]
             {
-                    new List<ICustomSignedAssertionProvider>(),
-                    new CredentialDescription
-                    {
-                        CustomSignedAssertionProviderName = "Provider1",
-                        SourceType = CredentialSource.CustomSignedAssertion,
-                        Skip = false
-                    },
-                    LogLevel.Error,
-                    CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
+                new List<ICustomSignedAssertionProvider>(),
+                new CredentialDescription
+                {
+                    CustomSignedAssertionProviderName = "Provider1",
+                    SourceType = CredentialSource.CustomSignedAssertion,
+                    Skip = false
+                },
+                LogLevel.Error,
+                CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
             };
 
             // No provider name given
             yield return new object[]
             {
-                    new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider2") },
-                    new CredentialDescription
-                    {
-                        CustomSignedAssertionProviderName = null,
-                        SourceType = CredentialSource.CustomSignedAssertion
-                    },
-                    LogLevel.Error,
-                    CertificateErrorMessage.CustomProviderNameNullOrEmpty
+                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider2") },
+                new CredentialDescription
+                {
+                    CustomSignedAssertionProviderName = null,
+                    SourceType = CredentialSource.CustomSignedAssertion
+                },
+                LogLevel.Error,
+                CertificateErrorMessage.CustomProviderNameNullOrEmpty
             };
 
             // Given provider name not found
             yield return new object[]
             {
-                    new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("NotProvider3") },
-                    new CredentialDescription
-                    {
-                        CustomSignedAssertionProviderName = "Provider3",
-                        SourceType = CredentialSource.CustomSignedAssertion
-                    },
-                    LogLevel.Error,
-                    string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
+                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("NotProvider3") },
+                new CredentialDescription
+                {
+                    CustomSignedAssertionProviderName = "Provider3",
+                    SourceType = CredentialSource.CustomSignedAssertion
+                },
+                LogLevel.Error,
+                string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
             };
 
             // Happy path (no logging expected)
             yield return new object[]
             {
-                    new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider4") },
-                    new CredentialDescription
-                    {
-                        CustomSignedAssertionProviderName = "Provider4",
-                        SourceType = CredentialSource.CustomSignedAssertion
-                    }
+                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider4") },
+                new CredentialDescription
+                {
+                    CustomSignedAssertionProviderName = "Provider4",
+                    SourceType = CredentialSource.CustomSignedAssertion
+                }
             };
 
             // CustomSignedAssertionProvider (i.e. the user's extension) throws an exception
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new FailingCustomSignedAssertionProvider("Provider5") },
-                new CredentialDescription
+            CredentialDescription providerFiveCredDesc = new()
                 {
                     CustomSignedAssertionProviderName = "Provider5",
                     SourceType = CredentialSource.CustomSignedAssertion
-                },
+                };
+
+            yield return new object[]
+            {
+                new List<ICustomSignedAssertionProvider> { new FailingCustomSignedAssertionProvider("Provider5") },
+                providerFiveCredDesc,
                 LogLevel.Information,
+                string.Format
+                (
+                    CultureInfo.InvariantCulture,
+                    DefaultCredentialsLoader.CustomSignedAssertionProviderLoadingFailureMessage
+                    (
+                        providerFiveCredDesc.CustomSignedAssertionProviderName ?? DefaultCredentialsLoader.nameMissing,
+                        providerFiveCredDesc.SourceType.ToString(),
+                        providerFiveCredDesc.Skip.ToString()
+                    )
+                ),
                 FailingCustomSignedAssertionProvider.ExceptionMessage
             };
 
             // Multiple providers with the same name
             yield return new object[]
             {
-                    new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider6"), new SuccessfulCustomSignedAssertionProvider("Provider6") },
-                    new CredentialDescription
-                    {
-                        CustomSignedAssertionProviderName = "Provider6",
-                        SourceType = CredentialSource.CustomSignedAssertion
-                    },
-                    LogLevel.Warning,
-                    string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNameAlreadyExists, "Provider6")
+                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider6"), new SuccessfulCustomSignedAssertionProvider("Provider6") },
+                new CredentialDescription
+                {
+                    CustomSignedAssertionProviderName = "Provider6",
+                    SourceType = CredentialSource.CustomSignedAssertion
+                },
+                LogLevel.Warning,
+                string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNameAlreadyExists, "Provider6")
             };
         }
+    }
+
+    // Custom logger implementation
+    sealed class CustomMockLogger<T> : ILogger<T>
+    {
+        public List<LogEntry> LoggedMessages { get; } = new List<LogEntry>();
+
+        IDisposable ILogger.BeginScope<TState>(TState state) => null!;
+
+        bool ILogger.IsEnabled(LogLevel logLevel) => true;
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            LoggedMessages.Add(new LogEntry
+            {
+                LogLevel = logLevel,
+                Message = formatter(state, exception),
+                Exception = exception
+            });
+        }
+    }
+
+    public class LogEntry
+    {
+        public LogLevel LogLevel { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public Exception? Exception { get; set; }
     }
 
     // Helper class mocking an implementation of ICustomSignedAssertionProvider normally provided by a user where the LoadIfNeededAsync method completes without error.
