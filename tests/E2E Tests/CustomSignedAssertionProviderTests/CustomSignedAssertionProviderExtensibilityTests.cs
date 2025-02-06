@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Xunit.Sdk;
 
 
 namespace CustomSignedAssertionProviderTests
@@ -49,7 +50,7 @@ namespace CustomSignedAssertionProviderTests
                 // Assert
                 Assert.Contains(expectedExceptionCode, MsalEx.Message, StringComparison.InvariantCulture);
             }
-            catch (Exception ex) when (e is not XunitException)
+            catch (Exception ex) when (ex is not XunitException)
             {
                 Assert.Fail(ex.Message);
             }
