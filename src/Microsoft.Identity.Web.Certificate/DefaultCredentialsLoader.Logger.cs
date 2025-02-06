@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web
             private static readonly Action<ILogger, string, string, bool, Exception?> s_customSignedAssertionProviderLoadingFailure =
                 LoggerMessage.Define<string, string, bool>(
                     LogLevel.Information,
-                    new EventId(7, nameof(CustomSignedAssertionProviderLoadingFailure)),
+                    new EventId(8, nameof(CustomSignedAssertionProviderLoadingFailure)),
                     CustomSignedAssertionProviderLoadingFailureMessage("{name}", "{sourceType}", "{skip}")
                 );
 

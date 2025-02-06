@@ -16,7 +16,7 @@ namespace Microsoft.Identity.Web
         /// Constructor for DefaultCredentialsLoader when using custom signed assertion provider source loaders.
         /// </summary>
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
-        /// <param name="logger"></param>
+        /// <param name="logger">ILogger.</param>
         public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
             _ = Throws.IfNull(customSignedAssertionProviders);
@@ -43,30 +43,26 @@ namespace Microsoft.Identity.Web
         /// </summary>
         protected IDictionary<string, ICustomSignedAssertionProvider>? CustomSignedAssertionCredentialSourceLoaders { get; }
 
-
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
         {
-            // No source loader(s)
             if (CustomSignedAssertionCredentialSourceLoaders == null || CustomSignedAssertionCredentialSourceLoaders.Count == 0)
             {
+                // No source loader(s)
                 _logger.LogError(CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty);
             }
-
-            // No provider name
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
+                // No provider name
                 _logger.LogError(CertificateErrorMessage.CustomProviderNameNullOrEmpty);
             }
-
-            // No source loader for provider name
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICustomSignedAssertionProvider? sourceLoader))
             {
+                // No source loader for provider name
                 _logger.LogError(CertificateErrorMessage.CustomProviderNotFound, credentialDescription.CustomSignedAssertionProviderName);
             }
-
-            // Load the credentials, if there is an error, it is coming from the user's custom extension and should be logged and propagated.
             else
             {
+                // Load the credentials, if there is an error, it is coming from the user's custom extension and should be logged and propagated.
                 try
                 {
                     await sourceLoader.LoadIfNeededAsync(credentialDescription, parameters);
