@@ -37,7 +37,10 @@ namespace CustomSignedAssertionProviderTests
             }
             catch (Exception ex)
             {
-                _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
+                if (_logger != null)
+                {
+                    _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
+                }
                 credentialDescription.Skip = true;
                 throw;
             }

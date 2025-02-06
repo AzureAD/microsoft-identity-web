@@ -34,7 +34,6 @@ namespace Microsoft.Identity.Web
                     sourceLoaderDict.Add(providerName, provider);
                 }
             }
-
             CustomSignedAssertionCredentialSourceLoaders = sourceLoaderDict;
         }
 

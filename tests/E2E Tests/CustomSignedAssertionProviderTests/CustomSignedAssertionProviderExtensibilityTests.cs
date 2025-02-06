@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -28,7 +29,7 @@ namespace CustomSignedAssertionProviderTests
                 }];
             });
             tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
-            var serviceProvider = tokenAcquirerFactory.Build();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 
             // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
