@@ -49,7 +49,7 @@ namespace CustomSignedAssertionProviderTests
                 // Assert
                 Assert.Contains(expectedExceptionCode, MsalEx.Message, StringComparison.InvariantCulture);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (e is not XunitException)
             {
                 Assert.Fail(ex.Message);
             }
