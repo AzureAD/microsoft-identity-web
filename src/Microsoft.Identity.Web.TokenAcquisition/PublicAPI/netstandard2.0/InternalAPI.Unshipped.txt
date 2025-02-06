@@ -6,4 +6,6 @@ Microsoft.Identity.Web.MergedOptions.PreparedInstance.set -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUser(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 readonly Microsoft.Identity.Web.TokenAcquisition.tokenAcquisitionExtensionOptionsMonitor -> Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.TokenAcquisitionExtensionOptions!>?
+static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingSignedAssertionFromCustomProvider(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionUri) -> void
 static Microsoft.Identity.Web.TokenAcquisition.ResolveTenant(string? tenant, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> string?
+static readonly Microsoft.Identity.Web.LoggingEventId.UsingSignedAssertionFromCustomProvider -> Microsoft.Extensions.Logging.EventId
