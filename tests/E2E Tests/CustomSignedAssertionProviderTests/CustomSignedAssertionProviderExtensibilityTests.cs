@@ -17,6 +17,8 @@ namespace CustomSignedAssertionProviderTests
         [Fact]
         public async Task UseSignedAssertionFromCustomSignedAssertionProvider()
         {
+            // Arrange
+            string expectedExceptionCode = "AADSTS50027";
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
@@ -30,14 +32,22 @@ namespace CustomSignedAssertionProviderTests
             });
             tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
-
-            // Get the authorization request creator service
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-            await Assert.ThrowsAsync<MsalServiceException>(async () =>
+            try
             {
-                await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
-            });
+                // Act
+                _ = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+            }
+            catch (MsalServiceException MsalEx)
+            {
+                // Assert
+                Assert.Contains(expectedExceptionCode, MsalEx.Message, StringComparison.InvariantCulture);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
         }
     }
 }

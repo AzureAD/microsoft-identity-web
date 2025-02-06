@@ -23,144 +23,150 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [MemberData(nameof(CustomSignedAssertionLoggingTestData))]
-        public async Task ProcessCustomSignedAssertionAsync_Tests(
-            List<ICustomSignedAssertionProvider> providerList,
-            CredentialDescription credentialDescription,
-            LogLevel expectedLogLevel = LogLevel.None,
-            string? expectedLogMessage = null,
-            string? expectedExceptionMessage = null)
+        [MemberData(nameof(CustomSignedAssertionProviderLoggingTestData), DisableDiscoveryEnumeration = true)]
+        public async Task ProcessCustomSignedAssertionAsync_Tests(CustomSignedAssertionProviderTheoryData data)
         {
             // Arrange
             var loggerMock = new CustomMockLogger<DefaultCredentialsLoader>();
 
-            var loader = new DefaultCredentialsLoader(providerList, loggerMock);
+            var loader = new DefaultCredentialsLoader(data.AssertionProviderList, loggerMock);
 
             // Act
             try
             {
-                await loader.LoadCredentialsIfNeededAsync(credentialDescription, null);
+                await loader.LoadCredentialsIfNeededAsync(data.CredentialDescription, null);
             }
             catch (Exception ex)
             {
-                Assert.Equal(expectedExceptionMessage, ex.Message);
+                Assert.Equal(data.ExpectedExceptionMessage, ex.Message);
 
                 // This is validating the logging behavior defined by DefaultCredentialsLoader.Logger.CustomSignedAssertionProviderLoadingFailure
-                if (expectedLogMessage is not null)
+                if (data.ExpectedLogMessage is not null)
                 {
-                    Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel && log.Message.Contains(expectedLogMessage, StringComparison.InvariantCulture));
+                    Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel && log.Message.Contains(data.ExpectedLogMessage, StringComparison.InvariantCulture));
                 }
                 return;
             }
 
             // Assert
-            if (expectedLogMessage != null)
+            if (data.ExpectedLogMessage is not null)
             {
-                Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel && log.Message.Contains(expectedLogMessage, StringComparison.InvariantCulture));
+                Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel && log.Message.Contains(data.ExpectedLogMessage, StringComparison.InvariantCulture));
             }
             else
             {
-                Assert.DoesNotContain(loggerMock.LoggedMessages, log => log.LogLevel == expectedLogLevel);
+                Assert.DoesNotContain(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel);
             }
         }
 
-        public static IEnumerable<object[]> CustomSignedAssertionLoggingTestData()
+        public static TheoryData<CustomSignedAssertionProviderTheoryData> CustomSignedAssertionProviderLoggingTestData()
         {
-            // No source loaders
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider>(),
-                new CredentialDescription
+            return
+            [
+                // No source loaders
+                new CustomSignedAssertionProviderTheoryData
                 {
-                    CustomSignedAssertionProviderName = "Provider1",
-                    SourceType = CredentialSource.CustomSignedAssertion,
-                    Skip = false
+                    AssertionProviderList = [],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider1",
+                        SourceType = CredentialSource.CustomSignedAssertion,
+                        Skip = false
+                    },
+                    ExpectedLogLevel = LogLevel.Error,
+                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
                 },
-                LogLevel.Error,
-                CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
-            };
 
-            // No provider name given
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider2") },
-                new CredentialDescription
+                // No provider name given
+                new CustomSignedAssertionProviderTheoryData
                 {
-                    CustomSignedAssertionProviderName = null,
-                    SourceType = CredentialSource.CustomSignedAssertion
+                    AssertionProviderList = [new SuccessfulCustomSignedAssertionProvider("Provider2")],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = null,
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    },
+                    ExpectedLogLevel = LogLevel.Error,
+                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderNameNullOrEmpty
                 },
-                LogLevel.Error,
-                CertificateErrorMessage.CustomProviderNameNullOrEmpty
-            };
 
-            // Given provider name not found
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("NotProvider3") },
-                new CredentialDescription
+                // Given provider name not found
+                new CustomSignedAssertionProviderTheoryData
                 {
-                    CustomSignedAssertionProviderName = "Provider3",
-                    SourceType = CredentialSource.CustomSignedAssertion
+                    AssertionProviderList = [new SuccessfulCustomSignedAssertionProvider("NotProvider3")],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider3",
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    },
+                    ExpectedLogLevel = LogLevel.Error,
+                    ExpectedLogMessage = string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
                 },
-                LogLevel.Error,
-                string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
-            };
 
-            // Happy path (no logging expected)
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider4") },
-                new CredentialDescription
+                // Happy path (no logging expected)
+                new CustomSignedAssertionProviderTheoryData
                 {
-                    CustomSignedAssertionProviderName = "Provider4",
-                    SourceType = CredentialSource.CustomSignedAssertion
-                }
-            };
+                    AssertionProviderList = [new SuccessfulCustomSignedAssertionProvider("Provider4")],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider4",
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    }
+                },
 
-            // CustomSignedAssertionProvider (i.e. the user's extension) throws an exception
-            CredentialDescription providerFiveCredDesc = new()
+                // CustomSignedAssertionProvider (i.e. the user's extension) throws an exception
+                new CustomSignedAssertionProviderTheoryData
                 {
-                    CustomSignedAssertionProviderName = "Provider5",
-                    SourceType = CredentialSource.CustomSignedAssertion
-                };
-
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new FailingCustomSignedAssertionProvider("Provider5") },
-                providerFiveCredDesc,
-                LogLevel.Information,
-                string.Format
-                (
-                    CultureInfo.InvariantCulture,
-                    DefaultCredentialsLoader.CustomSignedAssertionProviderLoadingFailureMessage
+                    AssertionProviderList = [new FailingCustomSignedAssertionProvider("Provider5")],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider5",
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    },
+                    ExpectedLogLevel = LogLevel.Information,
+                    ExpectedLogMessage = string.Format
                     (
-                        providerFiveCredDesc.CustomSignedAssertionProviderName ?? DefaultCredentialsLoader.nameMissing,
-                        providerFiveCredDesc.SourceType.ToString(),
-                        providerFiveCredDesc.Skip.ToString()
-                    )
-                ),
-                FailingCustomSignedAssertionProvider.ExceptionMessage
-            };
-
-            // Multiple providers with the same name
-            yield return new object[]
-            {
-                new List<ICustomSignedAssertionProvider> { new SuccessfulCustomSignedAssertionProvider("Provider6"), new SuccessfulCustomSignedAssertionProvider("Provider6") },
-                new CredentialDescription
-                {
-                    CustomSignedAssertionProviderName = "Provider6",
-                    SourceType = CredentialSource.CustomSignedAssertion
+                        CultureInfo.InvariantCulture,
+                        DefaultCredentialsLoader.CustomSignedAssertionProviderLoadingFailureMessage
+                        (
+                            "Provider5",
+                            CredentialSource.CustomSignedAssertion.ToString(),
+                            false.ToString()
+                        )
+                    ),
+                    ExpectedExceptionMessage = FailingCustomSignedAssertionProvider.ExceptionMessage
                 },
-                LogLevel.Warning,
-                string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNameAlreadyExists, "Provider6")
-            };
+
+                // Multiple providers with the same name
+                new CustomSignedAssertionProviderTheoryData
+                {
+                    AssertionProviderList = [new SuccessfulCustomSignedAssertionProvider("Provider6"), new SuccessfulCustomSignedAssertionProvider("Provider6")],
+                    CredentialDescription = new CredentialDescription
+                    {
+                        CustomSignedAssertionProviderName = "Provider6",
+                        SourceType = CredentialSource.CustomSignedAssertion
+                    },
+                    ExpectedLogLevel = LogLevel.Warning,
+                    ExpectedLogMessage = string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNameAlreadyExists, "Provider6")
+                }
+            ];
         }
+
+    }
+
+    public class CustomSignedAssertionProviderTheoryData 
+    {
+        public List<ICustomSignedAssertionProvider> AssertionProviderList { get; set; } = [];
+        public CredentialDescription CredentialDescription { get; set; } = new CredentialDescription();
+        public LogLevel ExpectedLogLevel { get; set; }
+        public string? ExpectedLogMessage { get; set; }
+        public string? ExpectedExceptionMessage { get; set; }
     }
 
     // Custom logger implementation
     sealed class CustomMockLogger<T> : ILogger<T>
     {
-        public List<LogEntry> LoggedMessages { get; } = new List<LogEntry>();
+        public List<LogEntry> LoggedMessages { get; } = [];
 
         IDisposable ILogger.BeginScope<TState>(TState state) => null!;
 
