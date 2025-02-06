@@ -22,7 +22,8 @@ namespace CustomSignedAssertionProviderTests
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
 
-            // this is how the authentication options can be configured in code rather than in the appsettnigs file
+            // this is how the authentication options can be configured in code rather than
+            // in the appsettings file, though using the appsettings file is recommended
 /*            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
