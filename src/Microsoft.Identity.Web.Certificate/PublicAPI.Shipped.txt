@@ -17,7 +17,6 @@ Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName = 5 -> Micro
 Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint = 4 -> Microsoft.Identity.Web.CertificateSource
 Microsoft.Identity.Web.DefaultCertificateLoader
 Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader() -> void
-Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.DefaultCredentialsLoader

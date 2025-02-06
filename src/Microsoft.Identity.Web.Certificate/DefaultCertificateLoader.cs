@@ -32,7 +32,8 @@ namespace Microsoft.Identity.Web
         /// Constructor with a logger.
         /// </summary>
         /// <param name="logger"></param>
-        public DefaultCertificateLoader(ILogger<DefaultCertificateLoader>? logger) : base(logger)
+        /// <param name="customSignedAssertionProviders"></param>
+        public DefaultCertificateLoader(ILogger<DefaultCertificateLoader>? logger, IEnumerable<ICustomSignedAssertionProvider>? customSignedAssertionProviders = null) : base(logger, customSignedAssertionProviders)
         {
         }
 

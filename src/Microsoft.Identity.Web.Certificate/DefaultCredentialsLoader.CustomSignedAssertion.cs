@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
         /// <param name="logger"></param>
-        public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger) : this(logger)
+        public DefaultCredentialsLoader(ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICustomSignedAssertionProvider>? customSignedAssertionProviders = null) : this(logger)
         {
             _ = Throws.IfNull(customSignedAssertionProviders);
             var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
