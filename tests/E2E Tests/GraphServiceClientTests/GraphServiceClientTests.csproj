@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
-    <ProjectReference Include="..\CustomSignedAssertionProviderTests\CustomSignedAssertionProviderTests.csproj" />
   </ItemGroup>
 
 </Project>
