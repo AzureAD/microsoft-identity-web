@@ -20,7 +20,10 @@ namespace CustomSignedAssertionProviderTests
             // Arrange
             string expectedExceptionCode = "AADSTS50027";
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
+
+            // this is how the authentication options can be configured in code rather than in the appsettnigs file
+/*            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
                 options.TenantId = "msidlab4.onmicrosoft.com";
@@ -29,8 +32,7 @@ namespace CustomSignedAssertionProviderTests
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "MyCustomExtension"
                 }];
-            });
-            tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
+            });*/
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
