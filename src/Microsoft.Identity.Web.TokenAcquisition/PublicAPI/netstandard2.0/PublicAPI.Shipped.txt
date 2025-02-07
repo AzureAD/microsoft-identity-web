@@ -5,6 +5,7 @@ const Microsoft.Identity.Web.ClaimConstants.Name = "name" -> string!
 const Microsoft.Identity.Web.ClaimConstants.NameIdentifierId = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" -> string!
 const Microsoft.Identity.Web.ClaimConstants.ObjectId = "http://schemas.microsoft.com/identity/claims/objectidentifier" -> string!
 const Microsoft.Identity.Web.ClaimConstants.Oid = "oid" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Password = "xms_password" -> string!
 const Microsoft.Identity.Web.ClaimConstants.PreferredUserName = "preferred_username" -> string!
 const Microsoft.Identity.Web.ClaimConstants.Role = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" -> string!
 const Microsoft.Identity.Web.ClaimConstants.Roles = "roles" -> string!
@@ -17,6 +18,7 @@ const Microsoft.Identity.Web.ClaimConstants.Tid = "tid" -> string!
 const Microsoft.Identity.Web.ClaimConstants.UniqueObjectIdentifier = "uid" -> string!
 const Microsoft.Identity.Web.ClaimConstants.UniqueTenantIdentifier = "utid" -> string!
 const Microsoft.Identity.Web.ClaimConstants.UserFlow = "http://schemas.microsoft.com/claims/authnclassreference" -> string!
+const Microsoft.Identity.Web.ClaimConstants.Username = "xms_username" -> string!
 const Microsoft.Identity.Web.Constants.AzureAd = "AzureAd" -> string!
 const Microsoft.Identity.Web.Constants.AzureAdB2C = "AzureAdB2C" -> string!
 const Microsoft.Identity.Web.Constants.Bearer = "Bearer" -> string!
@@ -29,6 +31,8 @@ const Microsoft.Identity.Web.Constants.ResetPasswordPath = "/MicrosoftIdentity/A
 const Microsoft.Identity.Web.Constants.ReturnUrl = "ReturnUrl" -> string!
 const Microsoft.Identity.Web.Constants.Scope = "scope" -> string!
 const Microsoft.Identity.Web.Constants.SpaAuthCode = "SpaAuthCode" -> string!
+Microsoft.Identity.Web.BeforeTokenAcquisitionForApp
+Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser
 Microsoft.Identity.Web.ClaimConstants
 Microsoft.Identity.Web.Constants
 Microsoft.Identity.Web.Experimental.CerticateObserverAction
@@ -131,6 +135,10 @@ Microsoft.Identity.Web.TokenAcquirerFactory.ServiceProvider.get -> System.IServi
 Microsoft.Identity.Web.TokenAcquirerFactory.ServiceProvider.set -> void
 Microsoft.Identity.Web.TokenAcquirerFactory.Services.get -> Microsoft.Extensions.DependencyInjection.ServiceCollection!
 Microsoft.Identity.Web.TokenAcquirerFactory.TokenAcquirerFactory() -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForApp -> Microsoft.Identity.Web.BeforeTokenAcquisitionForApp?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUser -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.TokenAcquisitionExtensionOptions() -> void
 Microsoft.Identity.Web.TokenAcquisitionOptions
 Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken.get -> System.Threading.CancellationToken
 Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken.set -> void

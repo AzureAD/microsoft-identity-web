@@ -1,4 +1,0 @@
-#nullable enable
-Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>! customSignedAssertionProviders, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
-Microsoft.Identity.Web.DefaultCredentialsLoader.CustomSignedAssertionCredentialSourceLoaders.get -> System.Collections.Generic.IDictionary<string!, Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>?
-Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>! customSignedAssertionProviders, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCredentialsLoader!>? logger) -> void
