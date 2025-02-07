@@ -14,3 +14,4 @@ Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider._configManager 
 Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer.get -> string?
 Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.OpenIdConnectCachingSecurityTokenProvider(string! metadataEndpoint) -> void
 Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.SecurityKeys.get -> System.Collections.Generic.IEnumerable<Microsoft.IdentityModel.Tokens.SecurityKey!>?
+readonly Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider._configManager -> Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration!>!
