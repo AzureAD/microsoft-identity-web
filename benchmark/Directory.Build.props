@@ -3,10 +3,11 @@
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net8.0</TargetFrameworks>
-    <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
-    <AssemblyOriginatorKeyFile>../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\build\msal.snk</AssemblyOriginatorKeyFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

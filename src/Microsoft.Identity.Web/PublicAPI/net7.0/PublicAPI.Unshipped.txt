@@ -1,2 +1,0 @@
-#nullable enable
-static Microsoft.Identity.Web.ClaimsPrincipalFactory.FromUsernamePassword(string! username, string! password) -> System.Security.Claims.ClaimsPrincipal!

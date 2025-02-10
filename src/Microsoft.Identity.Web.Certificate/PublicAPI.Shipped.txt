@@ -18,19 +18,22 @@ Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint = 4 -> Microsoft.Id
 Microsoft.Identity.Web.DefaultCertificateLoader
 Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader() -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
+Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>! customSignedAssertionProviders, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.DefaultCredentialsLoader
 Microsoft.Identity.Web.DefaultCredentialsLoader.CredentialSourceLoaders.get -> System.Collections.Generic.IDictionary<Microsoft.Identity.Abstractions.CredentialSource, Microsoft.Identity.Abstractions.ICredentialSourceLoader!>!
+Microsoft.Identity.Web.DefaultCredentialsLoader.CustomSignedAssertionCredentialSourceLoaders.get -> System.Collections.Generic.IDictionary<string!, Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>?
 Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader() -> void
 Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCredentialsLoader!>? logger) -> void
+Microsoft.Identity.Web.DefaultCredentialsLoader.DefaultCredentialsLoader(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.ICustomSignedAssertionProvider!>! customSignedAssertionProviders, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCredentialsLoader!>? logger) -> void
 Microsoft.Identity.Web.DefaultCredentialsLoader.LoadCredentialsIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.DefaultCredentialsLoader.LoadFirstValidCredentialsAsync(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! credentialDescriptions, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.CredentialDescription?>!
 Microsoft.Identity.Web.DefaultCredentialsLoader.ResetCredentials(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! credentialDescriptions) -> void
 Microsoft.Identity.Web.ICertificateLoader
 Microsoft.Identity.Web.ICertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
-static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue, string! password) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue, string! password) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2! x509certificate2) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromKeyVault(string! keyVaultUrl, string! keyVaultCertificateName) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromPath(string! path, string? password = null) -> Microsoft.Identity.Web.CertificateDescription!

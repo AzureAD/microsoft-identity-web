@@ -32,6 +32,7 @@ Microsoft.Identity.Web.DownstreamApi.PutForUserAsync<TInput>(string? serviceName
 Microsoft.Identity.Web.DownstreamApi.UpdateRequestAsync(System.Net.Http.HttpRequestMessage! httpRequestMessage, System.Net.Http.HttpContent? content, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, bool appToken, System.Security.Claims.ClaimsPrincipal? user, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.DownstreamApiLoggingEventId
 readonly Microsoft.Identity.Web.DownstreamApi._logger -> Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DownstreamApi!>!
+static Microsoft.Identity.Web.DownstreamApi.CallerSDKDetails.get -> System.Collections.Generic.Dictionary<string!, string!>!
 static Microsoft.Identity.Web.DownstreamApi.DeserializeOutputAsync<TOutput>(System.Net.Http.HttpResponseMessage! response, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions) -> System.Threading.Tasks.Task<TOutput?>!
 static Microsoft.Identity.Web.DownstreamApi.Logger.HttpRequestError(Microsoft.Extensions.Logging.ILogger! logger, string! ServiceName, string! BaseUrl, string! RelativePath, System.Exception? ex) -> void
 static Microsoft.Identity.Web.DownstreamApi.Logger.UnauthenticatedApiCall(Microsoft.Extensions.Logging.ILogger! logger, System.Exception? ex) -> void
