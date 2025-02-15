@@ -1,3 +1,7 @@
+3.7.1
+========
+- Updated to Microsoft.IdentityModel.* [8.5.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.5.0)
+
 3.7.0
 ========
 - Updated to Microsoft.Identity.Abstractions [8.1.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/8.1.0)
