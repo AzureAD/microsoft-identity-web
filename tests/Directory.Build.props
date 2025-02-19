@@ -71,6 +71,5 @@
   </PropertyGroup>
   <PropertyGroup>
     <IsAotCompatible>false</IsAotCompatible>
-    <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
   </PropertyGroup>
 </Project>
