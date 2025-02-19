@@ -43,7 +43,7 @@
     <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET6_0_OR_GREATER'">
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
@@ -212,4 +212,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+   <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  
 </Project>
