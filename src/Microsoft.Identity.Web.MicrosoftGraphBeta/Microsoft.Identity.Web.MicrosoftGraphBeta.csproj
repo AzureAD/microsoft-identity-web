@@ -11,7 +11,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
-  
+  <PropertyGroup>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\BaseRequestExtensions.cs" Link="BaseRequestExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\GraphServiceCollectionExtensions.cs" Link="GraphServiceCollectionExtensions.cs" />

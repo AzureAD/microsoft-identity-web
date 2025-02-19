@@ -6,6 +6,7 @@
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">

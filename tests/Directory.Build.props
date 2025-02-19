@@ -70,6 +70,7 @@
     <NoWarn>RS0037</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <PublishAot>false</PublishAot>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
   </PropertyGroup>
 </Project>

@@ -18,6 +18,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <PropertyGroup>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph" Version="5.51.0" />

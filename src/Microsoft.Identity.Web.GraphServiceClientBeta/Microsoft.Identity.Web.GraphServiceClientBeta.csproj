@@ -19,6 +19,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <PropertyGroup>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />

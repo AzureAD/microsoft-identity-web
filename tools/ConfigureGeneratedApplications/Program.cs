@@ -18,7 +18,7 @@ namespace ConfigureGeneratedApplications
     {
         static void Main(string[] args)
         {
-            string executionFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string executionFolder = Path.GetDirectoryName(System.AppContext.BaseDirectory);
             string repoRoot = Path.Combine(executionFolder, "..", "..", "..", "..", "..");
             string configurationDefaultFilePath = Path.Combine(repoRoot, "ProjectTemplates", "Configuration.json");
             string defaultFolderToConfigure = Path.Combine(repoRoot, @"ProjectTemplates\bin\Debug\tests");
@@ -26,10 +26,9 @@ namespace ConfigureGeneratedApplications
             string configurationFilePath = args.Length > 0 ? args[0] : configurationDefaultFilePath;
             string folderToConfigure = args.Length > 1 ? args[1] : defaultFolderToConfigure;
 
-            string configurationFileContent = System.IO.File.ReadAllText(configurationFilePath);
-            Configuration configuration = JsonSerializer.Deserialize<Configuration>(configurationFileContent,
-                                                                                    serializerOptionsWithComments);
-
+            Configuration configuration = JsonSerializer.Deserialize(
+    System.IO.File.ReadAllText(configurationFilePath),
+    ConfigurationJsonSerializerContext.Default.Configuration);
             foreach (Project project in configuration.Projects)
             {
                 ProcessProject(folderToConfigure, configuration, project);
@@ -82,8 +81,10 @@ namespace ConfigureGeneratedApplications
                 if (System.IO.File.Exists(filePath))
                 {
                     string fileContent = System.IO.File.ReadAllText(filePath);
-                    JsonElement jsonContent = JsonSerializer.Deserialize<JsonElement>(fileContent,
-                                                                                      serializerOptionsWithComments);
+
+                    JsonElement jsonContent = JsonSerializer.Deserialize(
+    fileContent,
+    ConfigurationJsonSerializerContext.Default.JsonElement);
 
                     foreach (PropertyMapping propertyMapping in file.Properties)
                     {
