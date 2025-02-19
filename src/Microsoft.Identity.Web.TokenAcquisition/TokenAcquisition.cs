@@ -553,11 +553,11 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
+                builder.WithClaims(tokenAcquisitionOptions.Claims);
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
                 {
                     builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
                 }
-                builder.WithClaims(tokenAcquisitionOptions.Claims);
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
