@@ -214,7 +214,8 @@
   </ItemGroup>
 
    <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-    <IsAotCompatible>true</IsAotCompatible>
+    <PublishAot>true</PublishAot>
+     <PublishTrimmed>true</PublishTrimmed> 
   </PropertyGroup>
   
 </Project>
