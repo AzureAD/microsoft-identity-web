@@ -74,7 +74,6 @@ namespace ConfigureGeneratedApplications
                 if (System.IO.File.Exists(filePath))
                 {
                     string fileContent = System.IO.File.ReadAllText(filePath);
-
                     JsonElement jsonContent = JsonSerializer.Deserialize(fileContent,ConfigurationJsonSerializerContext.Default.JsonElement);
 
                     foreach (PropertyMapping propertyMapping in file.Properties)
