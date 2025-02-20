@@ -80,10 +80,9 @@ namespace ConfigureGeneratedApplications
                     {
                         string value = configuration.GetParameterValue(propertyMapping.SetFrom);
                         Console.WriteLine($"{propertyMapping.Property} = '{value}'");
-
                         string[] path = propertyMapping.Property.Split(':');
-
                         var element = jsonContent;
+
                         foreach (string segment in path)
                         {
                             JsonProperty prop = element.EnumerateObject().FirstOrDefault(e => e.Name == segment);
