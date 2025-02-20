@@ -53,12 +53,12 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             httpTokenRequest.ActualRequestPostData.TryGetValue("request", out string? request);
-            Assert.NotNull(request);
+            Assert.Null(request);
             httpTokenRequest.ActualRequestPostData.TryGetValue("client_assertion", out string? clientAssertion);
-            Assert.Null(clientAssertion);
+            Assert.NotNull(clientAssertion);
 
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken assertion = jwtSecurityTokenHandler.ReadJwtToken(request);
+            JwtSecurityToken assertion = jwtSecurityTokenHandler.ReadJwtToken(clientAssertion);
 
             Assert.Equal("https://login.microsoftonline.com/common/oauth2/v2.0/token", assertion.Claims.Single(c => c.Type == "aud").Value);
             Assert.Equal(TestConstants.ClientId, assertion.Claims.Single(c => c.Type == "iss").Value);

@@ -36,8 +36,12 @@ namespace Microsoft.Identity.Web
                      clientId, 
                      sendX5C);
 
-                 data.BodyParameters.Remove("client_assertion");
-                 data.BodyParameters.Add("request", signedAssertion);
+                 //data.BodyParameters.Remove("client_assertion");
+                 //data.BodyParameters.Add("request", signedAssertion);
+
+                 data.BodyParameters["client_assertion"] = signedAssertion;
+                 data.BodyParameters.Add("req_cnf", Base64UrlEncoder.Encode(jwkClaim));
+                 data.BodyParameters.Add("token_type", "pop");
 
                  return Task.CompletedTask;
              });
