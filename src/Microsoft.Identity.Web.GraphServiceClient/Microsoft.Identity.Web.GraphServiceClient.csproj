@@ -18,6 +18,7 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  
   <PropertyGroup>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
