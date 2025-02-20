@@ -26,9 +26,7 @@ namespace ConfigureGeneratedApplications
             string configurationFilePath = args.Length > 0 ? args[0] : configurationDefaultFilePath;
             string folderToConfigure = args.Length > 1 ? args[1] : defaultFolderToConfigure;
 
-            Configuration configuration = JsonSerializer.Deserialize(
-    System.IO.File.ReadAllText(configurationFilePath),
-    ConfigurationJsonSerializerContext.Default.Configuration);
+            Configuration configuration = JsonSerializer.Deserialize(System.IO.File.ReadAllText(configurationFilePath),ConfigurationJsonSerializerContext.Default.Configuration);
             foreach (Project project in configuration.Projects)
             {
                 ProcessProject(folderToConfigure, configuration, project);
@@ -56,11 +54,6 @@ namespace ConfigureGeneratedApplications
 
         static List<Replacement> replacements = new List<Replacement>();
 
-        static JsonSerializerOptions serializerOptionsWithComments = new JsonSerializerOptions()
-        {
-            ReadCommentHandling = JsonCommentHandling.Skip
-        };
-
         private static void ProcessProject(string folderToConfigure, Configuration configuration, Project project)
         {
             string projectPath = Path.Combine(folderToConfigure, project.ProjectRelativeFolder);
@@ -82,9 +75,7 @@ namespace ConfigureGeneratedApplications
                 {
                     string fileContent = System.IO.File.ReadAllText(filePath);
 
-                    JsonElement jsonContent = JsonSerializer.Deserialize(
-    fileContent,
-    ConfigurationJsonSerializerContext.Default.JsonElement);
+                    JsonElement jsonContent = JsonSerializer.Deserialize(fileContent,ConfigurationJsonSerializerContext.Default.JsonElement);
 
                     foreach (PropertyMapping propertyMapping in file.Properties)
                     {
@@ -93,7 +84,7 @@ namespace ConfigureGeneratedApplications
 
                         string[] path = propertyMapping.Property.Split(':');
 
-                        JsonElement element = jsonContent;
+                        var element = jsonContent;
                         foreach (string segment in path)
                         {
                             JsonProperty prop = element.EnumerateObject().FirstOrDefault(e => e.Name == segment);

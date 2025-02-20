@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
 
+  <PropertyGroup>
     <Title>Microsoft Identity Web, Microsoft Graph helper</Title>
     <Product>Microsoft Identity Web</Product>
     <Description>
@@ -10,14 +10,15 @@
     </Description>
     <ProjectGuid>{E4BC2331-6822-45C3-9702-D76DD0556532}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    
   </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
   <PropertyGroup>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>

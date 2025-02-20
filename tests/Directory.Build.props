@@ -69,6 +69,7 @@
     <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
     <NoWarn>RS0037</NoWarn>
   </PropertyGroup>
+  
   <PropertyGroup>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>

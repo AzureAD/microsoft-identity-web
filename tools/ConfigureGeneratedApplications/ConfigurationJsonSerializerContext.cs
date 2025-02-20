@@ -8,9 +8,7 @@ using ConfigureGeneratedApplications.Model;
 
 namespace ConfigureGeneratedApplications
 {
-    [JsonSourceGenerationOptions(
-    ReadCommentHandling = JsonCommentHandling.Skip,
-    WriteIndented = true)]
+    [JsonSourceGenerationOptions(ReadCommentHandling = JsonCommentHandling.Skip)]
     [JsonSerializable(typeof(Configuration))]
     [JsonSerializable(typeof(Project))]
     [JsonSerializable(typeof(File))]

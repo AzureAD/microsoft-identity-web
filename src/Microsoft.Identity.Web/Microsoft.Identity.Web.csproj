@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Microsoft Identity Web</Title>
     <Product>Microsoft Identity Web</Product>
@@ -59,6 +59,7 @@
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
   </ItemGroup>
+  
   <PropertyGroup>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
