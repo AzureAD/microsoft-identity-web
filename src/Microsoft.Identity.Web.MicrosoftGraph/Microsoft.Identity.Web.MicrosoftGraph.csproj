@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Title>Microsoft Identity Web, Microsoft Graph helper</Title>
     <Product>Microsoft Identity Web</Product>
@@ -37,5 +36,4 @@
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
   </ItemGroup>
-
 </Project>
