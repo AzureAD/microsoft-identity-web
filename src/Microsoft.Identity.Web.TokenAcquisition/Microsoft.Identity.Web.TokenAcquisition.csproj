@@ -7,6 +7,7 @@
     <ProjectGuid>{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}</ProjectGuid>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
