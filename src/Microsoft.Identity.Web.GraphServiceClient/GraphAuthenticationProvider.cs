@@ -24,7 +24,6 @@ namespace Microsoft.Identity.Web
         readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         readonly GraphServiceClientOptions _defaultAuthenticationOptions;
         private static readonly AllowedHostsValidator _allowedGraphHostsValidator = new(["graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"]);
-        private readonly string[] _graphUris = ["graph.microsoft.com", "graph.microsoft.us", "dod-graph.microsoft.us", "graph.microsoft.de", "microsoftgraph.chinacloudapi.cn", "canary.graph.microsoft.com", "graph.microsoft-ppe.com"];
         readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
         /// <summary>
