@@ -66,25 +66,24 @@ namespace Microsoft.Identity.Web.Test.Integration
                     o.RequestAppToken = true;
                 });
             });
-
         }
 
         [Fact]
         public async Task AuthenticateRequestAsync_NonGraphUri_DoesNotSetAuthZHeaderAsync()
         {
-            // arrange
-            RequestInformation request = new()
-            {
-                URI = new Uri("http://www.contoso.com/")
-            };
+                // arrange
+                RequestInformation request = new()
+                {
+                    URI = new Uri("http://www.contoso.com/")
+                };
 
-            GraphAuthenticationProvider graphAuthenticationProvider = new(_authorizationHeaderProvider, new GraphServiceClientOptions());
+                GraphAuthenticationProvider graphAuthenticationProvider = new(_authorizationHeaderProvider, new GraphServiceClientOptions());
 
-            // act
-            await graphAuthenticationProvider.AuthenticateRequestAsync(request);
+                // act
+                await graphAuthenticationProvider.AuthenticateRequestAsync(request);
 
-            // assert
-            Assert.False(request.Headers.ContainsKey("Authorization"));
+                // assert
+                Assert.False(request.Headers.ContainsKey("Authorization"));
         }
     }
 }
