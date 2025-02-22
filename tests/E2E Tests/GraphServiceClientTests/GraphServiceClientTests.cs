@@ -66,7 +66,6 @@ namespace Microsoft.Identity.Web.Test.Integration
                     o.RequestAppToken = true;
                 });
             });
-
         }
 
         [Fact]
