@@ -63,8 +63,7 @@ namespace CustomSignedAssertionProviderTests
                     _configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
                 }
 
-                ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(microsoftIdentityApplicationOptions);
-                signedAssertion = new OidcIdpSignedAssertionProvider(tokenAcquirer, credentialDescription.TokenExchangeUrl);
+                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl);
             }
 
             try

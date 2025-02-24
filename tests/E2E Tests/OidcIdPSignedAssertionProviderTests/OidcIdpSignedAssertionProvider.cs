@@ -13,17 +13,22 @@ namespace CustomSignedAssertionProviderTests
 {
     internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
     {
-        private readonly ITokenAcquirer _tokenAcquirer;
+        private ITokenAcquirer? _tokenAcquirer = null;
+        private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
+        private readonly MicrosoftIdentityApplicationOptions _options;
         private readonly string? _tokenExchangeUrl;
 
-        public OidcIdpSignedAssertionProvider(ITokenAcquirer tokenAcquirer, string? tokenExchangeUrl)
+        public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl)
         {
-            _tokenAcquirer = tokenAcquirer;
+            _tokenAcquirerFactory = tokenAcquirerFactory;
+            _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
         {
+            _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
+
             string tokenExchangeUrl = _tokenExchangeUrl ?? "api://AzureADTokenExchange";
 
             AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(tokenExchangeUrl + "/.default");
