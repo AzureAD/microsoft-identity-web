@@ -162,6 +162,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Web.AotC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomSignedAssertionProviderTests", "tests\E2E Tests\CustomSignedAssertionProviderTests\CustomSignedAssertionProviderTests.csproj", "{A390650C-BCE1-4CB3-8C97-9EF9CFF5B7C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp", "tests\DevApps\blazor\BlazorApp\BlazorApp.csproj", "{4D67BE6A-79CD-42E7-8748-C909FCC394DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -376,6 +378,10 @@ Global
 		{A390650C-BCE1-4CB3-8C97-9EF9CFF5B7C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A390650C-BCE1-4CB3-8C97-9EF9CFF5B7C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A390650C-BCE1-4CB3-8C97-9EF9CFF5B7C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D67BE6A-79CD-42E7-8748-C909FCC394DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D67BE6A-79CD-42E7-8748-C909FCC394DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D67BE6A-79CD-42E7-8748-C909FCC394DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D67BE6A-79CD-42E7-8748-C909FCC394DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -449,6 +455,7 @@ Global
 		{C6CB0D5B-917A-4127-9984-7592C757BBDE} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{BCE63265-6D36-423A-9C3D-BF8E448C7EA0} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
 		{A390650C-BCE1-4CB3-8C97-9EF9CFF5B7C5} = {45B20A78-91F8-4DD2-B9AD-F12D3A93536C}
+		{4D67BE6A-79CD-42E7-8748-C909FCC394DF} = {7786D2DD-9EE4-42E1-B587-740A2E15C41D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}
