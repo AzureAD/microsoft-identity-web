@@ -20,6 +20,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddInMemoryTokenCaches();
 
 builder.Services.AddMicrosoftIdentityConsentHandler();
+builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -27,9 +28,10 @@ builder.Services.AddControllersWithViews(options =>
         .RequireAuthenticatedUser()
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
-});
-builder.Services.AddRazorPages()
+})
     .AddMicrosoftIdentityUI();
+
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 

@@ -14,6 +14,21 @@
 
 <PageTitle>Weather</PageTitle>
 
+<div class="mb-4">
+    <AuthorizeView>
+        <Authorized>
+            <a href="MicrosoftIdentity/Account/SignOut" class="btn btn-outline-primary">
+                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Sign out @context.User.Identity?.Name
+            </a>
+        </Authorized>
+        <NotAuthorized>
+            <a href="MicrosoftIdentity/Account/SignIn" class="btn btn-primary">
+                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Sign in
+            </a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
 <h1>Weather</h1>
 
 <p>This component demonstrates showing data.</p>
