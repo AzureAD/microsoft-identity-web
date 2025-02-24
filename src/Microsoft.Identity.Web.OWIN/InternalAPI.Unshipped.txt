@@ -1,1 +1,0 @@
-readonly Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider._configManager -> Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration!>!

@@ -72,7 +72,11 @@ namespace Microsoft.Identity.Web
                 {
                     if (credentialDescription.CachedValue == null)
                     {
-                        if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
+                        if (credentialDescription.SourceType == CredentialSource.CustomSignedAssertion)
+                        {
+                            await ProcessCustomSignedAssertionAsync(credentialDescription, parameters);
+                        }
+                        else if (CredentialSourceLoaders.TryGetValue(credentialDescription.SourceType, out ICredentialSourceLoader? loader))
                         {
                             try
                             {

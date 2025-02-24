@@ -1,3 +1,18 @@
+3.7.1
+========
+- Updated to Microsoft.IdentityModel.* [8.5.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.5.0)
+
+3.7.0
+========
+- Updated to Microsoft.Identity.Abstractions [8.1.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/8.1.0)
+- Updated to Microsoft.IdentityModel.* [8.4.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.4.0)
+
+### New Feature
+- IdentityWeb now provides extensibility to `DefaultCredentialsLoader` so that partner teams, or an SDK on top of IdWeb, can bring their own credential providers. See [#3220](https://github.com/AzureAD/microsoft-identity-web/issues/3220) for details.
+
+## Bug fixes
+- The merged options are now being passed to MSAL for the CCA ROPC scenario. See [#3207](https://github.com/AzureAD/microsoft-identity-web/issues/3207) for details.
+
 3.6.2
 ========
 - Updated to Microsoft.Identity.Abstractions [8.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/8.0.0)

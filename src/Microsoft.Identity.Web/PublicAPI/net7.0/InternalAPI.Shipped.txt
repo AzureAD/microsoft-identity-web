@@ -25,6 +25,8 @@ Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.OnRedirectToIdentity
 Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.OnRemoteFailure(Microsoft.AspNetCore.Authentication.RemoteFailureContext! context) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.Options.get -> Microsoft.Identity.Web.MicrosoftIdentityOptions!
 Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.SchemeName.get -> string!
+Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException
+Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.CustomSignedAssertionProviderNotFoundException(string! message) -> void
 Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory
 Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateAppHandler(string? serviceName) -> System.Net.Http.DelegatingHandler!
 Microsoft.Identity.Web.DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory.CreateUserHandler(string? serviceName) -> System.Net.Http.DelegatingHandler!
@@ -80,6 +82,9 @@ static Microsoft.Identity.Web.AuthorityHelpers.BuildCiamAuthorityIfNeeded(string
 static Microsoft.Identity.Web.AuthorityHelpers.EnsureAuthorityIsV2(string! authority) -> string!
 static Microsoft.Identity.Web.AuthorityHelpers.GetAuthorityWithoutQueryIfNeeded(Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> string!
 static Microsoft.Identity.Web.AuthorizeForScopesAttribute.FindMsalUiRequiredExceptionIfAny(System.Exception! exception) -> Microsoft.Identity.Client.MsalUiRequiredException?
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.CustomProviderSourceLoaderNullOrEmpty() -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.ProviderNameNotFound(string! name) -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!
+static Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException.ProviderNameNullOrEmpty() -> Microsoft.Identity.Web.CustomSignedAssertionProviderNotFoundException!
 static Microsoft.Identity.Web.Extensions.ContainsAny(this string! searchFor, params string![]! stringCollection) -> bool
 static Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.BuildAuthenticationProperties(string![]? scopes, Microsoft.Identity.Client.MsalUiRequiredException! ex, System.Security.Claims.ClaimsPrincipal! user, string? userflow = null) -> Microsoft.AspNetCore.Authentication.AuthenticationProperties!
 static Microsoft.Identity.Web.IncrementalConsentAndConditionalAccessHelper.CanBeSolvedByReSignInOfUser(Microsoft.Identity.Client.MsalUiRequiredException! ex) -> bool

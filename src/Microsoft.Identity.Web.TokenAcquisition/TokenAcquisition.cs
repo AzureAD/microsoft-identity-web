@@ -335,8 +335,9 @@ namespace Microsoft.Identity.Web
             {
                 string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
+                bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
-                if (user.GetMsalAccountId() != null)
+                if (!forceRefresh && user.GetMsalAccountId() != null)
                 {
                     try
                     {
@@ -370,6 +371,29 @@ namespace Microsoft.Identity.Web
                 if (addInOptions != null)
                 {
                     addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions, user);
+                }
+
+                // Pass the token acquisition options to the builder
+                if (tokenAcquisitionOptions != null)
+                {
+                    var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+                    if (dict != null)
+                    {
+                        builder.WithExtraQueryParameters(dict);
+                    }
+                    if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                    {
+                        builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                    }
+                    if (tokenAcquisitionOptions.CorrelationId != null)
+                    {
+                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                    }
+                    builder.WithClaims(tokenAcquisitionOptions.Claims);
+                    if (tokenAcquisitionOptions.PoPConfiguration != null)
+                    {
+                        builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                    }
                 }
 
                 var authenticationResult = await builder.ExecuteAsync()
@@ -530,6 +554,10 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
+                {
+                    builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);

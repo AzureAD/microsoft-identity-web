@@ -187,6 +187,8 @@ Microsoft.Identity.Web.LogMessages
 Microsoft.Identity.Web.MergedOptions
 Microsoft.Identity.Web.MergedOptions.AadAuthorityAudience.get -> Microsoft.Identity.Client.AadAuthorityAudience
 Microsoft.Identity.Web.MergedOptions.AadAuthorityAudience.set -> void
+Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.get -> string?
+Microsoft.Identity.Web.MergedOptions.AppHomeTenantId.set -> void
 Microsoft.Identity.Web.MergedOptions.AzureCloudInstance.get -> Microsoft.Identity.Client.AzureCloudInstance
 Microsoft.Identity.Web.MergedOptions.AzureCloudInstance.set -> void
 Microsoft.Identity.Web.MergedOptions.AzureRegion.get -> string?
@@ -212,6 +214,8 @@ Microsoft.Identity.Web.MergedOptions.MergedOptions() -> void
 Microsoft.Identity.Web.MergedOptions.MergedWithCca.get -> bool
 Microsoft.Identity.Web.MergedOptions.MergedWithCca.set -> void
 Microsoft.Identity.Web.MergedOptions.PrepareAuthorityInstanceForMsal() -> void
+Microsoft.Identity.Web.MergedOptions.PreparedInstance.get -> string?
+Microsoft.Identity.Web.MergedOptions.PreparedInstance.set -> void
 Microsoft.Identity.Web.MergedOptions.PreserveAuthority.get -> bool
 Microsoft.Identity.Web.MergedOptions.PreserveAuthority.set -> void
 Microsoft.Identity.Web.MergedOptions.RedirectUri.get -> string?
@@ -262,6 +266,8 @@ Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.GetUserFromRequest() -> Sy
 Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.SetHttpResponse(System.Net.HttpStatusCode statusCode, string! wwwAuthenticate) -> void
 Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.SetSession(string! key, string! value) -> void
 Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.TokenAcquisitionAspnetCoreHost(Microsoft.AspNetCore.Http.IHttpContextAccessor! httpContextAccessor, Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsMonitor, System.IServiceProvider! serviceProvider) -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUser(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.Util.Base64UrlHelpers
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObserver -> Microsoft.Identity.Web.Experimental.ICertificatesObserver?
 readonly Microsoft.Identity.Web.TokenAcquisition._credentialsLoader -> Microsoft.Identity.Abstractions.ICredentialsLoader!
@@ -270,6 +276,7 @@ readonly Microsoft.Identity.Web.TokenAcquisition._logger -> Microsoft.Extensions
 readonly Microsoft.Identity.Web.TokenAcquisition._serviceProvider -> System.IServiceProvider!
 readonly Microsoft.Identity.Web.TokenAcquisition._tokenAcquisitionHost -> Microsoft.Identity.Web.ITokenAcquisitionHost!
 readonly Microsoft.Identity.Web.TokenAcquisition._tokenCacheProvider -> Microsoft.Identity.Web.TokenCacheProviders.IMsalTokenCacheProvider!
+readonly Microsoft.Identity.Web.TokenAcquisition.tokenAcquisitionExtensionOptionsMonitor -> Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.TokenAcquisitionExtensionOptions!>?
 static Microsoft.Identity.Web.CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
 static Microsoft.Identity.Web.ClientInfo.CreateFromJson(string? clientInfo) -> Microsoft.Identity.Web.ClientInfo?
 static Microsoft.Identity.Web.ClientInfo.DeserializeFromJson(byte[]? jsonByteArray) -> Microsoft.Identity.Web.ClientInfo?
@@ -281,6 +288,7 @@ static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logg
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingCertThumbprint(Microsoft.Extensions.Logging.ILogger! logger, string! certThumbprint) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingManagedIdentity(Microsoft.Extensions.Logging.ILogger! logger) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingPodIdentityFile(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionFileDiskPath) -> void
+static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingSignedAssertionFromCustomProvider(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionUri) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingSignedAssertionFromVault(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionUri) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentials(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters! credentialSourceLoaderParameters) -> Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!>!
@@ -302,6 +310,7 @@ static Microsoft.Identity.Web.TokenAcquisition.GetCacheKeyForManagedId(Microsoft
 static Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionError(Microsoft.Extensions.Logging.ILogger! logger, string! msalErrorMessage, System.Exception? ex) -> void
 static Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger! logger, long durationTotalInMs, long durationInHttpInMs, long durationInCacheInMs, string! tokenSource, string! correlationId, string! cacheRefreshReason, System.Exception? ex) -> void
 static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions! tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, string!>?
+static Microsoft.Identity.Web.TokenAcquisition.ResolveTenant(string? tenant, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> string?
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.Decode(string! arg) -> string?
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.DecodeBytes(string? str) -> byte[]?
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.Encode(byte[]? inArray) -> string?
@@ -317,4 +326,5 @@ static readonly Microsoft.Identity.Web.LoggingEventId.TokenAcquisitionMsalAuthen
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingCertThumbprint -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingManagedIdentity -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingPodIdentityFile -> Microsoft.Extensions.Logging.EventId
+static readonly Microsoft.Identity.Web.LoggingEventId.UsingSignedAssertionFromCustomProvider -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingSignedAssertionFromVault -> Microsoft.Extensions.Logging.EventId
