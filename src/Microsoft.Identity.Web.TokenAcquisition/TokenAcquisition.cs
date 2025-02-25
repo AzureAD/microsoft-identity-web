@@ -45,12 +45,12 @@ namespace Microsoft.Identity.Web
 #endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private SemaphoreSlim _applicationSync = new (1, 1);
-
         /// <summary>
-        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
+        ///  Important: call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
+        ///  Write access to this dictionary is syncronized.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
+
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -517,7 +517,7 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
-            if (addInOptions!=null)
+            if (addInOptions != null)
             {
                 addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
             }
@@ -751,30 +751,25 @@ namespace Microsoft.Identity.Web
                 || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
 #endif
         }
-        
+
+        /// <summary>
+        /// Each ConfidentialClientApplication object can serve only 1 clientID, 1 cloud and use 1 credential.
+        /// To hide this,Id.Web maintains a dictionary of ConfidentialClientApplication objects, all pointing at the same token cache.
+        /// </summary>
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-           MergedOptions mergedOptions)
+    MergedOptions mergedOptions)
         {
-            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
-            {
-                await _applicationSync.WaitAsync();
-                
-                try
-                {
-                    if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) ||
-                            application == null)
-                    {
-                        application = await BuildConfidentialClientApplicationAsync(mergedOptions);
-                        _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = application;
-                    }
-                }
-                finally
-                {
-                    _applicationSync.Release();
-                }           
-            }
-            
-            return application;
+            // Use all credentials to compute a credential ID. Each ID should be unique.
+            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+            string key = GetApplicationKey(mergedOptions) + credentialId;
+
+            // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
+            if (!_applicationsByAuthorityClientId.TryGetValue(key, out IConfidentialClientApplication? application) && application!=null)
+                return application;
+
+            application= _applicationsByAuthorityClientId.GetOrAdd(key, await BuildConfidentialClientApplicationAsync(mergedOptions));
+
+            return application!;
         }
 
         /// <summary>
