@@ -44,10 +44,6 @@ namespace CustomSignedAssertionProviderTests
                 // Act
                 _ = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
             }
-            catch (MsalServiceException)
-            {
-                // Assert
-            }
             catch (Exception ex) when (ex is not XunitException)
             {
                 Assert.Fail(ex.Message);
