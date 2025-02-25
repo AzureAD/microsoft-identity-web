@@ -442,11 +442,13 @@ namespace Microsoft.Identity.Web
         {
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
-                const int StartingIndex = 8; // length of "https://"
+                ReadOnlySpan<char> httpsPrefix = "https://".AsSpan();
                 ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
+                int startingIndex = authoritySpan.StartsWith(httpsPrefix) ? httpsPrefix.Length : 0;
 
-                int indexTenant = authoritySpan.Slice(StartingIndex).IndexOf('/') + StartingIndex;
-                if (indexTenant >= 0)
+                // Gets position of first '/' after the "https://" prefix, will return -1 if not found, this checks for presence of instance/tenantId
+                int indexTenant = authoritySpan.Slice(startingIndex).IndexOf('/') + startingIndex;
+                if (indexTenant >= startingIndex)
                 {
                     int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/');
                     int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion + indexTenant + 1;
