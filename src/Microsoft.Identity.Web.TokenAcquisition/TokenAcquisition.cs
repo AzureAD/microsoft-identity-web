@@ -767,7 +767,7 @@ namespace Microsoft.Identity.Web
             if (!_applicationsByAuthorityClientId.TryGetValue(key, out IConfidentialClientApplication? application) && application!=null)
                 return application;
 
-            application= _applicationsByAuthorityClientId.GetOrAdd(key, await BuildConfidentialClientApplicationAsync(mergedOptions));
+            application = _applicationsByAuthorityClientId.GetOrAdd(key, await BuildConfidentialClientApplicationAsync(mergedOptions));
 
             return application!;
         }
