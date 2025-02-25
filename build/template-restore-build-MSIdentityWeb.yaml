@@ -6,6 +6,7 @@ parameters:
   BuildConfiguration: 'debug'
   MicrosoftIdentityWebVersion: '1.0.0-devopsbuild'
 
+steps:
 - powershell: |
     Push-Location $(IdWebSourceDir)
     $nugetSourceIsExternal = (dotnet nuget list source --format Short).Contains("https://api.nuget.org/v3/index.json")
