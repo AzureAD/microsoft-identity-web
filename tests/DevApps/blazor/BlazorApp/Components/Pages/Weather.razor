@@ -39,7 +39,7 @@
 }
 else
 {
-    <p>Signed in user is @user.Identity.Name</p>
+    <p>Signed in user is @user?.Identity?.Name</p>
     <table class="table">
         <thead>
             <tr>
@@ -64,7 +64,7 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private WeatherForecast[] forecasts = Array.Empty<WeatherForecast>();
     private ClaimsPrincipal? user;
 
     protected override async Task OnInitializedAsync()
