@@ -9,12 +9,39 @@ parameters:
 steps:
 - powershell: |
     Push-Location $(IdWebSourceDir)
-    $nugetSourceIsExternal = (dotnet nuget list source --format Short).Contains("https://api.nuget.org/v3/index.json")
+
+    Write-Host "🟢 Listing existing NuGet sources..."
+    dotnet nuget list source
+
+    Write-Host "🟢 Checking if the external NuGet source exists..."
+    $nugetSources = dotnet nuget list source --format Short
+    $nugetSourceIsExternal = $nugetSources -match "https://api.nuget.org/v3/index.json"
+
     if ($nugetSourceIsExternal) {
-        dotnet nuget remove source NuGet
-        dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP
-        dotnet nuget list source
+        Write-Host "🟢 Removing external NuGet source..."
+        dotnet nuget remove source NuGet --configfile $(IdWebSourceDir)\nuget.config
+        if ($?) { 
+            Write-Host "✅ Successfully removed external NuGet source." 
+        } else { 
+            Write-Host "❌ Failed to remove external NuGet source." 
+            exit 1
+        }
+    } else {
+        Write-Host "⚠️ External NuGet source not found. Skipping removal."
     }
+
+    Write-Host "🟢 Adding IDDP NuGet source..."
+    dotnet nuget add source https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json -n IDDP --configfile $(IdWebSourceDir)\nuget.config
+    if ($?) { 
+        Write-Host "✅ Successfully added IDDP NuGet source." 
+    } else { 
+        Write-Host "❌ Failed to add IDDP NuGet source." 
+        exit 1
+    }
+
+    Write-Host "🟢 Final NuGet sources list:"
+    dotnet nuget list source --configfile $(IdWebSourceDir)\nuget.config
+
     Pop-Location
   displayName: 'Remove external "NuGet" Source and add "IDDP artifacts" as a NuGet Source, if needed.'
 
