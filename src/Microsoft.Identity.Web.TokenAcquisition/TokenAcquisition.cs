@@ -761,26 +761,13 @@ namespace Microsoft.Identity.Web
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
             string key = GetApplicationKey(mergedOptions) + credentialId;
 
-            if (!_applicationsByAuthorityClientId.TryGetValue(key, out IConfidentialClientApplication? application) || application == null)
-            {
-                var semaphore = _appSemaphores.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-                await semaphore.WaitAsync();
-                
-                try
-                {
-                    if (!_applicationsByAuthorityClientId.TryGetValue(key, out application) || application == null)
-                    {
-                        application = await BuildConfidentialClientApplicationAsync(mergedOptions);
-                        _applicationsByAuthorityClientId[key] = application;                        
-                    }
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }
+            // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
+            if (!_applicationsByAuthorityClientId.TryGetValue(key, out IConfidentialClientApplication? application) && application != null)
+                return application;
 
-            return application;
+            application = _applicationsByAuthorityClientId.GetOrAdd(key, await BuildConfidentialClientApplicationAsync(mergedOptions));
+
+            return application!;            
         }
 
         /// <summary>
