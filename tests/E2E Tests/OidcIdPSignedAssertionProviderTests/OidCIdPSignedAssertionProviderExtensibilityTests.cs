@@ -29,7 +29,7 @@ namespace CustomSignedAssertionProviderTests
             {
                 options.Instance = "https://login.microsoftonline.com/";
                 options.TenantId = "msidlab4.onmicrosoft.com";
-                options.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                options.ClientId = "5e71875b-ae52-4a3c-8b82-f6fdc8e1dbe1";
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "MyCustomExtension"
