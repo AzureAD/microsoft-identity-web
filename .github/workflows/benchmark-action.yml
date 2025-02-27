@@ -19,13 +19,11 @@ jobs:
       AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
       AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
-      steps:
       - uses: actions/checkout@v4
 
-        with:
-          dotnet-version: '8.x'
           fetch-depth: 0
-        run: cd benchmark && dotnet run -c release -f net9.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json  
+        run: cd benchmark && dotnet run -c release -f net9.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json  
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
@@ -48,7 +46,7 @@ jobs:
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '130%'
-          comment-on-alert: true
+          benchmark-data-dir-path: benchmarks
           fail-on-alert: true
           summary-always: true
           gh-pages-branch: gh-pages
