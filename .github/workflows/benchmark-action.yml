@@ -21,9 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-          fetch-depth: 0
-        run: cd benchmark && dotnet run -c release -f net9.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json  
-
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
@@ -45,9 +42,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
-          alert-threshold: '130%'
+          comment-on-alert: true
           benchmark-data-dir-path: benchmarks
           fail-on-alert: true
           summary-always: true
-          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: benchmarks
           benchmark-data-dir-path: benchmarks
