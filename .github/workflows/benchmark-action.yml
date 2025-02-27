@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
       - name: Run benchmark
         run: cd benchmark && dotnet run -c release -f net8.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json 
 
