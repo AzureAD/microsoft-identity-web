@@ -320,6 +320,45 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
+        public void TestParseAuthorityIfNecessary_NoUriScheme()
+        {
+            var tenantId = TC.TenantIdAsGuid.ToString();
+            var instance = "myauthorityisbetter.fyi";
+            var authority = $"{instance}/{tenantId}/v2.0";
+
+            MergedOptions mergedOptions = new()
+            {
+                Authority = authority,
+                PreserveAuthority = false
+            };
+
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            Assert.Equal(authority, mergedOptions.Authority);
+            Assert.Equal(tenantId, mergedOptions.TenantId);
+            Assert.Equal(instance, mergedOptions.Instance);
+        }
+
+        [Fact]
+        public void TestParseAuthorityIfNecessary_NoTenantId()
+        {
+            var instance = "myauthorityisbetter.fyi";
+            var authority = $"https://{instance}";
+
+            MergedOptions mergedOptions = new()
+            {
+                Authority = authority,
+                PreserveAuthority = false
+            };
+
+            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
+
+            Assert.Equal(authority, mergedOptions.Authority);
+            Assert.Null(mergedOptions.TenantId);
+            Assert.Null(mergedOptions.Instance);
+        }
+
+        [Fact]
         public void MergeExtraQueryParametersTest()
         {
             // Arrange
