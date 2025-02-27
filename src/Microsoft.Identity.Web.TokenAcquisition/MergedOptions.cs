@@ -444,7 +444,8 @@ namespace Microsoft.Identity.Web
             {
                 ReadOnlySpan<char> doubleSlash = "//".AsSpan();
                 ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
-                int startingIndex = authoritySpan.IndexOf(doubleSlash) == -1 ? 0 : authoritySpan.IndexOf(doubleSlash) + doubleSlash.Length;
+                int doubleSlashIndex = authoritySpan.IndexOf(doubleSlash)
+                int startingIndex = doubleSlashIndex == -1 ? 0 : doubleSlashIndex + doubleSlash.Length;
 
                 // Gets position of first '/' after the "https://" prefix, will return -1 if not found, this checks for presence of instance/tenantId
                 int indexTenant = authoritySpan.Slice(startingIndex).IndexOf('/') + startingIndex;
