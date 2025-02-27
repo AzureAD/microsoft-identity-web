@@ -24,7 +24,7 @@ jobs:
         with:
           dotnet-version: '9.x'
       - name: Run benchmark
-        run: cd benchmark && dotnet run -c release -f net8.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json 
+        run: cd benchmark && dotnet run -c release -f net9.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json 
 
       - name: Download previous benchmark data
         uses: actions/cache@v4
