@@ -19,7 +19,10 @@ jobs:
       AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
       AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout full repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
