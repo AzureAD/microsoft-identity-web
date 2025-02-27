@@ -19,15 +19,13 @@ jobs:
       AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
       AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
-      - name: Checkout full repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      steps:
+      - uses: actions/checkout@v4
+
         with:
-
+          dotnet-version: '8.x'
           fetch-depth: 0
-
+        run: cd benchmark && dotnet run -c release -f net9.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json  
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
