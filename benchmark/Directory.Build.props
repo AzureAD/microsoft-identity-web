@@ -5,9 +5,8 @@
     <TargetFrameworks>net9.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\build\msal.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>False</SignAssembly>  <!-- Disable Signing -->
+    <DelaySign>False</DelaySign>  <!-- Disable Delay Signing -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
