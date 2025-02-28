@@ -522,7 +522,7 @@ namespace Microsoft.Identity.Web
                        user,
                        cancellationToken).ConfigureAwait(false);
 
-                httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
             }
             else
             {

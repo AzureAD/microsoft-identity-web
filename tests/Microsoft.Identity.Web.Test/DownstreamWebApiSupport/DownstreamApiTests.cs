@@ -24,20 +24,29 @@ namespace Microsoft.Identity.Web.Tests
     public class DownstreamApiTests
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
+        private readonly IAuthorizationHeaderProvider _authorizationHeaderProviderSaml;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
         private readonly DownstreamApi _input;
+        private readonly DownstreamApi _inputSaml;
 
         public DownstreamApiTests()
         {
             _authorizationHeaderProvider = new MyAuthorizationHeaderProvider();
+            _authorizationHeaderProviderSaml = new MySamlAuthorizationHeaderProvider();
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
             _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
 
             _input = new DownstreamApi(
              _authorizationHeaderProvider,
+             _namedDownstreamApiOptions,
+             _httpClientFactory,
+             _logger);
+
+            _inputSaml = new DownstreamApi(
+             _authorizationHeaderProviderSaml,
              _namedDownstreamApiOptions,
              _httpClientFactory,
              _logger);
@@ -119,6 +128,32 @@ namespace Microsoft.Identity.Web.Tests
             Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
             Assert.Equal("ey", httpRequestMessage.Headers.Authorization?.Parameter);
             Assert.Equal("Bearer", httpRequestMessage.Headers.Authorization?.Scheme);
+            Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
+            Assert.Equal(options.AcquireTokenOptions.ExtraQueryParameters, DownstreamApi.CallerSDKDetails);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+
+        public async Task UpdateRequestAsync_WithScopes_AddsSamlAuthorizationHeaderToRequestAsync(bool appToken)
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1", "scope2"],
+                BaseUrl = "https://localhost:44321/WeatherForecast"
+            };
+            var user = new ClaimsPrincipal();
+
+            // Act
+            await _inputSaml.UpdateRequestAsync(httpRequestMessage, content, options, appToken, user, CancellationToken.None);
+
+            // Assert
+            Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
+            Assert.Equal("http://schemas.microsoft.com/dsts/saml2-bearer ey", httpRequestMessage.Headers.GetValues("Authorization").FirstOrDefault());
             Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
             Assert.Equal(options.AcquireTokenOptions.ExtraQueryParameters, DownstreamApi.CallerSDKDetails);
         }
@@ -418,6 +453,24 @@ namespace Microsoft.Identity.Web.Tests
         public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
         {
             return Task.FromResult("Bearer ey");
+        }
+    }
+
+    public class MySamlAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    {
+        public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("http://schemas.microsoft.com/dsts/saml2-bearer ey");
+        }
+
+        public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("http://schemas.microsoft.com/dsts/saml2-bearer ey");
+        }
+
+        public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult("http://schemas.microsoft.com/dsts/saml2-bearer ey");
         }
     }
 }
