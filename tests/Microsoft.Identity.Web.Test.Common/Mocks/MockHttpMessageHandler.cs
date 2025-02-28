@@ -32,6 +32,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public Exception ExceptionToThrow { get; set; }
 
+        public string ResponseString { get; private set; }
+
         /// <summary>
         /// Once the http message is executed, this property holds the request message.
         /// </summary>
@@ -66,6 +68,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                     Content = new StringContent(TestConstants.DiscoveryJsonResponse),
                 };
 
+                ResponseString = TestConstants.DiscoveryJsonResponse;
+
                 return responseMessage;
             }
 
@@ -82,7 +86,9 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.Equal(ExpectedMethod, request.Method);
             await ValidatePostDataAsync(request);
-            
+
+            // Read the content of ResponseMessage.Content into a string variable
+            ResponseString = await ResponseMessage.Content.ReadAsStringAsync();
 
             return ResponseMessage;
         }
