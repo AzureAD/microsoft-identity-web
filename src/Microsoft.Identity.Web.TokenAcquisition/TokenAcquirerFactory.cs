@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -50,6 +51,13 @@ namespace Microsoft.Identity.Web
             }
         }
         private ServiceCollection _services = new ServiceCollection();
+#if NET9_0_OR_GREATER
+        private static readonly Lock s_defaultInstanceLock = new();
+        private readonly Lock _buildLock = new();
+#else
+        private static readonly object s_defaultInstanceLock = new();
+        private readonly object _buildLock = new();
+#endif
 
         /// <summary>
         /// Constructor
@@ -78,20 +86,26 @@ namespace Microsoft.Identity.Web
             T instance;
             if (defaultInstance == null)
             {
-                instance = new T();
-                instance.ReadConfiguration();
-                defaultInstance = instance;
-                instance.Services.AddTokenAcquisition();
-                instance.Services.AddHttpClient();
-                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                lock (s_defaultInstanceLock)
                 {
-                    instance.Configuration.GetSection(configSection).Bind(option);
+                    if (defaultInstance == null)
+                    {
+                        instance = new T();
+                        instance.ReadConfiguration();
+                        defaultInstance = instance;
+                        instance.Services.AddTokenAcquisition();
+                        instance.Services.AddHttpClient();
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            instance.Configuration.GetSection(configSection).Bind(option);
 
-                    // This is temporary and will be removed eventually.
-                    CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
-                });
-                instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
-                instance.Services.AddSingleton(defaultInstance.Configuration);
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+                        instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
+                        instance.Services.AddSingleton(defaultInstance.Configuration);
+                    }
+                }
             }
             return (defaultInstance as T)!;
         }
@@ -116,20 +130,26 @@ namespace Microsoft.Identity.Web
             TokenAcquirerFactory instance;
             if (defaultInstance == null)
             {
-                instance = new TokenAcquirerFactory();
-                instance.ReadConfiguration();
-                defaultInstance = instance;
-                instance.Services.AddTokenAcquisition();
-                instance.Services.AddHttpClient();
-                instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                lock (s_defaultInstanceLock)
                 {
-                    instance.Configuration.GetSection(configSection).Bind(option);
+                    if (defaultInstance == null)
+                    {
+                        instance = new TokenAcquirerFactory();
+                        instance.ReadConfiguration();
+                        defaultInstance = instance;
+                        instance.Services.AddTokenAcquisition();
+                        instance.Services.AddHttpClient();
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            instance.Configuration.GetSection(configSection).Bind(option);
 
-                    // This is temporary and will be removed eventually.
-                    CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
-                });
-                instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
-                instance.Services.AddSingleton(defaultInstance.Configuration);
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+                        instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
+                        instance.Services.AddSingleton(defaultInstance.Configuration);
+                     }
+                }
             }
             return defaultInstance!;
         }
@@ -157,9 +177,18 @@ namespace Microsoft.Identity.Web
                 throw new InvalidOperationException("You shouldn't call Build() twice");
             }
 
-            // Additional processing before creating the service provider
-            PreBuild();
-            ServiceProvider = Services.BuildServiceProvider();
+            lock(_buildLock)
+            {
+                if (ServiceProvider != null)
+                {
+                    throw new InvalidOperationException("You shouldn't call Build() twice");
+                }
+
+                // Additional processing before creating the service provider
+                PreBuild();
+                ServiceProvider = Services.BuildServiceProvider();
+            }
+
             return ServiceProvider;
         }
 
