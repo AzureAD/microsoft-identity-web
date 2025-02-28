@@ -4,10 +4,12 @@
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class TestTokenAcquisitionHost
     {
         [Fact]
