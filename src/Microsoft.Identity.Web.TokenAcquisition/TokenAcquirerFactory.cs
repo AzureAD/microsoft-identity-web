@@ -110,7 +110,6 @@ namespace Microsoft.Identity.Web
             return (defaultInstance as T)!;
         }
 
-
         /// <summary>
         /// Get the default instance. Use this method to retrieve the instance, optionally add some services to 
         /// the service collection, and build the instance.
@@ -148,7 +147,7 @@ namespace Microsoft.Identity.Web
                         });
                         instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                         instance.Services.AddSingleton(defaultInstance.Configuration);
-                     }
+                    }
                 }
             }
             return defaultInstance!;
