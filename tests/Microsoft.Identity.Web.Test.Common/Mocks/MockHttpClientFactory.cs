@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using Microsoft.Identity.Client;
+using NSubstitute.Routing.Handlers;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
@@ -15,7 +16,10 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     /// <summary>
     /// HttpClient that serves Http responses for testing purposes. Instance Discovery is added by default.
     /// </summary>
-    public class MockHttpClientFactory : IMsalHttpClientFactory, IDisposable
+    /// <remarks>
+    /// This implements the both IHttpClientFactory, which is what ID.Web uses. And IMsalHttpClientFactory which is what MSAL uses.
+    /// </remarks>
+    public class MockHttpClientFactory : IMsalHttpClientFactory, IHttpClientFactory, IDisposable
     {
         /// <inheritdoc />
         public void Dispose()
@@ -57,6 +61,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             return httpClient;
+        }
+
+        public HttpClient CreateClient(string name)
+        {
+            return GetHttpClient();
         }
     }
 }

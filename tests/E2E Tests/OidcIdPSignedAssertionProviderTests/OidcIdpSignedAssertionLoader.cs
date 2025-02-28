@@ -58,6 +58,7 @@ namespace CustomSignedAssertionProviderTests
                 }
 
                 MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
+                
                 if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
                 {
                     _configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
