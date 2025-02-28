@@ -8,11 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit.Sdk;
 
 
 namespace CustomSignedAssertionProviderTests
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class CustomSignedAssertionProviderExtensibilityTests
     {
         [Fact]
