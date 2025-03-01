@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Extensibility;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class BaseAuthorizationHeaderProviderTest
     {
         public BaseAuthorizationHeaderProviderTest()
