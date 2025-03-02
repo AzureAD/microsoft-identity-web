@@ -222,7 +222,8 @@ namespace TokenAcquirerTests
                              }
                          }
                         }
-                }
+                },
+                ServiceManagementReference = "20504242-2c9d-4a5f-aac8-684e401e1119",
             };
             Application createdApp = (await _graphServiceClient.Applications
                 .PostAsync(application))!;

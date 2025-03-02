@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+
+    <Title>Microsoft Identity Web Token Cross Cloud Federation Identity Credential (FIC) support</Title>
+    <Product>Microsoft Identity Web Cross Cloud FIC</Product>
+    <Description>Implementation for a Cloud Federation Identity Credential (FIC) credential provider.</Description>
+    <ProjectGuid>{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}</ProjectGuid>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Until it releases-->
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+  
+</Project>

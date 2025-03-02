@@ -185,7 +185,14 @@ namespace Microsoft.Identity.Web
         /// Resets the default instance. Useful for tests as token acquirer factory is a singleton
         /// in most configurations (except ASP.NET Core)
         /// </summary>
-        internal /* for unit tests */ static void ResetDefaultInstance() { defaultInstance = null; }
+        internal /* for unit tests */ static void ResetDefaultInstance()
+        {
+            if (defaultInstance?.ServiceProvider != null)
+            {
+                (defaultInstance.ServiceProvider as IDisposable)?.Dispose();
+            }
+            defaultInstance = null;
+        }
 
         // Move to a derived class?
 
