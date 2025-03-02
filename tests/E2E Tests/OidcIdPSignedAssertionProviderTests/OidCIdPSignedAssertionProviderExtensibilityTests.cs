@@ -3,32 +3,39 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Azure.Core;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
-using Xunit.Sdk;
+using Microsoft.Identity.Web.TestOnly;
 
 
 namespace CustomSignedAssertionProviderTests
 {
+    [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+    public class NonParallelCollection : ICollectionFixture<NonParallelFixture>
+    {
+        // This class has no code, and is never created
+    }
+
+    public class NonParallelFixture
+    {
+    }
+
+    [Collection("Non-Parallel Collection")]
     public class OidCIdPSignedAssertionProviderExtensibilityTests
     {
         [Fact]
         public async Task CrossCloudFicIntegrationTest()
         {
             // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            tokenAcquirerFactory.Services.AddOidcSignedAssertionProvider();
+            tokenAcquirerFactory.Services.AddOidcFic();
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
@@ -55,13 +62,12 @@ namespace CustomSignedAssertionProviderTests
             Assert.StartsWith("Bearer", result, StringComparison.Ordinal);
         }
 
-        [Fact]
+        [Fact(Skip ="Does not run if run with the E2E test")]
         public async Task CrossCloudFicUnitTest()
         {
             // Arrange
             using (MockHttpClientFactory httpFactoryForTest = new MockHttpClientFactory())
             {
-
                 _ = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateInstanceDiscoveryMockHandler());
                 var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
@@ -70,8 +76,9 @@ namespace CustomSignedAssertionProviderTests
                     MockHttpCreator.CreateClientCredentialTokenHandler());
 
                 // TODO: need to reset the configuration to avoid conflicts with other tests
+                TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
                 TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-                tokenAcquirerFactory.Services.AddOidcSignedAssertionProvider();
+                tokenAcquirerFactory.Services.AddOidcFic();
                 tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
 
                 tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>("AzureAd2",
@@ -94,7 +101,7 @@ namespace CustomSignedAssertionProviderTests
                     options.ExtraQueryParameters = null;
                     options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
-                    CustomSignedAssertionProviderName = "OidIdpSignedAssertion",
+                    CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object>{{
                             "ConfigurationSection", "AzureAd2"
                         }}

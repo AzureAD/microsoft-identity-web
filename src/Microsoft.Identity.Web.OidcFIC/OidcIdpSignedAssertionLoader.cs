@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
-namespace CustomSignedAssertionProviderTests
+namespace Microsoft.Identity.Web.OidcFic
 {
     internal class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
@@ -30,7 +30,7 @@ namespace CustomSignedAssertionProviderTests
 
         public CredentialSource CredentialSource => CredentialSource.CustomSignedAssertion;
 
-        public string Name => "OidIdpSignedAssertion";
+        public string Name => "OidcIdpSignedAssertion";
 
 
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)

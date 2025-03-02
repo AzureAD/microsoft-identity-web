@@ -1,0 +1,9 @@
+#nullable enable
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Name.get -> string!
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.OidcIdpSignedAssertionLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader!>! logger, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! options, Microsoft.Extensions.Configuration.IConfiguration! configuration, Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory) -> void
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.OidcIdpSignedAssertionProvider(Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options, string? tokenExchangeUrl) -> void
+override Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.ClientAssertion!>!
