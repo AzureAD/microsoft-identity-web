@@ -522,6 +522,7 @@ namespace Microsoft.Identity.Web
                        user,
                        cancellationToken).ConfigureAwait(false);
 
+                // The TryAddWithoutValidation method is used to bypass the strict checks on format of Authorization header
                 httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
             }
             else
