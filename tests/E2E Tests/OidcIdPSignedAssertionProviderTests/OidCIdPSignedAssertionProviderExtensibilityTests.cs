@@ -69,16 +69,14 @@ namespace CustomSignedAssertionProviderTests
             // Arrange
             using (MockHttpClientFactory httpFactoryForTest = new MockHttpClientFactory())
             {
-                //_ = httpFactoryForTest.AddMockHandler(
-                //    MockHttpCreator.CreateInstanceDiscoveryMockHandler());
                 var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateClientCredentialTokenHandler());
                 var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateClientCredentialTokenHandler());
+                //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
                 //credentialRequestHttpHandler.ReplaceMockHttpMessageHandler =
                 //    httpFactoryForTest.AddMockHandler;
 
-                // TODO: need to reset the configuration to avoid conflicts with other tests
                 TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
                 TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
                 tokenAcquirerFactory.Services.AddOidcFic();
