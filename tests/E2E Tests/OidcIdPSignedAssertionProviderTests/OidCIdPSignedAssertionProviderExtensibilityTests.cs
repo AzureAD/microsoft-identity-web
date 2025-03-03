@@ -62,18 +62,21 @@ namespace CustomSignedAssertionProviderTests
             Assert.StartsWith("Bearer", result, StringComparison.Ordinal);
         }
 
-        [Fact(Skip ="Does not run if run with the E2E test")]
+        //[Fact(Skip ="Does not run if run with the E2E test")]
+        [Fact]
         public async Task CrossCloudFicUnitTest()
         {
             // Arrange
             using (MockHttpClientFactory httpFactoryForTest = new MockHttpClientFactory())
             {
-                _ = httpFactoryForTest.AddMockHandler(
-                    MockHttpCreator.CreateInstanceDiscoveryMockHandler());
+                //_ = httpFactoryForTest.AddMockHandler(
+                //    MockHttpCreator.CreateInstanceDiscoveryMockHandler());
                 var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateClientCredentialTokenHandler());
                 var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateClientCredentialTokenHandler());
+                //credentialRequestHttpHandler.ReplaceMockHttpMessageHandler =
+                //    httpFactoryForTest.AddMockHandler;
 
                 // TODO: need to reset the configuration to avoid conflicts with other tests
                 TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
