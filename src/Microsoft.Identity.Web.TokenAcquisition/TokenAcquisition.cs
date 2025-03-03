@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         ///  Important: call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
-        ///  Write access to this dictionary is syncronized.
+        ///  Write access to this dictionary is synchronized.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
