@@ -42,6 +42,10 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public MockHttpMessageHandler AddMockHandler(MockHttpMessageHandler handler)
         {
+            if (_httpMessageHandlerQueue.Count == 0 )
+            {
+                handler.ReplaceMockHttpMessageHandler = AddMockHandler;
+            }
             _httpMessageHandlerQueue.Enqueue(handler);
             return handler;
         }
