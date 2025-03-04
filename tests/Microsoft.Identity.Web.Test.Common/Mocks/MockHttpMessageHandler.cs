@@ -7,14 +7,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+        internal Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler { get; set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MockHttpMessageHandler()
@@ -31,6 +30,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         public IDictionary<string, string> ExpectedPostData { get; set; }
 
         public Exception ExceptionToThrow { get; set; }
+
+        public string ResponseString { get; private set; }
 
         /// <summary>
         /// Once the http message is executed, this property holds the request message.
@@ -66,6 +67,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                     Content = new StringContent(TestConstants.DiscoveryJsonResponse),
                 };
 
+                ResponseString = TestConstants.DiscoveryJsonResponse;
+
                 return responseMessage;
             }
 
@@ -82,7 +85,9 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.Equal(ExpectedMethod, request.Method);
             await ValidatePostDataAsync(request);
-            
+
+            // Read the content of ResponseMessage.Content into a string variable
+            ResponseString = await ResponseMessage.Content.ReadAsStringAsync();
 
             return ResponseMessage;
         }

@@ -14,6 +14,7 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace TokenAcquirerTests
@@ -222,7 +223,8 @@ namespace TokenAcquirerTests
                              }
                          }
                         }
-                }
+                },
+                ServiceManagementReference = "20504242-2c9d-4a5f-aac8-684e401e1119",
             };
             Application createdApp = (await _graphServiceClient.Applications
                 .PostAsync(application))!;
