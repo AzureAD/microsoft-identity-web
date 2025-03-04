@@ -4,9 +4,8 @@
 using System;
 using Xunit;
 
-namespace TokenAcquirerTests
+namespace Microsoft.Identity.Web.Test.Common
 {
-
     public sealed class IgnoreOnAzureDevopsFactAttribute : FactAttribute
     {
         public IgnoreOnAzureDevopsFactAttribute()

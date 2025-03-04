@@ -9,7 +9,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
-namespace CustomSignedAssertionProviderTests
+namespace Microsoft.Identity.Web.OidcFic
 {
     internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
     {

@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         ///  Important: call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
-        ///  Write access to this dictionary is syncronized.
+        ///  Write access to this dictionary is synchronized.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
@@ -751,23 +751,40 @@ namespace Microsoft.Identity.Web
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
                 || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
 #endif
-        }       
+        }
 
 
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-             MergedOptions mergedOptions)
+            MergedOptions mergedOptions)
         {
             // Use all credentials to compute a credential chain ID. Each individual ID should be unique.
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
             string key = GetApplicationKey(mergedOptions) + credentialId;
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
-            if (!_applicationsByAuthorityClientId.TryGetValue(key, out IConfidentialClientApplication? application) && application != null)
-                return application;
+            // Fast path: check if already created
+            if (_applicationsByAuthorityClientId.TryGetValue(key, out var existingApp) && existingApp != null)
+                return existingApp;
 
-            application = _applicationsByAuthorityClientId.GetOrAdd(key, await BuildConfidentialClientApplicationAsync(mergedOptions));
+            // Get or create a semaphore for this specific key
+            var semaphore = _appSemaphores.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
 
-            return application!;            
+            await semaphore.WaitAsync();
+            try
+            {
+                // Double-check after acquiring the lock
+                if (_applicationsByAuthorityClientId.TryGetValue(key, out var app) && app != null)
+                    return app;
+
+                // Build and store the application
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                _applicationsByAuthorityClientId[key] = newApp;
+                return newApp;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <summary>

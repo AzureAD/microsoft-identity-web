@@ -7,14 +7,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {
-        public Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler;
+        internal Func<MockHttpMessageHandler, MockHttpMessageHandler> ReplaceMockHttpMessageHandler { get; set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MockHttpMessageHandler()
