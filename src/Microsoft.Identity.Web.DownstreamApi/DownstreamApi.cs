@@ -28,6 +28,7 @@ namespace Microsoft.Identity.Web
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string Authorization = "Authorization";
         protected readonly ILogger<DownstreamApi> _logger;
+        private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
 
         /// <summary>
         /// Constructor.
@@ -522,7 +523,15 @@ namespace Microsoft.Identity.Web
                        user,
                        cancellationToken).ConfigureAwait(false);
 
-                httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
+                {
+                    // TryAddWithoutValidation method bypasses strict validation, allowing non-standard headers to be added for custom Header schemes that cannot be parsed.
+                    httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
+                }
+                else
+                {
+                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                }
             }
             else
             {
