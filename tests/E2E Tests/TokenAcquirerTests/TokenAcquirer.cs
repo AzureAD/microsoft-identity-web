@@ -23,6 +23,7 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
+    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection))]
 #if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
