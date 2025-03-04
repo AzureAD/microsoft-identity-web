@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
+    
     public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";

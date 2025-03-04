@@ -14,6 +14,7 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace TokenAcquirerTests
