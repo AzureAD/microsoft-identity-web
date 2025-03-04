@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
