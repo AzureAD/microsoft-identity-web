@@ -29,7 +29,7 @@ namespace CustomSignedAssertionProviderTests
     [Collection("Non-Parallel Collection")]
     public class OidCIdPSignedAssertionProviderExtensibilityTests
     {
-        [Fact]
+        [OnlyOnAzureDevopsFact]
         public async Task CrossCloudFicIntegrationTest()
         {
             // Arrange
@@ -73,9 +73,6 @@ namespace CustomSignedAssertionProviderTests
                     MockHttpCreator.CreateClientCredentialTokenHandler());
                 var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                     MockHttpCreator.CreateClientCredentialTokenHandler());
-                //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
-                //credentialRequestHttpHandler.ReplaceMockHttpMessageHandler =
-                //    httpFactoryForTest.AddMockHandler;
 
                 TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
                 TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
