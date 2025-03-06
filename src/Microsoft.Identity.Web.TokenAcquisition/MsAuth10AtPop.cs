@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -15,6 +15,7 @@ namespace Microsoft.Identity.Web
 {
     internal static class MsAuth10AtPop
     {
+        // Configure with Certificate
         internal static AcquireTokenForClientParameterBuilder WithAtPop(
             this AcquireTokenForClientParameterBuilder builder,
             X509Certificate2 clientCertificate,
@@ -28,23 +29,43 @@ namespace Microsoft.Identity.Web
 
             builder.WithProofOfPosessionKeyId(popPublicKey);
             builder.OnBeforeTokenRequest((data) =>
-             {
-                 string? signedAssertion = GetSignedClientAssertion(
-                     clientCertificate,
-                     data.RequestUri.AbsoluteUri,
-                     jwkClaim,
-                     clientId, 
-                     sendX5C);
+            {
+                string? signedAssertion = GetSignedClientAssertion(
+                    clientCertificate,
+                    data.RequestUri.AbsoluteUri,
+                    jwkClaim,
+                    clientId,
+                    sendX5C);
 
-                 //data.BodyParameters.Remove("client_assertion");
-                 //data.BodyParameters.Add("request", signedAssertion);
+                data.BodyParameters.Remove("client_assertion");
+                data.BodyParameters.Add("request", signedAssertion);
 
-                 data.BodyParameters["client_assertion"] = signedAssertion;
-                 data.BodyParameters.Add("req_cnf", Base64UrlEncoder.Encode(jwkClaim));
-                 data.BodyParameters.Add("token_type", "pop");
+                return Task.CompletedTask;
+            });
 
-                 return Task.CompletedTask;
-             });
+            return builder;
+        }
+
+        // Configure with Custom Signed Assertion
+        internal static AcquireTokenForClientParameterBuilder WithAtPop(
+            this AcquireTokenForClientParameterBuilder builder,
+            CredentialDescription credentialDescription,
+            string popPublicKey,
+            string jwkClaim)
+        {
+            _ = Throws.IfNull(popPublicKey);
+            _ = Throws.IfNull(jwkClaim);
+
+            builder.WithProofOfPosessionKeyId(popPublicKey);
+            builder.OnBeforeTokenRequest((data) =>
+            {
+                string? signedAssertion = credentialDescription.CachedValue as string;
+                data.BodyParameters["client_assertion"] = signedAssertion;
+                data.BodyParameters.Add("req_cnf", Base64UrlEncoder.Encode(jwkClaim));
+                data.BodyParameters.Add("token_type", "pop");
+
+                return Task.CompletedTask;
+            });
 
             return builder;
         }
