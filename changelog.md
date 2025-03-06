@@ -2,7 +2,7 @@
 ========
 ### New feature
 - FOR THE MOMENT: Updated to Microsoft.IdentityModel.* [8.6.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.6.0)
-- FOR THE MOMENT: Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.69.1
+- Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.69.1
 - Updated the Json Schema to include extensiblity for signed assertion providers. See [#3235](https://github.com/AzureAD/microsoft-identity-web/pull/3235)
 - Added support for Federation Identity Credential on any OIDC Idp (FIC+OIDC credential provider). See [#3255](https://github.com/AzureAD/microsoft-identity-web/pull/3255)
 - Support for acquiring token for Federation Managed Identity (FMI). A new p (`.WithFmiPath(fmiPath)` on [#3247](https://github.com/AzureAD/microsoft-identity-web/issues/3247)
