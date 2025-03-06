@@ -23,7 +23,7 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
-    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection))]
+    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection), DisableParallelization = true)]
 #if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
@@ -477,7 +477,7 @@ namespace TokenAcquirerTests
         }
     }
 
-    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection))]
+    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection), DisableParallelization = true)]
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
