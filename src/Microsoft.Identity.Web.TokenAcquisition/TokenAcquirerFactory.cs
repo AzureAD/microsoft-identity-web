@@ -215,11 +215,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal /* for unit tests */ static void ResetDefaultInstance()
         {
-            if (defaultInstance?.ServiceProvider != null)
+            lock (s_defaultInstanceLock)
             {
-                (defaultInstance.ServiceProvider as IDisposable)?.Dispose();
+                if (defaultInstance?.ServiceProvider != null)
+                {
+                    (defaultInstance.ServiceProvider as IDisposable)?.Dispose();
+                }
+                defaultInstance = null;
             }
-            defaultInstance = null;
         }
 
         // Move to a derived class?
