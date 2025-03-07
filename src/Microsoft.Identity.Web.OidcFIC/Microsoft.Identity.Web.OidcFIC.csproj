@@ -7,8 +7,8 @@
     <ProjectGuid>{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <!-- Until it releases-->
-    <EnablePackageValidation>false</EnablePackageValidation>
+    <PackageValidationBaselineVersion>3.8.0</PackageValidationBaselineVersion>
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
   <ItemGroup>

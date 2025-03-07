@@ -124,6 +124,7 @@ Microsoft.Identity.Web.OpenIdConnectOptions.ClientSecret.set -> void
 Microsoft.Identity.Web.OpenIdConnectOptions.OpenIdConnectOptions() -> void
 Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens
 Microsoft.Identity.Web.ServiceCollectionExtensions
+Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting
 Microsoft.Identity.Web.TokenAcquirerFactory
 Microsoft.Identity.Web.TokenAcquirerFactory.Build() -> System.IServiceProvider!
 Microsoft.Identity.Web.TokenAcquirerFactory.Configuration.get -> Microsoft.Extensions.Configuration.IConfiguration!
@@ -149,6 +150,7 @@ Microsoft.Identity.Web.TokenAcquisitionOptions.TokenAcquisitionOptions() -> void
 static Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(System.Action<Microsoft.Identity.Client.ConfidentialClientApplicationOptions!>! configureConfidentialClientApplicationOptions, string! authenticationScheme, Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfigurationSection? configuration) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
 static Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens.GetBootstrapToken(this System.Security.Principal.IPrincipal! claimsPrincipal) -> Microsoft.IdentityModel.Tokens.SecurityToken?
 static Microsoft.Identity.Web.ServiceCollectionExtensions.AddTokenAcquisition(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, bool isTokenAcquisitionSingleton = false) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest() -> void
 static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance(string! configSection = "AzureAd") -> Microsoft.Identity.Web.TokenAcquirerFactory!
 static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance<T>(string! configSection = "AzureAd") -> T!
 virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
