@@ -9,7 +9,8 @@
 - Downstream APIs now support Authorization headers with a custom SAML bearer syntax. See [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273)
 
 ## Bug fixes
--  TokenAcquirerFactory is now thread safe. See [#3274](https://github.com/AzureAD/microsoft-identity-web/pull/3274)
+- TokenAcquirerFactory is now thread safe. See [#3274](https://github.com/AzureAD/microsoft-identity-web/pull/3274)
+- Fix a bug in the parsing of the token in the authority. See [#3261](https://github.com/AzureAD/microsoft-identity-web/pull/3261)
 
 ## Fundamentals
 - Removed old Blazorwasm sample, wasm-tools and added new blazor web API: [#3259](https://github.com/AzureAD/microsoft-identity-web/pull/3259), [#3257](https://github.com/AzureAD/microsoft-identity-web/pull/3257), [#3254](https://github.com/AzureAD/microsoft-identity-web/pull/3254)
@@ -17,7 +18,7 @@
 - Fixed CS8602 Warnings in Weather.razor (BlazorApp) – Handle Nullable forecasts and user.Identity. See [#3266](https://github.com/AzureAD/microsoft-identity-web/pull/3266), 
 
 ## New Contributors
-* @sthanu98 made their first contribution in [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273)
+* @sthanu98 made their first contribution in [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273). Thank you!
 
 3.7.1
 ========
