@@ -217,10 +217,10 @@ namespace Microsoft.Identity.Web
         {
             lock (s_defaultInstanceLock)
             {
-                if (defaultInstance?.ServiceProvider != null)
+/*                if (defaultInstance?.ServiceProvider != null)
                 {
                     (defaultInstance.ServiceProvider as IDisposable)?.Dispose();
-                }
+                }*/
                 defaultInstance = null;
             }
         }
