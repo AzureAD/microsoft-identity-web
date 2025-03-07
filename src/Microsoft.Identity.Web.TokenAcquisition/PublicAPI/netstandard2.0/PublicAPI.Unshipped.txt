@@ -1,3 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting
-static Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest() -> void
