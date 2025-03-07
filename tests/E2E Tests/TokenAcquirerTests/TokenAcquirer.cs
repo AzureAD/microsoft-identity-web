@@ -487,6 +487,7 @@ namespace TokenAcquirerTests
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
             const string clientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 
