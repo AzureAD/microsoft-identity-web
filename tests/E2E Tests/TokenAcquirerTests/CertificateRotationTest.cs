@@ -40,7 +40,7 @@ namespace TokenAcquirerTests
             _graphServiceClient = new GraphServiceClient(credential);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [IgnoreOnAzureDevopsFact(Skip = "Can't run in MSIT. Requires ephemeral tenant")]
         public async Task TestCertificateRotationAsync()
         {
             // Prepare the environment
