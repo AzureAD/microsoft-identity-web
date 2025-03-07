@@ -478,6 +478,7 @@ namespace TokenAcquirerTests
     }
 
     [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection), DisableParallelization = true)]
+
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
