@@ -31,6 +31,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Determines if the client application should not use the distributed cache.
         /// </summary>
-        internal bool ShouldNotUseDistributedCache { get; set; }
+        internal string? ShouldNotUseDistributedCache { get; set; }
     }
 }

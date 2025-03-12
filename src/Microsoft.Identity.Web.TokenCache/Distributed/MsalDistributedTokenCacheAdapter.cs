@@ -110,9 +110,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             const string remove = "Remove";
 
-            if (cacheSerializerHints.ShouldNotUseDistributedCache)
+            if (!string.IsNullOrEmpty(cacheSerializerHints.ShouldNotUseDistributedCache))
             {
-                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache);
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCache);
             }
 
             if (_memoryCache != null)
@@ -154,9 +154,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             byte[]? result = null;
             var telemetryData = cacheSerializerHints.TelemetryData;
 
-            if (cacheSerializerHints.ShouldNotUseDistributedCache)
+            if (!string.IsNullOrEmpty(cacheSerializerHints.ShouldNotUseDistributedCache))
             {
-                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache);
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCache);
             }
 
             if (_memoryCache != null)
@@ -249,11 +249,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             const string write = "Write";
 
             DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
-            bool ShouldNotUseDistributedCache = cacheSerializerHints?.ShouldNotUseDistributedCache ?? false;
 
-            if (ShouldNotUseDistributedCache)
+            if (!string.IsNullOrEmpty(cacheSerializerHints?.ShouldNotUseDistributedCache))
             {
-                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache);
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCache);
             }
 
             if (_memoryCache != null)

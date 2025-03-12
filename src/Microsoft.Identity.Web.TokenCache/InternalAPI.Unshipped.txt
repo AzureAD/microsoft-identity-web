@@ -1,3 +1,3 @@
-const Microsoft.Identity.Web.TokenCacheErrorMessage.CannotUseDistributedCache = "IDW10803: Do not use a distributed cache for the current configuration. Use an in memory cache instead." -> string!
-Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.ShouldNotUseDistributedCache.get -> bool
+const Microsoft.Identity.Web.TokenCacheErrorMessage.CannotUseDistributedCache = "IDW10803: Cannot use distributed cache for the current configuration. Use an in memory cache instead." -> string!
+Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.ShouldNotUseDistributedCache.get -> string?
 Microsoft.Identity.Web.TokenCacheProviders.CacheSerializerHints.ShouldNotUseDistributedCache.set -> void
