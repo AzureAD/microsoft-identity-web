@@ -34,6 +34,11 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
             await RemoveKeyAsync(cacheKey);
         }
 
+        public async Task TestRemoveKeyAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+            await RemoveKeyAsync(cacheKey, cacheSerializerHints?? new CacheSerializerHints());
+        }
+
         public async Task TestWriteCacheBytesAsync(string cacheKey, byte[] bytes, CacheSerializerHints? cacheSerializerHints = null)
         {
             await WriteCacheBytesAsync(cacheKey, bytes, cacheSerializerHints);
@@ -42,6 +47,11 @@ namespace Microsoft.Identity.Web.Test.Common.TestHelpers
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey)
         {
             return await ReadCacheBytesAsync(cacheKey);
+        }
+
+        public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey, CacheSerializerHints cacheSerializerHints)
+        {
+            return await ReadCacheBytesAsync(cacheKey, cacheSerializerHints?? new CacheSerializerHints());
         }
 
         public async Task<byte[]?> TestReadCacheBytesAsync(string cacheKey, TelemetryData telemetryData)
