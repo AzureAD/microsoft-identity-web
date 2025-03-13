@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
 
         /// <inheritdoc/>
         public void PostConfigure(
-#if NET7_0_OR_GREATER
+#if NET6_0_OR_GREATER
             string? name,
 #else
             string name,

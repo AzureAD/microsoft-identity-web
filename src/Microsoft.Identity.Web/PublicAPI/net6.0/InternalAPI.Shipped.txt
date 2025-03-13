@@ -48,10 +48,10 @@ Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfigura
 Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder.MicrosoftIdentityWebAppAuthenticationBuilder(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, string! openIdConnectScheme, System.Action<Microsoft.Identity.Web.MicrosoftIdentityOptions!>! configureMicrosoftIdentityOptions, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
 Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, string! openIdConnectScheme, System.Action<Microsoft.Identity.Web.MicrosoftIdentityOptions!>! configureMicrosoftIdentityOptions, Microsoft.Extensions.Configuration.IConfigurationSection! configurationSection) -> void
 Microsoft.Identity.Web.RequireScopeOptions
-Microsoft.Identity.Web.RequireScopeOptions.PostConfigure(string! name, Microsoft.AspNetCore.Authorization.AuthorizationOptions! options) -> void
+Microsoft.Identity.Web.RequireScopeOptions.PostConfigure(string? name, Microsoft.AspNetCore.Authorization.AuthorizationOptions! options) -> void
 Microsoft.Identity.Web.RequireScopeOptions.RequireScopeOptions() -> void
 Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions
-Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions.PostConfigure(string! name, Microsoft.AspNetCore.Authorization.AuthorizationOptions! options) -> void
+Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions.PostConfigure(string? name, Microsoft.AspNetCore.Authorization.AuthorizationOptions! options) -> void
 Microsoft.Identity.Web.RequireScopeOrAppPermissionOptions.RequireScopeOrAppPermissionOptions() -> void
 Microsoft.Identity.Web.Resource.RegisterValidAudience
 Microsoft.Identity.Web.Resource.RegisterValidAudience.RegisterAudienceValidation(Microsoft.IdentityModel.Tokens.TokenValidationParameters! validationParameters, Microsoft.Identity.Web.MicrosoftIdentityOptions! microsoftIdentityOptions) -> void

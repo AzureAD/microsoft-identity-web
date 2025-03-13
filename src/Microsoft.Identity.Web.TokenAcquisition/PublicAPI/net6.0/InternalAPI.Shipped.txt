@@ -136,7 +136,7 @@ Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension
 Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger
 Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger
 Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger.ConfidentialClientApplicationOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptions) -> void
-Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options) -> void
+Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options) -> void
 Microsoft.Identity.Web.DefaultAuthorizationHeaderProvider
 Microsoft.Identity.Web.DefaultAuthorizationHeaderProvider.CreateAuthorizationHeaderAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? downstreamApiOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
 Microsoft.Identity.Web.DefaultAuthorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? downstreamApiOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
@@ -177,7 +177,7 @@ Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizat
 Microsoft.Identity.Web.ITokenAcquisitionInternal.RemoveAccountAsync(System.Security.Claims.ClaimsPrincipal! user, string? authenticationScheme = null) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.JwtBearerOptionsMerger
 Microsoft.Identity.Web.JwtBearerOptionsMerger.JwtBearerOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptions) -> void
-Microsoft.Identity.Web.JwtBearerOptionsMerger.PostConfigure(string! name, Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options) -> void
+Microsoft.Identity.Web.JwtBearerOptionsMerger.PostConfigure(string? name, Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options) -> void
 Microsoft.Identity.Web.LoggingEventId
 Microsoft.Identity.Web.LoggingOptions
 Microsoft.Identity.Web.LoggingOptions.EnablePiiLogging.get -> bool
@@ -226,12 +226,12 @@ Microsoft.Identity.Web.MergedOptionsStore.MergedOptionsStore() -> void
 Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection = null) -> void
 Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger
 Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.MicrosoftIdentityApplicationOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptions) -> void
-Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.HasClientCredentials.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptions.IsB2C.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger
 Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger.MicrosoftIdentityOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptions) -> void
-Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> void
 Microsoft.Identity.Web.MsalAspNetCoreHttpClientFactory
 Microsoft.Identity.Web.MsalAspNetCoreHttpClientFactory.GetHttpClient() -> System.Net.Http.HttpClient!
 Microsoft.Identity.Web.MsalAspNetCoreHttpClientFactory.MsalAspNetCoreHttpClientFactory(System.Net.Http.IHttpClientFactory! httpClientFactory) -> void
