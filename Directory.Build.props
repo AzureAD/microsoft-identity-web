@@ -157,7 +157,7 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.12</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
-    <!--Microsoft.Extensions.Http.7.0.0 is the first version to support net6.0.-->
+    <!--Microsoft.Extensions.Http.7.0.0 is the first version to include net6.0 as target framework.-->
     <MicrosoftExtensionsHttpVersion>7.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
@@ -177,8 +177,8 @@
     <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
     <!-- Microsoft.Extensions.* 5.* are obsoleted -->
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
+    <!--Microsoft.Extensions.Http.7.0.0 is the first version to include net462 as target framework.-->
     <MicrosoftExtensionsHttpVersion>7.0.0</MicrosoftExtensionsHttpVersion>
-    <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
