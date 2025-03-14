@@ -1,0 +1,109 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Abstractions
+@using Microsoft.Identity.Web
+@using System.Security.Claims
+
+@page "/weather"
+@attribute [StreamRendering]
+@attribute [Authorize]
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationHeaderProvider authorizationHeaderProvider
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
+@inject NavigationManager NavigationManager
+
+<PageTitle>Weather</PageTitle>
+
+<div class="mb-4">
+    <AuthorizeView>
+        <Authorized>
+            <a href="MicrosoftIdentity/Account/SignOut" class="btn btn-outline-primary">
+                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Sign out @context.User.Identity?.Name
+            </a>
+        </Authorized>
+        <NotAuthorized>
+            <a href="MicrosoftIdentity/Account/SignIn" class="btn btn-primary">
+                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Sign in
+            </a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <p>Signed in user is @user?.Identity?.Name</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                <th aria-label="Temperature in Farenheit">Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[] forecasts = Array.Empty<WeatherForecast>();
+    private ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+
+        // Get the authentication state asynchronously
+        var authenticationState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        user = authenticationState.User;
+
+        try
+        {
+            // Get the authorization header
+            var authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/.default"]
+                    //claimsPrincipal: authenticationSate.User,
+                    );
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            //NavigationManager.NavigateTo("/MicrosoftIdentity/Account/Login", true);
+            ConsentHandler.HandleException(ex);
+        }
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}

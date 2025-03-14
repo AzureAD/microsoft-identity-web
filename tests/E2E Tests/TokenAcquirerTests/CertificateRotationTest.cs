@@ -14,10 +14,12 @@ using Microsoft.Graph.Models;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace TokenAcquirerTests
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public sealed class CertificateRotationTest : ICertificatesObserver
     {
         const string MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000";
@@ -38,7 +40,7 @@ namespace TokenAcquirerTests
             _graphServiceClient = new GraphServiceClient(credential);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [IgnoreOnAzureDevopsFact(Skip = "Can't run in MSIT. Requires ephemeral tenant")]
         public async Task TestCertificateRotationAsync()
         {
             // Prepare the environment
@@ -222,7 +224,8 @@ namespace TokenAcquirerTests
                              }
                          }
                         }
-                }
+                },
+                ServiceManagementReference = "20504242-2c9d-4a5f-aac8-684e401e1119",
             };
             Application createdApp = (await _graphServiceClient.Applications
                 .PostAsync(application))!;

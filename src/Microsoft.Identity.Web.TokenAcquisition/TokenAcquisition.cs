@@ -45,12 +45,13 @@ namespace Microsoft.Identity.Web
 #endif
         protected readonly IMsalTokenCacheProvider _tokenCacheProvider;
 
-        private SemaphoreSlim _applicationSync = new (1, 1);
-
         /// <summary>
-        ///  Please call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
+        ///  Important: call GetOrBuildConfidentialClientApplication instead of accessing _applicationsByAuthorityClientId directly.
+        ///  Write access to this dictionary is synchronized.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
+
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -517,7 +518,7 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
-            if (addInOptions!=null)
+            if (addInOptions != null)
             {
                 addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
             }
@@ -554,6 +555,10 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
+                {
+                    builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -774,36 +779,45 @@ namespace Microsoft.Identity.Web
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase)
                 || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase));
 #else
-                (exMsal.Message.Contains(Constants.InvalidKeyError) 
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange) 
+                (exMsal.Message.Contains(Constants.InvalidKeyError)
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange)
                 || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
                 || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
 #endif
         }
-        
+
+
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-           MergedOptions mergedOptions)
+            MergedOptions mergedOptions)
         {
-            if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out IConfidentialClientApplication? application) || application == null)
+            // Use all credentials to compute a credential chain ID. Each individual ID should be unique.
+            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+            string key = GetApplicationKey(mergedOptions) + credentialId;
+
+            // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
+            // Fast path: check if already created
+            if (_applicationsByAuthorityClientId.TryGetValue(key, out var existingApp) && existingApp != null)
+                return existingApp;
+
+            // Get or create a semaphore for this specific key
+            var semaphore = _appSemaphores.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+
+            await semaphore.WaitAsync();
+            try
             {
-                await _applicationSync.WaitAsync();
-                
-                try
-                {
-                    if (!_applicationsByAuthorityClientId.TryGetValue(GetApplicationKey(mergedOptions), out application) ||
-                            application == null)
-                    {
-                        application = await BuildConfidentialClientApplicationAsync(mergedOptions);
-                        _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = application;
-                    }
-                }
-                finally
-                {
-                    _applicationSync.Release();
-                }           
+                // Double-check after acquiring the lock
+                if (_applicationsByAuthorityClientId.TryGetValue(key, out var app) && app != null)
+                    return app;
+
+                // Build and store the application
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                _applicationsByAuthorityClientId[key] = newApp;
+                return newApp;
             }
-            
-            return application;
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <summary>

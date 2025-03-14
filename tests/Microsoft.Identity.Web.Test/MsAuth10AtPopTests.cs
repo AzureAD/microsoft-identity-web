@@ -23,11 +23,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             using MockHttpClientFactory mockHttpClientFactory = new MockHttpClientFactory();
             using var httpTokenRequest = MockHttpCreator.CreateClientCredentialTokenHandler();
-            //mockHttpClientFactory.AddMockHandler(MockHttpCreator.CreateInstanceDiscoveryMockHandler());
             mockHttpClientFactory.AddMockHandler(httpTokenRequest);
-
-            //Enables the mock handler to requeue requests that have been intercepted for instance discovery for example
-            httpTokenRequest.ReplaceMockHttpMessageHandler = mockHttpClientFactory.AddMockHandler;
 
             var certificateDescription = CertificateDescription.FromBase64Encoded(
                 TestConstants.CertificateX5cWithPrivateKey,

@@ -15,6 +15,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
@@ -22,6 +23,7 @@ using TaskStatus = System.Threading.Tasks.TaskStatus;
 
 namespace TokenAcquirerTests
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
 #if !FROM_GITHUB_ACTION
     public class TokenAcquirer
     {
@@ -40,14 +42,10 @@ namespace TokenAcquirerTests
                 "AzureADIdentityDivisionTestAgentCert")
         };
 
-        public TokenAcquirer()
-        {
-            TokenAcquirerFactory.ResetDefaultInstance(); // Test only
-        }
-
         [Fact]
         public void TokenAcquirerFactoryDoesNotUseAspNetCoreHost()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             var serviceProvider = tokenAcquirerFactory.Build();
             var service = serviceProvider.GetService<ITokenAcquisitionHost>();
@@ -68,6 +66,7 @@ namespace TokenAcquirerTests
         [Fact]
         public void AcquireToken_WithMultipleRegions()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
@@ -96,6 +95,7 @@ namespace TokenAcquirerTests
         [Fact]
         public async Task AcquireToken_ROPC_CCAasync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
@@ -125,6 +125,7 @@ namespace TokenAcquirerTests
         [Fact]
         public async Task AcquireToken_ROPC_CCA_WithForceRefresh_async()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
@@ -156,6 +157,7 @@ namespace TokenAcquirerTests
         [Fact]
         public void AcquireToken_SafeFromMultipleThreads()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
@@ -197,6 +199,7 @@ namespace TokenAcquirerTests
         public async Task AcquireToken_WithMicrosoftIdentityOptions_ClientCredentialsAsync(/*bool withClientCredentials*/)
         {
             bool withClientCredentials = false; //add as param above
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -222,6 +225,7 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -240,6 +244,7 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -257,6 +262,7 @@ namespace TokenAcquirerTests
         // [Fact]
         public async Task AcquireToken_WithFactoryAndMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.AddInMemoryTokenCaches();
             tokenAcquirerFactory.Build();
@@ -277,6 +283,7 @@ namespace TokenAcquirerTests
         // [Fact]
         public async Task AcquireToken_WithFactoryAndAuthorityClientIdCert_ClientCredentialsAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.AddInMemoryTokenCaches();
             tokenAcquirerFactory.Build();
@@ -294,6 +301,7 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphoreAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -334,6 +342,7 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireTokenWithPop_ClientCredentialsAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -363,6 +372,7 @@ namespace TokenAcquirerTests
         //[Fact]
         public async Task AcquireTokenWithMs10AtPop_ClientCredentialsAsync()
         {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
 
@@ -467,6 +477,7 @@ namespace TokenAcquirerTests
         }
     }
 
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
@@ -477,6 +488,7 @@ namespace TokenAcquirerTests
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
             const string clientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 

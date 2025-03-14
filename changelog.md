@@ -1,3 +1,25 @@
+3.8.0
+========
+### New feature
+- Updated to Microsoft.IdentityModel.* [8.6.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.6.1)
+- Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.69.1
+- Updated the Json Schema to include extensiblity for signed assertion providers. See [#3235](https://github.com/AzureAD/microsoft-identity-web/pull/3235)
+- Added support for Federation Identity Credential on any OIDC Idp (FIC+OIDC credential provider). See [#3255](https://github.com/AzureAD/microsoft-identity-web/pull/3255)
+- Support for acquiring token for Federation Managed Identity (FMI). Supports the `FmiPath` property of `AcquireTokenOptions`. See [#3247](https://github.com/AzureAD/microsoft-identity-web/issues/3247)
+- Downstream APIs now support Authorization headers with a custom SAML bearer syntax. See [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273)
+
+## Bug fixes
+- TokenAcquirerFactory is now thread safe. See [#3274](https://github.com/AzureAD/microsoft-identity-web/pull/3274)
+- Fix a bug in the parsing of the token in the authority. See [#3261](https://github.com/AzureAD/microsoft-identity-web/pull/3261)
+
+## Fundamentals
+- Removed old Blazorwasm sample, wasm-tools and added new blazor web API: [#3259](https://github.com/AzureAD/microsoft-identity-web/pull/3259), [#3257](https://github.com/AzureAD/microsoft-identity-web/pull/3257), [#3254](https://github.com/AzureAD/microsoft-identity-web/pull/3254)
+- Modified the build so that, in CI/CD internal builds, the NuGet.olg NuGet source is replaced by a managed Nuget source. More verbose information added. See [#3263](https://github.com/AzureAD/microsoft-identity-web/pull/3263)
+- Fixed CS8602 Warnings in Weather.razor (BlazorApp) – Handle Nullable forecasts and user.Identity. See [#3266](https://github.com/AzureAD/microsoft-identity-web/pull/3266), 
+
+## New Contributors
+* @sthanu98 made their first contribution in [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273). Thank you!
+
 3.7.1
 ========
 - Updated to Microsoft.IdentityModel.* [8.5.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.5.0)
