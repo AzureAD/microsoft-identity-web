@@ -641,6 +641,7 @@ namespace Microsoft.Identity.Web
             {
                 foreach (var credential in clientCredentials)
                 {
+                    // Q: What if there are multiple credentials with the same type?
                     if (credential.SourceType == CredentialSource.CustomSignedAssertion &&
                         credential.CachedValue != null)
                     {

@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.TestOnly;
 using Xunit.Sdk;
 
 
@@ -55,6 +58,53 @@ namespace CustomSignedAssertionProviderTests
             catch (Exception ex) when (ex is not XunitException)
             {
                 Assert.Fail(ex.Message);
+            }
+        }
+
+        [Fact]
+        public async Task AcquireAppTokenForAtPop_WithCustomSignedAssertion_Successfull()
+        {
+            // Arrange
+            using (MockHttpClientFactory httpFactoryForTest = new MockHttpClientFactory())
+            {
+                var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+                    MockHttpCreator.CreateClientCredentialTokenHandler(tokenType: "pop"));
+                var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+                    MockHttpCreator.CreateClientCredentialTokenHandler(tokenType: "pop"));
+
+                TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+                TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+                tokenAcquirerFactory.Services.AddCustomSignedAssertionProvider();
+                tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
+
+                tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+                {
+                    options.Instance = "https://login.microsoftonline.com/";
+                    options.TenantId = "t2";
+                    options.ClientId = "c2";
+                    options.ExtraQueryParameters = null;
+                    options.ClientCredentials = [ new CredentialDescription() {
+                        SourceType = CredentialSource.CustomSignedAssertion,
+                        CustomSignedAssertionProviderName = "MyCustomExtension" }];
+                });
+
+                IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+                IAuthorizationHeaderProvider authorizationHeaderProvider =
+                    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+                ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer("");
+                var tokenResult = await tokenAcquirer.GetTokenForAppAsync(
+                    TestConstants.s_scopeForApp,
+                    new AcquireTokenOptions()
+                    {
+                        PopPublicKey = "pop_key",
+                        PopClaim = "jwk_claim"
+                    });
+
+                // Assert
+                Assert.NotNull(tokenResult);
+                Assert.NotNull(tokenResult.AccessToken);
+                Assert.Equal("pop", tokenResult.TokenType);
             }
         }
     }

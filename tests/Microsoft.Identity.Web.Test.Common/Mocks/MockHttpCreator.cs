@@ -11,10 +11,13 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 {
     public static class MockHttpCreator
     {
-        private static HttpResponseMessage CreateSuccessfulClientCredentialTokenResponseMessage(string token = "header.payload.signature", int expiry = 3599)
+        private static HttpResponseMessage CreateSuccessfulClientCredentialTokenResponseMessage(
+            string token = "header.payload.signature",
+            string tokenType = "Bearer",
+            int expiry = 3599)
         {
             return CreateSuccessResponseMessage(
-                "{\"token_type\":\"Bearer\",\"expires_in\":" + expiry + ",\"client_info\":\"" + CreateClientInfo() + "\",\"access_token\":\"" + token + "\"}");
+                "{\"token_type\":\"" + tokenType + "\",\"expires_in\":" + expiry + ",\"client_info\":\"" + CreateClientInfo() + "\",\"access_token\":\"" + token + "\"}");
         }
 
         public static HttpResponseMessage CreateSuccessResponseMessage(string successResponse)
@@ -47,12 +50,12 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         }
 
         public static MockHttpMessageHandler CreateClientCredentialTokenHandler(
-            string token = "header.payload.signature", int expiresIn = 3599)
+            string token = "header.payload.signature", string tokenType = "Bearer", int expiresIn = 3599)
         {
             var handler = new MockHttpMessageHandler()
             {
                 ExpectedMethod = HttpMethod.Post,
-                ResponseMessage = CreateSuccessfulClientCredentialTokenResponseMessage(token, expiresIn),
+                ResponseMessage = CreateSuccessfulClientCredentialTokenResponseMessage(token, tokenType, expiresIn),
             };
 
             return handler;

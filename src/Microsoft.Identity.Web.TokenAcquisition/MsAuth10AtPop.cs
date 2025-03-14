@@ -59,8 +59,8 @@ namespace Microsoft.Identity.Web
             builder.WithProofOfPosessionKeyId(popPublicKey);
             builder.OnBeforeTokenRequest((data) =>
             {
-                string? signedAssertion = credentialDescription.CachedValue as string;
-                data.BodyParameters["client_assertion"] = signedAssertion;
+                // Q: What if the CachedValue expires?
+                data.BodyParameters["client_assertion"] = credentialDescription.CachedValue as string;
                 data.BodyParameters.Add("req_cnf", Base64UrlEncoder.Encode(jwkClaim));
                 data.BodyParameters.Add("token_type", "pop");
 
