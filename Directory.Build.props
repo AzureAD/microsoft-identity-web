@@ -111,7 +111,6 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHttpVersion>9.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
@@ -127,7 +126,6 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHttpVersion>8.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>8.0.0</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>8.0.1</SystemSecurityCryptographyXmlVersion>
@@ -142,7 +140,6 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>7.0.1</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>7.0.0</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>7.0.0</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHttpVersion>7.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>7.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!--CVE-2023-29331-->
     <SystemSecurityCryptographyPkcsVersion>7.0.3</SystemSecurityCryptographyPkcsVersion>
@@ -157,8 +154,6 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.12</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
-    <!--Microsoft.Extensions.Http.7.0.0 is the first version to include net6.0 as target framework.-->
-    <MicrosoftExtensionsHttpVersion>7.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
     <!--CVE-2023-29331-->
@@ -177,8 +172,7 @@
     <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
     <!-- Microsoft.Extensions.* 5.* are obsoleted -->
     <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
-    <!--Microsoft.Extensions.Http.7.0.0 is the first version to include net462 as target framework.-->
-    <MicrosoftExtensionsHttpVersion>7.0.0</MicrosoftExtensionsHttpVersion>
+    <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
