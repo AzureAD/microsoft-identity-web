@@ -592,7 +592,6 @@ namespace Microsoft.Identity.Web
                             builder,
                             application.AppConfig,
                             tokenAcquisitionOptions,
-                            mergedOptions.ClientCredentials,
                             mergedOptions.SendX5C);
                     }
                 }
@@ -633,25 +632,14 @@ namespace Microsoft.Identity.Web
             AcquireTokenForClientParameterBuilder builder,
             IAppConfig appConfig,
             TokenAcquisitionOptions tokenAcquisitionOptions,
-            IEnumerable<CredentialDescription>? clientCredentials,
             bool sendX5C)
         {
-            // Try to configure AtPop with custom signed assertion first
-            if (clientCredentials != null)
+            if (appConfig.ClientCapabilities.Count() > 0)
             {
-                foreach (var credential in clientCredentials)
-                {
-                    // Q: What if there are multiple credentials with the same type?
-                    if (credential.SourceType == CredentialSource.CustomSignedAssertion &&
-                        credential.CachedValue != null)
-                    {
-                        builder.WithAtPop(
-                            credential,
-                            tokenAcquisitionOptions.PopPublicKey!,
-                            tokenAcquisitionOptions.PopClaim!);
-                        return;
-                    }
-                }
+                builder.WithAtPop(
+                    tokenAcquisitionOptions.PopPublicKey!,
+                    tokenAcquisitionOptions.PopClaim!);
+                return;
             }
 
             // Fall back to certificate-based AtPop configuration

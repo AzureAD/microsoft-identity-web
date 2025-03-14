@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -49,7 +48,6 @@ namespace Microsoft.Identity.Web
         // Configure with Custom Signed Assertion
         internal static AcquireTokenForClientParameterBuilder WithAtPop(
             this AcquireTokenForClientParameterBuilder builder,
-            CredentialDescription credentialDescription,
             string popPublicKey,
             string jwkClaim)
         {
@@ -59,8 +57,6 @@ namespace Microsoft.Identity.Web
             builder.WithProofOfPosessionKeyId(popPublicKey);
             builder.OnBeforeTokenRequest((data) =>
             {
-                // Q: What if the CachedValue expires?
-                data.BodyParameters["client_assertion"] = credentialDescription.CachedValue as string;
                 data.BodyParameters.Add("req_cnf", Base64UrlEncoder.Encode(jwkClaim));
                 data.BodyParameters.Add("token_type", "pop");
 
