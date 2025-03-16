@@ -14,10 +14,17 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
+    /// <summary>
+    /// Base class for downstream API calls.
+    /// </summary>
     public abstract class DownstreamApiBase
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
+
+        /// <summary>
+        /// The logger instance.
+        /// </summary>
         protected readonly ILogger _logger;
         private const string Authorization = "Authorization";
         private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
