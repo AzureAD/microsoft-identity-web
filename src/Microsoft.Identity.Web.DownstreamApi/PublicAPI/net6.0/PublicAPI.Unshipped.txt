@@ -1,0 +1,4 @@
+Microsoft.Identity.Web.DownstreamApiBase
+Microsoft.Identity.Web.DownstreamApiBase.DownstreamApiBase(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! authorizationHeaderProvider, System.Net.Http.IHttpClientFactory! httpClientFactory, Microsoft.Extensions.Logging.ILogger! logger) -> void
+readonly Microsoft.Identity.Web.DownstreamApiBase._logger -> Microsoft.Extensions.Logging.ILogger!
+virtual Microsoft.Identity.Web.DownstreamApiBase.CallApiInternalAsync(string? serviceName, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, bool appToken, System.Net.Http.HttpContent? content = null, System.Security.Claims.ClaimsPrincipal? user = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage!>!

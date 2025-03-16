@@ -21,14 +21,9 @@ using Microsoft.Identity.Client;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamApi : IDownstreamApi
+    internal partial class DownstreamApi : DownstreamApiBase, IDownstreamApi
     {
-        private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
-        private const string Authorization = "Authorization";
-        protected readonly ILogger<DownstreamApi> _logger;
-        private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
 
         /// <summary>
         /// Constructor.
@@ -41,12 +36,12 @@ namespace Microsoft.Identity.Web
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
-            ILogger<DownstreamApi> logger)
+            ILogger<DownstreamApi> logger) : base(
+                authorizationHeaderProvider,
+                httpClientFactory,
+                logger)
         {
-            _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
-            _httpClientFactory = httpClientFactory;
-            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -391,7 +386,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -450,119 +445,6 @@ namespace Microsoft.Identity.Web
                     throw new NotSupportedException("Content type not supported. Provide your own deserializer. ");
                 }
                 return stringContent as TOutput;
-            }
-        }
-
-        internal /* for tests */ async Task<HttpResponseMessage> CallApiInternalAsync(
-            string? serviceName,
-            DownstreamApiOptions effectiveOptions,
-            bool appToken,
-            HttpContent? content = null,
-            ClaimsPrincipal? user = null,
-            CancellationToken cancellationToken = default)
-        {
-            // Downstream API URI
-            string apiUrl = effectiveOptions.GetApiUrl();
-
-            // Create an HTTP request message
-            using HttpRequestMessage httpRequestMessage = new(
-                new HttpMethod(effectiveOptions.HttpMethod),
-                apiUrl);
-
-            await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
-
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
-
-            // Send the HTTP message           
-            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
-
-            // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
-            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
-
-                if (!string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
-                {
-                    using HttpRequestMessage retryHttpRequestMessage = new(
-                        new HttpMethod(effectiveOptions.HttpMethod),
-                        apiUrl);
-
-                    await UpdateRequestAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
-
-                    return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
-                }
-            }
-
-            return downstreamApiResult;
-        }
-
-        internal /* internal for test */ async Task UpdateRequestAsync(
-            HttpRequestMessage httpRequestMessage,
-            HttpContent? content,
-            DownstreamApiOptions effectiveOptions,
-            bool appToken,
-            ClaimsPrincipal? user,
-            CancellationToken cancellationToken)
-        {
-            AddCallerSDKTelemetry(effectiveOptions);
-
-            if (content != null)
-            {
-                httpRequestMessage.Content = content;
-            }
-
-            effectiveOptions.RequestAppToken = appToken;
-
-            // Obtention of the authorization header (except when calling an anonymous endpoint
-            // which is done by not specifying any scopes
-            if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
-            {
-                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
-                       effectiveOptions.Scopes,
-                       effectiveOptions,
-                       user,
-                       cancellationToken).ConfigureAwait(false);
-
-                if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
-                {
-                    // TryAddWithoutValidation method bypasses strict validation, allowing non-standard headers to be added for custom Header schemes that cannot be parsed.
-                    httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
-                }
-                else
-                {
-                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-                }
-            }
-            else
-            {
-                Logger.UnauthenticatedApiCall(_logger, null);
-            }
-            if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
-            {
-                httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
-            }
-            // Opportunity to change the request message
-            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
-        }
-
-        internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
-          {
-              { "caller-sdk-id", "IdWeb_1" },  
-              { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
-          };
-
-        private static void AddCallerSDKTelemetry(DownstreamApiOptions effectiveOptions)
-        {
-            if (effectiveOptions.AcquireTokenOptions.ExtraQueryParameters == null)
-            {
-                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters = CallerSDKDetails;
-            }
-            else
-            {
-                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] =
-                    CallerSDKDetails["caller-sdk-id"];
-                effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
-                    CallerSDKDetails["caller-sdk-ver"];
             }
         }
     }
