@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         internal TelemetryData? TelemetryData { get; set; }
 
         /// <summary>
-        /// Determines if the client application should not use the distributed cache.
+        /// Error message to display in the cases where the client application should not use the distributed cache (not null or empty means it shouldn't use it)
         /// </summary>
         internal string? ShouldNotUseDistributedCache { get; set; }
     }
