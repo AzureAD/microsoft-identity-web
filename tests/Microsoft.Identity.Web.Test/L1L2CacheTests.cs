@@ -417,9 +417,9 @@ namespace Microsoft.Identity.Web.Test
                 await _testCacheAdapter.TestRemoveKeyAsync(DefaultCacheKey, cacheSerializerHints));
 
             // Assert
-            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache, ex1.Message + "  DoNotUseDistCache");
-            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache, ex2.Message + "  DoNotUseDistCache");
-            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache, ex3.Message + "  DoNotUseDistCache");
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex1.Message);
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex2.Message);
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex3.Message);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
         }
 
