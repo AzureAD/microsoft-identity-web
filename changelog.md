@@ -1,3 +1,11 @@
+3.8.1
+========
+### New features
+- Updated to Microsoft.IdentityModel.* [8.7.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.7.0)
+
+### Bug fixes
+- Pins Microsoft.Extensions.Http dependency version to 3.1.3 for .NET Framework and .NET Standard and uses inbox version for .NET Core. See [#3145](https://github.com/AzureAD/microsoft-identity-web/issues/3145).
+
 3.8.0
 ========
 ### New feature
