@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -44,17 +43,15 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             AuthenticationResult result = await app.AcquireTokenForClient(new[] { TestConstants.Scopes })
-                .WithAtPop(certificateDescription.Certificate, popPublicKey, jwkClaim, TestConstants.ClientId, true)
+                .WithAtPop(popPublicKey, jwkClaim)
                 .ExecuteAsync();
 
             // Assert
-            httpTokenRequest.ActualRequestPostData.TryGetValue("request", out string? request);
-            Assert.NotNull(request);
             httpTokenRequest.ActualRequestPostData.TryGetValue("client_assertion", out string? clientAssertion);
-            Assert.Null(clientAssertion);
+            Assert.NotNull(clientAssertion);
 
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken assertion = jwtSecurityTokenHandler.ReadJwtToken(request);
+            JwtSecurityToken assertion = jwtSecurityTokenHandler.ReadJwtToken(clientAssertion);
 
             Assert.Equal("https://login.microsoftonline.com/common/oauth2/v2.0/token", assertion.Claims.Single(c => c.Type == "aud").Value);
             Assert.Equal(TestConstants.ClientId, assertion.Claims.Single(c => c.Type == "iss").Value);
@@ -80,16 +77,12 @@ namespace Microsoft.Identity.Web.Test
             using X509Certificate2 clientCertificate = new([]);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
             var jwkClaim = "jwk_claim";
-            var clientId = "client_id";
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => MsAuth10AtPop.WithAtPop(
                 app.AcquireTokenForClient(new[] { TestConstants.Scopes }),
-                clientCertificate,
                 string.Empty,
-                jwkClaim,
-                clientId,
-                true));
+                jwkClaim));
         }
 
         [Fact]
@@ -101,13 +94,11 @@ namespace Microsoft.Identity.Web.Test
             using X509Certificate2 clientCertificate = new([]);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
             var popPublicKey = "pop_key";
-            var clientId = "client_id";
 
             // Act & Assert
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => MsAuth10AtPop.WithAtPop(
-                app.AcquireTokenForClient(new[] { TestConstants.Scopes }),
-                clientCertificate, popPublicKey, null, clientId, true));
+                app.AcquireTokenForClient(new[] { TestConstants.Scopes }), popPublicKey, null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 

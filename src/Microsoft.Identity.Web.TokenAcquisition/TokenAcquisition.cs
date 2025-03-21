@@ -588,11 +588,9 @@ namespace Microsoft.Identity.Web
                             _logger.LogWarning("MSAuth POP configured with pinned certificate. This configuration is being deprecated.");
                         }
 
-                        ConfigureAtPopWithCredentials(
-                            builder,
-                            application.AppConfig,
-                            tokenAcquisitionOptions,
-                            mergedOptions.SendX5C);
+                        builder.WithAtPop(
+                            tokenAcquisitionOptions.PopPublicKey!,
+                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
             }
@@ -626,29 +624,6 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
-        }
-
-        private static void ConfigureAtPopWithCredentials(
-            AcquireTokenForClientParameterBuilder builder,
-            IAppConfig appConfig,
-            TokenAcquisitionOptions tokenAcquisitionOptions,
-            bool sendX5C)
-        {
-            if (appConfig.ClientCapabilities.Count() > 0)
-            {
-                builder.WithAtPop(
-                    tokenAcquisitionOptions.PopPublicKey!,
-                    tokenAcquisitionOptions.PopClaim!);
-                return;
-            }
-
-            // Fall back to certificate-based AtPop configuration
-            builder.WithAtPop(
-                appConfig.ClientCredentialCertificate,
-                tokenAcquisitionOptions.PopPublicKey!,
-                tokenAcquisitionOptions.PopClaim!,
-                appConfig.ClientId,
-                sendX5C);
         }
 
         /// <summary>
