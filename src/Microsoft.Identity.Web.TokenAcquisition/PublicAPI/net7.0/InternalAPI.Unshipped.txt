@@ -1,1 +1,9 @@
-static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, string! popPublicKey, string! jwkClaim) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!
+Microsoft.Identity.Web.AtPopOperation
+Microsoft.Identity.Web.AtPopOperation.AccessTokenType.get -> string!
+Microsoft.Identity.Web.AtPopOperation.AtPopOperation(string! keyId, string! reqCnf) -> void
+Microsoft.Identity.Web.AtPopOperation.AuthorizationHeaderPrefix.get -> string!
+Microsoft.Identity.Web.AtPopOperation.FormatResult(Microsoft.Identity.Client.AuthenticationResult! authenticationResult) -> void
+Microsoft.Identity.Web.AtPopOperation.GetTokenRequestParams() -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.Identity.Web.AtPopOperation.KeyId.get -> string!
+Microsoft.Identity.Web.AtPopOperation.TelemetryTokenType.get -> int
+static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, string! popPublicKey, string! jwkClaim) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!

@@ -588,12 +588,9 @@ namespace Microsoft.Identity.Web
                             _logger.LogWarning("MSAuth POP configured with pinned certificate. This configuration is being deprecated.");
                         }
 
-                        ConfigureAtPopWithCredentials(
-                            builder,
-                            application.AppConfig,
-                            tokenAcquisitionOptions,
-                            mergedOptions.ClientCredentials,
-                            mergedOptions.SendX5C);
+                        builder.WithAtPop(
+                           tokenAcquisitionOptions.PopPublicKey!,
+                           tokenAcquisitionOptions.PopClaim!);
                     }
                 }
             }
@@ -627,39 +624,6 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
-        }
-
-        private static void ConfigureAtPopWithCredentials(
-            AcquireTokenForClientParameterBuilder builder,
-            IAppConfig appConfig,
-            TokenAcquisitionOptions tokenAcquisitionOptions,
-            IEnumerable<CredentialDescription>? clientCredentials,
-            bool sendX5C)
-        {
-            // Try to configure AtPop with custom signed assertion first
-            if (clientCredentials != null)
-            {
-                foreach (var credential in clientCredentials)
-                {
-                    if (credential.SourceType == CredentialSource.CustomSignedAssertion &&
-                        credential.CachedValue != null)
-                    {
-                        builder.WithAtPop(
-                            credential,
-                            tokenAcquisitionOptions.PopPublicKey!,
-                            tokenAcquisitionOptions.PopClaim!);
-                        return;
-                    }
-                }
-            }
-
-            // Fall back to certificate-based AtPop configuration
-            builder.WithAtPop(
-                appConfig.ClientCredentialCertificate,
-                tokenAcquisitionOptions.PopPublicKey!,
-                tokenAcquisitionOptions.PopClaim!,
-                appConfig.ClientId,
-                sendX5C);
         }
 
         /// <summary>
