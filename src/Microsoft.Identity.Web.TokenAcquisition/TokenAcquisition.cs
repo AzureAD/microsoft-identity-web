@@ -589,11 +589,8 @@ namespace Microsoft.Identity.Web
                         }
 
                         builder.WithAtPop(
-                            application.AppConfig.ClientCredentialCertificate,
-                            tokenAcquisitionOptions.PopPublicKey!,
-                            tokenAcquisitionOptions.PopClaim!,
-                            application.AppConfig.ClientId,
-                            mergedOptions.SendX5C);
+                           tokenAcquisitionOptions.PopPublicKey!,
+                           tokenAcquisitionOptions.PopClaim!);
                     }
                 }
             }
