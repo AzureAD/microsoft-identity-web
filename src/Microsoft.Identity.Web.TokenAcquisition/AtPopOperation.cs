@@ -17,6 +17,7 @@ namespace Microsoft.Identity.Web
             KeyId = keyId;
             _reqCnf = reqCnf;
         }
+
         public int TelemetryTokenType => 4; // as per TelemetryTokenTypeConstants
 
         public string AuthorizationHeaderPrefix => "Bearer"; // these tokens go over bearer
