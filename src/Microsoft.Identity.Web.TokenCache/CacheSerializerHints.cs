@@ -31,6 +31,6 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// <summary>
         /// Error message to display in the cases where the client application should not use the distributed cache (not null or empty means it shouldn't use it)
         /// </summary>
-        internal string? ShouldNotUseDistributedCache { get; set; }
+        internal string? ShouldNotUseDistributedCacheMessage { get; set; }
     }
 }
