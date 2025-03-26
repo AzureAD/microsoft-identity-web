@@ -110,6 +110,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         {
             const string remove = "Remove";
 
+            if (!string.IsNullOrEmpty(cacheSerializerHints.ShouldNotUseDistributedCacheMessage))
+            {
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCacheMessage);
+            }
+
             if (_memoryCache != null)
             {
                 _memoryCache.Remove(cacheKey);
@@ -148,6 +153,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             const string read = "Read";
             byte[]? result = null;
             var telemetryData = cacheSerializerHints.TelemetryData;
+
+            if (!string.IsNullOrEmpty(cacheSerializerHints.ShouldNotUseDistributedCacheMessage))
+            {
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCacheMessage);
+            }
 
             if (_memoryCache != null)
             {
@@ -239,6 +249,11 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             const string write = "Write";
 
             DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
+
+            if (!string.IsNullOrEmpty(cacheSerializerHints?.ShouldNotUseDistributedCacheMessage))
+            {
+                throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCacheMessage);
+            }
 
             if (_memoryCache != null)
             {

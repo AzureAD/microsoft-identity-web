@@ -27,5 +27,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         /// Stores details to log to MSAL's telemetry client
         /// </summary>
         internal TelemetryData? TelemetryData { get; set; }
+
+        /// <summary>
+        /// Error message to display in the cases where the client application should not use the distributed cache (not null or empty means it shouldn't use it)
+        /// </summary>
+        internal string? ShouldNotUseDistributedCacheMessage { get; set; }
     }
 }
