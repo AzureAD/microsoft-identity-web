@@ -22,7 +22,7 @@ using System.Text.Json.Serialization.Metadata;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamApi : IDownstreamApi
+    partial class DownstreamApi : IDownstreamApi
     {
 <#
   bool firstMethod = true;
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
 #>
 
 <#   }
-     firstMethod = false; 
+     firstMethod = false;
 #>
         /// <inheritdoc/>
         public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web
    if (hasOutput && framework == "net8")
    { #>
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
-<# } 
+<# }
    else if (hasOutput)
    {#>
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
@@ -124,9 +124,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
