@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders
         {   CancellationToken = args.CancellationToken,
             SuggestedCacheExpiry = args.SuggestedCacheExpiry,
             TelemetryData = args.TelemetryData,
-            ShouldNotUseDistributedCache = args.NoDistributedCacheUseReason
+            ShouldNotUseDistributedCacheMessage = args.NoDistributedCacheUseReason
         };
 
         private async Task OnBeforeAccessAsync(TokenCacheNotificationArgs args)

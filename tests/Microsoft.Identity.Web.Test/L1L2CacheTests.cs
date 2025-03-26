@@ -404,7 +404,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache._dict);
             CacheSerializerHints cacheSerializerHints = new CacheSerializerHints();
             cacheSerializerHints.SuggestedCacheExpiry = System.DateTimeOffset.Now - System.TimeSpan.FromHours(1);
-            cacheSerializerHints.ShouldNotUseDistributedCache = "DoNotUseDistCache";
+            cacheSerializerHints.ShouldNotUseDistributedCacheMessage = "DoNotUseDistCache";
 
             // Act
             var ex1 = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
