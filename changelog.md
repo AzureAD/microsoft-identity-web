@@ -1,3 +1,7 @@
+3.8.2
+========
+- Updated to Microsoft.Identity.Abstractions [9.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/9.0.0)
+
 3.8.1
 ========
 ### New features
