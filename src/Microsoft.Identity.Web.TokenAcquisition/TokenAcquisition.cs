@@ -508,8 +508,13 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+            if (tokenAcquisitionOptions is not null)
+            {
+                tokenAcquisitionOptions.ExtraParameters ??= new Dictionary<string, object>();
+                tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
+            }
 
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);

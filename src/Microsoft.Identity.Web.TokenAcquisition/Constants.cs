@@ -133,6 +133,7 @@ namespace Microsoft.Identity.Web
         internal const string CertificateIsOutsideValidityWindow = "AADSTS1000502";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
+        internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
