@@ -276,6 +276,8 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             IServiceProvider? serviceProvider = null;
 
+            // Configure the extension option such that the event is subscribed to
+            // so the test can observe if the service provider is set in the extra parameters
             serviceCollection.Configure<TokenAcquisitionExtensionOptions>(options =>
             {
                 options.OnBeforeTokenAcquisitionForApp += (builder, options) =>
