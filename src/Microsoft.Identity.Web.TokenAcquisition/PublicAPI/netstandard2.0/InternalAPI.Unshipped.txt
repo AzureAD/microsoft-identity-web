@@ -1,3 +1,4 @@
+const Microsoft.Identity.Web.Constants.ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER" -> string!
 Microsoft.Identity.Web.AtPopOperation
 Microsoft.Identity.Web.AtPopOperation.AccessTokenType.get -> string!
 Microsoft.Identity.Web.AtPopOperation.AtPopOperation(string! keyId, string! reqCnf) -> void
