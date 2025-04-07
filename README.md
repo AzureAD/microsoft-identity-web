@@ -38,7 +38,7 @@ The Microsoft Identity Web roadmap is available from [Roadmap](https://github.co
 - Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
   and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
 
-## Where do I file issues
+## Where do I file issues?
 
 This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-identity-web/issues).
 
@@ -64,7 +64,7 @@ This library controls how users sign-in and access services. We recommend you al
 
 If you find a security issue with our libraries or services, please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
 
-## Trademarks.
+## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks). Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
 
