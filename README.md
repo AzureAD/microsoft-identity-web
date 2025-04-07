@@ -38,7 +38,8 @@ The Microsoft Identity Web roadmap is available from [Roadmap](https://github.co
 - Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
   and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
 
-## Where do I file issues?
+## Where do I file issues
+
 
 This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-identity-web/issues).
 
