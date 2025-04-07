@@ -2,6 +2,10 @@
 ========
 - Updated to Microsoft.Identity.Abstractions [9.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/9.0.0)
 
+### New feature
+- An exception is now thrown if MSAL `TokenCacheNotificationArgs` indicates that distributed cache is configured when it should not have been. See [#3304](https://github.com/AzureAD/microsoft-identity-web/issues/3304).
+- Added support for federated identity credentials with AT_POP. See [#3299](https://github.com/AzureAD/microsoft-identity-web/pull/3299).
+
 3.8.1
 ========
 ### New features
