@@ -15,6 +15,7 @@ const Microsoft.Identity.Web.Constants.ConsentUrl = "consentUri" -> string!
 const Microsoft.Identity.Web.Constants.Consumers = "consumers" -> string!
 const Microsoft.Identity.Web.Constants.DefaultGraphScope = "https://graph.microsoft.com/.default" -> string!
 const Microsoft.Identity.Web.Constants.DomainHintParameter = "domainHint" -> string!
+const Microsoft.Identity.Web.Constants.ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER" -> string!
 const Microsoft.Identity.Web.Constants.FallbackAuthority = "https://login.microsoftonline.com/" -> string!
 const Microsoft.Identity.Web.Constants.GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0" -> string!
 const Microsoft.Identity.Web.Constants.IDWebSku = "IDWeb." -> string!
@@ -108,6 +109,14 @@ const Microsoft.Identity.Web.OidcConstants.PolicyKey = "policy" -> string!
 const Microsoft.Identity.Web.OidcConstants.ScopeOfflineAccess = "offline_access" -> string!
 const Microsoft.Identity.Web.OidcConstants.ScopeOpenId = "openid" -> string!
 const Microsoft.Identity.Web.OidcConstants.ScopeProfile = "profile" -> string!
+Microsoft.Identity.Web.AtPopOperation
+Microsoft.Identity.Web.AtPopOperation.AccessTokenType.get -> string!
+Microsoft.Identity.Web.AtPopOperation.AtPopOperation(string! keyId, string! reqCnf) -> void
+Microsoft.Identity.Web.AtPopOperation.AuthorizationHeaderPrefix.get -> string!
+Microsoft.Identity.Web.AtPopOperation.FormatResult(Microsoft.Identity.Client.AuthenticationResult! authenticationResult) -> void
+Microsoft.Identity.Web.AtPopOperation.GetTokenRequestParams() -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.Identity.Web.AtPopOperation.KeyId.get -> string!
+Microsoft.Identity.Web.AtPopOperation.TelemetryTokenType.get -> int
 Microsoft.Identity.Web.AuthCodeRedemptionParameters
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCode.get -> string!
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCode.set -> void
@@ -281,6 +290,7 @@ static Microsoft.Identity.Web.MergedOptions.UpdateMergedOptionsFromConfidentialC
 static Microsoft.Identity.Web.MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! microsoftIdentityApplicationOptions, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> void
 static Microsoft.Identity.Web.MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(Microsoft.Identity.Web.MicrosoftIdentityOptions! microsoftIdentityOptions, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> void
 static Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(System.IServiceProvider! serviceProvider) -> void
+static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, string! popPublicKey, string! jwkClaim) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!
 static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, System.Security.Cryptography.X509Certificates.X509Certificate2! clientCertificate, string! popPublicKey, string! jwkClaim, string! clientId, bool sendX5C) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!
 static Microsoft.Identity.Web.TokenAcquirerFactory.ResetDefaultInstance() -> void
 static Microsoft.Identity.Web.TokenAcquisition.AcceptedTokenVersionMismatch(Microsoft.Identity.Client.MsalUiRequiredException! msalServiceException) -> bool
