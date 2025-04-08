@@ -26,6 +26,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v2.1.0
+      with:
+        dotnet-version: 10.0.100-preview.2.24157.14
+
     - name: Setup .NET 9.0.x
       uses: actions/setup-dotnet@v4
       with:
@@ -47,7 +52,10 @@ jobs:
 
     - name: Test with .NET 9.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
-
+    
+    - name: Test with .NET 10.0.x
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true -p:TargetNet10=True --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
+    
     - name: Test with .NET 6.0.x
       run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
