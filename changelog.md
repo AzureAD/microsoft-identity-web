@@ -1,3 +1,12 @@
+3.8.3
+========
+### Package updates
+- Updated to Microsoft.IdentityModel.* [8.8.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.8.0)
+- Updated to [MSAL.NET 4.70.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.70.1)
+  
+### New feature
+- `TokenAcquistion.cs` adds its service provider to the acquisition options. See issue [#3315](https://github.com/AzureAD/microsoft-identity-web/issues/3315) for details.
+
 3.8.2
 ========
 - Updated to Microsoft.Identity.Abstractions [9.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/9.0.0)
