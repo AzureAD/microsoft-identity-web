@@ -1,6 +1,19 @@
+3.8.3
+========
+### Package updates
+- Updated to Microsoft.IdentityModel.* [8.8.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.8.0)
+- Updated to [MSAL.NET 4.70.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.70.1)
+  
+### New feature
+- `TokenAcquistion.cs` adds its service provider to the acquisition options. See issue [#3315](https://github.com/AzureAD/microsoft-identity-web/issues/3315) for details.
+
 3.8.2
 ========
 - Updated to Microsoft.Identity.Abstractions [9.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/9.0.0)
+
+### New feature
+- An exception is now thrown if MSAL `TokenCacheNotificationArgs` indicates that distributed cache is configured when it should not have been. See [#3304](https://github.com/AzureAD/microsoft-identity-web/issues/3304).
+- Added support for federated identity credentials with AT_POP. See [#3299](https://github.com/AzureAD/microsoft-identity-web/pull/3299).
 
 3.8.1
 ========
