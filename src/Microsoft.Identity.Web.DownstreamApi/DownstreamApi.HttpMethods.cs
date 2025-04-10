@@ -16,7 +16,7 @@ using System.Text.Json.Serialization.Metadata;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamApi : IDownstreamApi
+    partial class DownstreamApi : IDownstreamApi
     {
         /// <inheritdoc/>
         public async Task<TOutput?> GetForUserAsync<TOutput>(
@@ -37,9 +37,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -73,9 +73,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -99,9 +99,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -134,9 +134,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -168,9 +168,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -204,9 +204,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -237,9 +237,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -272,9 +272,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -306,9 +306,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -342,9 +342,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -375,9 +375,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -410,9 +410,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -446,9 +446,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -482,9 +482,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -515,9 +515,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -550,9 +550,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -586,9 +586,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -622,9 +622,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -655,9 +655,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -690,9 +690,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -720,9 +720,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -758,9 +758,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -785,9 +785,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -822,9 +822,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -857,9 +857,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -895,9 +895,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -929,9 +929,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -966,9 +966,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1001,9 +1001,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1039,9 +1039,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1073,9 +1073,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1110,9 +1110,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1145,9 +1145,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1183,9 +1183,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1217,9 +1217,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1254,9 +1254,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1289,9 +1289,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1327,9 +1327,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1361,9 +1361,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
@@ -1398,9 +1398,9 @@ namespace Microsoft.Identity.Web
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
+                    effectiveOptions.BaseUrl!,
                     effectiveOptions.RelativePath!, ex);
                 throw;
             }
