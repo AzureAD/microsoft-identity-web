@@ -475,6 +475,76 @@ namespace TokenAcquirerTests
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
             Assert.NotNull(result.AccessToken);
         }
+
+        [Fact]
+        public async Task AcquireToken_LongRunningProcess_CustomKey_TestAsync()
+        {
+            // ---------------------------------------------
+            // 1) Setup & get the TokenAcquirer
+            // ---------------------------------------------
+            // Reset the static factory so we start clean
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+
+            // Create a default instance and build the service provider
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Build();
+
+            // Retrieve a lab user for testing
+            var labResponse = await LabUserHelper.GetDefaultUserAsync();
+            var labUser = labResponse.User;
+
+            // Create an ID Web 'ITokenAcquirer' with authority & credentials
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
+               authority: "https://login.microsoftonline.com/organizations",
+               clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
+               clientCredentials: s_clientCredentials);
+
+            // Build an incoming ClaimsPrincipal from the user’s U/P
+            var userPrincipal = ClaimsPrincipalFactory.FromUsernamePassword(
+                labUser.Upn,
+                labUser.GetOrFetchPassword());
+
+            // ---------------------------------------------
+            // 2) "Initiate" step - Acquire with user assertion & custom key
+            // ---------------------------------------------
+            // We'll store a "custom key" in AcquireTokenOptions. 
+            var firstOptions = new AcquireTokenOptions
+            {
+                LongRunningWebApiSessionKey = "MyCustomKey"
+            };
+
+            // Acquire an Access Token for the user
+            // (the user assertion is derived from userPrincipal)
+            var firstResult = await tokenAcquirer.GetTokenForUserAsync(
+                scopes: new[] { "https://graph.microsoft.com/.default" },
+                user: userPrincipal,
+                tokenAcquisitionOptions: firstOptions);
+
+            Assert.NotNull(firstResult);
+            Assert.False(string.IsNullOrEmpty(firstResult.AccessToken));
+
+            // ---------------------------------------------
+            // 3) "Acquire" step - Attempt to re-use that custom key
+            // ---------------------------------------------
+            var secondOptions = new AcquireTokenOptions
+            {
+                LongRunningWebApiSessionKey = "MyCustomKey"
+            };
+
+            var secondResult = await tokenAcquirer.GetTokenForUserAsync(
+                scopes: new[] { "https://graph.microsoft.com/.default" },
+                user: null,  // or no user param => "no fresh user assertion"
+                tokenAcquisitionOptions: secondOptions);
+
+            // ---------------------------------------------
+            // 4) Verify the second call re-used or re-fetched the token
+            // ---------------------------------------------
+            Assert.NotNull(secondResult);
+            Assert.False(string.IsNullOrEmpty(secondResult.AccessToken));
+
+            // Verify if it's the exact same token:
+            Assert.Equal(firstResult.AccessToken, secondResult.AccessToken);
+        }
     }
 
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
