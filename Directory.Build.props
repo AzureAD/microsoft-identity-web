@@ -104,6 +104,23 @@
     <PublicApiAnalyzersVersion>3.3.4</PublicApiAnalyzersVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <NetNineRuntimeVersion>10.0.0</NetNineRuntimeVersion>
+    <AspNetCoreNineRuntimeVersion>10.0.0</AspNetCoreNineRuntimeVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
