@@ -4,7 +4,6 @@
     <Product>Microsoft Identity Web downstream API</Product>
     <Description>Interface for higher level API for confidential client applications.</Description>
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
-    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
@@ -13,7 +12,7 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
   </ItemGroup>
   <ItemGroup>
