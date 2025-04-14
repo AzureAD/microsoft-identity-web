@@ -46,8 +46,8 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         public IActionResult SignIn(
             [FromRoute] string scheme,
             [FromQuery] string redirectUri,
-            [FromQuery] string loginHint,
-            [FromQuery] string domainHint)
+            [FromQuery] string? loginHint = null,
+            [FromQuery] string? domainHint = null)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             string redirect;
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                 authProps.Parameters[Constants.DomainHint] = domainHint;
             }
             return Challenge(
-                new AuthenticationProperties { RedirectUri = redirect },
+                authProps,
                 scheme);
         }
 
