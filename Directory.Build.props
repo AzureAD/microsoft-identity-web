@@ -104,8 +104,8 @@
     <PublicApiAnalyzersVersion>3.3.4</PublicApiAnalyzersVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '10.0.100-preview.3.25201.16'">
-    <NetTenRuntimeVersion>10.0.0-preview.3</NetTenRuntimeVersion>
+  <PropertyGroup Condition="'$(TargetFramework)' == '10.0.0-preview.3'">
+    <NetTenRuntimeVersion>10.0.100-preview.3.25201.16</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0-preview.3.25172.1</AspNetCoreTenRuntimeVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
