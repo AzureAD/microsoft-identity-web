@@ -1,0 +1,1 @@
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(string! scheme, string! redirectUri, string! loginHint, string! domainHint) -> Microsoft.AspNetCore.Mvc.IActionResult!
