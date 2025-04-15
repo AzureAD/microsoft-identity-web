@@ -33,7 +33,7 @@ steps:
   inputs:
     version: 10.0.100-preview.3.25201.16
     includePreviewVersions: true
-  condition: eq(variables['TargetNet10'], 'True')
+  condition: eq(variables['TargetNetNext'], 'True')
 
 # Run Nuget Tool Installer
 
