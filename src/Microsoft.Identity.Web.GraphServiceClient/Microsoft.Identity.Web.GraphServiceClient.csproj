@@ -23,6 +23,11 @@
     <PackageReference Include="Microsoft.Graph" Version="5.51.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Graph" Version="5.40.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(NetTenRuntimeVersion)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
