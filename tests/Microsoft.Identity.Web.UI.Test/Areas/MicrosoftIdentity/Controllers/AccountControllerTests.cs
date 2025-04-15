@@ -100,33 +100,11 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             urlHelperMock.Content("~/").Returns("/");
             _accountController.Url = urlHelperMock;
 
-            // Act
             var result = _accountController.SignIn(scheme, redirectUri, loginHint, domainHint);
-
-            // Assert
             var challengeResult = Assert.IsType<ChallengeResult>(result);
             var authProps = challengeResult.Properties;
             Assert.NotNull(authProps); // Ensure authProps is not null
             Assert.Equal("/", authProps.RedirectUri);
-        }
-
-        [Fact]
-        public void NavigationManager_CanRedirectToSignInWithParams()
-        {
-            // This test verifies the URL format used in Blazor
-            // In a real implementation, we'd use a TestNavigationManager but here we'll just verify the URL format
-            string email = "user@example.com";
-            string domain = "contoso.com";
-
-            // Build the URL as it would be in the Blazor component
-            string url = $"/MicrosoftIdentity/Account/SignIn?login_hint={Uri.EscapeDataString(email)}&domain_hint={Uri.EscapeDataString(domain)}";
-
-            // Verify the URL format is correct
-            Assert.Contains("login_hint=user%40example.com", url, StringComparison.Ordinal);
-            Assert.Contains("domain_hint=contoso.com", url, StringComparison.Ordinal);
-
-            // In a real scenario, we might use the NavigationManager like this:
-            // _navigationManager.NavigateTo(url);
         }
     }
 }
