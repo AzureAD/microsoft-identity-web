@@ -26,7 +26,7 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNet10)' == 'True'">net6.0; net7.0; net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
