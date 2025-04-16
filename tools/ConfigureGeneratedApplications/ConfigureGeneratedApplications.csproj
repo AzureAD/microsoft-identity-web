@@ -8,10 +8,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-  </ItemGroup>
-
   <PropertyGroup>
     <!--RS0016: Add public types and members to the declared API-->
     <NoWarn>RS0016</NoWarn>
