@@ -23,15 +23,11 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             _optionsMonitorMock = Substitute.For<IOptionsMonitor<MicrosoftIdentityOptions>>();
             _optionsMonitorMock.Get(Arg.Any<string>()).Returns(new MicrosoftIdentityOptions());
-
             _accountController = new AccountController(_optionsMonitorMock);
-
             var urlHelperMock = Substitute.For<IUrlHelper>();
             urlHelperMock.IsLocalUrl(Arg.Any<string>()).Returns(true);
             urlHelperMock.Content("~/").Returns("/");
-
             _accountController.Url = urlHelperMock;
-
             _accountController.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext()
