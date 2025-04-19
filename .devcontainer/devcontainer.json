@@ -17,7 +17,7 @@
                 "ms-dotnettools.csdevkit"
             ],
             "settings": {
-                "dotnet.defaultSolution": "Microsoft.Identity.Web.sln",
+                "dotnet.defaultSolution": "Microsoft.Identity.Web.sln.linux.slnf",
                 "omnisharp.enableRoslynAnalyzers": true,
                 "omnisharp.enableEditorConfigSupport": true,
                 "omnisharp.enableImportCompletion": true
