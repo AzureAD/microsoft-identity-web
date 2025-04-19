@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web.Test
 {
     public class MergedOptionsTests
     {
-        // appliation options
+        // application options
         private readonly string _appOptionsAuthority = "microsoftIdentityApplicationOptionsAuthority";
         private readonly string _appOptionsAzureRegion = "microsoftIdentityApplicationOptionsAzureRegion";
         private readonly string[] _appOptionsClientCapabilities = new string[] { "microsoftIdentityApplicationOptionsClientCapabilities" };
@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web.Test
         private readonly string _appOptionsPasswordRestId = "microsoftIdentityApplicationOptionsResetPasswordPolicyId";
         private readonly string _appOptionsSuSiPolicyId = "microsoftIdentityApplicationOptionsSignUpSignInPolicyId";
         private readonly string _appOptionsTenantId = "microsoftIdentityApplicationOptionsTenantId";
-        private readonly IEnumerable<CredentialDescription> _appOptionsTokenDecyrptCreds = new CredentialDescription[] { new CredentialDescription() };
+        private readonly IEnumerable<CredentialDescription> _appOptionsTokenDecryptCreds = new CredentialDescription[] { new CredentialDescription() };
 
         // MS Identity options
         private readonly string _msIdentityOptionsAccessDeniedPath = "/microsoftIdentityOptionsAccessDeniedPath";
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web.Test
             microsoftIdentityApplicationOptions.SendX5C = true;
             microsoftIdentityApplicationOptions.SignUpSignInPolicyId = _appOptionsSuSiPolicyId;
             microsoftIdentityApplicationOptions.TenantId = _appOptionsTenantId;
-            microsoftIdentityApplicationOptions.TokenDecryptionCredentials = _appOptionsTokenDecyrptCreds;
+            microsoftIdentityApplicationOptions.TokenDecryptionCredentials = _appOptionsTokenDecryptCreds;
             microsoftIdentityApplicationOptions.WithSpaAuthCode = true;
 
             // Act
@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(mergedOptions.SendX5C);
             Assert.Equal(_appOptionsSuSiPolicyId, mergedOptions.SignUpSignInPolicyId);
             Assert.Equal(_appOptionsTenantId, mergedOptions.TenantId);
-            Assert.Equal(_appOptionsTokenDecyrptCreds, mergedOptions.TokenDecryptionCredentials!);
+            Assert.Equal(_appOptionsTokenDecryptCreds, mergedOptions.TokenDecryptionCredentials!);
             Assert.True(mergedOptions.WithSpaAuthCode);
         }
 
@@ -238,6 +238,59 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(mergedOptions.UsePkce);
             Assert.True(mergedOptions.UseTokenLifetime);
             Assert.True(mergedOptions.WithSpaAuthCode);
+        }
+
+        [Theory]
+        [InlineData("https://login.microsoftonline.com", "https://login.microsoftonline.com/")]
+        [InlineData("https://login.microsoftonline.com/", "https://login.microsoftonline.com/")] // Already has trailing slash
+        public void PrepareAuthorityInstanceForMsal_PreparesInstance_WhenInstanceIsSet(
+            string instance,
+            string expectedPreparedInstance)
+        {
+            // Arrange
+            var options = new MergedOptions { Instance = instance, TenantId = "common" }; // TenantId is set, so Authority shouldn't be parsed
+
+            // Act
+            options.PrepareAuthorityInstanceForMsal();
+
+            // Assert
+            Assert.Equal(expectedPreparedInstance, options.PreparedInstance);
+            Assert.Equal(instance, options.Instance); // Original Instance remains unchanged
+        }
+
+        [Fact]
+        public void PrepareAuthorityInstanceForMsal_DoesNothing_WhenAuthorityAndInstanceAreNull()
+        {
+            // Arrange
+            var options = new MergedOptions();
+
+            // Act
+            options.PrepareAuthorityInstanceForMsal();
+
+            // Assert
+            Assert.Null(options.Instance);
+            Assert.Null(options.TenantId);
+            Assert.Null(options.PreparedInstance);
+        }
+
+        [Fact]
+        public void PrepareAuthorityInstanceForMsal_DoesNotParseAuthority_WhenInstanceAndTenantIdAreSet()
+        {
+            // Arrange
+            var options = new MergedOptions
+            {
+                Authority = "https://login.microsoftonline.com/common", // Should be ignored
+                Instance = "https://login.microsoftonline.us/",
+                TenantId = "organizations"
+            };
+
+            // Act
+            options.PrepareAuthorityInstanceForMsal();
+
+            // Assert
+            Assert.Equal("https://login.microsoftonline.us/", options.Instance); // Instance remains unchanged
+            Assert.Equal("organizations", options.TenantId); // TenantId remains unchanged
+            Assert.Equal("https://login.microsoftonline.us/", options.PreparedInstance); // PreparedInstance based on original Instance
         }
     }
 }
