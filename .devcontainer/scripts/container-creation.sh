@@ -2,6 +2,8 @@
 
 set -e
 
+dotnet restore
+
 # Add .NET Dev Certs to environment to facilitate debugging.
 # Do **NOT** do this in a public base image as all images inheriting
 # from the base image would inherit these dev certs as well.
