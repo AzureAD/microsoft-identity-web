@@ -6,8 +6,13 @@
     <ProjectGuid>{74737C0A-25E6-4E2C-B3AA-F7EECB7A07C7}</ProjectGuid>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--
+      Required because the binding source generation doesn't work with types that
+      cannot be instantianted
+    -->
+    <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
   </PropertyGroup>
-
+  
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion)" />

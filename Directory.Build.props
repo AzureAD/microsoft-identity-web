@@ -44,12 +44,13 @@
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET6_0_OR_GREATER'">
-    <IsTrimmable>true</IsTrimmable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
-    <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>true</EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <!--
+      SYSLIB0026;SYSLIB0027;SYSLIB0028 - needed because the JSON source generator issue https://github.com/dotnet/runtime/issues/101738
+    -->
+    <NoWarn>$(NoWarn);SYSLIB0026;SYSLIB0027;SYSLIB0028</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">

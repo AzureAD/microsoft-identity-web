@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
@@ -59,9 +60,6 @@
     <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == 'NET8_0_OR_GREATER'">
-    <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>true</EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
-  </PropertyGroup>
 
   <PropertyGroup>
     <!--RS0016: Add public types and members to the declared API-->

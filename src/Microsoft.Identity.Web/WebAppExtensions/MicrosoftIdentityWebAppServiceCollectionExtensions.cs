@@ -32,9 +32,6 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToOpenIdConnectMiddlewareDiagnosticsEvents">Set to true if you want to debug, or just understand the OpenIdConnect events.</param>
         /// <param name="displayName">A display name for the authentication handler.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApp(AuthenticationBuilder, IConfiguration, String, String, String, Boolean, String).")]
-#endif
 
         public static MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebAppAuthentication(
             this IServiceCollection services,
