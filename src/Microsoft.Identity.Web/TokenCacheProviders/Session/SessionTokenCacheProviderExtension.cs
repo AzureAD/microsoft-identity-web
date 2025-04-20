@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,6 +13,10 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
     /// <summary>
     /// Extension class to add a session token cache serializer to MSAL.
     /// </summary>
+#if NET8_0_OR_GREATER
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
     public static class SessionTokenCacheProviderExtension
     {
         /// <summary>

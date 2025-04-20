@@ -12,6 +12,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Builder for web API authentication with configuration.
     /// </summary>
+#if NET8_0_OR_GREATER
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
     public class MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebApiAuthenticationBuilder
     {
         internal MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(

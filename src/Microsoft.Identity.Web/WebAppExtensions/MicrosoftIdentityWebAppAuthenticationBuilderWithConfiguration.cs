@@ -13,6 +13,10 @@ namespace Microsoft.Identity.Web
     /// Builder for a Microsoft identity web app authentication where configuration is
     /// available for EnableTokenAcquisitionToCallDownstreamApi.
     /// </summary>
+#if NET8_0_OR_GREATER
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
     public class MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebAppAuthenticationBuilder
     {
         /// <summary>

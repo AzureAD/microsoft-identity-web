@@ -22,6 +22,9 @@ namespace Microsoft.Identity.Web
     [Obsolete("Use DownstreamApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
     [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET8_0_OR_GREATER
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif    
     public class DownstreamWebApi : IDownstreamWebApi
 #pragma warning restore CS0618 // Type or member is obsolete
     {
@@ -110,7 +113,7 @@ namespace Microsoft.Identity.Web
         /// <inheritdoc/>
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
-#endif
+#endif  
         public async Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="builder"></param>
         /// <returns>The service collection</returns>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
         public static IServiceCollection AddSessionTokenCaches(this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder)
         {
             _ = Throws.IfNull(builder);

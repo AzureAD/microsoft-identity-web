@@ -13,7 +13,7 @@ using Microsoft.Kiota.Abstractions.Authentication;
 
 namespace Microsoft.Identity.Web
 {
-#if !NET472 && !NET462 && !NETSTANDARD2_0
+#if NETCOREAPP
     /// <summary>
     /// Extensions methods on a MicrosoftIdentityAppCallingWebApiAuthenticationBuilder builder
     /// to add support to call Microsoft Graph.
@@ -26,6 +26,10 @@ namespace Microsoft.Identity.Web
         /// <param name="builder">Builder.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder to chain.</returns>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddMicrosoftGraph(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             IConfigurationSection configurationSection)

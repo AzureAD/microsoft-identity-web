@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">The services being configured.</param>
         /// <returns>Services.</returns>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Uses ScopeOrAppPermissionAuthorizationHandler.")]
+#endif
         public static IServiceCollection AddRequiredScopeOrAppPermissionAuthorization(this IServiceCollection services)
         {
             services.AddAuthorization();

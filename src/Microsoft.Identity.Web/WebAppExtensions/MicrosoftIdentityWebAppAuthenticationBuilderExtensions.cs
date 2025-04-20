@@ -22,6 +22,10 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for the <see cref="AuthenticationBuilder"/> for startup initialization.
     /// </summary>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
     public static class MicrosoftIdentityWebAppAuthenticationBuilderExtensions
     {
         /// <summary>

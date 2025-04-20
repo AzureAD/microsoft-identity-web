@@ -575,6 +575,21 @@ dotnet_diagnostic.SA1642.severity = none
 
 ## SA1649: File name should match first type name
 dotnet_diagnostic.SA1649.severity = none
+
+
+[*.g.cs]
+# RS0030: Do not used banned APIs
+dotnet_diagnostic.RS0030.severity = none
+
+# https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/Microsoft.CodeAnalysis.PublicApiAnalyzers.md
+dotnet_diagnostic.RS0051.severity = none
+dotnet_diagnostic.RS0052.severity = none
+dotnet_diagnostic.RS0053.severity = none
+dotnet_diagnostic.RS0054.severity = none
+dotnet_diagnostic.RS0055.severity = none
+dotnet_diagnostic.RS0057.severity = none
+dotnet_diagnostic.RS0058.severity = none
+dotnet_diagnostic.RS0061.severity = none
 #########################################################
 #########################################################
 

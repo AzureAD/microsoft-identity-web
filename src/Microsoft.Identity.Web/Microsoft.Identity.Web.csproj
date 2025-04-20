@@ -12,7 +12,11 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <!--
+      Required because the binding source generation doesn't work with types that
+      cannot be instantianted
+    -->
+    <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
   </PropertyGroup>
 
   <ItemGroup>

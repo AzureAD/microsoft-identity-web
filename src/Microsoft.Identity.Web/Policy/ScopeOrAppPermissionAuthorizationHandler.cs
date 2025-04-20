@@ -18,6 +18,9 @@ namespace Microsoft.Identity.Web
     ///  Scope or app permission authorization handler that needs to be called for a specific requirement type.
     ///  In this case, <see cref="ScopeOrAppPermissionAuthorizationRequirement"/>.
     /// </summary>
+#if NET8_0_OR_GREATER
+    [RequiresUnreferencedCode("Calls ConfigurationBinder.GetValue(IConfiguration,String).")]
+#endif    
     internal class ScopeOrAppPermissionAuthorizationHandler : AuthorizationHandler<ScopeOrAppPermissionAuthorizationRequirement>
     {
         private readonly IConfiguration _configuration;

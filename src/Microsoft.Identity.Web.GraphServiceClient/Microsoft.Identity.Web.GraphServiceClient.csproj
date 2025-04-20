@@ -11,6 +11,11 @@
     <ProjectGuid>{4DF02DF7-D092-4F45-8892-8A1D3E612706}</ProjectGuid>
     <PackageValidationBaselineVersion>2.12.2</PackageValidationBaselineVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--
+      Required because the binding source generation doesn't work with types that
+      cannot be instantianted
+    -->
+    <EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">

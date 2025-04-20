@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -14,6 +15,7 @@ namespace Microsoft.Identity.Web.Resource
     /// Diagnostics used in the OpenID Connect middleware
     /// (used in web apps).
     /// </summary>
+    [RequiresUnreferencedCode("Uses reflection on non-sealed type.")]
     public class OpenIdConnectMiddlewareDiagnostics : IOpenIdConnectMiddlewareDiagnostics
     {
         private readonly ILogger _logger;
@@ -123,6 +125,7 @@ namespace Microsoft.Identity.Web.Resource
             _onSignedOutCallbackRedirect = events.OnSignedOutCallbackRedirect;
             events.OnSignedOutCallbackRedirect = OnSignedOutCallbackRedirectAsync;
         }
+
 
         private async Task OnRedirectToIdentityProviderAsync(RedirectContext context)
         {

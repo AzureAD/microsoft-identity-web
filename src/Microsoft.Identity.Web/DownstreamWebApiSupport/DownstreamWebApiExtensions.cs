@@ -25,6 +25,10 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use AddDownstreamApi in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls Configure<TOptions>(IServiceCollection,string?,IConfiguration")]
+        [RequiresUnreferencedCode("Calls Configure<TOptions>(IServiceCollection,string?,IConfiguration)")]
+#endif    
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDownstreamWebApi(
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             string serviceName,

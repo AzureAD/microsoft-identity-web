@@ -78,8 +78,9 @@ namespace Microsoft.Identity.Web
         ///  [!code-csharp[ConvertType](~/../tests/DevApps/aspnet-mvc/OwinWebApp/App_Start/Startup.Auth.cs?highlight=22)]
         /// ]]></format>
         /// </example>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
         static public T GetDefaultInstance<T>(string configSection="AzureAd") where T : TokenAcquirerFactory, new()
         {
@@ -121,8 +122,9 @@ namespace Microsoft.Identity.Web
         ///  [!code-csharp[ConvertType](~/../tests/DevApps/daemon-app/daemon-console-calling-msgraph/Program.cs?highlight=5)]
         /// ]]></format>
         /// </example>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
         static public TokenAcquirerFactory GetDefaultInstance(string configSection = "AzureAd")
         {
@@ -247,8 +249,7 @@ namespace Microsoft.Identity.Web
         /// <returns>Returns the base path for configuration files</returns>
         protected virtual string DefineConfiguration(IConfigurationBuilder builder)
         {
-            Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-            return Path.GetDirectoryName(assembly!.Location)!;
+            return Path.GetDirectoryName(AppContext.BaseDirectory)!;
         }
 
         ITokenAcquirerFactory implementation;

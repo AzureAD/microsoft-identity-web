@@ -25,6 +25,10 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JwtBearer events.</param>
         /// <returns>The authentication builder to chain extension methods.</returns>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object)")]
+#endif
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApiAuthentication(
             this IServiceCollection services,
             IConfiguration configuration,

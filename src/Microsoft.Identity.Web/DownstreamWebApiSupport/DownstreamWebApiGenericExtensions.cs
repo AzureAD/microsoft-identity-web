@@ -41,6 +41,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif    
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -85,6 +88,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif    
         public static async Task GetForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -132,6 +138,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif    
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -181,6 +190,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -228,6 +240,9 @@ namespace Microsoft.Identity.Web
         [EditorBrowsable(EditorBrowsableState.Never)]
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
+#endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
 #endif
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
@@ -277,6 +292,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -299,6 +317,9 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
 #endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif
         private static StringContent ConvertFromInput<TInput>(TInput input)
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
@@ -306,6 +327,9 @@ namespace Microsoft.Identity.Web
 
 #if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
+#endif
+#if NET8_0_OR_GREATER
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
 #endif
         private static async Task<TOutput?> ConvertToOutputAsync<TOutput>(HttpResponseMessage response)
             where TOutput : class
@@ -318,7 +342,7 @@ namespace Microsoft.Identity.Web
             {
                 string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-#if NET5_0_OR_GREATER
+#if NETCOREAPP
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
 #else
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}");

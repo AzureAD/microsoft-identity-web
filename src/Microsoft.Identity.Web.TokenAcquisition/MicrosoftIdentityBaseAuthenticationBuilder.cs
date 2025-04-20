@@ -23,8 +23,9 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">The services being configured.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
         protected MicrosoftIdentityBaseAuthenticationBuilder(
             IServiceCollection services,
@@ -38,6 +39,9 @@ namespace Microsoft.Identity.Web
             IdentityModelEventSource.ShowPII = logOptions.EnablePiiLogging;
         }
 
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue(IConfiguration, String).")]
+#endif
         internal static void SetIdentityModelLogger(IServiceProvider serviceProvider)
         {
             if (serviceProvider != null)
