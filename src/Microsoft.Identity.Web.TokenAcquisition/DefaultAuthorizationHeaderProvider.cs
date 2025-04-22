@@ -110,6 +110,7 @@ namespace Microsoft.Identity.Web
                 Tenant = downstreamApiOptions?.AcquireTokenOptions.Tenant,
                 UserFlow = downstreamApiOptions?.AcquireTokenOptions.UserFlow,
                 PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
+                FmiPath = downstreamApiOptions?.AcquireTokenOptions.FmiPath,
             };
         }
     }
