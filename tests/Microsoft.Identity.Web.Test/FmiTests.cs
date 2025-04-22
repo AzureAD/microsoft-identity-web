@@ -18,17 +18,12 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task FmiPathSentToEndpointTest()
         {
-            await RunHappyPathTestAsync();
-        }
-
-        private async Task RunHappyPathTestAsync()
-        {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactoryForFmi();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
 
-            mockHttpClient?.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
+            mockHttpClient!.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
                 System.Net.Http.HttpMethod.Post,
                 new Dictionary<string, string>() { { "fmi_path", "somePath" } }));
 

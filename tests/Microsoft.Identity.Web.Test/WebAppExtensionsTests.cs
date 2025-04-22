@@ -1137,10 +1137,10 @@ namespace Microsoft.Identity.Web.Test
             // and diff the files to find what are the new properties.
             int numberOfProperties = typeof(OpenIdConnectOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 #if NET9_0_OR_GREATER
-            int expectedNumberOfProperties = 63;
+            int expectedNumberOfProperties = 62;
             //string filePath = @"C:\temp\net9.txt";
 #elif NET8_0
-            int expectedNumberOfProperties = 61;
+            int expectedNumberOfProperties = 60;
             //string filePath = @"C:\temp\net8.txt";
 #else
             int expectedNumberOfProperties = 58;
@@ -1155,7 +1155,7 @@ namespace Microsoft.Identity.Web.Test
         {
             int numProps = typeof(JwtBearerOptions).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Length;
 #if NET8_0_OR_GREATER
-            int expectedNumberOfProperties = 33;
+            int expectedNumberOfProperties = 32;
 #else
             int expectedNumberOfProperties = 30;
 #endif
