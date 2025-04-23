@@ -1143,7 +1143,7 @@ namespace Microsoft.Identity.Web.Test
             int expectedNumberOfProperties = 60;
             //string filePath = @"C:\temp\net8.txt";
 #else
-            int expectedNumberOfProperties = 58;
+            int expectedNumberOfProperties = 57;
             //string filePath = @"C:\temp\net7Below.txt";
 #endif
             //System.IO.File.WriteAllLines(filePath, typeof(OpenIdConnectOptions).GetProperties().Select(p => p.Name));
@@ -1157,7 +1157,7 @@ namespace Microsoft.Identity.Web.Test
 #if NET8_0_OR_GREATER
             int expectedNumberOfProperties = 32;
 #else
-            int expectedNumberOfProperties = 30;
+            int expectedNumberOfProperties = 29;
 #endif
             Assert.Equal(expectedNumberOfProperties, numProps);
         }
