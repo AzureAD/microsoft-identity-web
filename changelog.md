@@ -1,7 +1,7 @@
 3.8.4
 ========
 ### Package updates
-- Microsoft.IdentityModel updated to version [8.8.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.8.0).
+- Microsoft.IdentityModel updated to version [8.9.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.9.0).
 - MSAL.NET updated to version [MSAL.NET 4.71.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.71.0).
 
 ### Bug fixes
