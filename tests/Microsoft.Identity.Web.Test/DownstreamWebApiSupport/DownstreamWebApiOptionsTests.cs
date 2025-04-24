@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
                 Tenant = "tenant",
                 UserFlow = "flow",
                 IsProofOfPossessionRequest = true,
-                TokenAcquisitionOptions = new TokenAcquisitionOptions { Claims = "claims", },
+                TokenAcquisitionOptions = new TokenAcquisitionOptions { Claims = "claims", FmiPath = "fmiPath"},
                 AuthenticationScheme = "scheme",
                 BaseUrl = "base",
                 RelativePath = "relative",
