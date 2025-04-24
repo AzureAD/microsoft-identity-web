@@ -17,19 +17,19 @@ namespace Microsoft.Identity.Web
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
                     LoggingEventId.TokenAcquisitionError,
-                    "[MsIdWeb] An error occured during token acquisition: {MsalErrorMessage}");
+                    "[MsIdWeb] An error occured during token acquisition: {0}");
 
             private static readonly Action<ILogger, long, long, long, string, string, string, Exception?> s_tokenAcquisitionMsalAuthenticationResultTime =
                 LoggerMessage.Define<long, long, long, string, string, string>(
                     LogLevel.Debug,
                     LoggingEventId.TokenAcquisitionMsalAuthenticationResultTime,
                     "[MsIdWeb] Time to get token with MSAL: " +
-                    "DurationTotalInMs: {DurationTotalInMs} " +
-                    "DurationInHttpInMs: {DurationInHttpInMs} " +
-                    "DurationInCacheInMs: {DurationInCacheInMs} " +
-                    "TokenSource: {TokenSource} " +
-                    "CorrelationId: {CorrelationId} " +
-                    "CacheRefreshReason: {CacheRefreshReason} ");
+                    "DurationTotalInMs: {0} " +
+                    "DurationInHttpInMs: {1} " +
+                    "DurationInCacheInMs: {2} " +
+                    "TokenSource: {3} " +
+                    "CorrelationId: {4} " +
+                    "CacheRefreshReason: {5} ");
 
             /// <summary>
             /// Logger for handling MSAL exceptions in TokenAcquisition.
