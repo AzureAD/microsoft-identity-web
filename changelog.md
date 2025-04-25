@@ -1,3 +1,18 @@
+3.8.4
+========
+### Package updates
+- Microsoft.IdentityModel updated to version [8.9.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.9.0).
+- MSAL.NET updated to version [MSAL.NET 4.71.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.71.0).
+
+### Bug fixes
+- Fixed the issue where FmiPath was not persisted when copying/reinitializing AcquireTokenOptions. See [#3336](https://github.com/AzureAD/microsoft-identity-web/issues/3336).
+
+### New feature
+- Added support for Linux-friendly devcontainers. See [#3333](https://github.com/AzureAD/microsoft-identity-web/issues/3333) and [#3339](https://github.com/AzureAD/microsoft-identity-web/pull/3339).
+
+### Fundamentals
+- Removed System.Text.Json as an explicit dependency for .NET Core targets. See [#3331](https://github.com/AzureAD/microsoft-identity-web/issues/3331).
+
 3.8.3
 ========
 ### Package updates
