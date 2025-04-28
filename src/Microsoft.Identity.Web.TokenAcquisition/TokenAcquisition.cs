@@ -850,7 +850,7 @@ namespace Microsoft.Identity.Web
                 {
                     Logger.TokenAcquisitionError(
                                 _logger,
-                                IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
+                                IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded + ex.Message,
                                 ex);
                     throw;
                 }
