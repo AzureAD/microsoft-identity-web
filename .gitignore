@@ -357,3 +357,5 @@ MigrationBackup/
 /.SharedData
 /out/
 objd/
+/src/Microsoft.Identity.Web.TokenAcquisition/TokenAcquisition.Logger.cs
+/tests/E2E Tests/TokenAcquirerTests/TokenAcquirer.cs
