@@ -162,6 +162,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OidcIdpSignedAssertionProvi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.OidcFIC", "src\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj", "{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.UI.Test", "tests\Microsoft.Identity.Web.UI.Test\Microsoft.Identity.Web.UI.Test.csproj", "{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -381,6 +383,10 @@ Global
 		{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -454,6 +460,7 @@ Global
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {7786D2DD-9EE4-42E1-B587-740A2E15C41D}
 		{E927D215-A96C-626C-9A1A-CF99876FE7B4} = {45B20A78-91F8-4DD2-B9AD-F12D3A93536C}
 		{8DA7A2C6-00D4-4CF1-8145-448D7B7B4E5A} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
+		{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8} = {B4E72F1C-603F-437C-AAA1-153A604CD34A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

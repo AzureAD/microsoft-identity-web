@@ -39,11 +39,15 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// </summary>
         /// <param name="scheme">Authentication scheme.</param>
         /// <param name="redirectUri">Redirect URI.</param>
+        /// <param name="loginHint">Login hint (user's email address).</param>
+        /// <param name="domainHint">Domain hint.</param>
         /// <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         [HttpGet("{scheme?}")]
         public IActionResult SignIn(
             [FromRoute] string scheme,
-            [FromQuery] string redirectUri)
+            [FromQuery] string redirectUri,
+            [FromQuery] string? loginHint = null,
+            [FromQuery] string? domainHint = null)
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             string redirect;
@@ -55,9 +59,18 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             {
                 redirect = Url.Content("~/")!;
             }
+            var authProps = new AuthenticationProperties { RedirectUri = redirect };
+            if (!string.IsNullOrEmpty(loginHint))
+            {
+                authProps.Parameters[Constants.LoginHint] = loginHint;
+            }
 
+            if (!string.IsNullOrEmpty(domainHint))
+            {
+                authProps.Parameters[Constants.DomainHint] = domainHint;
+            }
             return Challenge(
-                new AuthenticationProperties { RedirectUri = redirect },
+                authProps,
                 scheme);
         }
 
