@@ -851,7 +851,7 @@ namespace Microsoft.Identity.Web
                     Logger.TokenAcquisitionError(
                                 _logger,
                                 IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                null);
+                                ex);
                     throw;
                 }
 
@@ -874,7 +874,7 @@ namespace Microsoft.Identity.Web
             {
                 Logger.TokenAcquisitionError(
                     _logger,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message,
                     ex);
                 throw;
             }
