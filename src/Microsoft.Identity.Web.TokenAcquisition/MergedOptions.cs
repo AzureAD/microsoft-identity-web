@@ -473,14 +473,9 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
-            if (string.IsNullOrEmpty(Instance))
-            {
-                return;
-            }
-
             if (IsB2C && Instance.EndsWith("/tfp/", StringComparison.OrdinalIgnoreCase))
             {
-#if NETCOREAPP
+#if !NETSTANDARD2_0 && !NET462 && !NET472
                 PreparedInstance = Instance.Replace("/tfp/", string.Empty, StringComparison.OrdinalIgnoreCase).TrimEnd('/') + "/";
 #else
                 PreparedInstance = Instance.Replace("/tfp/", string.Empty).TrimEnd('/') + "/";
