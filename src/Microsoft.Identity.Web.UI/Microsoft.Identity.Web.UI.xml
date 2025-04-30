@@ -16,12 +16,14 @@
             </summary>
             <param name="microsoftIdentityOptionsMonitor">Configuration options.</param>
         </member>
-        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(System.String,System.String)">
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(System.String,System.String,System.String,System.String)">
             <summary>
             Handles user sign in.
             </summary>
             <param name="scheme">Authentication scheme.</param>
             <param name="redirectUri">Redirect URI.</param>
+            <param name="loginHint">Login hint (user's email address).</param>
+            <param name="domainHint">Domain hint.</param>
             <returns>Challenge generating a redirect to Azure AD to sign in the user.</returns>
         </member>
         <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
