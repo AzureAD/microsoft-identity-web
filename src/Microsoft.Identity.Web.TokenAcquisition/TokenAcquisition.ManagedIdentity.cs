@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
@@ -62,6 +64,7 @@ namespace Microsoft.Identity.Web
                 // Build the application
                 application = BuildManagedIdentityApplication(
                     managedIdentityId,
+                    mergedOptions.ClientCapabilities,
                     mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging
                 );
 
@@ -80,17 +83,36 @@ namespace Microsoft.Identity.Web
         /// Creates a managed identity client application.
         /// </summary>
         /// <param name="managedIdentityId">Indicates if system-assigned or user-assigned managed identity is used.</param>
+        /// <param name="capabilities">Indicates the capabilities of the managed identity application.</param>
         /// <param name="enablePiiLogging">Indicates if logging that may contain personally identifiable information is enabled.</param>
         /// <returns>A managed identity application.</returns>
-        private IManagedIdentityApplication BuildManagedIdentityApplication(ManagedIdentityId managedIdentityId, bool enablePiiLogging)
+        private IManagedIdentityApplication BuildManagedIdentityApplication(
+            ManagedIdentityId managedIdentityId,
+            IEnumerable<string>? capabilities,
+            bool enablePiiLogging)
         {
-            return ManagedIdentityApplicationBuilder
+            ManagedIdentityApplicationBuilder miBuilder = ManagedIdentityApplicationBuilder
                 .Create(managedIdentityId)
                 .WithLogging(
                     Log,
                     ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
-                    enablePiiLogging: enablePiiLogging)
-                .Build();
+                    enablePiiLogging: enablePiiLogging);
+
+            if (capabilities?.Any() == true)
+            {
+                miBuilder.WithClientCapabilities(capabilities);
+            }
+
+            // TEST-ONLY: if a test has supplied a factory, use it; otherwise stay default
+            // Default factory is handled by MSAL
+            if (ManagedIdentityTestHooks.HttpClientFactoryOverride is not null)
+            { 
+                miBuilder.WithHttpClientFactory(
+                ManagedIdentityTestHooks.HttpClientFactoryOverride);
+            }
+
+            return miBuilder.Build();
+
         }
 
         /// <summary>
