@@ -57,7 +57,7 @@ dotnet tool uninstall --global msidentity-app-sync
 Have an AAD or B2C tenant (or both). 
 - If you want to add an AAD registration, you are usually already signed-in in Visual Studio in a tenant. If needed you can create your own tenant by following this quickstart [Setup a tenant](https://learn.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant). But be sure to sign-out and sign-in from Visual Studio or Azure CLI so that this tenant is known in the shared token cache.
 
-- If you want to add an AAD B2C registration you'll need a B2C tenant, and explicity pass it to the `--tenant-id` option of the tool. As well as the sign-up/sign-in policy `--susi-policy-id`. To create a B2C tenant, see [Create a B2C tenant](https://learn.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant).
+- If you want to add an AAD B2C registration you'll need a B2C tenant, and explicitly pass it to the `--tenant-id` option of the tool. As well as the sign-up/sign-in policy `--susi-policy-id`. To create a B2C tenant, see [Create a B2C tenant](https://learn.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant).
 
 ## Using the tool
 
@@ -104,7 +104,7 @@ Options:
   -?, -h, --help                       Show help and usage information
 ```
 
-If you use PowerShell, or Bash, you can also get the completion in the shell, provivided you install [dotnet-suggest](https://www.nuget.org/packages/dotnet-suggest/). See https://github.com/dotnet/command-line-api/blob/main/docs/dotnet-suggest.md on how to configure the shell so that it leverages dotnet-suggest.
+If you use PowerShell, or Bash, you can also get the completion in the shell, provided you install [dotnet-suggest](https://www.nuget.org/packages/dotnet-suggest/). See https://github.com/dotnet/command-line-api/blob/main/docs/dotnet-suggest.md on how to configure the shell so that it leverages dotnet-suggest.
 
 ## Scenarios
 
@@ -220,7 +220,7 @@ msidentity-app-sync [--tenant-id <tenantId>] --client-id <clientId>
 
 ## Supported frameworks
 
-The tool supports ASP.NET Core applications created with .NET 5.0 and netcoreapp3.1. In the case of netcoreapp3.1, for blazorwasm applictions, the redirect URI created for the app is a "Web" redirect URI (as Blazor web assembly leverages MSAL.js 1.x in netcoreapp3.1), whereas in net5.0 it's a "SPA" redirect URI (as Blazor web assembly leverages MSAL.js 2.x in net5.0) 
+The tool supports ASP.NET Core applications created with .NET 5.0 and netcoreapp3.1. In the case of netcoreapp3.1, for blazorwasm applications, the redirect URI created for the app is a "Web" redirect URI (as Blazor web assembly leverages MSAL.js 1.x in netcoreapp3.1), whereas in net5.0 it's a "SPA" redirect URI (as Blazor web assembly leverages MSAL.js 2.x in net5.0) 
 
 ```Shell
 dotnet new blazorwasm --auth SingleOrg --framework netcoreapp3.1

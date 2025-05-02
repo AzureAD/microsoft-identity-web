@@ -1,3 +1,35 @@
+3.8.4
+========
+### Package updates
+- Microsoft.IdentityModel updated to version [8.9.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.9.0).
+- MSAL.NET updated to version [MSAL.NET 4.71.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.71.0).
+
+### Bug fixes
+- Fixed the issue where FmiPath was not persisted when copying/reinitializing AcquireTokenOptions. See [#3336](https://github.com/AzureAD/microsoft-identity-web/issues/3336).
+
+### New feature
+- Added support for Linux-friendly devcontainers. See [#3333](https://github.com/AzureAD/microsoft-identity-web/issues/3333) and [#3339](https://github.com/AzureAD/microsoft-identity-web/pull/3339).
+
+### Fundamentals
+- Removed System.Text.Json as an explicit dependency for .NET Core targets. See [#3331](https://github.com/AzureAD/microsoft-identity-web/issues/3331).
+
+3.8.3
+========
+### Package updates
+- Updated to Microsoft.IdentityModel.* [8.8.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.8.0)
+- Updated to [MSAL.NET 4.70.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.70.1)
+  
+### New feature
+- `TokenAcquistion.cs` adds its service provider to the acquisition options. See issue [#3315](https://github.com/AzureAD/microsoft-identity-web/issues/3315) for details.
+
+3.8.2
+========
+- Updated to Microsoft.Identity.Abstractions [9.0.0](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/releases/tag/9.0.0)
+
+### New feature
+- An exception is now thrown if MSAL `TokenCacheNotificationArgs` indicates that distributed cache is configured when it should not have been. See [#3304](https://github.com/AzureAD/microsoft-identity-web/issues/3304).
+- Added support for federated identity credentials with AT_POP. See [#3299](https://github.com/AzureAD/microsoft-identity-web/pull/3299).
+
 3.8.1
 ========
 ### New features
@@ -11,7 +43,7 @@
 ### New feature
 - Updated to Microsoft.IdentityModel.* [8.6.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.6.1)
 - Updated to [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) 4.69.1
-- Updated the Json Schema to include extensiblity for signed assertion providers. See [#3235](https://github.com/AzureAD/microsoft-identity-web/pull/3235)
+- Updated the Json Schema to include extensibility for signed assertion providers. See [#3235](https://github.com/AzureAD/microsoft-identity-web/pull/3235)
 - Added support for Federation Identity Credential on any OIDC Idp (FIC+OIDC credential provider). See [#3255](https://github.com/AzureAD/microsoft-identity-web/pull/3255)
 - Support for acquiring token for Federation Managed Identity (FMI). Supports the `FmiPath` property of `AcquireTokenOptions`. See [#3247](https://github.com/AzureAD/microsoft-identity-web/issues/3247)
 - Downstream APIs now support Authorization headers with a custom SAML bearer syntax. See [#3273](https://github.com/AzureAD/microsoft-identity-web/pull/3273)
@@ -22,7 +54,7 @@
 
 ## Fundamentals
 - Removed old Blazorwasm sample, wasm-tools and added new blazor web API: [#3259](https://github.com/AzureAD/microsoft-identity-web/pull/3259), [#3257](https://github.com/AzureAD/microsoft-identity-web/pull/3257), [#3254](https://github.com/AzureAD/microsoft-identity-web/pull/3254)
-- Modified the build so that, in CI/CD internal builds, the NuGet.olg NuGet source is replaced by a managed Nuget source. More verbose information added. See [#3263](https://github.com/AzureAD/microsoft-identity-web/pull/3263)
+- Modified the build so that, in CI/CD internal builds, the NuGet.org NuGet source is replaced by a managed Nuget source. More verbose information added. See [#3263](https://github.com/AzureAD/microsoft-identity-web/pull/3263)
 - Fixed CS8602 Warnings in Weather.razor (BlazorApp) – Handle Nullable forecasts and user.Identity. See [#3266](https://github.com/AzureAD/microsoft-identity-web/pull/3266), 
 
 ## New Contributors
@@ -111,7 +143,7 @@ This update enhances the configuration process by providing clear structure and 
 - Updated to .NET 9 RC2
  
 ### New features
-- Microsoft.Identity.Web token acquisitio now provides an extensibility mechanism to enlight non-standard features. For details, see [#2975](https://github.com/AzureAD/microsoft-identity-web/issues/2975)
+- Microsoft.Identity.Web token acquisition now provides an extensibility mechanism to enable non-standard features. For details, see [#2975](https://github.com/AzureAD/microsoft-identity-web/issues/2975)
 
 ### Fundamentals
 - Split DownstreamApi methods between AoT compatible and incompatible methods by @SaurabhMSFT in https://github.com/AzureAD/microsoft-identity-web/pull/3090
@@ -346,12 +378,12 @@ This update enhances the configuration process by providing clear structure and 
 
 #### Experimental API
 (to get feedback, could change without bumping-up the major version)
-- It's now possible for an application to observe the client certificate selected by Token acquirer from the ClientCredentials properties, and when the certicate is un-selected (because it's rejected by the Identity Provider, as expired, or revoked). See [Observing client certificates](https://github.com/AzureAD/microsoft-identity-web/wiki/Certificates#observing-client-certificates). PR [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496)
+- It's now possible for an application to observe the client certificate selected by Token acquirer from the ClientCredentials properties, and when the certificate is un-selected (because it's rejected by the Identity Provider, as expired, or revoked). See [Observing client certificates](https://github.com/AzureAD/microsoft-identity-web/wiki/Certificates#observing-client-certificates). PR [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496)
 
 ### Bug Fixes
 - Fixes a resiliency issue where the client certificate rotation wasn't always happening (from KeyKeyVault, or certificate store with same distinguished name). See [#2496](https://github.com/AzureAD/microsoft-identity-web/pull/2496) for details.
 - In the override of AddMicrosoftIdentityWebApp taking a delegate, the delegate is now called only once (it was called twice causing the TokenValidated event to be called twice as well). Fixes [#2328](https://github.com/AzureAD/microsoft-identity-web/issues/2328)
-- Fixes a regression introduced in 2.13.3, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder with AddMicroosftIdentityWebApp/Api, unless you provided an empty authentication scheme when acquiring a token. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
+- Fixes a regression introduced in 2.13.3, causing the configuration to not be read, when using an app builder other than the WindowsAppBuilder with AddMicrosoftIdentityWebApp/Api, unless you provided an empty authentication scheme when acquiring a token. Fixes [#2460](https://github.com/AzureAD/microsoft-identity-web/issues/2410), [#2410](https://github.com/AzureAD/microsoft-identity-web/issues/2460), [#2394](https://github.com/AzureAD/microsoft-identity-web/issues/2394)
 
 
 2.14.0
@@ -372,7 +404,7 @@ This update enhances the configuration process by providing clear structure and 
 
 ### Bug fixes
 - In Microsoft.Identity.Web.Owin, removed un-needed reference to Microsoft.Aspnet.WebApi.HelpPage. See issue [#2417](https://github.com/AzureAD/microsoft-identity-web/issues/2417)
-- Fix to accomodate for breaking change in ASP.NET Core on .NET 8 that the SecurityToken is now a JsonWebToken. See issue [#2420](https://github.com/AzureAD/microsoft-identity-web/issues/2420) 
+- Fix to accommodate for breaking change in ASP.NET Core on .NET 8 that the SecurityToken is now a JsonWebToken. See issue [#2420](https://github.com/AzureAD/microsoft-identity-web/issues/2420) 
 - Improved the usability of IDownstreamApi by checking all `HttpResponse` for success before returning to the caller, instead of swallowing issues. This is a change of behavior. See issue [#2426](https://github.com/AzureAD/microsoft-identity-web/issues/2426)
 - Improvement/Fix of OWIN scenarios, especially the session with B2C: [#2388](https://github.com/AzureAD/microsoft-identity-web/issues/2388)
 - Fix an issue with CIAM web APIs and added two CIAM test apps. See PR [#2411](https://github.com/AzureAD/microsoft-identity-web/pull/2411)

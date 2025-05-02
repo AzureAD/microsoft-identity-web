@@ -254,6 +254,47 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.NotNull(token);
         }
 
+        [Fact]
+        public async Task GetAccessTokenForApp_ServiceProviderSetInExtraParameters()
+        {
+            // ASP.NET Core builder.
+            var serviceCollection = WebApplication.CreateBuilder().Services;
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    { "AzureAd:Instance", "https://login.microsoftonline.com/" },
+                    { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
+                    { "AzureAd:ClientId", TestConstants.ConfidentialClientId },
+                    { "AzureAd:ClientSecret", _ccaSecret },
+                })
+                .Build();
+
+            serviceCollection.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(configuration)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            IServiceProvider? serviceProvider = null;
+
+            // Configure the extension option such that the event is subscribed to
+            // so the test can observe if the service provider is set in the extra parameters
+            serviceCollection.Configure<TokenAcquisitionExtensionOptions>(options =>
+            {
+                options.OnBeforeTokenAcquisitionForApp += (builder, options) =>
+                {
+                    serviceProvider = options!.ExtraParameters![Constants.ExtensionOptionsServiceProviderKey] as IServiceProvider;
+                };
+            });
+
+            var services = serviceCollection.BuildServiceProvider();
+
+            var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+
+            _ = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default", tokenAcquisitionOptions: new());
+
+            Assert.NotNull(serviceProvider);
+        }
+
         private void InitializeTokenAcquisitionObjects()
         {
             _credentialsLoader = new DefaultCredentialsLoader();

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -389,6 +390,37 @@ namespace Microsoft.Identity.Web.Test
             await _testCacheAdapter.TestRemoveKeyAsync(AnotherCacheKey);
             Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
             Assert.Empty(L2Cache._dict);
+        }
+
+
+        [Fact]
+        public async Task SetLCache_ThrowIf_ShouldNotUseDistributedCache_TestAsync()
+        {
+            // Arrange
+            byte[] cache = new byte[3];
+            AssertCacheValues(_testCacheAdapter);
+            Assert.NotNull(_testCacheAdapter._memoryCache);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
+            Assert.Empty(L2Cache._dict);
+            CacheSerializerHints cacheSerializerHints = new CacheSerializerHints();
+            cacheSerializerHints.SuggestedCacheExpiry = System.DateTimeOffset.Now - System.TimeSpan.FromHours(1);
+            cacheSerializerHints.ShouldNotUseDistributedCacheMessage = "DoNotUseDistCache";
+
+            // Act
+            var ex1 = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _testCacheAdapter.TestWriteCacheBytesAsync(DefaultCacheKey, cache, cacheSerializerHints));
+
+            var ex2 = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _testCacheAdapter.TestReadCacheBytesAsync(DefaultCacheKey, cacheSerializerHints));
+
+            var ex3 = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _testCacheAdapter.TestRemoveKeyAsync(DefaultCacheKey, cacheSerializerHints));
+
+            // Assert
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex1.Message);
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex2.Message);
+            Assert.Equal(TokenCacheErrorMessage.CannotUseDistributedCache + " DoNotUseDistCache", ex3.Message);
+            Assert.Equal(0, _testCacheAdapter._memoryCache.Count);
         }
 
         private static void AssertCacheValues(TestMsalDistributedTokenCacheAdapter testCache)

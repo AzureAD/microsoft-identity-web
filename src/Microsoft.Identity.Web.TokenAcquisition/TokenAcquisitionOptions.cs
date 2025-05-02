@@ -46,6 +46,7 @@ namespace Microsoft.Identity.Web
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
+                FmiPath = FmiPath
             };
         }
     }

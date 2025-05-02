@@ -508,8 +508,13 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+            if (tokenAcquisitionOptions is not null)
+            {
+                tokenAcquisitionOptions.ExtraParameters ??= new Dictionary<string, object>();
+                tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
+            }
 
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
@@ -589,11 +594,8 @@ namespace Microsoft.Identity.Web
                         }
 
                         builder.WithAtPop(
-                            application.AppConfig.ClientCredentialCertificate,
-                            tokenAcquisitionOptions.PopPublicKey!,
-                            tokenAcquisitionOptions.PopClaim!,
-                            application.AppConfig.ClientId,
-                            mergedOptions.SendX5C);
+                           tokenAcquisitionOptions.PopPublicKey!,
+                           tokenAcquisitionOptions.PopClaim!);
                     }
                 }
             }
@@ -849,7 +851,7 @@ namespace Microsoft.Identity.Web
                     Logger.TokenAcquisitionError(
                                 _logger,
                                 IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                null);
+                                ex);
                     throw;
                 }
 
@@ -872,7 +874,7 @@ namespace Microsoft.Identity.Web
             {
                 Logger.TokenAcquisitionError(
                     _logger,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message,
                     ex);
                 throw;
             }
