@@ -820,6 +820,11 @@ namespace Microsoft.Identity.Web
                     builder.WithRedirectUri(currentUri);
                 }
 
+                // ClientCapabilities are applied once during CCA construction
+                // (see UpdateConfidentialClientApplicationOptionsFromMergedOptions).
+                // We rely on that path. if it ever regresses the unit test
+                // (CrossCloudFicUnitTest) will fail.
+
                 string authority;
 
                 if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
