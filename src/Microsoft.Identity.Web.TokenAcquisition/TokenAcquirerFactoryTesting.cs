@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Net.Http;
-using Microsoft.Identity.Client;
-
 namespace Microsoft.Identity.Web.TestOnly
 {
     /// <summary>
@@ -20,13 +17,5 @@ namespace Microsoft.Identity.Web.TestOnly
         {
             TokenAcquirerFactory.ResetDefaultInstance();
         }
-
-        /// <summary>
-        /// Injects a custom <see cref="IMsalHttpClientFactory"/> so that all
-        /// Managed-Identity calls made during the current test use the supplied
-        /// (mocked) <see cref="HttpClient"/>.
-        /// </summary>
-        public static void UseTestHttpClientFactory(IMsalHttpClientFactory factory)
-            => ManagedIdentityTestHooks.HttpClientFactoryOverride = factory;
     }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
+using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
@@ -105,10 +106,10 @@ namespace Microsoft.Identity.Web
 
             // TEST-ONLY: if a test has supplied a factory, use it; otherwise stay default
             // Default factory is handled by MSAL
-            if (ManagedIdentityTestHooks.HttpClientFactoryOverride is not null)
+            if (TokenAcquirerTestHooks.HttpClientFactoryOverride is not null)
             { 
                 miBuilder.WithHttpClientFactory(
-                ManagedIdentityTestHooks.HttpClientFactoryOverride);
+                TokenAcquirerTestHooks.HttpClientFactoryOverride);
             }
 
             return miBuilder.Build();

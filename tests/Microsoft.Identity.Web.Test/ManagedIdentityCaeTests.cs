@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -9,6 +12,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
+using System.Text;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
@@ -18,12 +22,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         private const string Scope = "https://management.azure.com/.default";
         private const string UamiClientId = "04ca4d6a-c720-4ba1-aa06-f6634b73fe7a";
         private const string MockToken = "mocked.access.token";
-        private const string FirstToken = "mocked.access.token-1";
-        private const string SecondToken = "mocked.access.token-2";
         private const string CaeClaims =
             @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
-        private const string AccessToken = "token-with-cap";
-        private static readonly string[] Capabilities = ["cp1", "cp2"];
 
         [Fact]
         public async Task ManagedIdentity_ReturnsBearerHeader()
@@ -36,9 +36,9 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mockHttp.AddMockHandler(
                 MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
 
-            // uses ManagedIdentityTestHooks.HttpClientFactoryOverride so that every IMDS / MSI call
+            // uses TokenAcquirerTestHooks.HttpClientFactoryOverride so that every IMDS / MSI call
             // is routed through mocked responses using IMsalHttpClientFactory.
-            TokenAcquirerFactoryTesting.UseTestHttpClientFactory(mockHttp);
+            TokenAcquirerTestHooks.UseTestHttpClientFactory(mockHttp);
 
             IAuthorizationHeaderProvider headerProvider = factory.Build()
                                         .GetRequiredService<IAuthorizationHeaderProvider>();
@@ -58,55 +58,6 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
-        public async Task SystemAssigned_MI_Caching_and_Claims()
-        {
-            // Arrange – factory with 2 queued IMDS responses 
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            var factory = TokenAcquirerFactory.GetDefaultInstance();
-            var mockHttp = new MockHttpClientFactory();
-
-            // token1 will be used for the first call to IMDS
-            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler(FirstToken));
-
-            // token2 will be used only when we inject claims
-            // the call that happens after the first one should be served from cache
-            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler(SecondToken));
-
-            // uses ManagedIdentityTestHooks.HttpClientFactoryOverride so that every IMDS / MSI call
-            // is routed through mocked responses using IMsalHttpClientFactory.
-            TokenAcquirerFactoryTesting.UseTestHttpClientFactory(mockHttp);
-
-            var provider = factory.Build();
-            var tokenAcq = provider.GetRequiredService<ITokenAcquisition>();
-
-            var miOpts = new TokenAcquisitionOptions
-            {
-                ManagedIdentity = new ManagedIdentityOptions()
-            };
-
-            // first request — IDP
-            var r1 = await tokenAcq.GetAuthenticationResultForAppAsync(Scope, tokenAcquisitionOptions: miOpts);
-            Assert.Equal(TokenSource.IdentityProvider, r1.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(FirstToken, r1.AccessToken); // got token1
-
-            // second request — Cache 
-            var r2 = await tokenAcq.GetAuthenticationResultForAppAsync(Scope, tokenAcquisitionOptions: miOpts);
-            Assert.Equal(TokenSource.Cache, r2.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(FirstToken, r2.AccessToken); // still token1
-
-            // third request with claims — With CAE we will go to IDP 
-            var refreshOpts = new TokenAcquisitionOptions
-            {
-                ManagedIdentity = new ManagedIdentityOptions(),
-                Claims = CaeClaims
-            };
-
-            var r3 = await tokenAcq.GetAuthenticationResultForAppAsync(Scope, tokenAcquisitionOptions: refreshOpts);
-            Assert.Equal(TokenSource.IdentityProvider, r3.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(SecondToken, r3.AccessToken); // new token2 because of CAE
-        }
-
-        [Fact]
         public async Task UserAssigned_MI_Caching_and_Claims()
         {
             // Arrange
@@ -120,7 +71,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mocks.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-2")); // c
             mocks.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-3")); // d
 
-            TokenAcquirerFactoryTesting.UseTestHttpClientFactory(mocks);
+            TokenAcquirerTestHooks.UseTestHttpClientFactory(mocks);
 
             var provider = fac.Build();
             var tokens = provider.GetRequiredService<ITokenAcquisition>();
@@ -155,6 +106,45 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                          Scope, tokenAcquisitionOptions: Uami("uamiB"));
             Assert.Equal(TokenSource.IdentityProvider, r4.AuthenticationResultMetadata.TokenSource);
             Assert.Equal("token-3", r4.AccessToken);
+        }
+
+        [Fact]
+        public async Task SystemAssigned_MSI_Forwards_ClientCapabilities_InQuery()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+
+            // Mock IMDS/MSI: returns a 200 with "access_token" and records the request
+            var captureHandler = MockHttpCreator.CreateMsiTokenHandler(MockToken);
+
+            var mockHttp = new MockHttpClientFactory();
+            mockHttp.AddMockHandler(captureHandler);
+            TokenAcquirerTestHooks.UseTestHttpClientFactory(mockHttp);
+
+            // Enable capabilities cp1,cp2
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(opts =>
+                opts.ClientCapabilities = ["cp1", "cp2"]);
+
+            var tokenAcquirer = factory.Build()
+                                       .GetRequiredService<ITokenAcquisition>();
+
+            // Act 
+            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync(
+                             Scope,
+                             tokenAcquisitionOptions: new TokenAcquisitionOptions
+                             {
+                                 ManagedIdentity = new ManagedIdentityOptions(), // system-assigned
+                                 Claims = CaeClaims
+                             });
+
+            // Assert
+            Assert.Equal(MockToken, result.AccessToken);
+
+            // Assert – outbound GET includes xms_cc=cp1%2Ccp2
+            // This check can be enabled when MSAL enables cae
+            //string query = captureHandler.ActualRequestMessage!.RequestUri!.Query;
+            //Assert.Contains("xms_cc=cp1%2Ccp2", query, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

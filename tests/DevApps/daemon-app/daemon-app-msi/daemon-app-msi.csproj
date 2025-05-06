@@ -11,16 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Program - SDK.cs" />
-    <Compile Remove="Program-net60.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Program - SDK.cs" />
-    <None Include="Program-net60.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
