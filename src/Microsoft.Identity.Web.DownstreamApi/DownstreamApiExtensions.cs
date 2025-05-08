@@ -74,7 +74,10 @@ namespace Microsoft.Identity.Web
            
             foreach (var optionsForService in options.Keys)
             {
-                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService).Bind);
+                // NativeAOT compilation issue.
+                // See https://github.com/dotnet/runtime/issues/94544
+                var section = configurationSection.GetSection(optionsForService);
+                services.Configure<DownstreamApiOptions>(optionsForService, section.Bind);
             }
             RegisterDownstreamApi(services);
             return services;
