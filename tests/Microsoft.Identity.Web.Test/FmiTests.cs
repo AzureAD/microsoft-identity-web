@@ -13,6 +13,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection("Run tests - serial")]
     public class FmiTests
     {
         [Fact]

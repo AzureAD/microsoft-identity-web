@@ -1,1 +1,7 @@
+Microsoft.Identity.Web.ManagedIdentityTestHooks
+Microsoft.Identity.Web.TestOnly.TokenAcquirerTestHooks
+static Microsoft.Identity.Web.ManagedIdentityTestHooks.HttpClientFactoryOverride.get -> Microsoft.Identity.Client.IMsalHttpClientFactory?
+static Microsoft.Identity.Web.ManagedIdentityTestHooks.HttpClientFactoryOverride.set -> void
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
+static Microsoft.Identity.Web.TestOnly.TokenAcquirerTestHooks.HttpClientFactoryOverride.get -> Microsoft.Identity.Client.IMsalHttpClientFactory?
+static Microsoft.Identity.Web.TestOnly.TokenAcquirerTestHooks.UseTestHttpClientFactory(Microsoft.Identity.Client.IMsalHttpClientFactory! factory) -> void

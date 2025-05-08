@@ -499,7 +499,15 @@ namespace Microsoft.Identity.Web
                         mergedOptions,
                         tokenAcquisitionOptions.ManagedIdentity
                     );
-                    return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+
+                    var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
+
+                    if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
+                    {
+                        miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
+                    }
+
+                    return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
