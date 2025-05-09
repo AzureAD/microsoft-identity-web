@@ -74,11 +74,11 @@ namespace Microsoft.Identity.Web
 
             foreach (var optionsForService in options.Keys)
             {
-                var serviceSection = downstreamApiSection.GetSection(optionsForService);
+                IConfigurationSection serviceSection = configurationSection.GetSection(optionsForService);
                 // potential bug in source gen suppressor logic is triggering IL2026 and IL3050.
                 // workaround is to capture the object into a variable and pas to the method
                 // https://github.com/dotnet/runtime/issues/94544
-                var bindAction = ((DownstreamApiOptions options) => serviceSection.Bind(options));
+                Action<DownstreamApiOptions> bindAction = ((DownstreamApiOptions options) => serviceSection.Bind(options));
                 services.Configure(optionsForService, bindAction);
             }
             RegisterDownstreamApi(services);
