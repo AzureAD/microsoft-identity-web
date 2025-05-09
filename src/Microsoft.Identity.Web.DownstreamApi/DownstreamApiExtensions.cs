@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Web
 
             Dictionary<string, DownstreamApiOptions> options = new();
             configurationSection.Bind(options);
-           
+
             foreach (var optionsForService in options.Keys)
             {
                 var serviceSection = downstreamApiSection.GetSection(optionsForService);
