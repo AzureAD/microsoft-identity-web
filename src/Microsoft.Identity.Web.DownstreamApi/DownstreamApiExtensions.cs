@@ -76,7 +76,8 @@ namespace Microsoft.Identity.Web
             {
                 // lambda expression is needed as a workaround for IL2026 and IL3050 so the ConfigBinder Source Generator works
                 // https://github.com/dotnet/aspire/blob/2ed738cb524f7ce82490f0da33a1ea3e194011e8/src/Components/Aspire.Azure.Messaging.ServiceBus/AspireServiceBusExtensions.cs#L105
-                services.Configure<DownstreamApiOptions>(optionsForService, bindOptions => configurationSection.GetSection(optionsForService).Bind(bindOptions));
+                IConfigurationSection optionsForServiceSection = configurationSection.GetSection(optionsForService);
+                services.Configure<DownstreamApiOptions>(optionsForService, bindOptions => optionsForServiceSection.Bind(bindOptions));
             }
             RegisterDownstreamApi(services);
             return services;
