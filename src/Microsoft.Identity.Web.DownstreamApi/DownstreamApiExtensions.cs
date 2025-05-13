@@ -71,10 +71,13 @@ namespace Microsoft.Identity.Web
 
             Dictionary<string, DownstreamApiOptions> options = new();
             configurationSection.Bind(options);
-           
+
             foreach (var optionsForService in options.Keys)
             {
-                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService).Bind);
+                // lambda expression is needed as a workaround for IL2026 and IL3050 so the ConfigBinder Source Generator works
+                // https://github.com/dotnet/aspire/blob/2ed738cb524f7ce82490f0da33a1ea3e194011e8/src/Components/Aspire.Azure.Messaging.ServiceBus/AspireServiceBusExtensions.cs#L105
+                IConfigurationSection optionsForServiceSection = configurationSection.GetSection(optionsForService);
+                services.Configure<DownstreamApiOptions>(optionsForService, bindOptions => optionsForServiceSection.Bind(bindOptions));
             }
             RegisterDownstreamApi(services);
             return services;
