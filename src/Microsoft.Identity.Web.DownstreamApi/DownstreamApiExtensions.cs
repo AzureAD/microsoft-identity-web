@@ -74,12 +74,9 @@ namespace Microsoft.Identity.Web
 
             foreach (var optionsForService in options.Keys)
             {
-                IConfigurationSection serviceSection = configurationSection.GetSection(optionsForService);
-                // potential bug in source gen suppressor logic is triggering IL2026 and IL3050.
-                // workaround is to capture the object into a variable and pas to the method
-                // https://github.com/dotnet/runtime/issues/94544
-                Action<DownstreamApiOptions> bindAction = ((DownstreamApiOptions options) => serviceSection.Bind(options));
-                services.Configure(optionsForService, bindAction);
+                // lambda expression is needed as a workaround for IL2026 and IL3050 so the ConfigBinder Source Generator works
+                // https://github.com/dotnet/aspire/blob/2ed738cb524f7ce82490f0da33a1ea3e194011e8/src/Components/Aspire.Azure.Messaging.ServiceBus/AspireServiceBusExtensions.cs#L105
+                services.Configure<DownstreamApiOptions>(optionsForService, bindOptions => configurationSection.GetSection(optionsForService).Bind(bindOptions));
             }
             RegisterDownstreamApi(services);
             return services;
