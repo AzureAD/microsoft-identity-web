@@ -115,6 +115,22 @@ namespace Microsoft.Identity.Web
             }
             return null;
         }
+        
+        /// Loads SigningCredentials. 
+        public async Task<SigningCredentials?> LoadSigningCredentialsAsync(
+        CredentialDescription credentialDescription,
+        CredentialSourceLoaderParameters? parameters = null)
+        {
+        _ = Throws.IfNull(credentialDescription);
+        await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
+        
+        if (credentialDescription.Certificate != null)
+        {
+            return new X509SigningCredentials(credentialDescription.Certificate, credentialDescription.Algorithm);
+        }
+        
+        return null;
+        }
 
         /// <inheritdoc/>
         public void ResetCredentials(IEnumerable<CredentialDescription> credentialDescriptions)
