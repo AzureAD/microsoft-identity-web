@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-
     <Title>Microsoft Identity Web Token Acquisition</Title>
     <Product>Microsoft Identity Web Acquisition</Product>
     <Description>Implementation for higher level API for confidential client applications (ASP.NET Core and SDK/.NET).</Description>
@@ -19,8 +18,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsConfigurationBinderVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationBinderVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,16 +31,12 @@
     </None>
   </ItemGroup>
   
-    <ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractionsVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
     <Compile Remove="AspNetCore\*.cs" />
   </ItemGroup>
 

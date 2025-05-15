@@ -820,6 +820,11 @@ namespace Microsoft.Identity.Web
                     builder.WithRedirectUri(currentUri);
                 }
 
+                // ClientCapabilities are applied once during CCA construction
+                // (see UpdateConfidentialClientApplicationOptionsFromMergedOptions).
+                // We rely on that path. if it ever regresses the unit test
+                // (CrossCloudFicUnitTest) will fail.
+
                 string authority;
 
                 if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
@@ -851,7 +856,7 @@ namespace Microsoft.Identity.Web
                     Logger.TokenAcquisitionError(
                                 _logger,
                                 IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                null);
+                                ex);
                     throw;
                 }
 
@@ -874,7 +879,7 @@ namespace Microsoft.Identity.Web
             {
                 Logger.TokenAcquisitionError(
                     _logger,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message,
                     ex);
                 throw;
             }

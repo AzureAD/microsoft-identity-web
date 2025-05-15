@@ -25,6 +25,7 @@
   <ItemGroup>
    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
     <PackageReference Include="Microsoft.Graph" Version="$(MicrosoftGraphVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(MicrosoftIdentityModelVersion)" />
@@ -37,10 +38,6 @@
     <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
   </ItemGroup>
 
   <ItemGroup>
