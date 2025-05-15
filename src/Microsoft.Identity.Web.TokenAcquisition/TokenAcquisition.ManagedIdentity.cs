@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
-using Microsoft.Identity.Web.TestOnly;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
@@ -22,6 +20,7 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();
         private readonly SemaphoreSlim _managedIdSemaphore = new(1, 1);
         private const string SystemAssignedManagedIdentityKey = "SYSTEM";
+        private readonly IManagedIdentityHttpClientFactory _miHttpFactory;
 
         /// <summary>
         /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
@@ -104,13 +103,7 @@ namespace Microsoft.Identity.Web
                 miBuilder.WithClientCapabilities(capabilities);
             }
 
-            // TEST-ONLY: if a test has supplied a factory, use it; otherwise stay default
-            // Default factory is handled by MSAL
-            if (TokenAcquirerTestHooks.HttpClientFactoryOverride is not null)
-            { 
-                miBuilder.WithHttpClientFactory(
-                TokenAcquirerTestHooks.HttpClientFactoryOverride);
-            }
+            miBuilder.WithHttpClientFactory(_miHttpFactory.Create());
 
             return miBuilder.Build();
 

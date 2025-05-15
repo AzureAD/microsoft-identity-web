@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -12,7 +8,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
-using System.Text;
+using Microsoft.Identity.Web.Test;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
@@ -36,9 +32,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mockHttp.AddMockHandler(
                 MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
 
-            // uses TokenAcquirerTestHooks.HttpClientFactoryOverride so that every IMDS / MSI call
-            // is routed through mocked responses using IMsalHttpClientFactory.
-            TokenAcquirerTestHooks.UseTestHttpClientFactory(mockHttp);
+            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
 
             IAuthorizationHeaderProvider headerProvider = factory.Build()
                                         .GetRequiredService<IAuthorizationHeaderProvider>();
@@ -62,18 +57,19 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         {
             // Arrange
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            var fac = TokenAcquirerFactory.GetDefaultInstance();
-            var mocks = new MockHttpClientFactory();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+            var mockHttp = new MockHttpClientFactory();
 
             // a = token-1        b = cached token (i.e. token-1)
             // c = token-2        d = token-3
-            mocks.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-1")); // a
-            mocks.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-2")); // c
-            mocks.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-3")); // d
+            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-1")); // a
+            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-2")); // c
+            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-3")); // d
 
-            TokenAcquirerTestHooks.UseTestHttpClientFactory(mocks);
+            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
 
-            var provider = fac.Build();
+            var provider = factory.Build();
             var tokens = provider.GetRequiredService<ITokenAcquisition>();
 
             // helper
@@ -120,7 +116,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             var mockHttp = new MockHttpClientFactory();
             mockHttp.AddMockHandler(captureHandler);
-            TokenAcquirerTestHooks.UseTestHttpClientFactory(mockHttp);
+            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
 
             // Enable capabilities cp1,cp2
             factory.Services.Configure<MicrosoftIdentityApplicationOptions>(opts =>
