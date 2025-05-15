@@ -10,7 +10,7 @@ The following table lists IdentityWeb versions currently supported and receiving
 | 3.x           | [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)   |Monthly| Active | Not planned.<br/>✅Supported versions: from 3.0.0 to [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)<br/>⚠️Unsupported versions `< 3.0.0`.|
 
 ## Out of support versions
-The following table lists IdentityWeb versions no longer supported and no longer receiving security fixes.
+The following table lists Microsoft.Identity.Web versions no longer supported and no longer receiving security fixes.
 
 | Major Version | Latest Patch Version| Patch Release Date | End of Support Date|
 | --------------|--------------|--------|--------|
