@@ -1,1 +1,8 @@
+Microsoft.Identity.Web.DefaultManagedIdentityHttpClientFactory
+Microsoft.Identity.Web.DefaultManagedIdentityHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
+Microsoft.Identity.Web.DefaultManagedIdentityHttpClientFactory.DefaultManagedIdentityHttpClientFactory(System.Net.Http.IHttpClientFactory! http) -> void
+Microsoft.Identity.Web.DefaultManagedIdentityHttpClientFactory.GetHttpClient() -> System.Net.Http.HttpClient!
+Microsoft.Identity.Web.IManagedIdentityHttpClientFactory
+Microsoft.Identity.Web.IManagedIdentityHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
+Microsoft.Identity.Web.TokenAcquisition.IManagedIdentityHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
