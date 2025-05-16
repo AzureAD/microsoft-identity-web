@@ -19,6 +19,7 @@
 
 ### External contributions
 Thank you @evan-buss for your contribution and fixing the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+Thank you @neha-bhargava for your contribution and ensuring AcquireTokenForConfidentialClient correctly passes MSAL exceptions. See [#3345](https://github.com/AzureAD/microsoft-identity-web/issues/3345).
 
 3.8.4
 ========
