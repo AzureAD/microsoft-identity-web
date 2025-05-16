@@ -18,7 +18,7 @@
 - Added tests to validate xms_cc (client capability) forwarding in CCA flows. See [#3349](https://github.com/AzureAD/microsoft-identity-web/issues/3349).
 
 ### External contributions
-Thank you @evan-buss for your contribution and fixinf the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+Thank you @evan-buss for your contribution and fixing the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
 
 3.8.4
 ========
