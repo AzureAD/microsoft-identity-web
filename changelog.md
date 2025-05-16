@@ -17,6 +17,9 @@
 - Introduced Long-Term Support (LTS) policy. See [#3357](https://github.com/AzureAD/microsoft-identity-web/commit/b6ff65bb4f49289c914100c3a382fa16da2b5508).
 - Added tests to validate xms_cc (client capability) forwarding in CCA flows. See [#3349](https://github.com/AzureAD/microsoft-identity-web/issues/3349).
 
+### External contributions
+Thank you @evan-buss for your contribution and fixinf the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+
 3.8.4
 ========
 ### Package updates
