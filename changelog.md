@@ -1,3 +1,26 @@
+3.9.0
+========
+### Package updates
+- Microsoft.IdentityModel updated to version [8.10.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.10.0).
+- MSAL.NET updated to version [MSAL.NET 4.72.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.72.0).
+
+### Bug fixes
+- Fixed issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+- Resolved IL warnings from AddDownstreamApis in NativeAOT projects. See [#3355](https://github.com/AzureAD/microsoft-identity-web/issues/3360).
+- Ensured AcquireTokenForConfidentialClient correctly passes MSAL exceptions. See [#3345](https://github.com/AzureAD/microsoft-identity-web/issues/3345).
+- Prevented null reference when accessing MergedOptions instance. See [#3337](https://github.com/AzureAD/microsoft-identity-web/issues/3337).
+
+### New feature
+ - Added optional login_hint and domain_hint support to AccountController.SignIn endpoint. See [#3244](https://github.com/AzureAD/microsoft-identity-web/issues/3244) and [#3348](https://github.com/AzureAD/microsoft-identity-web/pull/3348/files).
+
+### Fundamentals
+- Introduced Long-Term Support (LTS) policy. See [#3357](https://github.com/AzureAD/microsoft-identity-web/commit/b6ff65bb4f49289c914100c3a382fa16da2b5508).
+- Added tests to validate xms_cc (client capability) forwarding in CCA flows. See [#3349](https://github.com/AzureAD/microsoft-identity-web/issues/3349).
+
+### External contributions
+Thank you @evan-buss for your contribution and fixing the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+Thank you @neha-bhargava for your contribution and ensuring AcquireTokenForConfidentialClient correctly passes MSAL exceptions. See [#3345](https://github.com/AzureAD/microsoft-identity-web/issues/3345).
+
 3.8.4
 ========
 ### Package updates
