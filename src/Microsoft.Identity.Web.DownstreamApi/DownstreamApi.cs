@@ -21,7 +21,7 @@ using Microsoft.Identity.Client;
 namespace Microsoft.Identity.Web
 {
     /// <inheritdoc/>
-    internal partial class DownstreamApi : IDownstreamApi
+    public partial class DownstreamApi : IDownstreamApi
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -391,7 +391,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -453,7 +453,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal /* for tests */ async Task<HttpResponseMessage> CallApiInternalAsync(
+        protected virtual /* for tests */ async Task<HttpResponseMessage> CallApiInternalAsync(
             string? serviceName,
             DownstreamApiOptions effectiveOptions,
             bool appToken,
@@ -473,7 +473,7 @@ namespace Microsoft.Identity.Web
 
             using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
 
-            // Send the HTTP message           
+            // Send the HTTP message
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
             // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
@@ -547,7 +547,7 @@ namespace Microsoft.Identity.Web
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
           {
-              { "caller-sdk-id", "IdWeb_1" },  
+              { "caller-sdk-id", "IdWeb_1" },
               { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
           };
 
