@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Microsoft Identity Web downstream API</Title>
     <Product>Microsoft Identity Web downstream API</Product>
@@ -6,8 +6,9 @@
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-<PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+<PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+  <IsAotCompatible>true</IsAotCompatible>
 </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
