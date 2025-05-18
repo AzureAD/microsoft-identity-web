@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web
 
             // Help the compiler figure out the type so that the code generator generates
             // the binding code
-            services.Configure<DownstreamApiOptions>(serviceName, configuration.GetSection(string.Empty));
+            services.Configure<DownstreamApiOptions>(serviceName, configuration);
             RegisterDownstreamApi(services);
             return services;
         }
