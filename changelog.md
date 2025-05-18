@@ -1,3 +1,10 @@
+3.9.1
+### Package updates
+- Microsoft.Identity.Abstractions updated to version [9.1.0](https://github.com/AzureAD/azure-identity-abstractions/releases/tag/9.1.0).
+
+### Fundamentals
+- Fix AoT warnings. For details see [#3366](https://github.com/AzureAD/microsoft-identity-web/pull/3366)
+
 3.9.0
 ========
 ### Package updates
