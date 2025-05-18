@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -101,6 +102,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> CallApiForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -124,6 +129,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task<TOutput?> CallApiForAppAsync<TInput, TOutput>(
             string? serviceName,
@@ -146,6 +155,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task<TOutput?> CallApiForAppAsync<TOutput>(string serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
@@ -159,6 +172,10 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> CallApiForUserAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptions>? downstreamApiOptionsOverride = null,
@@ -254,7 +271,32 @@ namespace Microsoft.Identity.Web
 
         internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput> inputJsonTypeInfo)
         {
-            return SerializeInputImpl(input, effectiveOptions, inputJsonTypeInfo);
+            HttpContent? httpContent;
+
+            if (effectiveOptions.Serializer != null)
+            {
+                httpContent = effectiveOptions.Serializer(input);
+            }
+            else
+            {
+                // if the input is already an HttpContent, it's used as is, and should already contain a ContentType.
+                httpContent = input switch
+                {
+                    HttpContent content => content,
+                    string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase) => new StringContent(str),
+                    string str => new StringContent(JsonSerializer.Serialize(str, inputJsonTypeInfo),
+                        Encoding.UTF8,
+                        "application/json"),
+                    byte[] bytes => new ByteArrayContent(bytes),
+                    Stream stream => new StreamContent(stream),
+                    null => null,
+                    _ => new StringContent(
+                        JsonSerializer.Serialize(input, inputJsonTypeInfo),
+                        Encoding.UTF8,
+                        "application/json"),
+                };
+            }
+            return httpContent;
         }
 
         internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
@@ -315,12 +357,11 @@ namespace Microsoft.Identity.Web
             return clonedOptions;
         }
 
+#if NET7_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions)
-        {
-            return SerializeInputImpl(input, effectiveOptions, null);
-        }
-
-        private static HttpContent? SerializeInputImpl<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput>? inputJsonTypeInfo = null)
         {
             HttpContent? httpContent;
 
@@ -336,14 +377,14 @@ namespace Microsoft.Identity.Web
                     HttpContent content => content,
                     string str when !string.IsNullOrEmpty(effectiveOptions.ContentType) && effectiveOptions.ContentType.StartsWith("text", StringComparison.OrdinalIgnoreCase) => new StringContent(str),
                     string str => new StringContent(
-                        inputJsonTypeInfo == null ? JsonSerializer.Serialize(str) : JsonSerializer.Serialize(str, inputJsonTypeInfo),
+                        JsonSerializer.Serialize(str),
                         Encoding.UTF8,
                         "application/json"),
                     byte[] bytes => new ByteArrayContent(bytes),
                     Stream stream => new StreamContent(stream),
                     null => null,
                     _ => new StringContent(
-                        inputJsonTypeInfo == null ? JsonSerializer.Serialize(input) : JsonSerializer.Serialize(input, inputJsonTypeInfo),
+                        JsonSerializer.Serialize(input),
                         Encoding.UTF8,
                         "application/json"),
                 };
@@ -351,6 +392,10 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
+#if NET7_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
              where TOutput : class
         {

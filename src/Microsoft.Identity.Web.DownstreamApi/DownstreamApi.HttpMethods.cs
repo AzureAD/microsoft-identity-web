@@ -19,6 +19,11 @@ namespace Microsoft.Identity.Web
     internal partial class DownstreamApi : IDownstreamApi
     {
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> GetForUserAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
@@ -46,6 +51,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> GetForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -82,6 +92,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> GetForAppAsync<TOutput>(
             string? serviceName,
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,
@@ -108,6 +123,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> GetForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -143,6 +163,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PostForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -177,6 +202,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PostForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -213,6 +243,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PostForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -246,6 +281,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PostForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -281,6 +321,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PutForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -315,6 +360,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PutForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -351,6 +401,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PutForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -384,6 +439,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PutForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -421,6 +481,11 @@ namespace Microsoft.Identity.Web
 #if !NETFRAMEWORK && !NETSTANDARD2_0
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PatchForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -455,6 +520,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PatchForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -491,6 +561,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task PatchForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -524,6 +599,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> PatchForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -561,6 +641,11 @@ namespace Microsoft.Identity.Web
 #endif // !NETFRAMEWORK && !NETSTANDARD2_0
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task DeleteForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -595,6 +680,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> DeleteForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -631,6 +721,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task DeleteForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -664,6 +759,11 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         public async Task<TOutput?> DeleteForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -701,6 +801,7 @@ namespace Microsoft.Identity.Web
 #if NET8_0_OR_GREATER
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> GetForUserAsync<TOutput>(
             string? serviceName,
             JsonTypeInfo<TOutput> outputJsonTypeInfo,
@@ -729,6 +830,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> GetForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -767,6 +869,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> GetForAppAsync<TOutput>(
             string? serviceName,
             JsonTypeInfo<TOutput> outputJsonTypeInfo,
@@ -794,6 +897,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> GetForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -831,6 +935,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PostForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -866,6 +971,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PostForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -904,6 +1010,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PostForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -938,6 +1045,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PostForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -975,6 +1083,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PutForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1010,6 +1119,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PutForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -1048,6 +1158,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PutForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1082,6 +1193,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PutForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -1119,6 +1231,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PatchForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1154,6 +1267,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PatchForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -1192,6 +1306,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task PatchForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1226,6 +1341,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> PatchForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -1263,6 +1379,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task DeleteForUserAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1298,6 +1415,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> DeleteForUserAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,
@@ -1336,6 +1454,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task DeleteForAppAsync<TInput>(
             string? serviceName,
             TInput input,
@@ -1370,6 +1489,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+
         public async Task<TOutput?> DeleteForAppAsync<TInput, TOutput>(
             string? serviceName,
             TInput input,

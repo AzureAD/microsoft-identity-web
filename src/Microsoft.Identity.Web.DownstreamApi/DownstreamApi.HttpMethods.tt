@@ -70,15 +70,22 @@ namespace Microsoft.Identity.Web
      firstMethod = false; 
 #>
         /// <inheritdoc/>
+
+<# if ((hasInput || hasOutput) && (framework != "net8" && framework != "net9")){ #>
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
+<# } #>
         public async <#= returnType #> <#= httpMethod #>For<#= token #>Async<#= template #>(
             string? serviceName,
 <# if (hasInput){ #>
             TInput input,
 <# } #>
-<# if (hasInput && framework == "net8"){ #>
+<# if (hasInput && (framework == "net8" || framework == "net9")){ #>
             JsonTypeInfo<TInput> inputJsonTypeInfo,
 <# } #>
-<# if (hasOutput && framework == "net8"){ #>
+<# if (hasOutput && (framework == "net8" || framework == "net9")){ #>
             JsonTypeInfo<TOutput> outputJsonTypeInfo,
 <# } #>
             Action<DownstreamApiOptionsReadOnlyHttpMethod>? downstreamApiOptionsOverride = null,

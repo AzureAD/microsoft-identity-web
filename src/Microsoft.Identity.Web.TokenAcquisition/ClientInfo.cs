@@ -17,9 +17,6 @@ namespace Microsoft.Identity.Web
         [JsonPropertyName(ClaimConstants.UniqueTenantIdentifier)]
         public string? UniqueTenantIdentifier { get; set; } = null;
 
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.DeserializeFromJson(byte[]).")]
-#endif
         public static ClientInfo? CreateFromJson(string? clientInfo)
         {
             if (string.IsNullOrEmpty(clientInfo))
@@ -31,22 +28,30 @@ namespace Microsoft.Identity.Web
             return bytes != null ? DeserializeFromJson(bytes) : null;
         }
 
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(ReadOnlySpan<Byte>, JsonSerializerOptions).")]
-#endif
         internal static ClientInfo? DeserializeFromJson(byte[]? jsonByteArray)
         {
             if (jsonByteArray == null || jsonByteArray.Length == 0)
             {
                 return default;
             }
-
-            var options = new JsonSerializerOptions
+#if NET6_0_OR_GREATER
+            return JsonSerializer.Deserialize<ClientInfo>(jsonByteArray, ClientInfoJsonContext.Default.ClientInfo);
+#else
+           var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
             };
 
             return JsonSerializer.Deserialize<ClientInfo>(jsonByteArray, options);
+#endif
         }
     }
+
+#if NET6_0_OR_GREATER
+    [JsonSerializable(typeof(ClientInfo))]
+    [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+    partial class ClientInfoJsonContext : JsonSerializerContext
+    {
+    }
+#endif
 }

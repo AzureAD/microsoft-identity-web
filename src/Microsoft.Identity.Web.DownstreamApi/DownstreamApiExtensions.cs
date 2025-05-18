@@ -30,7 +30,9 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure<DownstreamApiOptions>(serviceName, configuration);
+            // Help the compiler figure out the type so that the code generator generates
+            // the binding code
+            services.Configure<DownstreamApiOptions>(serviceName, configuration.GetSection(string.Empty));
             RegisterDownstreamApi(services);
             return services;
         }
@@ -50,7 +52,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure(serviceName, configureOptions);
+            services.Configure<DownstreamApiOptions>(serviceName, configureOptions);
             RegisterDownstreamApi(services);
 
             return services;
@@ -69,15 +71,14 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            Dictionary<string, DownstreamApiOptions> options = new();
-            configurationSection.Bind(options);
+            // Help the compiler figure out the type so that the code generator generates
+            // the binding code
+            Dictionary<string, DownstreamApiOptions> options =configurationSection.Get<Dictionary<string, DownstreamApiOptions>>()
+                ?? new Dictionary<string, DownstreamApiOptions>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var optionsForService in options.Keys)
             {
-                // lambda expression is needed as a workaround for IL2026 and IL3050 so the ConfigBinder Source Generator works
-                // https://github.com/dotnet/aspire/blob/2ed738cb524f7ce82490f0da33a1ea3e194011e8/src/Components/Aspire.Azure.Messaging.ServiceBus/AspireServiceBusExtensions.cs#L105
-                IConfigurationSection optionsForServiceSection = configurationSection.GetSection(optionsForService);
-                services.Configure<DownstreamApiOptions>(optionsForService, bindOptions => optionsForServiceSection.Bind(bindOptions));
+                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService));
             }
             RegisterDownstreamApi(services);
             return services;
