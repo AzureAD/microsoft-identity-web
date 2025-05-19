@@ -11,6 +11,38 @@ This proposal outlines the addition of symmetric key support for signing credent
 3. Follow existing patterns in the codebase
 4. Maintain backward compatibility
 
+## Developer Experience
+The implementation provides a straightforward and type-safe approach to working with symmetric keys while maintaining clean separation of concerns:
+
+### Key Management
+When working with symmetric keys, developers can utilize two primary sources:
+
+1. **Azure Key Vault Integration**
+   ```csharp
+   var credentials = new CredentialDescription
+   {
+       SourceType = CredentialSource.SymmetricKeyFromKeyVault,
+       KeyVaultUrl = "https://your-vault.vault.azure.net",
+       KeyVaultSecretName = "your-secret-name"
+   };
+   ```
+
+2. **Direct Base64 Encoded Keys**
+   ```csharp
+   var credentials = new CredentialDescription
+   {
+       SourceType = CredentialSource.SymmetricKeyBase64Encoded,
+       Base64EncodedValue = "your-base64-encoded-key"
+   };
+   ```
+
+### Implementation Details
+- The DefaultCredentialLoader automatically selects the appropriate loader based on the SourceType
+- Key material is loaded and converted to a SymmetricSecurityKey
+- The security key is stored in the CachedValue property of CredentialDescription
+- This design maintains independence from Microsoft.IdentityModel types in the abstractions layer
+- The implementation follows the same pattern as certificate handling for consistency
+
 ## Design
 
 ### 1. New CredentialSource Values(Abstractions Layer)
