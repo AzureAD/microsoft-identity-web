@@ -6,9 +6,9 @@ Adding the `cp1` client‑capability tells Microsoft Entra ID your service can h
 
 ## Overview
 
-cp1 signals to Microsoft Entra ID that a workload identity can handle Continuous Access Evaluation (CAE) claims challenges. When a token includes the extra xms_cc claim, Azure can revoke the token (or demand additional claims) in near‑realtime.
+`cp1` signals to Microsoft Entra ID that a workload identity can handle Continuous Access Evaluation (CAE) claims challenges. When a token includes the extra claim, a CAE capable resource can revoke the token, and respond with a 401 Unauthorized, accompanied by a WWW-Authenticate header which contains a claims challenge in the `claims` attribute. 
 
-This spec adds declarative cp1 and claims challenge auto‑handling to Managed Identity flows in Microsoft.Identity.Web (Id.Web). The goal is zero‑touch for most developers: a single configuration knob at startup, automatic 401/claims recovery at runtime.
+CAE has already been implemented for confidential client - user flows (web apps, web apis), and certificate based authentication. This spec extends the functionality to Managed Identity. The goal is zero‑touch for most developers: a single configuration knob at startup, automatic 401/claims recovery at runtime.
 
 ## Typical Flow   (MI + Downstream API)
 
