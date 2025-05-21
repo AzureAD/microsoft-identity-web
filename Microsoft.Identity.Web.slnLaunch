@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "B2C DevApps",
+    "Projects": [
+      {
+        "Path": "tests\\DevApps\\B2CWebAppCallsWebApi\\Client\\TodoListClient.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "tests\\DevApps\\B2CWebAppCallsWebApi\\TodoListService\\TodoListService.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

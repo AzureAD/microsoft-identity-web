@@ -11,6 +11,11 @@
     <ProjectGuid>{E4BC2331-6822-45C3-9702-D76DD0556532}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>

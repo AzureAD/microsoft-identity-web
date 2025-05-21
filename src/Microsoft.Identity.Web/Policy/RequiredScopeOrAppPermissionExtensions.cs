@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web
             return endpointConventionBuilder.WithMetadata(new RequiredScopeOrAppPermissionMetadata(scope, appPermission));
         }
 
-        private sealed class RequiredScopeOrAppPermissionMetadata : IAuthRequiredScopeMetadata
+        private sealed class RequiredScopeOrAppPermissionMetadata : IAuthRequiredScopeOrAppPermissionMetadata
         {
             public RequiredScopeOrAppPermissionMetadata(string[] scope, string[] appPermission)
             {
@@ -57,6 +57,7 @@ namespace Microsoft.Identity.Web
             public string[]? AcceptedAppPermission { get; }
 
             public string? RequiredScopesConfigurationKey { get; }
+            public string? RequiredAppPermissionsConfigurationKey { get; }
         }
     }
 }
