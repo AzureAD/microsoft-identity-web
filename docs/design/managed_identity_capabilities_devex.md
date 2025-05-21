@@ -1,36 +1,46 @@
-# Microsoft.Identity.Web – Claims & Client Capabilities Mini‑Spec (Managed Identity)
+# Microsoft.Identity.Web – Continuous Access Evaluation (CAE) for Managed Identity
 
-## Why ClientCapabilities (cp1)?
+## Why Continuous Access Evaluation?
 
-Adding the `cp1` client‑capability tells Microsoft Entra ID your service can handle Continuous Access Evaluation (CAE) claims challenges. Tokens will include an extra xms_cc claim, allowing near‑realtime revocation.
+Continuous Access Evaluation (CAE) lets Microsoft Entra ID revoke tokens or demand extra claims almost immediately when risk changes (user disabled, password reset, network change, policy update, etc.).
 
-## Overview
+A workload opts-in by sending the client-capability **`cp1`** when acquiring tokens. Entra then includes an **`xms_cc`** claim in the token so downstream Microsoft services know the caller can handle claims challenges.
 
-cp1 signals to Microsoft Entra ID that a workload identity can handle Continuous Access Evaluation (CAE) claims challenges. When a token includes the extra xms_cc claim, Azure can revoke the token (or demand additional claims) in near‑realtime.
+## What this spec adds to **Microsoft.Identity.Web**
 
-This spec adds declarative cp1 and claims challenge auto‑handling to Managed Identity flows in Microsoft.Identity.Web (Id.Web). The goal is zero‑touch for most developers: a single configuration knob at startup, automatic 401/claims recovery at runtime.
+* **Declarative opt-in** – one configuration knob (`ClientCapabilities: [ "cp1" ]`).
+* **Transparent 401 recovery** – when a downstream Microsoft API responds with a 401+claims challenge, Id.Web automatically:
+  1. extracts the claims body;
+  2. bypasses its token cache;
+  3. requests a fresh token that satisfies the claims;
+  4. retries the HTTP call **once**.
 
-## Typical Flow   (MI + Downstream API)
+The goal is **zero-touch** for most developers.
 
-- MI token request – Id.Web sends xms_cc=cp1 at app creation.
-- Access granted – Downstream API returns 200.
-- Policy change – Token later revoked; next call to Downstream API gets 401 + claims.
-- Transparent recovery – Id.Web detects challenge ⇒ forwards claims body, acquires fresh token, retries once.
+## Typical Flow (Managed Identity → Downstream API)
 
-_app developer does not need to handle claims, downstream api takes care of this_
+```text
+1. Id.Web → MSI endpoint   : GET /token?resource=...&xms_cc=cp1    ──▶
+2. MSI  → ESTS             : request includes cp1              ──▶
+3. ESTS → Id.Web           : access_token (xms_cc claim present)    ◀──
+4. Id.Web → Downstream API : GET /resource  ⟶  200 OK               │
+5. Policy change occurs                                             │
+6. Id.Web → Downstream API : GET /resource  ⟶  401 + claims payload │
+7. Id.Web handles challenge (steps 1-4 again, bypassing msal cache)      ──▶
+```
 
 ## Design Goals
 
 | #   | Goal                                                         | Success Metric                                           |
 |-----|--------------------------------------------------------------|----------------------------------------------------------|
-| G1  | Transparent CAE retry with cache-bypass on 401 claims challenge. | Secret or Graph call recovers without developer code.    |
+| G1  | Transparent CAE retry with cache-bypass on 401 claims challenge. | Downstream API call recovers without developer code.    |
 | G2  | Declarative client capabilities via configuration.           | Single place to add `cp1`; all MI calls include it.      |
 
-## 5 · Public API Impact
+## Public API Impact
 
 no changes to the public api.
 
-## Configuration 
+## Configuration Example
 
 ```
 {
@@ -38,33 +48,60 @@ no changes to the public api.
     "ClientCapabilities": [ "cp1" ]
   },
 
-  // Resource entry (example)
-  "AzureKeyVault": {
-    "BaseUrl": "https://<your‑vault>.vault.azure.net/",
-    "RelativePath": "secrets/<secret-name>?api-version=7.4",
+  // Example downstream API definition (Contoso Storage API)
+  "ContosoStorage": {
+    "BaseUrl": "https://storage.contoso.com/",
+    "RelativePath": "data/records?api-version=1.0",
     "RequestAppToken": true,
-    "Scopes": [ "https://vault.azure.net/.default" ],
-
+    "Scopes": [ "https://storage.contoso.com/.default" ],
     "AcquireTokenOptions": {
       "ManagedIdentity": {
-        "UserAssignedClientId": "<user-assigned-mi-client-id>"
+        // optional – omit for system-assigned MI
+        "UserAssignedClientId": "<client-id>"
       }
     }
   }
 }
 ```
 
-## Code 
+> **Note** : The same configuration block works in *appsettings.json* or can be supplied programmatically.
 
-```cs
-// register the downstream API using the "AzureKeyVault" section ────
-factory.Services.AddDownstreamApi("AzureKeyVault",
-    factory.Configuration.GetSection("AzureKeyVault"));
+
+## Code Snippets
+
+### Registering & Calling a Downstream API
+
+```csharp
+// 1 – set up the TokenAcquirerFactory (test-helper shown for brevity)
+var factory = TokenAcquirerFactory.GetDefaultInstance();
+
+// 2 – register the downstream API using section "ContosoStorage"
+factory.Services.AddDownstreamApi("ContosoStorage",
+    factory.Configuration.GetSection("ContosoStorage"));
+
 IServiceProvider sp = factory.Build();
-IDownstreamApi api = sp.GetRequiredService<IDownstreamApi>();
+IDownstreamApi api   = sp.GetRequiredService<IDownstreamApi>();
 
-// ── 3. call the vault (app-token path) ──────────────────────────────────
-HttpResponseMessage response = await api.CallApiForAppAsync("AzureKeyVault");
+// 3 – call the API (Id.Web handles CAE automatically)
+HttpResponseMessage resp = await api.CallApiForAppAsync("ContosoStorage");
+```
+
+### Using **IAuthorizationHeaderProvider** (advanced)
+
+`IAuthorizationHeaderProvider` is fully supported with Managed Identity. Claims challenges propagate the same way:
+
+```csharp
+var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
+string header = await headerProvider.CreateAuthorizationHeaderForAppAsync(
+    scope: "https://storage.contoso.com/.default",
+    options: new AuthorizationHeaderProviderOptions
+    {
+        AcquireTokenOptions = new AcquireTokenOptions
+        {
+            ManagedIdentity = new ManagedIdentityOptions(), // system-assigned MI
+            Claims = claimsChallengeJson // when retrying after 401
+        }
+    });
 ```
 
 ## Telemetry
