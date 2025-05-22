@@ -6,10 +6,9 @@ using Microsoft.Identity.Client;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Internal abstraction so unit-tests can supply a custom
-    /// <see cref="IMsalHttpClientFactory"/>.
+    /// **TEST-ONLY.** Allows unit tests to supply a custom <see cref="IMsalHttpClientFactory"/>.
     /// </summary>
-    internal interface IManagedIdentityHttpClientFactory
+    internal interface IManagedIdentityTestHttpClientFactory
     {
         IMsalHttpClientFactory Create();
     }

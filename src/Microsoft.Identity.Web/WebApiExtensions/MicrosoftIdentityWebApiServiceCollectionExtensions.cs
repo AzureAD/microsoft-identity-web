@@ -38,10 +38,6 @@ namespace Microsoft.Identity.Web
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
 
-            services.AddHttpClient();
-            services.TryAddSingleton<IManagedIdentityHttpClientFactory,
-                                     DefaultManagedIdentityHttpClientFactory>();
-
             return builder.AddMicrosoftIdentityWebApi(
                 configuration,
                 configSectionName,

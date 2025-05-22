@@ -109,8 +109,7 @@ namespace Microsoft.Identity.Web
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
 
-            _miHttpFactory = serviceProvider.GetService<IManagedIdentityHttpClientFactory>()
-                   ?? new DefaultManagedIdentityHttpClientFactory(httpClientFactory);
+            _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
 
 #if NET6_0_OR_GREATER

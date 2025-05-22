@@ -18,6 +18,8 @@ using System.Text;
 using System.Security.Claims;
 using System.Threading;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Identity.Client.AppConfig;
+using System.Reflection;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
@@ -50,7 +52,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                 MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
 
             // Add the mock handler to the DI container
-            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
                 _ => new TestManagedIdentityHttpFactory(mockHttp));
 
             IAuthorizationHeaderProvider headerProvider = factory.Build()
@@ -82,7 +84,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mockedHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token1"));
             mockedHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token2"));
 
-            tokenAcquirerFactory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+            tokenAcquirerFactory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
                 _ => new TestManagedIdentityHttpFactory(mockedHttp));
 
             var headerProvider = tokenAcquirerFactory.Build()
@@ -134,7 +136,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-2")); // c
             mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-3")); // d
 
-            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
                 _ => new TestManagedIdentityHttpFactory(mockHttp));
 
             var provider = factory.Build();
@@ -184,7 +186,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             var mockHttp = new MockHttpClientFactory();
             mockHttp.AddMockHandler(captureHandler);
-            factory.Services.AddSingleton<IManagedIdentityHttpClientFactory>(
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
                 _ => new TestManagedIdentityHttpFactory(mockHttp));
 
             // Enable capabilities cp1,cp2

@@ -5,7 +5,7 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.Test
 {
-    internal sealed class TestManagedIdentityHttpFactory : IManagedIdentityHttpClientFactory
+    internal sealed class TestManagedIdentityHttpFactory : IManagedIdentityTestHttpClientFactory
     {
         private readonly IMsalHttpClientFactory _msalHttpClientFactory;
         public TestManagedIdentityHttpFactory(IMsalHttpClientFactory msalHttpClientFactory)

@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();
         private readonly SemaphoreSlim _managedIdSemaphore = new(1, 1);
         private const string SystemAssignedManagedIdentityKey = "SYSTEM";
-        private readonly IManagedIdentityHttpClientFactory _miHttpFactory;
+        private readonly IManagedIdentityTestHttpClientFactory? _miHttpFactory;
 
         /// <summary>
         /// Gets a cached ManagedIdentityApplication object or builds a new one if not found.
@@ -103,7 +103,10 @@ namespace Microsoft.Identity.Web
                 miBuilder.WithClientCapabilities(capabilities);
             }
 
-            miBuilder.WithHttpClientFactory(_miHttpFactory.Create());
+            if (_miHttpFactory != null)
+            {
+                miBuilder.WithHttpClientFactory(_miHttpFactory.Create());
+            }
 
             return miBuilder.Build();
 
