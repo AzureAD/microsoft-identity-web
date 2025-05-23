@@ -1,9 +1,19 @@
+3.9.2
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.11.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.11.0).
+- MSAL.NET updated to version [MSAL.NET 4.72.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.72.1).
+
+### Fundamentals:
+- Fix invalid comparisons in prop and csproj files. For details see [#3297](https://github.com/AzureAD/microsoft-identity-web/pull/3297).
+
 3.9.1
+========
 ### Package updates
 - Microsoft.Identity.Abstractions updated to version [9.1.0](https://github.com/AzureAD/azure-identity-abstractions/releases/tag/9.1.0).
 
 ### Fundamentals
-- Fix AoT warnings. For details see [#3366](https://github.com/AzureAD/microsoft-identity-web/pull/3366)
+- Fix AoT warnings. For details see [#3366](https://github.com/AzureAD/microsoft-identity-web/pull/3366).
 
 3.9.0
 ========
