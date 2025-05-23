@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Identity.Web
 {
@@ -36,6 +37,7 @@ namespace Microsoft.Identity.Web
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
         {
             AuthenticationBuilder builder = services.AddAuthentication(jwtBearerScheme);
+
             return builder.AddMicrosoftIdentityWebApi(
                 configuration,
                 configSectionName,
