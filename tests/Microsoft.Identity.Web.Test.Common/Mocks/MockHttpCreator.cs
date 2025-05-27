@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Identity.Web.Util;
@@ -69,6 +71,32 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 ExpectedMethod = expectedMethod,
                 ExpectedPostData = expectedPostData,
                 ResponseMessage = CreateSuccessfulClientCredentialTokenResponseMessage(),
+            };
+        }
+
+        public static MockHttpMessageHandler CreateMsiTokenHandler(
+            string accessToken,
+            string resource = "https://management.azure.com/",
+            int expiresIn = 3599)
+        {
+            string expiresOn = DateTimeOffset.UtcNow
+                               .AddSeconds(expiresIn)
+                               .ToUnixTimeSeconds()
+                               .ToString(CultureInfo.InvariantCulture);
+
+            string json = $@"{{
+              ""access_token"": ""{accessToken}"",
+              ""expires_in""  : ""{expiresIn}"",
+              ""expires_on""  : ""{expiresOn}"",
+              ""resource""    : ""{resource}"",
+              ""token_type""  : ""Bearer"",
+              ""client_id""   : ""client_id""
+            }}";
+
+            return new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = CreateSuccessResponseMessage(json)
             };
         }
     }
