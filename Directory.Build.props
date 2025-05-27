@@ -26,8 +26,8 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <TargetFrameworks>net6.0; net7.0; net8.0; net9.0; net462; net472; netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)' == 'True'">net6.0; net7.0; net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)' == 'False'">net6.0; net7.0; net8.0; net9.0; net462; net472; netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -55,7 +55,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFramework)' != 'net8.0' and '$(TargetFramework)' != 'net9.0'">
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFramework)' != 'net8.0' and '$(TargetFramework)' != 'net9.0' and '$(TargetFramework)' != 'net10.0'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -94,6 +94,23 @@
     <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
     <PublicApiAnalyzersVersion>3.3.4</PublicApiAnalyzersVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' ==  'net10.0'">
+    <NetTenRuntimeVersion>10.0.100-preview.3.25201.16</NetTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.0-preview.3.25172.1</AspNetCoreTenRuntimeVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">

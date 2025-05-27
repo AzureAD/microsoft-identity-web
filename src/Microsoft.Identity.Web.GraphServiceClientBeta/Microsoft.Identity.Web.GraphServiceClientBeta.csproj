@@ -24,6 +24,11 @@
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(NetNineRuntimeVersion)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
