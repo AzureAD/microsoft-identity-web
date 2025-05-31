@@ -2,7 +2,7 @@
 
 ## Overview
 
-Microsoft Identity Web is a comprehensive authentication and authorization library for ASP.NET Core applications that integrates with the Microsoft identity platform and Azure AD B2C. The library provides essential functionality for:
+Microsoft Identity Web is a comprehensive authentication and authorization library for ASP.NET Core, OWIN web apps and web APIs, and daemon apps that integrate with the Microsoft identity platform and CIAM or AzureAD B2C. The library provides essential functionality for:
 
 - Web applications that sign in users and optionally call web APIs
 - Protected web APIs that may call downstream web APIs
@@ -32,6 +32,7 @@ The following templates are provided:
 - ASP.NET Core MVC (Starter Web)
 - ASP.NET Core Web API
 - Worker Service
+- Daemon app
 
 ## Shipped DLLs/Packages
 
@@ -42,11 +43,11 @@ The following NuGet packages are shipped as part of Microsoft.Identity.Web:
 - Microsoft.Identity.Web.UI - UI components and controllers for authentication
 - Microsoft.Identity.Web.TokenCache - Token cache implementations
 - Microsoft.Identity.Web.TokenAcquisition - Token acquisition functionality
+- Microsoft.Identity.Web.Certificate - Certificate management and loading
+- Microsoft.Identity.Web.Certificateless - Support for certificateless authentication
 
 ### Integration Packages
 - Microsoft.Identity.Web.Azure - Azure SDK integration support
-- Microsoft.Identity.Web.Certificate - Certificate management and loading
-- Microsoft.Identity.Web.Certificateless - Support for certificateless authentication
 - Microsoft.Identity.Web.DownstreamApi - Support for calling downstream APIs
 - Microsoft.Identity.Web.OWIN - OWIN middleware integration
 
