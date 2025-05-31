@@ -6,6 +6,7 @@ Microsoft Identity Web is a comprehensive authentication and authorization libra
 
 - Web applications that sign in users and optionally call web APIs
 - Protected web APIs that may call downstream web APIs
+- Daemon applications calling downstream APIs
 - Token cache implementations
 - Microsoft Graph integration
 - Azure SDK integration
