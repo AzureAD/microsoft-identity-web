@@ -1,2 +1,4 @@
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
 Microsoft.Identity.Web.ClientInfoJsonContext
+Microsoft.Identity.Web.IManagedIdentityTestHttpClientFactory
+Microsoft.Identity.Web.IManagedIdentityTestHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
