@@ -77,11 +77,14 @@ The following NuGet packages are shipped as part of Microsoft.Identity.Web:
 - Include benchmark tests for performance-sensitive changes
 - Verify security implications of changes
 
-### Public API Changes
-- The project uses Microsoft.CodeAnalysis.PublicApiAnalyzers (version 3.3.4) to track changes to public APIs
-- For any changes to public APIs (classes, interfaces, methods, properties, etc.), you must:
-  1. Locate the PublicAPI.Unshipped.txt file in the directory of the changed code
-  2. Include the complete API signature
+### Public and Internal API Changes
+- The project uses Microsoft.CodeAnalysis.PublicApiAnalyzers
+- For any public and internal API (i.e. public and internal member) changes:
+  1. Update PublicAPI.Unshipped.txt in the relevant package directory for a public API change
+  2. Update InternalAPI.Unshipped.txt in the relevant package directory for an internal API change
+  3. Include complete API signatures
+  4. Consider backward compatibility impacts
+  5. Document breaking changes clearly
 
 Example format:
 ```diff
@@ -94,4 +97,4 @@ Example format:
 -MyNamespace.MyClass.OldMethod() -> void
 ```
 
-The analyzer will verify during build that all public API changes are properly documented, and the build will fail if changes are not reflected in PublicAPI.Unshipped.txt.
+The analyzer enforces documentation of all public API changes in PublicAPI.Unshipped.txt and all internal API changes in InternalAPI.Unshipped.txt and will fail the build if changes are not properly reflected.
