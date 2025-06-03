@@ -1,4 +1,4 @@
-# IdWeb Guidelines
+# Microsoft Identity Web Guidelines
 
 ## Overview
 
