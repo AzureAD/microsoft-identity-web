@@ -93,7 +93,7 @@
     <!--CVE-2023-29331-->
     <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
-    <PublicApiAnalyzersVersion>3.3.4</PublicApiAnalyzersVersion>
+    <PublicApiAnalyzersVersion>4.14.0</PublicApiAnalyzersVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
