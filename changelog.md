@@ -1,3 +1,14 @@
+3.9.3
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.12.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.12.0).
+
+### Fundamentals
+- Add `.clinerules` to help with AI tooling.
+- **Update PublicApiAnalyzers and BannedApiAnalyzers to 4.14.0**  
+  Upgraded analyzer packages for improved diagnostics and code consistency (in particular delegates are added).  
+  For details see [#3379](https://github.com/AzureAD/microsoft-identity-web/pull/3379)  
+  
 3.9.2
 =======
 ### Package updates

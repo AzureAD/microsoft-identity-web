@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
     <!-- This needs to be greater than or equal to the validation baseline version -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.9.1</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.9.3</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
 
@@ -78,7 +78,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.10.0</MicrosoftIdentityModelVersion>
+    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.12.0</MicrosoftIdentityModelVersion>
     <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.72.1</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
@@ -92,8 +92,8 @@
     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
     <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
-    <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
-    <PublicApiAnalyzersVersion>3.3.4</PublicApiAnalyzersVersion>
+    <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
+    <PublicApiAnalyzersVersion>4.14.0</PublicApiAnalyzersVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
