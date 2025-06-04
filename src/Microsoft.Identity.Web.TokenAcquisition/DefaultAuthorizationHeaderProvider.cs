@@ -40,17 +40,6 @@ namespace Microsoft.Identity.Web
             return result.CreateAuthorizationHeader();
         }
 
-        /// <summary>
-        /// Since AcquireTokenOptions is recreated, we need to update the original options wth the parameters that were updated in
-        /// the new TokenAcquisitionOptions.
-        /// </summary>
-        /// <param name="acquireTokenOptions"></param>
-        /// <param name="newTokenAcquisitionOptions"></param>
-        private void UpdateOriginalTokenAcquisitionOptions(AcquireTokenOptions? acquireTokenOptions, TokenAcquisitionOptions newTokenAcquisitionOptions)
-        {
-            acquireTokenOptions!.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
-        }
-
         /// <inheritdoc/>
         public async Task<string> CreateAuthorizationHeaderForAppAsync(
             string scopes,
@@ -131,6 +120,15 @@ namespace Microsoft.Identity.Web
                 PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
                 FmiPath = downstreamApiOptions?.AcquireTokenOptions.FmiPath,
             };
+        }
+
+        /// <summary>
+        /// Since AcquireTokenOptions is recreated, we need to update the original TokenAcquisitionOptions wth the parameters that were
+        /// updated in the new TokenAcquisitionOptions.
+        /// </summary>
+        private void UpdateOriginalTokenAcquisitionOptions(AcquireTokenOptions? acquireTokenOptions, TokenAcquisitionOptions newTokenAcquisitionOptions)
+        {
+            acquireTokenOptions!.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
         }
     }
 }
