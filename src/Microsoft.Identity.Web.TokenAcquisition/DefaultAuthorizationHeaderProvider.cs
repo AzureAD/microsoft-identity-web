@@ -46,14 +46,12 @@ namespace Microsoft.Identity.Web
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             CancellationToken cancellationToken = default)
         {
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scopes,
                 downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                 downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                newTokenAcquisitionOptions).ConfigureAwait(false);
+                CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
 
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
             return result.CreateAuthorizationHeader();
         }
 
@@ -128,7 +126,10 @@ namespace Microsoft.Identity.Web
         /// </summary>
         private void UpdateOriginalTokenAcquisitionOptions(AcquireTokenOptions? acquireTokenOptions, TokenAcquisitionOptions newTokenAcquisitionOptions)
         {
-            acquireTokenOptions!.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
+            if (acquireTokenOptions is not null && newTokenAcquisitionOptions is not null)
+            {
+                acquireTokenOptions.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Test
     public class AuthorizationHeaderProviderTests
     {
         [Fact]
-        public async Task LongRunningSessionTest()
+        public async Task LongRunningSessionForDefaultAuthProviderForUserTest()
         {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactoryForTest();
@@ -30,49 +30,72 @@ namespace Microsoft.Identity.Web.Test
                 serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
 
-            mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            using (mockHttpClient)
+            {
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
 
-            // Create a test ClaimsPrincipal
-            var claims = new List<Claim>
+                // Create a test ClaimsPrincipal
+                var claims = new List<Claim>
                             {
                                 new Claim(ClaimTypes.Name, "testuser@contoso.com")
                             };
 
-            var identity = new CaseSensitiveClaimsIdentity(claims, "TestAuth");
-            identity.BootstrapContext = CreateTestJwt();
-            var claimsPrincipal = new ClaimsPrincipal(identity);
+                var identity = new CaseSensitiveClaimsIdentity(claims, "TestAuth");
+                identity.BootstrapContext = CreateTestJwt();
+                var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            // Create options with LongRunningWebApiSessionKey
-            var options = new AuthorizationHeaderProviderOptions
-            {
-                AcquireTokenOptions = new AcquireTokenOptions
+                // Create options with LongRunningWebApiSessionKey
+                var options = new AuthorizationHeaderProviderOptions
                 {
-                    LongRunningWebApiSessionKey = TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto
-                }
-            };
+                    AcquireTokenOptions = new AcquireTokenOptions
+                    {
+                        LongRunningWebApiSessionKey = TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto
+                    }
+                };
 
-            // Act & Assert
+                // Act & Assert
 
-            // Step 3: First call with ClaimsPrincipal to initiate LR session
-            var scopes = new[] { "https://graph.microsoft.com/.default" };
-            var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                scopes,
-                options,
-                claimsPrincipal);
+                // Step 3: First call with ClaimsPrincipal to initiate LR session
+                var scopes = new[] { "User.Read" };
+                var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    scopes,
+                    options,
+                    claimsPrincipal);
 
-            Assert.NotNull(result);
-            Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
-            string key1 = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
+                Assert.NotNull(result);
+                Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
+                string key1 = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
 
-            // Step 4: Second call without ClaimsPrincipal should return the token from cache
-            var result2 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                                scopes,
-                                options,
-                                claimsPrincipal: null);
+                // Step 4: Second call without ClaimsPrincipal should return the token from cache
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                                    scopes,
+                                    options);
 
-            Assert.NotNull(result);
-            Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
-            Assert.Equal(key1, options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+                Assert.NotNull(result);
+                Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
+                Assert.Equal(key1, options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+
+                // Step 5: First call with ClaimsPrincipal to initiate LR session for CreateAuthorizationHeaderAsync
+                scopes = new[] { "User.Write" };
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                    scopes,
+                    options,
+                    claimsPrincipal);
+
+                Assert.NotNull(result);
+                Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
+                key1 = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
+
+                // Step 6: Second call without ClaimsPrincipal should return the token from cache for CreateAuthorizationHeaderAsync
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                                    scopes,
+                                    options);
+
+                Assert.NotNull(result);
+                Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
+                Assert.Equal(key1, options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+            }
         }
 
         private static string CreateTestJwt()
