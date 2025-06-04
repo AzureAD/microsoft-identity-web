@@ -1,7 +1,7 @@
 ﻿# VM-Hosted Key Vault Secret Retriever
 
 Tiny console app that runs **inside an Azure VM** configured with a **User-Assigned Managed Identity (UAMI)**.  
-Its only job is to fetch **Secret** from an Azure Key Vault section in *appsettings.json*.
+Its only job is to fetch **Secret** from an Azure Key Vault section specified in the *appsettings.json*.
 
 ---
 
@@ -21,28 +21,10 @@ Its only job is to fetch **Secret** from an Azure Key Vault section in *appsetti
 
 ## 2. How the Code Works
 
-```txt
-┌─────────────┐    1. TokenAcquirerFactory auto-binds
-│ appsettings │─── to Azure credentials (UAMI) on the VM.
-└─────────────┘
-        │
-        ▼
-┌────────────────────┐   2. Register “AzureKeyVault” downstream API
-│  DI Service graph  │── using the config section.
-└────────────────────┘
-        │
-        ▼
-┌───────────────────────┐
-│  IDownstreamApi.Call  │ 3. GET {vault-url}/secrets/secret?api-version=7.4
-└───────────────────────┘
-        │
-        ▼
-┌───────────────────────┐
-│  HttpResponseMessage  │ 4. Parse JSON; extract `value`.
-└───────────────────────┘
-        │
-        ▼
-┌───────────────────────┐
-│  Console logging      │ 5. Log *success*.
-└───────────────────────┘
+```mermaid
+flowchart TD
+    A["1️⃣ **appsettings.json**<br/>(TokenAcquirerFactory auto-binds UAMI creds)"] --> B["2️⃣ **DI Container**<br/>(register “AzureKeyVault” downstream API)"]
+    B --> C["3️⃣ **IDownstreamApi.Call**<br/>GET {vault-url}/secrets/secret?api-version=7.4"]
+    C --> D["4️⃣ **HttpResponseMessage**<br/>Parse JSON → extract `value`"]
+    D --> E["5️⃣ **Console logging**<br/>Log *success*"]
 ```

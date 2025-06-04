@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.TestOnly;
 
 namespace Microsoft.Identity.Web.Test
 {

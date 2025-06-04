@@ -3,7 +3,7 @@
 
 using Microsoft.Identity.Client;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.TestOnly
 {
     /// <summary>
     /// **TEST-ONLY.** Allows unit tests to supply a custom <see cref="IMsalHttpClientFactory"/>.
