@@ -32,9 +32,6 @@ namespace Microsoft.Identity.Web.Test
 
             using (mockHttpClient)
             {
-                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
-                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
-
                 // Create a test ClaimsPrincipal
                 var claims = new List<Claim>
                             {
@@ -58,6 +55,7 @@ namespace Microsoft.Identity.Web.Test
 
                 // Step 3: First call with ClaimsPrincipal to initiate LR session
                 var scopes = new[] { "User.Read" };
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateLrOboTokenHandler(scopes));
                 var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     scopes,
                     options,
@@ -78,6 +76,7 @@ namespace Microsoft.Identity.Web.Test
 
                 // Step 5: First call with ClaimsPrincipal to initiate LR session for CreateAuthorizationHeaderAsync
                 scopes = new[] { "User.Write" };
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateLrOboTokenHandler(scopes));
                 result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                     scopes,
                     options,
