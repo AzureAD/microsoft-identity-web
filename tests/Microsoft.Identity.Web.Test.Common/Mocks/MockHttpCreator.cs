@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
                 "{\"token_type\":\"" + tokenType + "\",\"expires_in\":" + expiry + ",\"client_info\":\"" + CreateClientInfo() + "\",\"access_token\":\"" + token + "\"}");
         }
 
-        public static HttpResponseMessage GetLrOboTokenResponse(string[] scopes, string accessToken = "header.payload.signature", string refreshToken = "header.payload.signatureRt")
+        public static HttpResponseMessage GetLrOboTokenResponse(string scopes, string accessToken = "header.payload.signature", string refreshToken = "header.payload.signatureRt")
         {
             return CreateSuccessResponseMessage(
           "{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"refresh_in\":\"2400\",\"scope\":" +
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         }
 
         public static MockHttpMessageHandler CreateLrOboTokenHandler(
-            string[] scopes, string accessToken = "header.payload.signature", string refreshToken = "header.payload.signatureRt")
+            string scopes, string accessToken = "header.payload.signature", string refreshToken = "header.payload.signatureRt")
         {
             var handler = new MockHttpMessageHandler()
             {
