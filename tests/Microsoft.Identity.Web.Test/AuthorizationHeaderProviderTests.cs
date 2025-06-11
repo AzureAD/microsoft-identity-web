@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web.Test
     public class AuthorizationHeaderProviderTests
     {
         [Fact]
-        public async Task LongRunningSessionForDefaultAuthProviderForUserTest()
+        public async Task LongRunningSessionForDefaultAuthProviderForUserDefaultKeyTest()
         {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactoryForTest();
@@ -47,6 +47,8 @@ namespace Microsoft.Identity.Web.Test
                 {
                     AcquireTokenOptions = new AcquireTokenOptions
                     {
+                        //When this is set to Auto, the first call will set the LongRunningWebApiSessionKey in the options to
+                        //the hash of the ClaimsPrincipal's access token.
                         LongRunningWebApiSessionKey = TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto
                     }
                 };
@@ -94,6 +96,88 @@ namespace Microsoft.Identity.Web.Test
                 Assert.NotNull(result);
                 Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
                 Assert.Equal(key1, options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+            }
+        }
+
+        [Fact]
+        public async Task LongRunningSessionForDefaultAuthProviderForUserTest()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactoryForTest();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+
+            using (mockHttpClient)
+            {
+                // Create a test ClaimsPrincipal
+                var claims = new List<Claim>
+                            {
+                                new Claim(ClaimTypes.Name, "testuser@contoso.com")
+                            };
+
+                var identity = new CaseSensitiveClaimsIdentity(claims, "TestAuth");
+                identity.BootstrapContext = CreateTestJwt();
+                var claimsPrincipal = new ClaimsPrincipal(identity);
+
+                // Create options with LongRunningWebApiSessionKey
+                var options = new AuthorizationHeaderProviderOptions
+                {
+                    AcquireTokenOptions = new AcquireTokenOptions
+                    {
+                        LongRunningWebApiSessionKey = "oboKey1"
+                    }
+                };
+
+                // Act & Assert
+
+                // Step 3: First call with ClaimsPrincipal to initiate LR session
+                var scopes = new[] { "User.Read" };
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateLrOboTokenHandler("User.Read"));
+                var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    scopes,
+                    options,
+                    claimsPrincipal);
+
+                Assert.NotNull(result);
+                Assert.Equal("oboKey1", options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+
+                // Step 4: Second call without ClaimsPrincipal should return the token from cache
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                                    scopes,
+                                    options);
+
+                Assert.NotNull(result);
+                Assert.Equal("oboKey1", options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+
+                options = new AuthorizationHeaderProviderOptions
+                {
+                    AcquireTokenOptions = new AcquireTokenOptions
+                    {
+                        LongRunningWebApiSessionKey = "oboKey2"
+                    }
+                };
+
+                // Step 5: First call with ClaimsPrincipal to initiate LR session for CreateAuthorizationHeaderAsync
+                scopes = new[] { "User.Write" };
+                mockHttpClient!.AddMockHandler(MockHttpCreator.CreateLrOboTokenHandler("User.Write"));
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                    scopes,
+                    options,
+                    claimsPrincipal);
+
+                Assert.NotNull(result);
+                Assert.Equal("oboKey2", options.AcquireTokenOptions.LongRunningWebApiSessionKey);
+
+                // Step 6: Second call without ClaimsPrincipal should return the token from cache for CreateAuthorizationHeaderAsync
+                result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                                    scopes,
+                                    options);
+
+                Assert.NotNull(result);
+                Assert.Equal("oboKey2", options.AcquireTokenOptions.LongRunningWebApiSessionKey);
             }
         }
 
