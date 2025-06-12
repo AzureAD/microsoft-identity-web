@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Abstractions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Default credentials loader.
     /// </summary>
-    public partial class DefaultCredentialsLoader : ICredentialsLoader
+    public partial class DefaultCredentialsLoader : ICredentialsLoader, ISigningCredentialsLoader
     {
         private readonly ILogger<DefaultCredentialsLoader> _logger;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _loadingSemaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
@@ -48,13 +49,13 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Dictionary of credential loaders per credential source. The application can add more to 
+        /// Dictionary of credential loaders per credential source. The application can add more to
         /// process additional credential sources(like dSMS).
         /// </summary>
         public IDictionary<CredentialSource, ICredentialSourceLoader> CredentialSourceLoaders { get; }
 
         /// <inheritdoc/>
-        /// Load the credentials from the description, if needed. 
+        /// Load the credentials from the description, if needed.
         /// Important: Ignores SKIP flag, propagates exceptions.
         public async Task LoadCredentialsIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
         {
@@ -99,9 +100,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        /// Loads first valid credential which is not marked as Skipped. 
+        /// Loads first valid credential which is not marked as Skipped.
         public async Task<CredentialDescription?> LoadFirstValidCredentialsAsync(
-            IEnumerable<CredentialDescription> credentialDescriptions, 
+            IEnumerable<CredentialDescription> credentialDescriptions,
             CredentialSourceLoaderParameters? parameters = null)
         {
             foreach (var credentialDescription in credentialDescriptions)
@@ -114,6 +115,31 @@ namespace Microsoft.Identity.Web
                 }
             }
             return null;
+        }
+
+        /// <inheritdoc/>
+        public async Task<SigningCredentials?> LoadSigningCredentialsAsync(
+        CredentialDescription credentialDescription,
+        CredentialSourceLoaderParameters? parameters = null)
+        {
+            _ = Throws.IfNull(credentialDescription);
+
+            try
+            {
+                await LoadCredentialsIfNeededAsync(credentialDescription, parameters);
+
+                if (credentialDescription.Certificate != null)
+                {
+                    return new X509SigningCredentials(credentialDescription.Certificate, credentialDescription.Algorithm);
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.CredentialLoadingFailure(_logger, credentialDescription, ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>

@@ -1,0 +1,3 @@
+Microsoft.Identity.Web.DefaultCredentialsLoader.LoadSigningCredentialsAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task<Microsoft.IdentityModel.Tokens.SigningCredentials?>!
+Microsoft.Identity.Web.ISigningCredentialsLoader
+Microsoft.Identity.Web.ISigningCredentialsLoader.LoadSigningCredentialsAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? parameters = null) -> System.Threading.Tasks.Task<Microsoft.IdentityModel.Tokens.SigningCredentials?>!
