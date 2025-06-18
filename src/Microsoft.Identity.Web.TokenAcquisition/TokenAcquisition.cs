@@ -597,6 +597,8 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopPublicKey!,
                            tokenAcquisitionOptions.PopClaim!);
                     }
+
+                    AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
                 }
             }
 
@@ -628,6 +630,20 @@ namespace Microsoft.Identity.Web
             finally
             {
                 _retryClientCertificate = false;
+            }
+        }
+
+        private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null)
+            {
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                {
+                    if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
+                    {
+                        builder.WithFmiPath(fmiPathForClientAssertion);
+                    }
+                }
             }
         }
 
@@ -1014,6 +1030,9 @@ namespace Microsoft.Identity.Web
                             }
 
                             builder.WithExtraQueryParameters(dict);
+
+                            // Need to have another method
+                            // AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
@@ -30,8 +31,17 @@ namespace Microsoft.Identity.Web.OidcFic
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
             string tokenExchangeUrl = _tokenExchangeUrl ?? "api://AzureADTokenExchange";
+            AcquireTokenOptions? acquireTokenOptions = null;
 
-            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(tokenExchangeUrl + "/.default");
+            if (assertionRequestOptions != null && !string.IsNullOrEmpty(assertionRequestOptions.ClientAssertionFmiPath))
+            {
+                acquireTokenOptions = new AcquireTokenOptions()
+                {
+                    FmiPath = assertionRequestOptions.ClientAssertionFmiPath
+                };
+            }
+
+            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(tokenExchangeUrl + "/.default", acquireTokenOptions);
             ClientAssertion clientAssertion;
             if (result != null)
             {
