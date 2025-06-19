@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />

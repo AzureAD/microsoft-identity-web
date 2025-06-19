@@ -563,6 +563,8 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
+                AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
                 if (dict != null)
@@ -619,9 +621,8 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopPublicKey!,
                            tokenAcquisitionOptions.PopClaim!);
                     }
-
-                    AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
                 }
+
             }
 
             try
@@ -663,7 +664,7 @@ namespace Microsoft.Identity.Web
                 {
                     if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
                     {
-                        builder.WithFmiPath(fmiPathForClientAssertion);
+                        builder.WithFmiPathForClientAssertion(fmiPathForClientAssertion);
                     }
                 }
             }
