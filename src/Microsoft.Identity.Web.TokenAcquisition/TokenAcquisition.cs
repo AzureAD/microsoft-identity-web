@@ -670,6 +670,20 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenOnBehalfOfParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null)
+            {
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                {
+                    if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
+                    {
+                        builder.WithFmiPathForClientAssertion(fmiPathForClientAssertion);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Acquires a token from the authority configured in the app, for the confidential client itself (not on behalf of a user)
         /// using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
@@ -1023,6 +1037,8 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                         if (dict != null)
                         {
