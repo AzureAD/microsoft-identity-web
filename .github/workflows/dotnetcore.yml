@@ -49,7 +49,7 @@ jobs:
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
     - name: Test with .NET 6.0.x
-      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
+      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!=AgentApplicationsTests)"
 
     - name: Create code coverage report
       run: |
@@ -77,10 +77,10 @@ jobs:
     #       })
 
     - name: Test with .NET 462
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net462 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net462 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests&(FullyQualifiedName!=AgentApplicationsTests))"
 
     - name: Test with .NET 472
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net472 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net472 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests&(FullyQualifiedName!=AgentApplicationsTests))"
 
     - name: Test with .NET Standard 2.0
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests&(FullyQualifiedName!=AgentApplicationsTests))"

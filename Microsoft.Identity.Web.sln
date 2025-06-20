@@ -164,7 +164,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Oidc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.UI.Test", "tests\Microsoft.Identity.Web.UI.Test\Microsoft.Identity.Web.UI.Test.csproj", "{CF31F33A-E5F5-DB57-4FEF-81BDAFD497C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentApplications", "tests\E2E Tests\AgentApplications\AgentApplications.csproj", "{DD56CDF7-E6B3-4304-B8DF-3AC610C35623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentApplicationsTests", "tests\E2E Tests\AgentApplications\AgentApplicationsTests.csproj", "{DD56CDF7-E6B3-4304-B8DF-3AC610C35623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.AgentIdentities", "src\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj", "{C14780ED-5756-2A09-C6A7-5DDA433D1E86}"
 EndProject

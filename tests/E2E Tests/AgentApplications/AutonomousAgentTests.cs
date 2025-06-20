@@ -10,7 +10,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
-namespace AgentApplications
+namespace AgentApplicationsTests
 {
     public class AutonomousAgentTests
     {
