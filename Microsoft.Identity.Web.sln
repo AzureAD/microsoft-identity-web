@@ -171,6 +171,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\AgenticAI\sample\client\client.csproj", "{8768E7C2-F3DC-A9C2-9344-CC496337461D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.AgentIdentities", "src\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj", "{C14780ED-5756-2A09-C6A7-5DDA433D1E86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "daemon-app-msi", "tests\DevApps\daemon-app\daemon-app-msi\daemon-app-msi.csproj", "{A8181404-23E0-D38B-454C-D16ECDB18B9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -407,6 +408,10 @@ Global
 		{C14780ED-5756-2A09-C6A7-5DDA433D1E86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C14780ED-5756-2A09-C6A7-5DDA433D1E86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C14780ED-5756-2A09-C6A7-5DDA433D1E86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8181404-23E0-D38B-454C-D16ECDB18B9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8181404-23E0-D38B-454C-D16ECDB18B9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8181404-23E0-D38B-454C-D16ECDB18B9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8181404-23E0-D38B-454C-D16ECDB18B9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -485,6 +490,7 @@ Global
 		{75CB7818-B2C0-4CB7-B087-F66E583E6843} = {7786D2DD-9EE4-42E1-B587-740A2E15C41D}
 		{8768E7C2-F3DC-A9C2-9344-CC496337461D} = {75CB7818-B2C0-4CB7-B087-F66E583E6843}
 		{C14780ED-5756-2A09-C6A7-5DDA433D1E86} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
+		{A8181404-23E0-D38B-454C-D16ECDB18B9F} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

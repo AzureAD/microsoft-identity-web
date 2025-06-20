@@ -1,3 +1,26 @@
+3.9.4
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.12.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.12.1).
+
+### Bug fix
+- Updates the `DefaultAuthorizationHeaderProvider` to update the `AcquireTokenOptions.LongRunningWebApiSessionKey` after the token is acquired so that the key can be used in the next OBO call. See PR [#3381](https://github.com/AzureAD/microsoft-identity-web/pull/3381) for details.
+
+### Fundamentals
+- Update .NET SDK version to 9.0.107 used when building or running the code. See [#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385) for details.
+- Improved test coverage for managed identity flows. See [#3350](https://github.com/AzureAD/microsoft-identity-web/pull/3350) for details.
+
+3.9.3
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.12.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.12.0).
+
+### Fundamentals
+- Add `.clinerules` to help with AI tooling.
+- **Update PublicApiAnalyzers and BannedApiAnalyzers to 4.14.0**  
+  Upgraded analyzer packages for improved diagnostics and code consistency (in particular delegates are added).  
+  For details see [#3379](https://github.com/AzureAD/microsoft-identity-web/pull/3379)  
+  
 3.9.2
 =======
 ### Package updates

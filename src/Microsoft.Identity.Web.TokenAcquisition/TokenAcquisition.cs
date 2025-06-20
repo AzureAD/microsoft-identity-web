@@ -21,6 +21,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -108,6 +109,7 @@ namespace Microsoft.Identity.Web
             _credentialsLoader = credentialsLoader;
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
+            _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
 
 #if NET6_0_OR_GREATER
@@ -498,7 +500,15 @@ namespace Microsoft.Identity.Web
                         mergedOptions,
                         tokenAcquisitionOptions.ManagedIdentity
                     );
-                    return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+
+                    var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
+
+                    if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
+                    {
+                        miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
+                    }
+
+                    return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
