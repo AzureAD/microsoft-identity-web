@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
 namespace AgentApplications
@@ -20,20 +21,7 @@ namespace AgentApplications
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceCollection services = tokenAcquirerFactory.Services;
             IConfiguration configuration = tokenAcquirerFactory.Configuration;
-            /*
-                        services.Configure<MicrosoftIdentityApplicationOptions>(options =>
-                        {
-                            options.Instance = "https://login.microsoftonline.com/";
-                            options.TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
-                            options.ClientId = "5dcf7676-5a20-4078-9f88-369f5a591f6d"; // Agent application.
-                            options.ClientCredentials = [
-                                new CredentialDescription
-                                {
-                                    SourceType = CredentialSource.SignedAssertionFromManagedIdentity
-                                }
-                                ];
-                        });
-            */
+           
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
             configuration["AzureAd:TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
             configuration["AzureAd:ClientId"] = "5dcf7676-5a20-4078-9f88-369f5a591f6d"; // Agent application.
@@ -60,8 +48,9 @@ namespace AgentApplications
             //// Request user tokens in interactive agents.
             //string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["https://graph.microsoft.com/.default"], options);
 
-            // Request agent tokens
-            string authorizationHeaderWithAppTokens = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+            // Request agent tokens. Expect an exception as this needs to run on a compute with managed identity.
+            await Assert.ThrowsAsync<ArgumentException>(async () => { await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options); });
+            // string authorizationHeaderWithAppTokens = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
         }
     }
 

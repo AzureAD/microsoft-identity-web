@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
                         { "ConfigurationSection", "AzureAd" },        // Use the default configuration section name
-                        { "RequiresSignedAssertionFmiPath", "true" }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
+                        { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]
             };

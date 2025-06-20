@@ -67,12 +67,10 @@ namespace Microsoft.Identity.Web.OidcFic
                 // Special case for Signed assertions with an FmiPath.
                 // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
                 signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl, _logger);
-                string? requiresSignedAssertionFmiPath = credentialDescription.CustomSignedAssertionProviderData["RequiresSignedAssertionFmiPath"] as string;                
-                if (!string.IsNullOrEmpty(requiresSignedAssertionFmiPath))
+                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
                 {
-                    (signedAssertion as OidcIdpSignedAssertionProvider).RequiresSignedAssertionFmiPath = true;
+                    signedAssertion.RequiresSignedAssertionFmiPath = true;
                 }
-
             }
 
             try

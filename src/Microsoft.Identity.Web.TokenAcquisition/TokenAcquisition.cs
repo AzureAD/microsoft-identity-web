@@ -246,7 +246,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(scopes);
 
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
@@ -486,30 +486,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            MergedOptions mergedOptions;
-
-            if (tokenAcquisitionOptions != null
-                && tokenAcquisitionOptions.ExtraParameters != null
-                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("MicrosoftIdentityOptions", out object? identityOptions)
-                && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
-            {
-                MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
-                mergedOptions = new MergedOptions()
-                {
-                    ClientId = microsoftEntraApplicationOptions.ClientId ?? parentMergedOptions.ClientId,
-                    Authority = microsoftEntraApplicationOptions.Authority  != "//v2.0" ? microsoftEntraApplicationOptions.Authority : parentMergedOptions.Authority,
-                    ClientCredentials = microsoftEntraApplicationOptions.ClientCredentials ?? parentMergedOptions.ClientCredentials,
-                    SendX5C = microsoftEntraApplicationOptions.SendX5C,
-                    Instance = microsoftEntraApplicationOptions.Instance ?? parentMergedOptions.Instance,
-                    AzureRegion = microsoftEntraApplicationOptions.AzureRegion ?? parentMergedOptions.AzureRegion,
-                    TenantId = microsoftEntraApplicationOptions.TenantId ?? parentMergedOptions.TenantId,
-                };
-            }
-            else
-            {
-                mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
-            }
-
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
             tenant = ResolveTenant(tenant, mergedOptions);
 
             // If using managed identity 
@@ -654,6 +631,35 @@ namespace Microsoft.Identity.Web
             {
                 _retryClientCertificate = false;
             }
+        }
+
+        private MergedOptions GetMergedOptions(string? authenticationScheme, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            MergedOptions mergedOptions;
+
+            if (tokenAcquisitionOptions != null
+                && tokenAcquisitionOptions.ExtraParameters != null
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("MicrosoftIdentityOptions", out object? identityOptions)
+                && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
+            {
+                MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
+                mergedOptions = new MergedOptions()
+                {
+                    ClientId = microsoftEntraApplicationOptions.ClientId ?? parentMergedOptions.ClientId,
+                    Authority = microsoftEntraApplicationOptions.Authority != "//v2.0" ? microsoftEntraApplicationOptions.Authority : parentMergedOptions.Authority,
+                    ClientCredentials = microsoftEntraApplicationOptions.ClientCredentials ?? parentMergedOptions.ClientCredentials,
+                    SendX5C = microsoftEntraApplicationOptions.SendX5C,
+                    Instance = microsoftEntraApplicationOptions.Instance ?? parentMergedOptions.Instance,
+                    AzureRegion = microsoftEntraApplicationOptions.AzureRegion ?? parentMergedOptions.AzureRegion,
+                    TenantId = microsoftEntraApplicationOptions.TenantId ?? parentMergedOptions.TenantId,
+                };
+            }
+            else
+            {
+                mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
+            }
+
+            return mergedOptions;
         }
 
         private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
