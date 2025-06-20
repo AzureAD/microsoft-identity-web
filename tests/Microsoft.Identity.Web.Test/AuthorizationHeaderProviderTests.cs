@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +18,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class AuthorizationHeaderProviderTests
     {
         [Fact]
