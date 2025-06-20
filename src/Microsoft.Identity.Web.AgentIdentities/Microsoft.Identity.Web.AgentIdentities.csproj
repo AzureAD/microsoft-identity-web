@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+
+    <Title>Microsoft Identity Web Agentic Identity support</Title>
+    <Product>Microsoft Identity Web for Agent Identities</Product>
+    <Description>Helper methods for Agent applications to act as the agent identities.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- The package is new in 3.10.0.-->
+    <PackageValidationBaselineVersion>3.10.0</PackageValidationBaselineVersion>
+    <EnablePackageValidation>false</EnablePackageValidation>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+  </ItemGroup>
+  
+</Project>

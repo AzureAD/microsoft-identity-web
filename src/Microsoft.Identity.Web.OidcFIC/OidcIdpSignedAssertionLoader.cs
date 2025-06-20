@@ -64,7 +64,13 @@ namespace Microsoft.Identity.Web.OidcFic
                     _configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
                 }
 
-                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl);
+                // Special case for Signed assertions with an FmiPath.
+                // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
+                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl, _logger);
+                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
+                {
+                    signedAssertion.RequiresSignedAssertionFmiPath = true;
+                }
             }
 
             try
