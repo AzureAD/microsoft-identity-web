@@ -81,6 +81,3 @@ jobs:
 
     - name: Test with .NET 472
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net472 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~AgentApplicationsTests)"
-
-    - name: Test with .NET Standard 2.0
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f netstandard2.0 -v normal -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~AgentApplicationsTests)"
