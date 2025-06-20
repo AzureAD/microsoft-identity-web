@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
         /// Updates the options to acquire a token for the agent identity.
         /// </summary>
         /// <param name="options">Authorization header provider options.</param>
-        /// <param name="agentApplicationId">The Agent Identity GUID.</param>
+        /// <param name="agentApplicationId">The agent identity GUID.</param>
         /// <returns>The updated authorization header provider options.</returns>
         public static AuthorizationHeaderProviderOptions WithAgentIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId)
         {
