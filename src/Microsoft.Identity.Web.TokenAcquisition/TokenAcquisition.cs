@@ -1085,9 +1085,6 @@ namespace Microsoft.Identity.Web
                             }
 
                             builder.WithExtraQueryParameters(dict);
-
-                            // Need to have another method
-                            // AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {

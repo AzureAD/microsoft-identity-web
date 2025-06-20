@@ -23,10 +23,7 @@ namespace Microsoft.Identity.Web
         /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddAgentIdentities(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services), "Service collection cannot be null.");
-            }
+            Throws.IfNull(services);
 
             // Register the OidcFic services for agent applications to work.
             services.AddOidcFic();
@@ -48,9 +45,7 @@ namespace Microsoft.Identity.Web
                 options = new AuthorizationHeaderProviderOptions();
 
             // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
-            if (options.AcquireTokenOptions == null)
-                options.AcquireTokenOptions = new AcquireTokenOptions();
-
+            options.AcquireTokenOptions ??= new AcquireTokenOptions();
             options.AcquireTokenOptions.ForAgentIdentity(agentApplicationId);
 
             return options;
@@ -59,8 +54,7 @@ namespace Microsoft.Identity.Web
         // TODO:make public?
         private static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId)
         {
-            if (options.ExtraParameters == null)
-                options.ExtraParameters = new Dictionary<string, object>();
+            options.ExtraParameters ??= new Dictionary<string, object>();
 
             // Until it makes it way through Abstractions
             options.ExtraParameters["fmiPathForClientAssertion"] = agentApplicationId;
@@ -81,37 +75,5 @@ namespace Microsoft.Identity.Web
             };
             return options;
         }
-
-        /*
-         * 
-
-            // Configuration for the Agent application (usual IdWeb/MISE configuration. Can be done programmatically or in appsettings.json).
-            services.Configure<MicrosoftIdentityApplicationOptions>(
-                options =>
-                {
-                    options.Name = "AzureAd"; // Name of the configuration section in appsettings.json
-                    options.Instance = "https://login.microsoftonline.com/";
-                    options.TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df"; // Replace with your tenant ID
-                    options.ClientId = "5dcf7676-5a20-4078-9f88-369f5a591f6d"; // Agent application.
-                    options.ClientCredentials = [ new CredentialDescription() {
-                        SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
-                    }];
-                });
-
-
-         */
-
-
-        /*
-         *          // Autonomous agent identity accessing Microsoft Graph API using the AuthorizationHeaderProvider
-                    authorizationHeaderProvider.CreateAuthorizationHeaderForAgentIdentity("https://graph.microsoft.com/.default",
-                        "your-agent-application-id-here");
-        */
-
-        /*
-             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer("");
-             var token = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default",
-                 new AcquireTokenOptions().WithAgentIdentity("5dcf7676-5a20-4078-9f88-369f5a591f6d"));
-        */
     }
 }

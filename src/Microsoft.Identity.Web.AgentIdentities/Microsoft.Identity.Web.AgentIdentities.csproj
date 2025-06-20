@@ -6,7 +6,8 @@
     <Description>Helper methods for Agent applications to act as the agent identities.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <PackageValidationBaselineVersion>3.9.4</PackageValidationBaselineVersion>
+    <!-- The package is new in 3.10.0.-->
+    <PackageValidationBaselineVersion>3.10.0</PackageValidationBaselineVersion>
     <EnablePackageValidation>false</EnablePackageValidation>
     
   </PropertyGroup>
@@ -26,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.Diagnostics\Microsoft.Identity.Web.Diagnostics.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
