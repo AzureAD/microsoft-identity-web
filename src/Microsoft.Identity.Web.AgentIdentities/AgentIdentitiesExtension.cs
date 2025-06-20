@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web
         /// Enable support for agent identities.
         /// </summary>
         /// <param name="services">Service collection</param>
-        /// <returns>the service collection for chaining</returns>
+        /// <returns>The service collection for chaining.</returns>
         public static IServiceCollection AddAgentIdentities(this IServiceCollection services)
         {
             if (services == null)
