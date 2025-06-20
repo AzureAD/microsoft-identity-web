@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 
 namespace AgentApplicationsTests
