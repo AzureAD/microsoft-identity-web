@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.OidcFic
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
-        public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger?   logger)
+        public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
