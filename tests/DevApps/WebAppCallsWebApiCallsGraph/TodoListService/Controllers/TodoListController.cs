@@ -93,7 +93,7 @@ namespace TodoListService.Controllers
             {
                 HttpClient httpClient = new HttpClient();
                 
-                var message = await httpClient.GetAsync(url);
+                var message = await httpClient.GetAsync(url); // CodeQL [SM03781] Requests are made to a sample controller on localhost
             }, null, 1000, 1000 * 60 * 1);  // Callback every minute
         }
 

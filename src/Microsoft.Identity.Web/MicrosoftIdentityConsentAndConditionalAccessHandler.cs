@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Web
 
                 lock (httpContext)
                 {
-                    httpContext.Response.Redirect(url);
+                    httpContext.Response.Redirect(url); // CodeQL [SM00405] Intentionally redirect to URL containing specific claims
                 }
             }
         }
