@@ -126,7 +126,7 @@ namespace Microsoft.Identity.Web.Test
 
             errorAccessor.DidNotReceive().SetMessage(httpContext, Arg.Any<string>());
 
-            httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/");
+            httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/"); // CodeQL [SM00405] Unit test; no unvalidated user input in the URL
         }
 
         [Fact]
