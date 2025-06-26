@@ -79,7 +79,7 @@
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.12.1</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.72.1</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.73.1</MicrosoftIdentityClientVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
