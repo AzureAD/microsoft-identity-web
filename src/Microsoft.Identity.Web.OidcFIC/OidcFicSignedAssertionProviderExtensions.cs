@@ -19,7 +19,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>the service collection for chaining.</returns>
         public static IServiceCollection AddOidcFic(this IServiceCollection services)
         {
-            services.AddSingleton<ICustomSignedAssertionProvider, OidcIdpSignedAssertionLoader>();
+
+            
+            services.TryAddEnumerable[ ServiceDescriptor.Singleton<ICustomSignedAssertionProvider, OidcIdpSignedAssertionLoader>] ();
             return services;
         }
     }
