@@ -109,6 +109,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task TestBaseAuthorizationHeaderProviderAsync()
         {
+            TokenAcquirerFactory.ResetDefaultInstance();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             // Test the extensibility
             tokenAcquirerFactory.Services.AddSingleton<IAuthorizationHeaderProvider, CustomAuthorizationHeaderProvider>();
