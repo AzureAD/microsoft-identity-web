@@ -2,16 +2,14 @@
 =======
 ### Dependencies updates
 - Updated MSAL to version 4.73.1 ([#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398)).
-- Updated IdentityModel to 8.12.1 ([#3389](https://github.com/AzureAD/microsoft-identity-web/pull/3389)).
-- Updated `global.json` ([#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385)).
+- Updated `global.json` to the latest .NET 9 framework ([#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385)).
 
 ### New feature
 - Added support for Agent Identities ([#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402)).  
   introducing the `Microsoft.Identity.Web.AgentIdentities` package .
 
 ### Bug fixes
-- Fixed an error in long-running OBO scenarios with `DefaultAuthorizationHeaderProvider` ([#3382](https://github.com/AzureAD/microsoft-identity-web/issues/3382), [#3381](https://github.com/AzureAD/microsoft-identity-web/pull/3381)).
-- CodeQL issues
+- Processed codeQL issues
 
 ### Fundamentals
 - improved unit tests for OidcFic with the new SignedAssertionFmiPath
