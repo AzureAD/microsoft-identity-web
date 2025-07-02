@@ -1,3 +1,19 @@
+3.10.0
+=======
+### Dependencies updates
+- Updated MSAL to version 4.73.1 ([#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398)).
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 ([#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385)).
+
+### New feature
+- Added support for Agent Identities ([#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402)).  
+  introducing the `Microsoft.Identity.Web.AgentIdentities` package .
+
+### Bug fixes
+- Processed codeQL issues
+
+### Fundamentals
+- improved unit tests for OidcFic with the new SignedAssertionFmiPath
+
 3.9.4
 =======
 ### Package updates
