@@ -75,6 +75,37 @@ This library controls how users sign-in and access services. We recommend you al
 
 If you find a security issue with our libraries or services, please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
 
+## Building with .NET 10 Preview
+
+Microsoft Identity Web supports building and testing with .NET 10 preview versions using the `TargetNetNext` conditional compilation flag. This enables early testing and compatibility validation with the latest .NET preview releases.
+
+### Prerequisites
+
+- Install .NET 10 preview SDK from [https://dotnet.microsoft.com/download/dotnet/10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Building with .NET 10 Preview
+
+To build the solution with .NET 10 preview support:
+
+```bash
+# Build with .NET 10 preview targets included
+dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=true
+
+# Or using MSBuild
+msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=true
+```
+
+### Testing with .NET 10 Preview
+
+To run tests targeting .NET 10 preview:
+
+```bash
+# Run tests with .NET 10 preview (conditional)
+dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=true
+```
+
+**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=true` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
+
 ## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks). Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
