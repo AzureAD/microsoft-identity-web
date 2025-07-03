@@ -32,8 +32,8 @@ Microsoft.Identity.Web.DefaultCredentialsLoader.LoadFirstValidCredentialsAsync(S
 Microsoft.Identity.Web.DefaultCredentialsLoader.ResetCredentials(System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! credentialDescriptions) -> void
 Microsoft.Identity.Web.ICertificateLoader
 Microsoft.Identity.Web.ICertificateLoader.LoadIfNeeded(Microsoft.Identity.Web.CertificateDescription! certificateDescription) -> void
-static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue, string! password) -> Microsoft.Identity.Web.CertificateDescription!
+static Microsoft.Identity.Web.CertificateDescription.FromBase64Encoded(string! base64EncodedValue) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2! x509certificate2) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromKeyVault(string! keyVaultUrl, string! keyVaultCertificateName) -> Microsoft.Identity.Web.CertificateDescription!
 static Microsoft.Identity.Web.CertificateDescription.FromPath(string! path, string? password = null) -> Microsoft.Identity.Web.CertificateDescription!

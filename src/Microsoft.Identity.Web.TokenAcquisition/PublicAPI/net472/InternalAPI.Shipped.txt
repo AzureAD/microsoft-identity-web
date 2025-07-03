@@ -68,6 +68,7 @@ const Microsoft.Identity.Web.IDWebErrorMessage.ClientCredentialTenantShouldBeTen
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. " -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. " -> string!
@@ -242,6 +243,8 @@ Microsoft.Identity.Web.MsalAspNetCoreHttpClientFactory.GetHttpClient() -> System
 Microsoft.Identity.Web.MsalAspNetCoreHttpClientFactory.MsalAspNetCoreHttpClientFactory(System.Net.Http.IHttpClientFactory! httpClientFactory) -> void
 Microsoft.Identity.Web.MsAuth10AtPop
 Microsoft.Identity.Web.OidcConstants
+Microsoft.Identity.Web.TestOnly.IManagedIdentityTestHttpClientFactory
+Microsoft.Identity.Web.TestOnly.IManagedIdentityTestHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
 Microsoft.Identity.Web.TokenAcquirer
 Microsoft.Identity.Web.TokenAcquirer.TokenAcquirer(Microsoft.Identity.Web.ITokenAcquisition! tokenAcquisition, string? authenticationScheme) -> void
 Microsoft.Identity.Web.TokenAcquisition

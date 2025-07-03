@@ -1,3 +1,0 @@
-Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.OidcIdpSignedAssertionProvider(Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger) -> void
-Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.RequiresSignedAssertionFmiPath.get -> bool
-Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.RequiresSignedAssertionFmiPath.set -> void

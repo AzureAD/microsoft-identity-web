@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
     <!-- This needs to be greater than or equal to the validation baseline version -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.10.0</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.10.1</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
 
@@ -87,7 +87,7 @@
     <AzureSecurityKeyVaultCertificatesVersion>4.6.0</AzureSecurityKeyVaultCertificatesVersion>
     <MicrosoftGraphVersion>4.36.0</MicrosoftGraphVersion>
     <MicrosoftGraphBetaVersion>4.57.0-preview</MicrosoftGraphBetaVersion>
-    <MicrosoftIdentityAbstractionsVersion>9.1.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityAbstractionsVersion>9.2.0</MicrosoftIdentityAbstractionsVersion>
     <!--CVE-2024-43485-->
     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
