@@ -3,15 +3,15 @@
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net6.0; net8.0; net9.0; net462; net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net10.0'">
+    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0/net10.0 and has not been tested with it" warning -->
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
@@ -57,6 +57,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <MicrosoftAspNetCoreMvcTestingVersion>10.0.0-preview.1.25305.13</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
   <PropertyGroup>
