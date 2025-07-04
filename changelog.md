@@ -1,3 +1,16 @@
+3.10.1
+=======
+### New feature
+- Added support for building and testing with .NET 10 preview. Microsoft.Identity.Web can now be conditionally built on `net10.0` when using the `TargetNetNext=True` flag, enabling early testing and compatibility validation with the latest .NET preview versions.
+
+### Dependencies updates
+- Updated global.json to support .NET 10.0 preview SDK (10.0.100-preview.1.25307.7) with allowPrerelease support.
+- Added .NET 10 preview package versions for runtime dependencies.
+
+### Build system improvements
+- Updated GitHub Actions workflow to install and test with .NET 10 preview.
+- Updated Azure DevOps build templates to support .NET 10 preview SDK installation.
+
 3.10.0
 =======
 ### Dependencies updates

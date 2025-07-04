@@ -27,7 +27,17 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Runs powershell script
-      id: aot-powershell
+    - name: Setup .NET 10.0.x preview
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Runs AOT check with .NET 9.0
+      id: aot-powershell-net9
       run: build\test-aot.ps1 'net9.0'
+
+    - name: Runs AOT check with .NET 10.0 (conditional)
+      id: aot-powershell-net10
+      run: build\test-aot.ps1 'net10.0'
+      continue-on-error: true
 
