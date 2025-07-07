@@ -10,7 +10,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
+    internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
@@ -40,20 +40,14 @@ namespace Microsoft.Identity.Web.OidcFic
             {
                 if (credentialDescription.CustomSignedAssertionProviderData == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "CustomSignedAssertionProviderData is null");
-                    }
+                    Logger.CustomSignedAssertionProviderDataIsNull(_logger);
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
                 string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
                 if (sectionName == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "ConfigurationSection is null");
-                    }
+                    Logger.ConfigurationSectionIsNull(_logger);
                     throw new InvalidOperationException("ConfigurationSection is null");
                 }
 
@@ -81,10 +75,7 @@ namespace Microsoft.Identity.Web.OidcFic
             }
             catch (Exception ex)
             {
-                if (_logger != null)
-                {
-                    _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
-                }
+                Logger.FailedToGetSignedAssertion(_logger, credentialDescription.CustomSignedAssertionProviderName, ex.Message, ex);
                 credentialDescription.Skip = true;
                 throw;
             }
