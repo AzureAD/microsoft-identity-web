@@ -6,58 +6,27 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    // Log messages for OidcIdpSignedAssertionProvider
-    internal partial class OidcIdpSignedAssertionProvider
+    /// <summary>
+    /// High-performance logger extensions for OidcIdpSignedAssertionProvider.
+    /// </summary>
+    internal static partial class OidcIdpSignedAssertionProviderLoggerExtensions
     {
-        /// <summary>
-        /// Performant logging messages.
-        /// </summary>
-        private static class Logger
-        {
-            private static readonly Action<ILogger, Exception?> s_postponingToFirstCall =
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    new EventId(1, nameof(PostponingToFirstCall)),
-                    "OidcIdpSignedAssertionProvider: RequiresSignedAssertionFmiPath is true, but assertionRequestOptions is null. Postponing to first call"
-                );
+        [LoggerMessage(
+            EventId = 1,
+            Level = LogLevel.Debug,
+            Message = "OidcIdpSignedAssertionProvider: RequiresSignedAssertionFmiPath is true, but assertionRequestOptions is null. Postponing to first call")]
+        public static partial void PostponingToFirstCall(this ILogger? logger);
 
-            public static void PostponingToFirstCall(ILogger? logger)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Debug))
-                {
-                    s_postponingToFirstCall(logger, null);
-                }
-            }
+        [LoggerMessage(
+            EventId = 2,
+            Level = LogLevel.Debug,
+            Message = "OidcIdpSignedAssertionProvider: Acquiring token for {tokenExchangeUrl} with FmiPath: {fmiPath}")]
+        public static partial void AcquiringToken(this ILogger? logger, string tokenExchangeUrl, string? fmiPath);
 
-            private static readonly Action<ILogger, string, string?, Exception?> s_acquiringToken =
-                LoggerMessage.Define<string, string?>(
-                    LogLevel.Debug,
-                    new EventId(2, nameof(AcquiringToken)),
-                    "OidcIdpSignedAssertionProvider: Acquiring token for {tokenExchangeUrl} with FmiPath: {fmiPath}"
-                );
-
-            public static void AcquiringToken(ILogger? logger, string tokenExchangeUrl, string? fmiPath)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Debug))
-                {
-                    s_acquiringToken(logger, tokenExchangeUrl, fmiPath, null);
-                }
-            }
-
-            private static readonly Action<ILogger, string?, Exception?> s_acquiredToken =
-                LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    new EventId(3, nameof(AcquiredToken)),
-                    "OidcIdpSignedAssertionProvider: Acquired token for with FmiPath: {fmiPath}"
-                );
-
-            public static void AcquiredToken(ILogger? logger, string? fmiPath)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Debug))
-                {
-                    s_acquiredToken(logger, fmiPath, null);
-                }
-            }
-        }
+        [LoggerMessage(
+            EventId = 3,
+            Level = LogLevel.Debug,
+            Message = "OidcIdpSignedAssertionProvider: Acquired token for with FmiPath: {fmiPath}")]
+        public static partial void AcquiredToken(this ILogger? logger, string? fmiPath);
     }
 }

@@ -13,7 +13,7 @@ using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal partial class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
+    internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
     {
         private ITokenAcquirer? _tokenAcquirer = null;
         private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Web.OidcFic
             // we postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
             if (RequiresSignedAssertionFmiPath && assertionRequestOptions == null)
             {
-                Logger.PostponingToFirstCall(_logger);
+                _logger.PostponingToFirstCall();
 
                 // By using Now, we are certain to be called immediately again
                 return new ClientAssertion(null!, DateTimeOffset.Now);
@@ -58,11 +58,11 @@ namespace Microsoft.Identity.Web.OidcFic
                 };
             }
 
-            Logger.AcquiringToken(_logger, tokenExchangeUrl, acquireTokenOptions?.FmiPath);
+            _logger.AcquiringToken(tokenExchangeUrl, acquireTokenOptions?.FmiPath);
             string effectiveTokenExchangeUrl = (tokenExchangeUrl.EndsWith("/.default", StringComparison.OrdinalIgnoreCase)
                 ? tokenExchangeUrl : tokenExchangeUrl + "/.default");
             AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(effectiveTokenExchangeUrl, acquireTokenOptions);
-            Logger.AcquiredToken(_logger, acquireTokenOptions?.FmiPath);
+            _logger.AcquiredToken(acquireTokenOptions?.FmiPath);
             ClientAssertion clientAssertion;
             if (result != null)
             {

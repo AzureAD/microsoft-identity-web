@@ -10,7 +10,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
+    internal class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
@@ -40,14 +40,14 @@ namespace Microsoft.Identity.Web.OidcFic
             {
                 if (credentialDescription.CustomSignedAssertionProviderData == null)
                 {
-                    Logger.CustomSignedAssertionProviderDataIsNull(_logger);
+                    _logger.CustomSignedAssertionProviderDataIsNull();
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
                 string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
                 if (sectionName == null)
                 {
-                    Logger.ConfigurationSectionIsNull(_logger);
+                    _logger.ConfigurationSectionIsNull();
                     throw new InvalidOperationException("ConfigurationSection is null");
                 }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web.OidcFic
             }
             catch (Exception ex)
             {
-                Logger.FailedToGetSignedAssertion(_logger, credentialDescription.CustomSignedAssertionProviderName, ex.Message, ex);
+                _logger.FailedToGetSignedAssertion(credentialDescription.CustomSignedAssertionProviderName, ex.Message, ex);
                 credentialDescription.Skip = true;
                 throw;
             }

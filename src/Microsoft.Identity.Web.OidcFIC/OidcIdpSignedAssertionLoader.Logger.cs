@@ -6,58 +6,27 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    // Log messages for OidcIdpSignedAssertionLoader
-    internal partial class OidcIdpSignedAssertionLoader
+    /// <summary>
+    /// High-performance logger extensions for OidcIdpSignedAssertionLoader.
+    /// </summary>
+    internal static partial class OidcIdpSignedAssertionLoaderLoggerExtensions
     {
-        /// <summary>
-        /// Performant logging messages.
-        /// </summary>
-        private static class Logger
-        {
-            private static readonly Action<ILogger, Exception?> s_customSignedAssertionProviderDataIsNull =
-                LoggerMessage.Define(
-                    LogLevel.Error,
-                    new EventId(1, nameof(CustomSignedAssertionProviderDataIsNull)),
-                    "CustomSignedAssertionProviderData is null"
-                );
+        [LoggerMessage(
+            EventId = 1,
+            Level = LogLevel.Error,
+            Message = "CustomSignedAssertionProviderData is null")]
+        public static partial void CustomSignedAssertionProviderDataIsNull(this ILogger? logger);
 
-            public static void CustomSignedAssertionProviderDataIsNull(ILogger? logger)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Error))
-                {
-                    s_customSignedAssertionProviderDataIsNull(logger, null);
-                }
-            }
+        [LoggerMessage(
+            EventId = 2,
+            Level = LogLevel.Error,
+            Message = "ConfigurationSection is null")]
+        public static partial void ConfigurationSectionIsNull(this ILogger? logger);
 
-            private static readonly Action<ILogger, Exception?> s_configurationSectionIsNull =
-                LoggerMessage.Define(
-                    LogLevel.Error,
-                    new EventId(2, nameof(ConfigurationSectionIsNull)),
-                    "ConfigurationSection is null"
-                );
-
-            public static void ConfigurationSectionIsNull(ILogger? logger)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Error))
-                {
-                    s_configurationSectionIsNull(logger, null);
-                }
-            }
-
-            private static readonly Action<ILogger, string?, string, Exception?> s_failedToGetSignedAssertion =
-                LoggerMessage.Define<string?, string>(
-                    LogLevel.Error,
-                    new EventId(3, nameof(FailedToGetSignedAssertion)),
-                    "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true."
-                );
-
-            public static void FailedToGetSignedAssertion(ILogger? logger, string? providerName, string message, Exception? ex)
-            {
-                if (logger != null && logger.IsEnabled(LogLevel.Error))
-                {
-                    s_failedToGetSignedAssertion(logger, providerName, message, ex);
-                }
-            }
-        }
+        [LoggerMessage(
+            EventId = 3,
+            Level = LogLevel.Error,
+            Message = "Failed to get signed assertion from {providerName}. exception occurred: {message}. Setting skip to true.")]
+        public static partial void FailedToGetSignedAssertion(this ILogger? logger, string? providerName, string message, Exception? ex);
     }
 }
