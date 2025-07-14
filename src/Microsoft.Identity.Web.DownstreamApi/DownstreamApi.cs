@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -586,6 +587,45 @@ namespace Microsoft.Identity.Web
             {
                 httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
             }
+
+            // Add extra headers if specified directly on DownstreamApiOptions
+            var extraHeaders = GetExtraHeaderParameters(effectiveOptions);
+            if (extraHeaders != null)
+            {
+                foreach (var header in extraHeaders)
+                {
+                    httpRequestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                }
+            }
+
+            // Add extra query parameters if specified directly on DownstreamApiOptions
+            var extraQueryParams = GetExtraQueryParameters(effectiveOptions);
+            if (extraQueryParams != null && extraQueryParams.Count > 0)
+            {
+                var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
+                var existingQuery = uriBuilder.Query;
+                var queryString = new StringBuilder(existingQuery);
+                
+                foreach (var queryParam in extraQueryParams)
+                {
+                    if (queryString.Length > 1) // if there are existing query parameters
+                    {
+                        queryString.Append('&');
+                    }
+                    else if (queryString.Length == 0)
+                    {
+                        queryString.Append('?');
+                    }
+                    
+                    queryString.Append(Uri.EscapeDataString(queryParam.Key));
+                    queryString.Append('=');
+                    queryString.Append(Uri.EscapeDataString(queryParam.Value));
+                }
+                
+                uriBuilder.Query = queryString.ToString().TrimStart('?');
+                httpRequestMessage.RequestUri = uriBuilder.Uri;
+            }
+
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
         }
@@ -609,6 +649,54 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
                     CallerSDKDetails["caller-sdk-ver"];
             }
+        }
+
+        /// <summary>
+        /// Gets the extra header parameters from DownstreamApiOptions if they exist.
+        /// This method uses reflection to check if the property exists to maintain compatibility
+        /// with different versions of Microsoft.Identity.Abstractions package.
+        /// </summary>
+        /// <param name="options">The DownstreamApiOptions instance.</param>
+        /// <returns>Extra header parameters if they exist, null otherwise.</returns>
+        private static IDictionary<string, string>? GetExtraHeaderParameters(DownstreamApiOptions options)
+        {
+            try
+            {
+                var propertyInfo = options.GetType().GetProperty("ExtraHeaderParameters");
+                if (propertyInfo != null)
+                {
+                    return propertyInfo.GetValue(options) as IDictionary<string, string>;
+                }
+            }
+            catch
+            {
+                // If property doesn't exist or any error occurs, return null
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the extra query parameters from DownstreamApiOptions if they exist.
+        /// This method uses reflection to check if the property exists to maintain compatibility
+        /// with different versions of Microsoft.Identity.Abstractions package.
+        /// </summary>
+        /// <param name="options">The DownstreamApiOptions instance.</param>
+        /// <returns>Extra query parameters if they exist, null otherwise.</returns>
+        private static IDictionary<string, string>? GetExtraQueryParameters(DownstreamApiOptions options)
+        {
+            try
+            {
+                var propertyInfo = options.GetType().GetProperty("ExtraQueryParameters");
+                if (propertyInfo != null)
+                {
+                    return propertyInfo.GetValue(options) as IDictionary<string, string>;
+                }
+            }
+            catch
+            {
+                // If property doesn't exist or any error occurs, return null
+            }
+            return null;
         }
     }
 }
