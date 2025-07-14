@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -14,17 +15,17 @@ namespace Microsoft.Identity.Web.OidcFic
     {
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
-        private readonly IConfiguration _configuration;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
 
         public OidcIdpSignedAssertionLoader(ILogger<OidcIdpSignedAssertionLoader> logger,
             IOptionsMonitor<MicrosoftIdentityApplicationOptions> options,
-            IConfiguration configuration,
+            IServiceProvider serviceProvider,
             ITokenAcquirerFactory tokenAcquirerFactory)
         {
             _logger = logger;
             _options = options;
-            _configuration = configuration;
+            _serviceProvider = serviceProvider;
             _tokenAcquirerFactory = tokenAcquirerFactory;
         }
 
@@ -61,7 +62,26 @@ namespace Microsoft.Identity.Web.OidcFic
                 
                 if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
                 {
-                    _configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
+                    // Get IConfiguration from service provider just-in-time
+                    IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
+                    if (configuration == null)
+                    {
+                        const string errorMessage = "IConfiguration is not registered in the service collection. " +
+                            "Please register IConfiguration or see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.";
+                        
+                        if (_logger != null)
+                        {
+                            _logger.LogError(42, errorMessage);
+                        }
+                        throw new InvalidOperationException(errorMessage);
+                    }
+                    
+                    if (_logger != null)
+                    {
+                        _logger.LogDebug("Binding configuration section '{SectionName}' to MicrosoftIdentityApplicationOptions", sectionName);
+                    }
+                    
+                    configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
                 }
 
                 // Special case for Signed assertions with an FmiPath.
