@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Web.OidcFic
                         const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
                         Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
                         throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
-                            "Please register IConfiguration or see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
+                            $"Please register IConfiguration in the service collection or configure MicrosoftIdentityOptions with named options '{sectionName}'. see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
                     }
                     
                     Logger.ConfigurationBinding(_logger, sectionName);

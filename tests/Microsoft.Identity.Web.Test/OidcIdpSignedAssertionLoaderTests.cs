@@ -48,7 +48,6 @@ namespace Microsoft.Identity.Web.Test
 
             // Configure options to trigger configuration binding
             _options.Instance = null;
-            _options.Authority = "//v2.0";
             _optionsMonitor.Get("TestSection").Returns(_options);
 
             // Configure service provider to return null for IConfiguration
@@ -79,7 +78,6 @@ namespace Microsoft.Identity.Web.Test
 
             // Configure options to trigger configuration binding
             _options.Instance = null;
-            _options.Authority = "//v2.0";
             _optionsMonitor.Get("TestSection").Returns(_options);
 
             // Configure service provider to return a mock IConfiguration
