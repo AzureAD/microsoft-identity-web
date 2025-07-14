@@ -1,1 +1,3 @@
 #nullable enable
+static Microsoft.Identity.Web.DownstreamApi.GetExtraHeaderParameters(Microsoft.Identity.Abstractions.DownstreamApiOptions! options) -> System.Collections.Generic.IDictionary<string!, string!>?
+static Microsoft.Identity.Web.DownstreamApi.GetExtraQueryParameters(Microsoft.Identity.Abstractions.DownstreamApiOptions! options) -> System.Collections.Generic.IDictionary<string!, string!>?

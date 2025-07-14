@@ -655,6 +655,7 @@ namespace Microsoft.Identity.Web
         /// Gets the extra header parameters from DownstreamApiOptions if they exist.
         /// This method uses reflection to check if the property exists to maintain compatibility
         /// with different versions of Microsoft.Identity.Abstractions package.
+        /// Checks for both "ExtraHeaderParameters" and "ExtraHeadersParameters" for compatibility.
         /// </summary>
         /// <param name="options">The DownstreamApiOptions instance.</param>
         /// <returns>Extra header parameters if they exist, null otherwise.</returns>
@@ -662,10 +663,26 @@ namespace Microsoft.Identity.Web
         {
             try
             {
+                // First try "ExtraHeaderParameters" (preferred naming)
                 var propertyInfo = options.GetType().GetProperty("ExtraHeaderParameters");
                 if (propertyInfo != null)
                 {
-                    return propertyInfo.GetValue(options) as IDictionary<string, string>;
+                    var value = propertyInfo.GetValue(options) as IDictionary<string, string>;
+                    if (value != null && value.Count > 0)
+                    {
+                        return value;
+                    }
+                }
+
+                // Fallback to "ExtraHeadersParameters" (for compatibility)
+                propertyInfo = options.GetType().GetProperty("ExtraHeadersParameters");
+                if (propertyInfo != null)
+                {
+                    var value = propertyInfo.GetValue(options) as IDictionary<string, string>;
+                    if (value != null && value.Count > 0)
+                    {
+                        return value;
+                    }
                 }
             }
             catch
@@ -689,13 +706,18 @@ namespace Microsoft.Identity.Web
                 var propertyInfo = options.GetType().GetProperty("ExtraQueryParameters");
                 if (propertyInfo != null)
                 {
-                    return propertyInfo.GetValue(options) as IDictionary<string, string>;
+                    var directValue = propertyInfo.GetValue(options) as IDictionary<string, string>;
+                    if (directValue != null && directValue.Count > 0)
+                    {
+                        return directValue;
+                    }
                 }
             }
             catch
             {
                 // If property doesn't exist or any error occurs, return null
             }
+            
             return null;
         }
     }

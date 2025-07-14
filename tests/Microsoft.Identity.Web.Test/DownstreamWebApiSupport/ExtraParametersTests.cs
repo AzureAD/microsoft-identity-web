@@ -122,6 +122,46 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
+        public async Task UpdateRequestAsync_WithExtraHeadersParameters_AlsoChecksAlternateNaming()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api");
+            var options = new TestDownstreamApiOptionsWithAlternateNaming()
+            {
+                ExtraHeadersParameters = new Dictionary<string, string>
+                {
+                    { "X-Custom-Header", "alternate-naming" }
+                }
+            };
+
+            // Act
+            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.True(httpRequestMessage.Headers.Contains("X-Custom-Header"));
+            Assert.Equal("alternate-naming", httpRequestMessage.Headers.GetValues("X-Custom-Header").First());
+        }
+
+        [Fact]
+        public async Task UpdateRequestAsync_WithEmptyExtraParameters_DoesNotModifyRequest()
+        {
+            // Arrange
+            var originalUri = "https://example.com/api";
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, originalUri);
+            var options = new TestDownstreamApiOptions()
+            {
+                ExtraHeaderParameters = new Dictionary<string, string>(), // Empty dictionary
+                ExtraQueryParameters = new Dictionary<string, string>()  // Empty dictionary
+            };
+
+            // Act
+            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
+        }
+
+        [Fact]
         public async Task UpdateRequestAsync_WithSpecialCharacters_EscapesCorrectly()
         {
             // Arrange
@@ -140,6 +180,12 @@ namespace Microsoft.Identity.Web.Tests
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
             Assert.Contains("special=value%20with%20spaces%20%26%20symbols", requestUri);
+        }
+
+        // Test implementation that has the extra parameters with alternate naming
+        private class TestDownstreamApiOptionsWithAlternateNaming : DownstreamApiOptions
+        {
+            public IDictionary<string, string>? ExtraHeadersParameters { get; set; }
         }
 
         // Test implementation that has the extra parameters
