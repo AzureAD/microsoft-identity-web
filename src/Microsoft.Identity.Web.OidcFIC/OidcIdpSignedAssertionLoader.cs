@@ -8,10 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
+    internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
@@ -33,6 +34,89 @@ namespace Microsoft.Identity.Web.OidcFic
 
         public string Name => "OidcIdpSignedAssertion";
 
+        internal static class Logger
+        {
+            // Event IDs for OidcIdpSignedAssertionLoader
+            private static readonly EventId ConfigurationNotRegisteredEventId = new EventId(500, "OidcIdpConfigurationNotRegistered");
+            private static readonly EventId ConfigurationBindingEventId = new EventId(501, "OidcIdpConfigurationBinding");
+            private static readonly EventId CustomSignedAssertionProviderDataNullEventId = new EventId(502, "OidcIdpCustomSignedAssertionProviderDataNull");
+            private static readonly EventId ConfigurationSectionNullEventId = new EventId(503, "OidcIdpConfigurationSectionNull");
+            private static readonly EventId SignedAssertionProviderFailedEventId = new EventId(504, "OidcIdpSignedAssertionProviderFailed");
+
+            private static readonly Action<ILogger, string, Exception?> s_configurationNotRegistered =
+                LoggerMessage.Define<string>(
+                    LogLevel.Error,
+                    ConfigurationNotRegisteredEventId,
+                    "[MsIdWeb] IConfiguration is not registered in the service collection. Please register IConfiguration or see {TroubleshootingLink} for more information.");
+
+            private static readonly Action<ILogger, string, Exception?> s_configurationBinding =
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    ConfigurationBindingEventId,
+                    "[MsIdWeb] Binding configuration section '{SectionName}' to MicrosoftIdentityApplicationOptions");
+
+            private static readonly Action<ILogger, Exception?> s_customSignedAssertionProviderDataNull =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    CustomSignedAssertionProviderDataNullEventId,
+                    "[MsIdWeb] CustomSignedAssertionProviderData is null");
+
+            private static readonly Action<ILogger, Exception?> s_configurationSectionNull =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    ConfigurationSectionNullEventId,
+                    "[MsIdWeb] ConfigurationSection is null");
+
+            private static readonly Action<ILogger, string, string, Exception?> s_signedAssertionProviderFailed =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Error,
+                    SignedAssertionProviderFailedEventId,
+                    "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.");
+
+            /// <summary>
+            /// Logger for when IConfiguration is not registered in the service collection.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="troubleshootingLink">Link to troubleshooting documentation.</param>
+            public static void ConfigurationNotRegistered(
+                ILogger logger,
+                string troubleshootingLink) => s_configurationNotRegistered(logger, troubleshootingLink, default!);
+
+            /// <summary>
+            /// Logger for binding configuration section to MicrosoftIdentityApplicationOptions.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="sectionName">Name of the configuration section.</param>
+            public static void ConfigurationBinding(
+                ILogger logger,
+                string sectionName) => s_configurationBinding(logger, sectionName, default!);
+
+            /// <summary>
+            /// Logger for when CustomSignedAssertionProviderData is null.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            public static void CustomSignedAssertionProviderDataNull(
+                ILogger logger) => s_customSignedAssertionProviderDataNull(logger, default!);
+
+            /// <summary>
+            /// Logger for when ConfigurationSection is null.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            public static void ConfigurationSectionNull(
+                ILogger logger) => s_configurationSectionNull(logger, default!);
+
+            /// <summary>
+            /// Logger for when signed assertion provider fails.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="providerName">Name of the provider.</param>
+            /// <param name="message">Exception message.</param>
+            public static void SignedAssertionProviderFailed(
+                ILogger logger,
+                string providerName,
+                string message) => s_signedAssertionProviderFailed(logger, providerName, message, default!);
+        }
+
 
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
         {
@@ -41,20 +125,14 @@ namespace Microsoft.Identity.Web.OidcFic
             {
                 if (credentialDescription.CustomSignedAssertionProviderData == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "CustomSignedAssertionProviderData is null");
-                    }
+                    Logger.CustomSignedAssertionProviderDataNull(_logger);
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
                 string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
                 if (sectionName == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "ConfigurationSection is null");
-                    }
+                    Logger.ConfigurationSectionNull(_logger);
                     throw new InvalidOperationException("ConfigurationSection is null");
                 }
 
@@ -66,21 +144,13 @@ namespace Microsoft.Identity.Web.OidcFic
                     IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
                     if (configuration == null)
                     {
-                        const string errorMessage = "IConfiguration is not registered in the service collection. " +
-                            "Please register IConfiguration or see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.";
-                        
-                        if (_logger != null)
-                        {
-                            _logger.LogError(42, errorMessage);
-                        }
-                        throw new InvalidOperationException(errorMessage);
+                        const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
+                        Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
+                        throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
+                            "Please register IConfiguration or see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
                     }
                     
-                    if (_logger != null)
-                    {
-                        _logger.LogDebug("Binding configuration section '{SectionName}' to MicrosoftIdentityApplicationOptions", sectionName);
-                    }
-                    
+                    Logger.ConfigurationBinding(_logger, sectionName);
                     configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
                 }
 
@@ -101,10 +171,7 @@ namespace Microsoft.Identity.Web.OidcFic
             }
             catch (Exception ex)
             {
-                if (_logger != null)
-                {
-                    _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
-                }
+                Logger.SignedAssertionProviderFailed(_logger, credentialDescription.CustomSignedAssertionProviderName ?? "Unknown", ex.Message);
                 credentialDescription.Skip = true;
                 throw;
             }
