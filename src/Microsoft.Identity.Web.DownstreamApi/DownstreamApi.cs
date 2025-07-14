@@ -588,24 +588,22 @@ namespace Microsoft.Identity.Web
             }
 
             // Add extra headers if specified directly on DownstreamApiOptions
-            var extraHeaders = GetExtraHeaderParameters(effectiveOptions);
-            if (extraHeaders != null)
+            if (effectiveOptions.ExtraHeaderParameters != null)
             {
-                foreach (var header in extraHeaders)
+                foreach (var header in effectiveOptions.ExtraHeaderParameters)
                 {
                     httpRequestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
 
             // Add extra query parameters if specified directly on DownstreamApiOptions
-            var extraQueryParams = GetExtraQueryParameters(effectiveOptions);
-            if (extraQueryParams != null && extraQueryParams.Count > 0)
+            if (effectiveOptions.ExtraQueryParameters != null && effectiveOptions.ExtraQueryParameters.Count > 0)
             {
                 var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
                 var existingQuery = uriBuilder.Query;
                 var queryString = new StringBuilder(existingQuery);
                 
-                foreach (var queryParam in extraQueryParams)
+                foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
                 {
                     if (queryString.Length > 1) // if there are existing query parameters
                     {
@@ -648,26 +646,6 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
                     CallerSDKDetails["caller-sdk-ver"];
             }
-        }
-
-        /// <summary>
-        /// Gets the extra header parameters from DownstreamApiOptions if they exist.
-        /// </summary>
-        /// <param name="options">The DownstreamApiOptions instance.</param>
-        /// <returns>Extra header parameters if they exist, null otherwise.</returns>
-        private static IDictionary<string, string>? GetExtraHeaderParameters(DownstreamApiOptions options)
-        {
-            return options.ExtraHeaderParameters;
-        }
-
-        /// <summary>
-        /// Gets the extra query parameters from DownstreamApiOptions if they exist.
-        /// </summary>
-        /// <param name="options">The DownstreamApiOptions instance.</param>
-        /// <returns>Extra query parameters if they exist, null otherwise.</returns>
-        private static IDictionary<string, string>? GetExtraQueryParameters(DownstreamApiOptions options)
-        {
-            return options.ExtraQueryParameters;
         }
     }
 }
