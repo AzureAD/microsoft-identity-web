@@ -12,8 +12,8 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Azure SDK token credential for App tokens based on the ITokenAcquisition service.
+    /// It's recommended to use MicrosoftIdentityTokenCredential. See Readme-Azure.md file.
     /// </summary>
-    [Obsolete("Rather use MicrosoftIdentityTokenCredential.")]
     public class TokenAcquirerAppTokenCredential : TokenCredential
     {
         private ITokenAcquirer _tokenAcquirer;
