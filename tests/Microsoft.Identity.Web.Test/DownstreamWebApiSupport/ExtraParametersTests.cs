@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api");
-            var options = new TestDownstreamApiOptions()
+            var options = new DownstreamApiOptions()
             {
                 ExtraHeaderParameters = new Dictionary<string, string>
                 {
@@ -66,7 +67,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api");
-            var options = new TestDownstreamApiOptions()
+            var options = new DownstreamApiOptions()
             {
                 ExtraQueryParameters = new Dictionary<string, string>
                 {
@@ -80,8 +81,8 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
-            Assert.Contains("param1=value1", requestUri);
-            Assert.Contains("param2=value2", requestUri);
+            Assert.Contains("param1=value1", requestUri, StringComparison.Ordinal);
+            Assert.Contains("param2=value2", requestUri, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -89,7 +90,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api?existing=true");
-            var options = new TestDownstreamApiOptions()
+            var options = new DownstreamApiOptions()
             {
                 ExtraQueryParameters = new Dictionary<string, string>
                 {
@@ -102,8 +103,8 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
-            Assert.Contains("existing=true", requestUri);
-            Assert.Contains("new=param", requestUri);
+            Assert.Contains("existing=true", requestUri, StringComparison.Ordinal);
+            Assert.Contains("new=param", requestUri, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -121,26 +122,6 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
         }
 
-        [Fact]
-        public async Task UpdateRequestAsync_WithExtraHeadersParameters_AlsoChecksAlternateNaming()
-        {
-            // Arrange
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api");
-            var options = new TestDownstreamApiOptionsWithAlternateNaming()
-            {
-                ExtraHeadersParameters = new Dictionary<string, string>
-                {
-                    { "X-Custom-Header", "alternate-naming" }
-                }
-            };
-
-            // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
-
-            // Assert
-            Assert.True(httpRequestMessage.Headers.Contains("X-Custom-Header"));
-            Assert.Equal("alternate-naming", httpRequestMessage.Headers.GetValues("X-Custom-Header").First());
-        }
 
         [Fact]
         public async Task UpdateRequestAsync_WithEmptyExtraParameters_DoesNotModifyRequest()
@@ -148,7 +129,7 @@ namespace Microsoft.Identity.Web.Tests
             // Arrange
             var originalUri = "https://example.com/api";
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, originalUri);
-            var options = new TestDownstreamApiOptions()
+            var options = new DownstreamApiOptions()
             {
                 ExtraHeaderParameters = new Dictionary<string, string>(), // Empty dictionary
                 ExtraQueryParameters = new Dictionary<string, string>()  // Empty dictionary
@@ -166,7 +147,7 @@ namespace Microsoft.Identity.Web.Tests
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/api");
-            var options = new TestDownstreamApiOptions()
+            var options = new DownstreamApiOptions()
             {
                 ExtraQueryParameters = new Dictionary<string, string>
                 {
@@ -179,20 +160,7 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
-            Assert.Contains("special=value%20with%20spaces%20%26%20symbols", requestUri);
-        }
-
-        // Test implementation that has the extra parameters with alternate naming
-        private class TestDownstreamApiOptionsWithAlternateNaming : DownstreamApiOptions
-        {
-            public IDictionary<string, string>? ExtraHeadersParameters { get; set; }
-        }
-
-        // Test implementation that has the extra parameters
-        private class TestDownstreamApiOptions : DownstreamApiOptions
-        {
-            public IDictionary<string, string>? ExtraHeaderParameters { get; set; }
-            public IDictionary<string, string>? ExtraQueryParameters { get; set; }
+            Assert.Contains("special=value%20with%20spaces%20%26%20symbols", requestUri, StringComparison.Ordinal);
         }
 
         private class MyAuthorizationHeaderProvider : IAuthorizationHeaderProvider
