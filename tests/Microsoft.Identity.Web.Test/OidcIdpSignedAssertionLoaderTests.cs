@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Test
 
         public OidcIdpSignedAssertionLoaderTests()
         {
-            _logger = Substitute.For<ILogger<OidcIdpSignedAssertionLoader>>();
+            _logger = new LoggerFactory().CreateLogger<OidcIdpSignedAssertionLoader>();
             _optionsMonitor = Substitute.For<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>();
             _serviceProvider = Substitute.For<IServiceProvider>();
             _tokenAcquirerFactory = Substitute.For<ITokenAcquirerFactory>();
