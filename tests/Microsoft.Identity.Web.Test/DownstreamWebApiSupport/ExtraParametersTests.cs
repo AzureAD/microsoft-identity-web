@@ -160,7 +160,7 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
-            Assert.Contains("special=value with spaces %26 symbols", requestUri, StringComparison.Ordinal);
+            Assert.Contains("special=value%20with%20spaces%20%26%20symbols", requestUri, StringComparison.Ordinal);
         }
 
         private class MyAuthorizationHeaderProvider : IAuthorizationHeaderProvider
