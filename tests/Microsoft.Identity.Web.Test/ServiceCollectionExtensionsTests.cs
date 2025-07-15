@@ -73,6 +73,14 @@ namespace Microsoft.Identity.Web.Test
                 },
                 actual =>
                 {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);
                     Assert.Equal(typeof(MergedOptionsStore), actual.ImplementationType);
@@ -116,7 +124,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
-            Assert.Equal(10, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
+            Assert.Equal(11, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
         }
 #endif
 
@@ -208,12 +216,11 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
-                    Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);
-                    Assert.Equal(typeof(MergedOptionsStore), actual.ImplementationType);
+                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
-                    Assert.Null(actual.ImplementationFactory);
-                },
-                actual =>
+                    Assert.NotNull(actual.ImplementationFactory);
+                }, actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);

@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Web.Test
             
             // Mock the dependencies needed for MicrosoftIdentityTokenCredential
             services.AddScoped<ITokenAcquirerFactory>(sp => Substitute.For<ITokenAcquirerFactory>());
-            services.AddScoped<AuthenticationSchemeInformationProvider>(sp => Substitute.For<AuthenticationSchemeInformationProvider>());
+            services.AddScoped<IAuthenticationSchemeInformationProvider>(sp => Substitute.For<IAuthenticationSchemeInformationProvider>());
             
             // Act
             services.AddMicrosoftIdentityAzureTokenCredential();

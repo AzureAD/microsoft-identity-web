@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test
     {
         private readonly ITokenAcquirer _tokenAcquirer;
         private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
-        private readonly AuthenticationSchemeInformationProvider _authenticationSchemeInformationProvider;
+        private readonly IAuthenticationSchemeInformationProvider _authenticationSchemeInformationProvider;
         private readonly string[] _scopes = new[] { "https://graph.microsoft.com/.default" };
         private readonly string _accessToken = "mock_access_token";
         private readonly DateTimeOffset _expiresOn = DateTimeOffset.UtcNow.AddHours(1);
@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web.Test
             // Setup mock objects
             _tokenAcquirer = Substitute.For<ITokenAcquirer>();
             _tokenAcquirerFactory = Substitute.For<ITokenAcquirerFactory>();
-            _authenticationSchemeInformationProvider = Substitute.For<AuthenticationSchemeInformationProvider>();
+            _authenticationSchemeInformationProvider = Substitute.For<IAuthenticationSchemeInformationProvider>();
 
             // Configure mocks
             _authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(Arg.Any<string>())

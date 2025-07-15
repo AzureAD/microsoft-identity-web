@@ -7,7 +7,8 @@ namespace Microsoft.Identity.Web
     /// Provides information about the effective authentication scheme. If passing null
     /// or string.Empty, this returns the default authentication scheme.
     /// </summary>
-    public interface AuthenticationSchemeInformationProvider
+    public interface IAuthenticationSchemeInformationProvider
+
     {
         /// <summary>
         /// Get the effective authentication scheme based on the provided authentication scheme.
