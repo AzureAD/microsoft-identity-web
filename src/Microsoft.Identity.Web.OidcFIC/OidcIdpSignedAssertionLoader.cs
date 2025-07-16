@@ -77,7 +77,7 @@ namespace Microsoft.Identity.Web.OidcFic
             {
                 // Try to get a signed assertion, and if it fails, move to the next credentials
                 _ = await signedAssertion!.GetSignedAssertionAsync(null);
-                credentialDescription.CachedValue = signedAssertion;
+                 credentialDescription.CachedValue = signedAssertion;
             }
             catch (Exception ex)
             {

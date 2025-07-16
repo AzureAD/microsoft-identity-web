@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web.OidcFic
             // If assertionRequestOptions = null and RequiresSignedAssertionFmiPath is true
             // we postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
             if (RequiresSignedAssertionFmiPath && assertionRequestOptions == null)
+           // if (assertionRequestOptions == null)
             {
                 _logger?.LogDebug("OidcIdpSignedAssertionProvider: RequiresSignedAssertionFmiPath is true, but assertionRequestOptions is null. Postponing to first call");
 
@@ -66,7 +67,7 @@ namespace Microsoft.Identity.Web.OidcFic
             ClientAssertion clientAssertion;
             if (result != null)
             {
-                clientAssertion = new ClientAssertion(result.AccessToken!, result.ExpiresOn);
+                clientAssertion = new ClientAssertion(result.AccessToken!, DateTimeOffset.Now); // never cache the signed assertion here, because MSAL may invalidate it based on claims
             }
             else
             {

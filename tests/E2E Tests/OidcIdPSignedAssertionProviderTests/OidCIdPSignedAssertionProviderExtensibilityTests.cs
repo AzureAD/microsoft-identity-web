@@ -32,7 +32,8 @@ namespace CustomSignedAssertionProviderTests
     [Collection("Non-Parallel Collection")]
     public class OidCIdPSignedAssertionProviderExtensibilityTests
     {
-        [OnlyOnAzureDevopsFact]
+        //[OnlyOnAzureDevopsFact]
+        [Fact]
         public async Task CrossCloudFicIntegrationTest()
         {
             // Arrange
@@ -42,23 +43,35 @@ namespace CustomSignedAssertionProviderTests
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
-            /*            
-            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
-            {
-                options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "msidlab4.onmicrosoft.com";
-                options.ClientId = "5e71875b-ae52-4a3c-8b82-f6fdc8e1dbe1";
-                options.ClientCredentials = [ new CredentialDescription() {
-                    SourceType = CredentialSource.CustomSignedAssertion,
-                    CustomSignedAssertionProviderName = "MyCustomExtension"
-                }];
-            });
-            */
+            //tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            //{
+            //    options.Instance = "https://login.microsoftonline.com/";
+            //    options.TenantId = "msidlab4.onmicrosoft.com";
+            //    options.ClientId = "5e71875b-ae52-4a3c-8b82-f6fdc8e1dbe1";
+            //    options.ClientCredentials = [ new CredentialDescription() {
+            //        SourceType = CredentialSource.CustomSignedAssertion,
+            //        CustomSignedAssertionProviderName = "MyCustomExtension"
+            //    }];
+            //});
+            
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
             // Act
             string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default");
+
+            string result2 = await
+                authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                new AuthorizationHeaderProviderOptions()
+                {
+                    AcquireTokenOptions = new AcquireTokenOptions()
+                    {
+
+                        Claims = "{}"
+                    }
+                });
+
+
 
             // Assert
             Assert.NotNull(result);

@@ -25,6 +25,18 @@ namespace Microsoft.Identity.Web
                 credentialSourceLoaderParameters).GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// This tries to resolve ID.Web credentials to MSAL credentials. It needs to resolve it at the point of building the ConfidentialClientApplicationBuilder.
+        /// This means that it will **eagerly** try to load a credential, and if it fails, each credential is responsible for setting the Skip flag.
+        /// Eagerly means that for SignedAssertions, the options are not set, because it's not MSAL that fires the callback.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="clientCredentials"></param>
+        /// <param name="logger"></param>
+        /// <param name="credentialsLoader"></param>
+        /// <param name="credentialSourceLoaderParameters"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static async Task<ConfidentialClientApplicationBuilder> WithClientCredentialsAsync(
             this ConfidentialClientApplicationBuilder builder,
             IEnumerable<CredentialDescription> clientCredentials,
@@ -43,7 +55,7 @@ namespace Microsoft.Identity.Web
             {
                 return builder;
             }
-
+            
             switch (credential.CredentialType)
             {
                 case CredentialType.SignedAssertion:
