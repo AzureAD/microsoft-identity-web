@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Extensin methods for adding Azure credentials to the service collection.
+    /// Extension methods for adding Azure credentials to the service collection.
     /// </summary>
     public static class ServiceCollectionExtensionForAzureCreds
 	{
