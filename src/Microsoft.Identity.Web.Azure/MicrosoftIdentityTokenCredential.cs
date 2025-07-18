@@ -65,11 +65,9 @@ namespace Microsoft.Identity.Web
 				AcquireTokenResult result = await tokenAcquirer.GetTokenForAppAsync(requestContext.Scopes.First(), cancellationToken: cancellationToken);
 				return new AccessToken(result.AccessToken!, result.ExpiresOn);
 			}
-			else
-			{
-				AcquireTokenResult result = await tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, Options.AcquireTokenOptions, cancellationToken: cancellationToken);
-				return new AccessToken(result.AccessToken!, result.ExpiresOn);
-			}
+
+        AcquireTokenResult result = await tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, Options.AcquireTokenOptions, cancellationToken: cancellationToken);
+		return new AccessToken(result.AccessToken!, result.ExpiresOn);
 		}
 	}
 }
