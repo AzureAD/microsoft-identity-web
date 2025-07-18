@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
         /// Enables apps to use the <see cref="MicrosoftIdentityTokenCredential"/> for Azure AD authentication. 
         /// </summary>
         /// <param name="services">Service collection where to add the <see cref="MicrosoftIdentityTokenCredential"/>.</param>
-        /// <returns>the service collection.</returns>
+        /// <returns>The service collection.</returns>
 		public static IServiceCollection AddMicrosoftIdentityAzureTokenCredential(this IServiceCollection services)
 		{
 			services.AddScoped<MicrosoftIdentityTokenCredential>();
