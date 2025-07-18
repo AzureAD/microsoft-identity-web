@@ -131,6 +131,8 @@ tokenCredential.Options.AcquireTokenOptions.AuthenticationOptionsName = OpenIdCo
 #### Custom configuration
 
 You can customize the token acquisition behavior:
+
+```cs
 // Configure additional options
 tokenCredential.Options.AcquireTokenOptions.CorrelationId = Guid.NewGuid();
 tokenCredential.Options.AcquireTokenOptions.Tenant = "GUID";
