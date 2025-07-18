@@ -140,6 +140,7 @@ tokenCredential.Options.AcquireTokenOptions.Tenant = "GUID";
 ## Working with older versions
 
 This package includes two token credentials classes:
+
 - `MicrosoftIdentityTokenCredential` (recommended)
 - `TokenAcquirerTokenCredential` (deprecated)
 
