@@ -586,6 +586,43 @@ namespace Microsoft.Identity.Web
             {
                 httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
             }
+
+            // Add extra headers if specified directly on DownstreamApiOptions
+            if (effectiveOptions.ExtraHeaderParameters != null)
+            {
+                foreach (var header in effectiveOptions.ExtraHeaderParameters)
+                {
+                    httpRequestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                }
+            }
+
+            // Add extra query parameters if specified directly on DownstreamApiOptions
+            if (effectiveOptions.ExtraQueryParameters != null && effectiveOptions.ExtraQueryParameters.Count > 0)
+            {
+                var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
+                var existingQuery = uriBuilder.Query;
+                var queryString = new StringBuilder(existingQuery);
+                
+                foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
+                {
+                    if (queryString.Length > 1) // if there are existing query parameters
+                    {
+                        queryString.Append('&');
+                    }
+                    else if (queryString.Length == 0)
+                    {
+                        queryString.Append('?');
+                    }
+                    
+                    queryString.Append(Uri.EscapeDataString(queryParam.Key));
+                    queryString.Append('=');
+                    queryString.Append(Uri.EscapeDataString(queryParam.Value));
+                }
+                
+                uriBuilder.Query = queryString.ToString().TrimStart('?');
+                httpRequestMessage.RequestUri = uriBuilder.Uri;
+            }
+
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
         }
