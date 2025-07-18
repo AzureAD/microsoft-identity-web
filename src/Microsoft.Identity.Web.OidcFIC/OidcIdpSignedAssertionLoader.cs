@@ -40,20 +40,14 @@ namespace Microsoft.Identity.Web.OidcFic
             {
                 if (credentialDescription.CustomSignedAssertionProviderData == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "CustomSignedAssertionProviderData is null");
-                    }
+                    _logger.CustomSignedAssertionProviderDataIsNull();
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
                 string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
                 if (sectionName == null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(42, "ConfigurationSection is null");
-                    }
+                    _logger.ConfigurationSectionIsNull();
                     throw new InvalidOperationException("ConfigurationSection is null");
                 }
 
@@ -81,10 +75,7 @@ namespace Microsoft.Identity.Web.OidcFic
             }
             catch (Exception ex)
             {
-                if (_logger != null)
-                {
-                    _logger.LogError(42, "Failed to get signed assertion from {ProviderName}. exception occurred: {Message}. Setting skip to true.", credentialDescription.CustomSignedAssertionProviderName, ex.Message);
-                }
+                _logger.FailedToGetSignedAssertion(credentialDescription.CustomSignedAssertionProviderName, ex.Message, ex);
                 credentialDescription.Skip = true;
                 throw;
             }
