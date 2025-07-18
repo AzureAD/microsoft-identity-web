@@ -489,7 +489,6 @@ namespace Microsoft.Identity.Web
             }
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
-            tenant = ResolveTenant(tenant, mergedOptions);
 
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
@@ -516,6 +515,9 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
             }
+
+            // For non-managed identity flows, resolve the tenant
+            tenant = ResolveTenant(tenant, mergedOptions);
 
             if (tokenAcquisitionOptions is not null)
             {
