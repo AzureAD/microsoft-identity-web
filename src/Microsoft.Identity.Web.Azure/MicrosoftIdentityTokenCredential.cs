@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
 	/// </summary>
 	public class MicrosoftIdentityTokenCredential : TokenCredential
 	{
-		private ITokenAcquirerFactory _tokenAcquirerFactory;
+		private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
         private readonly IAuthenticationSchemeInformationProvider _authenticationSchemeInformationProvider;
 
         /// <summary>
@@ -39,35 +39,23 @@ namespace Microsoft.Identity.Web
 		/// <inheritdoc/>
 		public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
 		{
-			ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(_authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(_options.AcquireTokenOptions.AuthenticationOptionsName));
-			if (Options.RequestAppToken)
-			{
-				AcquireTokenResult result = tokenAcquirer.GetTokenForAppAsync(requestContext.Scopes.First(), cancellationToken: cancellationToken)
-					.GetAwaiter()
-					.GetResult();
-				return new AccessToken(result.AccessToken!, result.ExpiresOn);
-			}
-			else
-			{
-				AcquireTokenResult result = tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, Options.AcquireTokenOptions, cancellationToken: cancellationToken)
-					.GetAwaiter()
-					.GetResult();
-				return new AccessToken(result.AccessToken!, result.ExpiresOn);
-			}
+			return GetTokenAsync(requestContext, cancellationToken).GetAwaiter().GetResult();
 		}
 
 		/// <inheritdoc/>
 		public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
 		{
             ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(_authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(_options.AcquireTokenOptions.AuthenticationOptionsName));
+            AcquireTokenResult result;
             if (Options.RequestAppToken)
-			{
-				AcquireTokenResult result = await tokenAcquirer.GetTokenForAppAsync(requestContext.Scopes.First(), cancellationToken: cancellationToken);
-				return new AccessToken(result.AccessToken!, result.ExpiresOn);
-			}
-
-        AcquireTokenResult result = await tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, Options.AcquireTokenOptions, cancellationToken: cancellationToken);
-		return new AccessToken(result.AccessToken!, result.ExpiresOn);
-		}
+            {
+                result = await tokenAcquirer.GetTokenForAppAsync(requestContext.Scopes.First(), Options.AcquireTokenOptions, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                result = await tokenAcquirer.GetTokenForUserAsync(requestContext.Scopes, Options.AcquireTokenOptions, cancellationToken: cancellationToken);
+            }
+            return new AccessToken(result.AccessToken!, result.ExpiresOn);
+        }
 	}
 }
