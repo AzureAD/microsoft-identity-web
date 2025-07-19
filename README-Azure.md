@@ -102,7 +102,6 @@ public class BlobController : Controller
 For Razor Pages, you can similarly inject the client directly:
 
 ```csharp
-
 public class BlobModel : PageModel
 {
     private readonly BlobServiceClient _blobServiceClient;
