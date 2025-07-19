@@ -30,9 +30,12 @@ namespace TokenAcquirerTests
         private static readonly string s_optionName = string.Empty;
         private static readonly CredentialDescription[] s_clientCredentials = new[]
         {
-            CertificateDescription.FromKeyVault(
-                "https://webappsapistests.vault.azure.net",
-                "Self-Signed-5-5-22")
+            new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "LocalMachine/My",
+                CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
+            }
         };
 
         private static readonly CredentialDescription[] s_ciamClientCredentials = new[]

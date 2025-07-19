@@ -33,9 +33,9 @@ namespace daemon_console
                 {
                     new CredentialDescription()
                     {
-                        SourceType = CredentialSource.KeyVault,
-                        KeyVaultUrl = "https://webappsapistests.vault.azure.net",
-                        KeyVaultCertificateName = "Self-Signed-5-5-22",
+                        SourceType = CredentialSource.StoreWithDistinguishedName,
+                        CertificateStorePath = "LocalMachine/My",
+                        CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
                     }
                 }
             });
@@ -48,9 +48,9 @@ namespace daemon_console
                 {
                     new CredentialDescription()
                     {
-                        SourceType = CredentialSource.KeyVault,
-                        KeyVaultUrl = "https://webappsapistests.vault.azure.net",
-                        KeyVaultCertificateName = "Self-Signed-5-5-22",
+                        SourceType = CredentialSource.StoreWithDistinguishedName,
+                        CertificateStorePath = "LocalMachine/My",
+                        CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
                     }
                 }
                 );
