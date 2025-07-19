@@ -8,12 +8,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
-    internal interface ITokenAcquisitionHost
+
+    internal interface ITokenAcquisitionHost : IAuthenticationSchemeInformationProvider
     {
         MergedOptions GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme);
 
         void SetSession(string key, string value);
-        string GetEffectiveAuthenticationScheme(string? authenticationScheme);
         string? GetCurrentRedirectUri(MergedOptions mergedOptions);
         SecurityToken? GetTokenUsedToCallWebAPI();
         Task<ClaimsPrincipal?> GetAuthenticatedUserAsync(ClaimsPrincipal? user);

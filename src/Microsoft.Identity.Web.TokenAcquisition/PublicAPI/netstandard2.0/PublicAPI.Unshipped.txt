@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
+Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
