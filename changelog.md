@@ -1,11 +1,23 @@
+3.11.0
+=======
+### Dependencies updates
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.108. See PR [#3422](https://github.com/AzureAD/microsoft-identity-web/pull/3422) for details.
+
+### Bug fixes
+- Fix `IDW10405` error when using managed identity with common tenant. See PR [#3415](https://github.com/AzureAD/microsoft-identity-web/pull/3415) for details.
+- Fix `OidcIdpSignedAssertionLoader` to remove hard dependency on IConfiguration registration. See PR [#3414](https://github.com/AzureAD/microsoft-identity-web/pull/3414) for details.
+
+### New feature
+- Add support for `ExtraHeaderParameters` and `ExtraQueryParameters` properties on `DownstreamApiOptions` to simplify adding custom headers and query parameters to downstream API requests. See PR [#3413](https://github.com/AzureAD/microsoft-identity-web/pull/3413) for details.
+
 3.10.0
 =======
 ### Dependencies updates
-- Updated MSAL to version 4.73.1 ([#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398)).
-- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 ([#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385)).
+- Updated MSAL to version 4.73.1 [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398).
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 [#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385).
 
 ### New feature
-- Added support for Agent Identities ([#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402)).  
+- Added support for Agent Identities [#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402).  
   introducing the `Microsoft.Identity.Web.AgentIdentities` package .
 
 ### Bug fixes
