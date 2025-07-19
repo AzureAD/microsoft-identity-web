@@ -11,6 +11,8 @@ This package enables ASP.NET Core web apps and web APIs to use the Azure SDKs wi
 - Works with the standard Azure SDK authentication flow
 
 ## Installation
+
+```sh
 dotnet add package Microsoft.Identity.Web.Azure
 ## Usage
 
