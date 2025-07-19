@@ -9,6 +9,7 @@
 
 ### New feature
 - Add support for `ExtraHeaderParameters` and `ExtraQueryParameters` properties on `DownstreamApiOptions` to simplify adding custom headers and query parameters to downstream API requests. See PR [#3413](https://github.com/AzureAD/microsoft-identity-web/pull/3413) for details.
+- Add better support for Azure SDK. For details see [Readme-Azure](./src/Microsoft.Identity.Web.Azure/Readme.Azure.md) and PR [#3416](https://github.com/AzureAD/microsoft-identity-web/pull/3416)
 
 3.10.0
 =======
