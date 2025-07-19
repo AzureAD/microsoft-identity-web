@@ -159,7 +159,7 @@ This package enables integration with [Azure SDKs for .NET](https://learn.micros
 - Azure Monitor
 
 See [Azure SDK for .NET packages](https://learn.microsoft.com/dotnet/azure/sdk/packages#libraries-using-azurecore)
-for the list of packages M
+for the list of packages.
 
 ## Related packages
 

@@ -29,12 +29,10 @@ namespace Microsoft.Identity.Web
             _authenticationSchemeInformationProvider = authenticationSchemeInformationProvider ?? throw new System.ArgumentNullException(nameof(authenticationSchemeInformationProvider));
         }
 
-		AuthorizationHeaderProviderOptions _options = new AuthorizationHeaderProviderOptions();
-
         /// <summary>
         /// Options used to configure the token acquisition behavior.
         /// </summary>
-		public AuthorizationHeaderProviderOptions Options => _options;
+		public AuthorizationHeaderProviderOptions Options { get; } = new();
 
 		/// <inheritdoc/>
 		public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
@@ -45,7 +43,7 @@ namespace Microsoft.Identity.Web
 		/// <inheritdoc/>
 		public override async ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
 		{
-            ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(_authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(_options.AcquireTokenOptions.AuthenticationOptionsName));
+            ITokenAcquirer tokenAcquirer = _tokenAcquirerFactory.GetTokenAcquirer(_authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(Options.AcquireTokenOptions.AuthenticationOptionsName));
             AcquireTokenResult result;
             if (Options.RequestAppToken)
             {
