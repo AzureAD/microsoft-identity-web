@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Experimental
         /// <summary>
         /// Gets the exception thrown during the certificate selection or deselection.
         /// </summary>
-        public Exception? ThrownException { get; set; }
+        public Exception? ThrownException { get; set; } 
     }
 
     /// <summary>
