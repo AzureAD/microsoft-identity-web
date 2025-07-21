@@ -1,0 +1,2 @@
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.get -> System.Exception?
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.set -> void
