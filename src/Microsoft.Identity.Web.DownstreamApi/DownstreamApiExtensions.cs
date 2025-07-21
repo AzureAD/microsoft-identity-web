@@ -30,6 +30,8 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
+            // Help the compiler figure out the type so that the code generator generates
+            // the binding code
             services.Configure<DownstreamApiOptions>(serviceName, configuration);
             RegisterDownstreamApi(services);
             return services;
@@ -50,7 +52,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            services.Configure(serviceName, configureOptions);
+            services.Configure<DownstreamApiOptions>(serviceName, configureOptions);
             RegisterDownstreamApi(services);
 
             return services;
@@ -69,12 +71,14 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
-            Dictionary<string, DownstreamApiOptions> options = new();
-            configurationSection.Bind(options);
-           
+            // Help the compiler figure out the type so that the code generator generates
+            // the binding code
+            Dictionary<string, DownstreamApiOptions> options =configurationSection.Get<Dictionary<string, DownstreamApiOptions>>()
+                ?? new Dictionary<string, DownstreamApiOptions>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var optionsForService in options.Keys)
             {
-                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService).Bind);
+                services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService));
             }
             RegisterDownstreamApi(services);
             return services;

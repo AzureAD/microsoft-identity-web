@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Microsoft Identity Web.Azure</Title>
     <Product>Microsoft Identity Web.Azure</Product>
@@ -8,9 +8,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\README.md">
+    <None Include="..\..\README-Azure.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath>\README.md</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

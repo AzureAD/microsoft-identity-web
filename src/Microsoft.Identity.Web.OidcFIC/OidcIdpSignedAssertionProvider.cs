@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
@@ -17,12 +19,16 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
         private readonly MicrosoftIdentityApplicationOptions _options;
         private readonly string? _tokenExchangeUrl;
+        private readonly ILogger? _logger;
 
-        public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl)
+        public bool RequiresSignedAssertionFmiPath { get; internal set; }
+
+        public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
+            _logger = logger;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -30,8 +36,33 @@ namespace Microsoft.Identity.Web.OidcFic
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
             string tokenExchangeUrl = _tokenExchangeUrl ?? "api://AzureADTokenExchange";
+            AcquireTokenOptions? acquireTokenOptions = null;
 
-            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(tokenExchangeUrl + "/.default");
+            // During the construction of the CCA, IdWeb tried to understand which Credential description to use and to skip, and thefore
+            // attempts to load the credentials with assertionRequestOptions = null (whereas it's not null when MSAL calls GetSignedAssertionAsync).
+            // If assertionRequestOptions = null and RequiresSignedAssertionFmiPath is true
+            // we postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
+            if (RequiresSignedAssertionFmiPath && assertionRequestOptions == null)
+            {
+                _logger?.LogDebug("OidcIdpSignedAssertionProvider: RequiresSignedAssertionFmiPath is true, but assertionRequestOptions is null. Postponing to first call");
+
+                // By using Now, we are certain to be called immediately again
+                return new ClientAssertion(null!, DateTimeOffset.Now);
+            }
+
+            if (assertionRequestOptions != null && !string.IsNullOrEmpty(assertionRequestOptions.ClientAssertionFmiPath))
+            {
+                acquireTokenOptions = new AcquireTokenOptions()
+                {
+                    FmiPath = assertionRequestOptions.ClientAssertionFmiPath
+                };
+            }
+
+            _logger?.LogDebug($"OidcIdpSignedAssertionProvider: Acquiring token for {tokenExchangeUrl} with FmiPath: {acquireTokenOptions?.FmiPath}");
+            string effectiveTokenExchangeUrl = (tokenExchangeUrl.EndsWith("/.default", StringComparison.OrdinalIgnoreCase)
+                ? tokenExchangeUrl : tokenExchangeUrl + "/.default");
+            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(effectiveTokenExchangeUrl, acquireTokenOptions);
+            _logger?.LogDebug($"OidcIdpSignedAssertionProvider: Acquired token for with FmiPath: {acquireTokenOptions?.FmiPath}");
             ClientAssertion clientAssertion;
             if (result != null)
             {

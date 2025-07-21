@@ -12,6 +12,11 @@
     <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
   
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\BaseRequestExtensions.cs" Link="BaseRequestExtensions.cs" />
     <Compile Include="..\Microsoft.Identity.Web.MicrosoftGraph\GraphServiceCollectionExtensions.cs" Link="GraphServiceCollectionExtensions.cs" />

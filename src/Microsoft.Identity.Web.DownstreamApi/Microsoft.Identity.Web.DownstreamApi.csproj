@@ -1,12 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Microsoft Identity Web downstream API</Title>
     <Product>Microsoft Identity Web downstream API</Product>
     <Description>Interface for higher level API for confidential client applications.</Description>
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
-    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+<PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+  <IsAotCompatible>true</IsAotCompatible>
+</PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
@@ -28,19 +31,20 @@
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="DownstreamApi.HttpMethods.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DownstreamApi.HttpMethods.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
   
   <ItemGroup>
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="DownstreamApi.HttpMethods.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DownstreamApi.HttpMethods.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   
 </Project>

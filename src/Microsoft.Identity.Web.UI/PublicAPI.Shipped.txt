@@ -4,7 +4,7 @@ Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.Challenge(string! redirectUri, string! scope, string! loginHint, string! domainHint, string! claims, string! policy, string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.EditProfile(string! scheme) -> System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult!>!
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.ResetPassword(string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
-Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(string! scheme, string! redirectUri) -> Microsoft.AspNetCore.Mvc.IActionResult!
+Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignIn(string! scheme, string! redirectUri, string? loginHint = null, string? domainHint = null) -> Microsoft.AspNetCore.Mvc.IActionResult!
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.SignOut(string! scheme) -> Microsoft.AspNetCore.Mvc.IActionResult!
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel
 Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel.AccessDeniedModel() -> void

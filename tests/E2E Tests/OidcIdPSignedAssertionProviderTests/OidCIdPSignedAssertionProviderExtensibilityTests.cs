@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
@@ -60,11 +63,26 @@ namespace CustomSignedAssertionProviderTests
             // Assert
             Assert.NotNull(result);
             Assert.StartsWith("Bearer", result, StringComparison.Ordinal);
+
+            // Decode token & verify xms_cc
+            string jwt = result["Bearer ".Length..].Trim();
+
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+
+            var xmsCcValues = token.Claims
+                                    .Where(c => c.Type == "xms_cc")
+                                    .Select(c => c.Value)
+                                    .ToArray();
+
+            Assert.Contains("cp1", xmsCcValues);
         }
 
         //[Fact(Skip ="Does not run if run with the E2E test")]
-        [Fact]
-        public async Task CrossCloudFicUnitTest()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CrossCloudFicUnitTest(bool withFmiPath)
         {
             // Arrange
             using (MockHttpClientFactory httpFactoryForTest = new MockHttpClientFactory())
@@ -91,18 +109,26 @@ namespace CustomSignedAssertionProviderTests
                         }];
                        });
 
+                Dictionary<string, object> customAssertionProvidedData = new()
+                {
+                    ["ConfigurationSection"] = "AzureAd2"
+                };
+                if (withFmiPath)
+                {
+                    customAssertionProvidedData.Add("RequiresSignedAssertionFmiPath", true);
+                }
+
                 tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
                 {
                     options.Instance = "https://login.microsoftonline.com/";
                     options.TenantId = "t2";
                     options.ClientId = "c2";
+                    options.ClientCapabilities = ["cp1"];
                     options.ExtraQueryParameters = null;
                     options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
-                    CustomSignedAssertionProviderData = new Dictionary<string, object>{{
-                            "ConfigurationSection", "AzureAd2"
-                        }}
+                    CustomSignedAssertionProviderData = customAssertionProvidedData
                     }];
                 });
 
@@ -110,8 +136,29 @@ namespace CustomSignedAssertionProviderTests
                 IAuthorizationHeaderProvider authorizationHeaderProvider =
                     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
+
+                AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions;
+                if (withFmiPath)
+                {
+                    authorizationHeaderProviderOptions = new()
+                    {
+                        AcquireTokenOptions = new()
+                        {
+                            ExtraParameters = new Dictionary<string, object>()
+                            {
+                                ["fmiPathForClientAssertion"] = "myFmiPathForSignedAssertion"
+                            }
+                        }
+                    };
+                }
+                else
+                {
+                    authorizationHeaderProviderOptions = null;
+                }
+
                 // Act
-                var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(TestConstants.s_scopeForApp);
+                var result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(TestConstants.s_scopeForApp,
+                    authorizationHeaderProviderOptions);
 
                 // Assert
                 Assert.Equal("api://AzureADTokenExchange/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
@@ -120,6 +167,33 @@ namespace CustomSignedAssertionProviderTests
                 Assert.Equal("https://login.microsoftonline.us/t1/oauth2/v2.0/token", credentialRequestHttpHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
                 Assert.Equal("c2", tokenRequestHttpHandler.ActualRequestPostData["client_id"]);
                 Assert.Equal("https://login.microsoftonline.com/t2/oauth2/v2.0/token", tokenRequestHttpHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
+
+                if (withFmiPath)
+                {
+                    Assert.Equal("myFmiPathForSignedAssertion", credentialRequestHttpHandler.ActualRequestPostData["fmi_path"]);
+                }
+
+                // First request (credential exchange) – should have *no* "claims"
+                Assert.False(credentialRequestHttpHandler.ActualRequestPostData
+                                                             .ContainsKey("claims"));
+
+                // Second request (real token acquisition) – must carry "claims"
+                Assert.True(tokenRequestHttpHandler.ActualRequestPostData
+                                                   .ContainsKey("claims"));
+
+                // Extract and inspect the JSON payload
+                string claimsJson = tokenRequestHttpHandler.ActualRequestPostData["claims"];
+
+                using JsonDocument doc = JsonDocument.Parse(claimsJson);
+
+                string? cp = doc.RootElement
+                .GetProperty("access_token")
+                .GetProperty("xms_cc")
+                .GetProperty("values")[0]
+                .GetString();
+
+                // Ensure that the client capabilities are passed in the claims
+                Assert.Equal("cp1", cp);
 
                 string? accessTokenFromRequest1;
                 using (JsonDocument document = JsonDocument.Parse(credentialRequestHttpHandler.ResponseString))
@@ -132,6 +206,6 @@ namespace CustomSignedAssertionProviderTests
                     tokenRequestHttpHandler.ActualRequestPostData["client_assertion"],
                     accessTokenFromRequest1);
             }
-        }    
+        }
     }
 }

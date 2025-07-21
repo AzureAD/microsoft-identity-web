@@ -1,0 +1,8 @@
+#nullable enable
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.OidcIdpSignedAssertionLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader!>! logger, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! options, System.IServiceProvider! serviceProvider, Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.ConfigurationNotRegistered(Microsoft.Extensions.Logging.ILogger! logger, string! troubleshootingLink) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.ConfigurationBinding(Microsoft.Extensions.Logging.ILogger! logger, string! sectionName) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.CustomSignedAssertionProviderDataNull(Microsoft.Extensions.Logging.ILogger! logger) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.ConfigurationSectionNull(Microsoft.Extensions.Logging.ILogger! logger) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.SignedAssertionProviderFailed(Microsoft.Extensions.Logging.ILogger! logger, string! providerName, string! message) -> void

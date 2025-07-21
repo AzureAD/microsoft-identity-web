@@ -21,6 +21,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -108,6 +109,7 @@ namespace Microsoft.Identity.Web
             _credentialsLoader = credentialsLoader;
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
+            _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
 
 #if NET6_0_OR_GREATER
@@ -246,7 +248,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(scopes);
 
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
@@ -486,9 +488,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
-
-            tenant = ResolveTenant(tenant, mergedOptions);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
@@ -499,7 +499,15 @@ namespace Microsoft.Identity.Web
                         mergedOptions,
                         tokenAcquisitionOptions.ManagedIdentity
                     );
-                    return await managedIdApp.AcquireTokenForManagedIdentity(scope).ExecuteAsync().ConfigureAwait(false);
+
+                    var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
+
+                    if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
+                    {
+                        miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
+                    }
+
+                    return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -507,6 +515,9 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
             }
+
+            // For non-managed identity flows, resolve the tenant
+            tenant = ResolveTenant(tenant, mergedOptions);
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -541,6 +552,8 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
+                AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
                 if (dict != null)
@@ -598,6 +611,7 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
+
             }
 
             try
@@ -628,6 +642,63 @@ namespace Microsoft.Identity.Web
             finally
             {
                 _retryClientCertificate = false;
+            }
+        }
+
+        private MergedOptions GetMergedOptions(string? authenticationScheme, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            MergedOptions mergedOptions;
+
+            if (tokenAcquisitionOptions != null
+                && tokenAcquisitionOptions.ExtraParameters != null
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("MicrosoftIdentityOptions", out object? identityOptions)
+                && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
+            {
+                MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
+                mergedOptions = new MergedOptions()
+                {
+                    ClientId = microsoftEntraApplicationOptions.ClientId ?? parentMergedOptions.ClientId,
+                    Authority = microsoftEntraApplicationOptions.Authority != "//v2.0" ? microsoftEntraApplicationOptions.Authority : parentMergedOptions.Authority,
+                    ClientCredentials = microsoftEntraApplicationOptions.ClientCredentials ?? parentMergedOptions.ClientCredentials,
+                    SendX5C = microsoftEntraApplicationOptions.SendX5C,
+                    Instance = microsoftEntraApplicationOptions.Instance ?? parentMergedOptions.Instance,
+                    AzureRegion = microsoftEntraApplicationOptions.AzureRegion ?? parentMergedOptions.AzureRegion,
+                    TenantId = microsoftEntraApplicationOptions.TenantId ?? parentMergedOptions.TenantId,
+                };
+            }
+            else
+            {
+                mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
+            }
+
+            return mergedOptions;
+        }
+
+        private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null)
+            {
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                {
+                    if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
+                    {
+                        builder.WithFmiPathForClientAssertion(fmiPathForClientAssertion);
+                    }
+                }
+            }
+        }
+
+        private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenOnBehalfOfParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null)
+            {
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                {
+                    if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
+                    {
+                        builder.WithFmiPathForClientAssertion(fmiPathForClientAssertion);
+                    }
+                }
             }
         }
 
@@ -820,6 +891,11 @@ namespace Microsoft.Identity.Web
                     builder.WithRedirectUri(currentUri);
                 }
 
+                // ClientCapabilities are applied once during CCA construction
+                // (see UpdateConfidentialClientApplicationOptionsFromMergedOptions).
+                // We rely on that path. if it ever regresses the unit test
+                // (CrossCloudFicUnitTest) will fail.
+
                 string authority;
 
                 if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
@@ -851,7 +927,7 @@ namespace Microsoft.Identity.Web
                     Logger.TokenAcquisitionError(
                                 _logger,
                                 IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                null);
+                                ex);
                     throw;
                 }
 
@@ -874,7 +950,7 @@ namespace Microsoft.Identity.Web
             {
                 Logger.TokenAcquisitionError(
                     _logger,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient,
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message,
                     ex);
                 throw;
             }
@@ -985,6 +1061,8 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                         if (dict != null)
                         {

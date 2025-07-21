@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.OidcFic;
 
@@ -19,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>the service collection for chaining.</returns>
         public static IServiceCollection AddOidcFic(this IServiceCollection services)
         {
-            services.AddSingleton<ICustomSignedAssertionProvider, OidcIdpSignedAssertionLoader>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomSignedAssertionProvider, OidcIdpSignedAssertionLoader>());
             return services;
         }
     }

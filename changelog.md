@@ -1,3 +1,95 @@
+3.11.0
+=======
+### Dependencies updates
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.108. See PR [#3422](https://github.com/AzureAD/microsoft-identity-web/pull/3422) for details.
+
+### Bug fixes
+- Fix `IDW10405` error when using managed identity with common tenant. See PR [#3415](https://github.com/AzureAD/microsoft-identity-web/pull/3415) for details.
+- Fix `OidcIdpSignedAssertionLoader` to remove hard dependency on IConfiguration registration. See PR [#3414](https://github.com/AzureAD/microsoft-identity-web/pull/3414) for details.
+
+### New feature
+- Add support for `ExtraHeaderParameters` and `ExtraQueryParameters` properties on `DownstreamApiOptions` to simplify adding custom headers and query parameters to downstream API requests. See PR [#3413](https://github.com/AzureAD/microsoft-identity-web/pull/3413) for details.
+- Add better support for Azure SDK. For details see [Readme-Azure](./src/Microsoft.Identity.Web.Azure/README-Azure.md) and PR [#3416](https://github.com/AzureAD/microsoft-identity-web/pull/3416)
+
+3.10.0
+=======
+### Dependencies updates
+- Updated MSAL to version 4.73.1 [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398).
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 [#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385).
+
+### New feature
+- Added support for Agent Identities [#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402).  
+  introducing the `Microsoft.Identity.Web.AgentIdentities` package .
+
+### Bug fixes
+- Processed codeQL issues
+
+### Fundamentals
+- improved unit tests for OidcFic with the new SignedAssertionFmiPath
+
+3.9.4
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.12.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.12.1).
+
+### Bug fix
+- Updates the `DefaultAuthorizationHeaderProvider` to update the `AcquireTokenOptions.LongRunningWebApiSessionKey` after the token is acquired so that the key can be used in the next OBO call. See PR [#3381](https://github.com/AzureAD/microsoft-identity-web/pull/3381) for details.
+
+### Fundamentals
+- Update .NET SDK version to 9.0.107 used when building or running the code. See [#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385) for details.
+- Improved test coverage for managed identity flows. See [#3350](https://github.com/AzureAD/microsoft-identity-web/pull/3350) for details.
+
+3.9.3
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.12.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.12.0).
+
+### Fundamentals
+- Add `.clinerules` to help with AI tooling.
+- **Update PublicApiAnalyzers and BannedApiAnalyzers to 4.14.0**  
+  Upgraded analyzer packages for improved diagnostics and code consistency (in particular delegates are added).  
+  For details see [#3379](https://github.com/AzureAD/microsoft-identity-web/pull/3379)  
+  
+3.9.2
+=======
+### Package updates
+- Microsoft.IdentityModel updated to version [8.11.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.11.0).
+- MSAL.NET updated to version [MSAL.NET 4.72.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.72.1).
+
+### Fundamentals:
+- Fix invalid comparisons in prop and csproj files. For details see [#3297](https://github.com/AzureAD/microsoft-identity-web/pull/3297).
+
+3.9.1
+========
+### Package updates
+- Microsoft.Identity.Abstractions updated to version [9.1.0](https://github.com/AzureAD/azure-identity-abstractions/releases/tag/9.1.0).
+
+### Fundamentals
+- Fix AoT warnings. For details see [#3366](https://github.com/AzureAD/microsoft-identity-web/pull/3366).
+
+3.9.0
+========
+### Package updates
+- Microsoft.IdentityModel updated to version [8.10.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.10.0).
+- MSAL.NET updated to version [MSAL.NET 4.72.0](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/tag/4.72.0).
+
+### Bug fixes
+- Fixed issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+- Resolved IL warnings from AddDownstreamApis in NativeAOT projects. See [#3355](https://github.com/AzureAD/microsoft-identity-web/issues/3360).
+- Ensured AcquireTokenForConfidentialClient correctly passes MSAL exceptions. See [#3345](https://github.com/AzureAD/microsoft-identity-web/issues/3345).
+- Prevented null reference when accessing MergedOptions instance. See [#3337](https://github.com/AzureAD/microsoft-identity-web/issues/3337).
+
+### New feature
+ - Added optional login_hint and domain_hint support to AccountController.SignIn endpoint. See [#3244](https://github.com/AzureAD/microsoft-identity-web/issues/3244) and [#3348](https://github.com/AzureAD/microsoft-identity-web/pull/3348/files).
+
+### Fundamentals
+- Introduced Long-Term Support (LTS) policy. See [#3357](https://github.com/AzureAD/microsoft-identity-web/commit/b6ff65bb4f49289c914100c3a382fa16da2b5508).
+- Added tests to validate xms_cc (client capability) forwarding in CCA flows. See [#3349](https://github.com/AzureAD/microsoft-identity-web/issues/3349).
+
+### External contributions
+Thank you @evan-buss for your contribution and fixing the issue where RequiredScopeOrAppPermission extension method didn’t work with Minimal APIs. See [#3323](https://github.com/AzureAD/microsoft-identity-web/issues/3323).
+Thank you @neha-bhargava for your contribution and ensuring AcquireTokenForConfidentialClient correctly passes MSAL exceptions. See [#3345](https://github.com/AzureAD/microsoft-identity-web/issues/3345).
+
 3.8.4
 ========
 ### Package updates
