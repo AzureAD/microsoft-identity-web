@@ -33,9 +33,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
                 new CredentialDescription
                 {
-                    SourceType = CredentialSource.KeyVault,
-                    KeyVaultUrl = "https://bogus.net",
-                    KeyVaultCertificateName = "Self-Signed-5-5-22"
+                    SourceType = CredentialSource.StoreWithDistinguishedName,
+                    CertificateStorePath = "LocalMachine/My",
+                    CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
                 }
             };
 
@@ -91,9 +91,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             var certCredential1 = new CredentialDescription
             {
-                SourceType = CredentialSource.KeyVault,
-                KeyVaultUrl = "https://bogus.net",
-                KeyVaultCertificateName = "Self-Signed-5-5-22"
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "LocalMachine/My",
+                CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
             };
             var certCredential2 = new CredentialDescription
             {
@@ -117,9 +117,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             var certCredential = new CredentialDescription
             {
-                SourceType = CredentialSource.KeyVault,
-                KeyVaultUrl = "https://bogus.net",
-                KeyVaultCertificateName = "Self-Signed-5-5-22"
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "LocalMachine/My",
+                CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
             };
 
             await RunFailToLoadLogicAsync(new[] { ficCredential, certCredential });
@@ -130,9 +130,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         {
             var certCredential = new CredentialDescription
             {
-                SourceType = CredentialSource.KeyVault,
-                KeyVaultUrl = "https://bogus.net",
-                KeyVaultCertificateName = "Self-Signed-5-5-22"
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "LocalMachine/My",
+                CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
             };
 
             var ficCredential = new CredentialDescription
@@ -149,9 +149,9 @@ namespace Microsoft.Identity.Web.Test.Certificates
         {
             var certCredential = new CredentialDescription
             {
-                SourceType = CredentialSource.KeyVault,
-                KeyVaultUrl = "https://bogus.net",
-                KeyVaultCertificateName = "Self-Signed-5-5-22"
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "LocalMachine/My",
+                CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"
             };
 
             var ficCredential = new CredentialDescription

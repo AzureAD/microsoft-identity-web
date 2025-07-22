@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Azure SDK token credential for App tokens based on the ITokenAcquisition service.
+    /// It's recommended to use MicrosoftIdentityTokenCredential. See Readme-Azure.md file.
     /// </summary>
     public class TokenAcquirerAppTokenCredential : TokenCredential
     {
