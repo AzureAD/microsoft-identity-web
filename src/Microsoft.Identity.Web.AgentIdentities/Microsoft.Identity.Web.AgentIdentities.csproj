@@ -9,7 +9,9 @@
     <!-- The package is new in 3.10.0.-->
     <PackageValidationBaselineVersion>3.10.0</PackageValidationBaselineVersion>
     <EnablePackageValidation>false</EnablePackageValidation>
-    
+
+    <!-- remove before merging -->
+    <NoWarn>$(NoWarn);RS0051</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -52,16 +52,13 @@ namespace Microsoft.Identity.Web
         }
 
         // TODO:make public?
-        private static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId)
+        private static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId, bool useFmiPath = true)
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
-            // Until it makes it way through Abstractions
-            options.ExtraParameters["fmiPathForClientAssertion"] = agentApplicationId;
-
             // TODO: do we want to expose a mechanism to override the MicrosoftIdentityOptions instead of leveraging
             // the default configuration section / named options?.
-            options.ExtraParameters["MicrosoftIdentityOptions"] = new MicrosoftEntraApplicationOptions
+            MicrosoftEntraApplicationOptions entraApplicationOptions = new MicrosoftEntraApplicationOptions
             {
                 ClientId = agentApplicationId, // Agent identity Client ID.
                 ClientCredentials = [ new CredentialDescription() {
@@ -69,11 +66,38 @@ namespace Microsoft.Identity.Web
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
                         { "ConfigurationSection", "AzureAd" },        // Use the default configuration section name
-                        { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]
             };
+            options.ExtraParameters["MicrosoftIdentityOptions"] = entraApplicationOptions;
+
+            if (useFmiPath)
+            {
+                options.ExtraParameters["fmiPathForClientAssertion"] = agentApplicationId;
+                entraApplicationOptions.ClientCredentials.First()!.CustomSignedAssertionProviderData!["RequiresSignedAssertionFmiPath"] = true;
+            }
             return options;
         }
+
+        /// <summary>
+        /// Updates the options to acquire a token for the agent identity.
+        /// </summary>
+        /// <param name="options">Authorization header provider options.</param>
+        /// <param name="agentApplicationId">The agent identity GUID.</param>
+        /// <param name="userOid">Object Id of the user</param>
+        /// <returns>The updated authorization header provider options.</returns>
+        public static AuthorizationHeaderProviderOptions WithAgentUserIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string userOid)
+        {
+            // It's possible to start with no options, so we initialize it if it's null.
+            if (options == null)
+                options = new AuthorizationHeaderProviderOptions();
+
+            // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
+            options.AcquireTokenOptions ??= new AcquireTokenOptions();
+            options.AcquireTokenOptions.ForAgentIdentity(agentApplicationId);
+
+            return options;
+        }
+
     }
 }

@@ -1,1 +1,10 @@
 #nullable enable
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AccessTokenType.get -> string!
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AgentUserIdentityAuthenticationOperation(string! userOid, System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Web.TokenAcquisitionOptions! tokenAcquisitionOptions) -> void
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AuthorizationHeaderPrefix.get -> string!
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.FormatResult(Microsoft.Identity.Client.AuthenticationResult! authenticationResult) -> void
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.GetTokenRequestParams() -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.KeyId.get -> string!
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.TelemetryTokenType.get -> int
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.TokenAcquisitionOptions.get -> Microsoft.Identity.Web.TokenAcquisitionOptions!
