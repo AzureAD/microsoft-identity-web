@@ -812,18 +812,7 @@ namespace Microsoft.Identity.Web
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
             return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-#if !NETSTANDARD2_0 && !NET462 && !NET472
-                (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase));
-#else
-                (exMsal.Message.Contains(Constants.InvalidKeyError)
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange)
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
-                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
-#endif
+                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase);
         }
 
 
