@@ -183,7 +183,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -302,7 +302,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -620,7 +620,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -935,7 +935,7 @@ namespace Microsoft.Identity.Web
 
                 // If the client application has set certificate observer,
                 // fire the event to notify the client app that a certificate was selected.
-                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected);
+                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected, null);
 
                 // Initialize token cache providers
                 if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
@@ -962,7 +962,12 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions"></param>
         /// <param name="app"></param>
         /// <param name="action"></param>
-        private void NotifyCertificateSelection(MergedOptions mergedOptions, IConfidentialClientApplication app, CerticateObserverAction action)
+        /// <param name="exception">The thrown exception, if any.</param>
+        private void NotifyCertificateSelection(
+            MergedOptions mergedOptions,
+            IConfidentialClientApplication app,
+            CerticateObserverAction action,
+            Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
             if (_certificatesObserver != null
@@ -973,7 +978,8 @@ namespace Microsoft.Identity.Web
                     {
                         Action = action,
                         Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate)
+                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
+                        ThrownException = exception,
                     });
             }
         }

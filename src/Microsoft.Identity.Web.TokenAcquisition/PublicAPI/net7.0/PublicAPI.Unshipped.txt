@@ -1,3 +1,5 @@
 #nullable enable
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.get -> System.Exception?
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.set -> void
