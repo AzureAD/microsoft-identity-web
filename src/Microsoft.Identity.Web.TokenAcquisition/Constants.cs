@@ -134,6 +134,9 @@ namespace Microsoft.Identity.Web
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
+        internal const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
+        internal const string UsernameKey = "IDWEB_USERNAME";
+
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

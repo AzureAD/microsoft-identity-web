@@ -4,10 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.AgentIdentities;
 
 namespace Microsoft.Identity.Web
 {
@@ -16,6 +20,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class AgentIdentityExtension
     {
+
         /// <summary>
         /// Enable support for agent identities.
         /// </summary>
@@ -28,9 +33,14 @@ namespace Microsoft.Identity.Web
             // Register the OidcFic services for agent applications to work.
             services.AddOidcFic();
 
+            // Register a callback to process the agent user identity before acquiring a token.
+            services.Configure<TokenAcquisitionExtensionOptions>(options =>
+            {
+                options.OnBeforeTokenAcquisitionForTestUser += MsalAgentUserIdentityAddIn.OnBeforeUserFicForAgentUserIdentity;
+            });
+
             return services;
         }
-
 
         /// <summary>
         /// Updates the options to acquire a token for the agent identity.
@@ -51,8 +61,29 @@ namespace Microsoft.Identity.Web
             return options;
         }
 
+        /// <summary>
+        /// Updates the options to acquire a token for the agent user identity.
+        /// </summary>
+        /// <param name="options">Authorization header provider options.</param>
+        /// <param name="agentApplicationId">The agent identity GUID.</param>
+        /// <param name="username">upn of the user.</param>
+        /// <returns>The updated authorization header provider options.</returns>
+        public static AuthorizationHeaderProviderOptions WithAgentUserIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string username)
+        {
+            // It's possible to start with no options, so we initialize it if it's null.
+            if (options == null)
+                options = new AuthorizationHeaderProviderOptions();
+
+            // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
+            options.AcquireTokenOptions ??= new AcquireTokenOptions();
+            options.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+            options.AcquireTokenOptions.ExtraParameters[Constants.AgentIdentityKey] = agentApplicationId;
+            options.AcquireTokenOptions.ExtraParameters[Constants.UsernameKey] = username;
+            return options;
+        }
+
         // TODO:make public?
-        private static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId, bool useFmiPath = true)
+        internal static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId, bool useFmiPath = true)
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
@@ -79,25 +110,7 @@ namespace Microsoft.Identity.Web
             return options;
         }
 
-        /// <summary>
-        /// Updates the options to acquire a token for the agent identity.
-        /// </summary>
-        /// <param name="options">Authorization header provider options.</param>
-        /// <param name="agentApplicationId">The agent identity GUID.</param>
-        /// <param name="userOid">Object Id of the user</param>
-        /// <returns>The updated authorization header provider options.</returns>
-        public static AuthorizationHeaderProviderOptions WithAgentUserIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string userOid)
-        {
-            // It's possible to start with no options, so we initialize it if it's null.
-            if (options == null)
-                options = new AuthorizationHeaderProviderOptions();
 
-            // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
-            options.AcquireTokenOptions ??= new AcquireTokenOptions();
-            options.AcquireTokenOptions.ForAgentIdentity(agentApplicationId);
-
-            return options;
-        }
 
     }
 }

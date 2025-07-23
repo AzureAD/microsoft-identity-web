@@ -1,1 +1,3 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.AgentIdentityKey = "IDWEB_AGENT_IDENTITY" -> string!
+const Microsoft.Identity.Web.Constants.UsernameKey = "IDWEB_USERNAME" -> string!

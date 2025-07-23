@@ -254,6 +254,12 @@ namespace Microsoft.Identity.Web
 
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
+            if (tokenAcquisitionOptions is not null)
+            {
+                tokenAcquisitionOptions.ExtraParameters ??= new Dictionary<string, object>();
+                tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
+            }
+
             try
             {
                 AuthenticationResult? authenticationResult;
@@ -334,88 +340,107 @@ namespace Microsoft.Identity.Web
         // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
         private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
+            string? username = null;
+            string? password = null;
+            string? agentIdentity = string.Empty;
+
+            // Case where the user is passed through the Claims identity
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
             {
-                string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
-                string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
-                bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
+                username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
+                password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
+            }
 
-                if (!forceRefresh && user.GetMsalAccountId() != null)
+            // Case of the Agent User identities
+            var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
+            if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UsernameKey))
+            {
+                // If the agentId is present, we can use it
+                username = extraParameters[Constants.UsernameKey] as string;
+                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
+                password = "password";
+            }
+
+            if (username == null)
+            {
+                return null;
+            }
+
+            bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
+
+            if (!forceRefresh && user != null && user.GetMsalAccountId() != null)
+            {
+                try
                 {
-                    try
-                    {
-                        var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
+                    var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
 
-                        // Silent flow
-                        return await application.AcquireTokenSilent(
-                            scopes.Except(_scopesRequestedByMsal),
-                            account)
-                            .ExecuteAsync()
-                            .ConfigureAwait(false);
-                    }
-                    catch (MsalException ex)
-                    {
-                        // Log a message when the silent flow fails and try acquisition through ROPC.
-                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
-                    }
-
-                }
-
-                // Check for extension options for the ROPC flow
-                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
-
-                // ROPC flow
-                AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)application)
-                    .AcquireTokenByUsernamePassword(
+                    // Silent flow
+                    return await application.AcquireTokenSilent(
                         scopes.Except(_scopesRequestedByMsal),
-                        username,
-                        password);
-
-                if (addInOptions != null)
+                        account)
+                        .ExecuteAsync()
+                        .ConfigureAwait(false);
+                }
+                catch (MsalException ex)
                 {
-                    addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions, user);
+                    // Log a message when the silent flow fails and try acquisition through ROPC.
+                    Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                 }
 
-                // Pass the token acquisition options to the builder
-                if (tokenAcquisitionOptions != null)
+            }
+
+            // Check for extension options for the ROPC flow
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
+            // ROPC flow
+            AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)application)
+                .AcquireTokenByUsernamePassword(
+                    scopes.Except(_scopesRequestedByMsal),
+                    username,
+                    password);
+
+            if (addInOptions != null)
+            {
+                addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions, user!);
+            }
+
+            // Pass the token acquisition options to the builder
+            if (tokenAcquisitionOptions != null)
+            {
+                var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+                if (dict != null)
                 {
-                    var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
-                    if (dict != null)
-                    {
-                        builder.WithExtraQueryParameters(dict);
-                    }
-                    if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
-                    {
-                        builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
-                    }
-                    if (tokenAcquisitionOptions.CorrelationId != null)
-                    {
-                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
-                    }
-                    builder.WithClaims(tokenAcquisitionOptions.Claims);
-                    if (tokenAcquisitionOptions.PoPConfiguration != null)
-                    {
-                        builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
-                    }
+                    builder.WithExtraQueryParameters(dict);
                 }
-
-                var authenticationResult = await builder.ExecuteAsync()
-                .ConfigureAwait(false);
-
-                if (user.GetMsalAccountId() == null)
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
-                    // Add the account id to the user (in case of ROPC flow)
-                    user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
-                    {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
+                if (tokenAcquisitionOptions.CorrelationId != null)
+                {
+                    builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                }
+                builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+            }
+
+            var authenticationResult = await builder.ExecuteAsync()
+            .ConfigureAwait(false);
+
+            if (user != null && user.GetMsalAccountId() == null)
+            {
+                // Add the account id to the user (in case of ROPC flow)
+                user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                {
                         new Claim(ClaimConstants.UniqueObjectIdentifier, authenticationResult.Account.HomeAccountId.ObjectId),
                         new Claim(ClaimConstants.UniqueTenantIdentifier, authenticationResult.Account.HomeAccountId.TenantId),
                     }));
-                }
-
-                return authenticationResult;
             }
 
-            return null;
+            return authenticationResult;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
