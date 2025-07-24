@@ -42,8 +42,22 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 // Get the client assertion for the agent identity.
                 // We built this parameter when the developper called WithAgentUserIdentity, so we know its structure.
                 MicrosoftEntraApplicationOptions? o = options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] as MicrosoftEntraApplicationOptions;
-                ClientAssertionProviderBase? clientAssertionProvider = o!.ClientCredentials!.First().CachedValue as ClientAssertionProviderBase;
-                string clientAssertion = await clientAssertionProvider!.GetSignedAssertionAsync(null)!; // Its' coming from the cache, as computed when getting the user assertion.
+                if (o == null || o.ClientCredentials == null || o.ClientCredentials.Count() != 1)
+                {
+                    throw new InvalidOperationException("The Microsoft.Identity.Options used for user FIC have an unexpected shape.");
+                }
+                ClientAssertionProviderBase? clientAssertionProvider = o.ClientCredentials!.First().CachedValue as ClientAssertionProviderBase;
+                if (clientAssertionProvider == null)
+                {
+                    throw new InvalidOperationException("The ClientAssertionProvider used for user FIC have an unexpected shape.");
+                }
+
+                string? clientAssertion = await clientAssertionProvider.GetSignedAssertionAsync(null); // Its' coming from the cache, as computed when getting the user assertion.
+                if (clientAssertion == null)
+                {
+                    throw new InvalidOperationException("The ClientAssertion for the agent identity is not set.");
+                }
+
 
                 // Register the MSAL extension that will modify the token request just in time.
                 MsalAuthenticationExtension extension = new()
