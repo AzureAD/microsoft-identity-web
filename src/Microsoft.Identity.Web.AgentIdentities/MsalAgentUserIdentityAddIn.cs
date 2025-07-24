@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,16 +36,6 @@ namespace Microsoft.Identity.Web.AgentIdentities
                     serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
                 ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
 
-                // Get the signed a assertion for the agent application (to be used as a client creds in the user FIC).
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                var options2 = options.Clone();
-                options2.FmiPath = agentIdentity;
-                var resultSignedAssertion = tokenAcquirer.GetTokenForAppAsync(
-                    "api://AzureAdTokenExchange/.default",
-                    options2).GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-                string? clientAssertion = resultSignedAssertion?.AccessToken;
-
 
                 // Get the signed assertion for the Agent identity (to be used as a user creds in the user FIC)
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
@@ -54,20 +45,27 @@ namespace Microsoft.Identity.Web.AgentIdentities
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
                 string? userFicAssertion = resultUserFicAssertion?.AccessToken;
 
-                if (clientAssertion == null || userFicAssertion == null)
+                MicrosoftEntraApplicationOptions? o = options.ExtraParameters["MicrosoftIdentityOptions"] as MicrosoftEntraApplicationOptions;
+                ClientAssertionProviderBase? clientAssertionProvider = o!.ClientCredentials!.First().CachedValue as ClientAssertionProviderBase;
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                string? T1 = clientAssertionProvider!.GetSignedAssertionAsync(null).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+
+
+                if (userFicAssertion == null)
                 {
                     throw new ArgumentException("Failed to acquire the signed assertion for the agent identity or user FIC assertion.");
                 }
 
-                builder.WithUserFederatedIdentityCredential(username, clientAssertion, userFicAssertion, agentIdentity);
+                builder.WithUserFederatedIdentityCredential(username, userFicAssertion, T1, agentIdentity);
             }
         }
 
         internal static AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder WithUserFederatedIdentityCredential(
            this AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
            string username,
-           string clientAssertion,
            string userAssertion,
+           string clientAssertion,
            string agentIdentity)
         {
             if (string.IsNullOrEmpty(username))
@@ -80,22 +78,18 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 throw new ArgumentNullException(nameof(userAssertion));
             }
 
-            if (string.IsNullOrEmpty(clientAssertion))
-            {
-                throw new ArgumentNullException(nameof(clientAssertion));
-            }
-
             AssertionRequestOptions assertionOptions = new();
 
             MsalAuthenticationExtension extension = new()
             {
                 OnBeforeTokenRequestHandler = (request) =>
                 {
+                    request.BodyParameters["client_id"] = agentIdentity;
                     request.BodyParameters["username"] = username;
                     request.BodyParameters["user_federated_identity_credential"] = userAssertion;
                     request.BodyParameters["grant_type"] = "user_fic";
-                    request.BodyParameters.Remove("password");
                     request.BodyParameters["client_assertion"] = clientAssertion;
+                    request.BodyParameters.Remove("password");
 
                     if (request.BodyParameters.TryGetValue("client_secret", out var secret)
                         && secret.Equals("default", StringComparison.OrdinalIgnoreCase))

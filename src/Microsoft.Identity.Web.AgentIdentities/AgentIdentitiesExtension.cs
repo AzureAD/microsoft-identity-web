@@ -74,11 +74,11 @@ namespace Microsoft.Identity.Web
             if (options == null)
                 options = new AuthorizationHeaderProviderOptions();
 
-            // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
             options.AcquireTokenOptions ??= new AcquireTokenOptions();
             options.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
-            options.AcquireTokenOptions.ExtraParameters[Constants.AgentIdentityKey] = agentApplicationId;
+
             options.AcquireTokenOptions.ExtraParameters[Constants.UsernameKey] = username;
+            options.AcquireTokenOptions.ExtraParameters![Constants.AgentIdentityKey] = agentApplicationId;
             return options;
         }
 

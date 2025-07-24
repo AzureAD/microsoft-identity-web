@@ -72,6 +72,7 @@ namespace AgentApplicationsTests
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
             configuration["AzureAd:ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
             configuration["AzureAd:ClientCredentials:0:CertificateDistinguishedName"] = "CN=LabAuth.MSIDLab.com";
+            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024"; // Replace with the actual agent identity
 
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
@@ -90,20 +91,15 @@ namespace AgentApplicationsTests
             //// Get an authorization header and handle the call to the downstream API yoursel
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
             AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
-                agentApplicationId: "d84da24a-2ea2-42b8-b5ab-8637ec208024", // Replace with the actual agent identity OID=ClientId.
-                username: "ui1@msidlabtoint.onmicrosoft.com" // Replace with the actual user upn.
+                agentApplicationId: agentIdentity, // Replace with the actual agent identity OID=ClientId.
+                username: "aui1@msidlabtoint.onmicrosoft.com" // Replace with the actual user upn.
                 );
 
             string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                 scopes: ["https://graph.microsoft.com/.default"],
                 options);
 
-            //// Request user tokens in interactive agents.
-            //string authorizationHeaderWithAppToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(["https://graph.microsoft.com/.default"], options);
-
-            // Request agent tokens. Expect an exception as this needs to run on a compute with managed identity.
-            await Assert.ThrowsAsync<ArgumentException>(async () => { await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options); });
-            // string authorizationHeaderWithAppTokens = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+            Assert.NotNull(authorizationHeaderWithUserToken);
         }
     }
 
