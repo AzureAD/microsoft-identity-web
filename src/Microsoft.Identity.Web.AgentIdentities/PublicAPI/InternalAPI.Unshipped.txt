@@ -1,10 +1,5 @@
 #nullable enable
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AccessTokenType.get -> string!
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AgentUserIdentityAuthenticationOperation(string! userOid, System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Web.TokenAcquisitionOptions! tokenAcquisitionOptions) -> void
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.AuthorizationHeaderPrefix.get -> string!
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.FormatResult(Microsoft.Identity.Client.AuthenticationResult! authenticationResult) -> void
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.GetTokenRequestParams() -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.KeyId.get -> string!
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.TelemetryTokenType.get -> int
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityAuthenticationOperation.TokenAcquisitionOptions.get -> Microsoft.Identity.Web.TokenAcquisitionOptions!
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn
+Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn.AgentUserIdentityMsalAddIn() -> void
+static Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn.OnBeforeUserFicForAgentUserIdentityAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? options, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
+static Microsoft.Identity.Web.AgentIdentityExtension.ForAgentIdentity(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, string! agentApplicationId) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!

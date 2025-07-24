@@ -1,3 +1,6 @@
 #nullable enable
+Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUserAsync -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync?
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync.Invoke(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!

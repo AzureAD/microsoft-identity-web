@@ -401,7 +401,7 @@ namespace Microsoft.Identity.Web
 
             if (addInOptions != null)
             {
-                addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions, user!);
+                await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
             }
 
             // Pass the token acquisition options to the builder
@@ -676,7 +676,7 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null
                 && tokenAcquisitionOptions.ExtraParameters != null
-                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("MicrosoftIdentityOptions", out object? identityOptions)
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.MicrosoftIdentityOptionsParameter, out object? identityOptions)
                 && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
             {
                 MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
@@ -703,7 +703,7 @@ namespace Microsoft.Identity.Web
         {
             if (tokenAcquisitionOptions.ExtraParameters != null)
             {
-                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.FmiPathForClientAssertion, out object? o))
                 {
                     if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
                     {
@@ -717,7 +717,7 @@ namespace Microsoft.Identity.Web
         {
             if (tokenAcquisitionOptions.ExtraParameters != null)
             {
-                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.FmiPathForClientAssertion, out object? o))
                 {
                     if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
                     {

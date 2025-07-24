@@ -136,7 +136,8 @@ namespace Microsoft.Identity.Web
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
         internal const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
         internal const string UsernameKey = "IDWEB_USERNAME";
-
+        internal const string FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION";
+        internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
 
         // Blazor challenge URI
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";

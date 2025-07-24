@@ -1,16 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.AgentIdentities;
 
 namespace Microsoft.Identity.Web
@@ -20,7 +13,6 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class AgentIdentityExtension
     {
-
         /// <summary>
         /// Enable support for agent identities.
         /// </summary>
@@ -36,7 +28,7 @@ namespace Microsoft.Identity.Web
             // Register a callback to process the agent user identity before acquiring a token.
             services.Configure<TokenAcquisitionExtensionOptions>(options =>
             {
-                options.OnBeforeTokenAcquisitionForTestUser += MsalAgentUserIdentityAddIn.OnBeforeUserFicForAgentUserIdentity;
+                options.OnBeforeTokenAcquisitionForTestUserAsync += AgentUserIdentityMsalAddIn.OnBeforeUserFicForAgentUserIdentityAsync;
             });
 
             return services;
@@ -82,35 +74,29 @@ namespace Microsoft.Identity.Web
             return options;
         }
 
-        // TODO:make public?
-        internal static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId, bool useFmiPath = true)
+        // TODO:would it make sense to have it public?
+        internal static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId)
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
+            // Until it makes it way through Abstractions
+            options.ExtraParameters[Constants.FmiPathForClientAssertion] = agentApplicationId;
+
             // TODO: do we want to expose a mechanism to override the MicrosoftIdentityOptions instead of leveraging
             // the default configuration section / named options?.
-            MicrosoftEntraApplicationOptions entraApplicationOptions = new MicrosoftEntraApplicationOptions
+            options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
             {
                 ClientId = agentApplicationId, // Agent identity Client ID.
                 ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
-                        { "ConfigurationSection", "AzureAd" },        // Use the default configuration section name
+                        { "ConfigurationSection", "AzureAd" },      // Use the default configuration section name
+                        { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]
             };
-            options.ExtraParameters["MicrosoftIdentityOptions"] = entraApplicationOptions;
-
-            if (useFmiPath)
-            {
-                options.ExtraParameters["fmiPathForClientAssertion"] = agentApplicationId;
-                entraApplicationOptions.ClientCredentials.First()!.CustomSignedAssertionProviderData!["RequiresSignedAssertionFmiPath"] = true;
-            }
             return options;
         }
-
-
-
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
@@ -36,12 +37,25 @@ namespace Microsoft.Identity.Web
         public event BeforeTokenAcquisitionForTestUser? OnBeforeTokenAcquisitionForTestUser;
 
         /// <summary>
+        /// Event fired when a ROPC flow request is being built.
+        /// </summary>        
+        public event BeforeTokenAcquisitionForTestUserAsync? OnBeforeTokenAcquisitionForTestUserAsync;
+
+        /// <summary>
         /// Invoke the BeforeTokenAcquisitionForTestUser event.
         /// </summary>
-        internal void InvokeOnBeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
-                                                           AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
+        internal async Task InvokeOnBeforeTokenAcquisitionForTestUserAsync(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
+                                                                           AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
         {
+            // Run the async event if it is not null.
+            if (OnBeforeTokenAcquisitionForTestUserAsync != null)
+            {
+                await OnBeforeTokenAcquisitionForTestUserAsync(builder, acquireTokenOptions, user);
+            }
+
+            // Run the sync event if it is not null.
             OnBeforeTokenAcquisitionForTestUser?.Invoke(builder, acquireTokenOptions, user);
         }
+
     }
 }
