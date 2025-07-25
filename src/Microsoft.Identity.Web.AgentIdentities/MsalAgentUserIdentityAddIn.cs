@@ -39,30 +39,27 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 AcquireTokenOptions options1 = options.Clone();
                 options1.ExtraParameters = new Dictionary<string, object>();
                 options1.FmiPath = agentIdentity;
-                var t1 = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options1);
-                var t2 = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options);
-
-                if (t1 is null || t2 is null)
+                var agentIdentityFic = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options);
+                if (agentIdentityFic is null)
                 {
                     throw new InvalidOperationException("Failed to acquire the signed assertions.");
                 }
 
-                string clientAssertion = t1.AccessToken!;
-                string userFicAssertion = t2.AccessToken!;
+                string userFicAssertion = agentIdentityFic.AccessToken!;
 
                 // Register the MSAL extension that will modify the token request just in time.
                 MsalAuthenticationExtension extension = new()
                 {
                     OnBeforeTokenRequestHandler = (request) =>
                     {
-                        // Important: this is on behalf of the agent identity, not agent application.
-                        request.BodyParameters["client_id"] = agentIdentity;
+                        // Already in the request:
+                        // - client_id = agentIdentity;
+                        // - client_assertion is the AA FIC
 
                         // User FIC parameters
                         request.BodyParameters["username"] = username;
                         request.BodyParameters["user_federated_identity_credential"] = userFicAssertion;
                         request.BodyParameters["grant_type"] = "user_fic";
-                        request.BodyParameters["client_assertion"] = clientAssertion;
                         request.BodyParameters.Remove("password");
 
                         if (request.BodyParameters.TryGetValue("client_secret", out var secret)
