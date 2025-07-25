@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -35,10 +36,13 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
 
                 AcquireTokenOptions options1 = options.Clone();
+                options1.ExtraParameters = new Dictionary<string, object>();
                 options1.FmiPath = agentIdentity;
                 var t1 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options1);
 
-                AcquireTokenOptions options2 = options.Clone().ForAgentIdentity(agentIdentity);
+                AcquireTokenOptions options2 = options.Clone();
+                options2.ExtraParameters = new Dictionary<string, object>();
+                options2.ForAgentIdentity(agentIdentity);
                 var t2 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options2);
 
                 if (t1 is null || t2 is null)
