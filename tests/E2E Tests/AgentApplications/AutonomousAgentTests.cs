@@ -7,6 +7,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace AgentApplicationsTests
 {
@@ -16,11 +17,8 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AutonomousAgentGetsAppTokenForAgentIdentityToCallGraphAsync()
         {
-            // Usual configuration for a web app or web API
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
-            IConfiguration configuration = tokenAcquirerFactory.Configuration;
+            IServiceCollection services = new ServiceCollection();
+            IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
             configuration["AzureAd:TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
@@ -30,9 +28,14 @@ namespace AgentApplicationsTests
             configuration["AzureAd:ClientCredentials:0:CertificateDistinguishedName"] = "CN=LabAuth.MSIDLab.com";
             //configuration["AzureAd:ExtraQueryParameters:dc"] = "ESTS-PUB-SCUS-FD000-TEST1-100";
 
+            services.AddSingleton(configuration);
+            services.AddTokenAcquisition();
+            services.AddHttpClient();
+            services.AddInMemoryTokenCaches();
+            services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
-            var serviceProvider = tokenAcquirerFactory.Build();
+            var serviceProvider = services.BuildServiceProvider();
 
             string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024"; // Replace with the actual agent identity
 

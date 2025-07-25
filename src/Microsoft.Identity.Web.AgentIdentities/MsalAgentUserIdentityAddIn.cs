@@ -31,33 +31,23 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
                 IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
                     serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+
                 ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
 
-                // Get the signed assertion for the Agent identity (to be used as a user creds in the user FIC)
-                var resultUserFicAssertion = await tokenAcquirer.GetTokenForAppAsync(
-                    "api://AzureAdTokenExchange/.default",
-                    options.ForAgentIdentity(agentIdentity));
-                string? userFicAssertion = resultUserFicAssertion?.AccessToken;
+                AcquireTokenOptions options1 = options.Clone();
+                options1.FmiPath = agentIdentity;
+                var t1 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options1);
 
-                // Get the client assertion for the agent identity.
-                // We built this parameter when the developper called WithAgentUserIdentity, so we know its structure.
-                MicrosoftEntraApplicationOptions? o = options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] as MicrosoftEntraApplicationOptions;
-                if (o == null || o.ClientCredentials == null || o.ClientCredentials.Count() != 1)
+                AcquireTokenOptions options2 = options.Clone().ForAgentIdentity(agentIdentity);
+                var t2 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options2);
+
+                if (t1 is null || t2 is null)
                 {
-                    throw new InvalidOperationException("The Microsoft.Identity.Options used for user FIC have an unexpected shape.");
-                }
-                ClientAssertionProviderBase? clientAssertionProvider = o.ClientCredentials!.First().CachedValue as ClientAssertionProviderBase;
-                if (clientAssertionProvider == null)
-                {
-                    throw new InvalidOperationException("The ClientAssertionProvider used for user FIC have an unexpected shape.");
+                    throw new InvalidOperationException("Failed to acquire the signed assertions.");
                 }
 
-                string? clientAssertion = await clientAssertionProvider.GetSignedAssertionAsync(null); // Its' coming from the cache, as computed when getting the user assertion.
-                if (clientAssertion == null)
-                {
-                    throw new InvalidOperationException("The ClientAssertion for the agent identity is not set.");
-                }
-
+                string clientAssertion = t1.AccessToken!;
+                string userFicAssertion = t2.AccessToken!;
 
                 // Register the MSAL extension that will modify the token request just in time.
                 MsalAuthenticationExtension extension = new()

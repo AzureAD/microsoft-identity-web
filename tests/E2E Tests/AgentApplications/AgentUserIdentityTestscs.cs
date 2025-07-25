@@ -7,6 +7,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace AgentApplicationsTests
 {
@@ -16,11 +17,8 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphAsync()
         {
-            // Usual configuration for a web app or web API
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
-            IConfiguration configuration = tokenAcquirerFactory.Configuration;
+            IServiceCollection services = new ServiceCollection();
+            IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
             configuration["AzureAd:TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
@@ -31,15 +29,20 @@ namespace AgentApplicationsTests
             string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024"; // Replace with the actual agent identity
             string userUpn = "aui1@msidlabtoint.onmicrosoft.com";          // Replace with the actual user upn.
 
+            services.AddSingleton(configuration);
+            services.AddTokenAcquisition();
+            services.AddHttpClient();
+            services.AddInMemoryTokenCaches();
+            services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
-            var serviceProvider = tokenAcquirerFactory.Build();
+            var serviceProvider = services.BuildServiceProvider();
 
-            //// Get an authorization header and handle the call to the downstream API yourself
+            // Get an authorization header and handle the call to the downstream API yourself
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
             AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
                 agentApplicationId: agentIdentity,
-                username: userUpn 
+                username: userUpn
                 );
 
             string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
@@ -48,8 +51,8 @@ namespace AgentApplicationsTests
             Assert.NotNull(authorizationHeaderWithUserToken);
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
-            //GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
-            //var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options => options.WithAgentUserIdentity(agentIdentity, userUpn)));
+            GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
+            var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options => options.WithAgentUserIdentity(agentIdentity, userUpn)));
 
             //// If you want to call downstream APIs letting IdWeb handle authentication.
             //IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
