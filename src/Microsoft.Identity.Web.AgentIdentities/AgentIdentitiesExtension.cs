@@ -68,6 +68,7 @@ namespace Microsoft.Identity.Web
 
             options.AcquireTokenOptions ??= new AcquireTokenOptions();
             options.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+            options.WithAgentIdentity(agentApplicationId);
 
             options.AcquireTokenOptions.ExtraParameters[Constants.UsernameKey] = username;
             options.AcquireTokenOptions.ExtraParameters![Constants.AgentIdentityKey] = agentApplicationId;

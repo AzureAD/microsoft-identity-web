@@ -15,6 +15,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
 {
     internal static class AgentUserIdentityMsalAddIn
     {
+        private const string azureAdTokenExchangeScope = "api://AzureADTokenExchange/.default";
         internal static async Task OnBeforeUserFicForAgentUserIdentityAsync(
             AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
             AcquireTokenOptions? options,
@@ -38,12 +39,8 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 AcquireTokenOptions options1 = options.Clone();
                 options1.ExtraParameters = new Dictionary<string, object>();
                 options1.FmiPath = agentIdentity;
-                var t1 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options1);
-
-                AcquireTokenOptions options2 = options.Clone();
-                options2.ExtraParameters = new Dictionary<string, object>();
-                options2.ForAgentIdentity(agentIdentity);
-                var t2 = await tokenAcquirer.GetTokenForAppAsync("api://AzureADTokenExchange/.default", options2);
+                var t1 = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options1);
+                var t2 = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options);
 
                 if (t1 is null || t2 is null)
                 {
