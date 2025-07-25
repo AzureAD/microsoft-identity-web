@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TestOnly;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 namespace AgentApplicationsTests
 {
@@ -31,7 +30,8 @@ namespace AgentApplicationsTests
             services.AddSingleton(configuration);
             services.AddTokenAcquisition();
             services.AddHttpClient();
-            services.AddInMemoryTokenCaches();
+            services.AddDistributedTokenCaches();
+            services.AddDistributedMemoryCache();
             services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
@@ -48,11 +48,12 @@ namespace AgentApplicationsTests
 
             //// If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
-            var me = await graphServiceClient.Applications.GetAsync(r => r.Options.WithAuthenticationOptions(options =>
+            var apps = await graphServiceClient.Applications.GetAsync(r => r.Options.WithAuthenticationOptions(options =>
                 {
                     options.WithAgentIdentity(agentIdentity);
                     options.RequestAppToken = true;
                 }));
+            Assert.NotNull(apps);
 
             //// If you want to call downstream APIs letting IdWeb handle authentication.
             //IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;

@@ -53,6 +53,7 @@ namespace AgentApplicationsTests
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options => options.WithAgentUserIdentity(agentIdentity, userUpn)));
+            Assert.NotNull(me);
 
             //// If you want to call downstream APIs letting IdWeb handle authentication.
             //IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
