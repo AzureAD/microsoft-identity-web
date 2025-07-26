@@ -427,7 +427,7 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            var authenticationResult = await builder.ExecuteAsync()
+            var authenticationResult = await builder.ExecuteAsync().ConfigureAwait(false);
             .ConfigureAwait(false);
 
             if (user != null && user.GetMsalAccountId() == null)
