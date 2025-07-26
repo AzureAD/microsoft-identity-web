@@ -36,9 +36,9 @@ namespace Microsoft.Identity.Web.AgentIdentities
 
                 ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
 
-                AcquireTokenOptions options1 = options.Clone();
-                options1.ExtraParameters = new Dictionary<string, object>();
-                options1.FmiPath = agentIdentity;
+                AcquireTokenOptions optionsForAgentIdFic = options.Clone();
+                optionsForAgentIdFic.ExtraParameters = new Dictionary<string, object>();
+                optionsForAgentIdFic.FmiPath = agentIdentity;
                 var agentIdentityFic = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options);
                 if (agentIdentityFic is null)
                 {
