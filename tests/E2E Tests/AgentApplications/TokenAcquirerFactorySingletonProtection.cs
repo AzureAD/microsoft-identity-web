@@ -3,7 +3,12 @@
 
 namespace AgentApplicationsTests
 {
-    [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection))]
+     [CollectionDefinition(nameof(TokenAcquirerFactorySingletonProtection))]
+     public class TokenAcquirerFactorySingletonProtection
+     {
+         // This class has no code, and is never created. Its purpose is to prevent test classes using the
+         // static singleton DefaultTokenAcquirerFactory from running in parallel as some tests modify this singleton.
+    }
         public class TokenAcquirerFactorySingletonProtection
         {
             // This class has no code, and is never created. Its purpose is to prevent test classes using the
