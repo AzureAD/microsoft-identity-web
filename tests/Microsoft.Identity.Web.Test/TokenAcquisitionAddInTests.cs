@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web.Tests
                 }));
 
             // Act
-            options.InvokeOnBeforeTokenAcquisitionForTestUser(builder, acquireTokenOptions, user);
+            await options.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, acquireTokenOptions, user);
 
             var result = await builder.ExecuteAsync();
 

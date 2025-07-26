@@ -149,6 +149,10 @@ namespace Microsoft.Identity.Web
                 // .NET FW.
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
+                if (tokenAcquirerFactory == null)
+                {
+                    services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
+                }
 #endif
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
                 services.AddScoped<IAuthenticationSchemeInformationProvider>(sp =>

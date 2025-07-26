@@ -146,7 +146,7 @@ namespace CustomSignedAssertionProviderTests
                         {
                             ExtraParameters = new Dictionary<string, object>()
                             {
-                                ["fmiPathForClientAssertion"] = "myFmiPathForSignedAssertion"
+                                [Constants.FmiPathForClientAssertion] = "myFmiPathForSignedAssertion"
                             }
                         }
                     };

@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.AgentIdentityExtension.WithAgentUserIdentity(this Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions! options, string! agentApplicationId, string! username) -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!

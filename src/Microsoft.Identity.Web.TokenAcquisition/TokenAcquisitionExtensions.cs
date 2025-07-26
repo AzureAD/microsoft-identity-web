@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Security.Claims;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
@@ -22,4 +22,13 @@ namespace Microsoft.Identity.Web
     /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
     /// <param name="user">User claims.</param>
     public delegate void BeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
+
+    /// <summary>
+    /// Signature for token acquisition extensions that act on the request builder, for ROPC flow (Async version).
+    /// </summary>
+    /// <param name="builder">Builder</param>
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    /// <param name="user">User claims.</param>
+    public delegate Task BeforeTokenAcquisitionForTestUserAsync(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
+
 }
