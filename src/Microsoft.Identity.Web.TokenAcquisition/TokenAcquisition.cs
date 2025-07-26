@@ -412,6 +412,7 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithExtraQueryParameters(dict);
                 }
+
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
