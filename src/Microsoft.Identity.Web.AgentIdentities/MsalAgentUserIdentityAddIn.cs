@@ -16,49 +16,40 @@ namespace Microsoft.Identity.Web.AgentIdentities
     internal static class AgentUserIdentityMsalAddIn
     {
         private const string azureAdTokenExchangeScope = "api://AzureADTokenExchange/.default";
-        internal static async Task OnBeforeUserFicForAgentUserIdentityAsync(
+        internal static Task OnBeforeUserFicForAgentUserIdentityAsync(
             AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
             AcquireTokenOptions? options,
             ClaimsPrincipal user)
         {
             if (options == null || options.ExtraParameters == null)
             {
-                return;
+                return Task.CompletedTask;
             }
             IServiceProvider serviceProvider = (IServiceProvider)options.ExtraParameters![Constants.ExtensionOptionsServiceProviderKey];
             options.ExtraParameters.TryGetValue(Constants.AgentIdentityKey, out object? agentIdentityObject);
             options.ExtraParameters.TryGetValue(Constants.UsernameKey, out object? usernameObject);
             if (agentIdentityObject is string agentIdentity && usernameObject is string username)
             {
-                ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
-                IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
-                    serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
-
-                ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
-
-                AcquireTokenOptions optionsForAgentIdFic = options.Clone();
-                optionsForAgentIdFic.ExtraParameters = new Dictionary<string, object>();
-                optionsForAgentIdFic.FmiPath = agentIdentity;
-                var agentIdentityFic = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options);
-                if (agentIdentityFic is null)
-                {
-                    throw new InvalidOperationException("Failed to acquire the signed assertions.");
-                }
-
-                string userFicAssertion = agentIdentityFic.AccessToken!;
-
                 // Register the MSAL extension that will modify the token request just in time.
                 MsalAuthenticationExtension extension = new()
                 {
-                    OnBeforeTokenRequestHandler = (request) =>
+                    // This will be called AFTER the client assertion callback !
+                    OnBeforeTokenRequestHandler = async (request) =>
                     {
                         // Already in the request:
                         // - client_id = agentIdentity;
                         // - client_assertion is the AA FIC
+                        ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
+                        IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
+                            serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+
+                        ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName));
+
+                        var agentIdentityFic = await tokenAcquirer.GetTokenForAppAsync(azureAdTokenExchangeScope, options).ConfigureAwait(false);
 
                         // User FIC parameters
                         request.BodyParameters["username"] = username;
-                        request.BodyParameters["user_federated_identity_credential"] = userFicAssertion;
+                        request.BodyParameters["user_federated_identity_credential"] = agentIdentityFic.AccessToken;
                         request.BodyParameters["grant_type"] = "user_fic";
                         request.BodyParameters.Remove("password");
 
@@ -70,11 +61,13 @@ namespace Microsoft.Identity.Web.AgentIdentities
 
                         // For the moment
                         request.RequestUri = new Uri(request.RequestUri + "?slice=first");
-                        return Task.CompletedTask;
+                       // return Task.CompletedTask;
                     }
                 };
                 builder.WithAuthenticationExtension(extension);
             }
+            return Task.CompletedTask;
+
         }
     }
 }
