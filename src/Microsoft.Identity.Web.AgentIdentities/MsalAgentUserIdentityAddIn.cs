@@ -35,10 +35,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
                 {
                     // This will be called AFTER the client assertion callback !
                     OnBeforeTokenRequestHandler = async (request) =>
-                    {
-                        // Already in the request:
-                        // - client_id = agentIdentity;
-                        // - client_assertion is the AA FIC
+                    {                       
                         ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
                         IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
                             serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
