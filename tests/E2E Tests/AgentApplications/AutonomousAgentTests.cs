@@ -7,6 +7,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace AgentApplicationsTests
 {
@@ -28,10 +29,9 @@ namespace AgentApplicationsTests
             //configuration["AzureAd:ExtraQueryParameters:dc"] = "ESTS-PUB-SCUS-FD000-TEST1-100";
 
             services.AddSingleton(configuration);
-            services.AddTokenAcquisition();
+            services.AddTokenAcquisition(true);
             services.AddHttpClient();
-            services.AddDistributedTokenCaches();
-            services.AddDistributedMemoryCache();
+            services.AddInMemoryTokenCaches();
             services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph

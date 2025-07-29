@@ -33,8 +33,8 @@ namespace AgentApplicationsTests
             string userUpn = "aui1@msidlabtoint.onmicrosoft.com";          // Replace with the actual user upn.
 
             services.AddSingleton(configuration);
-            services.AddDistributedTokenCaches();
-            services.AddDistributedMemoryCache();
+            services.AddTokenAcquisition(true);
+            services.AddInMemoryTokenCaches();
             services.AddHttpClient();
             services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
@@ -80,10 +80,8 @@ namespace AgentApplicationsTests
             string userUpn = "aui1@msidlabtoint.onmicrosoft.com";          // Replace with the actual user upn.
 
             services.AddSingleton(configuration);
-            services.AddTokenAcquisition();
+            services.AddTokenAcquisition(true);
             services.AddHttpClient();
-            services.AddDistributedTokenCaches();
-            services.AddDistributedMemoryCache();
             services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph

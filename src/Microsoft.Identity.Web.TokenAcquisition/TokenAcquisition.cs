@@ -577,7 +577,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+                // Check for client assertion in the extra parameters
+                bool optionsHaveClientAssertion = OverrideClientAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
+                // Only add FMI path for signed assertion if we're not using client assertion
+                if (!optionsHaveClientAssertion)
+                {
+                    AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+                }
 
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
@@ -636,7 +643,6 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
-
             }
 
             try
@@ -1403,6 +1409,40 @@ namespace Microsoft.Identity.Web
             {
                 return null;
             }
+        }
+
+        private static bool OverrideClientAssertionIfNeeded<T>(TokenAcquisitionOptions? tokenAcquisitionOptions, AbstractConfidentialClientAcquireTokenParameterBuilder<T> builder)
+            where T: AbstractAcquireTokenParameterBuilder<T>
+        {
+            if (tokenAcquisitionOptions == null || tokenAcquisitionOptions.ExtraParameters == null)
+            {
+                return false;
+            }
+
+            bool hasClientAssertion = false;
+            if (tokenAcquisitionOptions.ExtraParameters != null &&
+                tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.ClientAssertion, out object? clientAssertionObj) &&
+                clientAssertionObj is string clientAssertion &&
+                !string.IsNullOrEmpty(clientAssertion))
+            {
+                // Use OnBeforeTokenRequest to add the client_assertion to the request
+                builder.OnBeforeTokenRequest(request =>
+                {
+                    request.BodyParameters["client_assertion"] = clientAssertion;
+                    request.BodyParameters["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+
+                    // Remove client_secret if it exists, as it's not needed when using client_assertion
+                    if (request.BodyParameters.ContainsKey("client_secret"))
+                    {
+                        request.BodyParameters.Remove("client_secret");
+                    }
+
+                    return Task.CompletedTask;
+                });
+                hasClientAssertion = true;
+            }
+
+            return hasClientAssertion;
         }
     }
 }
