@@ -8,6 +8,10 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
+    <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
