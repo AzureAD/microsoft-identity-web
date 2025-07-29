@@ -10,7 +10,6 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace AgentApplicationsTests
 {
-    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class GetFicAsyncTests
     {
         [Fact]
