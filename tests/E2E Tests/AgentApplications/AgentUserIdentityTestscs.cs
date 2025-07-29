@@ -7,10 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TestOnly;
-using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
-using Microsoft.IdentityModel.Tokens;
 
 namespace AgentApplicationsTests
 {
@@ -36,7 +33,7 @@ namespace AgentApplicationsTests
             services.AddTokenAcquisition(true);
             services.AddInMemoryTokenCaches();
             services.AddHttpClient();
-            services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
+            services.Configure<MicrosoftIdentityApplicationOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();
@@ -81,8 +78,9 @@ namespace AgentApplicationsTests
 
             services.AddSingleton(configuration);
             services.AddTokenAcquisition(true);
+            services.AddInMemoryTokenCaches();
             services.AddHttpClient();
-            services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
+            services.Configure<MicrosoftIdentityApplicationOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();

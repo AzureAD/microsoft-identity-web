@@ -59,19 +59,23 @@ namespace Microsoft.Identity.Web
         /// <param name="options">Authorization header provider options.</param>
         /// <param name="agentApplicationId">The agent identity GUID.</param>
         /// <param name="username">upn of the user.</param>
-        /// <returns>The updated authorization header provider options.</returns>
+        /// <returns>The updated authorization header provider options (in place. not a clone of the options).</returns>
         public static AuthorizationHeaderProviderOptions WithAgentUserIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string username)
         {
-            // It's possible to start with no options, so we initialize it if it's null.
-            if (options == null)
-                options = new AuthorizationHeaderProviderOptions();
-
+            options ??= new AuthorizationHeaderProviderOptions();
             options.AcquireTokenOptions ??= new AcquireTokenOptions();
             options.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
-            options.WithAgentIdentity(agentApplicationId);
-
+            
+            // Set the agent application options
+            options.AcquireTokenOptions.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
+            {
+                ClientId = agentApplicationId, // Agent identity Client ID.
+            };
+            
+            // Set the username and agent identity parameters
             options.AcquireTokenOptions.ExtraParameters[Constants.UsernameKey] = username;
-            options.AcquireTokenOptions.ExtraParameters![Constants.AgentIdentityKey] = agentApplicationId;
+            options.AcquireTokenOptions.ExtraParameters[Constants.AgentIdentityKey] = agentApplicationId;
+            
             return options;
         }
 

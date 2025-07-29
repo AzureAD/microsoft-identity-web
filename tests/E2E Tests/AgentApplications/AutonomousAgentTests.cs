@@ -32,7 +32,7 @@ namespace AgentApplicationsTests
             services.AddTokenAcquisition(true);
             services.AddHttpClient();
             services.AddInMemoryTokenCaches();
-            services.Configure<MicrosoftIdentityOptions>(configuration.GetSection("AzureAd"));
+            services.Configure<MicrosoftIdentityApplicationOptions>(configuration.GetSection("AzureAd"));
             services.AddAgentIdentities();
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();
