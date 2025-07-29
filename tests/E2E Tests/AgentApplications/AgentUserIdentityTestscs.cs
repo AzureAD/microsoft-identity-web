@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#if !FROM_GITHUB_ACTION
+
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 
 namespace AgentApplicationsTests
 {
@@ -119,3 +119,4 @@ namespace AgentApplicationsTests
         }
     }
 }
+#endif // !FROM_GITHUB_ACTION

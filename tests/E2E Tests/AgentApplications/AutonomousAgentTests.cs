@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+#if !FROM_GITHUB_ACTION
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,3 +65,4 @@ namespace AgentApplicationsTests
         }
     }
 }
+#endif // !FROM_GITHUB_ACTION

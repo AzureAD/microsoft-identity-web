@@ -9,11 +9,6 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!-- Creds not available from GitHub actions -->
-  <ItemGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
-    <Compile Remove="*.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
