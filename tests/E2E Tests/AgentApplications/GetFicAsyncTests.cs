@@ -37,7 +37,7 @@ namespace AgentApplicationsTests
 
                 });
 
-            IServiceProvider serviceProvider = ConfigureServices(services);
+            IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
 
             // Get a FIC token for the agent application
             ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
@@ -58,17 +58,6 @@ namespace AgentApplicationsTests
             string? userAssertion = aidFic.AccessToken;
 
             Assert.NotNull(userAssertion);
-        }
-
-
-        private static IServiceProvider ConfigureServices(IServiceCollection services)
-        {
-            services.AddSingleton(new ConfigurationBuilder().Build());
-            services.AddTokenAcquisition(true);
-            services.AddInMemoryTokenCaches();
-            services.AddHttpClient();
-            services.AddAgentIdentities();
-            return services.BuildServiceProvider();
         }
     }
 }

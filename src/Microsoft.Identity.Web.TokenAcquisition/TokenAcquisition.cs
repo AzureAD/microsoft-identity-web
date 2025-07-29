@@ -1411,6 +1411,9 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /// <summary>
+        /// Temporary. Replace with Builder.WithClientAssertion when MSAL.NET supports it.
+        /// </summary>
         private static bool OverrideClientAssertionIfNeeded<T>(TokenAcquisitionOptions? tokenAcquisitionOptions, AbstractConfidentialClientAcquireTokenParameterBuilder<T> builder)
             where T: AbstractAcquireTokenParameterBuilder<T>
         {
