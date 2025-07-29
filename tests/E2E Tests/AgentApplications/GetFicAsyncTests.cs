@@ -42,7 +42,7 @@ namespace AgentApplicationsTests
             // Get a FIC token for the agent application
             ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
             ITokenAcquirer agentApplicationTokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
-            AcquireTokenResult aaFic = await agentApplicationTokenAcquirer.GetFicAsync(new() { FmiPath = agentIdentity }); // Uses the regular client credentials
+            AcquireTokenResult aaFic = await agentApplicationTokenAcquirer.GetFicTokenAsync(new() { FmiPath = agentIdentity }); // Uses the regular client credentials
             string? clientAssertion = aaFic.AccessToken;
 
             Assert.NotNull(clientAssertion);
@@ -54,7 +54,7 @@ namespace AgentApplicationsTests
                 Instance = instance,
                 TenantId = tenantId
             });
-            AcquireTokenResult aidFic = await agentIdentityTokenAcquirer.GetFicAsync(clientAssertion: clientAssertion); // Uses the agent identity
+            AcquireTokenResult aidFic = await agentIdentityTokenAcquirer.GetFicTokenAsync(clientAssertion: clientAssertion); // Uses the agent identity
             string? userAssertion = aidFic.AccessToken;
 
             Assert.NotNull(userAssertion);

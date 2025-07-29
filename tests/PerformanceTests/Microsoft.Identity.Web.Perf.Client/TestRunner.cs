@@ -338,12 +338,14 @@ namespace Microsoft.Identity.Web.Perf.Client
                     // Delay to prevent spamming the STS with calls.
                     await Task.Delay(_options.RequestDelayInMilliseconds);
 
+#pragma warning disable CS0618 // Obsolete
                     authResult = await msalPublicClient.AcquireTokenByUsernamePassword(
                                                         scopes,
                                                         upn,
                                                         _options.UserPassword)
                                                         .ExecuteAsync(CancellationToken.None)
                                                         .ConfigureAwait(false);
+#pragma warning restore CS0618 // Obsolete
 
                     _userAccountIdentifiers[userIndex] = authResult.Account.HomeAccountId.Identifier;
                     return authResult;

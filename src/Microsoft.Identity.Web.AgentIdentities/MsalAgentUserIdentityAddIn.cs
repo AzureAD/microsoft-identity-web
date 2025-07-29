@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
                         string authenticationScheme = authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName);
                         ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationScheme);
                         ITokenAcquirer agentApplicationTokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
-                        AcquireTokenResult aaFic = await agentApplicationTokenAcquirer.GetFicAsync(new() { FmiPath = agentIdentity }); // Uses the regular client credentials
+                        AcquireTokenResult aaFic = await agentApplicationTokenAcquirer.GetFicTokenAsync(new() { FmiPath = agentIdentity }); // Uses the regular client credentials
                         string? clientAssertion = aaFic.AccessToken;
 
                         // Get the FIC token for the agent identity.
@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
                             Authority = microsoftIdentityApplicationOptions.Authority,
                             TenantId = microsoftIdentityApplicationOptions.TenantId
                         });
-                        AcquireTokenResult aidFic = await agentIdentityTokenAcquirer.GetFicAsync(clientAssertion: clientAssertion); // Uses the agent identity
+                        AcquireTokenResult aidFic = await agentIdentityTokenAcquirer.GetFicTokenAsync(clientAssertion: clientAssertion); // Uses the agent identity
                         string? userFicAssertion = aidFic.AccessToken;
 
                         // Already in the request:
