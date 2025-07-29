@@ -14,7 +14,6 @@ namespace Microsoft.Identity.Web.AgentIdentities
 {
     internal static class AgentUserIdentityMsalAddIn
     {
-        private const string azureAdTokenExchangeScope = "api://AzureADTokenExchange/.default";
         internal static Task OnBeforeUserFicForAgentUserIdentityAsync(
             AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
             AcquireTokenOptions? options,
