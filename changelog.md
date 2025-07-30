@@ -1,3 +1,12 @@
+3.12.0
+=======
+### Dependencies updates
+- Updated MSAL to version 4.74.1 part of [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3435).
+
+## New features
+* Include the thrown exception in CertificateChangeEventArg. Se PR [#3428](https://github.com/AzureAD/microsoft-identity-web/pull/3428) for better supportabiliby.
+* Support for Agent User identities. See PR [#3435](https://github.com/AzureAD/microsoft-identity-web/pull/3435)
+
 3.11.0
 =======
 ### Dependencies updates
