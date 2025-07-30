@@ -75,9 +75,6 @@ namespace Microsoft.Identity.Web.AgentIdentities
                         {
                             request.BodyParameters.Remove("client_secret");
                         }
-
-                        // For the moment
-                        request.RequestUri = new Uri(request.RequestUri + "?slice=first");
                     }
                 };
                 builder.WithAuthenticationExtension(extension);

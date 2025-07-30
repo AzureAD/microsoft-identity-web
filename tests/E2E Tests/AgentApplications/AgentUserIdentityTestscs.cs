@@ -36,7 +36,6 @@ namespace AgentApplicationsTests
                         CertificateDescription.FromStoreWithDistinguishedName(
                             "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
                     ];
-
                 });
             IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
 
@@ -57,10 +56,12 @@ namespace AgentApplicationsTests
             var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options => options.WithAgentUserIdentity(agentIdentity, userUpn)));
             Assert.NotNull(me);
 
-            //// If you want to call downstream APIs letting IdWeb handle authentication.
-            //IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
-            //string? response = await downstream.GetForAppAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
-            //response = await downstream.GetForUserAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+#if DOWNSTREAM
+            // If you want to call downstream APIs letting IdWeb handle authentication.
+            IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
+            string? response = await downstream.GetForAppAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+            response = await downstream.GetForUserAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+#endif
         }
 
         [Fact]
@@ -85,7 +86,6 @@ namespace AgentApplicationsTests
                         CertificateDescription.FromStoreWithDistinguishedName(
                             "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
                     ];
-
                 });
             IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
 
@@ -112,10 +112,12 @@ namespace AgentApplicationsTests
                 user);
             Assert.NotNull(authorizationHeaderWithUserToken);
 
-            //// If you want to call downstream APIs letting IdWeb handle authentication.
-            //IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
-            //string? response = await downstream.GetForAppAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
-            //response = await downstream.GetForUserAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+#if DOWNSTREAM
+            // If you want to call downstream APIs letting IdWeb handle authentication.
+            IDownstreamApi downstream = serviceProvider.GetService<IDownstreamApi>()!;
+            string? response = await downstream.GetForAppAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+            response = await downstream.GetForUserAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
+#endif
         }
     }
 }
