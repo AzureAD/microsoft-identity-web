@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="options">Authorization header provider options.</param>
         /// <param name="agentApplicationId">The agent identity GUID.</param>
-        /// <param name="username">upn of the user.</param>
+        /// <param name="username">UPN of the user.</param>
         /// <returns>The updated authorization header provider options (in place. not a clone of the options).</returns>
         public static AuthorizationHeaderProviderOptions WithAgentUserIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string username)
         {
