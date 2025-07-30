@@ -3,8 +3,11 @@
 ### Dependencies updates
 - Updated MSAL to version 4.74.1 part of [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3435).
 
+## Bug fix
+Reload certificates for all client credential based issues to solve the issue that when a bad certificate was installed on the machine and picked up, and subsequently rotated, a service restart was needed for the new certificate to be used. See issue [#3429](https://github.com/AzureAD/microsoft-identity-web/issues/3429) and PR [#3430](https://github.com/AzureAD/microsoft-identity-web/pull/3430) 
+
 ## New features
-* Include the thrown exception in CertificateChangeEventArg. Se PR [#3428](https://github.com/AzureAD/microsoft-identity-web/pull/3428) for better supportabiliby.
+* Include the thrown exception in CertificateChangeEventArg. See PR [#3428](https://github.com/AzureAD/microsoft-identity-web/pull/3428) for better supportabiliby.
 * Support for Agent User identities. See PR [#3435](https://github.com/AzureAD/microsoft-identity-web/pull/3435)
 
 3.11.0
