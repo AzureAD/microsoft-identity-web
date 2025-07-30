@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 
@@ -36,12 +38,32 @@ namespace Microsoft.Identity.Web
         public event BeforeTokenAcquisitionForTestUser? OnBeforeTokenAcquisitionForTestUser;
 
         /// <summary>
+        /// Event fired when a ROPC flow request is being built.
+        /// </summary>        
+        public event BeforeTokenAcquisitionForTestUserAsync? OnBeforeTokenAcquisitionForTestUserAsync;
+
+        /// <summary>
         /// Invoke the BeforeTokenAcquisitionForTestUser event.
         /// </summary>
-        internal void InvokeOnBeforeTokenAcquisitionForTestUser(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
-                                                           AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
+        internal async Task InvokeOnBeforeTokenAcquisitionForTestUserAsync(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,
+                                                                           AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user)
         {
+            // Run the async event if it is not null
+            if (OnBeforeTokenAcquisitionForTestUserAsync != null)
+            {
+                // (cannot directly await an async event because events are not tasks
+                // they are multicast delegates that invoke handlers, but don’t return values to the publisher,
+                // nor do they support awaiting natively
+                var invocationList = OnBeforeTokenAcquisitionForTestUserAsync.GetInvocationList();
+                var tasks = invocationList
+                    .Cast<BeforeTokenAcquisitionForTestUserAsync>()
+                    .Select(handler => handler(builder, acquireTokenOptions, user));
+                await Task.WhenAll(tasks);
+            }
+
+            // Run the sync event if it is not null.
             OnBeforeTokenAcquisitionForTestUser?.Invoke(builder, acquireTokenOptions, user);
         }
+
     }
 }

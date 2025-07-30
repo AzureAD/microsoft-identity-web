@@ -153,6 +153,7 @@ namespace Microsoft.Identity.Web.OidcFic
         }
 
 
+
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
         {
             OidcIdpSignedAssertionProvider? signedAssertion = credentialDescription.CachedValue as OidcIdpSignedAssertionProvider;

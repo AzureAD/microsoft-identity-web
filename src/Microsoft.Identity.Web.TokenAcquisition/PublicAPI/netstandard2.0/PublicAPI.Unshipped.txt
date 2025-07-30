@@ -1,5 +1,11 @@
 #nullable enable
+Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
+Microsoft.Identity.Web.TokenAcquirerExtensions
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUserAsync -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync?
+static Microsoft.Identity.Web.TokenAcquirerExtensions.GetFicTokenAsync(this Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Abstractions.AcquireTokenOptions? options = null, string? clientAssertion = null, string! scope = "api://AzureAdTokenExchange/.default", System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
+static Microsoft.Identity.Web.TokenAcquirerExtensions.WithClientAssertion(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, string! clientAssertion) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync.Invoke(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.get -> System.Exception?
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.set -> void
