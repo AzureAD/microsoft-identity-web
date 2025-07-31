@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory]
+        [Theory(Skip = "Skip while lab is being fixed.")]
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
-        [Theory]
+        [Theory(Skip = "Skip while lab is being fixed.")]
         [InlineData(TestConstants.SecurePage2GetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
