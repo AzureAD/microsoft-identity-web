@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private readonly WebApplicationFactory<Startup> _factory;
 
-        [Theory(Skip = "Skip while lab is being fixed.")]
+        [Theory(Skip = "Skip while lab is being fixed. https://github.com/AzureAD/microsoft-identity-web/issues/3438")]
         [InlineData(TestConstants.SecurePageGetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePageCallDownstreamWebApiGeneric)]
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
-        [Theory(Skip = "Skip while lab is being fixed.")]
+        [Theory(Skip = "Skip while lab is being fixed. https://github.com/AzureAD/microsoft-identity-web/issues/3438")]
         [InlineData(TestConstants.SecurePage2GetTokenForUserAsync)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApi)]
         [InlineData(TestConstants.SecurePage2CallDownstreamWebApiGeneric)]
