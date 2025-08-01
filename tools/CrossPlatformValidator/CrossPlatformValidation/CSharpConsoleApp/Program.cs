@@ -24,7 +24,7 @@ Console.ReadLine();
 static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
 {
  string Organizations = "organizations";
- string OBOUser = "fIDLAB@msidlab4.com";
+ string OBOUser = "idlab1@msidlab4.onmicrosoft.com";
  string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
  string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
 
