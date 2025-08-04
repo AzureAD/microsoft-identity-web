@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -89,6 +90,29 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             //Assert.Equal(1, TokenAcquirerFactory.s_defaultInstanceCounter);
+        }
+
+        [Fact]
+        public void DefineConfiguration_HandlesNullFromPathGetDirectoryName()
+        {
+            // Arrange
+            var factory = new TestTokenAcquirerFactory();
+            
+            // Act & Assert
+            // This should not throw an exception even if Path.GetDirectoryName returns null
+            string result = factory.TestDefineConfiguration();
+            
+            // Verify result is not null or empty
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+        }
+    }
+
+    public class TestTokenAcquirerFactory : TokenAcquirerFactory
+    {
+        public string TestDefineConfiguration()
+        {
+            return DefineConfiguration(new ConfigurationBuilder());
         }
     }
 
