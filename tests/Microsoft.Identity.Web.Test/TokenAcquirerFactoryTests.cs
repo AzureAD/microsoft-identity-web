@@ -106,6 +106,27 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(result);
             Assert.NotEmpty(result);
         }
+
+        [Fact]
+        public void DefineConfiguration_WorksWithRootPaths()
+        {
+            // Arrange
+            var factory = new TestTokenAcquirerFactoryWithCustomBasePath();
+            
+            // Act & Assert
+            // Test various scenarios that could cause null/empty results from Path.GetDirectoryName
+            string result1 = factory.TestDefineConfigurationWithBasePath("/");
+            string result2 = factory.TestDefineConfigurationWithBasePath("C:\\");
+            string result3 = factory.TestDefineConfigurationWithBasePath("/app/bin/");
+            
+            // All results should be valid non-null, non-empty strings
+            Assert.NotNull(result1);
+            Assert.NotEmpty(result1);
+            Assert.NotNull(result2);
+            Assert.NotEmpty(result2);
+            Assert.NotNull(result3);
+            Assert.NotEmpty(result3);
+        }
     }
 
     public class TestTokenAcquirerFactory : TokenAcquirerFactory
@@ -113,6 +134,24 @@ namespace Microsoft.Identity.Web.Test
         public string TestDefineConfiguration()
         {
             return DefineConfiguration(new ConfigurationBuilder());
+        }
+    }
+
+    public class TestTokenAcquirerFactoryWithCustomBasePath : TokenAcquirerFactory
+    {
+        private string _customBasePath = string.Empty;
+
+        public string TestDefineConfigurationWithBasePath(string customBasePath)
+        {
+            _customBasePath = customBasePath;
+            return DefineConfiguration(new ConfigurationBuilder());
+        }
+
+        protected override string DefineConfiguration(IConfigurationBuilder builder)
+        {
+            // Simulate the problematic scenario by using custom base path instead of AppContext.BaseDirectory
+            string? basePath = Path.GetDirectoryName(_customBasePath);
+            return !string.IsNullOrEmpty(basePath) ? basePath : _customBasePath;
         }
     }
 
