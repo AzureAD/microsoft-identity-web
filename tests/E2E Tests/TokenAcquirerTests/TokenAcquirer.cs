@@ -102,7 +102,7 @@ namespace TokenAcquirerTests
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
-            var labResponse = await LabUserHelper.GetDefaultUserAsync();
+            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
                authority: "https://login.microsoftonline.com/organizations",
@@ -132,7 +132,7 @@ namespace TokenAcquirerTests
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
-            var labResponse = await LabUserHelper.GetDefaultUserAsync();
+            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
                authority: "https://login.microsoftonline.com/organizations",
