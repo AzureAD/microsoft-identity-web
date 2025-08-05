@@ -10,7 +10,7 @@ This package is part of the [Microsoft.Identity.Web](https://github.com/AzureAD/
 
 ### Agent Applications
 
-An agent application has a special application registration in Microsoft Entra ID that has permissions to act on behalf of Agent identities or Agent User identities, through Federated Identity Credentials (FIC). It's represented by its application ID (Agent Application Client ID). The agent application is configured with credentials (typically FIC+MSI or client certificates) and permissions to acquire tokens for itself to call graph. This is the app the you develop. It's a confidential client application, usually a web API. The only permissions it can have are maintain (create / delete) Agent Identities (using the Microsoft Graph)
+An agent application has a special application registration in Microsoft Entra ID that has permissions to act on behalf of Agent identities or Agent User identities, through Federated Identity Credentials (FIC). It's represented by its application ID (Agent Application Client ID). The agent application is configured with credentials (typically FIC+MSI or client certificates) and permissions to acquire tokens for itself to call graph. This is the app that you develop. It's a confidential client application, usually a web API. The only permissions it can have are maintain (create / delete) Agent Identities (using the Microsoft Graph)
 
 ### Agent Identity
 
