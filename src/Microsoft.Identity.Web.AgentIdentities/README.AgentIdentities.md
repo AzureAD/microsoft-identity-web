@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Microsoft.Identity.Web.AgentIdentities NuGet package provides support for Agent Identities in Microsoft Entra ID. It enables applications to securely authenticate and acquire tokens for agent applications, agent identities, and agent user identities, which is  useful for autonomous agent, interactive agents acting on behalf of their user, and agents having their own user identity.
+The Microsoft.Identity.Web.AgentIdentities NuGet package provides support for Agent Identities in Microsoft Entra ID. It enables applications to securely authenticate and acquire tokens for agent applications, agent identities, and agent user identities, which is useful for autonomous agents, interactive agents acting on behalf of their user, and agents having their own user identity.
 
 This package is part of the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) suite of libraries and was introduced in version 3.10.0.
 
