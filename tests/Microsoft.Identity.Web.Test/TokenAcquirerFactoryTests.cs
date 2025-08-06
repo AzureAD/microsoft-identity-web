@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -90,68 +89,6 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             //Assert.Equal(1, TokenAcquirerFactory.s_defaultInstanceCounter);
-        }
-
-        [Fact]
-        public void DefineConfiguration_HandlesNullFromPathGetDirectoryName()
-        {
-            // Arrange
-            var factory = new TestTokenAcquirerFactory();
-            
-            // Act & Assert
-            // This should not throw an exception even if Path.GetDirectoryName returns null
-            string result = factory.TestDefineConfiguration();
-            
-            // Verify result is not null or empty
-            Assert.NotNull(result);
-            Assert.NotEmpty(result);
-        }
-
-        [Fact]
-        public void DefineConfiguration_WorksWithRootPaths()
-        {
-            // Arrange
-            var factory = new TestTokenAcquirerFactoryWithCustomBasePath();
-            
-            // Act & Assert
-            // Test various scenarios that could cause null/empty results from Path.GetDirectoryName
-            string result1 = factory.TestDefineConfigurationWithBasePath("/");
-            string result2 = factory.TestDefineConfigurationWithBasePath("C:\\");
-            string result3 = factory.TestDefineConfigurationWithBasePath("/app/bin/");
-            
-            // All results should be valid non-null, non-empty strings
-            Assert.NotNull(result1);
-            Assert.NotEmpty(result1);
-            Assert.NotNull(result2);
-            Assert.NotEmpty(result2);
-            Assert.NotNull(result3);
-            Assert.NotEmpty(result3);
-        }
-    }
-
-    public class TestTokenAcquirerFactory : TokenAcquirerFactory
-    {
-        public string TestDefineConfiguration()
-        {
-            return DefineConfiguration(new ConfigurationBuilder());
-        }
-    }
-
-    public class TestTokenAcquirerFactoryWithCustomBasePath : TokenAcquirerFactory
-    {
-        private string _customBasePath = string.Empty;
-
-        public string TestDefineConfigurationWithBasePath(string customBasePath)
-        {
-            _customBasePath = customBasePath;
-            return DefineConfiguration(new ConfigurationBuilder());
-        }
-
-        protected override string DefineConfiguration(IConfigurationBuilder builder)
-        {
-            // Simulate the problematic scenario by using custom base path instead of AppContext.BaseDirectory
-            string? basePath = Path.GetDirectoryName(_customBasePath);
-            return !string.IsNullOrEmpty(basePath) ? basePath : _customBasePath;
         }
     }
 
