@@ -1,3 +1,11 @@
+3.12.1
+=======
+### Bug fixes
+- Fixed an issue with instantiation of TokenAcquirerFactory when AppContext.BaseDirectory is root path. See PR [#3443](https://github.com/AzureAD/microsoft-identity-web/pull/3443) for details.
+
+### Fundamentals
+- Use cloud user in tests. See PR [#3441](https://github.com/AzureAD/microsoft-identity-web/pull/3441) and [#3442](https://github.com/AzureAD/microsoft-identity-web/pull/3442) for details.
+
 3.12.0
 =======
 ### Dependencies updates
