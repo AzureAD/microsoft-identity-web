@@ -247,7 +247,8 @@ namespace Microsoft.Identity.Web
         /// <returns>Returns the base path for configuration files</returns>
         protected virtual string DefineConfiguration(IConfigurationBuilder builder)
         {
-            return Path.GetDirectoryName(AppContext.BaseDirectory)!;
+            string? basePath = Path.GetDirectoryName(AppContext.BaseDirectory);
+            return !string.IsNullOrEmpty(basePath) ? basePath : AppContext.BaseDirectory;
         }
 
         ITokenAcquirerFactory implementation;
