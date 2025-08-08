@@ -2,6 +2,7 @@
 =======
 ### Dependencies updates
 - Microsoft.IdentityModel updated to version [8.13.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.13.1).
+- Microsoft.Abstractons updated to version [9.3.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/9.3.).
 
 ### Bug fixes
 - Fixed an issue with instantiation of TokenAcquirerFactory when AppContext.BaseDirectory is root path. See PR [#3443](https://github.com/AzureAD/microsoft-identity-web/pull/3443) for details.
