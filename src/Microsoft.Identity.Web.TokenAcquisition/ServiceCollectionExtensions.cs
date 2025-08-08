@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
-            ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthenticationSchemeInformationProvider));
+            ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
             
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && 
                 tokenAcquisitionhost != null && authenticationHeaderCreator != null && authSchemeInfoProvider != null)
@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Web
                 }
 #endif
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
-                services.AddSingleton<IAuthenticationSchemeInformationProvider>(sp =>
+                services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }
@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Web
                 }
 #endif
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
-                services.AddScoped<IAuthenticationSchemeInformationProvider>(sp =>
+                services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }

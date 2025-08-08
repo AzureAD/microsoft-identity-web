@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
-                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Equal(typeof(Abstractions.IAuthenticationSchemeInformationProvider), actual.ServiceType);
                     Assert.Null(actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.NotNull(actual.ImplementationFactory);
@@ -216,7 +216,7 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
-                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Equal(typeof(Abstractions.IAuthenticationSchemeInformationProvider), actual.ServiceType);
                     Assert.Null(actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.NotNull(actual.ImplementationFactory);

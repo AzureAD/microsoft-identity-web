@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Microsoft.Identity.Web
 {
 
-    internal interface ITokenAcquisitionHost : IAuthenticationSchemeInformationProvider
+    internal interface ITokenAcquisitionHost : Abstractions.IAuthenticationSchemeInformationProvider
     {
         MergedOptions GetOptions(string? authenticationScheme, out string effectiveAuthenticationScheme);
 

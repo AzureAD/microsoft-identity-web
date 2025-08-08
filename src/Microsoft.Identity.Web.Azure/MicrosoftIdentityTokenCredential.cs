@@ -16,14 +16,14 @@ namespace Microsoft.Identity.Web
 	public class MicrosoftIdentityTokenCredential : TokenCredential
 	{
 		private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
-        private readonly IAuthenticationSchemeInformationProvider _authenticationSchemeInformationProvider;
+        private readonly Abstractions.IAuthenticationSchemeInformationProvider _authenticationSchemeInformationProvider;
 
         /// <summary>
         /// Constructor from an ITokenAcquisition service.
         /// </summary>
         /// <param name="tokenAcquirerFactory">Token acquisition factory</param>
         /// <param name="authenticationSchemeInformationProvider">Host for the token acquisition</param>
-        public MicrosoftIdentityTokenCredential(ITokenAcquirerFactory tokenAcquirerFactory, IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider)
+        public MicrosoftIdentityTokenCredential(ITokenAcquirerFactory tokenAcquirerFactory, Abstractions.IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider)
 		{
 			_tokenAcquirerFactory = tokenAcquirerFactory ?? throw new System.ArgumentNullException(nameof(tokenAcquirerFactory));
             _authenticationSchemeInformationProvider = authenticationSchemeInformationProvider ?? throw new System.ArgumentNullException(nameof(authenticationSchemeInformationProvider));
