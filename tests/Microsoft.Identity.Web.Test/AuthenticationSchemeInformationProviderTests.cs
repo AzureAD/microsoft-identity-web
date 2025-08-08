@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             // Assert
-            var descriptor = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthenticationSchemeInformationProvider));
+            var descriptor = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
             Assert.NotNull(descriptor);
             Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition(isTokenAcquisitionSingleton: true);
 
             // Assert
-            var descriptor = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthenticationSchemeInformationProvider));
+            var descriptor = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
             Assert.NotNull(descriptor);
             Assert.Equal(ServiceLifetime.Singleton, descriptor.Lifetime);
         }
@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             var tokenAcquisitionHost = serviceProvider.GetRequiredService<ITokenAcquisitionHost>();
-            var schemeInfoProvider = serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+            var schemeInfoProvider = serviceProvider.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
 
             // Assert - they should be the same instance when using factory registration
             Assert.Same(tokenAcquisitionHost, schemeInfoProvider);
@@ -68,12 +68,12 @@ namespace Microsoft.Identity.Web.Test
             builder.Services.AddTokenAcquisition();  // This adds AspNetCore authentication
 
             // Act
-            var descriptor = builder.Services.FirstOrDefault(s => s.ServiceType == typeof(IAuthenticationSchemeInformationProvider));
+            var descriptor = builder.Services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
             var descriptorHost = builder.Services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
 
             var sp = builder.Services.BuildServiceProvider();
             ITokenAcquisitionHost host = sp.GetRequiredService<ITokenAcquisitionHost>();
-            IAuthenticationSchemeInformationProvider authSchemeProvider = sp.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+            Abstractions.IAuthenticationSchemeInformationProvider authSchemeProvider = sp.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
 
             // Assert
             Assert.NotNull(host);
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication("OpenIdConnect");
             services.AddTokenAcquisition();
             var serviceProvider = services.BuildServiceProvider();
-            var schemeInfoProvider = serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+            var schemeInfoProvider = serviceProvider.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
 
             // Act
             var result = schemeInfoProvider.GetEffectiveAuthenticationScheme("TestScheme");
@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication("OpenIdConnect");
             services.AddTokenAcquisition();
             var serviceProvider = services.BuildServiceProvider();
-            var schemeInfoProvider = serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+            var schemeInfoProvider = serviceProvider.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
 
             // Act
             var result = schemeInfoProvider.GetEffectiveAuthenticationScheme(string.Empty);
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddAuthentication("OpenIdConnect");
             services.AddTokenAcquisition();
             var serviceProvider = services.BuildServiceProvider();
-            var schemeInfoProvider = serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+            var schemeInfoProvider = serviceProvider.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
 
             // Act
             var result = schemeInfoProvider.GetEffectiveAuthenticationScheme(string.Empty);

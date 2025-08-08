@@ -35,8 +35,8 @@ namespace Microsoft.Identity.Web.AgentIdentities
                     {
                         // Get the services from the service provider.
                         ITokenAcquirerFactory tokenAcquirerFactory = serviceProvider.GetRequiredService<ITokenAcquirerFactory>();
-                        IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
-                            serviceProvider.GetRequiredService<IAuthenticationSchemeInformationProvider>();
+                        Abstractions.IAuthenticationSchemeInformationProvider authenticationSchemeInformationProvider =
+                            serviceProvider.GetRequiredService<Abstractions.IAuthenticationSchemeInformationProvider>();
                         IOptionsMonitor<MicrosoftIdentityApplicationOptions> optionsMonitor =
                             serviceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>();
 

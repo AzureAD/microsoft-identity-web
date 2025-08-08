@@ -51,6 +51,14 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(Abstractions.IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
                     Assert.Equal(typeof(IAuthorizationHeaderProvider), actual.ServiceType);
                     Assert.Equal(typeof(DefaultAuthorizationHeaderProvider), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
@@ -70,14 +78,6 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(DefaultTokenAcquirerFactoryImplementation), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
-                },
-                actual =>
-                {
-                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
-                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
-                    Assert.Null(actual.ImplementationType);
-                    Assert.Null(actual.ImplementationInstance);
-                    Assert.NotNull(actual.ImplementationFactory);
                 },
                 actual =>
                 {
@@ -193,6 +193,14 @@ namespace Microsoft.Identity.Web.Test
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(Abstractions.IAuthenticationSchemeInformationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IAuthorizationHeaderProvider), actual.ServiceType);
                     Assert.Equal(typeof(DefaultAuthorizationHeaderProvider), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
@@ -214,13 +222,6 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Null(actual.ImplementationFactory);
                 },
                 actual =>
-                {
-                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
-                    Assert.Equal(typeof(IAuthenticationSchemeInformationProvider), actual.ServiceType);
-                    Assert.Null(actual.ImplementationType);
-                    Assert.Null(actual.ImplementationInstance);
-                    Assert.NotNull(actual.ImplementationFactory);
-                }, actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IMergedOptionsStore), actual.ServiceType);

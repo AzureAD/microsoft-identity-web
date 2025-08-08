@@ -1,7 +1,6 @@
 #nullable enable
 Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync
 Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
-Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(string? authenticationScheme) -> string!
 Microsoft.Identity.Web.TokenAcquirerExtensions
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUserAsync -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync?
 static Microsoft.Identity.Web.TokenAcquirerExtensions.GetFicTokenAsync(this Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Abstractions.AcquireTokenOptions? options = null, string? clientAssertion = null, string! scope = "api://AzureAdTokenExchange/.default", System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
