@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web
     /// Provides information about the effective authentication scheme. If passing null
     /// or string.Empty, this returns the default authentication scheme.
     /// </summary>
-    [Obsolete("This interface is obsolete and will be removed in a future version. Use Microsoft.Identity.Web.Abstractions.IAuthenticationSchemeInformationProvider instead.")]
+    [Obsolete("This interface is obsolete and will be removed in a future version. Use Microsoft.Identity.Abstractions.IAuthenticationSchemeInformationProvider instead.")]
     public interface IAuthenticationSchemeInformationProvider : Abstractions.IAuthenticationSchemeInformationProvider
 
     {
