@@ -68,7 +68,10 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && tokenAcquisitionhost != null && authenticationHeaderCreator != null)
+            ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
+            
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && 
+                tokenAcquisitionhost != null && authenticationHeaderCreator != null && authSchemeInfoProvider != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
                 {
@@ -77,6 +80,7 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionInternalService);
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
+                    services.Remove(authSchemeInfoProvider);
 
                     // To support ASP.NET Core 2.x on .NET FW. It won't use the TokenAcquirerFactory.GetDefaultInstance()
                     if (tokenAcquirerFactory != null)
@@ -109,7 +113,6 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<ITokenAcquisition, TokenAcquisitionAspNetCore>();
                 services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
 
-
 #else
                 // .NET FW.
                 services.AddSingleton<ITokenAcquisition, TokenAcquisition>();
@@ -122,6 +125,8 @@ namespace Microsoft.Identity.Web
                 }
 #endif
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+                services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
+                    sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }
             else
@@ -144,12 +149,18 @@ namespace Microsoft.Identity.Web
                 // .NET FW.
                 services.AddScoped<ITokenAcquisition, TokenAcquisition>();
                 services.AddScoped<ITokenAcquisitionHost, DefaultTokenAcquisitionHost>();
+                if (tokenAcquirerFactory == null)
+                {
+                    services.AddScoped<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
+                }
 #endif
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+                services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
+                    sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
             }
 
-            services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
+            services.TryAddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             return services;
         }
 

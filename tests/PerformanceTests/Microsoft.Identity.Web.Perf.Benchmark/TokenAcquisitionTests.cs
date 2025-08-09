@@ -85,6 +85,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
                .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
                .Build();
 
+#pragma warning disable CS0618 // Obsolete
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 TestConstants.s_oBOApiScope,
@@ -95,6 +96,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
 
             return authResult;
         }
+#pragma warning restore CS0618 // Obsolete
 
         private void CopyDependencies()
         {

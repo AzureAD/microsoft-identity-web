@@ -1,1 +1,9 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.AgentIdentityKey = "IDWEB_AGENT_IDENTITY" -> string!
+const Microsoft.Identity.Web.Constants.ClientAssertion = "IDWEB_CLIENT_ASSERTION" -> string!
+const Microsoft.Identity.Web.Constants.FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION" -> string!
+const Microsoft.Identity.Web.Constants.MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS" -> string!
+const Microsoft.Identity.Web.Constants.UsernameKey = "IDWEB_USERNAME" -> string!
+Microsoft.Identity.Web.TokenAcquirerExtensions
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
+static Microsoft.Identity.Web.TokenAcquirerExtensions.GetFicAsync(this Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Abstractions.AcquireTokenOptions? options = null, string? clientAssertion = null, string! scope = "api://AzureAdTokenExchange", System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!

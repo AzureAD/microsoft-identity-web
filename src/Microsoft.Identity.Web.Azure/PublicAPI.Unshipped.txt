@@ -1,1 +1,8 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityTokenCredential
+Microsoft.Identity.Web.MicrosoftIdentityTokenCredential.MicrosoftIdentityTokenCredential(Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory, Microsoft.Identity.Abstractions.IAuthenticationSchemeInformationProvider! authenticationSchemeInformationProvider) -> void
+Microsoft.Identity.Web.MicrosoftIdentityTokenCredential.Options.get -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!
+Microsoft.Identity.Web.ServiceCollectionExtensionForAzureCreds
+override Microsoft.Identity.Web.MicrosoftIdentityTokenCredential.GetToken(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> Azure.Core.AccessToken
+override Microsoft.Identity.Web.MicrosoftIdentityTokenCredential.GetTokenAsync(Azure.Core.TokenRequestContext requestContext, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<Azure.Core.AccessToken>
+static Microsoft.Identity.Web.ServiceCollectionExtensionForAzureCreds.AddMicrosoftIdentityAzureTokenCredential(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

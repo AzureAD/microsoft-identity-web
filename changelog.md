@@ -1,24 +1,48 @@
-3.10.1
+3.13.0
 =======
-### New feature
-- Added support for building and testing with .NET 10 preview. Microsoft.Identity.Web can now be conditionally built on `net10.0` when using the `TargetNetNext=True` flag, enabling early testing and compatibility validation with the latest .NET preview versions.
-
 ### Dependencies updates
-- Updated global.json to support .NET 10.0 preview SDK (10.0.100-preview.1.25307.7) with allowPrerelease support.
-- Added .NET 10 preview package versions for runtime dependencies.
+- Microsoft.IdentityModel updated to version [8.13.1](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.13.1).
+- Microsoft.Abstractions updated to version [9.3.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/9.3.) and using IAuthenticationSchemeInformationProvider from that library, deprecating the interface of the same name in Microsoft.Identity.Web (introduced in 3.12.0).
 
-### Build system improvements
-- Updated GitHub Actions workflow to install and test with .NET 10 preview.
-- Updated Azure DevOps build templates to support .NET 10 preview SDK installation.
+### Bug fixes
+- Fixed an issue with instantiation of TokenAcquirerFactory when AppContext.BaseDirectory is root path. See PR [#3443](https://github.com/AzureAD/microsoft-identity-web/pull/3443) for details.
+
+### Fundamentals
+- Use cloud user in tests. See PR [#3441](https://github.com/AzureAD/microsoft-identity-web/pull/3441) and [#3442](https://github.com/AzureAD/microsoft-identity-web/pull/3442) for details.
+
+3.12.0
+=======
+### Dependencies updates
+- Updated MSAL to version 4.74.1 part of [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3435).
+
+## Bug fix
+Reload certificates for all client credential based issues to solve the issue that when a bad certificate was installed on the machine and picked up, and subsequently rotated, a service restart was needed for the new certificate to be used. See issue [#3429](https://github.com/AzureAD/microsoft-identity-web/issues/3429) and PR [#3430](https://github.com/AzureAD/microsoft-identity-web/pull/3430) 
+
+## New features
+* Include the thrown exception in CertificateChangeEventArg. See PR [#3428](https://github.com/AzureAD/microsoft-identity-web/pull/3428) for better supportabiliby.
+* Support for Agent User identities. See PR [#3435](https://github.com/AzureAD/microsoft-identity-web/pull/3435)
+
+3.11.0
+=======
+### Dependencies updates
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.108. See PR [#3422](https://github.com/AzureAD/microsoft-identity-web/pull/3422) for details.
+
+### Bug fixes
+- Fix `IDW10405` error when using managed identity with common tenant. See PR [#3415](https://github.com/AzureAD/microsoft-identity-web/pull/3415) for details.
+- Fix `OidcIdpSignedAssertionLoader` to remove hard dependency on IConfiguration registration. See PR [#3414](https://github.com/AzureAD/microsoft-identity-web/pull/3414) for details.
+
+### New feature
+- Add support for `ExtraHeaderParameters` and `ExtraQueryParameters` properties on `DownstreamApiOptions` to simplify adding custom headers and query parameters to downstream API requests. See PR [#3413](https://github.com/AzureAD/microsoft-identity-web/pull/3413) for details.
+- Add better support for Azure SDK. For details see [Readme-Azure](./src/Microsoft.Identity.Web.Azure/README-Azure.md) and PR [#3416](https://github.com/AzureAD/microsoft-identity-web/pull/3416)
 
 3.10.0
 =======
 ### Dependencies updates
-- Updated MSAL to version 4.73.1 ([#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398)).
-- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 ([#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385)).
+- Updated MSAL to version 4.73.1 [#3398](https://github.com/AzureAD/microsoft-identity-web/pull/3398).
+- Updated `global.json` to the latest .NET 9 runtime framework 9.0.107 [#3385](https://github.com/AzureAD/microsoft-identity-web/pull/3385).
 
 ### New feature
-- Added support for Agent Identities ([#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402)).  
+- Added support for Agent Identities [#3396](https://github.com/AzureAD/microsoft-identity-web/issues/3396), [#3402](https://github.com/AzureAD/microsoft-identity-web/pull/3402).  
   introducing the `Microsoft.Identity.Web.AgentIdentities` package .
 
 ### Bug fixes

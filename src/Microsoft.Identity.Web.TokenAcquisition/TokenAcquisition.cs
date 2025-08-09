@@ -183,7 +183,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -254,6 +254,12 @@ namespace Microsoft.Identity.Web
 
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
 
+            if (tokenAcquisitionOptions is not null)
+            {
+                tokenAcquisitionOptions.ExtraParameters ??= new Dictionary<string, object>();
+                tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
+            }
+
             try
             {
                 AuthenticationResult? authenticationResult;
@@ -302,7 +308,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -334,88 +340,107 @@ namespace Microsoft.Identity.Web
         // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
         private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
+            string? username = null;
+            string? password = null;
+            string? agentIdentity = string.Empty;
+
+            // Case where the user is passed through the Claims identity
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
             {
-                string username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
-                string password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
-                bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
+                username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
+                password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
+            }
 
-                if (!forceRefresh && user.GetMsalAccountId() != null)
+            // Case of the Agent User identities
+            var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
+            if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UsernameKey))
+            {
+                // If the agentId is present, we can use it
+                username = extraParameters[Constants.UsernameKey] as string;
+                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
+                password = "password";
+            }
+
+            if (username == null)
+            {
+                return null;
+            }
+
+            bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
+
+            if (!forceRefresh && user != null && user.GetMsalAccountId() != null)
+            {
+                try
                 {
-                    try
-                    {
-                        var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
+                    var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
 
-                        // Silent flow
-                        return await application.AcquireTokenSilent(
-                            scopes.Except(_scopesRequestedByMsal),
-                            account)
-                            .ExecuteAsync()
-                            .ConfigureAwait(false);
-                    }
-                    catch (MsalException ex)
-                    {
-                        // Log a message when the silent flow fails and try acquisition through ROPC.
-                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
-                    }
-
-                }
-
-                // Check for extension options for the ROPC flow
-                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
-
-                // ROPC flow
-                AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)application)
-                    .AcquireTokenByUsernamePassword(
+                    // Silent flow
+                    return await application.AcquireTokenSilent(
                         scopes.Except(_scopesRequestedByMsal),
-                        username,
-                        password);
-
-                if (addInOptions != null)
+                        account)
+                        .ExecuteAsync()
+                        .ConfigureAwait(false);
+                }
+                catch (MsalException ex)
                 {
-                    addInOptions.InvokeOnBeforeTokenAcquisitionForTestUser(builder, tokenAcquisitionOptions, user);
+                    // Log a message when the silent flow fails and try acquisition through ROPC.
+                    Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                 }
 
-                // Pass the token acquisition options to the builder
-                if (tokenAcquisitionOptions != null)
+            }
+
+            // Check for extension options for the ROPC flow
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
+            // ROPC flow
+            AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder = ((IByUsernameAndPassword)application)
+                .AcquireTokenByUsernamePassword(
+                    scopes.Except(_scopesRequestedByMsal),
+                    username,
+                    password);
+
+            if (addInOptions != null)
+            {
+                await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
+            }
+
+            // Pass the token acquisition options to the builder
+            if (tokenAcquisitionOptions != null)
+            {
+                var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+                if (dict != null)
                 {
-                    var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
-                    if (dict != null)
-                    {
-                        builder.WithExtraQueryParameters(dict);
-                    }
-                    if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
-                    {
-                        builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
-                    }
-                    if (tokenAcquisitionOptions.CorrelationId != null)
-                    {
-                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
-                    }
-                    builder.WithClaims(tokenAcquisitionOptions.Claims);
-                    if (tokenAcquisitionOptions.PoPConfiguration != null)
-                    {
-                        builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
-                    }
+                    builder.WithExtraQueryParameters(dict);
                 }
 
-                var authenticationResult = await builder.ExecuteAsync()
-                .ConfigureAwait(false);
-
-                if (user.GetMsalAccountId() == null)
+                if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
-                    // Add the account id to the user (in case of ROPC flow)
-                    user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
-                    {
+                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                }
+                if (tokenAcquisitionOptions.CorrelationId != null)
+                {
+                    builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                }
+                builder.WithClaims(tokenAcquisitionOptions.Claims);
+                if (tokenAcquisitionOptions.PoPConfiguration != null)
+                {
+                    builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+            }
+
+            var authenticationResult = await builder.ExecuteAsync().ConfigureAwait(false);
+
+            if (user != null && user.GetMsalAccountId() == null)
+            {
+                // Add the account id to the user (in case of ROPC flow)
+                user.AddIdentity(new CaseSensitiveClaimsIdentity(new[]
+                {
                         new Claim(ClaimConstants.UniqueObjectIdentifier, authenticationResult.Account.HomeAccountId.ObjectId),
                         new Claim(ClaimConstants.UniqueTenantIdentifier, authenticationResult.Account.HomeAccountId.TenantId),
                     }));
-                }
-
-                return authenticationResult;
             }
 
-            return null;
+            return authenticationResult;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
@@ -489,7 +514,6 @@ namespace Microsoft.Identity.Web
             }
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
-            tenant = ResolveTenant(tenant, mergedOptions);
 
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
@@ -516,6 +540,9 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
             }
+
+            // For non-managed identity flows, resolve the tenant
+            tenant = ResolveTenant(tenant, mergedOptions);
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -550,7 +577,14 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null)
             {
-                AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+                // Check for client assertion in the extra parameters
+                bool optionsHaveClientAssertion = OverrideClientAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
+                // Only add FMI path for signed assertion if we're not using client assertion
+                if (!optionsHaveClientAssertion)
+                {
+                    AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+                }
 
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
@@ -609,7 +643,6 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
-
             }
 
             try
@@ -618,7 +651,7 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
 
@@ -649,7 +682,7 @@ namespace Microsoft.Identity.Web
 
             if (tokenAcquisitionOptions != null
                 && tokenAcquisitionOptions.ExtraParameters != null
-                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("MicrosoftIdentityOptions", out object? identityOptions)
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.MicrosoftIdentityOptionsParameter, out object? identityOptions)
                 && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
             {
                 MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
@@ -676,7 +709,7 @@ namespace Microsoft.Identity.Web
         {
             if (tokenAcquisitionOptions.ExtraParameters != null)
             {
-                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.FmiPathForClientAssertion, out object? o))
                 {
                     if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
                     {
@@ -690,7 +723,7 @@ namespace Microsoft.Identity.Web
         {
             if (tokenAcquisitionOptions.ExtraParameters != null)
             {
-                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue("fmiPathForClientAssertion", out object? o))
+                if (tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.FmiPathForClientAssertion, out object? o))
                 {
                     if (o is string fmiPathForClientAssertion && !string.IsNullOrEmpty(fmiPathForClientAssertion))
                     {
@@ -810,18 +843,7 @@ namespace Microsoft.Identity.Web
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
             return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-#if !NETSTANDARD2_0 && !NET462 && !NET472
-                (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase)
-                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase));
-#else
-                (exMsal.Message.Contains(Constants.InvalidKeyError)
-                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange)
-                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
-                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
-#endif
+                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase);
         }
 
 
@@ -933,7 +955,7 @@ namespace Microsoft.Identity.Web
 
                 // If the client application has set certificate observer,
                 // fire the event to notify the client app that a certificate was selected.
-                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected);
+                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected, null);
 
                 // Initialize token cache providers
                 if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
@@ -960,7 +982,12 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions"></param>
         /// <param name="app"></param>
         /// <param name="action"></param>
-        private void NotifyCertificateSelection(MergedOptions mergedOptions, IConfidentialClientApplication app, CerticateObserverAction action)
+        /// <param name="exception">The thrown exception, if any.</param>
+        private void NotifyCertificateSelection(
+            MergedOptions mergedOptions,
+            IConfidentialClientApplication app,
+            CerticateObserverAction action,
+            Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
             if (_certificatesObserver != null
@@ -971,7 +998,8 @@ namespace Microsoft.Identity.Web
                     {
                         Action = action,
                         Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate)
+                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
+                        ThrownException = exception,
                     });
             }
         }
@@ -1370,6 +1398,43 @@ namespace Microsoft.Identity.Web
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Temporary. Replace with Builder.WithClientAssertion when MSAL.NET supports it.
+        /// </summary>
+        private static bool OverrideClientAssertionIfNeeded<T>(TokenAcquisitionOptions? tokenAcquisitionOptions, AbstractConfidentialClientAcquireTokenParameterBuilder<T> builder)
+            where T: AbstractAcquireTokenParameterBuilder<T>
+        {
+            if (tokenAcquisitionOptions == null || tokenAcquisitionOptions.ExtraParameters == null)
+            {
+                return false;
+            }
+
+            bool hasClientAssertion = false;
+            if (tokenAcquisitionOptions.ExtraParameters != null &&
+                tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.ClientAssertion, out object? clientAssertionObj) &&
+                clientAssertionObj is string clientAssertion &&
+                !string.IsNullOrEmpty(clientAssertion))
+            {
+                // Use OnBeforeTokenRequest to add the client_assertion to the request
+                builder.OnBeforeTokenRequest(request =>
+                {
+                    request.BodyParameters["client_assertion"] = clientAssertion;
+                    request.BodyParameters["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+
+                    // Remove client_secret if it exists, as it's not needed when using client_assertion
+                    if (request.BodyParameters.ContainsKey("client_secret"))
+                    {
+                        request.BodyParameters.Remove("client_secret");
+                    }
+
+                    return Task.CompletedTask;
+                });
+                hasClientAssertion = true;
+            }
+
+            return hasClientAssertion;
         }
     }
 }
