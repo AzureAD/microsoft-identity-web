@@ -3,7 +3,7 @@
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TargetFrameworks>net6.0; net8.0; net9.0; net462; net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
@@ -57,6 +57,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <MicrosoftAspNetCoreMvcTestingVersion>9.0.0</MicrosoftAspNetCoreMvcTestingVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <MicrosoftAspNetCoreMvcTestingVersion>10.0.0-preview.2.25164.1</MicrosoftAspNetCoreMvcTestingVersion>
   </PropertyGroup>
 
   <PropertyGroup>
