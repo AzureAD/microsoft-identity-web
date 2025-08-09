@@ -13,6 +13,9 @@ on:
     branches:
       - master
 
+env:
+  TargetNetNext: 'True'
+
 jobs:
   analyse:
     name: Analyse
@@ -69,8 +72,8 @@ jobs:
     - name: Build with .NET 9
       run: dotnet test Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
-    - name: Build with .NET 10 (conditional)
-      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true -p:TargetNetNext=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+    - name: Build with .NET 10
+      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
       continue-on-error: true
 
     - name: Perform CodeQL Analysis

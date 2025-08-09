@@ -11,6 +11,9 @@ on:
       - ready_for_review
     branches: [ "master", "rel/v2" ]
 
+env:
+  TargetNetNext: True
+
 jobs:
   analyze:
     runs-on: windows-latest
@@ -28,6 +31,7 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Setup .NET 10.0.x preview
+      if: env.TargetNetNext == 'True'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
@@ -36,8 +40,9 @@ jobs:
       id: aot-powershell-net9
       run: build\test-aot.ps1 'net9.0'
 
-    - name: Runs AOT check with .NET 10.0 (conditional)
+    - name: Runs AOT check with .NET 10.0
       id: aot-powershell-net10
+      if: env.TARGETNETNEXT == 'True'
       run: build\test-aot.ps1 'net10.0'
       continue-on-error: true
 
