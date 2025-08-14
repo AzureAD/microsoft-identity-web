@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
+    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net462' Or '$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
@@ -47,5 +48,11 @@
     <AdditionalFiles Include="InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="InternalAPI.Unshipped.txt" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Compiling w/ Net 10.0 gives this warning "PackageReference System.Formats.Asn1 will not be pruned. Consider removing this package from your dependencies,
+    as it is likely unnecessary." however the ref is necessary due to Microsoft Security Advisory CVE-2024-38095. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1510</WarningsNotAsErrors>
+  </PropertyGroup>
   
 </Project>

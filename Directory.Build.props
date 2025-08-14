@@ -25,8 +25,9 @@
 
   <PropertyGroup>
     <!-- This must be set to True to build with NET 10.0 locally or set it in a CLI arg-->
-    <TargetNetNext>False</TargetNetNext>
-  </PropertyGroup>
+  <!-- <PropertyGroup>
+    <TargetNetNext>True</TargetNetNext>
+  </PropertyGroup> -->
 
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
@@ -119,8 +120,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <NetTenRuntimeVersion>10.0.0-preview.5.25277.114</NetTenRuntimeVersion>
-    <AspNetCoreTenRuntimeVersion>10.0.0-preview.5.25277.114</AspNetCoreTenRuntimeVersion>
+    <NetTenRuntimeVersion>10.0.0-preview.*</NetTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.0-preview.*</AspNetCoreTenRuntimeVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -214,6 +215,8 @@
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
+    <!-- Microsoft Security Advisory CVE-2024-38095 -->
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <ItemGroup>
