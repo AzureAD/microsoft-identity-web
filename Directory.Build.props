@@ -41,6 +41,10 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <LangVersion>13</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Compiling w/ Net 10.0 SDK gives this warning in every net core version "PackageReference System.Formats.Asn1 will not be pruned.
+    Consider removing this package from your dependencies, as it is likely unnecessary." However, the ref is necessary due to Microsoft Security Advisory CVE-2024-38095. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1510</WarningsNotAsErrors>
+    <!-- This warning is for target frameworks that are out of support like NET 6 -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
