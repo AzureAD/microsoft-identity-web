@@ -1,3 +1,8 @@
+3.13.1
+=======
+### Dependencies updates
+- Microsoft.IdentityModel updated to version [8.14.0](https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/releases/tag/8.14.0).
+
 3.13.0
 =======
 ### Dependencies updates
