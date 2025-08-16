@@ -2,7 +2,14 @@ param([string]$targetNetFramework)
 
 $projectName='Microsoft.Identity.Web.AotCompatibility.TestApp'
 $rootDirectory = Split-Path $PSScriptRoot -Parent
-$publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj --framework $targetNetFramework -nodeReuse:false /p:UseSharedCompilation=false
+
+# Add TargetNetNext parameter if targeting .NET 10
+$additionalParams = ""
+if ($targetNetFramework -eq "net10.0") {
+    $additionalParams = "/p:TargetNetNext=true"
+}
+
+$publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj --framework $targetNetFramework -nodeReuse:false /p:UseSharedCompilation=false $additionalParams
 
 $actualWarningCount = 0
 

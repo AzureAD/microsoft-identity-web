@@ -23,11 +23,16 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
+    <!-- This must be set to True to build with NET 10.0 locally or set it in a CLI arg-->
+  <!-- <PropertyGroup>
+    <TargetNetNext>True</TargetNetNext>
+  </PropertyGroup> -->
+
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
     <TargetFrameworks>net6.0; net7.0; net8.0; net9.0; net462; net472; netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -36,12 +41,16 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <LangVersion>13</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!-- Compiling w/ Net 10.0 SDK gives this warning in every net core version "PackageReference System.Formats.Asn1 will not be pruned.
+    Consider removing this package from your dependencies, as it is likely unnecessary." However, the ref is necessary due to Microsoft Security Advisory CVE-2024-38095. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1510</WarningsNotAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
     <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+    <!-- This warning is for target frameworks that are out of support -->
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
@@ -111,6 +120,23 @@
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <NetTenRuntimeVersion>10.0.0-preview.*</NetTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.0-preview.*</AspNetCoreTenRuntimeVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
@@ -192,6 +218,8 @@
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
+    <!-- Microsoft Security Advisory CVE-2024-38095 -->
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <ItemGroup>
