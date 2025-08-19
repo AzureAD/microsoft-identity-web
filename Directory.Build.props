@@ -1,8 +1,11 @@
 <Project>
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
-    <!-- This needs to be greater than or equal to the validation baseline version -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.13.0</MicrosoftIdentityWebVersion>
+    <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
+    to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
+    -->
+  <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == '' and '$(TargetNetNext)' != 'True'">3.13.2</MicrosoftIdentityWebVersion>
+  <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == '' and '$(TargetNetNext)' == 'True'">3.14.0-preview.net10.1</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
 
@@ -23,7 +26,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
-    <!-- This must be set to True to build with NET 10.0 locally or set it in a CLI arg-->
+  <!-- Uncomment this property group to build with NET 10.0 locally or set TargetNetNext to True in a CLI arg-->
   <!-- <PropertyGroup>
     <TargetNetNext>True</TargetNetNext>
   </PropertyGroup> -->
@@ -44,6 +47,7 @@
     <!-- Compiling w/ Net 10.0 SDK gives this warning in every net core version "PackageReference System.Formats.Asn1 will not be pruned.
     Consider removing this package from your dependencies, as it is likely unnecessary." However, the ref is necessary due to Microsoft Security Advisory CVE-2024-38095. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1510</WarningsNotAsErrors>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">

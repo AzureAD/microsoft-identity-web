@@ -6,7 +6,7 @@ $rootDirectory = Split-Path $PSScriptRoot -Parent
 # Add TargetNetNext parameter if targeting .NET 10
 $additionalParams = ""
 if ($targetNetFramework -eq "net10.0") {
-    $additionalParams = "/p:TargetNetNext=true"
+    $additionalParams = "/p:TargetNetNext=True"
 }
 
 $publishOutput = dotnet publish $rootDirectory/tests/$projectName/$projectName.csproj --framework $targetNetFramework -nodeReuse:false /p:UseSharedCompilation=false $additionalParams
