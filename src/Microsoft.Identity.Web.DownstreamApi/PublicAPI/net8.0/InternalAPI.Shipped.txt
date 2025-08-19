@@ -61,12 +61,12 @@ Microsoft.Identity.Web.DownstreamApi.UpdateRequestAsync(System.Net.Http.HttpRequ
 Microsoft.Identity.Web.DownstreamApiLoggingEventId
 readonly Microsoft.Identity.Web.DownstreamApi._logger -> Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DownstreamApi!>!
 static Microsoft.Identity.Web.DownstreamApi.CallerSDKDetails.get -> System.Collections.Generic.Dictionary<string!, string!>!
-static Microsoft.Identity.Web.DownstreamApi.DeserializeOutputAsync<TOutput>(System.Net.Http.HttpResponseMessage! response, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, System.Text.Json.Serialization.Metadata.JsonTypeInfo<TOutput!>! outputJsonTypeInfo) -> System.Threading.Tasks.Task<TOutput?>!
 static Microsoft.Identity.Web.DownstreamApi.DeserializeOutputAsync<TOutput>(System.Net.Http.HttpResponseMessage! response, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions) -> System.Threading.Tasks.Task<TOutput?>!
+static Microsoft.Identity.Web.DownstreamApi.DeserializeOutputAsync<TOutput>(System.Net.Http.HttpResponseMessage! response, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, System.Text.Json.Serialization.Metadata.JsonTypeInfo<TOutput!>! outputJsonTypeInfo) -> System.Threading.Tasks.Task<TOutput?>!
 static Microsoft.Identity.Web.DownstreamApi.Logger.HttpRequestError(Microsoft.Extensions.Logging.ILogger! logger, string! ServiceName, string! BaseUrl, string! RelativePath, System.Exception? ex) -> void
 static Microsoft.Identity.Web.DownstreamApi.Logger.UnauthenticatedApiCall(Microsoft.Extensions.Logging.ILogger! logger, System.Exception? ex) -> void
-static Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput input, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, System.Text.Json.Serialization.Metadata.JsonTypeInfo<TInput>! inputJsonTypeInfo) -> System.Net.Http.HttpContent?
 static Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput input, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions) -> System.Net.Http.HttpContent?
+static Microsoft.Identity.Web.DownstreamApi.SerializeInput<TInput>(TInput input, Microsoft.Identity.Abstractions.DownstreamApiOptions! effectiveOptions, System.Text.Json.Serialization.Metadata.JsonTypeInfo<TInput>! inputJsonTypeInfo) -> System.Net.Http.HttpContent?
 static Microsoft.Identity.Web.DownstreamApiExtensions.AddDownstreamApiWithLifetime(Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime) -> void
 static Microsoft.Identity.Web.DownstreamApiExtensions.RegisterDownstreamApi(Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> void
 static readonly Microsoft.Identity.Web.DownstreamApiLoggingEventId.HttpRequestError -> Microsoft.Extensions.Logging.EventId

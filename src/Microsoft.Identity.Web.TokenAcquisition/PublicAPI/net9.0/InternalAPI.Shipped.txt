@@ -1,4 +1,5 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.AgentIdentityKey = "IDWEB_AGENT_IDENTITY" -> string!
 const Microsoft.Identity.Web.Constants.Aliases = "aliases" -> string!
 const Microsoft.Identity.Web.Constants.ApiVersion = "api-version" -> string!
 const Microsoft.Identity.Web.Constants.ApplicationJson = "application/json" -> string!
@@ -8,6 +9,7 @@ const Microsoft.Identity.Web.Constants.BlazorChallengeUri = "MicrosoftIdentity/A
 const Microsoft.Identity.Web.Constants.CertificateHasBeenRevoked = "AADSTS7000214" -> string!
 const Microsoft.Identity.Web.Constants.CertificateIsOutsideValidityWindow = "AADSTS1000502" -> string!
 const Microsoft.Identity.Web.Constants.CiamAuthoritySuffix = ".ciamlogin.com" -> string!
+const Microsoft.Identity.Web.Constants.ClientAssertion = "IDWEB_CLIENT_ASSERTION" -> string!
 const Microsoft.Identity.Web.Constants.ClientInfo = "client_info" -> string!
 const Microsoft.Identity.Web.Constants.Common = "common" -> string!
 const Microsoft.Identity.Web.Constants.Consent = "consent" -> string!
@@ -17,6 +19,7 @@ const Microsoft.Identity.Web.Constants.DefaultGraphScope = "https://graph.micros
 const Microsoft.Identity.Web.Constants.DomainHintParameter = "domainHint" -> string!
 const Microsoft.Identity.Web.Constants.ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER" -> string!
 const Microsoft.Identity.Web.Constants.FallbackAuthority = "https://login.microsoftonline.com/" -> string!
+const Microsoft.Identity.Web.Constants.FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION" -> string!
 const Microsoft.Identity.Web.Constants.GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0" -> string!
 const Microsoft.Identity.Web.Constants.IDWebSku = "IDWeb." -> string!
 const Microsoft.Identity.Web.Constants.InvalidClient = "invalid_client" -> string!
@@ -26,6 +29,7 @@ const Microsoft.Identity.Web.Constants.JwtSecurityTokenUsedToCallWebApi = "JwtSe
 const Microsoft.Identity.Web.Constants.LoginHintParameter = "loginHint" -> string!
 const Microsoft.Identity.Web.Constants.MediaTypePksc12 = "application/x-pkcs12" -> string!
 const Microsoft.Identity.Web.Constants.Metadata = "metadata" -> string!
+const Microsoft.Identity.Web.Constants.MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS" -> string!
 const Microsoft.Identity.Web.Constants.MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad" -> string!
 const Microsoft.Identity.Web.Constants.NameClaim = "name" -> string!
 const Microsoft.Identity.Web.Constants.OidcEndpoint = "/.well-known/openid-configuration" -> string!
@@ -45,6 +49,7 @@ const Microsoft.Identity.Web.Constants.TestSlice = "dc" -> string!
 const Microsoft.Identity.Web.Constants.True = "True" -> string!
 const Microsoft.Identity.Web.Constants.Upn = "upn" -> string!
 const Microsoft.Identity.Web.Constants.UserAgent = "User-Agent" -> string!
+const Microsoft.Identity.Web.Constants.UsernameKey = "IDWEB_USERNAME" -> string!
 const Microsoft.Identity.Web.Constants.UserReadScope = "user.read" -> string!
 const Microsoft.Identity.Web.Constants.V1 = "1.0" -> string!
 const Microsoft.Identity.Web.Constants.V2 = "2.0" -> string!
@@ -68,8 +73,8 @@ const Microsoft.Identity.Web.IDWebErrorMessage.ClientCredentialTenantShouldBeTen
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. " -> string!
-const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextIsNull = "IDW10001: HttpContext is null. " -> string!
@@ -252,6 +257,7 @@ Microsoft.Identity.Web.TestOnly.IManagedIdentityTestHttpClientFactory
 Microsoft.Identity.Web.TestOnly.IManagedIdentityTestHttpClientFactory.Create() -> Microsoft.Identity.Client.IMsalHttpClientFactory!
 Microsoft.Identity.Web.TokenAcquirer
 Microsoft.Identity.Web.TokenAcquirer.TokenAcquirer(Microsoft.Identity.Web.ITokenAcquisition! tokenAcquisition, string? authenticationScheme) -> void
+Microsoft.Identity.Web.TokenAcquirerExtensions
 Microsoft.Identity.Web.TokenAcquisition
 Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
 Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(string! scope, string? authenticationScheme = null, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
@@ -281,6 +287,7 @@ Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.SetSession(string! key, st
 Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.TokenAcquisitionAspnetCoreHost(Microsoft.AspNetCore.Http.IHttpContextAccessor! httpContextAccessor, Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsMonitor, System.IServiceProvider! serviceProvider) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUser(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.Util.Base64UrlHelpers
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObserver -> Microsoft.Identity.Web.Experimental.ICertificatesObserver?
 readonly Microsoft.Identity.Web.TokenAcquisition._credentialsLoader -> Microsoft.Identity.Abstractions.ICredentialsLoader!
@@ -318,6 +325,7 @@ static Microsoft.Identity.Web.MergedOptions.UpdateMergedOptionsFromMicrosoftIden
 static Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(System.IServiceProvider! serviceProvider) -> void
 static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, string! popPublicKey, string! jwkClaim) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!
 static Microsoft.Identity.Web.MsAuth10AtPop.WithAtPop(this Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, System.Security.Cryptography.X509Certificates.X509Certificate2! clientCertificate, string! popPublicKey, string! jwkClaim, string! clientId, bool sendX5C) -> Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder!
+static Microsoft.Identity.Web.TokenAcquirerExtensions.GetFicAsync(this Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Abstractions.AcquireTokenOptions? options = null, string? clientAssertion = null, string! scope = "api://AzureAdTokenExchange", System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
 static Microsoft.Identity.Web.TokenAcquirerFactory.ResetDefaultInstance() -> void
 static Microsoft.Identity.Web.TokenAcquisition.AcceptedTokenVersionMismatch(Microsoft.Identity.Client.MsalUiRequiredException! msalServiceException) -> bool
 static Microsoft.Identity.Web.TokenAcquisition.GetCacheKeyForManagedId(Microsoft.Identity.Abstractions.ManagedIdentityOptions! managedIdOptions) -> string!
