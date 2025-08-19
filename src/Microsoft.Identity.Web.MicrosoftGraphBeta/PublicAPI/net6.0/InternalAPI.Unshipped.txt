@@ -1,2 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthorizationHeaderProviderOptions.get -> System.Action<Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!>?

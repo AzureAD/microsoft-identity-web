@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--This should be passed from the VSTS build-->
     <!-- This needs to be greater than or equal to the validation baseline version -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.13.1</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.13.2</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
 

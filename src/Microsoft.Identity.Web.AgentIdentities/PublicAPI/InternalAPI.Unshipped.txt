@@ -1,5 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn
-Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn.AgentUserIdentityMsalAddIn() -> void
-static Microsoft.Identity.Web.AgentIdentities.AgentUserIdentityMsalAddIn.OnBeforeUserFicForAgentUserIdentityAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? options, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
-static Microsoft.Identity.Web.AgentIdentityExtension.ForAgentIdentity(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, string! agentApplicationId) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!

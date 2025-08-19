@@ -1,3 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.AuthorizationHeaderProviderOptions.get -> System.Action<Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!>?
-Microsoft.Identity.Web.TokenAcquisitionAuthenticationProviderOption.Scopes.get -> string![]?

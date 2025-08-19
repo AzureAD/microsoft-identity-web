@@ -33,6 +33,7 @@ const Microsoft.Identity.Web.Constants.Scope = "scope" -> string!
 const Microsoft.Identity.Web.Constants.SpaAuthCode = "SpaAuthCode" -> string!
 Microsoft.Identity.Web.BeforeTokenAcquisitionForApp
 Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser
+Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync
 Microsoft.Identity.Web.ClaimConstants
 Microsoft.Identity.Web.Constants
 Microsoft.Identity.Web.Experimental.CerticateObserverAction
@@ -46,10 +47,13 @@ Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Certificate.set ->
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CertificateChangeEventArg() -> void
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CredentialDescription.get -> Microsoft.Identity.Abstractions.CredentialDescription?
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.CredentialDescription.set -> void
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.get -> System.Exception?
+Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.ThrownException.set -> void
 Microsoft.Identity.Web.Experimental.ICertificatesObserver
 Microsoft.Identity.Web.Experimental.ICertificatesObserver.OnClientCertificateChanged(Microsoft.Identity.Web.Experimental.CertificateChangeEventArg! e) -> void
 Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider
 Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.BaseAuthorizationHeaderProvider(System.IServiceProvider! serviceProvider) -> void
+Microsoft.Identity.Web.IAuthenticationSchemeInformationProvider
 Microsoft.Identity.Web.Internal.WebApiBuilders
 Microsoft.Identity.Web.ITokenAcquisition
 Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(string! scope, string? authenticationScheme, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
@@ -125,6 +129,7 @@ Microsoft.Identity.Web.OpenIdConnectOptions.OpenIdConnectOptions() -> void
 Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens
 Microsoft.Identity.Web.ServiceCollectionExtensions
 Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting
+Microsoft.Identity.Web.TokenAcquirerExtensions
 Microsoft.Identity.Web.TokenAcquirerFactory
 Microsoft.Identity.Web.TokenAcquirerFactory.Build() -> System.IServiceProvider!
 Microsoft.Identity.Web.TokenAcquirerFactory.Configuration.get -> Microsoft.Extensions.Configuration.IConfiguration!
@@ -139,6 +144,7 @@ Microsoft.Identity.Web.TokenAcquirerFactory.TokenAcquirerFactory() -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForApp -> Microsoft.Identity.Web.BeforeTokenAcquisitionForApp?
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUser -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForTestUserAsync -> Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync?
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.TokenAcquisitionExtensionOptions() -> void
 Microsoft.Identity.Web.TokenAcquisitionOptions
 Microsoft.Identity.Web.TokenAcquisitionOptions.CancellationToken.get -> System.Threading.CancellationToken
@@ -151,10 +157,13 @@ static Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Sys
 static Microsoft.Identity.Web.PrincipalExtensionsForSecurityTokens.GetBootstrapToken(this System.Security.Principal.IPrincipal! claimsPrincipal) -> Microsoft.IdentityModel.Tokens.SecurityToken?
 static Microsoft.Identity.Web.ServiceCollectionExtensions.AddTokenAcquisition(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, bool isTokenAcquisitionSingleton = false) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 static Microsoft.Identity.Web.TestOnly.TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest() -> void
+static Microsoft.Identity.Web.TokenAcquirerExtensions.GetFicTokenAsync(this Microsoft.Identity.Abstractions.ITokenAcquirer! tokenAcquirer, Microsoft.Identity.Abstractions.AcquireTokenOptions? options = null, string? clientAssertion = null, string! scope = "api://AzureAdTokenExchange/.default", System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
+static Microsoft.Identity.Web.TokenAcquirerExtensions.WithClientAssertion(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, string! clientAssertion) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!
 static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance(string! configSection = "AzureAd") -> Microsoft.Identity.Web.TokenAcquirerFactory!
 static Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance<T>(string! configSection = "AzureAd") -> T!
 virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForApp.Invoke(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUser.Invoke(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForTestUserAsync.Invoke(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
 virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? downstreamApiOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
 virtual Microsoft.Identity.Web.Extensibility.BaseAuthorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
