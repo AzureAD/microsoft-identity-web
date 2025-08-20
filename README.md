@@ -89,11 +89,12 @@ To build the solution with .NET 10 preview support:
 
 ```bash
 # Build with .NET 10 preview targets included
-dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=true
+dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
 
 # Or using MSBuild
-msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=true
+msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
 ```
+You can also set the TargetNetNext environment variable on your machine with the value `True`.
 
 ### Testing with .NET 10 Preview
 
@@ -101,10 +102,10 @@ To run tests targeting .NET 10 preview:
 
 ```bash
 # Run tests with .NET 10 preview (conditional)
-dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=true
+dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=True
 ```
 
-**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=true` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
+**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=True` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
 
 ## Trademarks
 
