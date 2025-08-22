@@ -1,0 +1,27 @@
+#nullable enable
+Microsoft.Identity.Web.GraphAuthenticationOptions
+Microsoft.Identity.Web.GraphAuthenticationOptions.BaseUrl.get -> string!
+Microsoft.Identity.Web.GraphAuthenticationOptions.GraphAuthenticationOptions() -> void
+Microsoft.Identity.Web.GraphServiceClientOptions
+Microsoft.Identity.Web.GraphServiceClientOptions.GraphServiceClientOptions() -> void
+Microsoft.Identity.Web.GraphServiceClientOptions.Scopes.get -> System.Collections.Generic.IEnumerable<string!>!
+Microsoft.Identity.Web.GraphServiceClientOptions.Scopes.set -> void
+Microsoft.Identity.Web.GraphServiceClientOptions.User.get -> System.Security.Claims.ClaimsPrincipal?
+Microsoft.Identity.Web.GraphServiceClientOptions.User.set -> void
+Microsoft.Identity.Web.GraphServiceCollectionExtensions
+Microsoft.Identity.Web.MicrosoftGraphExtensions
+Microsoft.Identity.Web.RequestOptionsExtension
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddMicrosoftGraph(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddMicrosoftGraph(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfiguration! configurationSection) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.GraphServiceCollectionExtensions.AddMicrosoftGraph(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<Microsoft.Identity.Web.GraphServiceClientOptions!>! configureMicrosoftGraphOptions) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, Microsoft.Extensions.Configuration.IConfigurationSection! configurationSection) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, string! graphBaseUrl = "https://graph.microsoft.com/v1.0", System.Collections.Generic.IEnumerable<string!>? defaultScopes = null) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Action<Microsoft.Identity.Web.GraphServiceClientOptions!>! configureMicrosoftGraphOptions) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraph(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Func<Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider!, Microsoft.Graph.GraphServiceClient!>! graphServiceClientFactory, System.Collections.Generic.IEnumerable<string!>! initialScopes) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.MicrosoftGraphExtensions.AddMicrosoftGraphAppOnly(this Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder! builder, System.Func<Microsoft.Kiota.Abstractions.Authentication.IAuthenticationProvider!, Microsoft.Graph.GraphServiceClient!>! graphServiceClientFactory) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithAppOnly(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, bool appOnly = true, string? tenant = null) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithAuthenticationOptions(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, Microsoft.Identity.Web.GraphAuthenticationOptions! optionsValue) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithAuthenticationOptions(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, System.Action<Microsoft.Identity.Web.GraphAuthenticationOptions!>! optionsValue) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithAuthenticationScheme(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, string! authenticationScheme) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithScopes(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, params string![]! scopes) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!
+static Microsoft.Identity.Web.RequestOptionsExtension.WithUser(this System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>! options, System.Security.Claims.ClaimsPrincipal! user) -> System.Collections.Generic.IList<Microsoft.Kiota.Abstractions.IRequestOption!>!

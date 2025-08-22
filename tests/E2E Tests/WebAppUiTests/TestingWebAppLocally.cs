@@ -18,7 +18,7 @@ namespace WebAppUiTests;
 #if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
 
 // Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
-[CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
+[Collection(nameof(UiTestNoParallelization))]
 public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixture>
 {
     private const string UrlString = "https://localhost:5001/MicrosoftIdentity/Account/signin";
