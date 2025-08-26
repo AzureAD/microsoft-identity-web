@@ -643,6 +643,9 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
+
+                //Add extra body parameters configured by extensions
+                AddExtraBodyParametersIfNeeded(tokenAcquisitionOptions, builder);
             }
 
             try
@@ -673,6 +676,18 @@ namespace Microsoft.Identity.Web
             finally
             {
                 _retryClientCertificate = false;
+            }
+        }
+
+        private void AddExtraBodyParametersIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("EXTRA_BODY_PARAMETERS", out object? parameters))
+            {
+                if (parameters is Dictionary<string, Func<CancellationToken, Task<string>>> keyValuePairs)
+                {
+                    builder.WithExtraBodyParameters(keyValuePairs);
+                }
             }
         }
 
