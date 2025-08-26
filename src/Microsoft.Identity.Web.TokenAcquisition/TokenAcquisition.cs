@@ -267,6 +267,7 @@ namespace Microsoft.Identity.Web
                 // If the user is not null and has claims xms-username and xms-password, perform ROPC for CCA
                 authenticationResult = await TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(
                     application,
+                    tenantId,
                     scopes,
                     user,
                     mergedOptions,
@@ -338,7 +339,13 @@ namespace Microsoft.Identity.Web
         }
 
         // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
-        private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(IConfidentialClientApplication application, IEnumerable<string> scopes, ClaimsPrincipal? user, MergedOptions mergedOptions, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(
+            IConfidentialClientApplication application,
+            string? tenantId,
+            IEnumerable<string> scopes,
+            ClaimsPrincipal? user,
+            MergedOptions mergedOptions,
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             string? username = null;
             string? password = null;
@@ -425,6 +432,11 @@ namespace Microsoft.Identity.Web
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+
+                if (!string.IsNullOrEmpty(tenantId))
+                {
+                    builder.WithTenantId(tenantId);
                 }
             }
 
