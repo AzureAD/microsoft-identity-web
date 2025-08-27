@@ -609,6 +609,8 @@ namespace Microsoft.Identity.Web
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
 
+                AddExtraBodyParametersIfNeeded(tokenAcquisitionOptions, builder);
+
                 // Extra Parameters are not meant to be used by Token but by extensions
 
                 if (tokenAcquisitionOptions.CorrelationId != null)
@@ -655,9 +657,6 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
-
-                //Add extra body parameters configured by extensions
-                AddExtraBodyParametersIfNeeded(tokenAcquisitionOptions, builder);
             }
 
             try
