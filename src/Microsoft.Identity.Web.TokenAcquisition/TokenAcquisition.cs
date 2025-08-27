@@ -609,6 +609,8 @@ namespace Microsoft.Identity.Web
                     builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
 
+                AddExtraBodyParametersIfNeeded(tokenAcquisitionOptions, builder);
+
                 // Extra Parameters are not meant to be used by Token but by extensions
 
                 if (tokenAcquisitionOptions.CorrelationId != null)
@@ -685,6 +687,18 @@ namespace Microsoft.Identity.Web
             finally
             {
                 _retryClientCertificate = false;
+            }
+        }
+
+        private void AddExtraBodyParametersIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
+        {
+            if (tokenAcquisitionOptions.ExtraParameters != null
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("EXTRA_BODY_PARAMETERS", out object? parameters))
+            {
+                if (parameters is Dictionary<string, Func<CancellationToken, Task<string>>> keyValuePairs)
+                {
+                    builder.WithExtraBodyParameters(keyValuePairs);
+                }
             }
         }
 
