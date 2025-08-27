@@ -2,8 +2,17 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.TestOnly;
 using Xunit;
+
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -76,6 +85,68 @@ namespace Microsoft.Identity.Web.Test
             // Verify that ResolveTenant still throws for non-managed identity scenarios
             var exception = Assert.Throws<ArgumentException>(() => TokenAcquisition.ResolveTenant(null, mergedOptions));
             Assert.StartsWith(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, exception.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task ExtraBodyParametersAreSentToEndpointTest()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+
+            mockHttpClient!.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
+                HttpMethod.Post,
+                new Dictionary<string, string>() {
+                    { "custom_param1", "value1" },
+                    { "custom_param2", "value2" }
+                }));
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = new AcquireTokenOptions();
+            options.ExtraParameters = new Dictionary<string, object>
+            {
+                { "EXTRA_BODY_PARAMETERS", new Dictionary<string, Func<CancellationToken, Task<string>>>
+                    {
+                        ["custom_param1"] = _ => Task.FromResult("value1"),
+                        ["custom_param2"] = _ => Task.FromResult("value2")
+                    }
+                }
+            };
+
+            // Act
+            string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
+                new AuthorizationHeaderProviderOptions() { AcquireTokenOptions = options });
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Bearer header.payload.signature", result);
+        }
+
+        private TokenAcquirerFactory InitTokenAcquirerFactory()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+                options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
+                options.ExtraQueryParameters = new Dictionary<string, string>
+                        {
+                                { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
+                        };
+                options.ClientCredentials = [ new CredentialDescription() {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "someSecret"
+                    }];
+            });
+
+            // Add MockedHttpClientFactory
+            tokenAcquirerFactory.Services.AddSingleton<IMsalHttpClientFactory, MockHttpClientFactory>();
+
+            return tokenAcquirerFactory;
         }
     }
 }
