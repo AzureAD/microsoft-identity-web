@@ -1,3 +1,9 @@
+3.14.0
+=======
+## New features
+- Support multi-tenant agent user identities. See [#3461](https://github.com/AzureAD/microsoft-identity-web/issues/3461) for details.
+- Id Web now allos for passing of ExtraBodyParameters. See [#3463](https://github.com/AzureAD/microsoft-identity-web/issues/3463) for details.
+
 3.13.2
 =======
 ### Dependencies updates
