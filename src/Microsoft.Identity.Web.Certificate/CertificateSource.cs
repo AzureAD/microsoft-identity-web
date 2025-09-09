@@ -37,5 +37,14 @@ namespace Microsoft.Identity.Web
         /// From the certificate store, described by its distinguished name.
         /// </summary>
         StoreWithDistinguishedName = 5,
+
+        /// <summary>
+        /// Selected via standardized logic.
+        /// </summary>
+        /// <remarks>
+        /// This functionality to currently Microsoft-Internal.
+        /// Currently, it has no meaning outside of Microsoft-Internal scenarios.
+        /// </remarks>
+        ManagedCertificate = 6,
     }
 }

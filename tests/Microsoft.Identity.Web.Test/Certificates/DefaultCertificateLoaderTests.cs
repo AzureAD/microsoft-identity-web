@@ -110,5 +110,20 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.NotNull(certificateDescription.Certificate);
             Assert.True(certificateDescription.Certificate.HasPrivateKey);
         }
+
+        [Fact]
+        public void TestDefaultCertificateLoader_Unsupported()
+        {
+            CertificateDescription certificateDescription = new()
+            {
+                // This source type exists, but is not supported.
+                SourceType = CertificateSource.ManagedCertificate,
+            };
+
+            ICertificateLoader loader = new DefaultCertificateLoader();
+            loader.LoadIfNeeded(certificateDescription);
+
+            Assert.Null(certificateDescription.Certificate);
+        }
     }
 }

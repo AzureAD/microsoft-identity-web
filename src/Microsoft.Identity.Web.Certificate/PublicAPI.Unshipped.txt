@@ -1,1 +1,2 @@
 #nullable enable
+Microsoft.Identity.Web.CertificateSource.ManagedCertificate = 6 -> Microsoft.Identity.Web.CertificateSource
