@@ -1,3 +1,8 @@
+3.14.1
+=======
+##  Bug fix
+- Support client secrets with agent user identities. See [#3470](https://github.com/AzureAD/microsoft-identity-web/issues/3470) for details.
+
 3.14.0
 =======
 ## New features
