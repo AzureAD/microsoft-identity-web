@@ -9,44 +9,45 @@ using Microsoft.Identity.Lab.Api;
 using Microsoft.Playwright;
 using Xunit;
 
-namespace WebAppUiTests;
-
+namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
-
-[Collection(nameof(UiTestNoParallelization))]
-public class WebAppIntegrationTests
 {
-    const string UrlString = "https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin";
 
-    [Fact(Skip = "We cannot republish the web app atm. https://github.com/AzureAD/microsoft-identity-web/issues/984")]
-    public async Task ChallengeUser_MicrosoftIdentityFlow_RemoteApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
+    [Collection(nameof(UiTestNoParallelization))]
+    public class WebAppIntegrationTests
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+        const string UrlString = "https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin";
 
-        // Arrange
-        using var playwright = await Playwright.CreateAsync();
-
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        IPage page = await browser.NewPageAsync();
-        await page.GotoAsync(UrlString);
-        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
-
-        try
+        [Fact(Skip = "We cannot republish the web app atm. https://github.com/AzureAD/microsoft-identity-web/issues/984")]
+        public async Task ChallengeUser_MicrosoftIdentityFlow_RemoteApp_ValidEmailPasswordCreds_SignInSucceedsTestAsync()
         {
-            // Act
-            Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-            string email = labResponse.User.Upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword());
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
 
-            // Assert
-            await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
-            await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
-        }
-        catch (Exception ex)
-        {
-            Assert.Fail($"The UI automation failed: {ex}");
-        }
+            // Arrange
+            using var playwright = await Playwright.CreateAsync();
 
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+            IPage page = await browser.NewPageAsync();
+            await page.GotoAsync(UrlString);
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
+
+            try
+            {
+                // Act
+                Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
+                string email = labResponse.User.Upn;
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword());
+
+                // Assert
+                await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();
+                await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"The UI automation failed: {ex}");
+            }
+
+        }
     }
-#endif //FROM_GITHUB_ACTION
 }
+#endif //FROM_GITHUB_ACTION
