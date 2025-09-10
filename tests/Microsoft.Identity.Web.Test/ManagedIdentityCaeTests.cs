@@ -9,6 +9,7 @@ using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
 using Microsoft.Identity.Web.Test;
+using Microsoft.Identity.Web.Test.Common;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -20,7 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Tests.Certificateless
 {
-    [Collection("Run tests - serial")]
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class ManagedIdentityTests
     {
         private const string Scope = "https://management.azure.com/.default";

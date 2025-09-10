@@ -18,7 +18,7 @@ namespace WebAppUiTests
 #if !FROM_GITHUB_ACTION
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
-    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
+    [Collection(nameof(UiTestNoParallelization))]
     public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBrowserFixture>
     {
         private const uint GrpcPort = 5001;
@@ -116,7 +116,7 @@ namespace WebAppUiTests
                 _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
                 await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
-                var todoLink =  page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
+                var todoLink = page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
                 await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
 
@@ -226,7 +226,7 @@ namespace WebAppUiTests
                     foreach (var process in processes)
                     {
 #pragma warning disable CA1305 // Specify IFormatProvider
-                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value )}");
+                        runningProcesses.AppendLine($"Is {process.Key} running: {UiTestHelpers.ProcessIsAlive(process.Value)}");
 #pragma warning restore CA1305 // Specify IFormatProvider
                     }
                     Assert.Fail(TC.WebAppCrashedString + " " + runningProcesses.ToString());

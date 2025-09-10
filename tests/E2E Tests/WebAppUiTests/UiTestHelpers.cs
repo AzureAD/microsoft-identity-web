@@ -360,7 +360,7 @@ namespace WebAppUiTests
             {
                 if (!UiTestHelpers.ProcessesAreAlive(processes.Values.ToList()))
                 {
-                    RestartProcesses(processes, processDataEntries , output);
+                    RestartProcesses(processes, processDataEntries, output);
                 }
             }
 
@@ -384,7 +384,7 @@ namespace WebAppUiTests
                                                     processDataEntry.TestAssemblyLocation,
                                                     processDataEntry.AppLocation,
                                                     processDataEntry.ExecutableName,
-                                                    output, 
+                                                    output,
                                                     processDataEntry.EnvironmentVariables);
                     Thread.Sleep(5000);
 

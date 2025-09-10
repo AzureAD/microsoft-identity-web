@@ -6,9 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test.Common;
 
 namespace AgentApplicationsTests
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class GetFicAsyncTests
     {
         [Fact]

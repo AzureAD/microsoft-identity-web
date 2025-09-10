@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
@@ -16,6 +17,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class TokenAcquisitionTests
     {
         private const string Tenant = "tenant";
@@ -61,10 +63,10 @@ namespace Microsoft.Identity.Web.Test
         {
             // This test verifies that ResolveTenant is not called when using managed identity,
             // which prevents the IDW10405 error when tenant is "common" or "organizations"
-            
+
             // The fix ensures that when ManagedIdentity is specified in tokenAcquisitionOptions,
             // ResolveTenant is skipped entirely, so this scenario should not throw
-            
+
             // Create test options with managed identity
             var tokenOptions = new TokenAcquisitionOptions
             {
@@ -73,15 +75,15 @@ namespace Microsoft.Identity.Web.Test
                     UserAssignedClientId = "test-client-id"
                 }
             };
-            
-            var mergedOptions = new MergedOptions 
-            { 
+
+            var mergedOptions = new MergedOptions
+            {
                 TenantId = Constants.Common  // This would normally cause ResolveTenant to throw
             };
-            
+
             // This should not throw because ResolveTenant should not be called for managed identity scenarios
             // The actual method call would be tested in integration tests, but we can test the logic here
-            
+
             // Verify that ResolveTenant still throws for non-managed identity scenarios
             var exception = Assert.Throws<ArgumentException>(() => TokenAcquisition.ResolveTenant(null, mergedOptions));
             Assert.StartsWith(IDWebErrorMessage.ClientCredentialTenantShouldBeTenanted, exception.Message, StringComparison.Ordinal);
@@ -134,9 +136,9 @@ namespace Microsoft.Identity.Web.Test
                 options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
                 options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
                 options.ExtraQueryParameters = new Dictionary<string, string>
-                        {
-                                { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
-                        };
+                    {
+                        { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
+                    };
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.ClientSecret,
                     ClientSecret = "someSecret"

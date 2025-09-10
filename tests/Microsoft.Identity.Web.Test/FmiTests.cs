@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
-    [Collection("Run tests - serial")]
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class FmiTests
     {
         [Fact]
@@ -52,12 +53,12 @@ namespace Microsoft.Identity.Web.Test
                 options.ClientId = "urn:microsoft:identity:fmi";
                 options.ExtraQueryParameters = new Dictionary<string, string>
                         {
-                                { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
+                            { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
                         };
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.ClientSecret,
                     ClientSecret = "someSecret"
-                    }];
+                }];
             });
 
             // Add MockedHttpClientFactory
