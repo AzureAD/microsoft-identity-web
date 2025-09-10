@@ -47,16 +47,16 @@ namespace WebAppUiTests
             DefaultAzureCredential azureCred = new();
             string clientSecret = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCredsAsync(_keyvaultUri, KeyvaultClientSecretName, azureCred);
             var serviceEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development" },
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
-        };
-            var clientEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development"},
-            {"AzureAdB2C__ClientSecret", clientSecret},
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
-        };
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development" },
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
+            };
+                var clientEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {"AzureAdB2C__ClientSecret", clientSecret},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
+            };
 
             // Get email and password from keyvault.
             string email = await UiTestHelpers.GetValueFromKeyvaultWitDefaultCredsAsync(_keyvaultUri, KeyvaultEmailName, azureCred);

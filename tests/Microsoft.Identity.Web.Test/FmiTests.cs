@@ -56,8 +56,8 @@ namespace Microsoft.Identity.Web.Test
                             { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
                         };
                 options.ClientCredentials = [ new CredentialDescription() {
-                SourceType = CredentialSource.ClientSecret,
-                ClientSecret = "someSecret"
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "someSecret"
                 }];
             });
 

@@ -114,20 +114,20 @@ namespace Microsoft.Identity.Web.Test
         }
 
 #if NET8_0_OR_GREATER
-    [Fact]
-    public void AddTokenAcquisition_Sdk_SupportsKeyedServices()
-    {
-        var services = new ServiceCollection();
+        [Fact]
+        public void AddTokenAcquisition_Sdk_SupportsKeyedServices()
+        {
+            var services = new ServiceCollection();
 
-        // Add a keyed service.
-        services.AddKeyedSingleton<ServiceCollectionExtensionsTests>("test", this);
+            // Add a keyed service.
+            services.AddKeyedSingleton<ServiceCollectionExtensionsTests>("test", this);
 
-        // This should not throw.
-        services.AddTokenAcquisition();
+            // This should not throw.
+            services.AddTokenAcquisition();
 
-        // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
-        Assert.Equal(11, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
-    }
+            // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
+            Assert.Equal(11, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
+        }
 #endif
 
         [Fact]

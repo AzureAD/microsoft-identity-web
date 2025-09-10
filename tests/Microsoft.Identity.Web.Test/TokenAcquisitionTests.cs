@@ -100,22 +100,22 @@ namespace Microsoft.Identity.Web.Test
             mockHttpClient!.AddMockHandler(MockHttpCreator.CreateHandlerToValidatePostData(
                 HttpMethod.Post,
                 new Dictionary<string, string>() {
-                { "custom_param1", "value1" },
-                { "custom_param2", "value2" }
+                    { "custom_param1", "value1" },
+                    { "custom_param2", "value2" }
                 }));
 
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
             var options = new AcquireTokenOptions();
             options.ExtraParameters = new Dictionary<string, object>
-        {
-            { "EXTRA_BODY_PARAMETERS", new Dictionary<string, Func<CancellationToken, Task<string>>>
-                {
-                    ["custom_param1"] = _ => Task.FromResult("value1"),
-                    ["custom_param2"] = _ => Task.FromResult("value2")
+            {
+                { "EXTRA_BODY_PARAMETERS", new Dictionary<string, Func<CancellationToken, Task<string>>>
+                    {
+                        ["custom_param1"] = _ => Task.FromResult("value1"),
+                        ["custom_param2"] = _ => Task.FromResult("value2")
+                    }
                 }
-            }
-        };
+            };
 
             // Act
             string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default",
@@ -136,13 +136,13 @@ namespace Microsoft.Identity.Web.Test
                 options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
                 options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
                 options.ExtraQueryParameters = new Dictionary<string, string>
-                        {
-                            { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
-                        };
+                {
+                    { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
+                };
                 options.ClientCredentials = [ new CredentialDescription() {
-                SourceType = CredentialSource.ClientSecret,
-                ClientSecret = "someSecret"
-                }];
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "someSecret"
+                    }];
             });
 
             // Add MockedHttpClientFactory

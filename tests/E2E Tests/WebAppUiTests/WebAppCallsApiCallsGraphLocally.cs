@@ -47,20 +47,20 @@ namespace WebAppUiTests
         {
             // Setup web app and api environmental variables.
             var grpcEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development"},
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + GrpcPort}
-        };
-            var serviceEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development" },
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
-        };
-            var clientEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development"},
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
-        };
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + GrpcPort}
+            };
+                var serviceEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development" },
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
+            };
+                var clientEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
+            };
 
             Dictionary<string, Process>? processes = null;
 
@@ -186,20 +186,20 @@ namespace WebAppUiTests
         {
             // Setup web app and api environmental variables.
             var serviceEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development"},
-            {"AzureAd__ClientId", "634de702-3173-4a71-b336-a4fab786a479"},
-            {"AzureAd__Authority", authority},
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
-        };
-            var clientEnvVars = new Dictionary<string, string>
-        {
-            {"ASPNETCORE_ENVIRONMENT", "Development"},
-            {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
-            {"AzureAd__Authority", authority},
-            {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
-            {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebAppCiamPort}
-        };
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {"AzureAd__ClientId", "634de702-3173-4a71-b336-a4fab786a479"},
+                {"AzureAd__Authority", authority},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
+            };
+                var clientEnvVars = new Dictionary<string, string>
+            {
+                {"ASPNETCORE_ENVIRONMENT", "Development"},
+                {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},
+                {"AzureAd__Authority", authority},
+                {"DownstreamApi__Scopes__0", "api://634de702-3173-4a71-b336-a4fab786a479/.default"},
+                {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebAppCiamPort}
+            };
 
             Dictionary<string, Process>? processes = null;
 
@@ -319,7 +319,7 @@ namespace WebAppUiTests
             }
 
 #if WINDOWS
-        UiTestHelpers.KillProcessTrees(processQueue);
+            UiTestHelpers.KillProcessTrees(processQueue);
 #else
             while (processQueue.Count > 0)
             {
