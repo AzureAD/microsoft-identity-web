@@ -51,7 +51,7 @@ namespace WebAppUiTests
                 {"ASPNETCORE_ENVIRONMENT", "Development" },
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
             };
-                var clientEnvVars = new Dictionary<string, string>
+            var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {"AzureAdB2C__ClientSecret", clientSecret},

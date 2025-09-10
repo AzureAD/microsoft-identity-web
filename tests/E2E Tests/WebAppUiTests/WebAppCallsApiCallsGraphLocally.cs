@@ -51,12 +51,12 @@ namespace WebAppUiTests
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + GrpcPort}
             };
-                var serviceEnvVars = new Dictionary<string, string>
+            var serviceEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development" },
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListServicePort}
             };
-                var clientEnvVars = new Dictionary<string, string>
+            var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + TodoListClientPort}
@@ -192,7 +192,7 @@ namespace WebAppUiTests
                 {"AzureAd__Authority", authority},
                 {TC.KestrelEndpointEnvVar, TC.HttpStarColon + WebApiCiamPort}
             };
-                var clientEnvVars = new Dictionary<string, string>
+            var clientEnvVars = new Dictionary<string, string>
             {
                 {"ASPNETCORE_ENVIRONMENT", "Development"},
                 {"AzureAd__ClientId", "b244c86f-ed88-45bf-abda-6b37aa482c79"},

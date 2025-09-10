@@ -136,9 +136,9 @@ namespace Microsoft.Identity.Web.Test
                 options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
                 options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
                 options.ExtraQueryParameters = new Dictionary<string, string>
-                {
-                    { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
-                };
+                    {
+                        { "dc", "ESTS-PUB-SCUS-LZ1-FD000-TEST1" }
+                    };
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.ClientSecret,
                     ClientSecret = "someSecret"

@@ -32,7 +32,7 @@ namespace AgentApplicationsTests
                     options.ClientId = agentApplication; // Agent application.
                     options.ClientCredentials = [
                         CertificateDescription.FromStoreWithDistinguishedName(
-                        "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
+                            "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
                     ];
 
                 });
