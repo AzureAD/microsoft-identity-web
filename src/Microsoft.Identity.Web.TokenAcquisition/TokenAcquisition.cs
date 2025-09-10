@@ -869,7 +869,12 @@ namespace Microsoft.Identity.Web
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
             return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase);
+                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
+                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
+#if NET6_0_OR_GREATER
+                , StringComparison.OrdinalIgnoreCase
+#endif
+                );
         }
 
 

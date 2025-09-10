@@ -70,8 +70,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
                         request.BodyParameters["grant_type"] = "user_fic";
                         request.BodyParameters.Remove("password");
 
-                        if (request.BodyParameters.TryGetValue("client_secret", out var secret)
-                                && secret.Equals("default", StringComparison.OrdinalIgnoreCase))
+                        if (request.BodyParameters.TryGetValue("client_secret", out var secret))
                         {
                             request.BodyParameters.Remove("client_secret");
                         }
