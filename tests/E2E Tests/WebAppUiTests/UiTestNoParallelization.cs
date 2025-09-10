@@ -3,10 +3,9 @@
 
 using Xunit;
 
-namespace WebAppUiTests
+namespace WebAppUiTests;
+
+[CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
+public class UiTestNoParallelization
 {
-    [CollectionDefinition(nameof(UiTestNoParallelization), DisableParallelization = true)]
-    public class UiTestNoParallelization
-    {
-    }
 }
