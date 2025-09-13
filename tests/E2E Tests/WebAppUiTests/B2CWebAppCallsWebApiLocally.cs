@@ -78,7 +78,7 @@ namespace WebAppUiTests
                 // The delay before starting client prevents transient devbox issue where the client fails to load the first time after rebuilding.
                 serviceProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListServicePath, TC.s_todoListServiceExe, _output, serviceEnvVars);
                 await Task.Delay(3000);
-                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, _output, clientEnvVars, 5);
+                clientProcess = UiTestHelpers.StartProcessLocally(_testAssemblyPath, _devAppPath + TC.s_todoListClientPath, TC.s_todoListClientExe, _output, clientEnvVars);
 
                 if (!UiTestHelpers.ProcessesAreAlive([clientProcess, serviceProcess]))
                 {

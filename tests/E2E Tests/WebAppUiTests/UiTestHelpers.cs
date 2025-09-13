@@ -20,6 +20,8 @@ namespace WebAppUiTests
 {
     public static class UiTestHelpers
     {
+        const int DefaultRetryCountToStartProcess = 3;
+
         /// <summary>
         /// Login flow for the first time in a given browsing session.
         /// </summary>
@@ -149,10 +151,10 @@ namespace WebAppUiTests
             string executableName,
             ITestOutputHelper output,
             Dictionary<string, string>? environmentVariables = null,
-            int maxRetries = 0)
+            int maxRetries = DefaultRetryCountToStartProcess)
         {
             string applicationWorkingDirectory = GetApplicationWorkingDirectory(testAssemblyLocation, appLocation);
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(applicationWorkingDirectory + executableName)
+            ProcessStartInfo processStartInfo = new(applicationWorkingDirectory + executableName)
             {
                 WorkingDirectory = applicationWorkingDirectory,
                 RedirectStandardOutput = true,
@@ -171,8 +173,8 @@ namespace WebAppUiTests
             Process? process;
             do
             {
-                Thread.Sleep(1000 * currentAttempt++); // linear backoff
                 process = Process.Start(processStartInfo);
+                Thread.Sleep(1000 * currentAttempt); // linear backoff
             } while (currentAttempt++ <= maxRetries && !ProcessIsAlive(process));
 
             if (process == null)
