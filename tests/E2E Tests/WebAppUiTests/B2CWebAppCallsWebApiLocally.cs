@@ -69,7 +69,7 @@ namespace WebAppUiTests
             IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
-            Process? serviceProcess= null;
+            Process? serviceProcess = null;
             Process? clientProcess = null;
 
             try

@@ -10,9 +10,10 @@ using Microsoft.Playwright;
 using Xunit;
 
 namespace WebAppUiTests
-{
 #if !FROM_GITHUB_ACTION
+{
 
+    [Collection(nameof(UiTestNoParallelization))]
     public class WebAppIntegrationTests
     {
         const string UrlString = "https://webapptestmsidweb.azurewebsites.net/MicrosoftIdentity/Account/signin";
@@ -48,6 +49,6 @@ namespace WebAppUiTests
             }
 
         }
-#endif //FROM_GITHUB_ACTION
     }
 }
+#endif //FROM_GITHUB_ACTION

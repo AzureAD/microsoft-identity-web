@@ -9,10 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
+    [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class ServiceCollectionExtensionsTests
     {
         [Fact]
