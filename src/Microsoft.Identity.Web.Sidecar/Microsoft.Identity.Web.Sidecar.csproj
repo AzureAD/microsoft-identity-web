@@ -8,6 +8,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
+    <NoWarn>$(NoWarn); RS0016</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
