@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-Microsoft.Identity.Web.Sidecar-79d2a631-277f-4ef1-9253-4477001378e8</UserSecretsId>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--RS0016: Add public types and members to the declared API-->
+    <NoWarn>RS0016</NoWarn>
+    <!--RS0036: Annotate nullability of public types and members in the declared API-->
+    <NoWarn>RS0036</NoWarn>
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <NoWarn>RS0037</NoWarn>
+    <!--RS0051: Add internal types and members to the declared API-->
+    <NoWarn>RS0051</NoWarn>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.9" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
+  </ItemGroup>
+
+</Project>
