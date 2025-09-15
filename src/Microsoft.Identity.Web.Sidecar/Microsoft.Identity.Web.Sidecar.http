@@ -5,3 +5,6 @@ Accept: application/json
 Authorization: Bearer {{AccessToken}}
 
 ###
+
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/openapi/v1.json
+Accept: application/json
