@@ -1,0 +1,7 @@
+@Microsoft.Identity.Web.Sidecar_HostAddress = http://localhost:5178
+
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/Validate/
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
