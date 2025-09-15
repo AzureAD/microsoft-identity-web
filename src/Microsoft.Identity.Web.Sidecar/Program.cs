@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+#pragma warning disable RS0016 // Public API
 
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,3 +49,7 @@ if (app.Environment.IsDevelopment())
 app.AddValidateRequestEndpoints();
 
 app.Run();
+
+
+// Added for test project WebApplicationFactory discovery
+public partial class Program { }
