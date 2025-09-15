@@ -357,3 +357,4 @@ MigrationBackup/
 /.SharedData
 /out/
 objd/
+/src/Microsoft.Identity.Web.Sidecar/http-client.env.json
