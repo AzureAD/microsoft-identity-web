@@ -8,7 +8,7 @@ using Microsoft.Identity.Web.Sidecar.Models;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
-internal static class DownstreamApiRequestEndpoints
+public static class DownstreamApiRequestEndpoints
 {
     public static void AddDownstreamApiRequestEndpoints(this WebApplication app)
     {
@@ -73,14 +73,14 @@ internal static class DownstreamApiRequestEndpoints
         return TypedResults.Ok(new AuthorizationHeaderResult(result));
     }
 
-    private static DownstreamApiOptions MergeDownstreamApiOptionsOverrides(DownstreamApiOptions left, DownstreamApiOptions right)
+    public static DownstreamApiOptions MergeDownstreamApiOptionsOverrides(DownstreamApiOptions left, DownstreamApiOptions right)
     {
+        var res = left.Clone();
+
         if (right is null)
         {
-            return left;
+            return res;
         }
-
-        var res = left.Clone();
 
         if (right.Scopes is not null && right.Scopes.Any())
         {

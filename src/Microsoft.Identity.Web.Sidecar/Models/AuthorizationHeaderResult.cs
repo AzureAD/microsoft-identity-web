@@ -3,4 +3,8 @@
 
 namespace Microsoft.Identity.Web.Sidecar.Models;
 
-internal record AuthorizationHeaderResult(string AuthorizationHeader);
+/// <summary>
+/// The result of requesting an authorization header.
+/// </summary>
+/// <param name="AuthorizationHeader">The authorization header.</param>
+public record AuthorizationHeaderResult(string AuthorizationHeader);
