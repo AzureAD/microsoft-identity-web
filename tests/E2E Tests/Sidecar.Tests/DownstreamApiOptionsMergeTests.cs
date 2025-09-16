@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Sidecar;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Xunit;
 
@@ -20,7 +21,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, null!);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, null!);
 
         // Assert
         Assert.NotSame(left, result);
@@ -42,7 +43,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal(["mail.read", "calendars.read"], result.Scopes);
@@ -62,7 +63,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal(["user.read"], result.Scopes);
@@ -82,7 +83,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("new-tenant", result.AcquireTokenOptions.Tenant);
@@ -102,7 +103,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("new-claims", result.AcquireTokenOptions.Claims);
@@ -122,7 +123,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("new-auth", result.AcquireTokenOptions.AuthenticationOptionsName);
@@ -142,7 +143,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("/new/path", result.AcquireTokenOptions.FmiPath);
@@ -162,7 +163,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("/new/path", result.RelativePath);
@@ -182,7 +183,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.True(result.AcquireTokenOptions.ForceRefresh);
@@ -216,7 +217,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.NotNull(result.AcquireTokenOptions.ExtraParameters);
@@ -254,7 +255,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.NotNull(result.AcquireTokenOptions.ExtraParameters);
@@ -285,7 +286,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.NotNull(result.AcquireTokenOptions.ExtraParameters);
@@ -331,7 +332,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal(["mail.read", "calendars.read"], result.Scopes);
@@ -371,7 +372,7 @@ public class DownstreamApiOptionsMergeTests
         };
 
         // Act
-        var result = DownstreamApiRequestEndpoints.MergeDownstreamApiOptionsOverrides(left, right);
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
 
         // Assert
         Assert.Equal("/original/path", result.RelativePath);
