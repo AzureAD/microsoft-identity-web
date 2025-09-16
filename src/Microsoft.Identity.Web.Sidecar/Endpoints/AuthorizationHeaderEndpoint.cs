@@ -43,13 +43,13 @@ public static class DownstreamApiRequestEndpoints
 
         if (optionsOverride is not null)
         {
-            MergeDownstreamApiOptionsOverrides(options, optionsOverride);
+            options = MergeDownstreamApiOptionsOverrides(options, optionsOverride);
         }
 
         if (options.Scopes is null)
         {
             return TypedResults.Problem(
-                detail: $"No scopes found for the API '{apiName}'. 'scopes' needs to be either a single ",
+                detail: $"No scopes found for the API '{apiName}' or in optionsOverride. 'scopes' needs to be either a single ",
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
@@ -67,13 +67,22 @@ public static class DownstreamApiRequestEndpoints
             options.AcquireTokenOptions.Tenant = tenant;
         }
 
-        var result = await headerProvider.CreateAuthorizationHeaderAsync(
-            options.Scopes,
-            options,
-            httpContext.User,
-            httpContext.RequestAborted);
+        try
+        {
+            var result = await headerProvider.CreateAuthorizationHeaderAsync(
+                options.Scopes,
+                options,
+                httpContext.User,
+                httpContext.RequestAborted);
 
-        return TypedResults.Ok(new AuthorizationHeaderResult(result));
+            return TypedResults.Ok(new AuthorizationHeaderResult(result));
+        }
+        catch(MicrosoftIdentityWebChallengeUserException ex)
+        {
+            return TypedResults.Problem(
+                detail: ex.InnerException?.Message ?? ex.Message,
+                statusCode: StatusCodes.Status401Unauthorized);
+        }
     }
 
     public static DownstreamApiOptions MergeDownstreamApiOptionsOverrides(DownstreamApiOptions left, DownstreamApiOptions right)

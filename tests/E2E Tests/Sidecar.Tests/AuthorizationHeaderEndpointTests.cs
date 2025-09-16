@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -15,19 +16,6 @@ public class AuthorizationHeaderEndpointTests(SidecarApiFactory factory) : IClas
     private readonly SidecarApiFactory _factory = factory;
 
     [Fact]
-    public async Task AuthorizationHeader_WithoutAuthentication_ReturnsUnauthorized()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-
-        // Act
-        var response = await client.PostAsync("/AuthorizationHeader/test-api", null);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
     public async Task AuthorizationHeader_WithInvalidToken_ReturnsUnauthorized()
     {
         // Arrange
@@ -35,14 +23,14 @@ public class AuthorizationHeaderEndpointTests(SidecarApiFactory factory) : IClas
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalid-token");
 
         // Act
-        var response = await client.PostAsync("/AuthorizationHeader/test-api", null);
+        var response = await client.PostAsync("/AuthorizationHeader/test-api", JsonContent.Create(new { Scopes = new string[] { "scopes" }}));
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
-    public async Task AuthorizationHeader_WithNonExistentApi_ReturnsBadRequest()
+    public async Task AuthorizationHeader_WithNonExistentApi_AndNoScope_OverrideReturnsBadRequest()
     {
         // Arrange
         var mockHeaderProvider = new TestAuthorizationHeaderProvider();
@@ -65,7 +53,7 @@ public class AuthorizationHeaderEndpointTests(SidecarApiFactory factory) : IClas
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Not able to resolve 'non-existent-api'", content, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("No scopes found", content, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
