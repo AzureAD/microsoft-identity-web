@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Buffers.Text;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -40,7 +41,16 @@ public static class ValidateRequestEndpoints
         }
 
         var decodedBody = Base64Url.DecodeFromChars(token.EncodedPayload);
-        var jsonDoc = JsonSerializer.Deserialize<JsonNode>(decodedBody);
+
+        JsonNode? jsonDoc;
+        try
+        {
+            jsonDoc = JsonNode.Parse(decodedBody);
+        }
+        catch (JsonException)
+        {
+            return TypedResults.Problem("Invalid JSON in token payload", statusCode: StatusCodes.Status400BadRequest);
+        }
 
         if (jsonDoc is null)
         {
