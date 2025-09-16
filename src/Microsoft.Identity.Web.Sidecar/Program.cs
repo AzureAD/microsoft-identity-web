@@ -21,6 +21,8 @@ public class Program
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
+        builder.Services.AddHealthChecks();
+
         builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme,
             options =>
             {
@@ -47,6 +49,8 @@ public class Program
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
+
+        app.MapHealthChecks("/healthz");
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
