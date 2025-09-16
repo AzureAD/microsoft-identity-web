@@ -9,6 +9,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
@@ -19,8 +20,8 @@ public static class ValidateRequestEndpoints
         app.MapGet("/Validate", ValidateEndpoint).
             WithName("Validate Authorization header").
             RequireAuthorization().
-            WithOpenApi().
-            ProducesProblem(401);
+            ProducesProblem(StatusCodes.Status400BadRequest).
+            ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
     private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(HttpContext httpContext, IConfiguration configuration)
