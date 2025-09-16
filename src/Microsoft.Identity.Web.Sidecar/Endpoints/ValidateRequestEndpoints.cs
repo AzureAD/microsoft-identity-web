@@ -7,9 +7,12 @@ using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.Identity.Web.Sidecar.Models;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-internal static class ValidateRequestEndpoints
+namespace Microsoft.Identity.Web.Sidecar.Endpoints;
+
+public static class ValidateRequestEndpoints
 {
     public static void AddValidateRequestEndpoints(this WebApplication app)
     {
