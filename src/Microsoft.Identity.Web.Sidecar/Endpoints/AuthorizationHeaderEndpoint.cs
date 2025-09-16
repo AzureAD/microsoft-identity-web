@@ -18,6 +18,7 @@ public static class AuthorizationHeaderEndpoint
     {
         app.MapPost("/AuthorizationHeader/{apiName}", AuthorizationHeaderAsync).
             WithName("Authorization header").
+            AllowAnonymous().
             Accepts<DownstreamApiOptions>(true, MediaTypeNames.Application.Json).
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);
