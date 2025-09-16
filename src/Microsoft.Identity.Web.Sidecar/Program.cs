@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -55,7 +53,7 @@ public class Program
         }
 
         app.AddValidateRequestEndpoints();
-        app.AddDownstreamApiRequestEndpoints();
+        app.AddAuthorizationHeaderRequestEndpoints();
 
         app.Run();
     }
