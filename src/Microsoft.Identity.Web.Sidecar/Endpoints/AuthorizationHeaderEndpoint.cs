@@ -23,7 +23,6 @@ public static class AuthorizationHeaderEndpoint
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
-    [AllowAnonymous]
     private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
