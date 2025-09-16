@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -27,15 +28,26 @@ public class SidecarApiFactory : WebApplicationFactory<Program>
         });
         builder.ConfigureServices(services =>
         {
+            // Given we add the Json file after the initial configuration, and that
+            // downstream APIs are added to a IOptions, we need to re-add the downstream APIs
+            // with the new config
+            IConfiguration? configuration = services!
+            .First(s => s.ServiceType == typeof(IConfiguration))
+            ?.ImplementationFactory
+            ?.Invoke(null!) as IConfiguration;
+
+            services!.AddDownstreamApis(configuration!.GetSection("DownstreamApis"));
         });
     }
 }
 
-public class ValidateEndpointTests : IClassFixture<SidecarApiFactory>
+public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
 {
     private readonly SidecarApiFactory _factory;
 
-    public ValidateEndpointTests(SidecarApiFactory factory) => _factory = factory;
+    public EndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
+    string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
+    string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -64,6 +76,38 @@ public class ValidateEndpointTests : IClassFixture<SidecarApiFactory>
 
         Assert.NotEmpty(content);
     }
+
+    [Fact]
+    public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticated()
+    {
+        string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
+        string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+
+        // Getting a token to call the API.
+        string authorizationHeader = await GetAuthorizationHeaderToCallTheSideCarAsync();
+
+        // Calling the API
+        var client = _factory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
+        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+
+    }
+
+    [Fact]
+    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticated()
+    {
+        // Calling the API
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+
+    }
+
 
     private static async Task<string> GetAuthorizationHeaderToCallTheSideCarAsync()
     {
