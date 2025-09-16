@@ -30,8 +30,8 @@ public static class ValidateRequestEndpoints
         {
             httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
         }
-        var claimsPrincipal = httpContext.User;
-        var token = claimsPrincipal.GetBootstrapToken() as JsonWebToken;
+
+        var token = httpContext.GetTokenUsedToCallWebAPI() as JsonWebToken;
 
         if (token is null)
         {
