@@ -14,15 +14,15 @@ internal static class ValidateRequestEndpoints
     public static void AddValidateRequestEndpoints(this WebApplication app)
     {
         app.MapGet("/Validate", ValidateEndpoint).
-            WithName("Validate Authorization header")
-            .RequireAuthorization()
-            .WithOpenApi()
-            .ProducesProblem(401);
+            WithName("Validate Authorization header").
+            RequireAuthorization().
+            WithOpenApi().
+            ProducesProblem(401);
     }
 
     private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(HttpContext httpContext, IConfiguration configuration)
     {
-        string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? "";
+        string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
         {
             httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
@@ -32,7 +32,7 @@ internal static class ValidateRequestEndpoints
 
         if (token is null)
         {
-            return TypedResults.Problem("No token found", statusCode: 400);
+            return TypedResults.Problem("No token found", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var decodedBody = Base64Url.DecodeFromChars(token.EncodedPayload);
@@ -40,7 +40,7 @@ internal static class ValidateRequestEndpoints
 
         if (jsonDoc is null)
         {
-            return TypedResults.Problem("Failed to decode token claims", statusCode: 400);
+            return TypedResults.Problem("Failed to decode token claims", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var result = new ValidateAuthorizationHeaderResult(

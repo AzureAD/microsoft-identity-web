@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Sidecar;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
