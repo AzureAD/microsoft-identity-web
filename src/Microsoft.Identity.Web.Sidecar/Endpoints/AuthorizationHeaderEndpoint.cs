@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Mime;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ public static class AuthorizationHeaderEndpoint
     {
         app.MapPost("/AuthorizationHeader/{apiName}", AuthorizationHeaderAsync).
             WithName("Authorization header").
+            AllowAnonymous().
             Accepts<DownstreamApiOptions>(true, MediaTypeNames.Application.Json).
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -47,7 +49,7 @@ public static class AuthorizationHeaderEndpoint
         if (options.Scopes is null)
         {
             return TypedResults.Problem(
-                detail: $"No scopes found for the API '{apiName}'. 'scopes' needs to be either a single value or a list of values.",
+                detail: $"No scopes found for the API '{apiName}' or in optionsOverride. 'scopes' needs to be either a single value or a list of values.",
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
@@ -70,6 +72,13 @@ public static class AuthorizationHeaderEndpoint
                 options,
                 httpContext.User,
                 httpContext.RequestAborted);
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            logger.AuthorizationHeaderAsyncError(ex);
+            return TypedResults.Problem(
+                detail: ex.InnerException?.Message ?? ex.Message,
+                statusCode: StatusCodes.Status401Unauthorized);
         }
         catch (Exception ex)
         {

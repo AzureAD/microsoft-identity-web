@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Xunit;
 
@@ -32,11 +33,14 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
         var client = _factory
             .WithWebHostBuilder(builder =>
             {
-                builder.UseSetting($"DownstreamApi:{apiName}:BaseUrl", "https://graph.microsoft.com");
-                builder.UseSetting($"DownstreamApi:{apiName}:Scopes", scope);
                 builder.ConfigureServices(services =>
                 {
                     services.AddSingleton<IAuthorizationHeaderProvider>(mock);
+                    services.Configure<DownstreamApiOptions>(apiName, options =>
+                    {
+                        options.BaseUrl = "https://graph.microsoft.com";
+                        options.Scopes = new[] { scope };
+                    });
                 });
             })
             .CreateClient();
@@ -58,7 +62,7 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
         }
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = JsonSerializer.Deserialize<AuthorizationHeaderResult>(content);
+        var result = JsonSerializer.Deserialize<AuthorizationHeaderResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
         Assert.NotNull(result);
         Assert.Equal(expectedAuthHeader, result.AuthorizationHeader);
     }
