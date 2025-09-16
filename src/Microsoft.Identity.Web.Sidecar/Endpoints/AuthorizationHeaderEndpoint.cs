@@ -1,36 +1,36 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
-public static class DownstreamApiRequestEndpoints
+public static class AuthorizationHeaderEndpoint
 {
-    public static void AddDownstreamApiRequestEndpoints(this WebApplication app)
+    public static void AddAuthorizationHeaderRequestEndpoints(this WebApplication app)
     {
         app.MapPost("/AuthorizationHeader/{apiName}", AuthorizationHeaderAsync).
             WithName("Authorization header").
-            RequireAuthorization().
-            WithOpenApi().
-            ProducesProblem(401);
+            Accepts<DownstreamApiOptions>(true, MediaTypeNames.Application.Json).
+            ProducesProblem(StatusCodes.Status400BadRequest).
+            ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
     [AllowAnonymous]
     private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
-        [FromQuery] string? agentIdentity,
-        [FromQuery] string? agentUsername,
-        [FromQuery] string? tenant,
-        [FromBody] DownstreamApiOptions? optionsOverride,
+        [AsParameters] AuthorizationHeaderRequest requestParameters,
         [FromServices] IAuthorizationHeaderProvider headerProvider,
-        [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor)
+        [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+        [FromServices] ILogger<Program> logger)
     {
         DownstreamApiOptions? options = optionsMonitor.Get(apiName);
 
@@ -41,106 +41,53 @@ public static class DownstreamApiRequestEndpoints
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        if (optionsOverride is not null)
+        if (requestParameters.OptionsOverride is not null)
         {
-            options = MergeDownstreamApiOptionsOverrides(options, optionsOverride);
+            options = DownstreamApiOptionsMerger.MergeOptions(options, requestParameters.OptionsOverride);
         }
 
         if (options.Scopes is null)
         {
             return TypedResults.Problem(
-                detail: $"No scopes found for the API '{apiName}' or in optionsOverride. 'scopes' needs to be either a single ",
+                detail: $"No scopes found for the API '{apiName}' or in optionsOverride. 'scopes' needs to be either a single value or a list of values.",
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        if (!string.IsNullOrEmpty(agentIdentity) && !string.IsNullOrEmpty(agentUsername))
+        // To override the tenant use DownstreamAPI.AcquireTokenOptions.Tenant
+        if (!string.IsNullOrEmpty(requestParameters.AgentIdentity) && !string.IsNullOrEmpty(requestParameters.AgentUsername))
         {
-            options.WithAgentUserIdentity(agentIdentity, agentUsername);
+            options.WithAgentUserIdentity(requestParameters.AgentIdentity, requestParameters.AgentUsername);
         }
-        else if (!string.IsNullOrEmpty(agentIdentity))
+        else if (!string.IsNullOrEmpty(requestParameters.AgentIdentity))
         {
-            options.WithAgentIdentity(agentIdentity);
+            options.WithAgentIdentity(requestParameters.AgentIdentity);
         }
 
-        if (!string.IsNullOrEmpty(tenant))
-        {
-            options.AcquireTokenOptions.Tenant = tenant;
-        }
+        string authorizationHeader;
 
         try
         {
-            var result = await headerProvider.CreateAuthorizationHeaderAsync(
+            authorizationHeader = await headerProvider.CreateAuthorizationHeaderAsync(
                 options.Scopes,
                 options,
                 httpContext.User,
                 httpContext.RequestAborted);
-
-            return TypedResults.Ok(new AuthorizationHeaderResult(result));
         }
-        catch(MicrosoftIdentityWebChallengeUserException ex)
+        catch (MicrosoftIdentityWebChallengeUserException ex)
         {
+            logger.AuthorizationHeaderAsyncError(ex);
             return TypedResults.Problem(
                 detail: ex.InnerException?.Message ?? ex.Message,
                 statusCode: StatusCodes.Status401Unauthorized);
         }
-    }
-
-    public static DownstreamApiOptions MergeDownstreamApiOptionsOverrides(DownstreamApiOptions left, DownstreamApiOptions right)
-    {
-        var res = left.Clone();
-
-        if (right is null)
+        catch (Exception ex)
         {
-            return res;
+            logger.AuthorizationHeaderAsyncError(ex);
+            return TypedResults.Problem(
+                detail: "An unexpected error occurred.",
+                statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        if (right.Scopes is not null && right.Scopes.Any())
-        {
-            res.Scopes = right.Scopes;
-        }
-
-        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.Tenant))
-        {
-            res.AcquireTokenOptions.Tenant = right.AcquireTokenOptions.Tenant;
-        }
-
-        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.Claims))
-        {
-            res.AcquireTokenOptions.Claims = right.AcquireTokenOptions.Claims;
-        }
-
-        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.AuthenticationOptionsName))
-        {
-            res.AcquireTokenOptions.AuthenticationOptionsName = right.AcquireTokenOptions.AuthenticationOptionsName;
-        }
-
-        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.FmiPath))
-        {
-            res.AcquireTokenOptions.FmiPath = right.AcquireTokenOptions.FmiPath;
-        }
-
-        if (!string.IsNullOrEmpty(right.RelativePath))
-        {
-            res.RelativePath = right.RelativePath;
-        }
-
-        res.AcquireTokenOptions.ForceRefresh = right.AcquireTokenOptions.ForceRefresh;
-
-        if (right.AcquireTokenOptions.ExtraParameters is not null)
-        {
-            if (res.AcquireTokenOptions.ExtraParameters is null)
-            {
-                res.AcquireTokenOptions.ExtraParameters = new Dictionary<string, object>();
-            }
-            foreach (var extraParameter in right.AcquireTokenOptions.ExtraParameters)
-            {
-                if (!res.AcquireTokenOptions.ExtraParameters.ContainsKey(extraParameter.Key))
-                {
-                    res.AcquireTokenOptions.ExtraParameters.Add(extraParameter.Key, extraParameter.Value);
-                }
-            }
-        }
-
-        return res;
+        return TypedResults.Ok(new AuthorizationHeaderResult(authorizationHeader));
     }
 }
