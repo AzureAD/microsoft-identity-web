@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Sidecar.Models;
 
@@ -19,6 +21,7 @@ public static class DownstreamApiRequestEndpoints
             ProducesProblem(401);
     }
 
+    [AllowAnonymous]
     private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
@@ -27,9 +30,9 @@ public static class DownstreamApiRequestEndpoints
         [FromQuery] string? tenant,
         [FromBody] DownstreamApiOptions? optionsOverride,
         [FromServices] IAuthorizationHeaderProvider headerProvider,
-        [FromServices] IConfiguration configuration)
+        [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor)
     {
-        DownstreamApiOptions? options = configuration.GetSection($"DownstreamApi:{apiName}").Get<DownstreamApiOptions>();
+        DownstreamApiOptions? options = optionsMonitor.Get(apiName);
 
         if (options is null)
         {
