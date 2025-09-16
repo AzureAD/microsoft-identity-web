@@ -23,8 +23,10 @@ internal static class ValidateRequestEndpoints
     private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(HttpContext httpContext, IConfiguration configuration)
     {
         string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? "";
-        httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
+        if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
+        {
+            httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+        }
         var claimsPrincipal = httpContext.User;
         var token = claimsPrincipal.GetBootstrapToken() as JsonWebToken;
 

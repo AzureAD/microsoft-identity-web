@@ -10,6 +10,15 @@
 
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="appsettings.agentids.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.agentids.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
