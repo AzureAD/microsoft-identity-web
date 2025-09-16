@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
@@ -21,26 +22,21 @@ public class Program
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
+        // Add the agent identities and downstream APIs
+        builder.Services.AddAgentIdentities()
+               .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
+
         builder.Services.AddHealthChecks();
 
+        // Disable claims mapping.
+        JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+        JsonWebTokenHandler.DefaultMapInboundClaims = false;
         builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme,
             options =>
             {
-                options.Events ??= new();
-                options.Events.OnTokenValidated = context =>
-                {
-                    Debug.Assert(context.SecurityToken is JsonWebToken, "Token should always be JsonWebToken");
-                    var token = (JsonWebToken)context.SecurityToken;
-
-                    if (context.Principal?.Identities.FirstOrDefault() is null)
-                    {
-                        context.Fail("No principal or no identity");
-                        return Task.FromResult(context);
-                    }
-
-                    context.Principal.Identities.First().BootstrapContext = token.InnerToken is not null ? token.InnerToken : token;
-                    return Task.FromResult(context);
-                };
+                // Enable the right role claim type.
+                options.TokenValidationParameters.RoleClaimType = "roles";
+                options.TokenValidationParameters.NameClaimType = "sub";
             });
 
         builder.Services.AddAuthorization();
