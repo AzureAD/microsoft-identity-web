@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-Microsoft.Identity.Web.Sidecar-79d2a631-277f-4ef1-9253-4477001378e8</UserSecretsId>
+    <OpenApiDocumentsDirectory>OpenAPI</OpenApiDocumentsDirectory>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
