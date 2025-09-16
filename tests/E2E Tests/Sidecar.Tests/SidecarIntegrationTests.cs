@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Net;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ObjectPool;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Xunit;
 
@@ -33,16 +36,20 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public async Task AuthorizationEndpoint_ExistsAndRequiresAuth()
+    public async Task AuthorizationEndpoint_ExistsButDoesNotRequiresAuth()
     {
         // Arrange
         var client = _factory.CreateClient();
 
         // Act
-        var response = await client.PostAsync("/AuthorizationHeader/test", null);
+        // The API does not exist (which is fine) but Scopes are not provided in the
+        // override
+        var response = await client.PostAsync("/AuthorizationHeader/test", JsonContent.Create(new DownstreamApiOptions{ Scopes = ["scopes"] }));
 
         // Assert
+        string content = await response.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Contains("No account", content, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
