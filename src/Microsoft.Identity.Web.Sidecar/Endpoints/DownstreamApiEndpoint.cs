@@ -69,11 +69,11 @@ public static class DownstreamApiEndpoint
 
         HttpContent? content = null;
 
-        if (httpContext.Request.HasJsonContentType())
+        if (!string.IsNullOrWhiteSpace(httpContext.Request.ContentType))
         {
             using var reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8);
             string body = await reader.ReadToEndAsync(cancellationToken);
-            content = new StringContent(body, Encoding.UTF8, MediaTypeNames.Application.Json);
+            content = new StringContent(body, Encoding.UTF8, httpContext.Request.ContentType);
         }
 
         HttpResponseMessage downstreamResult;
