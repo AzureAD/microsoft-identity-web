@@ -1,5 +1,7 @@
 @Microsoft.Identity.Web.Sidecar_HostAddress = http://localhost:5178
 
+@AccessToken = token_here
+
 GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/openapi/v1.json
 Accept: application/json
 
@@ -28,3 +30,9 @@ Authorization: Bearer {{AccessToken}}
         "Tenant" : "f645ad92-e38d-4d1a-b510-d1b09a74a8ca"
     }
 }
+
+###
+
+POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/DownstreamApi/me
+Accept: application/json
+Authorization: Bearer {{AccessToken}}

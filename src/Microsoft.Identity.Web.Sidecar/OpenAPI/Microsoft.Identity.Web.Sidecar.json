@@ -117,6 +117,69 @@
           }
         }
       }
+    },
+    "/DownstreamApi/{apiName}": {
+      "post": {
+        "tags": [
+          "DownstreamApiEndpoint"
+        ],
+        "operationId": "Downstream Api",
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentIdentity",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUsername",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DownstreamApiOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -335,6 +398,9 @@
     },
     {
       "name": "AuthorizationHeaderEndpoint"
+    },
+    {
+      "name": "DownstreamApiEndpoint"
     }
   ]
 }
