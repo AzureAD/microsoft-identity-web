@@ -4,9 +4,11 @@
 namespace Microsoft.Identity.Web.Sidecar.Models;
 
 /// <summary>
-/// The result of requesting an authorization header.
+/// The result of calling a downstream api.
 /// </summary>
-/// <param name="AuthorizationHeader">The authorization header.</param>
+/// <param name="StatusCode">The status code of the response.</param>
+/// <param name="Headers">The headers of the response.</param>
+/// <param name="Content">Optional. The content of the response.</param>
 public record DownstreamApiResult(
     int StatusCode,
     Dictionary<string, IEnumerable<string>> Headers,
