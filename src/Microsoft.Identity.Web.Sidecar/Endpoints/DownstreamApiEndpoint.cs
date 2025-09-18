@@ -27,7 +27,7 @@ public static class DownstreamApiEndpoint
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
-    private static async Task<Results<ContentHttpResult, StatusCodeHttpResult, ProblemHttpResult>> DownstreamApiAsync(
+    private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
         [AsParameters] AuthorizationHeaderRequest requestParameters,
@@ -101,22 +101,18 @@ public static class DownstreamApiEndpoint
                 statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        // Set headers if needed
-        foreach (var header in downstreamResult.Content.Headers)
-        {
-            httpContext.Response.Headers[header.Key] = string.Join(", ", header.Value);
-        }
+        string? responseContent = null;
 
         if (downstreamResult.Content.Headers.ContentLength > 0)
         {
-            var downstreamContent = await downstreamResult.Content.ReadAsStringAsync(cancellationToken);
-
-            return TypedResults.Content(
-                downstreamContent,
-                contentType: downstreamResult.Content.Headers.ContentType?.ToString(),
-                statusCode: (int)downstreamResult.StatusCode);
+            responseContent = await downstreamResult.Content.ReadAsStringAsync(cancellationToken);
         }
 
-        return TypedResults.StatusCode((int)downstreamResult.StatusCode);
+        var result = new DownstreamApiResult(
+            (int)downstreamResult.StatusCode,
+            new Dictionary<string, IEnumerable<string>>(downstreamResult.Content.Headers),
+            responseContent);
+
+        return TypedResults.Ok(result);
     }
 }

@@ -158,6 +158,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownstreamApiResult"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -326,6 +336,33 @@
           }
         },
         "nullable": true
+      },
+      "DownstreamApiResult": {
+        "required": [
+          "statusCode",
+          "headers",
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "FuncOfHttpContentAndObject": {
         "nullable": true
