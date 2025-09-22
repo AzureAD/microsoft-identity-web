@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Net.Http;
 using System.Net.Mime;
-using Microsoft.AspNetCore.Authorization;
+using System.Text;
+using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -12,23 +15,23 @@ using Microsoft.Identity.Web.Sidecar.Models;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
-public static class AuthorizationHeaderEndpoint
+public static class DownstreamApiEndpoint
 {
-    public static void AddAuthorizationHeaderRequestEndpoints(this WebApplication app)
+    public static void AddDownstreamApiRequestEndpoints(this WebApplication app)
     {
-        app.MapPost("/AuthorizationHeader/{apiName}", AuthorizationHeaderAsync).
-            WithName("Authorization header").
-            AllowAnonymous().
+        app.MapPost("/DownstreamApi/{apiName}", DownstreamApiAsync).
+            WithName("Downstream Api").
+            RequireAuthorization().
             Accepts<DownstreamApiOptions>(true, MediaTypeNames.Application.Json).
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
-    private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
+    private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
         [AsParameters] AuthorizationHeaderRequest requestParameters,
-        [FromServices] IAuthorizationHeaderProvider headerProvider,
+        [FromServices] IDownstreamApi downstreamApi,
         [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
         [FromServices] ILogger<Program> logger,
         CancellationToken cancellationToken)
@@ -64,14 +67,23 @@ public static class AuthorizationHeaderEndpoint
             options.WithAgentIdentity(requestParameters.AgentIdentity);
         }
 
-        string authorizationHeader;
+        HttpContent? content = null;
+
+        if (!string.IsNullOrWhiteSpace(httpContext.Request.ContentType))
+        {
+            using var reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8);
+            string body = await reader.ReadToEndAsync(cancellationToken);
+            content = new StringContent(body, Encoding.UTF8, httpContext.Request.ContentType);
+        }
+
+        HttpResponseMessage downstreamResult;
 
         try
         {
-            authorizationHeader = await headerProvider.CreateAuthorizationHeaderAsync(
-                options.Scopes,
+            downstreamResult = await downstreamApi.CallApiAsync(
                 options,
                 httpContext.User,
+                content,
                 cancellationToken);
         }
         catch (MicrosoftIdentityWebChallengeUserException ex)
@@ -89,6 +101,18 @@ public static class AuthorizationHeaderEndpoint
                 statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        return TypedResults.Ok(new AuthorizationHeaderResult(authorizationHeader));
+        string? responseContent = null;
+
+        if (downstreamResult.Content.Headers.ContentLength > 0)
+        {
+            responseContent = await downstreamResult.Content.ReadAsStringAsync(cancellationToken);
+        }
+
+        var result = new DownstreamApiResult(
+            (int)downstreamResult.StatusCode,
+            new Dictionary<string, IEnumerable<string>>(downstreamResult.Content.Headers),
+            responseContent);
+
+        return TypedResults.Ok(result);
     }
 }

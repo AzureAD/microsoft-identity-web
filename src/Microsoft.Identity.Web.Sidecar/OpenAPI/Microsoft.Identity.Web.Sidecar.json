@@ -117,6 +117,79 @@
           }
         }
       }
+    },
+    "/DownstreamApi/{apiName}": {
+      "post": {
+        "tags": [
+          "DownstreamApiEndpoint"
+        ],
+        "operationId": "Downstream Api",
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentIdentity",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUsername",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DownstreamApiOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownstreamApiResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -264,6 +337,33 @@
         },
         "nullable": true
       },
+      "DownstreamApiResult": {
+        "required": [
+          "statusCode",
+          "headers",
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "FuncOfHttpContentAndObject": {
         "nullable": true
       },
@@ -335,6 +435,9 @@
     },
     {
       "name": "AuthorizationHeaderEndpoint"
+    },
+    {
+      "name": "DownstreamApiEndpoint"
     }
   ]
 }
