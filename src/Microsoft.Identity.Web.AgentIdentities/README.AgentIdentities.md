@@ -8,13 +8,13 @@ This package is part of the [Microsoft.Identity.Web](https://github.com/AzureAD/
 
 ## Key Concepts
 
-### Agent Applications
+### Agent identity blueprint
 
-An agent application has a special application registration in Microsoft Entra ID that has permissions to act on behalf of Agent identities or Agent User identities, through Federated Identity Credentials (FIC). It's represented by its application ID (Agent Application Client ID). The agent application is configured with credentials (typically FIC+MSI or client certificates) and permissions to acquire tokens for itself to call graph. This is the app that you develop. It's a confidential client application, usually a web API. The only permissions it can have are maintain (create / delete) Agent Identities (using the Microsoft Graph)
+An agent identity blueprint has a special application registration in Microsoft Entra ID that has permissions to act on behalf of Agent identities or Agent User identities. It's represented by its application ID (Agent identity blueprint Client ID). The agent identity blueprint is configured with credentials (typically FIC+MSI or client certificates) and permissions to acquire tokens for itself to call graph. This is the app that you develop. It's a confidential client application, usually a web API. The only permissions it can have are maintain (create / delete) Agent Identities (using the Microsoft Graph)
 
 ### Agent Identity
 
-An agent identity is a special service principal in Microsoft Entra ID. It represents an identity that the agent application created and is authorized to impersonate. It doesn't have credentials on its own. The agent application can acquire tokens on behalf of the agent identity provided the user or tenant admin consented for the agent identity to the corresponding scopes. Autonomous agents acquire app tokens on behalf of the agent identity. Interactive agents called with a user token acquire user tokens on behalf of the agent identity.
+An agent identity is a special service principal in Microsoft Entra ID. It represents an identity that the agent identity blueprint created and is authorized to impersonate. It doesn't have credentials on its own. The agent identity blueprint can acquire tokens on behalf of the agent identity provided the user or tenant admin consented for the agent identity to the corresponding scopes. Autonomous agents acquire app tokens on behalf of the agent identity. Interactive agents called with a user token acquire user tokens on behalf of the agent identity.
 
 ### Agent User Identity
 
@@ -42,7 +42,7 @@ services.AddTokenAcquisition();
 services.AddInMemoryTokenCaches();
 services.AddHttpClient();
 
-// Add Microsoft Graph integration if needed. 
+// Add Microsoft Graph integration if needed.
 // Requires the Microsoft.Identity.Web.GraphServiceClient package
 services.AddMicrosoftGraph();
 
@@ -50,9 +50,9 @@ services.AddMicrosoftGraph();
 services.AddAgentIdentities();
 ```
 
-### 2. Configure the Agent Application
+### 2. Configure the Agent identity blueprint
 
-Configure your application with the necessary credentials using appsettings.json:
+Configure your agent identity blueprint application with the necessary credentials using appsettings.json:
 
 ```json
 {
@@ -60,14 +60,14 @@ Configure your application with the necessary credentials using appsettings.json
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
     "ClientId": "agent-application-client-id",
-    
+
     "ClientCredentials": [
       {
         "SourceType": "StoreWithDistinguishedName",
         "CertificateStorePath": "LocalMachine/My",
         "CertificateDistinguishedName": "CN=YourCertificateName"
       }
-    
+
       // Or for Federation Identity Credential with Managed Identity:
       // {
       //   "SourceType": "SignedAssertionFromManagedIdentity",
@@ -86,8 +86,8 @@ services.Configure<MicrosoftIdentityApplicationOptions>(
     options =>
     {
         options.Instance = "https://login.microsoftonline.com/";
-        options.TenantId = "your-tenant-id"; 
-        options.ClientId = "agent-application-client-id"; 
+        options.TenantId = "your-tenant-id";
+        options.ClientId = "agent-application-client-id";
         options.ClientCredentials = [
             CertificateDescription.FromStoreWithDistinguishedName(
                 "CN=YourCertificateName", StoreLocation.LocalMachine, StoreName.My)
@@ -97,7 +97,9 @@ services.Configure<MicrosoftIdentityApplicationOptions>(
 
 See https://aka.ms/ms-id-web/credential-description for all the ways to express credentials.
 
-On ASP.NET Core, use the override of services.Configure taking an authentication shceme.
+On ASP.NET Core, use the override of services.Configure taking an authentication scheeme. Youy can also
+use Microsoft.Identity.Web.Owin if you have an ASP.NET Core application on OWIN (not recommended for new
+apps), or even create a daemon application.
 
 ### 3. Use Agent Identities
 
@@ -105,11 +107,11 @@ On ASP.NET Core, use the override of services.Configure taking an authentication
 
 ##### Autonomous agent
 
-For your autonomous agent application to acquire **app** tokens for an agent identity:
+For your autonomous agent application to acquire **app-only** tokens for an agent identity:
 
 ```csharp
 // Get the required services from the DI container
-IAuthorizationHeaderProvider authorizationHeaderProvider = 
+IAuthorizationHeaderProvider authorizationHeaderProvider =
     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
 // Configure options for the agent identity
@@ -131,7 +133,7 @@ For your interactive agent application to acquire **user** tokens for an agent i
 
 ```csharp
 // Get the required services from the DI container
-IAuthorizationHeaderProvider authorizationHeaderProvider = 
+IAuthorizationHeaderProvider authorizationHeaderProvider =
     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
 // Configure options for the agent identity
@@ -153,7 +155,7 @@ For your agent application to acquire tokens on behalf of a agent user identity:
 
 ```csharp
 // Get the required services
-IAuthorizationHeaderProvider authorizationHeaderProvider = 
+IAuthorizationHeaderProvider authorizationHeaderProvider =
     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
 // Configure options for the agent user identity
@@ -178,6 +180,20 @@ string authHeader = await authorizationHeaderProvider
 
 ### 4. Microsoft Graph Integration
 
+Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
+
+```bash
+dotnet add package Microsoft.Identity.Web.AgentIdentities
+```
+
+Add the support for Microsoft Graph in your service collection.
+
+```bash
+services.AddMicrosoftGraph();
+```
+
+You can now get a GraphServiceClient from the service provider
+
 #### Using Agent Identity with Microsoft Graph:
 
 ```csharp
@@ -201,7 +217,7 @@ GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<Graph
 
 // Call Microsoft Graph APIs with the agent user identity
 var me = await graphServiceClient.Me
-    .GetAsync(r => r.Options.WithAuthenticationOptions(options => 
+    .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
         options.WithAgentUserIdentity(agentIdentity, userUpn)));
 ```
 
@@ -209,20 +225,73 @@ var me = await graphServiceClient.Me
 
 To call other APIs using the IDownstreamApi abstraction:
 
+1. Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
+
+```bash
+dotnet add package Microsoft.Identity.Web.DownstreamApi
+```
+
+2. Add a "DownstreamApis" section in your configuration, expliciting the parameters for your downstream API:
+
+```json
+"AzureAd":{
+    // usual config
+},
+"DownstreamApis":{
+   "MyApi":
+   {
+    "BaseUrl": "https://myapi.domain.com",
+    "Scopes": [ "https://myapi.domain.com/read", "https://myapi.domain.com/write" ]
+   }
+}
+```
+
+3. Add the support for Downstream apis in your service collection.
+
+```bash
+services.AddDownstreamApis(Configuration.GetSection("DownstreamApis"));
+```
+
+You can now access an `IDownstreamApi` service in the service provider, and call the "MyApi" API using
+any Http verb
+
+
 ```csharp
 // Get the IDownstreamApi service
 IDownstreamApi downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();
 
 // Call API with agent identity
 var response = await downstreamApi.GetForAppAsync<string>(
-    "MyApi", 
+    "MyApi",
     options => options.WithAgentIdentity(agentIdentity));
 
 // Call API with agent user identity
 var userResponse = await downstreamApi.GetForUserAsync<string>(
-    "MyApi", 
+    "MyApi",
     options => options.WithAgentUserIdentity(agentIdentity, userUpn));
 ```
+
+
+### 6. Azure SDKs integration
+
+To call Azure SDKs, use the MicrosoftIdentityAzureCredential class from the Microsoft.Identity.Web.Azure NuGet package.
+
+Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
+
+```bash
+dotnet dotnet add package Microsoft.Identity.Web.Azure
+```
+
+Add the support for Microsoft Graph in your service collection.
+
+```bash
+services.AddMicrosoftIdentityAzureTokenCredential();
+```
+
+You can now get a `MicrosoftIdentityTokenCredential` from the service provider. This class has a member Options to which you can apply the
+`.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
+
+See [Readme-azure](../../README-Azure.md)
 
 ## Prerequisites
 
