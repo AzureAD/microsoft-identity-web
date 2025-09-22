@@ -64,6 +64,16 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Constructor with both custom signed assertion providers and custom credential source loaders.
+        /// </summary>
+        /// <param name="customSignedAssertionProviders">List of providers of custom signed assertions</param>
+        /// <param name="logger">ILogger.</param>
+        /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
+        public DefaultCertificateLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCertificateLoader>? logger, IEnumerable<ICredentialSourceLoader>? credentialSourceLoaders) : base(customSignedAssertionProviders, logger, credentialSourceLoaders)
+        {
+        }
+
+        /// <summary>
         ///  This default is overridable at the level of the credential description (for the certificate from KeyVault).
         /// </summary>
         public static string? UserAssignedManagedIdentityClientId

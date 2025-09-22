@@ -240,6 +240,43 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal("custom-certificate", customLoader.TestValue);
         }
 
+        [Fact]
+        public void TestConstructorWithBothCustomSignedAssertionProvidersAndCredentialSourceLoaders()
+        {
+            // Arrange
+            var customSignedAssertionProviders = new List<ICustomSignedAssertionProvider>
+            {
+                new MockCustomSignedAssertionProvider("test-provider")
+            };
+            var customLoaders = new List<ICredentialSourceLoader>
+            {
+                new MockCredentialSourceLoader(CredentialSource.Path, "combined-test")
+            };
+
+            // Act - Test DefaultCredentialsLoader comprehensive constructor
+            var credentialsLoader = new DefaultCredentialsLoader(customSignedAssertionProviders, null, customLoaders);
+
+            // Assert
+            Assert.NotNull(credentialsLoader.CredentialSourceLoaders);
+            Assert.NotNull(credentialsLoader.CustomSignedAssertionCredentialSourceLoaders);
+            
+            // Verify custom credential source loader is present
+            Assert.True(credentialsLoader.CredentialSourceLoaders.ContainsKey(CredentialSource.Path));
+            var customLoader = credentialsLoader.CredentialSourceLoaders[CredentialSource.Path] as MockCredentialSourceLoader;
+            Assert.NotNull(customLoader);
+            Assert.Equal("combined-test", customLoader.TestValue);
+
+            // Verify custom signed assertion provider is present
+            Assert.True(credentialsLoader.CustomSignedAssertionCredentialSourceLoaders.ContainsKey("test-provider"));
+
+            // Act - Test DefaultCertificateLoader comprehensive constructor
+            var certificateLoader = new DefaultCertificateLoader(customSignedAssertionProviders, null, customLoaders);
+
+            // Assert
+            Assert.NotNull(certificateLoader.CredentialSourceLoaders);
+            Assert.NotNull(certificateLoader.CustomSignedAssertionCredentialSourceLoaders);
+        }
+
         /// <summary>
         /// Mock credential source loader for testing
         /// </summary>
@@ -258,6 +295,26 @@ namespace Microsoft.Identity.Web.Test.Certificates
             {
                 // Mock implementation - just mark that this loader was used
                 credentialDescription.CachedValue = TestValue;
+                return Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// Mock custom signed assertion provider for testing
+        /// </summary>
+        internal class MockCustomSignedAssertionProvider : ICustomSignedAssertionProvider
+        {
+            public CredentialSource CredentialSource => CredentialSource.CustomSignedAssertion;
+            public string Name { get; }
+
+            public MockCustomSignedAssertionProvider(string name)
+            {
+                Name = name;
+            }
+
+            public Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
+            {
+                credentialDescription.CachedValue = $"mock-assertion-{Name}";
                 return Task.CompletedTask;
             }
         }

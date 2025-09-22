@@ -38,6 +38,32 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Constructor for DefaultCredentialsLoader with both custom signed assertion providers and custom credential source loaders.
+        /// </summary>
+        /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
+        /// <param name="logger">ILogger.</param>
+        /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
+        public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICredentialSourceLoader>? credentialSourceLoaders) : this(logger, credentialSourceLoaders)
+        {
+            _ = Throws.IfNull(customSignedAssertionProviders);
+            var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
+
+            foreach (ICustomSignedAssertionProvider provider in customSignedAssertionProviders)
+            {
+                string providerName = provider.Name ?? provider.GetType().FullName!;
+                if (sourceLoaderDict.ContainsKey(providerName))
+                {
+                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, providerName);
+                }
+                else
+                {
+                    sourceLoaderDict.Add(providerName, provider);
+                }
+            }
+            CustomSignedAssertionCredentialSourceLoaders = sourceLoaderDict;
+        }
+
+        /// <summary>
         /// Dictionary of custom signed assertion credential source loaders, by name (either ICustomSignedAssertionProvider.Name or the fully qualified type name).
         /// The application can add more to process additional credential sources.
         /// </summary>
