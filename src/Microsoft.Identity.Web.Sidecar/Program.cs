@@ -17,7 +17,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"))
+            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
@@ -55,6 +55,7 @@ public class Program
 
         app.AddValidateRequestEndpoints();
         app.AddAuthorizationHeaderRequestEndpoints();
+        app.AddDownstreamApiRequestEndpoints();
 
         app.Run();
     }
