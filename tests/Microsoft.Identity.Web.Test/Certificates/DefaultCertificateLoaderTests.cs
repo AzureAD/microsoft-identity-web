@@ -4,6 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
 
@@ -109,6 +112,105 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             Assert.NotNull(certificateDescription.Certificate);
             Assert.True(certificateDescription.Certificate.HasPrivateKey);
+        }
+
+        [Fact]
+        public void TestDefaultCredentialsLoaderWithCustomLoaders()
+        {
+            // Arrange
+            var customLoaders = new List<ICredentialSourceLoader>
+            {
+                new MockCredentialSourceLoader(CredentialSource.Base64Encoded, "custom-mock")
+            };
+
+            // Act
+            var loader = new DefaultCredentialsLoader(null, customLoaders);
+
+            // Assert
+            Assert.NotNull(loader.CredentialSourceLoaders);
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Base64Encoded));
+            
+            // Verify the custom loader overrode the built-in one
+            var customLoader = loader.CredentialSourceLoaders[CredentialSource.Base64Encoded] as MockCredentialSourceLoader;
+            Assert.NotNull(customLoader);
+            Assert.Equal("custom-mock", customLoader.TestValue);
+        }
+
+        [Fact]
+        public void TestDefaultCertificateLoaderWithCustomLoaders()
+        {
+            // Arrange
+            var customLoaders = new List<ICredentialSourceLoader>
+            {
+                new MockCredentialSourceLoader(CredentialSource.Path, "certificate-mock")
+            };
+
+            // Act
+            var loader = new DefaultCertificateLoader(null, customLoaders);
+
+            // Assert
+            Assert.NotNull(loader.CredentialSourceLoaders);
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Path));
+            
+            // Verify the custom loader overrode the built-in one
+            var customLoader = loader.CredentialSourceLoaders[CredentialSource.Path] as MockCredentialSourceLoader;
+            Assert.NotNull(customLoader);
+            Assert.Equal("certificate-mock", customLoader.TestValue);
+        }
+
+        [Fact]
+        public async Task TestCustomLoaderIsUsed()
+        {
+            // Arrange
+            var customLoaders = new List<ICredentialSourceLoader>
+            {
+                new MockCredentialSourceLoader(CredentialSource.StoreWithThumbprint, "used-custom-loader")
+            };
+            var loader = new DefaultCredentialsLoader(null, customLoaders);
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint
+            };
+
+            // Act
+            await loader.LoadCredentialsIfNeededAsync(credentialDescription);
+
+            // Assert
+            Assert.Equal("used-custom-loader", credentialDescription.CachedValue);
+        }
+
+        [Fact]
+        public void TestConstructorWithNullCustomLoaders()
+        {
+            // Arrange & Act
+            var loader = new DefaultCredentialsLoader(null, null);
+
+            // Assert - should still have built-in loaders
+            Assert.NotNull(loader.CredentialSourceLoaders);
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.KeyVault));
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Base64Encoded));
+        }
+
+        /// <summary>
+        /// Mock credential source loader for testing
+        /// </summary>
+        internal class MockCredentialSourceLoader : ICredentialSourceLoader
+        {
+            public CredentialSource CredentialSource { get; }
+            public string TestValue { get; }
+
+            public MockCredentialSourceLoader(CredentialSource credentialSource, string testValue = "mock")
+            {
+                CredentialSource = credentialSource;
+                TestValue = testValue;
+            }
+
+            public Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
+            {
+                // Mock implementation - just mark that this loader was used
+                credentialDescription.CachedValue = TestValue;
+                return Task.CompletedTask;
+            }
         }
     }
 }

@@ -53,6 +53,17 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Constructor with a logger and custom credential source loaders.
+        /// </summary>
+        /// <param name="logger">Logger instance</param>
+        /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
+        public DefaultCertificateLoader(
+            ILogger<DefaultCertificateLoader>? logger,
+            IEnumerable<ICredentialSourceLoader>? credentialSourceLoaders) : base(logger, credentialSourceLoaders)
+        {
+        }
+
+        /// <summary>
         ///  This default is overridable at the level of the credential description (for the certificate from KeyVault).
         /// </summary>
         public static string? UserAssignedManagedIdentityClientId
