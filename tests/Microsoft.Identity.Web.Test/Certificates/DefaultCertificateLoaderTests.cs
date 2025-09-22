@@ -191,6 +191,55 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Base64Encoded));
         }
 
+        [Fact]
+        public void TestBackwardCompatibilityExistingConstructors()
+        {
+            // Test that existing constructors still work
+            var loader1 = new DefaultCredentialsLoader();
+            var loader2 = new DefaultCredentialsLoader(null);
+            var loader3 = new DefaultCertificateLoader();
+            var loader4 = new DefaultCertificateLoader(null);
+
+            // All should have built-in loaders
+            Assert.NotNull(loader1.CredentialSourceLoaders);
+            Assert.NotNull(loader2.CredentialSourceLoaders);
+            Assert.NotNull(loader3.CredentialSourceLoaders);
+            Assert.NotNull(loader4.CredentialSourceLoaders);
+
+            Assert.True(loader1.CredentialSourceLoaders.Count >= 7); // Should have at least 7 built-in loaders
+            Assert.True(loader2.CredentialSourceLoaders.Count >= 7);
+            Assert.True(loader3.CredentialSourceLoaders.Count >= 7);
+            Assert.True(loader4.CredentialSourceLoaders.Count >= 7);
+        }
+
+        [Fact]
+        public void TestCustomLoaderWithNonConflictingCredentialSources()
+        {
+            // Arrange - Use a custom loader that doesn't override any built-in loader
+            var customLoaders = new List<ICredentialSourceLoader>
+            {
+                new MockCredentialSourceLoader(CredentialSource.Certificate, "custom-certificate")
+            };
+
+            // Act
+            var loader = new DefaultCredentialsLoader(null, customLoaders);
+
+            // Assert - should have all built-in loaders plus the custom one
+            Assert.NotNull(loader.CredentialSourceLoaders);
+            Assert.True(loader.CredentialSourceLoaders.Count >= 8); // 7 built-in + 1 custom
+
+            // Verify built-in loaders are still present
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.KeyVault));
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Base64Encoded));
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Path));
+
+            // Verify custom loader is added
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Certificate));
+            var customLoader = loader.CredentialSourceLoaders[CredentialSource.Certificate] as MockCredentialSourceLoader;
+            Assert.NotNull(customLoader);
+            Assert.Equal("custom-certificate", customLoader.TestValue);
+        }
+
         /// <summary>
         /// Mock credential source loader for testing
         /// </summary>
