@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Certificates
@@ -59,6 +63,30 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
+        public async Task TextExtensibilityE2E()
+        {
+            ServiceCollection services = new ServiceCollection();
+            services.AddTokenAcquisition();
+            services.AddHttpClient();
+            services.AddInMemoryTokenCaches();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<ICredentialSourceLoader>(new DefaultCertificateLoaderTests.MockCredentialSourceLoader(CredentialSource.ManagedCertificate, "e2e-mock")));
+
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var credentialLoader = serviceProvider.GetRequiredService<ICredentialsLoader>();
+
+            CredentialDescription? cd = await credentialLoader.LoadFirstValidCredentialsAsync(new List<CredentialDescription>
+            {
+                new CredentialDescription
+                {
+                    SourceType = CredentialSource.ManagedCertificate
+                }
+            });
+
+            Assert.Equal("e2e-mock", cd?.CachedValue?.ToString());
+            
+        }
+
+            [Fact]
         public void TestLoadFirstCertificate()
         {
             IEnumerable<CertificateDescription> certDescriptions = [CertificateDescription.FromBase64Encoded(TestConstants.CertificateX5c)];
@@ -124,7 +152,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             };
 
             // Act
-            var loader = new DefaultCredentialsLoader(null, customLoaders);
+            var loader = new DefaultCredentialsLoader(customLoaders, null);
 
             // Assert
             Assert.NotNull(loader.CredentialSourceLoaders);
@@ -146,7 +174,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             };
 
             // Act
-            var loader = new DefaultCertificateLoader(null, customLoaders);
+            var loader = new DefaultCertificateLoader(customLoaders, null);
 
             // Assert
             Assert.NotNull(loader.CredentialSourceLoaders);
@@ -166,7 +194,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             {
                 new MockCredentialSourceLoader(CredentialSource.StoreWithThumbprint, "used-custom-loader")
             };
-            var loader = new DefaultCredentialsLoader(null, customLoaders);
+            var loader = new DefaultCredentialsLoader(customLoaders, null);
             var credentialDescription = new CredentialDescription
             {
                 SourceType = CredentialSource.StoreWithThumbprint
@@ -183,7 +211,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public void TestConstructorWithNullCustomLoaders()
         {
             // Arrange & Act
-            var loader = new DefaultCredentialsLoader(null, null);
+            var loader = new DefaultCredentialsLoader(null);
 
             // Assert - should still have built-in loaders
             Assert.NotNull(loader.CredentialSourceLoaders);
@@ -222,7 +250,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             };
 
             // Act
-            var loader = new DefaultCredentialsLoader(null, customLoaders);
+            var loader = new DefaultCredentialsLoader(customLoaders, null);
 
             // Assert - should have all built-in loaders plus the custom one
             Assert.NotNull(loader.CredentialSourceLoaders);
@@ -270,7 +298,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.True(credentialsLoader.CustomSignedAssertionCredentialSourceLoaders.ContainsKey("test-provider"));
 
             // Act - Test DefaultCertificateLoader comprehensive constructor
-            var certificateLoader = new DefaultCertificateLoader(customSignedAssertionProviders, null, customLoaders);
+            var certificateLoader = new DefaultCertificateLoader(customLoaders, customSignedAssertionProviders, null);
 
             // Assert
             Assert.NotNull(certificateLoader.CredentialSourceLoaders);

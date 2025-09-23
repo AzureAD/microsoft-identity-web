@@ -43,11 +43,11 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Constructor with a logger and custom credential source loaders
         /// </summary>
-        /// <param name="logger">Logger instance</param>
         /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
+        /// <param name="logger">Logger instance</param>
         public DefaultCredentialsLoader(
-            ILogger<DefaultCredentialsLoader>? logger,
-            IEnumerable<ICredentialSourceLoader>? credentialSourceLoaders) : this(logger)
+            IEnumerable<ICredentialSourceLoader> credentialSourceLoaders,
+            ILogger<DefaultCredentialsLoader>? logger) : this(logger)
         {
             // Add additional/extensible loaders (can override built-ins)
             if (credentialSourceLoaders != null)

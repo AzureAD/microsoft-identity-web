@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
         /// <param name="logger">ILogger.</param>
         /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
-        public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICredentialSourceLoader>? credentialSourceLoaders) : this(logger, credentialSourceLoaders)
+        public DefaultCredentialsLoader(IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCredentialsLoader>? logger, IEnumerable<ICredentialSourceLoader> credentialSourceLoaders) : this(credentialSourceLoaders, logger)
         {
             _ = Throws.IfNull(customSignedAssertionProviders);
             var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Web
         /// Dictionary of custom signed assertion credential source loaders, by name (either ICustomSignedAssertionProvider.Name or the fully qualified type name).
         /// The application can add more to process additional credential sources.
         /// </summary>
-        protected IDictionary<string, ICustomSignedAssertionProvider>? CustomSignedAssertionCredentialSourceLoaders { get; }
+        protected internal /* internal for tests*/ IDictionary<string, ICustomSignedAssertionProvider>? CustomSignedAssertionCredentialSourceLoaders { get; }
 
         private async Task ProcessCustomSignedAssertionAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters)
         {

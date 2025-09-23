@@ -18,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Advanced;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TestOnly;
