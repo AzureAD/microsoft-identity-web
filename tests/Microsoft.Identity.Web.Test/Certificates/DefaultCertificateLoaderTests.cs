@@ -282,7 +282,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             };
 
             // Act - Test DefaultCredentialsLoader comprehensive constructor
-            var credentialsLoader = new DefaultCredentialsLoader(customSignedAssertionProviders, null, customLoaders);
+            var credentialsLoader = new DefaultCredentialsLoader(customLoaders, customSignedAssertionProviders, null);
 
             // Assert
             Assert.NotNull(credentialsLoader.CredentialSourceLoaders);

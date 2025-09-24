@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web
         public DefaultCertificateLoader(
             IEnumerable<ICredentialSourceLoader> credentialSourceLoaders, 
             IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, 
-            ILogger<DefaultCertificateLoader>? logger) : base(customSignedAssertionProviders, logger, credentialSourceLoaders)
+            ILogger<DefaultCertificateLoader>? logger) : base(credentialSourceLoaders, customSignedAssertionProviders, logger)
         {
         }
 

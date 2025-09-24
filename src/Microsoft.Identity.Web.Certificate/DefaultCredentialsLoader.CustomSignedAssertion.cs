@@ -40,13 +40,13 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Constructor for DefaultCredentialsLoader with both custom signed assertion providers and custom credential source loaders.
         /// </summary>
+        /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
         /// <param name="customSignedAssertionProviders">Set of custom signed assertion providers.</param>
         /// <param name="logger">ILogger.</param>
-        /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
         public DefaultCredentialsLoader(
-            IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, 
-            ILogger<DefaultCredentialsLoader>? logger, 
-            IEnumerable<ICredentialSourceLoader> credentialSourceLoaders) : this(credentialSourceLoaders, logger)
+            IEnumerable<ICredentialSourceLoader> credentialSourceLoaders,
+            IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders,
+            ILogger<DefaultCredentialsLoader>? logger) : this(credentialSourceLoaders, logger)
         {
             _ = Throws.IfNull(customSignedAssertionProviders);
             var sourceLoaderDict = new Dictionary<string, ICustomSignedAssertionProvider>();
