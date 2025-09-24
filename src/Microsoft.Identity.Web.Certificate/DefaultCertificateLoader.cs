@@ -69,7 +69,10 @@ namespace Microsoft.Identity.Web
         /// <param name="credentialSourceLoaders">Additional credential source loaders. Can override built-in loaders.</param>
         /// <param name="customSignedAssertionProviders">List of providers of custom signed assertions</param>
         /// <param name="logger">ILogger.</param>
-        public DefaultCertificateLoader(IEnumerable<ICredentialSourceLoader> credentialSourceLoaders, IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, ILogger<DefaultCertificateLoader>? logger) : base(customSignedAssertionProviders, logger, credentialSourceLoaders)
+        public DefaultCertificateLoader(
+            IEnumerable<ICredentialSourceLoader> credentialSourceLoaders, 
+            IEnumerable<ICustomSignedAssertionProvider> customSignedAssertionProviders, 
+            ILogger<DefaultCertificateLoader>? logger) : base(customSignedAssertionProviders, logger, credentialSourceLoaders)
         {
         }
 
