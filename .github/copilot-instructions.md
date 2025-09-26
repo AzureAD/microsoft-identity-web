@@ -1,1 +1,1 @@
-Carefully review all markdown documents in the ../.clinerules folder. Those are your custom instructions.
+Carefully review the agents.md file in the repository root. This contains your custom instructions for agent automation and development guidelines.
