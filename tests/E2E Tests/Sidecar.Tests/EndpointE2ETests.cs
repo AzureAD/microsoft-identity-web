@@ -78,7 +78,7 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     }
 
     [Fact]
-    public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticated()
+    public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticatedAsync()
     {
         string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
         string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
@@ -90,22 +90,20 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var response = await client.GetAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
-
     }
 
     [Fact]
-    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticated()
+    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticatedAsync()
     {
         // Calling the API
         var client = _factory.CreateClient();
 
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var response = await client.GetAsync($"/AuthorizationHeaderUnauthenticated/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
-
     }
 
 

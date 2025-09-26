@@ -18,7 +18,7 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
     private readonly SidecarApiFactory _factory = factory;
 
     [Fact]
-    public async Task MockedAuthorizationFlow_WithValidConfiguration_ReturnsAuthorizationHeader()
+    public async Task MockedAuthorizationFlow_WithValidConfiguration_ReturnsAuthorizationHeaderAsync()
     {
         // Arrange
         const string expectedAuthHeader = "Bearer token";
@@ -49,11 +49,11 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-test-token");
 
         // Act
-        var response = await client.PostAsync($"/AuthorizationHeader/{apiName}", null);
+        var response = await client.GetAsync($"/AuthorizationHeader/{apiName}");
 
         // Assert
         var content = await response.Content.ReadAsStringAsync();
-        
+
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             // Expected in test environment without proper authentication setup
@@ -62,7 +62,7 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
         }
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = JsonSerializer.Deserialize<AuthorizationHeaderResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+        var result = JsonSerializer.Deserialize<AuthorizationHeaderResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         Assert.NotNull(result);
         Assert.Equal(expectedAuthHeader, result.AuthorizationHeader);
     }

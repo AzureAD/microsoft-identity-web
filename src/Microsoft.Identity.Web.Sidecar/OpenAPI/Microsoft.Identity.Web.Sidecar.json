@@ -10,7 +10,7 @@
         "tags": [
           "ValidateRequestEndpoints"
         ],
-        "operationId": "Validate Authorization header",
+        "operationId": "ValidateAuthorizationHeader",
         "responses": {
           "200": {
             "description": "OK",
@@ -46,11 +46,13 @@
       }
     },
     "/AuthorizationHeader/{apiName}": {
-      "post": {
+      "get": {
         "tags": [
           "AuthorizationHeaderEndpoint"
         ],
-        "operationId": "Authorization header",
+        "summary": "Get an authorization header for a configured downstream API.",
+        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "operationId": "AuthorizationHeader",
         "parameters": [
           {
             "name": "apiName",
@@ -75,15 +77,72 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DownstreamApiOptions"
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationHeaderResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/AuthorizationHeaderUnauthenticated/{apiName}": {
+      "get": {
+        "tags": [
+          "AuthorizationHeaderEndpoint"
+        ],
+        "summary": "Get an authorization header for a configured downstream API using this configured client credentials.",
+        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "operationId": "AuthorizationHeaderUnauthenticated",
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentIdentity",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUsername",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -123,7 +182,9 @@
         "tags": [
           "DownstreamApiEndpoint"
         ],
-        "operationId": "Downstream Api",
+        "summary": "Invoke a configured downstream API through the sidecar using the authenticated identity.",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "operationId": "DownstreamApi",
         "parameters": [
           {
             "name": "apiName",
@@ -148,15 +209,72 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DownstreamApiOptions"
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownstreamApiResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/DownstreamApiUnauthenticated/{apiName}": {
+      "post": {
+        "tags": [
+          "DownstreamApiEndpoint"
+        ],
+        "summary": "Invoke a configured downstream API through the sidecar using the configured client credentials.",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "operationId": "DownstreamApiUnauthenticated",
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentIdentity",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUsername",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -194,75 +312,6 @@
   },
   "components": {
     "schemas": {
-      "AcquireTokenOptions": {
-        "type": "object",
-        "properties": {
-          "authenticationOptionsName": {
-            "type": "string",
-            "nullable": true
-          },
-          "correlationId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "extraQueryParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "extraParameters": {
-            "type": "object",
-            "nullable": true
-          },
-          "extraHeadersParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "claims": {
-            "type": "string",
-            "nullable": true
-          },
-          "fmiPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "forceRefresh": {
-            "type": "boolean"
-          },
-          "popPublicKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "popClaim": {
-            "type": "string",
-            "nullable": true
-          },
-          "managedIdentity": {
-            "$ref": "#/components/schemas/ManagedIdentityOptions"
-          },
-          "longRunningWebApiSessionKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "tenant": {
-            "type": "string",
-            "nullable": true
-          },
-          "userFlow": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ActionOfHttpRequestMessage": {
-        "nullable": true
-      },
       "AuthorizationHeaderResult": {
         "required": [
           "authorizationHeader"
@@ -273,69 +322,6 @@
             "type": "string"
           }
         }
-      },
-      "DownstreamApiOptions": {
-        "type": "object",
-        "properties": {
-          "scopes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "serializer": {
-            "$ref": "#/components/schemas/FuncOfObjectAndHttpContent"
-          },
-          "deserializer": {
-            "$ref": "#/components/schemas/FuncOfHttpContentAndObject"
-          },
-          "acceptHeader": {
-            "type": "string"
-          },
-          "contentType": {
-            "type": "string"
-          },
-          "extraHeaderParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "extraQueryParameters": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "baseUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "relativePath": {
-            "type": "string"
-          },
-          "httpMethod": {
-            "type": "string",
-            "default": "Get"
-          },
-          "customizeHttpRequestMessage": {
-            "$ref": "#/components/schemas/ActionOfHttpRequestMessage"
-          },
-          "acquireTokenOptions": {
-            "$ref": "#/components/schemas/AcquireTokenOptions"
-          },
-          "protocolScheme": {
-            "type": "string",
-            "default": "Bearer"
-          },
-          "requestAppToken": {
-            "type": "boolean"
-          }
-        },
-        "nullable": true
       },
       "DownstreamApiResult": {
         "required": [
@@ -364,24 +350,7 @@
           }
         }
       },
-      "FuncOfHttpContentAndObject": {
-        "nullable": true
-      },
-      "FuncOfObjectAndHttpContent": {
-        "nullable": true
-      },
       "JsonNode": { },
-      "ManagedIdentityOptions": {
-        "type": "object",
-        "properties": {
-          "userAssignedClientId": {
-            "type": "string",
-            "default": null,
-            "nullable": true
-          }
-        },
-        "nullable": true
-      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
