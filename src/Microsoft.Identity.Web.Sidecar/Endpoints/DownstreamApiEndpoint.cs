@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
-using Azure;
-using Azure.Core;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -30,7 +28,7 @@ public static class DownstreamApiEndpoint
     private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
         HttpContext httpContext,
         [FromRoute] string apiName,
-        [AsParameters] AuthorizationHeaderRequest requestParameters,
+        [AsParameters] DownstreamApiRequest requestParameters,
         [FromServices] IDownstreamApi downstreamApi,
         [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
         [FromServices] ILogger<Program> logger,
@@ -43,11 +41,6 @@ public static class DownstreamApiEndpoint
             return TypedResults.Problem(
                 detail: $"Not able to resolve '{apiName}'.",
                 statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        if (requestParameters.OptionsOverride is not null)
-        {
-            options = DownstreamApiOptionsMerger.MergeOptions(options, requestParameters.OptionsOverride);
         }
 
         if (options.Scopes is null)
@@ -67,13 +60,19 @@ public static class DownstreamApiEndpoint
             options.WithAgentIdentity(requestParameters.AgentIdentity);
         }
 
+        if (!string.IsNullOrEmpty(requestParameters.Tenant))
+        {
+            options.AcquireTokenOptions.Tenant = requestParameters.Tenant;
+        }
+
         HttpContent? content = null;
 
-        if (!string.IsNullOrWhiteSpace(httpContext.Request.ContentType))
+        if (!string.IsNullOrWhiteSpace(httpContext.Request.ContentType) &&
+            MediaTypeHeaderValue.TryParse(httpContext.Request.ContentType, out var mediaType))
         {
             using var reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8);
             string body = await reader.ReadToEndAsync(cancellationToken);
-            content = new StringContent(body, Encoding.UTF8, httpContext.Request.ContentType);
+            content = new StringContent(body, Encoding.UTF8, mediaType);
         }
 
         HttpResponseMessage downstreamResult;

@@ -146,13 +146,20 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "Tenant",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DownstreamApiOptions"
+                "$ref": "#/components/schemas/DownstreamApiOptions2"
               }
             }
           }
@@ -336,6 +343,68 @@
           }
         },
         "nullable": true
+      },
+      "DownstreamApiOptions2": {
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "serializer": {
+            "$ref": "#/components/schemas/FuncOfObjectAndHttpContent"
+          },
+          "deserializer": {
+            "$ref": "#/components/schemas/FuncOfHttpContentAndObject"
+          },
+          "acceptHeader": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "extraHeaderParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "extraQueryParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "baseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "relativePath": {
+            "type": "string"
+          },
+          "httpMethod": {
+            "type": "string",
+            "default": "Get"
+          },
+          "customizeHttpRequestMessage": {
+            "$ref": "#/components/schemas/ActionOfHttpRequestMessage"
+          },
+          "acquireTokenOptions": {
+            "$ref": "#/components/schemas/AcquireTokenOptions"
+          },
+          "protocolScheme": {
+            "type": "string",
+            "default": "Bearer"
+          },
+          "requestAppToken": {
+            "type": "boolean"
+          }
+        }
       },
       "DownstreamApiResult": {
         "required": [
