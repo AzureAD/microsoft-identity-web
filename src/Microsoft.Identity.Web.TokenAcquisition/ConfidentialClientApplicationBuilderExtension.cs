@@ -148,8 +148,7 @@ namespace Microsoft.Identity.Web
                    nameof(clientCredentials));
             }
 
-            logger.LogInformation($"No client credential could be used. Secret may have been defined elsewhere. " +
-                $"Count {(clientCredentials != null ? clientCredentials.Count() : 0)} ");
+            Logger.NoClientCredentialUsed(logger, clientCredentials?.Count() ?? 0);
 
             return null;
         }

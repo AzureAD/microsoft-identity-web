@@ -47,6 +47,12 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.UsingCertThumbprint,
                     "[MsIdWeb] Using certificate Thumbprint={certThumbprint} as client credentials. ");
 
+            private static readonly Action<ILogger, int, Exception?> s_noClientCredentialUsed =
+                LoggerMessage.Define<int>(
+                    LogLevel.Information,
+                    LoggingEventId.NoClientCredentialUsed,
+                    "[MsIdWeb] No client credential could be used. Secret may have been defined elsewhere. Count {CredentialsCount}");
+
             private static readonly Action<ILogger, string, string, Exception?> s_credentialAttempt =
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
@@ -154,6 +160,15 @@ namespace Microsoft.Identity.Web
             public static void UsingCertThumbprint(
                 ILogger logger,
                 string certThumbprint) => s_usingCertThumbprint(logger, certThumbprint, default!);
+
+            /// <summary>
+            /// Logger for when no client credential could be used.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="credentialsCount">Number of credentials attempted.</param>
+            public static void NoClientCredentialUsed(
+                ILogger logger,
+                int credentialsCount) => s_noClientCredentialUsed(logger, credentialsCount, default!);
         }
     }
 }

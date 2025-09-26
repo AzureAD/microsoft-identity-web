@@ -28,6 +28,7 @@ namespace Microsoft.Identity.Web
         public static readonly EventId CredentialLoadAttempt = new EventId(405, "CredentialLoadAttempt");
         public static readonly EventId CredentialLoadAttemptFailed = new EventId(406, "CredentialLoadAttemptFailed");
         public static readonly EventId UsingSignedAssertionFromCustomProvider = new EventId(407, "UsingSignedAssertionFromCustomProvider");
+        public static readonly EventId NoClientCredentialUsed = new EventId(408, "NoClientCredentialUsed");
 
 #pragma warning restore IDE1006 // Naming Styles
     }

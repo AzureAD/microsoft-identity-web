@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.NoClientCredentialUsed(Microsoft.Extensions.Logging.ILogger! logger, int credentialsCount) -> void
+Microsoft.Identity.Web.LoggingEventId.NoClientCredentialUsed -> Microsoft.Extensions.Logging.EventId
