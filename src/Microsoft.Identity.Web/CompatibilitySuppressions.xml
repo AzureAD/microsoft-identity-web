@@ -4,399 +4,785 @@
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AadIssuerValidatorOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AccountExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationDefaults</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationHandler</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationInformation</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AuthorizeForScopesAttribute</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.ClaimsPrincipalFactory</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.DownstreamWebApi</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.DownstreamWebApiExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.DownstreamWebApiOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.IAuthRequiredScopeMetadata</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.IDownstreamWebApi</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.ILoginErrorAccessor</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilderExtension</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiServiceCollectionExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.PolicyBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.RequiredScopeExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.IOpenIdConnectMiddlewareDiagnostics</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.ScopeAuthorizationRequirement</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.TokenAcquisitionTokenCredential</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
-    <DiagnosticId>CP0002</DiagnosticId>
-    <Target>M:Microsoft.Identity.Web.AppServicesAuthenticationHandler.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Microsoft.Identity.Web.AppServicesAuthenticationOptions},Microsoft.Extensions.Logging.ILoggerFactory,System.Text.Encodings.Web.UrlEncoder,Microsoft.AspNetCore.Authentication.ISystemClock)</Target>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AadIssuerValidatorOptions</Target>
     <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
-    <Right>lib/net8.0/Microsoft.Identity.Web.dll</Right>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AccountExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationDefaults</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationHandler</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationInformation</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationOptions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AuthorizeForScopesAttribute</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.AzureFunctionsAuthenticationHttpContextExtension</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.ClaimsPrincipalFactory</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.CookiePolicyOptionsExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.DownstreamWebApi</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.DownstreamWebApiExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.DownstreamWebApiGenericExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.DownstreamWebApiOptions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.IAuthRequiredScopeMetadata</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.IAuthRequiredScopeOrAppPermissionMetadata</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.IDownstreamWebApi</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.ILoginErrorAccessor</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAppAuthenticationMessageHandler</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilderExtension</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseMessageHandler</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationBaseOptions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityBlazorServiceCollectionExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityConsentAndConditionalAccessHandler</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityUserAuthenticationMessageHandler</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebApiServiceCollectionExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilder</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityWebAppServiceCollectionExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.PolicyBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.RequiredScopeExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.RequiredScopeOrAppPermissionExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.IJwtBearerMiddlewareDiagnostics</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.IOpenIdConnectMiddlewareDiagnostics</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.JwtBearerMiddlewareDiagnostics</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.MicrosoftIdentityIssuerValidatorFactory</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.OpenIdConnectMiddlewareDiagnostics</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.RequiredScopeAttribute</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.RequiredScopeOrAppPermissionAttribute</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.RolesRequiredHttpContextExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Resource.ScopesRequiredHttpContextExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.ScopeAuthorizationRequirement</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.ScopeOrAppPermissionAuthorizationRequirement</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.TokenAcquisitionAppTokenCredential</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.TokenAcquisitionTokenCredential</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.TokenCacheProviders.Session.MsalSessionTokenCacheProvider</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.TokenCacheProviders.Session.SessionTokenCacheProviderExtension</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
 </Suppressions>
