@@ -9,7 +9,6 @@
 - Enhanced SigningCredential loading capabilities in DefaultCredentialsLoader. See PR [#3361](https://github.com/AzureAD/microsoft-identity-web/pull/3361) for details.
 
 ### Fundamentals
-- Updated containerization support for modern .NET versions. See PR [#3481](https://github.com/AzureAD/microsoft-identity-web/pull/3481) for details.
 - Improved .NET 10 Preview support preparations. See PR [#3449](https://github.com/AzureAD/microsoft-identity-web/pull/3449) for details.
 - Enhanced dependency cleanup and optimization. See PR [#3314](https://github.com/AzureAD/microsoft-identity-web/pull/3314) for details.
 
