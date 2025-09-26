@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
+    public partial class ManagedIdentityClientAssertion : ClientAssertionProviderBase
     {
         IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
             if (_logger != null)
             {
                 builder = builder.WithLogging(Log, ConvertMicrosoftExtensionsLogLevelToMsal(_logger), enablePiiLogging: false);
-                _logger.LogInformation($"ManagedIdentityClientAssertion with tokenExchangeUrl={_tokenExchangeUrl}");
+                Logger.ManagedIdentityClientAssertionInitialized(_logger, _tokenExchangeUrl);
             }
 
             _managedIdentityApplication = builder

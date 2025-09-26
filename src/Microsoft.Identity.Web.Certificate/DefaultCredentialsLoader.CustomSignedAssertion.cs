@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
                 string providerName = provider.Name ?? provider.GetType().FullName!;
                 if (sourceLoaderDict.ContainsKey(providerName))
                 {
-                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, providerName);
+                    Logger.CustomProviderNameAlreadyExists(_logger, providerName);
                 }
                 else
                 {
@@ -48,17 +48,17 @@ namespace Microsoft.Identity.Web
             if (CustomSignedAssertionCredentialSourceLoaders == null || CustomSignedAssertionCredentialSourceLoaders.Count == 0)
             {
                 // No source loader(s)
-                _logger.LogError(CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty);
+                Logger.CustomProviderSourceLoaderNullOrEmpty(_logger);
             }
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
                 // No provider name
-                _logger.LogError(CertificateErrorMessage.CustomProviderNameNullOrEmpty);
+                Logger.CustomProviderNameNullOrEmpty(_logger);
             }
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICustomSignedAssertionProvider? sourceLoader))
             {
                 // No source loader for provider name
-                _logger.LogError(CertificateErrorMessage.CustomProviderNotFound, credentialDescription.CustomSignedAssertionProviderName);
+                Logger.CustomProviderNotFound(_logger, credentialDescription.CustomSignedAssertionProviderName!);
             }
             else
             {
