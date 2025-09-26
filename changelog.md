@@ -1,3 +1,18 @@
+4.0.0
+=========
+### Breaking Changes
+**Removed support for .NET 6.0** - Microsoft Identity Web 4.0.0 no longer targets .NET 6.0, following Microsoft's support lifecycle. The supported target frameworks are now .NET 8.0, .NET 9.0, .NET Framework 4.6.2, .NET Framework 4.7.2, and .NET Standard 2.0.
+
+### New features
+- Enhanced performance logging in credential providers. See PR [#3495](https://github.com/AzureAD/microsoft-identity-web/pull/3495) for details.
+- Improved certificateless authentication documentation and developer experience. See PR [#3494](https://github.com/AzureAD/microsoft-identity-web/pull/3494) for details.
+- Enhanced SigningCredential loading capabilities in DefaultCredentialsLoader. See PR [#3361](https://github.com/AzureAD/microsoft-identity-web/pull/3361) for details.
+
+### Fundamentals
+- Updated containerization support for modern .NET versions. See PR [#3481](https://github.com/AzureAD/microsoft-identity-web/pull/3481) for details.
+- Improved .NET 10 Preview support preparations. See PR [#3449](https://github.com/AzureAD/microsoft-identity-web/pull/3449) for details.
+- Enhanced dependency cleanup and optimization. See PR [#3314](https://github.com/AzureAD/microsoft-identity-web/pull/3314) for details.
+
 3.14.1
 =======
 ##  Bug fix
