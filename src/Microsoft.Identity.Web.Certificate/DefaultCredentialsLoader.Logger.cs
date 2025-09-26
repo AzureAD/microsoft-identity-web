@@ -43,6 +43,48 @@ namespace Microsoft.Identity.Web
                 CredentialDescription cd,
                 Exception ex
                 ) => s_customSignedAssertionProviderLoadingFailure(logger, cd.CustomSignedAssertionProviderName ?? nameMissing, cd.SourceType.ToString(), cd.Skip, ex);
+
+            private static readonly Action<ILogger, string, Exception?> s_customProviderNameAlreadyExists =
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    new EventId(9, nameof(CustomProviderNameAlreadyExists)),
+                    CertificateErrorMessage.CustomProviderNameAlreadyExists
+                );
+
+            public static void CustomProviderNameAlreadyExists(
+                ILogger logger,
+                string providerName) => s_customProviderNameAlreadyExists(logger, providerName, default!);
+
+            private static readonly Action<ILogger, Exception?> s_customProviderSourceLoaderNullOrEmpty =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    new EventId(10, nameof(CustomProviderSourceLoaderNullOrEmpty)),
+                    CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
+                );
+
+            public static void CustomProviderSourceLoaderNullOrEmpty(
+                ILogger logger) => s_customProviderSourceLoaderNullOrEmpty(logger, default!);
+
+            private static readonly Action<ILogger, Exception?> s_customProviderNameNullOrEmpty =
+                LoggerMessage.Define(
+                    LogLevel.Error,
+                    new EventId(11, nameof(CustomProviderNameNullOrEmpty)),
+                    CertificateErrorMessage.CustomProviderNameNullOrEmpty
+                );
+
+            public static void CustomProviderNameNullOrEmpty(
+                ILogger logger) => s_customProviderNameNullOrEmpty(logger, default!);
+
+            private static readonly Action<ILogger, string, Exception?> s_customProviderNotFound =
+                LoggerMessage.Define<string>(
+                    LogLevel.Error,
+                    new EventId(12, nameof(CustomProviderNotFound)),
+                    CertificateErrorMessage.CustomProviderNotFound
+                );
+
+            public static void CustomProviderNotFound(
+                ILogger logger,
+                string providerName) => s_customProviderNotFound(logger, providerName, default!);
         }
     }
 }
