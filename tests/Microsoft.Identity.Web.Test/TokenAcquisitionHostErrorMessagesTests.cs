@@ -30,6 +30,7 @@ namespace Microsoft.Identity.Web.Test
             mergedOptionsMonitor.Get(Arg.Any<string>()).Returns(emptyMergedOptions);
 
             // Configure MicrosoftIdentityApplicationOptions to be empty (not configured)
+            // Note: The default Authority value is "//v2.0" which should be ignored
             var emptyAppOptions = new MicrosoftIdentityApplicationOptions();
             microsoftIdentityApplicationOptionsMonitor.Get(Arg.Any<string>()).Returns(emptyAppOptions);
 

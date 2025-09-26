@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Web
                 var microsoftIdentityApplicationOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
                 bool isMicrosoftIdentityApplicationOptionsConfigured = microsoftIdentityApplicationOptions != null && 
                     (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) || 
-                     !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority) ||
+                     (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "//v2.0") ||
                      !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.ClientId));
 
                 if (!isMicrosoftIdentityApplicationOptionsConfigured)
