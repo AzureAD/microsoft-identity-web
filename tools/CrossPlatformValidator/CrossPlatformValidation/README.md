@@ -9,7 +9,7 @@
 
    ```shell
    cd Benchmark
-   dotnet run -f net7.0 -c Release
+   dotnet run -f net8.0 -c Release
    dotnet run -f net8.0 -c Release
    ```
 
