@@ -181,4 +181,176 @@ public class ModelsTests
         // Assert
         Assert.Equal(token, result.Token);
     }
+
+    [Fact]
+    public void DownstreamApiResult_Constructor_SetsAllProperties()
+    {
+        // Arrange
+        var statusCode = 200;
+        var headers = new Dictionary<string, IEnumerable<string>>
+        {
+            { "Content-Type", ["application/json"] },
+            { "Cache-Control", ["no-cache", "no-store"] }
+        };
+        var content = "{\"result\": \"success\"}";
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, content);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Equal(headers, result.Headers);
+        Assert.Equal(content, result.Content);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_WithNullContent_HandlesCorrectly()
+    {
+        // Arrange
+        var statusCode = 204;
+        var headers = new Dictionary<string, IEnumerable<string>>();
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, null);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Equal(headers, result.Headers);
+        Assert.Null(result.Content);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_WithEmptyHeaders_HandlesCorrectly()
+    {
+        // Arrange
+        var statusCode = 200;
+        var headers = new Dictionary<string, IEnumerable<string>>();
+        var content = "test content";
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, content);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Empty(result.Headers);
+        Assert.Equal(content, result.Content);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_WithComplexHeaders_HandlesCorrectly()
+    {
+        // Arrange
+        var statusCode = 201;
+        var headers = new Dictionary<string, IEnumerable<string>>
+        {
+            { "Content-Type", ["application/json; charset=utf-8"] },
+            { "Cache-Control", ["max-age=3600", "public"] },
+            { "X-Custom-Header", ["value1", "value2", "value3"] },
+            { "Location", ["https://api.example.com/resource/123"] }
+        };
+        var content = "{\"id\": 123, \"name\": \"New Resource\"}";
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, content);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Equal(4, result.Headers.Count);
+        Assert.Equal(["application/json; charset=utf-8"], result.Headers["Content-Type"]);
+        Assert.Equal(["max-age=3600", "public"], result.Headers["Cache-Control"]);
+        Assert.Equal(["value1", "value2", "value3"], result.Headers["X-Custom-Header"]);
+        Assert.Equal(["https://api.example.com/resource/123"], result.Headers["Location"]);
+        Assert.Equal(content, result.Content);
+    }
+
+    [Theory]
+    [InlineData(200)]
+    [InlineData(201)]
+    [InlineData(204)]
+    [InlineData(400)]
+    [InlineData(401)]
+    [InlineData(404)]
+    [InlineData(500)]
+    public void DownstreamApiResult_WithDifferentStatusCodes_HandlesCorrectly(int statusCode)
+    {
+        // Arrange
+        var headers = new Dictionary<string, IEnumerable<string>>();
+        var content = "test content";
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, content);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_Equality_WorksCorrectly()
+    {
+        // Arrange
+        var headers = new Dictionary<string, IEnumerable<string>>
+        {
+            { "Content-Type", ["application/json"] }
+        };
+        var content = "test content";
+        
+        var result1 = new DownstreamApiResult(200, headers, content);
+        var result2 = new DownstreamApiResult(200, headers, content);
+        var result3 = new DownstreamApiResult(201, headers, content);
+
+        // Act & Assert
+        Assert.Equal(result1, result2);
+        Assert.NotEqual(result1, result3);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_ToString_ReturnsExpectedFormat()
+    {
+        // Arrange
+        var headers = new Dictionary<string, IEnumerable<string>>
+        {
+            { "Content-Type", ["application/json"] }
+        };
+        var result = new DownstreamApiResult(200, headers, "test content");
+
+        // Act
+        var stringResult = result.ToString();
+
+        // Assert
+        Assert.Contains("DownstreamApiResult", stringResult, StringComparison.Ordinal);
+        Assert.Contains("200", stringResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_WithLargeContent_HandlesCorrectly()
+    {
+        // Arrange
+        var statusCode = 200;
+        var headers = new Dictionary<string, IEnumerable<string>>();
+        var largeContent = new string('x', 10000); // 10KB of 'x' characters
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, largeContent);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Equal(largeContent, result.Content);
+        Assert.Equal(10000, result.Content?.Length);
+    }
+
+    [Fact]
+    public void DownstreamApiResult_WithSpecialCharactersInContent_HandlesCorrectly()
+    {
+        // Arrange
+        var statusCode = 200;
+        var headers = new Dictionary<string, IEnumerable<string>>();
+        var specialContent = "Content with special chars: αβγδε, 中文, 🎉, \n\r\t, \"quotes\", 'apostrophes'";
+
+        // Act
+        var result = new DownstreamApiResult(statusCode, headers, specialContent);
+
+        // Assert
+        Assert.Equal(statusCode, result.StatusCode);
+        Assert.Equal(specialContent, result.Content);
+    }
 }
