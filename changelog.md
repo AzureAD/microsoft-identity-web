@@ -1,3 +1,14 @@
+4.0.0
+=========
+### Breaking Changes
+**Removed support for .NET 6.0 and .NET 7.0** - Microsoft Identity Web 4.0.0 no longer targets .NET 6.0 and .NET 7.0, following Microsoft's support lifecycle. The supported target frameworks are now .NET 8.0, .NET 9.0, .NET Framework 4.6.2, .NET Framework 4.7.2, and .NET Standard 2.0.
+
+### New features
+- Various improvements to performance logging, authentication, and credential loading capabilities.
+
+### Fundamentals
+- Various improvements to .NET support and dependency optimizations.
+
 3.14.1
 =======
 ##  Bug fix

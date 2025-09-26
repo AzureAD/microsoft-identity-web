@@ -4,7 +4,14 @@
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.ApplicationBuilderExtensions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.ApplicationBuilderExtensions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
@@ -12,68 +19,131 @@
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.OpenIdConnectOptions</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,System.String,Microsoft.AspNetCore.Http.HttpResponse)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ErrorPath</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ResetPasswordPath</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.GetAuthenticationResultForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,System.String,Microsoft.AspNetCore.Http.HttpResponse)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ErrorPath</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ResetPasswordPath</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
@@ -81,30 +151,37 @@
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ErrorPath</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.MicrosoftIdentityOptions.get_ResetPasswordPath</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0006</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,System.String,Microsoft.AspNetCore.Http.HttpResponse)</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0006</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeaderAsync(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,Microsoft.AspNetCore.Http.HttpResponse)</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0007</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityOptions</Target>
-    <Left>lib/netcoreapp3.1/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0007</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.MicrosoftIdentityOptions</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
     <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
     <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
@@ -112,6 +189,20 @@
     <DiagnosticId>CP0007</DiagnosticId>
     <Target>T:Microsoft.Identity.Web.MicrosoftIdentityOptions</Target>
     <Left>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
-    <Right>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0008</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Experimental.CerticateObserverAction</Target>
+    <Left>lib/net6.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0008</DiagnosticId>
+    <Target>T:Microsoft.Identity.Web.Experimental.CerticateObserverAction</Target>
+    <Left>lib/net7.0/Microsoft.Identity.Web.TokenAcquisition.dll</Left>
+    <Right>lib/netstandard2.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
   </Suppression>
 </Suppressions>
