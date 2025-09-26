@@ -1,16 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0; net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <!--CVE-2021-24112 from AspNetCore.Protection, and Redis-->
-    <SystemDrawingCommon>6.0.0</SystemDrawingCommon>
-  </PropertyGroup>
+
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <!--CVE-2021-24112 from AspNetCore.Protection, and Redis-->
