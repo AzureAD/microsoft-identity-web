@@ -9,11 +9,11 @@ using Xunit;
 namespace IntegrationTests;
 
 // provided by https://github.com/f1nzer/ms-identity-web-1957-bug-repro
-public class Net7ThreadingTest : IClassFixture<WebApplicationFactory<Program>>
+public class ThreadingTest : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
 
-    public Net7ThreadingTest(WebApplicationFactory<Program> factory)
+    public ThreadingTest(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }
