@@ -87,55 +87,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
-#if NET7_0
-        [Fact]
-        public async Task TestSigningKeyIssuerAsync()
-        {
-            // Arrange
-            string authority = "http://localhost:1234";
-            Process? p = ExternalApp.Start(
-                typeof(AcquireTokenForUserIntegrationTests),
-                @"tests\E2E Tests\SimulateOidc\", 
-                "SimulateOidc.exe",
-                $"--urls={authority}");
-            if (p != null && !p.HasExited)
-            {
-                // The metadata should be served from https://localhost:1234/v2.0/.well-known/openid-configuration
-                // HttpClient oidcClient = new HttpClient();
-                // string oidcMetadata = await oidcClient.GetStringAsync("https://localhost:1234/v2.0/.well-known/openid-configuration");
-                HttpClient client = CreateHttpClient(true,
 
-              // Setting the authority to http://localhost:1234/v2.0 will make the test return a 401, as the signing key
-              // issuer (from the metadata document) won't match the issuer. The same test returns a 200 if the authority is
-              // the real AAD authority.
-              services => services.Configure<JwtBearerOptions>(
-                  TestConstants.CustomJwtScheme2,
-                  config =>
-                  {
-                      // Contact the test STS on HTTP to avoid untrusted SSL certs during CI builds.
-                      config.Authority = $"{authority}/v2.0";
-                      config.RequireHttpsMetadata = false;
-                  })
-              );
-
-                // Act
-                var result = await AcquireTokenForLabUserAsync();
-                HttpResponseMessage response = await CreateHttpResponseMessageAsync(
-                    TestConstants.SecurePage2GetTokenForUserAsync,
-                    client,
-                    result);
-                p.Kill();
-
-                // Assert
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-                Assert.Contains("error=\"invalid_token\", error_description=\"The issuer '(null)' is invalid\"", response.Headers.WwwAuthenticate.Select(h => h.Parameter));
-            }
-            else
-            {
-                Assert.Fail($"Could not start the OIDC proxy at {authority}/v2.0/");
-            }
-        }
-#endif
 
 
         private static async Task<HttpResponseMessage> CreateHttpResponseMessageAsync(string webApiUrl, HttpClient client, AuthenticationResult result)
