@@ -11,4 +11,11 @@ public static partial class LoggerMessageExtensions
         Message = "An error occurred while creating an authorization header.",
         EventName = "AuthorizationHeaderAsyncError_CreateAuthorizationHeaderAsync")]
     public static partial void AuthorizationHeaderAsyncError(this ILogger logger, Exception exception);
+
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Error,
+        Message = "An error occurred while parsing the token.",
+        EventName = "ValidateRequest_UnableToParseToken")]
+    public static partial void UnableToParseToken(this ILogger logger, Exception? exception);
 }

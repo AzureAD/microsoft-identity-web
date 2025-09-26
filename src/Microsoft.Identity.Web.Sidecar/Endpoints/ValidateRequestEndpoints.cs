@@ -2,15 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Buffers.Text;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
@@ -25,7 +23,10 @@ public static class ValidateRequestEndpoints
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
-    private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(HttpContext httpContext, IConfiguration configuration)
+    private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(
+        ILogger<Program> logger,
+        HttpContext httpContext,
+        IConfiguration configuration)
     {
         string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
@@ -47,13 +48,15 @@ public static class ValidateRequestEndpoints
         {
             jsonDoc = JsonNode.Parse(decodedBody);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger.UnableToParseToken(ex);
             return TypedResults.Problem("Invalid JSON in token payload", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (jsonDoc is null)
         {
+            logger.UnableToParseToken(null);
             return TypedResults.Problem("Failed to decode token claims", statusCode: StatusCodes.Status400BadRequest);
         }
 
