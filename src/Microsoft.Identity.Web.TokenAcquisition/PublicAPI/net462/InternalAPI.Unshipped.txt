@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.GetScopes() -> System.Collections.Generic.IEnumerable<string!>!
+Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.ToAuthorizationHeaderProviderOptions() -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!
