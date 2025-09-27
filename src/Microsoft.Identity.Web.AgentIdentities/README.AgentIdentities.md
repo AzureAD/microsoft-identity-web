@@ -272,26 +272,109 @@ var userResponse = await downstreamApi.GetForUserAsync<string>(
 ```
 
 
-### 6. Azure SDKs integration
+### 7. HttpClient with MicrosoftIdentityMessageHandler Integration
 
-To call Azure SDKs, use the MicrosoftIdentityAzureCredential class from the Microsoft.Identity.Web.Azure NuGet package.
+For scenarios where you want to use HttpClient directly with flexible authentication options, you can use the `MicrosoftIdentityMessageHandler` from the Microsoft.Identity.Web.TokenAcquisition package.
 
-Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
-
-```bash
-dotnet dotnet add package Microsoft.Identity.Web.Azure
-```
-
-Add the support for Microsoft Graph in your service collection.
+Install the Microsoft.Identity.Web.TokenAcquisition package if not already installed:
 
 ```bash
-services.AddMicrosoftIdentityAzureTokenCredential();
+dotnet add package Microsoft.Identity.Web.TokenAcquisition
 ```
 
-You can now get a `MicrosoftIdentityTokenCredential` from the service provider. This class has a member Options to which you can apply the
-`.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
+#### Using Agent Identity with MicrosoftIdentityMessageHandler:
 
-See [Readme-azure](../../README-Azure.md)
+```csharp
+// Configure HttpClient with MicrosoftIdentityMessageHandler in DI
+services.AddHttpClient("MyApiClient", client =>
+{
+    client.BaseAddress = new Uri("https://myapi.domain.com");
+})
+.AddHttpMessageHandler(serviceProvider => new MicrosoftIdentityMessageHandler(
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>(),
+    new MicrosoftIdentityMessageHandlerOptions 
+    { 
+        Scopes = { "https://myapi.domain.com/.default" }
+    }));
+
+// Usage in your service or controller
+public class MyService
+{
+    private readonly HttpClient _httpClient;
+
+    public MyService(IHttpClientFactory httpClientFactory)
+    {
+        _httpClient = httpClientFactory.CreateClient("MyApiClient");
+    }
+
+    public async Task<string> CallApiWithAgentIdentity(string agentIdentity)
+    {
+        // Create request with agent identity authentication
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
+            .WithAuthenticationOptions(options => 
+            {
+                options.WithAgentIdentity(agentIdentity);
+                options.RequestAppToken = true;
+            });
+
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+}
+```
+
+#### Using Agent User Identity with MicrosoftIdentityMessageHandler:
+
+```csharp
+public async Task<string> CallApiWithAgentUserIdentity(string agentIdentity, string userUpn)
+{
+    // Create request with agent user identity authentication
+    var request = new HttpRequestMessage(HttpMethod.Get, "/api/userdata")
+        .WithAuthenticationOptions(options => 
+        {
+            options.WithAgentUserIdentity(agentIdentity, userUpn);
+            options.Scopes.Add("https://myapi.domain.com/user.read");
+        });
+
+    var response = await _httpClient.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    return await response.Content.ReadAsStringAsync();
+}
+```
+
+#### Manual HttpClient Configuration:
+
+You can also configure the handler manually for more control:
+
+```csharp
+// Get the authorization header provider
+IAuthorizationHeaderProvider headerProvider = 
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+// Create the handler with default options
+var handler = new MicrosoftIdentityMessageHandler(
+    headerProvider, 
+    new MicrosoftIdentityMessageHandlerOptions 
+    { 
+        Scopes = { "https://graph.microsoft.com/.default" }
+    });
+
+// Create HttpClient with the handler
+using var httpClient = new HttpClient(handler);
+
+// Make requests with per-request authentication options
+var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/applications")
+    .WithAuthenticationOptions(options => 
+    {
+        options.WithAgentIdentity(agentIdentity);
+        options.RequestAppToken = true;
+    });
+
+var response = await httpClient.SendAsync(request);
+```
+
+The `MicrosoftIdentityMessageHandler` provides a flexible, composable way to add authentication to your HttpClient-based code while maintaining full compatibility with existing Microsoft Identity Web extension methods for agent identities.
 
 ## Prerequisites
 
