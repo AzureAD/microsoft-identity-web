@@ -4,12 +4,14 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Sidecar;
+using Microsoft.Identity.Web.Sidecar.Models;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
@@ -17,15 +19,27 @@ namespace Sidecar.Tests;
 
 public class SidecarApiFactory : WebApplicationFactory<Program>
 {
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    readonly Action<IConfigurationBuilder> _configureOptions;
+
+    public SidecarApiFactory() : this(null)
     {
-        builder.ConfigureAppConfiguration(builder =>
+    }
+
+    internal SidecarApiFactory(Action<IConfigurationBuilder>? configureOptions)
+    {
+        _configureOptions = configureOptions ?? (builder =>
         {
             builder.AddJsonFile(
-                 path: Path.Combine(Directory.GetCurrentDirectory().ToString(), "appsettings.agentids.json"),
-                 optional: false,
-                 reloadOnChange: true);
+                path: Path.Combine(Directory.GetCurrentDirectory().ToString(), "appsettings.agentids.json"),
+                optional: false,
+                reloadOnChange: true);
         });
+    }
+
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureAppConfiguration(_configureOptions);
         builder.ConfigureServices(services =>
         {
             // Given we add the Json file after the initial configuration, and that
@@ -46,8 +60,11 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     private readonly SidecarApiFactory _factory;
 
     public EndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
-    string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-    string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+
+    const string TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
+    const string AgentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
+    const string AgentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
+    const string UserUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -80,9 +97,6 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     [Fact]
     public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticated()
     {
-        string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-        string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
-
         // Getting a token to call the API.
         string authorizationHeader = await GetAuthorizationHeaderToCallTheSideCarAsync();
 
@@ -90,10 +104,24 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
 
+    [Fact]
+    public async Task DownstreamApiForAgentUserIdentityAuthenticated()
+    {
+        // Getting a token to call the API.
+        string authorizationHeader = await GetAuthorizationHeaderToCallTheSideCarAsync();
+
+        // Calling the API
+        var client = _factory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
+        var response = await client.PostAsync($"/DownstreamApi/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -102,10 +130,63 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         // Calling the API
         var client = _factory.CreateClient();
 
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={agentIdentity}&agentUsername={userUpn}", null);
+        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
 
+    [Fact]
+    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticated_WithOptionsOverride()
+    {
+        var client = _factory.CreateClient();
+
+        var result = await client.PostAsync(
+            $"/AuthorizationHeader/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}",
+            JsonContent.Create(new DownstreamApiOptions()
+            {
+                AcquireTokenOptions = new()
+                {
+                    Tenant = TenantId,
+                },
+                Scopes = ["user.read"]
+            }));
+
+        Assert.True(result.IsSuccessStatusCode);
+
+        var response = await result.Content.ReadFromJsonAsync<AuthorizationHeaderResult>();
+
+        Assert.NotNull(response?.AuthorizationHeader);
+        Assert.StartsWith("Bearer ey", response.AuthorizationHeader, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task GetDownstreamApiForAgentUserIdentityUnauthenticated()
+    {
+        // Calling the API
+        var client = _factory.CreateClient();
+        var response = await client.PostAsync($"/DownstreamApi/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TestAgentIdentityConfiguration_InvalidTenant()
+    {
+        var client = _factory.CreateClient();
+
+        var result = await client.PostAsync(
+            $"/AuthorizationHeader/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}",
+            JsonContent.Create(new DownstreamApiOptions()
+            {
+                AcquireTokenOptions = new()
+                {
+                    Tenant = "invalid-tenant-id"
+                },
+                Scopes = ["user.read"]
+            }));
+
+        var response = await result.Content.ReadFromJsonAsync<ProblemDetails>();
+
+        Assert.Equal(401, response?.Status);
     }
 
 
