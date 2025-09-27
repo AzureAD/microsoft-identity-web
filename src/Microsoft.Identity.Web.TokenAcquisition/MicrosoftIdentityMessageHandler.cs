@@ -54,9 +54,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Get scopes from options
-            var scopes = options.GetScopes();
+            var scopes = options.Scopes;
             
-            if (!scopes.Any())
+            if (scopes == null || !scopes.Any())
             {
                 throw new MicrosoftIdentityAuthenticationException(
                     "Authentication scopes must be configured in the options.Scopes property.");
@@ -65,9 +65,8 @@ namespace Microsoft.Identity.Web
             // Acquire authorization header
             try
             {
-                var authorizationOptions = options.ToAuthorizationHeaderProviderOptions();
                 var authHeader = await _headerProvider.CreateAuthorizationHeaderAsync(
-                    scopes, authorizationOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    scopes, options, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 // Remove existing authorization header if present
                 if (request.Headers.Contains(Constants.Authorization))

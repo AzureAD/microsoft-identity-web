@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -11,37 +9,15 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Configuration options for MicrosoftIdentityMessageHandler authentication.
     /// </summary>
-    public class MicrosoftIdentityMessageHandlerOptions
+    public class MicrosoftIdentityMessageHandlerOptions : AuthorizationHeaderProviderOptions
     {
         /// <summary>
         /// The scopes to request for the token.
+        /// For instance "user.read mail.read".
+        /// For Microsoft identity, in the case of application tokens (token 
+        /// requested by the app on behalf of itself), there should be only one scope, and it
+        /// should end in ".default")
         /// </summary>
         public IList<string> Scopes { get; set; } = new List<string>();
-
-        /// <summary>
-        /// Additional authorization header provider options.
-        /// </summary>
-        public AuthorizationHeaderProviderOptions? AuthorizationHeaderProviderOptions { get; set; }
-
-        /// <summary>
-        /// Creates an AuthorizationHeaderProviderOptions instance with scopes configured.
-        /// </summary>
-        /// <returns>An AuthorizationHeaderProviderOptions instance.</returns>
-        internal AuthorizationHeaderProviderOptions ToAuthorizationHeaderProviderOptions()
-        {
-            var options = AuthorizationHeaderProviderOptions ?? new AuthorizationHeaderProviderOptions();
-            
-            // Copy over any additional properties as needed
-            return options;
-        }
-
-        /// <summary>
-        /// Gets the scopes as an enumerable of strings.
-        /// </summary>
-        /// <returns>The scopes.</returns>
-        internal IEnumerable<string> GetScopes()
-        {
-            return Scopes ?? Enumerable.Empty<string>();
-        }
     }
 }

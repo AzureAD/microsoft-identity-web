@@ -6,8 +6,6 @@ Microsoft.Identity.Web.MicrosoftIdentityAuthenticationException.MicrosoftIdentit
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandler
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.MicrosoftIdentityMessageHandler(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! headerProvider, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions? defaultOptions = null, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.MicrosoftIdentityMessageHandler!>? logger = null) -> void
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.AuthorizationHeaderProviderOptions.get -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions?
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.AuthorizationHeaderProviderOptions.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityMessageHandlerOptions() -> void
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.get -> System.Collections.Generic.IList<string!>!
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.set -> void
