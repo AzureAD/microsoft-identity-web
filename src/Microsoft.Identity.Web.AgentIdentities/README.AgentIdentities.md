@@ -272,15 +272,32 @@ var userResponse = await downstreamApi.GetForUserAsync<string>(
 ```
 
 
+### 6. Azure SDKs integration
+
+To call Azure SDKs, use the MicrosoftIdentityAzureCredential class from the Microsoft.Identity.Web.Azure NuGet package.
+
+Install the Microsoft.Identity.Web.Azure package:
+
+```bash
+dotnet add package Microsoft.Identity.Web.Azure
+```
+
+Add the support for Azure token credential in your service collection:
+
+```bash
+services.AddMicrosoftIdentityAzureTokenCredential();
+```
+
+You can now get a `MicrosoftIdentityTokenCredential` from the service provider. This class has a member Options to which you can apply the
+`.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
+
+See [Readme-azure](../../README-Azure.md)
+
 ### 7. HttpClient with MicrosoftIdentityMessageHandler Integration
 
 For scenarios where you want to use HttpClient directly with flexible authentication options, you can use the `MicrosoftIdentityMessageHandler` from the Microsoft.Identity.Web.TokenAcquisition package.
 
-Install the Microsoft.Identity.Web.TokenAcquisition package if not already installed:
-
-```bash
-dotnet add package Microsoft.Identity.Web.TokenAcquisition
-```
+Note: The Microsoft.Identity.Web.TokenAcquisition package is already referenced by Microsoft.Identity.Web.AgentIdentities.
 
 #### Using Agent Identity with MicrosoftIdentityMessageHandler:
 
