@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Web.Test
                     ExpectedLogMessage = string.Format
                     (
                         CultureInfo.InvariantCulture,
-                        DefaultCredentialsLoader.CustomSignedAssertionProviderLoadingFailureMessage
+                        LoggerExtensions.CustomSignedAssertionProviderLoadingFailureMessage
                         (
                             "Provider5",
                             CredentialSource.CustomSignedAssertion.ToString(),
