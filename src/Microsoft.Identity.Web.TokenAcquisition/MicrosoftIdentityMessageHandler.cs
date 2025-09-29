@@ -151,6 +151,13 @@ namespace Microsoft.Identity.Web
     /// <seealso cref="IAuthorizationHeaderProvider"/>
     public class MicrosoftIdentityMessageHandler : DelegatingHandler
     {
+        /// <summary>
+        /// Compiled regular expression for extracting claims from WWW-Authenticate challenge headers.
+        /// Matches the claims parameter in Bearer challenges with format: claims="base64encodedclaims"
+        /// </summary>
+        private static readonly System.Text.RegularExpressions.Regex ClaimsExtractionRegex =
+            new(@"claims=""([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
         private readonly IAuthorizationHeaderProvider _headerProvider;
         private readonly MicrosoftIdentityMessageHandlerOptions? _defaultOptions;
         private readonly ILogger<MicrosoftIdentityMessageHandler>? _logger;
@@ -280,8 +287,7 @@ namespace Microsoft.Identity.Web
                         {
                             // Look for claims parameter in the Bearer challenge
                             // Format: Bearer realm="...", claims="base64encodedclaims"
-                            var claimsMatch = System.Text.RegularExpressions.Regex.Match(
-                                headerValue, @"claims=""([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                            var claimsMatch = ClaimsExtractionRegex.Match(headerValue);
                             
                             if (claimsMatch.Success)
                             {
