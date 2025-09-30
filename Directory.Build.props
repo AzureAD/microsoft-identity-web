@@ -57,6 +57,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <PackageValidationBaselineFrameworkToIgnore Include="netcoreapp3.1" />    
     <PackageValidationBaselineFrameworkToIgnore Include="net6.0" />
     <PackageValidationBaselineFrameworkToIgnore Include="net7.0" />
   </ItemGroup>
