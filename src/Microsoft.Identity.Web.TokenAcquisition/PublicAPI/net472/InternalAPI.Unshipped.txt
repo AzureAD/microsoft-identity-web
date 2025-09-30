@@ -1,1 +1,2 @@
 #nullable enable
+readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> Microsoft.Identity.Web.Experimental.ICertificatesObserver![]!
