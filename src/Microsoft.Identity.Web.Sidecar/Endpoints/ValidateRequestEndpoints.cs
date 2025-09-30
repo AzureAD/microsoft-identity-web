@@ -17,7 +17,7 @@ public static class ValidateRequestEndpoints
     public static void AddValidateRequestEndpoints(this WebApplication app)
     {
         app.MapGet("/Validate", ValidateEndpoint).
-            WithName("Validate Authorization header").
+            WithName("ValidateAuthorizationHeader").
             RequireAuthorization().
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);

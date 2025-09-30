@@ -18,7 +18,7 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     private readonly SidecarApiFactory _factory = factory;
 
     [Fact]
-    public async Task OpenApiEndpoint_IsAvailable_InDevelopment()
+    public async Task OpenApiEndpoint_IsAvailable_InDevelopmentAsync()
     {
         // Arrange
         var client = _factory.WithWebHostBuilder(builder =>
@@ -36,15 +36,14 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public async Task AuthorizationEndpoint_ExistsButDoesNotRequiresAuth()
+    public async Task AuthorizationUnauthenticatedEndpoint_DownstreamApiAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
 
         // Act
-        // The API does not exist (which is fine) but Scopes are not provided in the
-        // override
-        var response = await client.PostAsync("/AuthorizationHeader/test", JsonContent.Create(new DownstreamApiOptions{ Scopes = ["scopes"] }));
+        // The downstream API does not exist
+        var response = await client.GetAsync("/AuthorizationHeaderUnauthenticated/test?OptionsOverride.Scopes=scopes");
 
         // Assert
         string content = await response.Content.ReadAsStringAsync();
@@ -53,7 +52,7 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public async Task ValidateEndpoint_ExistsAndRequiresAuth()
+    public async Task ValidateEndpoint_ExistsAndRequiresAuthAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -74,13 +73,13 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
 
         // Assert - Verify key services are registered
         Assert.NotNull(services.GetService<IConfiguration>());
-        
+
         var tokenAcquisition = services.GetService<ITokenAcquisition>();
         Assert.NotNull(tokenAcquisition);
     }
 
     [Fact]
-    public async Task Application_HandlesInvalidRoutes()
+    public async Task Application_HandlesInvalidRoutesAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -93,20 +92,20 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public async Task Application_HandlesMethodNotAllowed()
+    public async Task Application_HandlesMethodNotAllowedAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
 
-        // Act - Try GET on POST endpoint
-        var response = await client.GetAsync("/AuthorizationHeader/test");
+        // Act - Try POST on GET endpoint
+        var response = await client.PostAsync("/AuthorizationHeader/test", null);
 
         // Assert
         Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
     }
 
     [Fact]
-    public async Task HealthCheck_IfConfigured_Works()
+    public async Task HealthCheck_IfConfigured_WorksAsync()
     {
         var client = _factory.CreateClient();
 
@@ -126,11 +125,11 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
 
         // Act & Assert
         Assert.NotNull(configuration);
-        
+
         // Verify configuration sections exist (they might be empty in test environment)
         var azureAdSection = configuration.GetSection("AzureAd");
         Assert.NotNull(azureAdSection);
-        
+
         var downstreamApiSection = configuration.GetSection("DownstreamApi");
         Assert.NotNull(downstreamApiSection);
     }
