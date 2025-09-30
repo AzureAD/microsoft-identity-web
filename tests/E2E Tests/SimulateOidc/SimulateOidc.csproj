@@ -12,7 +12,6 @@
     <Content Remove="wwwroot\**" />
     <EmbeddedResource Remove="wwwroot\**" />
     <None Remove="wwwroot\**" />
-
   </ItemGroup>
 
   <ItemGroup>
@@ -39,3 +38,4 @@
   </ItemGroup>
 
 </Project>
+
