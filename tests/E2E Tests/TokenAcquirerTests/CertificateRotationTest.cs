@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
@@ -29,6 +30,7 @@ namespace TokenAcquirerTests
         ServicePrincipal? _servicePrincipal;
         readonly GraphServiceClient _graphServiceClient;
         X509Certificate? _currentCertificate = null;
+        ConcurrentDictionary<string, int> _usages = [];
 
         public CertificateRotationTest()
         {
@@ -111,9 +113,14 @@ namespace TokenAcquirerTests
             {
             }
 
+            // Ensure that the first certificate has a successful usage
+            Assert.True(_usages.TryGetValue(firstCertificate.Thumbprint, out int firstUsages));
+            Assert.Equal(1, firstUsages);
+
             // Keep acquiring tokens every minute for 5 mins
             // Tokens should be acquired successfully
-            for (int i = 0; i < 6; i++)
+            int i;
+            for (i = 0; i < 6; i++)
             {
                 // Wait for a minute
                 await Task.Delay(60 * 1000);
@@ -139,6 +146,9 @@ namespace TokenAcquirerTests
                         break;
                     }
 
+                    // Validate that the usages have incremented
+                    Assert.True(_usages.TryGetValue(firstCertificate.Thumbprint, out firstUsages));
+                    Assert.Equal(i + 2, firstUsages);
                 }
                 catch (Exception)
                 {
@@ -147,8 +157,16 @@ namespace TokenAcquirerTests
                 }
             }
 
+            // Check that the first certificate did not increment usages anymore.
+            Assert.True(_usages.TryGetValue(firstCertificate.Thumbprint, out firstUsages));
+            Assert.Equal(i + 1, firstUsages); // Note that this is +1 instead of +2 as in the loop.
+
             // Check the last certificate used is the second one.
             Assert.True(_currentCertificate != null && _currentCertificate.GetPublicKeyString() == secondCertificate.GetPublicKeyString());
+
+            // Ensure that we have a recorded usage for the second cert
+            Assert.True(_usages.TryGetValue(firstCertificate.Thumbprint, out int secondUsage));
+            Assert.Equal(1, secondUsage);
 
             // Delete both certs from the cert store and remove the app registration
             await RemoveAppAndCertificatesAsync(firstCertificate, secondCertificate);
@@ -332,6 +350,11 @@ namespace TokenAcquirerTests
 
                 case CerticateObserverAction.Deselected:
                     _currentCertificate = null;
+                    break;
+
+                case CerticateObserverAction.SuccessfullyUsed:
+                    _ = e.Certificate ?? throw new ArgumentNullException(nameof(e.Certificate));
+                    _usages[e.Certificate.Thumbprint] = _usages.TryGetValue(e.Certificate.Thumbprint, out int usages) ? usages + 1 : 0;
                     break;
             }
         }
