@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Net.Mime;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Microsoft.OpenApi.Models;
@@ -110,6 +110,13 @@ public static class AuthorizationHeaderEndpoint
             logger.AuthorizationHeaderAsyncError(ex);
             return TypedResults.Problem(
                 detail: ex.InnerException?.Message ?? ex.Message,
+                statusCode: StatusCodes.Status401Unauthorized);
+        }
+        catch(MsalServiceException ex)
+        {
+            logger.AuthorizationHeaderAsyncError(ex);
+            return TypedResults.Problem(
+                detail: ex.Message,
                 statusCode: StatusCodes.Status401Unauthorized);
         }
         catch (Exception ex)

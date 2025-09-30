@@ -18,8 +18,8 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
@@ -30,20 +30,23 @@ public class Program
         builder.Services.AddAgentIdentities()
                .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
+        // Health checks:
+        // Tag checks that should participate in readiness with "ready".
         builder.Services.AddHealthChecks();
 
         ConfigureAuthN(builder);
 
         builder.Services.AddAuthorization();
 
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
 
+        // Single endpoint for both liveness and readiness
+        // as no checks are performed as part of startup.
+        // httpGet: path: /health
         app.MapHealthChecks("/healthz");
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
