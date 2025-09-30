@@ -37,13 +37,8 @@ internal static class OpenApiDescriptions
         AddSimple(op, "optionsOverride.AcceptHeader", "string", "Sets Accept header (e.g. application/json).");
         AddSimple(op, "optionsOverride.ContentType", "string", "Sets Content-Type used for serialized body (if body provided).");
 
-        // Extra headers / query parameters (document convention)
-        AddSimple(op, "optionsOverride.ExtraHeaderParameters[Header-Name]", "string", "Add/override an HTTP request header.");
-        AddSimple(op, "optionsOverride.ExtraQueryParameters[param]", "string", "Add/override a downstream query parameter.");
-
         // AcquireTokenOptions.* (token acquisition tuning)
         AddAcquireTokenOption(op, "Tenant", "Override tenant (GUID or 'common').");
-        AddAcquireTokenOption(op, "UserFlow", "B2C user flow (if applicable).");
         AddAcquireTokenOption(op, "ForceRefresh", "boolean", "true = bypass token cache.");
         AddAcquireTokenOption(op, "AuthenticationOptionsName", "Named authentication configuration to use.");
         AddAcquireTokenOption(op, "Claims", "JSON claims challenge or extra claims.");
@@ -52,13 +47,8 @@ internal static class OpenApiDescriptions
         AddAcquireTokenOption(op, "FmiPath", "Federated Managed Identity path (if using FMI).");
         AddAcquireTokenOption(op, "PopPublicKey", "Public key or JWK for PoP / AT-POP requests.");
 
-        // AcquireTokenOptions dictionaries
-        AddAcquireTokenOption(op, "ExtraQueryParameters[name]", "Additional token request query parameter value.");
-        AddAcquireTokenOption(op, "ExtraHeadersParameters[Header]", "Additional token request header value.");
-
         // Managed Identity (if enabled)
-        AddAcquireTokenOption(op, "ManagedIdentity.ClientId", "Managed Identity client id (user-assigned).");
-        AddAcquireTokenOption(op, "ManagedIdentity.ResourceId", "Managed Identity resource id (user-assigned).");
+        AddAcquireTokenOption(op, "ManagedIdentity.UserAssignedClientId", "Managed Identity client id (user-assigned).");
 
         // Provide a compact summary
         op.Extensions["x-optionsOverride-summary"] =
@@ -66,7 +56,7 @@ internal static class OpenApiDescriptions
                 "Supported dotted overrides: " +
                 "Scopes (repeatable), RequestAppToken, BaseUrl, RelativePath, HttpMethod, AcceptHeader, ContentType, " +
                 "ExtraHeaderParameters[H], ExtraQueryParameters[p], " +
-                "AcquireTokenOptions.(Tenant|UserFlow|ForceRefresh|AuthenticationOptionsName|Claims|CorrelationId|LongRunningWebApiSessionKey|FmiPath|PopPublicKey|ExtraQueryParameters[name]|ExtraHeadersParameters[Header]|ManagedIdentity.ClientId|ManagedIdentity.ResourceId)");
+                "AcquireTokenOptions.(Tenant|ForceRefresh|AuthenticationOptionsName|Claims|CorrelationId|LongRunningWebApiSessionKey|FmiPath|PopPublicKey|ManagedIdentity.UserAssignedClientId)");
 
         // Extended description (optional)
         op.Extensions["x-optionsOverride-notes"] =

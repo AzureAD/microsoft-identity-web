@@ -29,7 +29,7 @@ public static class AuthorizationHeaderEndpoint
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
-                "  ?optionsOverride.AcquireTokenOptions.Tenant=common\n" +
+                "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.").
             WithOpenApi(ConfigureOpenAPI);
 
@@ -45,7 +45,7 @@ public static class AuthorizationHeaderEndpoint
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
-                "  ?optionsOverride.AcquireTokenOptions.Tenant=common\n" +
+                "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.").
             WithOpenApi(ConfigureOpenAPI);
     }

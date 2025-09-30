@@ -51,7 +51,7 @@
           "AuthorizationHeaderEndpoint"
         ],
         "summary": "Get an authorization header for a configured downstream API.",
-        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeader",
         "parameters": [
           {
@@ -117,7 +117,7 @@
           "AuthorizationHeaderEndpoint"
         ],
         "summary": "Get an authorization header for a configured downstream API using this configured client credentials.",
-        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeaderUnauthenticated",
         "parameters": [
           {
@@ -183,7 +183,7 @@
           "DownstreamApiEndpoint"
         ],
         "summary": "Invoke a configured downstream API through the sidecar using the authenticated identity.",
-        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
         "operationId": "DownstreamApi",
         "parameters": [
           {
@@ -249,7 +249,7 @@
           "DownstreamApiEndpoint"
         ],
         "summary": "Invoke a configured downstream API through the sidecar using the configured client credentials.",
-        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=common\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
         "operationId": "DownstreamApiUnauthenticated",
         "parameters": [
           {

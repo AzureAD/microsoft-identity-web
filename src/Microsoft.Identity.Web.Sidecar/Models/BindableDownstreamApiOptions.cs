@@ -68,9 +68,6 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                     case "tenant":
                         result.AcquireTokenOptions.Tenant = last;
                         break;
-                    case "userflow":
-                        result.AcquireTokenOptions.UserFlow = last;
-                        break;
                     case "forcerefresh":
                         if (bool.TryParse(last, out var fr))
                             result.AcquireTokenOptions.ForceRefresh = fr;
@@ -92,6 +89,10 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                         break;
                     case "poppublickey":
                         result.AcquireTokenOptions.PopPublicKey = last;
+                        break;
+                    case "managedidentity.userassignedclientid":
+                        result.AcquireTokenOptions.ManagedIdentity.
+                        result.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId = last;
                         break;
                 }
             }

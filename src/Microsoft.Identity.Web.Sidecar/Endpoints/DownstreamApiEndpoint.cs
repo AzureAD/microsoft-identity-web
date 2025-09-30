@@ -29,7 +29,7 @@ public static class DownstreamApiEndpoint
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
-                "  ?optionsOverride.AcquireTokenOptions.Tenant=common\n" +
+                "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default").
             WithOpenApi(ConfigureOpenAPI);
 
@@ -44,7 +44,7 @@ public static class DownstreamApiEndpoint
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
-                "  ?optionsOverride.AcquireTokenOptions.Tenant=common\n" +
+                "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default").
             WithOpenApi(ConfigureOpenAPI);
     }
