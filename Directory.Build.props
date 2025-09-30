@@ -58,6 +58,7 @@
 
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <PackageValidationBaselineFrameworkToIgnore Include="net6.0" />
+    <PackageValidationBaselineFrameworkToIgnore Include="net7.0" />
   </ItemGroup>
 
   <PropertyGroup Label="Source Link">
