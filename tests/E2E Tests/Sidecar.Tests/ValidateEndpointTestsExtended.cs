@@ -12,7 +12,7 @@ public class ValidateEndpointTestsExtended(SidecarApiFactory factory) : IClassFi
     private readonly SidecarApiFactory _factory = factory;
 
     [Fact]
-    public async Task Validate_WithoutAuthentication_ReturnsUnauthorized()
+    public async Task Validate_WithoutAuthentication_ReturnsUnauthorizedAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -25,7 +25,7 @@ public class ValidateEndpointTestsExtended(SidecarApiFactory factory) : IClassFi
     }
 
     [Fact]
-    public async Task Validate_WithInvalidToken_ReturnsUnauthorized()
+    public async Task Validate_WithInvalidToken_ReturnsUnauthorizedAsync()
     {
         // Arrange
         var client = _factory.CreateClient();
@@ -41,7 +41,7 @@ public class ValidateEndpointTestsExtended(SidecarApiFactory factory) : IClassFi
     }
 
     [Fact]
-    public async Task Validate_EndpointExists_AndRequiresAuthorization()
+    public async Task Validate_EndpointExists_AndRequiresAuthorizationAsync()
     {
         // Arrange
         var client = _factory.CreateClient();

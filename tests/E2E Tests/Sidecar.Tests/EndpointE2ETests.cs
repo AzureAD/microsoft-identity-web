@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
@@ -95,7 +96,7 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     }
 
     [Fact]
-    public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticated()
+    public async Task GetAuthorizationHeaderForAgentUserIdentityAuthenticatedAsync()
     {
         // Getting a token to call the API.
         string authorizationHeader = await GetAuthorizationHeaderToCallTheSideCarAsync();
@@ -104,7 +105,7 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        var response = await client.GetAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
@@ -119,18 +120,18 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
-        var response = await client.PostAsync($"/DownstreamApi/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        var response = await client.GetAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticated()
+    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticatedAsync()
     {
         // Calling the API
         var client = _factory.CreateClient();
 
-        var response = await client.PostAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        var response = await client.GetAsync($"/AuthorizationHeaderUnauthenticated/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
@@ -140,16 +141,8 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     {
         var client = _factory.CreateClient();
 
-        var result = await client.PostAsync(
-            $"/AuthorizationHeader/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}",
-            JsonContent.Create(new DownstreamApiOptions()
-            {
-                AcquireTokenOptions = new()
-                {
-                    Tenant = TenantId,
-                },
-                Scopes = ["user.read"]
-            }));
+        var result = await client.GetAsync(
+            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.Tenant={TenantId}&OptionsOverride.Scopes=user.read");
 
         Assert.True(result.IsSuccessStatusCode);
 
@@ -173,20 +166,10 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     {
         var client = _factory.CreateClient();
 
-        var result = await client.PostAsync(
-            $"/AuthorizationHeader/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}",
-            JsonContent.Create(new DownstreamApiOptions()
-            {
-                AcquireTokenOptions = new()
-                {
-                    Tenant = "invalid-tenant-id"
-                },
-                Scopes = ["user.read"]
-            }));
+        var result = await client.GetAsync(
+            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.AcquireTokenOptions.Tenant=invalid-tenant&OptionsOverride.Scopes=user.read");
 
-        var response = await result.Content.ReadFromJsonAsync<ProblemDetails>();
-
-        Assert.Equal(401, response?.Status);
+        Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
     }
 
 
