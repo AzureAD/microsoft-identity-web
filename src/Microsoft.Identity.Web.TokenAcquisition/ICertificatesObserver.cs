@@ -26,6 +26,11 @@ namespace Microsoft.Identity.Web.Experimental
         /// happens when the STS does not accept the certificate any longer.
         /// </summary>
         Deselected,
+
+        /// <summary>
+        /// The certificate was successfully used.
+        /// </summary>
+        SuccessfullyUsed,
     }
 
     /// <summary>
