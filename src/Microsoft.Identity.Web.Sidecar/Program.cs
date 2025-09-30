@@ -38,7 +38,10 @@ public class Program
 
         builder.Services.AddAuthorization();
 
-        builder.Services.AddOpenApi();
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddOperationTransformer(new OptionsOverrideOperationTransformer());
+        });
 
         var app = builder.Build();
 

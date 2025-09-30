@@ -9,12 +9,6 @@ internal static class OpenApiDescriptions
 {
     internal static void AddOptionsOverrideParameters(OpenApiOperation op)
     {
-        // Avoid duplicate injection
-        if (op.Extensions.ContainsKey("x-optionsOverride-summary"))
-        {
-            return;
-        }
-
         // Scopes (repeatable)
         op.Parameters.Add(new OpenApiParameter
         {
@@ -40,7 +34,6 @@ internal static class OpenApiDescriptions
         // AcquireTokenOptions.* (token acquisition tuning)
         AddAcquireTokenOption(op, "Tenant", "Override tenant (GUID or 'common').");
         AddAcquireTokenOption(op, "ForceRefresh", "boolean", "true = bypass token cache.");
-        AddAcquireTokenOption(op, "AuthenticationOptionsName", "Named authentication configuration to use.");
         AddAcquireTokenOption(op, "Claims", "JSON claims challenge or extra claims.");
         AddAcquireTokenOption(op, "CorrelationId", "GUID correlation id for token acquisition.");
         AddAcquireTokenOption(op, "LongRunningWebApiSessionKey", "Session key for long running OBO flows.");
@@ -49,20 +42,6 @@ internal static class OpenApiDescriptions
 
         // Managed Identity (if enabled)
         AddAcquireTokenOption(op, "ManagedIdentity.UserAssignedClientId", "Managed Identity client id (user-assigned).");
-
-        // Provide a compact summary
-        op.Extensions["x-optionsOverride-summary"] =
-            new OpenApi.Any.OpenApiString(
-                "Supported dotted overrides: " +
-                "Scopes (repeatable), RequestAppToken, BaseUrl, RelativePath, HttpMethod, AcceptHeader, ContentType, " +
-                "ExtraHeaderParameters[H], ExtraQueryParameters[p], " +
-                "AcquireTokenOptions.(Tenant|ForceRefresh|AuthenticationOptionsName|Claims|CorrelationId|LongRunningWebApiSessionKey|FmiPath|PopPublicKey|ManagedIdentity.UserAssignedClientId)");
-
-        // Extended description (optional)
-        op.Extensions["x-optionsOverride-notes"] =
-            new OpenApi.Any.OpenApiString(
-                "Dictionary-style keys use bracket syntax. Example: " +
-                "optionsOverride.ExtraHeaderParameters[X-Custom]=Value & optionsOverride.AcquireTokenOptions.ExtraQueryParameters[prompt]=consent");
     }
 
     private static void AddSimple(OpenApiOperation op, string name, string type, string desc)

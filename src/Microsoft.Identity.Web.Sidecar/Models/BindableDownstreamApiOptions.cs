@@ -72,9 +72,6 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                         if (bool.TryParse(last, out var fr))
                             result.AcquireTokenOptions.ForceRefresh = fr;
                         break;
-                    case "authenticationoptionsname":
-                        result.AcquireTokenOptions.AuthenticationOptionsName = last;
-                        break;
                     case "claims":
                         result.AcquireTokenOptions.Claims = last;
                         break;
@@ -91,7 +88,7 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                         result.AcquireTokenOptions.PopPublicKey = last;
                         break;
                     case "managedidentity.userassignedclientid":
-                        result.AcquireTokenOptions.ManagedIdentity.
+                        result.AcquireTokenOptions.ManagedIdentity ??= new();
                         result.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId = last;
                         break;
                 }

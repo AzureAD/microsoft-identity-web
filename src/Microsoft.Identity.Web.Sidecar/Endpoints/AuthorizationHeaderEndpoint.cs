@@ -25,7 +25,7 @@ public static class AuthorizationHeaderEndpoint
             WithSummary("Get an authorization header for a configured downstream API.").
             WithDescription(
                 "This endpoint will use the identity of the authenticated request to acquire an authorization header." +
-                "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. " +
+                "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
@@ -41,7 +41,7 @@ public static class AuthorizationHeaderEndpoint
             WithSummary("Get an authorization header for a configured downstream API using this configured client credentials.").
             WithDescription(
                 "This endpoint will use the configured client credentials to acquire an authorization header." +
-                "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. " +
+                "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +

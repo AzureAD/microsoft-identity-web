@@ -51,7 +51,7 @@
           "AuthorizationHeaderEndpoint"
         ],
         "summary": "Get an authorization header for a configured downstream API.",
-        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeader",
         "parameters": [
           {
@@ -72,6 +72,127 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.Scopes",
+            "in": "query",
+            "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RequestAppToken",
+            "in": "query",
+            "description": "true = acquire an app (client credentials) token instead of user token.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "optionsOverride.BaseUrl",
+            "in": "query",
+            "description": "Override downstream API base URL.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RelativePath",
+            "in": "query",
+            "description": "Override relative path appended to BaseUrl.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.HttpMethod",
+            "in": "query",
+            "description": "Override HTTP method (GET, POST, PATCH, etc.).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcceptHeader",
+            "in": "query",
+            "description": "Sets Accept header (e.g. application/json).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.ContentType",
+            "in": "query",
+            "description": "Sets Content-Type used for serialized body (if body provided).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Tenant",
+            "in": "query",
+            "description": "Override tenant (GUID or 'common').",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
+            "in": "query",
+            "description": "boolean",
+            "schema": {
+              "type": "true = bypass token cache."
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Claims",
+            "in": "query",
+            "description": "JSON claims challenge or extra claims.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.CorrelationId",
+            "in": "query",
+            "description": "GUID correlation id for token acquisition.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey",
+            "in": "query",
+            "description": "Session key for long running OBO flows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.FmiPath",
+            "in": "query",
+            "description": "Federated Managed Identity path (if using FMI).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.PopPublicKey",
+            "in": "query",
+            "description": "Public key or JWK for PoP / AT-POP requests.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId",
+            "in": "query",
+            "description": "Managed Identity client id (user-assigned).",
             "schema": {
               "type": "string"
             }
@@ -117,7 +238,7 @@
           "AuthorizationHeaderEndpoint"
         ],
         "summary": "Get an authorization header for a configured downstream API using this configured client credentials.",
-        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeaderUnauthenticated",
         "parameters": [
           {
@@ -138,6 +259,127 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.Scopes",
+            "in": "query",
+            "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RequestAppToken",
+            "in": "query",
+            "description": "true = acquire an app (client credentials) token instead of user token.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "optionsOverride.BaseUrl",
+            "in": "query",
+            "description": "Override downstream API base URL.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RelativePath",
+            "in": "query",
+            "description": "Override relative path appended to BaseUrl.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.HttpMethod",
+            "in": "query",
+            "description": "Override HTTP method (GET, POST, PATCH, etc.).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcceptHeader",
+            "in": "query",
+            "description": "Sets Accept header (e.g. application/json).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.ContentType",
+            "in": "query",
+            "description": "Sets Content-Type used for serialized body (if body provided).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Tenant",
+            "in": "query",
+            "description": "Override tenant (GUID or 'common').",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
+            "in": "query",
+            "description": "boolean",
+            "schema": {
+              "type": "true = bypass token cache."
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Claims",
+            "in": "query",
+            "description": "JSON claims challenge or extra claims.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.CorrelationId",
+            "in": "query",
+            "description": "GUID correlation id for token acquisition.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey",
+            "in": "query",
+            "description": "Session key for long running OBO flows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.FmiPath",
+            "in": "query",
+            "description": "Federated Managed Identity path (if using FMI).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.PopPublicKey",
+            "in": "query",
+            "description": "Public key or JWK for PoP / AT-POP requests.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId",
+            "in": "query",
+            "description": "Managed Identity client id (user-assigned).",
             "schema": {
               "type": "string"
             }
@@ -207,6 +449,127 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "optionsOverride.Scopes",
+            "in": "query",
+            "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RequestAppToken",
+            "in": "query",
+            "description": "true = acquire an app (client credentials) token instead of user token.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "optionsOverride.BaseUrl",
+            "in": "query",
+            "description": "Override downstream API base URL.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RelativePath",
+            "in": "query",
+            "description": "Override relative path appended to BaseUrl.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.HttpMethod",
+            "in": "query",
+            "description": "Override HTTP method (GET, POST, PATCH, etc.).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcceptHeader",
+            "in": "query",
+            "description": "Sets Accept header (e.g. application/json).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.ContentType",
+            "in": "query",
+            "description": "Sets Content-Type used for serialized body (if body provided).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Tenant",
+            "in": "query",
+            "description": "Override tenant (GUID or 'common').",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
+            "in": "query",
+            "description": "boolean",
+            "schema": {
+              "type": "true = bypass token cache."
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Claims",
+            "in": "query",
+            "description": "JSON claims challenge or extra claims.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.CorrelationId",
+            "in": "query",
+            "description": "GUID correlation id for token acquisition.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey",
+            "in": "query",
+            "description": "Session key for long running OBO flows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.FmiPath",
+            "in": "query",
+            "description": "Federated Managed Identity path (if using FMI).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.PopPublicKey",
+            "in": "query",
+            "description": "Public key or JWK for PoP / AT-POP requests.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId",
+            "in": "query",
+            "description": "Managed Identity client id (user-assigned).",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -270,6 +633,127 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.Scopes",
+            "in": "query",
+            "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RequestAppToken",
+            "in": "query",
+            "description": "true = acquire an app (client credentials) token instead of user token.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "optionsOverride.BaseUrl",
+            "in": "query",
+            "description": "Override downstream API base URL.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.RelativePath",
+            "in": "query",
+            "description": "Override relative path appended to BaseUrl.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.HttpMethod",
+            "in": "query",
+            "description": "Override HTTP method (GET, POST, PATCH, etc.).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcceptHeader",
+            "in": "query",
+            "description": "Sets Accept header (e.g. application/json).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.ContentType",
+            "in": "query",
+            "description": "Sets Content-Type used for serialized body (if body provided).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Tenant",
+            "in": "query",
+            "description": "Override tenant (GUID or 'common').",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
+            "in": "query",
+            "description": "boolean",
+            "schema": {
+              "type": "true = bypass token cache."
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.Claims",
+            "in": "query",
+            "description": "JSON claims challenge or extra claims.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.CorrelationId",
+            "in": "query",
+            "description": "GUID correlation id for token acquisition.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey",
+            "in": "query",
+            "description": "Session key for long running OBO flows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.FmiPath",
+            "in": "query",
+            "description": "Federated Managed Identity path (if using FMI).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.PopPublicKey",
+            "in": "query",
+            "description": "Public key or JWK for PoP / AT-POP requests.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId",
+            "in": "query",
+            "description": "Managed Identity client id (user-assigned).",
             "schema": {
               "type": "string"
             }
