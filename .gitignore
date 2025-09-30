@@ -358,3 +358,7 @@ MigrationBackup/
 /out/
 objd/
 /src/Microsoft.Identity.Web.Sidecar/http-client.env.json
+
+# Generated data protection keys
+
+key*.xml
