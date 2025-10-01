@@ -1,1 +1,2 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
