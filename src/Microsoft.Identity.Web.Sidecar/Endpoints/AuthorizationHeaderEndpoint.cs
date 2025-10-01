@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ComponentModel;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -64,7 +65,9 @@ public static class AuthorizationHeaderEndpoint
 
     private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
-        [FromRoute] string apiName,
+        [Description("The downstream API to acquire an authorization header for.")]
+        [FromRoute]
+        string apiName,
         [AsParameters] AuthorizationHeaderRequest requestParameters,
         BindableDownstreamApiOptions? optionsOverride,
         [FromServices] IAuthorizationHeaderProvider headerProvider,

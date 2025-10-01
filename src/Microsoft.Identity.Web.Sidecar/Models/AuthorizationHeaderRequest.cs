@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,8 +16,10 @@ namespace Microsoft.Identity.Web.Sidecar.Models;
 public readonly struct AuthorizationHeaderRequest
 {
     [FromQuery]
+    [Description("The identity of the agent.")]
     public string? AgentIdentity { get; init; }
 
     [FromQuery]
+    [Description("The username of the agent.")]
     public string? AgentUsername { get; init; }
 }
