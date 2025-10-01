@@ -1,0 +1,1 @@
+docker build . -t idweb-sidecar:dev -f Dockerfile.AzureLinux
