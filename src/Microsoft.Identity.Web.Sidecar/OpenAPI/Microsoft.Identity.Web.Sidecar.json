@@ -74,7 +74,15 @@
           {
             "name": "AgentUsername",
             "in": "query",
-            "description": "The username of the agent.",
+            "description": "The username (UPN) of the agent.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUserId",
+            "in": "query",
+            "description": "The ID of the agent (OID).",
             "schema": {
               "type": "string"
             }
@@ -264,7 +272,15 @@
           {
             "name": "AgentUsername",
             "in": "query",
-            "description": "The username of the agent.",
+            "description": "The username (UPN) of the agent.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUserId",
+            "in": "query",
+            "description": "The ID of the agent (OID).",
             "schema": {
               "type": "string"
             }
@@ -446,6 +462,7 @@
           {
             "name": "AgentIdentity",
             "in": "query",
+            "description": "The identity of the agent.",
             "schema": {
               "type": "string"
             }
@@ -453,6 +470,15 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "description": "The username (UPN) of the agent.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUserId",
+            "in": "query",
+            "description": "The ID of the agent (OID).",
             "schema": {
               "type": "string"
             }
@@ -634,6 +660,7 @@
           {
             "name": "AgentIdentity",
             "in": "query",
+            "description": "The identity of the agent.",
             "schema": {
               "type": "string"
             }
@@ -641,6 +668,15 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "description": "The username (UPN) of the agent.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AgentUserId",
+            "in": "query",
+            "description": "The ID of the agent (OID).",
             "schema": {
               "type": "string"
             }

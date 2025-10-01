@@ -411,6 +411,108 @@ public class DownstreamApiEndpointTests(SidecarApiFactory factory) : IClassFixtu
         Assert.True(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_USERNAME"));
     }
 
+    [Fact]
+    public async Task DownstreamApi_WithAgentIdentityAndUserId_PassesAgentUserIdentityToOptionsAsync()
+    {
+        // Arrange
+        var responseContent = "{\"result\": \"success\"}";
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+        };
+
+        DownstreamApiOptions? capturedOptions = null;
+        var mockDownstreamApi = new Mock<IDownstreamApi>();
+        mockDownstreamApi
+            .Setup(x => x.CallApiAsync(It.IsAny<DownstreamApiOptions>(), It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Callback<DownstreamApiOptions, System.Security.Claims.ClaimsPrincipal, HttpContent?, CancellationToken>((options, _, _, _) =>
+            {
+                capturedOptions = options;
+            })
+            .ReturnsAsync(mockResponse);
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        var agentIdentity = "test-agent-id";
+        var agentUserId = "d75c4739-595d-44ed-a0b8-5176ca033c23";
+
+        // Act
+        var response = await client.PostAsync($"/DownstreamApi/test-api?agentidentity={agentIdentity}&agentUserId={agentUserId}", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_AGENT_IDENTITY"));
+        Assert.True(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_USER_ID"));
+    }
+
+    [Fact]
+    public async Task DownstreamApi_WithAgentIdentityAndUserIdAndUsername_UsernameIsUsed()
+    {
+        // Arrange
+        var responseContent = "{\"result\": \"success\"}";
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+        };
+
+        DownstreamApiOptions? capturedOptions = null;
+        var mockDownstreamApi = new Mock<IDownstreamApi>();
+        mockDownstreamApi
+            .Setup(x => x.CallApiAsync(It.IsAny<DownstreamApiOptions>(), It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Callback<DownstreamApiOptions, System.Security.Claims.ClaimsPrincipal, HttpContent?, CancellationToken>((options, _, _, _) =>
+            {
+                capturedOptions = options;
+            })
+            .ReturnsAsync(mockResponse);
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        var agentIdentity = "test-agent-id";
+        var agentUserId = "d75c4739-595d-44ed-a0b8-5176ca033c23";
+        var agentUsername = "test-user@example.com";
+
+        // Act
+        var response = await client.PostAsync($"/DownstreamApi/test-api?agentidentity={agentIdentity}&agentUserId={agentUserId}&agentUsername={agentUsername}", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_AGENT_IDENTITY"));
+        Assert.True(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_USERNAME"));
+        Assert.False(capturedOptions?.AcquireTokenOptions?.ExtraParameters?.Keys.Contains("IDWEB_USER_ID"));
+    }
+
 
     [Fact]
     public async Task DownstreamApi_WithTenantOverride_PassesTenantIdToOptionsAsync()
