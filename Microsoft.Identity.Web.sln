@@ -136,11 +136,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenAcquirerTests", "tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppUiTests", "tests\E2E Tests\WebAppUiTests\WebAppUiTests.csproj", "{CD2986BB-6A75-4FA4-8791-2C311D6D5227}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NET 7 tests", "NET 7 tests", "{2A25ADFF-67CA-4BBB-A6A3-36607BD6275C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThreadingTests", "ThreadingTests", "{2A25ADFF-67CA-4BBB-A6A3-36607BD6275C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "tests\E2E Tests\NET 7 tests\WebApp\WebApp.csproj", "{68001420-D41D-4E49-A168-E8D66B89669B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "tests\E2E Tests\ThreadingTests\WebApp\WebApp.csproj", "{68001420-D41D-4E49-A168-E8D66B89669B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\E2E Tests\NET 7 tests\IntegrationTests\IntegrationTests.csproj", "{1674F4F5-6AD8-484B-86A4-8679123A39F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\E2E Tests\ThreadingTests\IntegrationTests\IntegrationTests.csproj", "{1674F4F5-6AD8-484B-86A4-8679123A39F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmark", "benchmark", "{A6799B45-E2FD-4ACA-86A2-D1AD5B1E2ECE}"
 EndProject
