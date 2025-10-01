@@ -1,0 +1,24 @@
+{
+  "name": "microsoft-identity-web-adpater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx tsx src/app.ts",
+    "build": "npx tsc",
+    "lint" : "npx eslint . --ext .ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.12.7",
+    "tsx": "^4.7.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.45.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
