@@ -362,3 +362,7 @@ objd/
 # Generated data protection keys
 
 key*.xml
+
+# bin files
+
+*.bin
