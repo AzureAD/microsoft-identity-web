@@ -1,5 +1,7 @@
-from msal import PublicClientApplication, SerializableTokenCache
+import argparse
 import os
+
+from msal import PublicClientApplication, SerializableTokenCache
 
 # Persistent token cache
 cache = SerializableTokenCache()
@@ -8,9 +10,33 @@ cache = SerializableTokenCache()
 if os.path.exists("token_cache.bin"):
     cache.deserialize(open("token_cache.bin", "r").read())
 
+parser = argparse.ArgumentParser(
+    description="Acquire a token using MSAL with a persistent cache."
+)
+parser.add_argument(
+    "--client-id",
+    required=True,
+    help="The application (client) ID registered in Azure AD."
+)
+parser.add_argument(
+    "--authority",
+    required=True,
+    help="The authority URL, e.g. https://login.microsoftonline.com/<tenant>."
+)
+parser.add_argument(
+    "--scope",
+    required=True,
+    help="The scope for the access token."
+)
+args = parser.parse_args()
+
+client_id = args.client_id
+authority = args.authority
+scope = args.scope
+
 app = PublicClientApplication(
-    client_id="f79f9db9-c582-4b7b-9d4c-0e8fd40623f0",
-    authority="https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+    client_id=client_id,
+    authority=authority,
     token_cache=cache
 )
 
@@ -20,12 +46,12 @@ result = None
 
 if accounts:
     result = app.acquire_token_silent(
-        scopes=["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user"],
+        scopes=[scope],
         account=accounts[0]
     )
 
 if not result:
-    result = app.acquire_token_interactive(scopes=["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user"])
+    result = app.acquire_token_interactive(scopes=[scope])
 
 # Save cache after acquisition
 if cache.has_state_changed:
@@ -33,6 +59,6 @@ if cache.has_state_changed:
         cache_file.write(cache.serialize())
 
 if (result):
-    print("Access token acquired:", result["access_token"])
+    print(result["access_token"])
 else:
     print("Failed to acquire token:", result.get("error"), result.get("error_description"))
