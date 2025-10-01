@@ -15,6 +15,12 @@ namespace Microsoft.Identity.Web.Sidecar.Models;
 /// </summary>
 public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParameterMetadataProvider
 {
+    /// <summary>
+    /// The object needs to be non-nullable for the OpenAPI spec generation.
+    /// This provides a way to know if any override was actually provided.
+    /// </summary>
+    public bool HasAny { get; private set; }
+
     public BindableDownstreamApiOptions()
     {
     }
@@ -25,14 +31,16 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
         bool hasAny = ctx.Request.Query.Keys.Any(k =>
             k.StartsWith(paramName + ".", StringComparison.OrdinalIgnoreCase));
 
+        var result = new BindableDownstreamApiOptions();
+
         if (!hasAny)
         {
-            // No override supplied
-            return ValueTask.FromResult<BindableDownstreamApiOptions?>(null);
+            return ValueTask.FromResult<BindableDownstreamApiOptions?>(result);
         }
 
+        result.HasAny = true;
+
         var query = ctx.Request.Query;
-        var result = new BindableDownstreamApiOptions();
 
         foreach (var key in query.Keys)
         {
@@ -75,7 +83,7 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                     case "claims":
                         result.AcquireTokenOptions.Claims = last;
                         break;
-                    case "CorrelationId" when Guid.TryParse(last, out var corrId):
+                    case "correlationid" when Guid.TryParse(last, out var corrId):
                         result.AcquireTokenOptions.CorrelationId = corrId;
                         break;
                     case "fmipath":
@@ -118,7 +126,7 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
         return ValueTask.FromResult<BindableDownstreamApiOptions?>(result);
     }
 
-    // Let ApiExplorer/OpenAPI know this should be treated as coming from query
+    /// <inheritdoc/>
     public static void PopulateMetadata(ParameterInfo parameter, EndpointBuilder builder)
     {
         builder.Metadata.Add(new FromQueryAttribute());

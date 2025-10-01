@@ -68,7 +68,7 @@ public static class DownstreamApiEndpoint
         [FromRoute]
         string apiName,
         [AsParameters] DownstreamApiRequest requestParameters,
-        BindableDownstreamApiOptions? optionsOverride,
+        BindableDownstreamApiOptions optionsOverride,
         [FromServices] IDownstreamApi downstreamApi,
         [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
         [FromServices] ILogger<Program> logger,
@@ -83,7 +83,7 @@ public static class DownstreamApiEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        if (optionsOverride is not null)
+        if (optionsOverride.HasAny)
         {
             options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
         }

@@ -69,7 +69,7 @@ public static class AuthorizationHeaderEndpoint
         [FromRoute]
         string apiName,
         [AsParameters] AuthorizationHeaderRequest requestParameters,
-        BindableDownstreamApiOptions? optionsOverride,
+        BindableDownstreamApiOptions optionsOverride,
         [FromServices] IAuthorizationHeaderProvider headerProvider,
         [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
         [FromServices] ILogger<Program> logger,
@@ -84,7 +84,7 @@ public static class AuthorizationHeaderEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        if (optionsOverride is not null)
+        if (optionsOverride.HasAny)
         {
             options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
         }
