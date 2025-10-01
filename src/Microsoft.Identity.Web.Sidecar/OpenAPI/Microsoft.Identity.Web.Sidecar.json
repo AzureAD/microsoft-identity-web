@@ -57,6 +57,7 @@
           {
             "name": "apiName",
             "in": "path",
+            "description": "The downstream API to acquire an authorization header for.",
             "required": true,
             "schema": {
               "type": "string"
@@ -65,6 +66,7 @@
           {
             "name": "AgentIdentity",
             "in": "query",
+            "description": "The identity of the agent.",
             "schema": {
               "type": "string"
             }
@@ -72,6 +74,7 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "description": "The username of the agent.",
             "schema": {
               "type": "string"
             }
@@ -244,6 +247,7 @@
           {
             "name": "apiName",
             "in": "path",
+            "description": "The downstream API to acquire an authorization header for.",
             "required": true,
             "schema": {
               "type": "string"
@@ -252,6 +256,7 @@
           {
             "name": "AgentIdentity",
             "in": "query",
+            "description": "The identity of the agent.",
             "schema": {
               "type": "string"
             }
@@ -259,6 +264,7 @@
           {
             "name": "AgentUsername",
             "in": "query",
+            "description": "The username of the agent.",
             "schema": {
               "type": "string"
             }
@@ -431,6 +437,7 @@
           {
             "name": "apiName",
             "in": "path",
+            "description": "The downstream API to call",
             "required": true,
             "schema": {
               "type": "string"
@@ -618,6 +625,7 @@
           {
             "name": "apiName",
             "in": "path",
+            "description": "The downstream API to call",
             "required": true,
             "schema": {
               "type": "string"

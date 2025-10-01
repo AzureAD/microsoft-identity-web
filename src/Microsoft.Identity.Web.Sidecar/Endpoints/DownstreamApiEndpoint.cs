@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ComponentModel;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
@@ -63,9 +64,11 @@ public static class DownstreamApiEndpoint
 
     private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
         HttpContext httpContext,
-        [FromRoute] string apiName,
+        [Description("The downstream API to call")]
+        [FromRoute]
+        string apiName,
         [AsParameters] DownstreamApiRequest requestParameters,
-        BindableDownstreamApiOptions? optionsOverride,
+        BindableDownstreamApiOptions optionsOverride,
         [FromServices] IDownstreamApi downstreamApi,
         [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
         [FromServices] ILogger<Program> logger,
@@ -80,7 +83,7 @@ public static class DownstreamApiEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        if (optionsOverride is not null)
+        if (optionsOverride.HasAny)
         {
             options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
         }
