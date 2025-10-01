@@ -24,7 +24,7 @@
     <Right>lib/net8.0/Microsoft.Identity.Web.TokenAcquisition.dll</Right>
   </Suppression>
 
-  <!-- CP0006: interface members added only on net8.0 (signatures incl. nullable and generics) -->
+  <!-- CP0006: interface members added only on net8.0 -->
   <Suppression>
     <DiagnosticId>CP0006</DiagnosticId>
     <Target>M:Microsoft.Identity.Web.ITokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(System.Collections.Generic.IEnumerable{System.String},Microsoft.Identity.Client.MsalUiRequiredException,System.String?,Microsoft.AspNetCore.Http.HttpResponse?)</Target>
