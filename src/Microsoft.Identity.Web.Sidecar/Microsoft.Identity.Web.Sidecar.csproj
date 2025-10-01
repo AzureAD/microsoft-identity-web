@@ -24,9 +24,9 @@
 
   <!-- Trimming + perf (Release only) -->
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <TrimMode>partial</TrimMode>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
     <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Optional; enable only if you do not rely on culture-specific globalization -->
