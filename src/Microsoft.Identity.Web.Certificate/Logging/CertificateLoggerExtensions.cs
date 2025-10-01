@@ -24,12 +24,6 @@ internal static partial class LoggerExtensions
             "Failed to load credential {id} from source {sourceType}. Will it be skipped in the future ? {skip}."
         );
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="cd"></param>
-    /// <param name="ex"></param>
     public static void CredentialLoadingFailure(this ILogger logger, CredentialDescription cd, Exception? ex)
         => s_credentialLoadingFailure(logger, cd.Id, cd.SourceType.ToString(), cd.Skip, ex);
 
