@@ -184,7 +184,7 @@ namespace AgentApplicationsTests
             string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
             string agentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
             string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-            string userOid = "e1f76997-1b35-4aa8-8a58-a5d8f1ac4636";           // Replace with the actual user OID.
+            string userOid = "51c1aa1c-f6d0-4a92-936c-cadb27b717f2";           // Replace with the actual user OID.
 
             IServiceCollection services = new ServiceCollection();
 
