@@ -171,14 +171,16 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+
                 return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId,
-                result.TokenType);
+                    result.AccessToken,
+                    result.ExpiresOn,
+                    result.TenantId,
+                    result.IdToken,
+                    result.Scopes,
+                    result.CorrelationId,
+                    result.TokenType);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
@@ -365,6 +367,12 @@ namespace Microsoft.Identity.Web
                 username = extraParameters[Constants.UsernameKey] as string;
                 agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
                 password = "password";
+            }
+            else if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UserIdKey))
+            {
+                username = extraParameters[Constants.UserIdKey]?.ToString();
+                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
+                password = "password"; // placeholder removed by add-in
             }
 
             if (username == null)
@@ -660,7 +668,9 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+                var result = await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+                return result;
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
