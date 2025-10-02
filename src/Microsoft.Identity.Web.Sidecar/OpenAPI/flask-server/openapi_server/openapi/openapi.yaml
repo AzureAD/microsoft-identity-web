@@ -1,0 +1,829 @@
+openapi: 3.0.1
+info:
+  title: Microsoft.Identity.Web.Sidecar | v1
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: ValidateRequestEndpoints
+- name: AuthorizationHeaderEndpoint
+- name: DownstreamApiEndpoint
+paths:
+  /AuthorizationHeader/{apiName}:
+    get:
+      description: |-
+        This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Examples:
+          ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read
+          ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default
+          ?optionsOverride.AcquireTokenOptions.Tenant=GUID
+        Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.
+      operationId: authorization_header
+      parameters:
+      - explode: false
+        in: path
+        name: apiName
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: AgentIdentity
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: AgentUsername
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read"
+        explode: true
+        in: query
+        name: optionsOverride.Scopes
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: true = acquire an app (client credentials) token instead of user
+          token.
+        explode: true
+        in: query
+        name: optionsOverride.RequestAppToken
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: Override downstream API base URL.
+        explode: true
+        in: query
+        name: optionsOverride.BaseUrl
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override relative path appended to BaseUrl.
+        explode: true
+        in: query
+        name: optionsOverride.RelativePath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Override HTTP method (GET, POST, PATCH, etc.)."
+        explode: true
+        in: query
+        name: optionsOverride.HttpMethod
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Accept header (e.g. application/json).
+        explode: true
+        in: query
+        name: optionsOverride.AcceptHeader
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Content-Type used for serialized body (if body provided).
+        explode: true
+        in: query
+        name: optionsOverride.ContentType
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override tenant (GUID or 'common').
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Tenant
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: boolean
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ForceRefresh
+        required: false
+        schema:
+          type: true = bypass token cache.
+        style: form
+      - description: JSON claims challenge or extra claims.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Claims
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: GUID correlation id for token acquisition.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.CorrelationId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Session key for long running OBO flows.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Federated Managed Identity path (if using FMI).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.FmiPath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Public key or JWK for PoP / AT-POP requests.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.PopPublicKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Managed Identity client id (user-assigned).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationHeaderResult"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Unauthorized
+      summary: Get an authorization header for a configured downstream API.
+      tags:
+      - AuthorizationHeaderEndpoint
+      x-openapi-router-controller: openapi_server.controllers.authorization_header_endpoint_controller
+  /AuthorizationHeaderUnauthenticated/{apiName}:
+    get:
+      description: |-
+        This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Examples:
+          ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read
+          ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default
+          ?optionsOverride.AcquireTokenOptions.Tenant=GUID
+        Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.
+      operationId: authorization_header_unauthenticated
+      parameters:
+      - explode: false
+        in: path
+        name: apiName
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: AgentIdentity
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: AgentUsername
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read"
+        explode: true
+        in: query
+        name: optionsOverride.Scopes
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: true = acquire an app (client credentials) token instead of user
+          token.
+        explode: true
+        in: query
+        name: optionsOverride.RequestAppToken
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: Override downstream API base URL.
+        explode: true
+        in: query
+        name: optionsOverride.BaseUrl
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override relative path appended to BaseUrl.
+        explode: true
+        in: query
+        name: optionsOverride.RelativePath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Override HTTP method (GET, POST, PATCH, etc.)."
+        explode: true
+        in: query
+        name: optionsOverride.HttpMethod
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Accept header (e.g. application/json).
+        explode: true
+        in: query
+        name: optionsOverride.AcceptHeader
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Content-Type used for serialized body (if body provided).
+        explode: true
+        in: query
+        name: optionsOverride.ContentType
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override tenant (GUID or 'common').
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Tenant
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: boolean
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ForceRefresh
+        required: false
+        schema:
+          type: true = bypass token cache.
+        style: form
+      - description: JSON claims challenge or extra claims.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Claims
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: GUID correlation id for token acquisition.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.CorrelationId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Session key for long running OBO flows.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Federated Managed Identity path (if using FMI).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.FmiPath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Public key or JWK for PoP / AT-POP requests.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.PopPublicKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Managed Identity client id (user-assigned).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationHeaderResult"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Unauthorized
+      summary: Get an authorization header for a configured downstream API using this
+        configured client credentials.
+      tags:
+      - AuthorizationHeaderEndpoint
+      x-openapi-router-controller: openapi_server.controllers.authorization_header_endpoint_controller
+  /DownstreamApi/{apiName}:
+    post:
+      description: |-
+        Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:
+          ?optionsOverride.Scopes=User.Read
+          ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read
+          ?optionsOverride.AcquireTokenOptions.Tenant=GUID
+          ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default
+      operationId: downstream_api
+      parameters:
+      - explode: false
+        in: path
+        name: apiName
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: AgentIdentity
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: AgentUsername
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read"
+        explode: true
+        in: query
+        name: optionsOverride.Scopes
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: true = acquire an app (client credentials) token instead of user
+          token.
+        explode: true
+        in: query
+        name: optionsOverride.RequestAppToken
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: Override downstream API base URL.
+        explode: true
+        in: query
+        name: optionsOverride.BaseUrl
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override relative path appended to BaseUrl.
+        explode: true
+        in: query
+        name: optionsOverride.RelativePath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Override HTTP method (GET, POST, PATCH, etc.)."
+        explode: true
+        in: query
+        name: optionsOverride.HttpMethod
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Accept header (e.g. application/json).
+        explode: true
+        in: query
+        name: optionsOverride.AcceptHeader
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Content-Type used for serialized body (if body provided).
+        explode: true
+        in: query
+        name: optionsOverride.ContentType
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override tenant (GUID or 'common').
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Tenant
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: boolean
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ForceRefresh
+        required: false
+        schema:
+          type: true = bypass token cache.
+        style: form
+      - description: JSON claims challenge or extra claims.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Claims
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: GUID correlation id for token acquisition.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.CorrelationId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Session key for long running OBO flows.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Federated Managed Identity path (if using FMI).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.FmiPath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Public key or JWK for PoP / AT-POP requests.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.PopPublicKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Managed Identity client id (user-assigned).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownstreamApiResult"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Unauthorized
+      summary: Invoke a configured downstream API through the sidecar using the authenticated
+        identity.
+      tags:
+      - DownstreamApiEndpoint
+      x-openapi-router-controller: openapi_server.controllers.downstream_api_endpoint_controller
+  /DownstreamApiUnauthenticated/{apiName}:
+    post:
+      description: |-
+        Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Examples:
+          ?optionsOverride.Scopes=User.Read
+          ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read
+          ?optionsOverride.AcquireTokenOptions.Tenant=GUID
+          ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default
+      operationId: downstream_api_unauthenticated
+      parameters:
+      - explode: false
+        in: path
+        name: apiName
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: AgentIdentity
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: AgentUsername
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read"
+        explode: true
+        in: query
+        name: optionsOverride.Scopes
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: true = acquire an app (client credentials) token instead of user
+          token.
+        explode: true
+        in: query
+        name: optionsOverride.RequestAppToken
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: Override downstream API base URL.
+        explode: true
+        in: query
+        name: optionsOverride.BaseUrl
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override relative path appended to BaseUrl.
+        explode: true
+        in: query
+        name: optionsOverride.RelativePath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Override HTTP method (GET, POST, PATCH, etc.)."
+        explode: true
+        in: query
+        name: optionsOverride.HttpMethod
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Accept header (e.g. application/json).
+        explode: true
+        in: query
+        name: optionsOverride.AcceptHeader
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Sets Content-Type used for serialized body (if body provided).
+        explode: true
+        in: query
+        name: optionsOverride.ContentType
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Override tenant (GUID or 'common').
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Tenant
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: boolean
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ForceRefresh
+        required: false
+        schema:
+          type: true = bypass token cache.
+        style: form
+      - description: JSON claims challenge or extra claims.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.Claims
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: GUID correlation id for token acquisition.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.CorrelationId
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Session key for long running OBO flows.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Federated Managed Identity path (if using FMI).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.FmiPath
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Public key or JWK for PoP / AT-POP requests.
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.PopPublicKey
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Managed Identity client id (user-assigned).
+        explode: true
+        in: query
+        name: optionsOverride.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownstreamApiResult"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Unauthorized
+      summary: Invoke a configured downstream API through the sidecar using the configured
+        client credentials.
+      tags:
+      - DownstreamApiEndpoint
+      x-openapi-router-controller: openapi_server.controllers.downstream_api_endpoint_controller
+  /Validate:
+    get:
+      operationId: validate_authorization_header
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidateAuthorizationHeaderResult"
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+          description: Unauthorized
+      tags:
+      - ValidateRequestEndpoints
+      x-openapi-router-controller: openapi_server.controllers.validate_request_endpoints_controller
+components:
+  schemas:
+    AuthorizationHeaderResult:
+      example:
+        authorizationHeader: authorizationHeader
+      properties:
+        authorizationHeader:
+          title: authorizationHeader
+          type: string
+      required:
+      - authorizationHeader
+      title: AuthorizationHeaderResult
+      type: object
+    DownstreamApiResult:
+      example:
+        headers:
+          key:
+          - headers
+          - headers
+        content: content
+        statusCode: 0
+      properties:
+        statusCode:
+          format: int32
+          title: statusCode
+          type: integer
+        headers:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          title: headers
+          type: object
+        content:
+          nullable: true
+          title: content
+          type: string
+      required:
+      - content
+      - headers
+      - statusCode
+      title: DownstreamApiResult
+      type: object
+    JsonNode:
+      title: claims
+    ProblemDetails:
+      properties:
+        type:
+          nullable: true
+          title: type
+          type: string
+        title:
+          nullable: true
+          title: title
+          type: string
+        status:
+          format: int32
+          nullable: true
+          title: status
+          type: integer
+        detail:
+          nullable: true
+          title: detail
+          type: string
+        instance:
+          nullable: true
+          title: instance
+          type: string
+      title: ProblemDetails
+      type: object
+    ValidateAuthorizationHeaderResult:
+      example:
+        protocol: protocol
+        claims: ""
+        token: token
+      properties:
+        protocol:
+          title: protocol
+          type: string
+        token:
+          title: token
+          type: string
+        claims:
+          title: claims
+      required:
+      - claims
+      - protocol
+      - token
+      title: ValidateAuthorizationHeaderResult
+      type: object
