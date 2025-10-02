@@ -3,11 +3,22 @@
 ### Breaking Changes
 **Removed support for .NET 6.0 and .NET 7.0** - Microsoft Identity Web 4.0.0 no longer targets .NET 6.0 and .NET 7.0, following Microsoft's support lifecycle. The supported target frameworks are now .NET 8.0, .NET 9.0, .NET Framework 4.6.2, .NET Framework 4.7.2, and .NET Standard 2.0.
 
+### Bug fixes
+- Fixes a case where client secret and client assertion could be send to the IdP in the case of User FIC (only one should be)
+
 ### New features
 - Various improvements to performance logging, authentication, and credential loading capabilities.
+- Bumped MSAL.NET to 4.76
+- Added credential description extensibility. For details, see [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3487)
+- Added a new CerticateObserverAction type: SuccessfullyUsed. See [#3505](https://github.com/AzureAD/microsoft-identity-web/pull/3505)
+- Add specification of OID (in addition to upn) for Agent User Identity. See [#3513](https://github.com/AzureAD/microsoft-identity-web/pull/3513)
 
 ### Fundamentals
 - Various improvements to .NET support and dependency optimizations.
+- Added doc for Agent identities. See [Agent identities](src/Microsoft.Identity.Web.AgentIdentities/README.AgentIdentities.md)
+- Combined and fixed test collections. See [#3472](https://github.com/AzureAD/microsoft-identity-web/pull/3472)
+- Migrate repository agent rules from .clinerules to agents.md. See [#3475](https://github.com/AzureAD/microsoft-identity-web/pull/3475)
+- Add .NET 6.x setup step to dotnetcore.yml workflow, as the default build agents don't have it any longer. See [#3489](https://github.com/AzureAD/microsoft-identity-web/pull/3489)
 
 3.14.1
 =======
