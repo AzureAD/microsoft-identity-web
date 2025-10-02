@@ -23,6 +23,11 @@ namespace Microsoft.Identity.Web
         private const string XmsSubFct = "xms_sub_fct";
 
         /// <summary>
+        /// Subject facet value for agent identity user.
+        /// </summary>
+        private const int AgentIdUser = 13;
+
+        /// <summary>
         /// Retrieves the parent agent blueprint (xms_par_app_azp) value from a ClaimsPrincipal, if present.
         /// </summary>
         /// <param name="claimsPrincipal">The claims principal.</param>
@@ -55,10 +60,10 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Determines whether the ClaimsPrincipal represents an agent user identity.
         /// True if the xms_sub_fct claim exists, is a space-separated string of integers,
-        /// and that collection contains the integer 13.
+        /// and that collection contains the agent identity user facet.
         /// </summary>
         /// <param name="claimsPrincipal">The claims principal.</param>
-        /// <returns>True if xms_sub_fct contains 13 and all tokens are integers; otherwise false.</returns>
+        /// <returns>True if xms_sub_fct contains the agent identity user facet and all tokens are integers; otherwise false.</returns>
         public static bool IsAgentUserIdentity(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal is null)
@@ -67,16 +72,16 @@ namespace Microsoft.Identity.Web
             }
 
             var value = claimsPrincipal.FindFirst(XmsSubFct)?.Value;
-            return ContainsFunctionCode(value, 13);
+            return ContainsSubjectFacet(value, AgentIdUser);
         }
 
         /// <summary>
         /// Determines whether the ClaimsIdentity represents an agent user identity.
         /// True if the xms_sub_fct claim exists, is a space-separated string of integers,
-        /// and that collection contains the integer 13.
+        /// and that collection contains the agent identity user facet.
         /// </summary>
         /// <param name="identity">The claims identity.</param>
-        /// <returns>True if xms_sub_fct contains 13 and all tokens are integers; otherwise false.</returns>
+        /// <returns>True if xms_sub_fct contains the agent identity user facet and all tokens are integers; otherwise false.</returns>
         public static bool IsAgentUserIdentity(this ClaimsIdentity identity)
         {
             if (identity is null)
@@ -85,14 +90,14 @@ namespace Microsoft.Identity.Web
             }
 
             var value = identity.FindFirst(XmsSubFct)?.Value;
-            return ContainsFunctionCode(value, 13);
+            return ContainsSubjectFacet(value, AgentIdUser);
         }
 
         /// <summary>
-        /// Parses a claim string representing a space-separated collection of integers and checks for a target code.
-        /// Returns true only if all tokens are valid integers and one equals the target code.
+        /// Parses a claim string representing a space-separated collection of integers and checks for a target subject facet.
+        /// Returns true only if all tokens are valid integers and one equals the target facet.
         /// </summary>
-        private static bool ContainsFunctionCode(string? raw, int targetCode)
+        private static bool ContainsSubjectFacet(string? raw, int targetFacet)
         {
             if (string.IsNullOrWhiteSpace(raw))
             {
@@ -111,7 +116,7 @@ namespace Microsoft.Identity.Web
                     return false;
                 }
 
-                if (n == targetCode)
+                if (n == targetFacet)
                 {
                     found = true;
                 }
