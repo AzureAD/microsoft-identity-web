@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
                             }
                             catch (Exception ex)
                             {
-                                Logger.CredentialLoadingFailure(_logger, credentialDescription, ex);
+                                _logger.CredentialLoadingFailure(credentialDescription, ex);
                                 throw;
                             }
                         }

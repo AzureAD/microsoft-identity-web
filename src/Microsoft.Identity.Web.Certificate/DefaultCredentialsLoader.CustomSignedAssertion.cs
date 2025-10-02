@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
                 string providerName = provider.Name ?? provider.GetType().FullName!;
                 if (sourceLoaderDict.ContainsKey(providerName))
                 {
-                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, providerName);
+                    _logger.CustomProviderNameAlreadyExists(providerName);
                 }
                 else
                 {
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
                 string providerName = provider.Name ?? provider.GetType().FullName!;
                 if (sourceLoaderDict.ContainsKey(providerName))
                 {
-                    _logger.LogWarning(CertificateErrorMessage.CustomProviderNameAlreadyExists, providerName);
+                    _logger.CustomProviderNameAlreadyExists(providerName);
                 }
                 else
                 {
@@ -77,17 +77,17 @@ namespace Microsoft.Identity.Web
             if (CustomSignedAssertionCredentialSourceLoaders == null || CustomSignedAssertionCredentialSourceLoaders.Count == 0)
             {
                 // No source loader(s)
-                _logger.LogError(CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty);
+                _logger.CustomProviderSourceLoaderNullOrEmpty();
             }
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
                 // No provider name
-                _logger.LogError(CertificateErrorMessage.CustomProviderNameNullOrEmpty);
+                _logger.CustomProviderNameNullOrEmpty();
             }
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICustomSignedAssertionProvider? sourceLoader))
             {
                 // No source loader for provider name
-                _logger.LogError(CertificateErrorMessage.CustomProviderNotFound, credentialDescription.CustomSignedAssertionProviderName);
+                _logger.CustomProviderNotFound(credentialDescription.CustomSignedAssertionProviderName!);
             }
             else
             {
@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Web
                 }
                 catch (Exception ex)
                 {
-                    Logger.CustomSignedAssertionProviderLoadingFailure(_logger, credentialDescription, ex);
+                    _logger.CustomSignedAssertionProviderLoadingFailure(credentialDescription, ex);
                     throw;
                 }
                 return;
