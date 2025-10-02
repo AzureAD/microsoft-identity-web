@@ -374,6 +374,12 @@ namespace Microsoft.Identity.Web
                 agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
                 password = "password";
             }
+            else if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UserIdKey))
+            {
+                username = extraParameters[Constants.UserIdKey]?.ToString();
+                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
+                password = "password"; // placeholder removed by add-in
+            }
 
             if (username == null)
             {
