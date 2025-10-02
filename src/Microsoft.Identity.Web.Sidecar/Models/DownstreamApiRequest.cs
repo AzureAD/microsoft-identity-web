@@ -22,7 +22,7 @@ public readonly struct DownstreamApiRequest
     public string? AgentUsername { get; init; }
 
     [FromQuery]
-    [Description("The ID of the agent (OID).")]
+    [Description("The Object ID of the agent (OID).")]
     [StringSyntax(StringSyntaxAttribute.GuidFormat)]
     public string? AgentUserId { get; init; }
 }
