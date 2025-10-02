@@ -4,12 +4,15 @@
 #if !FROM_GITHUB_ACTION
 
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AgentApplicationsTests
 {
@@ -51,6 +54,19 @@ namespace AgentApplicationsTests
                 scopes: ["https://graph.microsoft.com/.default"],
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            // Note: parentBlueprint may be null if the claim is not present in this token
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
@@ -102,6 +118,19 @@ namespace AgentApplicationsTests
                 scopes: ["https://graph.microsoft.com/.default"],
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            // Note: parentBlueprint may be null if the claim is not present in this token
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
@@ -162,6 +191,19 @@ namespace AgentApplicationsTests
             Assert.True(user.HasClaim(c => c.Type == "uid"));
             Assert.True(user.HasClaim(c => c.Type == "utid"));
 
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            // Note: parentBlueprint may be null if the claim is not present in this token
+
             // Use the cached user
             authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                 scopes: ["https://graph.microsoft.com/.default"],
@@ -213,6 +255,19 @@ namespace AgentApplicationsTests
                 scopes: ["https://graph.microsoft.com/.default"],
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            // Note: parentBlueprint may be null if the claim is not present in this token
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
