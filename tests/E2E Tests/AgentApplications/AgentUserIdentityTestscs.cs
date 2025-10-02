@@ -66,7 +66,7 @@ namespace AgentApplicationsTests
             
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
-            // Note: parentBlueprint may be null if the claim is not present in this token
+            Assert.Equal(agentApplication, parentBlueprint);
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
@@ -130,7 +130,7 @@ namespace AgentApplicationsTests
             
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
-            // Note: parentBlueprint may be null if the claim is not present in this token
+            Assert.Equal(agentApplication, parentBlueprint);
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
@@ -202,7 +202,7 @@ namespace AgentApplicationsTests
             
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
-            // Note: parentBlueprint may be null if the claim is not present in this token
+            Assert.Equal(agentApplication, parentBlueprint);
 
             // Use the cached user
             authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
@@ -267,7 +267,7 @@ namespace AgentApplicationsTests
             
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
-            // Note: parentBlueprint may be null if the claim is not present in this token
+            Assert.Equal(agentApplication, parentBlueprint);
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
