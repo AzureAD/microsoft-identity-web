@@ -66,6 +66,7 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     const string AgentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
     const string AgentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
     const string UserUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+    string UserOid = "51c1aa1c-f6d0-4a92-936c-cadb27b717f2";           // Replace with the actual user OID.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -126,12 +127,38 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
     }
 
     [Fact]
+    public async Task DownstreamApiForAgentUserIdentityAuthenticatedUsingOid()
+    {
+        // Getting a token to call the API.
+        string authorizationHeader = await GetAuthorizationHeaderToCallTheSideCarAsync();
+
+        // Calling the API
+        var client = _factory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(authorizationHeader);
+        var response = await client.GetAsync($"/AuthorizationHeader/MsGraph?agentidentity={AgentIdentity}&agentUserId={UserOid}");
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticatedAsync()
     {
         // Calling the API
         var client = _factory.CreateClient();
 
         var response = await client.GetAsync($"/AuthorizationHeaderUnauthenticated/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}");
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetAuthorizationHeaderForAgentUserIdentityUnauthenticatedAsyncUseUpn()
+    {
+        // Calling the API
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/AuthorizationHeaderUnauthenticated/MsGraph?agentidentity={AgentIdentity}&agentUserId={UserOid}");
         var content = await response.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
@@ -158,6 +185,15 @@ public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
         // Calling the API
         var client = _factory.CreateClient();
         var response = await client.PostAsync($"/DownstreamApi/MsGraph?agentidentity={AgentIdentity}&agentUsername={UserUpn}", null);
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetDownstreamApiForAgentUserIdentityUnauthenticatedUseOid()
+    {
+        // Calling the API
+        var client = _factory.CreateClient();
+        var response = await client.PostAsync($"/DownstreamApi/MsGraph?agentidentity={AgentIdentity}&agentUserId={UserOid}", null);
         Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
     }
 

@@ -95,7 +95,7 @@ public static class DownstreamApiEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername);
+        AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
 
         HttpContent? content = null;
 
