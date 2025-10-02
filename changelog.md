@@ -3,9 +3,6 @@
 ### Breaking Changes
 **Removed support for .NET 6.0 and .NET 7.0** - Microsoft Identity Web 4.0.0 no longer targets .NET 6.0 and .NET 7.0, following Microsoft's support lifecycle. The supported target frameworks are now .NET 8.0, .NET 9.0, .NET Framework 4.6.2, .NET Framework 4.7.2, and .NET Standard 2.0.
 
-### Bug fixes
-- Fixes a case where client secret and client assertion could be send to the IdP in the case of User FIC (only one should be)
-
 ### New features
 - Various improvements to performance logging, authentication, and credential loading capabilities.
 - Bumped MSAL.NET to 4.76
