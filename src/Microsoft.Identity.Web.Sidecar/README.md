@@ -11,15 +11,6 @@ enables Microsoft Entra token acquisition and downstream API calls, and token va
 - Decrypts tokens if applicable.
 - Acquires User OBO or Application tokens for configured downstream APIs.
 
-## Runtime composition
-
-| Concern                        | Implementation                                                                                                                                                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Authentication & authorization | [`Program`](Program.cs) wires `AddMicrosoftIdentityWebApi`, optional scope enforcement, and agent identity overrides.                                                                                              |
-| Endpoints                      | [`ValidateRequestEndpoints`](Endpoints/ValidateRequestEndpoints.cs), [`AuthorizationHeaderEndpoint`](Endpoints/AuthorizationHeaderEndpoint.cs), and [`DownstreamApiEndpoint`](Endpoints/DownstreamApiEndpoint.cs). |
-| Downstream API                 | [`BindableDownstreamApiOptions`](Models/BindableDownstreamApiOptions.cs) merges per-request overrides into per call `DownstreamApis` configuration.                                                                |
-| Agent Identities               | [`AgentOverrides`](AgentOverrides.cs) binds agent identity, userPrincipalName, or user object ID when present.                                                                                                     |
-
 ## Configuration
 
 Settings are supplied via `appsettings.json`, environment variables, or any standard [ASP.NET Core configuration source](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/).
@@ -105,6 +96,7 @@ Agent impersonation hints:
 - `AgentUserId=<oid>`
 
 ### Response contract
+
 - `/AuthorizationHeader*` returns `{ "authorizationHeader": "Bearer ey..." }`.
 - `/DownstreamApi*` returns `{ "statusCode": 200, "headers": { ... }, "content": "..." }`.
 - `/Validate` returns `{ "protocol": "Bearer", "token": "ey...", "claims": { ... } }`.
@@ -113,4 +105,13 @@ Agent impersonation hints:
 
 - This API is only for usage as a sidecar. This API should not be publicly callable as it
   allows the caller to acquire tokens on behalf of the applications identity.
+
+## Runtime composition
+
+| Concern                        | Implementation                                                                                                                                                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Authentication & authorization | [`Program`](Program.cs) wires `AddMicrosoftIdentityWebApi`, optional scope enforcement, and agent identity overrides.                                                                                              |
+| Endpoints                      | [`ValidateRequestEndpoints`](Endpoints/ValidateRequestEndpoints.cs), [`AuthorizationHeaderEndpoint`](Endpoints/AuthorizationHeaderEndpoint.cs), and [`DownstreamApiEndpoint`](Endpoints/DownstreamApiEndpoint.cs). |
+| Downstream API                 | [`BindableDownstreamApiOptions`](Models/BindableDownstreamApiOptions.cs) merges per-request overrides into per call `DownstreamApis` configuration.                                                                |
+| Agent Identities               | [`AgentOverrides`](AgentOverrides.cs) binds agent identity, userPrincipalName, or user object ID when present.                                                                                                     |
 
