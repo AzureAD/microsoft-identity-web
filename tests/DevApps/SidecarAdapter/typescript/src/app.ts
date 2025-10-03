@@ -1,13 +1,13 @@
-import express from "express";
-import type { NextFunction, Request, Response } from "express";
-import { Server } from "http";
+import express from 'express';
+import type { Server } from 'http';
+import type { NextFunction, Request, Response } from 'express';
 import {
     SidecarClient,
     SidecarRequestError,
     type ValidateAuthorizationHeaderResult,
-} from "./sidecar";
+} from './sidecar';
 
-declare module "express-serve-static-core" {
+declare module 'express-serve-static-core' {
     interface Request {
         sidecarValidation?: ValidateAuthorizationHeaderResult;
     }
@@ -18,66 +18,79 @@ export interface StartOptions {
     sidecarBaseUrl?: string;
 }
 
-export const createApp = (sidecarBaseUrl: string) => {
-    const app = express();
-    const sidecarClient = new SidecarClient({ baseUrl: sidecarBaseUrl });
+export const startServer = async ({
+    port = Number(process.env.PORT ?? '5555'),
+    sidecarBaseUrl = process.env.SIDECAR_BASE_URL ?? 'http://localhost:5178',
+}: StartOptions = {}): Promise<Server> => {
+    return new Promise((resolve,reject) => {
+        const app = express();
+        const sidecarClient = new SidecarClient({ baseUrl: sidecarBaseUrl });
 
-    app.use(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("Validating request via sidecar at:", new Date().toString());
+        app.use(async (req: Request, res: Response, next: NextFunction) => {
+            console.log('Validating request via sidecar at:', new Date().toString());
+            console.log('Request URL:', req.url);
+            console.log('Request method:', req.method);
 
-        const authorization = req.get("authorization");
-        if (!authorization) {
-            res.status(401).json({ error: "Missing Authorization header" });
-            return;
-        }
-
-        try {
-            const validation = await sidecarClient.validateAuthorizationHeader({
-                authorizationHeader: authorization,
-            });
-
-            req.sidecarValidation = validation;
-            next();
-        } catch (error) {
-            if (error instanceof SidecarRequestError) {
-                res
-                    .status(error.status ?? 502)
-                    .json(error.problemDetails ?? { message: error.message });
+            const authorization = req.get('authorization');
+            if (!authorization) {
+                console.log('Missing Authorization header');
+                res.status(401).json({ error: 'Missing Authorization header' });
                 return;
             }
 
-            next(error);
-        }
-    });
+            console.log('Authorization header present, calling sidecar...');
+            try {
+                const validation = await sidecarClient.validateAuthorizationHeader({
+                    authorizationHeader: authorization,
+                });
 
-    app.get("/", (req: Request, res: Response) => {
-        res.json({
-            message: "Request authenticated via Microsoft Identity Web Sidecar",
-            protocol: req.sidecarValidation?.protocol ?? null,
-            token: req.sidecarValidation?.token ? "***redacted***" : null,
-            claims: req.sidecarValidation?.claims ?? null,
+                console.log('Sidecar validation successful');
+                req.sidecarValidation = validation;
+                next();
+            } catch (error) {
+                console.error('Sidecar validation error:', error);
+                if (error instanceof SidecarRequestError) {
+                    console.log('Returning SidecarRequestError response');
+                    res
+                        .status(error.status ?? 502)
+                        .json(error.problemDetails ?? { message: error.message });
+                    return;
+                }
+
+                console.log('Passing error to next handler');
+                next(error);
+            }
         });
-    });
 
-    app.use((error: unknown, _req: Request, res: Response) => {
-        console.error("Unhandled error serving request", error);
-        res.status(500).json({ error: "Unexpected server error" });
-    });
+        app.get('/', (req: Request, res: Response) => {
+            console.log('Handling GET / request');
+            console.log('Sidecar validation:', req.sidecarValidation);
 
-    return app;
-};
+            const responseData = {
+                message: 'Request authenticated via Microsoft Identity Web Sidecar',
+                protocol: req.sidecarValidation?.protocol ?? null,
+                token: req.sidecarValidation?.token ? '***redacted***' : null,
+                claims: req.sidecarValidation?.claims ?? null,
+            };
 
-export const startServer = async ({
-    port = Number(process.env.PORT ?? "3000"),
-    sidecarBaseUrl = process.env.SIDECAR_BASE_URL ?? "http://localhost:5178",
-}: StartOptions = {}): Promise<Server> => {
-    const app = createApp(sidecarBaseUrl);
-    return new Promise((resolve) => {
+            console.log('Sending response:', responseData);
+            res.json(responseData);
+        });
+
+        app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+            console.error('Unhandled error serving request', error);
+            res.status(500).json({ error: 'Unexpected server error' });
+        });
+
         const server = app.listen(port, () => {
             console.log(
                 `Sidecar sample server listening on http://localhost:${port} (sidecar base: ${sidecarBaseUrl})`,
             );
             resolve(server);
+        });
+        server.on('error', (error) => {
+            console.error('Server error:', error);
+            reject(error);
         });
     });
 };
