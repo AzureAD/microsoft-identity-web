@@ -3,15 +3,14 @@
 
 using System.ComponentModel;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
-using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
@@ -31,8 +30,7 @@ public static class DownstreamApiEndpoint
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
-                "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default").
-            WithOpenApi(ConfigureOpenAPI);
+                "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default");
 
         app.MapPost("/DownstreamApiUnauthenticated/{apiName}", DownstreamApiAsync).
             WithName("DownstreamApiUnauthenticated").
@@ -46,20 +44,7 @@ public static class DownstreamApiEndpoint
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
-                "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default").
-            WithOpenApi(ConfigureOpenAPI);
-    }
-
-    private static OpenApiOperation ConfigureOpenAPI(OpenApiOperation operation)
-    {
-        // Only add once.
-        var documented = operation.Extensions.ContainsKey("x-optionsOverride-documented");
-        if (!documented)
-        {
-            OpenApiDescriptions.AddOptionsOverrideParameters(operation);
-            operation.Extensions.Add("x-optionsOverride-documented", new OpenApi.Any.OpenApiBoolean(true));
-        }
-        return operation;
+                "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default");
     }
 
     private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
@@ -122,6 +107,13 @@ public static class DownstreamApiEndpoint
             logger.AuthorizationHeaderAsyncError(ex);
             return TypedResults.Problem(
                 detail: ex.InnerException?.Message ?? ex.Message,
+                statusCode: StatusCodes.Status401Unauthorized);
+        }
+        catch (MsalServiceException ex)
+        {
+            logger.AuthorizationHeaderAsyncError(ex);
+            return TypedResults.Problem(
+                detail: ex.Message,
                 statusCode: StatusCodes.Status401Unauthorized);
         }
         catch (Exception ex)

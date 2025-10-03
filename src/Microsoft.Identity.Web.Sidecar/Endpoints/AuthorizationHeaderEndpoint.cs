@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.ComponentModel;
-using System.Net.Mime;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -10,7 +9,6 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
-using Microsoft.OpenApi.Models;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
@@ -31,8 +29,7 @@ public static class AuthorizationHeaderEndpoint
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
-                "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.").
-            WithOpenApi(ConfigureOpenAPI);
+                "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.");
 
         app.MapGet("/AuthorizationHeaderUnauthenticated/{apiName}", AuthorizationHeaderAsync).
             WithName("AuthorizationHeaderUnauthenticated").
@@ -47,20 +44,7 @@ public static class AuthorizationHeaderEndpoint
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
-                "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.").
-            WithOpenApi(ConfigureOpenAPI);
-    }
-
-    private static OpenApiOperation ConfigureOpenAPI(OpenApiOperation operation)
-    {
-        // Only add once.
-        var documented = operation.Extensions.ContainsKey("x-optionsOverride-documented");
-        if (!documented)
-        {
-            OpenApiDescriptions.AddOptionsOverrideParameters(operation);
-            operation.Extensions.Add("x-optionsOverride-documented", new OpenApi.Any.OpenApiBoolean(true));
-        }
-        return operation;
+                "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.");
     }
 
     private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(

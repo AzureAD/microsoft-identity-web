@@ -4,7 +4,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web.Sidecar.Models;
 

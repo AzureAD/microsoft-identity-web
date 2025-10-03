@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-Microsoft.Identity.Web.Sidecar-79d2a631-277f-4ef1-9253-4477001378e8</UserSecretsId>
@@ -9,6 +8,8 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     <NoWarn>
       $(NoWarn);
       <!--RS0016: Add public types and members to the declared API-->
@@ -22,31 +23,28 @@
     </NoWarn>
   </PropertyGroup>
 
-  <!-- Trimming + perf (Release only) -->
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <PublishTrimmed>false</PublishTrimmed>
-    <TrimMode>partial</TrimMode>
-    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
-    <SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <!-- Optional; enable only if you do not rely on culture-specific globalization -->
-    <!-- <InvariantGlobalization>true</InvariantGlobalization> -->
+    <!-- Removes globalization-specific code and data -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- See: https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#trim-framework-library-features -->
+    <!-- Removes code that enables better debugging experiences. This setting also removes symbols. -->
     <DebuggerSupport>false</DebuggerSupport>
+    <!--Removes BinaryFormatter serialization support -->
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <!-- Removes support for generating stack traces (for example, Environment.StackTrace or Exception.ToString) by the runtime -->
+    <StackTraceSupport>false</StackTraceSupport>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.9" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.9">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="$(MicrosoftAspNetCoreOpenApiVersion)" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="$(MicrosoftExtensionsApiDescriptionServerVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="$(MicrosoftVisualStudioAzureContainersToolsTargetsVersion)" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
