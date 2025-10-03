@@ -5,6 +5,7 @@ using System.Buffers.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
@@ -24,9 +25,9 @@ public static class ValidateRequestEndpoints
     }
 
     private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> ValidateEndpoint(
-        ILogger<Program> logger,
+        [FromServices] ILogger<Program> logger,
         HttpContext httpContext,
-        IConfiguration configuration)
+        [FromServices] IConfiguration configuration)
     {
         string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
