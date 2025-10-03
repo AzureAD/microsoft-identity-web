@@ -1,87 +1,47 @@
-import express from "express";
-import type { NextFunction, Request, Response } from "express";
-import { Server } from "http";
-import {
-    SidecarClient,
-    SidecarRequestError,
-    type ValidateAuthorizationHeaderResult,
-} from "./sidecar";
+import express from 'express';
+import type { Server } from 'http';
 
-declare module "express-serve-static-core" {
-    interface Request {
-        sidecarValidation?: ValidateAuthorizationHeaderResult;
-    }
+interface ServerOptions {
+    port: number;
+    sidecarBaseUrl: string;
 }
 
-export interface StartOptions {
-    port?: number;
-    sidecarBaseUrl?: string;
-}
+export function startServer(options: ServerOptions): Promise<Server> {
+    return new Promise((resolve, reject) => {
+        const app = express();
 
-export const createApp = (sidecarBaseUrl: string) => {
-    const app = express();
-    const sidecarClient = new SidecarClient({ baseUrl: sidecarBaseUrl });
+        // Add middleware
+        app.use(express.json());
 
-    app.use(async (req: Request, res: Response, next: NextFunction) => {
-        console.log("Validating request via sidecar at:", new Date().toString());
+        // Health check endpoint
+        app.get('/health', (req, res) => {
+            res.json({ status: 'ok' });
+        });
 
-        const authorization = req.get("authorization");
-        if (!authorization) {
-            res.status(401).json({ error: "Missing Authorization header" });
-            return;
-        }
+        // Main endpoint
+        app.get('/', (req, res) => {
+            console.log('Received request with headers:', req.headers);
 
-        try {
-            const validation = await sidecarClient.validateAuthorizationHeader({
-                authorizationHeader: authorization,
-            });
-
-            req.sidecarValidation = validation;
-            next();
-        } catch (error) {
-            if (error instanceof SidecarRequestError) {
-                res
-                    .status(error.status ?? 502)
-                    .json(error.problemDetails ?? { message: error.message });
-                return;
+            // Check for authorization header
+            const authHeader = req.headers.authorization;
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'Unauthorized' });
             }
 
-            next(error);
-        }
-    });
-
-    app.get("/", (req: Request, res: Response) => {
-        res.json({
-            message: "Request authenticated via Microsoft Identity Web Sidecar",
-            protocol: req.sidecarValidation?.protocol ?? null,
-            token: req.sidecarValidation?.token ? "***redacted***" : null,
-            claims: req.sidecarValidation?.claims ?? null,
+            res.json({
+                message: 'Server is running',
+                timestamp: new Date().toISOString()
+            });
         });
-    });
 
-    app.use((error: unknown, _req: Request, res: Response) => {
-        console.error("Unhandled error serving request", error);
-        res.status(500).json({ error: "Unexpected server error" });
-    });
-
-    return app;
-};
-
-export const startServer = async ({
-    port = Number(process.env.PORT ?? "3000"),
-    sidecarBaseUrl = process.env.SIDECAR_BASE_URL ?? "http://localhost:5178",
-}: StartOptions = {}): Promise<Server> => {
-    const app = createApp(sidecarBaseUrl);
-    return new Promise((resolve) => {
-        const server = app.listen(port, () => {
-            console.log(
-                `Sidecar sample server listening on http://localhost:${port} (sidecar base: ${sidecarBaseUrl})`,
-            );
+        const server = app.listen(options.port, () => {
+            console.log(`Server listening on port ${options.port}`);
             resolve(server);
         });
-    });
-};
 
-if (require.main === module) {
-    void startServer();
+        server.on('error', (error) => {
+            console.error('Server error:', error);
+            reject(error);
+        });
+    });
 }
