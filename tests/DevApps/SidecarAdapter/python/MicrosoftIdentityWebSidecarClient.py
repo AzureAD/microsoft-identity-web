@@ -145,9 +145,10 @@ class MicrosoftIdentityWebSidecarClient:
         *,
         agent_identity: Optional[str] = None,
         agent_username: Optional[str] = None,
+        agent_user_id: Optional[str] = None,
         options: Optional[SidecarCallOptions] = None,
     ) -> AuthorizationHeaderResult:
-        params = self._build_query_parameters(agent_identity, agent_username, options)
+        params = self._build_query_parameters(agent_identity, agent_username, agent_user_id, options)
         response_data = self._send_json(
             method="GET",
             path=f"AuthorizationHeader/{api_name}",
@@ -162,9 +163,10 @@ class MicrosoftIdentityWebSidecarClient:
         *,
         agent_identity: Optional[str] = None,
         agent_username: Optional[str] = None,
+        agent_user_id: Optional[str] = None,
         options: Optional[SidecarCallOptions] = None,
     ) -> AuthorizationHeaderResult:
-        params = self._build_query_parameters(agent_identity, agent_username, options)
+        params = self._build_query_parameters(agent_identity, agent_username, agent_user_id, options)
         response_data = self._send_json(
             method="GET",
             path=f"AuthorizationHeaderUnauthenticated/{api_name}",
@@ -179,10 +181,11 @@ class MicrosoftIdentityWebSidecarClient:
         *,
         agent_identity: Optional[str] = None,
         agent_username: Optional[str] = None,
+        agent_user_id: Optional[str] = None,
         options: Optional[SidecarCallOptions] = None,
         json_body: Any = None,
     ) -> DownstreamApiResult:
-        params = self._build_query_parameters(agent_identity, agent_username, options)
+        params = self._build_query_parameters(agent_identity, agent_username, agent_user_id, options)
         response_data = self._send_json(
             method="POST",
             path=f"DownstreamApi/{api_name}",
@@ -198,10 +201,11 @@ class MicrosoftIdentityWebSidecarClient:
         *,
         agent_identity: Optional[str] = None,
         agent_username: Optional[str] = None,
+        agent_user_id: Optional[str] = None,
         options: Optional[SidecarCallOptions] = None,
         json_body: Any = None,
     ) -> DownstreamApiResult:
-        params = self._build_query_parameters(agent_identity, agent_username, options)
+        params = self._build_query_parameters(agent_identity, agent_username, agent_user_id, options)
         response_data = self._send_json(
             method="POST",
             path=f"DownstreamApiUnauthenticated/{api_name}",
@@ -226,6 +230,7 @@ class MicrosoftIdentityWebSidecarClient:
         self,
         agent_identity: Optional[str],
         agent_username: Optional[str],
+        agent_user_id: Optional[str],
         options: Optional[SidecarCallOptions],
     ) -> Dict[str, Any]:
         params: Dict[str, Any] = {}
@@ -233,6 +238,8 @@ class MicrosoftIdentityWebSidecarClient:
             params["AgentIdentity"] = agent_identity
         if agent_username:
             params["AgentUsername"] = agent_username
+        if agent_user_id:
+            params["AgentUserId"] = agent_user_id
 
         if options:
             if options.scopes:
