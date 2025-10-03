@@ -19,10 +19,10 @@ export interface StartOptions {
 }
 
 export const startServer = async ({
-    port = Number(process.env.PORT ?? '3000'),
+    port = Number(process.env.PORT ?? '5555'),
     sidecarBaseUrl = process.env.SIDECAR_BASE_URL ?? 'http://localhost:5178',
 }: StartOptions = {}): Promise<Server> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve,reject) => {
         const app = express();
         const sidecarClient = new SidecarClient({ baseUrl: sidecarBaseUrl });
 
@@ -87,6 +87,10 @@ export const startServer = async ({
                 `Sidecar sample server listening on http://localhost:${port} (sidecar base: ${sidecarBaseUrl})`,
             );
             resolve(server);
+        });
+        server.on('error', (error) => {
+            console.error('Server error:', error);
+            reject(error);
         });
     });
 };
