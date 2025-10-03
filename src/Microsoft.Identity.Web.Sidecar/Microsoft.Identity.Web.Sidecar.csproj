@@ -24,7 +24,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <PublishReadyToRun>true</PublishReadyToRun>
     <!-- Removes globalization-specific code and data -->
     <InvariantGlobalization>true</InvariantGlobalization>
     <!-- See: https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#trim-framework-library-features -->
