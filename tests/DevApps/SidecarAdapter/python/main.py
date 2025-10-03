@@ -32,6 +32,10 @@ def parse_args() -> argparse.Namespace:
         "--agent-username",
         help="Optional AgentUsername query parameter for the sidecar call.",
     )
+    parser.add_argument(
+        "--agent-user-id",
+        help="Optional AgentUserId query parameter for the sidecar call.",
+    )
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -270,6 +274,7 @@ def main() -> None:
                     authorization_header,
                     agent_identity=args.agent_identity,
                     agent_username=args.agent_username,
+                    agent_user_id=args.agent_user_id,
                     options=options,
                 )
                 _print_json({"authorizationHeader": result.authorization_header})
@@ -278,6 +283,7 @@ def main() -> None:
                     args.api_name,
                     agent_identity=args.agent_identity,
                     agent_username=args.agent_username,
+                    agent_user_id=args.agent_user_id,
                     options=options,
                 )
                 _print_json({"authorizationHeader": result.authorization_header})
@@ -289,6 +295,7 @@ def main() -> None:
                     authorization_header,
                     agent_identity=args.agent_identity,
                     agent_username=args.agent_username,
+                    agent_user_id=args.agent_user_id,
                     options=options,
                     json_body=body,
                 )
@@ -303,6 +310,7 @@ def main() -> None:
                     args.api_name,
                     agent_identity=args.agent_identity,
                     agent_username=args.agent_username,
+                    agent_user_id=args.agent_user_id,
                     options=options,
                     json_body=body,
                 )
