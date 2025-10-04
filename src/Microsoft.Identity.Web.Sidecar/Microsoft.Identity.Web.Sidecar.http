@@ -1,0 +1,42 @@
+@Microsoft.Identity.Web.Sidecar_HostAddress = http://localhost:5178
+
+@AccessToken =
+
+###
+
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/Validate
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
+
+POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/AuthorizationHeader/me
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
+
+POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/AuthorizationHeaderUnauthenticated/me
+Accept: application/json
+
+###
+
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/AuthorizationHeader/me?optionsOverride.Scopes=User.Read&optionsOverride.AcquireTokenOptions.Tenant=f645ad92-e38d-4d1a-b510-d1b09a74a8ca
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
+
+POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/DownstreamApi/me
+Accept: application/json
+Authorization: Bearer {{AccessToken}}
+
+###
+
+POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/DownstreamApiUnauthenticated/me
+Accept: application/json

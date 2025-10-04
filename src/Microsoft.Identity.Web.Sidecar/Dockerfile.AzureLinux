@@ -1,0 +1,11 @@
+# This docker file is used for building the container image from a published set of files.
+# This is used when for workflows where the files need to be signed in CI/CD.
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-azurelinux3.0-distroless AS base
+WORKDIR /app
+
+COPY app/publish .
+
+USER app
+
+ENTRYPOINT ["dotnet", "Microsoft.Identity.Web.Sidecar.dll"]
