@@ -8,7 +8,11 @@
     <NoWarn>$(NoWarn); CS1591;RS0037</NoWarn>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
+    <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="appsettings.agentids.json" />
   </ItemGroup>
