@@ -18,7 +18,7 @@ public readonly struct AuthorizationHeaderRequest
     public string? AgentIdentity { get; init; }
 
     [FromQuery]
-    [Description("The username (UPN) of the agent.")]
+    [Description("The username (UPN) of the user agent identity.")]
     public string? AgentUsername { get; init; }
 
     [FromQuery]
