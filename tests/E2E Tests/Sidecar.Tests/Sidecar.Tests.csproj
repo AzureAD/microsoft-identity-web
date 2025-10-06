@@ -12,15 +12,6 @@
   <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
     <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="appsettings.agentids.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="appsettings.agentids.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
     <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />

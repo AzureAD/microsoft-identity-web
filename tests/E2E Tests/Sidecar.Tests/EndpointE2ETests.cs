@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,10 +31,19 @@ public class SidecarApiFactory : WebApplicationFactory<Program>
     {
         _configureOptions = configureOptions ?? (builder =>
         {
-            builder.AddJsonFile(
-                path: Path.Combine(Directory.GetCurrentDirectory().ToString(), "appsettings.agentids.json"),
-                optional: false,
-                reloadOnChange: true);
+            builder.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "AzureAd:Instance", "https://login.microsoftonline.com/" },
+                { "AzureAd:TenantId", "31a58c3b-ae9c-4448-9e8f-e9e143e800df" },
+                { "AzureAd:ClientId", "d15884b6-a447-4dd5-a5a5-a668c49f6300" },
+                { "AzureAd:Audience", "d15884b6-a447-4dd5-a5a5-a668c49f6300" },
+                { "AzureAd:ClientCredentials:0:SourceType", "StoreWithDistinguishedName" },
+                { "AzureAd:ClientCredentials:0:CertificateStorePath", "LocalMachine/My" },
+                { "AzureAd:ClientCredentials:0:CertificateDistinguishedName", "CN=LabAuth.MSIDLab.com" }, // Replace with the subject name of your certificate
+                { "DownstreamApis:MsGraph:BaseUrl", "https://graph.microsoft.com/v1.0/" },
+                { "DownstreamApis:MsGraph:RelativePath", "/me" },
+                { "DownstreamApis:MsGraph:Scopes:0", "User.Read" }
+            });
         });
     }
 
