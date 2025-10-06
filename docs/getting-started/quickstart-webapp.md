@@ -66,7 +66,8 @@ using Microsoft.Identity.Web.UI;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add authentication
-builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd");
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd");
 
 // Add Razor Pages or MVC
 builder.Services.AddRazorPages()
