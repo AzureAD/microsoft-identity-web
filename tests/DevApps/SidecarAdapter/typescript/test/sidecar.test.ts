@@ -1,4 +1,4 @@
-import { PublicClientApplication } from "@azure/msal-node";
+import { PublicClientApplication, AuthenticationResult } from "@azure/msal-node";
 import open from "open";
 import { describe, expect, test, afterAll, beforeAll } from "vitest";
 import { startServer } from "../src/app";
@@ -6,39 +6,21 @@ import type { Server } from "http";
 
 let server: Server;
 
-beforeAll(async () => {
-    server = await startServer({ port: 3000, sidecarBaseUrl: "http://localhost:5178" });
-});
-
-afterAll(async () => {
-    await new Promise<void>((resolve, reject) =>
-        server.close((error) => (error ? reject(error) : resolve())),
-    );
-});
-
-const callAPI = async (accessToken: string) => {
-    console.log("Access token acquired at: " + new Date().toString());
-    await fetch("http://localhost:3000/", {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`
-        }
-    }).then((res: Response) => {
-        console.log("Response status:", res.status);
-        expect(res.status).toBe(200);
-    });
-};
-
 // Open browser to sign user in and consent to scopes needed for application
-const openBrowser = async (url: string) => {
-    // You can open a browser window with any library or method you wish to use - the 'open' npm package is used here for demonstration purposes.
-    open(url);
+const openBrowser = async (url: string): Promise<void> => {
+    await open(url);
 };
 
-const loginRequest = {
+interface LoginRequest {
+    scopes: string[];
+    openBrowser: (url: string) => Promise<void>;
+    successTemplate: string;
+}
+
+const loginRequest: LoginRequest = {
     scopes: ["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user"],
     openBrowser,
-    successTemplate: "Successfully signed in! You can close this window now." // Will be shown in the browser window after authentication is complete
+    successTemplate: "Successfully signed in! You can close this window now."
 };
 
 // Create msal application object
@@ -50,14 +32,58 @@ const pca = new PublicClientApplication({
 });
 
 describe("PublicClientApplication", () => {
-    test("calls acquireTokenInteractive", async () => {
+    beforeAll(async () => {
+        console.log("Starting server...");
+        server = await startServer({ port: 5555, sidecarBaseUrl: "http://localhost:5178" });
+        console.log("Server started successfully");
 
+        // Give the server a moment to fully initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    });
+
+    afterAll(async () => {
+        console.log("Shutting down server...");
+        if (server) {
+            await new Promise<void>((resolve, reject) =>
+                server.close((error) => (error ? reject(error) : resolve())),
+            );
+        }
+    });
+
+    test("calls acquireTokenInteractive", async () => {
         console.log("Acquiring token interactively");
 
-        await pca.acquireTokenInteractive(loginRequest).then(async (response) => {
+        try {
+            const response: AuthenticationResult = await pca.acquireTokenInteractive(loginRequest);
+            console.log("Access token acquired at: " + new Date().toString());
+
             await callAPI(response.accessToken);
-        }).catch((error) => {
+        } catch (error) {
+            console.error("Authentication error:", error);
             throw error;
-        });
+        }
     }, 120000);
 });
+
+async function callAPI(accessToken: string): Promise<void> {
+    console.log("Making request to server with token...");
+
+    try {
+        const response = await fetch("http://localhost:5555/", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        console.log("Response status:", response.status);
+        expect(response.status).toBe(200);
+
+        const responseBody = await response.json();
+        console.log("Response body:", responseBody);
+    } catch (error) {
+        console.error("Fetch error:", error);
+        throw error;
+    }
+}
