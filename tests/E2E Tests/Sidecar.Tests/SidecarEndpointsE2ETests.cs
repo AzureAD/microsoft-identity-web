@@ -16,11 +16,11 @@ using Xunit;
 
 namespace Sidecar.Tests;
 
-public class EndpointsE2ETests : IClassFixture<SidecarApiFactory>
+public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
 {
     private readonly SidecarApiFactory _factory;
 
-    public EndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
+    public SidecarEndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
 
     const string TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
     const string AgentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
