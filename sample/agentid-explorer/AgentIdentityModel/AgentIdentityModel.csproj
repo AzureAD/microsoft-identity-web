@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
+    <WarningsAsErrors>false</WarningsAsErrors>
+    <NoWarn>RS0016;RS0037;RS0051</NoWarn>
+  </PropertyGroup>
+
+
+	<ItemGroup>
+	</ItemGroup>
+</Project>

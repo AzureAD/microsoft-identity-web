@@ -1,0 +1,335 @@
+@page "/agent-applications"
+@using client.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Identity.Web
+@inject AgentApplicationService AgentService
+@inject ILogger<AgentApplications> Logger
+@inject IJSRuntime JSRuntime
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler consentHandler
+@attribute [Authorize]
+
+<PageTitle>Agent Applications</PageTitle>
+
+<h1>Manage Agent Applications</h1>
+<p class="text-muted">This page allows you to manage agent applications in your Entra ID tenant.</p>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Create New Agent Application
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="mb-3">
+                <label class="form-label">Application display name:</label>
+                <input type="text" class="form-control" placeholder="Application Display Name"
+                       @bind="newAppName" @bind:event="oninput" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Optional Managed identity Object ID (if you want to use FIC+MSI):</label>
+                <input type="text" class="form-control" placeholder="Managed identity Client ID"
+                       @bind="msiPrincipalId" @bind:event="oninput" />
+            </div>
+@* 
+            <div class="mb-3">
+                <label class="form-check-label">Generate a client secret?</label>
+                <input type="checkbox" class="form-check-input" @bind="createClientSecret" @bind:event="oninput" />
+            </div> *@
+
+            <div>
+                <button class="btn btn-primary" @onclick="CreateApplication" disabled="@(string.IsNullOrWhiteSpace(newAppName) || isCreating)">
+                    @if (isCreating)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span> Creating...</span>
+                    }
+                    else
+                    {
+                        <span>Create</span>
+                    }
+                </button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger mt-2">@error</div>
+        }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success mt-2">@successMessage</div>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Agent Applications</span>
+        <button class="btn btn-sm btn-outline-primary" @onclick="LoadApplications">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span> Loading...</span>
+            }
+            else
+            {
+                <span class="oi oi-reload" aria-hidden="true"></span>
+                <span> Refresh</span>
+            }
+        </button>
+    </div>
+    <div class="card-body">
+        @if (isLoading)
+        {
+            <div class="d-flex justify-content-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (applications == null || !applications.Any())
+        {
+            <div class="alert alert-info">No agent applications found in your tenant.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Display Name</th>
+                            <th>Application ID</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in applications)
+                        {
+                            <tr>
+                                <td>@app.DisplayName</td>
+                                <td><code>@app.AppId</code></td>
+                                <td>@app.CreatedDateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(app)">
+                                            <span class="oi oi-trash" aria-hidden="true"></span> Delete
+                                        </button>
+                                        <button class="btn btn-sm btn-info ms-1" @onclick="() => ConfigureApp(app)">
+                                            <span class="oi oi-cog" aria-hidden="true"></span> Configure
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Add Credentials (Optional)
+    </div>
+    <div class="card-body">
+        <p>To add a federated identity credential to an agent application:</p>
+        <div class="mb-3">
+            <label class="form-label">Select Agent Application:</label>
+            <select class="form-select" @bind="selectedAppId">
+                <option value="">-- Select an application --</option>
+                @if (applications != null)
+                {
+                    @foreach (var app in applications)
+                    {
+                        <option value="@app.Id">@app.DisplayName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tenant ID:</label>
+            <input type="text" class="form-control" @bind="tenantId" placeholder="Your tenant ID" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Managed Identity Principal ID:</label>
+            <input type="text" class="form-control" @bind="msiPrincipalId" placeholder="Principal ID of managed identity" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Credential Name:</label>
+            <input type="text" class="form-control" @bind="credentialName" placeholder="Credential name" />
+        </div>
+        <button class="btn btn-primary" @onclick="AddFederatedCredential"
+                disabled="@(string.IsNullOrWhiteSpace(selectedAppId) || string.IsNullOrWhiteSpace(tenantId) || string.IsNullOrWhiteSpace(msiPrincipalId) || isAddingCredential)">
+            @if (isAddingCredential)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span> Adding...</span>
+            }
+            else
+            {
+                <span>Add Federated Credential</span>
+            }
+        </button>
+    </div>
+</div>
+
+@code {
+    private List<AgentApplication>? applications;
+    private bool isLoading = true;
+    private bool isCreating = false;
+    private bool isAddingCredential = false;
+    private string newAppName = string.Empty;
+    private string error = string.Empty;
+    private string successMessage = string.Empty;
+
+    // For credentials
+    private string selectedAppId = string.Empty;
+    private string tenantId = string.Empty;
+    private string msiPrincipalId = string.Empty;
+    private string credentialName = string.Empty;
+    //private bool createClientSecret = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApplications();
+    }
+
+    private async Task LoadApplications()
+    {
+        isLoading = true;
+        error = string.Empty;
+        successMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            applications = await AgentService.GetAgentApplicationsAsync();
+        }
+        catch (Exception ex)
+        {
+            error = $"Error loading applications: {ex.Message}";
+            Logger.LogError(ex, "Error loading agent applications");
+            consentHandler.HandleException(ex);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateApplication()
+    {
+        if (string.IsNullOrWhiteSpace(newAppName))
+            return;
+
+        error = string.Empty;
+        successMessage = string.Empty;
+        isCreating = true;
+        StateHasChanged();
+
+        try
+        {
+            var app = await AgentService.CreateAgentApplicationAsync(newAppName, msiPrincipalId);
+            successMessage = $"Successfully created agent application '{app.DisplayName}' with ID: {app.AppId}";
+            newAppName = string.Empty;
+            await LoadApplications();
+        }
+        catch (Exception ex)
+        {
+            error = $"Failed to create application: {ex.Message}";
+            Logger.LogError(ex, "Failed to create agent application");
+            consentHandler.HandleException(ex);
+        }
+        finally
+        {
+            isCreating = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmDelete(AgentApplication app)
+    {
+        error = string.Empty;
+        successMessage = string.Empty;
+
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the agent application '{app.DisplayName}'?");
+
+        if (confirmed)
+        {
+            await DeleteApplication(app);
+        }
+    }
+
+    private async Task DeleteApplication(AgentApplication app)
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await AgentService.DeleteAgentApplicationAsync(app.Id);
+            successMessage = $"Successfully deleted agent application '{app.DisplayName}'";
+            await LoadApplications();
+        }
+        catch (Exception ex)
+        {
+            error = $"Failed to delete application: {ex.Message}";
+            Logger.LogError(ex, "Failed to delete agent application");
+            isLoading = false;
+            StateHasChanged();
+            consentHandler.HandleException(ex);
+        }
+    }
+
+    private async Task ConfigureApp(AgentApplication app)
+    {
+        error = string.Empty;
+        successMessage = string.Empty;
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await AgentService.ConfigureIdentifierUriAndScopeAsync(app.Id, app.AppId);
+            successMessage = $"Successfully configured identifier URI and scope for '{app.DisplayName}'";
+        }
+        catch (Exception ex)
+        {
+            consentHandler.HandleException(ex);
+            error = $"Failed to configure application: {ex.Message}";
+            Logger.LogError(ex, "Failed to configure agent application");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddFederatedCredential()
+    {
+        error = string.Empty;
+        successMessage = string.Empty;
+        isAddingCredential = true;
+        StateHasChanged();
+
+        try
+        {
+            await AgentService.AddFederatedIdentityCredentialAsync(selectedAppId, tenantId, msiPrincipalId, credentialName);
+            successMessage = "Successfully added federated identity credential";
+        }
+        catch (Exception ex)
+        {
+            consentHandler.HandleException(ex);
+            error = $"Failed to add federated credential: {ex.Message}";
+            Logger.LogError(ex, "Failed to add federated identity credential");
+        }
+        finally
+        {
+            isAddingCredential = false;
+            StateHasChanged();
+        }
+    }
+}

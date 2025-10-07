@@ -1,0 +1,428 @@
+﻿@page "/agent-user-identities"
+
+@using Microsoft.Graph.Beta
+@using client.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Identity.Web
+@using AgentIdentityModel
+@using System.Text.Json
+@using System.Security.Claims
+@inject AgentIdentityService AgentIdentityService
+@inject ApiService ApiService
+@inject ILogger<AgentUserIdentities> Logger
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject GraphServiceClient GraphServiceClient
+@attribute [Authorize]
+
+<PageTitle>Agent User Identities</PageTitle>
+
+<h1>Call APIs Using Agent User Identity</h1>
+<p class="text-muted">This page allows you to call an Agent application API that calls APIs on behalf of a specific user using an agent identity.</p>
+
+<div class="card mb-4">
+    <div class="card-header">Select Agent Identity & User</div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Agent Identity:</label>
+            <select class="form-select" @bind="selectedIdentityId">
+                <option value="">-- Select an agent identity --</option>
+                @if (identities != null)
+                {
+                    @foreach (var identity in identities.Where(i => !string.IsNullOrEmpty(i.id)))
+                    {
+                        <option value="@identity.id">@identity.displayName (@identity.id)</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">User Principal Name (UPN):</label>
+            <input type="email" class="form-control" @bind="userPrincipalName" placeholder="user@contoso.com" />
+            @if (!string.IsNullOrEmpty(currentUserPrincipalName))
+            {
+                <div class="form-text">Current user: @currentUserPrincipalName</div>
+                <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="() => userPrincipalName = currentUserPrincipalName">
+                    Use current user
+                </button>
+            }
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" @onclick="CreateAgentUserIdentity"
+                    disabled="@(string.IsNullOrEmpty(selectedIdentityId) || string.IsNullOrEmpty(userPrincipalName) || isCreating)">
+                @if (isCreating)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Creating...</span>
+                }
+                else
+                {
+                    <span class="oi oi-plus" aria-hidden="true"></span>
+                    <span> Create Agent User Identity</span>
+                }
+            </button>
+            
+            <button class="btn btn-primary" @onclick="CallApiWithAgentUserIdentity"
+                    disabled="@(string.IsNullOrEmpty(selectedIdentityId) || string.IsNullOrEmpty(userPrincipalName) || isLoading)">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Calling API...</span>
+                }
+                else
+                {
+                    <span class="oi oi-external-link" aria-hidden="true"></span>
+                    <span> Call Microsoft Graph API</span>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <h5>Error</h5>
+        <p>@error</p>
+        @if (!string.IsNullOrEmpty(errorDetails))
+        {
+            <pre class="mt-3 p-3 bg-dark text-white rounded"><code>@errorDetails</code></pre>
+        }
+        <button type="button" class="btn-close" @onclick="() => { error = string.Empty; errorDetails = string.Empty; }" aria-label="Close"></button>
+    </div>
+}
+
+@if (createResponse != null && createResponse.Success)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <h5>✓ Agent User Identity Created Successfully</h5>
+        <div class="table-responsive mt-3">
+            <table class="table table-sm table-bordered bg-white">
+                <tbody>
+                    @if (!string.IsNullOrEmpty(createResponse.Id))
+                    {
+                        <tr>
+                            <th style="width: 200px;">ID</th>
+                            <td>@createResponse.Id</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(createResponse.DisplayName))
+                    {
+                        <tr>
+                            <th>Display Name</th>
+                            <td>@createResponse.DisplayName</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(createResponse.UserPrincipalName))
+                    {
+                        <tr>
+                            <th>User Principal Name</th>
+                            <td>@createResponse.UserPrincipalName</td>
+                        </tr>
+                    }
+                    @if (createResponse.AccountEnabled.HasValue)
+                    {
+                        <tr>
+                            <th>Account Enabled</th>
+                            <td>@(createResponse.AccountEnabled.Value ? "Yes" : "No")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <button type="button" class="btn-close" @onclick="() => createResponse = null" aria-label="Close"></button>
+    </div>
+}
+
+@if (apiResponse != null && apiResponse.Success)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            API Call Results
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                @if (apiResponse.HasPhoto && !string.IsNullOrEmpty(apiResponse.ProfilePhoto))
+                {
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="card">
+                            <div class="card-header">Profile Photo</div>
+                            <div class="card-body">
+                                <img src="data:image/jpeg;base64,@apiResponse.ProfilePhoto"
+                                     class="img-fluid rounded-circle"
+                                     alt="@apiResponse.DisplayName's profile photo"
+                                     style="max-width: 150px; max-height: 150px;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <h5>User Information</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Display Name</th>
+                                        <td>@apiResponse.DisplayName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>User Principal Name</th>
+                                        <td>@apiResponse.UserPrincipalName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Job Title</th>
+                                        <td>@apiResponse.JobTitle</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-12">
+                        <h5>User Information</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Display Name</th>
+                                        <td>@apiResponse.DisplayName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>User Principal Name</th>
+                                        <td>@apiResponse.UserPrincipalName</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Job Title</th>
+                                        <td>@apiResponse.JobTitle</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Profile Photo</th>
+                                        <td><i>No profile photo available</i></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (apiResponse.AdditionalData.Any())
+            {
+                <div class="mt-4">
+                    <h5>Additional Data</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                @foreach (var item in apiResponse.AdditionalData)
+                                {
+                                    <tr>
+                                        <th>@item.Key</th>
+                                        <td>@item.Value</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<AgentIdentity>? identities;
+    private string selectedIdentityId = string.Empty;
+    private string userPrincipalName = string.Empty;
+    private string? currentUserPrincipalName = string.Empty;
+    private bool isLoading = false;
+    private bool isCreating = false;
+    private string error = string.Empty;
+    private string errorDetails = string.Empty;
+    private ApiCallResponse? apiResponse;
+    private CreateAgentUserIdentityResponse? createResponse;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadAgentIdentities();
+            await GetCurrentUserPrincipalName();
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error loading agent identities: {ex.Message}";
+            Logger.LogError(ex, "Error loading agent identities");
+        }
+    }
+
+    private async Task LoadAgentIdentities()
+    {
+        isLoading = true;
+        try
+        {
+            identities = await AgentIdentityService.GetAgentIdentitiesAsync();
+            error = string.Empty;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error loading agent identities: {ex.Message}";
+            Logger.LogError(ex, "Error loading agent identities");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetCurrentUserPrincipalName()
+    {
+        if (selectedIdentityId == null || selectedIdentityId == string.Empty)
+            return;
+
+        try
+        {
+            var users = await GraphServiceClient.Users.GetAsync(
+                r => r.Options.WithScopes("User.Read.All",
+                "Policy.Read.AuthenticationMethod",
+                "User.AuthenticationMethod.Read.All"));
+            if (users == null || users.Value == null || !users.Value.Any())
+            {
+                return;
+            }
+
+            foreach (var u in users.Value)
+            {
+                var methods = await GraphServiceClient.Users[u.Id].Authentication.
+                   WithUrl($"https://graph.microsoft.com/beta/users/{u.Id}/authentication/federatedIdentityCredentialMethods").GetAsync();
+
+                if (methods == null)
+                {
+                    continue;
+                }
+
+                if (methods.AdditionalData["Subject"] is string subject &&
+                    subject.Equals("upn", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentUserPrincipalName = u.UserPrincipalName;
+                    break;
+                }
+            }
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
+    }
+
+    private async Task CreateAgentUserIdentity()
+    {
+        if (string.IsNullOrEmpty(selectedIdentityId))
+        {
+            error = "Please select an agent identity";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(userPrincipalName))
+        {
+            error = "Please enter a user principal name";
+            return;
+        }
+
+        isCreating = true;
+        error = string.Empty;
+        errorDetails = string.Empty;
+        createResponse = null;
+        apiResponse = null; // Clear API response when creating
+
+        try
+        {
+            createResponse = await ApiService.CreateAgentUserIdentityAsync(selectedIdentityId, userPrincipalName);
+            
+            if (!createResponse.Success)
+            {
+                error = createResponse.Message;
+                errorDetails = createResponse.Error;
+                createResponse = null;
+            }
+            else
+            {
+                Logger.LogInformation("Successfully created agent user identity for UPN: {UPN}", userPrincipalName);
+            }
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error creating agent user identity: {ex.Message}";
+            errorDetails = ex.ToString();
+            Logger.LogError(ex, "Error creating agent user identity {AgentIdentityId}, {UserPrincipalName}",
+                selectedIdentityId, userPrincipalName);
+        }
+        finally
+        {
+            isCreating = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CallApiWithAgentUserIdentity()
+    {
+        if (string.IsNullOrEmpty(selectedIdentityId))
+        {
+            error = "Please select an agent identity";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(userPrincipalName))
+        {
+            error = "Please enter a user principal name";
+            return;
+        }
+
+        isLoading = true;
+        error = string.Empty;
+        errorDetails = string.Empty;
+        apiResponse = null;
+        createResponse = null; // Clear create response when making API call
+
+        try
+        {
+            apiResponse = await ApiService.CallApiWithAgentUserIdentityAsync(selectedIdentityId, userPrincipalName);
+            if (!apiResponse.Success)
+            {
+                error = apiResponse.Message;
+                errorDetails = apiResponse.Error;
+            }
+        }
+        catch (MicrosoftIdentityWebChallengeUserException ex)
+        {
+            ConsentHandler.HandleException(ex);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error calling API: {ex.Message}";
+            errorDetails = ex.ToString();
+            Logger.LogError(ex, "Error calling API with agent user identity {AgentIdentityId}, {UserPrincipalName}",
+                selectedIdentityId, userPrincipalName);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

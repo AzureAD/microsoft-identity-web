@@ -3,11 +3,11 @@
     "Name": "B2C DevApps",
     "Projects": [
       {
-        "Path": "tests\\DevApps\\B2CWebAppCallsWebApi\\Client\\TodoListClient.csproj",
+        "Path": "sample\\agentid-explorer\\api\\api.csproj",
         "Action": "Start"
       },
       {
-        "Path": "tests\\DevApps\\B2CWebAppCallsWebApi\\TodoListService\\TodoListService.csproj",
+        "Path": "sample\\agentid-explorer\\client\\client.csproj",
         "Action": "Start"
       }
     ]
