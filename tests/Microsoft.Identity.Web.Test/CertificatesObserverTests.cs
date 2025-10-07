@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.NotNull(result);
                 Assert.NotNull(result.AccessToken);
 
-                // Verify observer was notified of successful usage
+                // Verify both observers got all events.
                 Assert.Equal(observer1.Events.Count, observer2.Events.Count);
 
                 // First event was selection.
