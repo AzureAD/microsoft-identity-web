@@ -5,7 +5,6 @@
     <Description>Interface for higher level API for confidential client applications.</Description>
     <ProjectGuid>{A123BD94-812D-40EC-9576-1A7AB5C59913}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!--<NoWarn>$(NoWarn);RS0051</NoWarn>-->
   </PropertyGroup>
 <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
