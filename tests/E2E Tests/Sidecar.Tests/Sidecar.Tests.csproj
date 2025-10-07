@@ -12,7 +12,6 @@
   <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
     <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
     <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
@@ -21,7 +20,7 @@
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Sidecar\Microsoft.Identity.Web.Sidecar.csproj" />
   </ItemGroup>
