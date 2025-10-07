@@ -58,8 +58,11 @@ namespace Microsoft.Identity.Web
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
-        protected readonly ICertificatesObserver? _certificatesObserver;
+        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
+
+        [Obsolete("Use _certificatesObservers instead.")]
+        protected readonly ICertificatesObserver? _certificatesObserver;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -106,7 +109,10 @@ namespace Microsoft.Identity.Web
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
+            _certificatesObservers = [.. serviceProvider.GetServices<ICertificatesObserver>()];
+#pragma warning disable CS0618 // Type or member is obsolete. Setup for backward compatibility.
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
+#pragma warning restore CS0618 // Type or member is obsolete
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
@@ -1030,17 +1036,19 @@ namespace Microsoft.Identity.Web
             Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
-            if (_certificatesObserver != null
-                && selectedCertificate != null)
+            if (selectedCertificate != null)
             {
-                _certificatesObserver.OnClientCertificateChanged(
-                    new CertificateChangeEventArg()
-                    {
-                        Action = action,
-                        Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
-                        ThrownException = exception,
-                    });
+                for (int i = 0; i < _certificatesObservers.Count; i++)
+                {
+                    _certificatesObservers[i].OnClientCertificateChanged(
+                        new CertificateChangeEventArg()
+                        {
+                            Action = action,
+                            Certificate = app.AppConfig.ClientCredentialCertificate,
+                            CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
+                            ThrownException = exception,
+                        });
+                }
             }
         }
 
