@@ -2,20 +2,20 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Test.Common.Mocks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Identity.Web.Experimental;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -30,32 +30,30 @@ namespace Microsoft.Identity.Web.Test
             var instance = "https://login.microsoftonline.com/";
             var authority = instance + tenantId;
 
+            var validCert = CreateCertificate("CN=TestCert");
+            var validDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.Certificate,
+                Certificate = validCert,
+            };
+
             var taf = new CustomTAF();
-            taf.Services.AddManagedCertificateCredentials();
-            taf.Services.AddTestServices();
             taf.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = instance;
                 options.ClientId = clientId.ToString();
                 options.TenantId = tenantId.ToString();
-                options.ClientCredentials = [
-                    new()
-                {
-                    SourceType = (CredentialSource)ManagedCertificateSourceLoader.Source,
-                },
-            ];
+                options.ClientCredentials = [validDescription];
             });
             taf.Services.AddSingletonWithSelf<IHttpClientFactory, MockHttpClientFactory>();
 
+            // Add two observers so that we can check if multiple observers works as intended.
+            TestCertificatesObserver observer1 = new TestCertificatesObserver();
+            taf.Services.AddSingleton<ICertificatesObserver>(observer1);
+            TestCertificatesObserver observer2 = new TestCertificatesObserver();
+            taf.Services.AddSingleton<ICertificatesObserver>(observer2);
+
             var provider = taf.Build();
-            var testCertService = provider.GetRequiredService<ITestCertificateService>();
-            var validCert = testCertService.AddCertificate(
-                new CertificateDefinition()
-                {
-                    SubjectName = "CN=Test-Valid-Cert",
-                    NotBefore = DateTime.UtcNow.AddDays(-1),
-                    NotAfter = DateTime.UtcNow.AddYears(1),
-                }.WithAppFmiId("eid", clientId, tenantId));
 
             var mockHttpFactory = provider.GetRequiredService<MockHttpClientFactory>();
 
@@ -66,28 +64,70 @@ namespace Microsoft.Identity.Web.Test
             var ta = taf.GetTokenAcquirer(
                 authority,
                 clientId.ToString(),
-                [
-                    new()
-                {
-                    SourceType = (CredentialSource)ManagedCertificateSourceLoader.Source,
-                }
-                ]);
+                [validDescription]);
 
             var result = await ta.GetTokenForAppAsync(
-                "https://graph.microsoft.com/.default",
-                cancellationToken: this.TestContext.CancellationTokenSource.Token);
+                "https://graph.microsoft.com/.default");
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.AccessToken);
+            Assert.NotNull(result);
+            Assert.NotNull(result.AccessToken);
 
             // Verify observer was notified of successful usage
-            var telemetry = provider.GetRequiredService<TestCertificateSelectionTelemetry>();
-            Assert.AreEqual(1, telemetry.Successful.Count);
-            Assert.AreEqual(0, telemetry.Failures.Count);
+            Assert.Equal(observer1.Events.Count, observer2.Events.Count);
 
-            var successEvent = telemetry.Successful[0];
-            Assert.AreEqual(validCert.Thumbprint, successEvent.Certificate.Thumbprint);
+            // First event was selection.
+            observer1.Events.TryDequeue(out var eventArg);
+            Assert.NotNull(eventArg);
+            Assert.Equal(CerticateObserverAction.Selected, eventArg.Action);
+            Assert.Equal(validCert, eventArg.Certificate);
+            Assert.Equal(validDescription, eventArg.CredentialDescription);
+
+            // Second event was successful usage.
+            observer1.Events.TryDequeue(out eventArg);
+            Assert.NotNull(eventArg);
+            Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
+            Assert.Equal(validCert, eventArg.Certificate);
+            Assert.Equal(validDescription, eventArg.CredentialDescription);
+
+            // No further events
+            Assert.Empty(observer1.Events);
+
+            // Rerun, should only get success event, no selection.
+            result = await ta.GetTokenForAppAsync(
+                "https://graph.microsoft.com/.default");
+            observer1.Events.TryDequeue(out eventArg);
+            Assert.NotNull(eventArg);
+            Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
+            Assert.Empty(observer1.Events);
+        }
+
+        private X509Certificate2 CreateCertificate(string certName)
+        {
+            // Create the self signed certificate
+#if ECDsa
+            var ecdsa = ECDsa.Create(); // generate asymmetric key pair
+            var req = new CertificateRequest($"CN={certName}", ecdsa, HashAlgorithmName.SHA256);
+#else
+            using RSA rsa = RSA.Create(); // generate asymmetric key pair
+            var req = new CertificateRequest($"CN={certName}", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+#endif
+
+            var cert = req.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddDays(1));
+
+            byte[] bytes = cert.Export(X509ContentType.Pfx, (string?)null);
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
+            X509Certificate2 certWithPrivateKey = new(bytes);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
+
+            return certWithPrivateKey;
+        }
+
+        private class TestCertificatesObserver : ICertificatesObserver
+        {
+            public Queue<CertificateChangeEventArg> Events { get; } = new();
+
+            public void OnClientCertificateChanged(CertificateChangeEventArg e) => Events.Enqueue(e);
         }
 
 
@@ -256,6 +296,20 @@ namespace Microsoft.Identity.Web.Test
             {
                 return AppContext.BaseDirectory;
             }
+        }
+    }
+
+#pragma warning disable SA1402 // File may only contain a single type. Acceptable for extension methods.
+    file static class TestSericeExtensions
+#pragma warning restore SA1402 // File may only contain a single type
+    {
+        public static IServiceCollection AddSingletonWithSelf<TInterface, TImplementation>(this IServiceCollection services)
+            where TImplementation : class, TInterface
+            where TInterface : class
+        {
+            return services
+                .AddSingleton<TImplementation>()
+                .AddSingleton<TInterface>(s => s.GetRequiredService<TImplementation>());
         }
     }
 }
