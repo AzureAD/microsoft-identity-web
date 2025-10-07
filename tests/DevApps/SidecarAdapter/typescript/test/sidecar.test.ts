@@ -81,6 +81,11 @@ async function callAPI(accessToken: string): Promise<void> {
         expect(response.status).toBe(200);
 
         const responseBody = await response.json();
+
+        expect(responseBody).toHaveProperty("claims");
+        expect(responseBody).toHaveProperty("token");
+        expect(responseBody).toHaveProperty("protocol", "Bearer");
+
         console.log("Response body:", responseBody);
     } catch (error) {
         console.error("Fetch error:", error);
