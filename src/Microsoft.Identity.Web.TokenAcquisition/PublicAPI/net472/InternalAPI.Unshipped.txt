@@ -1,2 +1,3 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> Microsoft.Identity.Web.Experimental.ICertificatesObserver![]!
