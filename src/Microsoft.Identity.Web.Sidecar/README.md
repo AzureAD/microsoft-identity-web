@@ -3,7 +3,7 @@
 ## Overview
 
 `Microsoft.Identity.Web.Sidecar` hosts a minimal ASP.NET Core Web API that
-enables Microsoft Entra token acquisition and downstream API calls, and token validation.
+enables Microsoft Entra token acquisition and downstream API calls, and token validation including for agents
 
 ### Key capabilities
 

@@ -14,14 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.agentids.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="appsettings.agentids.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
     <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkVersion)" />
@@ -29,7 +21,7 @@
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioVersion)" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Sidecar\Microsoft.Identity.Web.Sidecar.csproj" />
   </ItemGroup>
