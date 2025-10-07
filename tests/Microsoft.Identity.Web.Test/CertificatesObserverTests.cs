@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -25,84 +27,141 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public async Task SuccessfulTokenSelection()
         {
-            var clientId = Guid.NewGuid();
-            var tenantId = Guid.NewGuid();
-            var instance = "https://login.microsoftonline.com/";
-            var authority = instance + tenantId;
-
-            var validCert = CreateCertificate("CN=TestCert");
-            var validDescription = new CredentialDescription
+            static void RemoveCertificate(X509Certificate2? certificate)
             {
-                SourceType = CredentialSource.Certificate,
-                Certificate = validCert,
-            };
+                if (certificate is null)
+                {
+                    return;
+                }
 
-            var taf = new CustomTAF();
-            taf.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+                using X509Store x509Store = new(StoreName.My, StoreLocation.CurrentUser);
+                x509Store.Open(OpenFlags.ReadWrite);
+                x509Store.Remove(certificate);
+                x509Store.Close();
+            }
+
+            X509Certificate2? cert1 = null;
+            X509Certificate2? cert2 = null;
+            try
             {
-                options.Instance = instance;
-                options.ClientId = clientId.ToString();
-                options.TenantId = tenantId.ToString();
-                options.ClientCredentials = [validDescription];
-            });
-            taf.Services.AddSingletonWithSelf<IHttpClientFactory, MockHttpClientFactory>();
+                var clientId = Guid.NewGuid();
+                var tenantId = Guid.NewGuid();
+                var instance = "https://login.microsoftonline.com/";
+                var authority = instance + tenantId;
 
-            // Add two observers so that we can check if multiple observers works as intended.
-            TestCertificatesObserver observer1 = new TestCertificatesObserver();
-            taf.Services.AddSingleton<ICertificatesObserver>(observer1);
-            TestCertificatesObserver observer2 = new TestCertificatesObserver();
-            taf.Services.AddSingleton<ICertificatesObserver>(observer2);
+                string certName = "CN=TestCert";
+                cert1 = CreateAndInstallCertificate(certName);
+                var desc1 = new CredentialDescription
+                {
+                    SourceType = CredentialSource.StoreWithDistinguishedName,
+                    CertificateDistinguishedName = cert1.SubjectName.Name,
+                    CertificateStorePath = "CurrentUser/My",
+                };
 
-            var provider = taf.Build();
+                var taf = new CustomTAF();
+                taf.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+                {
+                    options.Instance = instance;
+                    options.ClientId = clientId.ToString();
+                    options.TenantId = tenantId.ToString();
+                    options.ClientCredentials = [desc1];
+                });
+                taf.Services.AddSingletonWithSelf<IHttpClientFactory, MockHttpClientFactory>();
 
-            var mockHttpFactory = provider.GetRequiredService<MockHttpClientFactory>();
+                // Add two observers so that we can check if multiple observers works as intended.
+                TestCertificatesObserver observer1 = new TestCertificatesObserver();
+                taf.Services.AddSingleton<ICertificatesObserver>(observer1);
+                TestCertificatesObserver observer2 = new TestCertificatesObserver();
+                taf.Services.AddSingleton<ICertificatesObserver>(observer2);
 
-            // Configure successful STS responses
-            mockHttpFactory.ConfigureSuccessfulTokenResponse(authority, validCert);
-            mockHttpFactory.ConfigureSuccessfulOpenIdConfiguration(authority);
+                var provider = taf.Build();
 
-            var ta = taf.GetTokenAcquirer(
-                authority,
-                clientId.ToString(),
-                [validDescription]);
+                var mockHttpFactory = provider.GetRequiredService<MockHttpClientFactory>();
 
-            var result = await ta.GetTokenForAppAsync(
-                "https://graph.microsoft.com/.default");
+                // Configure successful STS responses
+                mockHttpFactory.EnqueueSuccessfulTokenResponse(authority);
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.NotNull(result.AccessToken);
+                var ta = taf.GetTokenAcquirer(
+                    authority,
+                    clientId.ToString(),
+                    [desc1]);
 
-            // Verify observer was notified of successful usage
-            Assert.Equal(observer1.Events.Count, observer2.Events.Count);
+                var result = await ta.GetTokenForAppAsync(
+                    "https://graph.microsoft.com/.default");
 
-            // First event was selection.
-            observer1.Events.TryDequeue(out var eventArg);
-            Assert.NotNull(eventArg);
-            Assert.Equal(CerticateObserverAction.Selected, eventArg.Action);
-            Assert.Equal(validCert, eventArg.Certificate);
-            Assert.Equal(validDescription, eventArg.CredentialDescription);
+                // Assert
+                Assert.NotNull(result);
+                Assert.NotNull(result.AccessToken);
 
-            // Second event was successful usage.
-            observer1.Events.TryDequeue(out eventArg);
-            Assert.NotNull(eventArg);
-            Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
-            Assert.Equal(validCert, eventArg.Certificate);
-            Assert.Equal(validDescription, eventArg.CredentialDescription);
+                // Verify observer was notified of successful usage
+                Assert.Equal(observer1.Events.Count, observer2.Events.Count);
 
-            // No further events
-            Assert.Empty(observer1.Events);
+                // First event was selection.
+                observer1.Events.TryDequeue(out var eventArg);
+                Assert.NotNull(eventArg);
+                Assert.Equal(CerticateObserverAction.Selected, eventArg.Action);
+                Assert.Equal(cert1, eventArg.Certificate);
+                Assert.Equal(desc1, eventArg.CredentialDescription);
 
-            // Rerun, should only get success event, no selection.
-            result = await ta.GetTokenForAppAsync(
-                "https://graph.microsoft.com/.default");
-            observer1.Events.TryDequeue(out eventArg);
-            Assert.NotNull(eventArg);
-            Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
-            Assert.Empty(observer1.Events);
+                // Second event was successful usage.
+                observer1.Events.TryDequeue(out eventArg);
+                Assert.NotNull(eventArg);
+                Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
+                Assert.Equal(cert1, eventArg.Certificate);
+                Assert.Equal(desc1, eventArg.CredentialDescription);
+
+                // No further events
+                Assert.Empty(observer1.Events);
+
+                // Rerun, should only get success event, no selection.
+                mockHttpFactory.EnqueueSuccessfulTokenResponse(authority);
+                result = await ta.GetTokenForAppAsync(
+                    "https://graph.microsoft.com/.default",
+                    new AcquireTokenOptions
+                    {
+                        ForceRefresh = true // Exceptionnaly as we want to test the cert rotation.
+                    });
+                observer1.Events.TryDequeue(out eventArg);
+                Assert.NotNull(eventArg);
+                Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
+                Assert.Empty(observer1.Events);
+
+                // Change out the cert, so that if it reloads there will be a new one
+                RemoveCertificate(cert1);
+                cert2 = CreateAndInstallCertificate(certName);
+
+                // Rerun but it fails this time
+                mockHttpFactory.EnqueueFailedTokenResponse(authority, "invalid_client", HttpStatusCode.Forbidden);
+                mockHttpFactory.EnqueueSuccessfulTokenResponse(authority);
+                result = await ta.GetTokenForAppAsync(
+                    "https://graph.microsoft.com/.default",
+                    new AcquireTokenOptions
+                    {
+                        ForceRefresh = true // Exceptionnaly as we want to test the cert rotation.
+                    });
+
+                // First it deselects the old cert.
+                observer1.Events.TryDequeue(out eventArg);
+                Assert.NotNull(eventArg);
+                Assert.Equal(CerticateObserverAction.Deselected, eventArg.Action);
+                Assert.Equal(cert1, eventArg.Certificate);
+
+                // Then, it uses a new cert successfully.
+                observer1.Events.TryDequeue(out eventArg);
+                Assert.NotNull(eventArg);
+                Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
+
+                // No events left.
+                Assert.Empty(observer1.Events);
+            }
+            finally
+            {
+                RemoveCertificate(cert1);
+                RemoveCertificate(cert2);
+            }
         }
 
-        private X509Certificate2 CreateCertificate(string certName)
+        private X509Certificate2 CreateAndInstallCertificate(string certName)
         {
             // Create the self signed certificate
 #if ECDsa
@@ -119,6 +178,11 @@ namespace Microsoft.Identity.Web.Test
 #pragma warning disable SYSLIB0057 // Type or member is obsolete
             X509Certificate2 certWithPrivateKey = new(bytes);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
+
+            using X509Store x509Store = new(StoreName.My, StoreLocation.CurrentUser);
+            x509Store.Open(OpenFlags.ReadWrite);
+            x509Store.Add(certWithPrivateKey);
+            x509Store.Close();
 
             return certWithPrivateKey;
         }
@@ -141,14 +205,17 @@ namespace Microsoft.Identity.Web.Test
             /// <inheritdoc/>
             public HttpClient CreateClient(string name) => new(this.handler);
 
-            public void ConfigureSuccessfulTokenResponse(string authority, X509Certificate2 certificate)
-                => this.handler.ConfigureSuccessfulTokenResponse(authority, certificate);
+            public void EnqueueSuccessfulTokenResponse(string authority)
+            {
+                this.handler.EnqueueSuccessfulTokenResponse(authority);
+                this.handler.EnqueueSuccessfulOpenIdConfiguration(authority);
+            }
 
-            public void ConfigureFailedTokenResponse(string authority, X509Certificate2 certificate, string errorCode, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-                => this.handler.ConfigureFailedTokenResponse(authority, certificate, errorCode, statusCode);
-
-            public void ConfigureSuccessfulOpenIdConfiguration(string authority)
-                => this.handler.ConfigureSuccessfulOpenIdConfiguration(authority);
+            public void EnqueueFailedTokenResponse(string authority, string errorCode, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            {
+                this.handler.EnqueueFailedTokenResponse(authority, errorCode, statusCode);
+                this.handler.EnqueueSuccessfulOpenIdConfiguration(authority);
+            }
         }
 
         /// <summary>
@@ -156,77 +223,84 @@ namespace Microsoft.Identity.Web.Test
         /// </summary>
         private class MockHttpMessageHandler : HttpMessageHandler
         {
-            private readonly Dictionary<string, Func<HttpRequestMessage, HttpResponseMessage>> responseMap = [];
+            private readonly Dictionary<string, Queue<HttpResponseMessage>> responseMap = [];
 
-            public void ConfigureSuccessfulTokenResponse(string authority, X509Certificate2 certificate)
+            public void EnqueueSuccessfulTokenResponse(string authority)
             {
                 var tokenEndpoint = $"{authority.TrimEnd('/')}/oauth2/v2.0/token";
 
-                this.responseMap[tokenEndpoint] = request =>
+                var token = GenerateMockAccessToken();
+                var response = new
                 {
-                    var token = GenerateMockAccessToken(certificate);
-                    var response = new
-                    {
-                        access_token = token,
-                        token_type = "Bearer",
-                        expires_in = 3600,
-                        scope = "https://graph.microsoft.com/.default",
-                    };
-
-                    return new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new StringContent(
-                            System.Text.Json.JsonSerializer.Serialize(response),
-                            Encoding.UTF8,
-                            "application/json"),
-                    };
+                    access_token = token,
+                    token_type = "Bearer",
+                    expires_in = 3600,
+                    scope = "https://graph.microsoft.com/.default",
                 };
+
+                var message = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        System.Text.Json.JsonSerializer.Serialize(response),
+                        Encoding.UTF8,
+                        "application/json"),
+                };
+
+                this.EnqueueResponse(tokenEndpoint, message);
             }
 
-            public void ConfigureFailedTokenResponse(string authority, X509Certificate2 certificate, string errorCode, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            public void EnqueueFailedTokenResponse(string authority, string errorCode, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             {
                 var tokenEndpoint = $"{authority.TrimEnd('/')}/oauth2/v2.0/token";
 
-                this.responseMap[tokenEndpoint] = request =>
+                var errorResponse = new
                 {
-                    var errorResponse = new
-                    {
-                        error = errorCode,
-                        error_description = $"Mock error: {errorCode}",
-                        error_codes = new[] { 50000 },
-                        timestamp = DateTime.UtcNow,
-                    };
-
-                    return new HttpResponseMessage(statusCode)
-                    {
-                        Content = new StringContent(
-                            System.Text.Json.JsonSerializer.Serialize(errorResponse),
-                            Encoding.UTF8,
-                            "application/json"),
-                    };
+                    error = errorCode,
+                    error_description = $"Mock error: {errorCode}",
+                    error_codes = new[] { 50000 },
+                    timestamp = DateTime.UtcNow,
                 };
+
+                var message = new HttpResponseMessage(statusCode)
+                {
+                    Content = new StringContent(
+                        System.Text.Json.JsonSerializer.Serialize(errorResponse),
+                        Encoding.UTF8,
+                        "application/json"),
+                };
+
+                this.EnqueueResponse(tokenEndpoint, message);
             }
 
-            public void ConfigureSuccessfulOpenIdConfiguration(string authority)
+            public void EnqueueSuccessfulOpenIdConfiguration(string authority)
             {
                 var configEndpoint = $"{authority.TrimEnd('/')}/.well-known/openid_configuration";
 
-                this.responseMap[configEndpoint] = request =>
+                var config = new
                 {
-                    var config = new
-                    {
-                        token_endpoint = $"{authority}/oauth2/v2.0/token",
-                        issuer = authority,
-                    };
-
-                    return new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new StringContent(
-                            System.Text.Json.JsonSerializer.Serialize(config),
-                            Encoding.UTF8,
-                            "application/json"),
-                    };
+                    token_endpoint = $"{authority}/oauth2/v2.0/token",
+                    issuer = authority,
                 };
+
+                var message = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        System.Text.Json.JsonSerializer.Serialize(config),
+                        Encoding.UTF8,
+                        "application/json"),
+                };
+
+                this.EnqueueResponse(configEndpoint, message);
+            }
+
+            protected void EnqueueResponse(string url, HttpResponseMessage response)
+            {
+                if (!this.responseMap.ContainsKey(url))
+                {
+                    this.responseMap[url] = new Queue<HttpResponseMessage>();
+                }
+
+                this.responseMap[url].Enqueue(response);
             }
 
             /// <inheritdoc/>
@@ -238,17 +312,17 @@ namespace Microsoft.Identity.Web.Test
                 {
                     if (uri.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
                     {
-                        return Task.FromResult(kvp.Value(request));
+                        return Task.FromResult(kvp.Value.Dequeue());
                     }
                 }
 
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
             }
 
-            private static string GenerateMockAccessToken(X509Certificate2 certificate)
+            private static string GenerateMockAccessToken()
             {
                 var header = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"typ\":\"JWT\",\"alg\":\"RS256\"}"));
-                var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{{\"aud\":\"https://graph.microsoft.com/\",\"cert_thumbprint\":\"{certificate.Thumbprint}\",\"exp\":{DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds()},\"scp\":\"https://graph.microsoft.com/.default\"}}"));
+                var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{{\"aud\":\"https://graph.microsoft.com/\",\"cert_thumbprint\":\"blahblah\",\"exp\":{DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds()},\"scp\":\"https://graph.microsoft.com/.default\"}}"));
                 var signature = Convert.ToBase64String(Encoding.UTF8.GetBytes("mock-signature"));
 
                 return $"{header}.{payload}.{signature}";
