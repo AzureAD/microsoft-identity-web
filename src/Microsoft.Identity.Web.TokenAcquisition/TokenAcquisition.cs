@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
-        protected readonly ICertificatesObserver[] _certificatesObservers;
+        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
 
         [Obsolete("Use _certificatesObservers instead.")]
@@ -1038,7 +1038,7 @@ namespace Microsoft.Identity.Web
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
             if (selectedCertificate != null)
             {
-                for (int i = 0; i < _certificatesObservers.Length; i++)
+                for (int i = 0; i < _certificatesObservers.Count; i++)
                 {
                     _certificatesObservers[i].OnClientCertificateChanged(
                         new CertificateChangeEventArg()

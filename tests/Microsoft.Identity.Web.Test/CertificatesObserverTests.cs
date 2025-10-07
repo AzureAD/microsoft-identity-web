@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Test
     public class CertificatesObserverTests
     {
         [Fact]
-        public async Task ObesrverSendsCorrectEvents()
+        public async Task ObserverSendsCorrectEvents()
         {
             static void RemoveCertificate(X509Certificate2? certificate)
             {
