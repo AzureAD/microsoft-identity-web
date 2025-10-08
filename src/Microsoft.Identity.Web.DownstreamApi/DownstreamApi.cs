@@ -405,7 +405,7 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string error = await ReadErrorResponseContentAsync(response).ConfigureAwait(false);
 
 #if NET5_0_OR_GREATER
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
@@ -456,7 +456,7 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string error = await ReadErrorResponseContentAsync(response).ConfigureAwait(false);
 
 #if NET5_0_OR_GREATER
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
@@ -646,6 +646,32 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
                     CallerSDKDetails["caller-sdk-ver"];
             }
+        }
+
+        /// <summary>
+        /// Safely reads error response content with size limits to avoid performance issues with large payloads.
+        /// </summary>
+        /// <param name="response">The HTTP response message.</param>
+        /// <returns>The error response content, truncated if necessary.</returns>
+        internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response)
+        {
+            const int maxErrorContentLength = 4096;
+            
+            long? contentLength = response.Content.Headers.ContentLength;
+            
+            if (contentLength.HasValue && contentLength.Value > maxErrorContentLength)
+            {
+                return $"[Error response too large: {contentLength.Value} bytes, not captured]";
+            }
+            
+            string errorResponseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            
+            if (errorResponseContent.Length > maxErrorContentLength)
+            {
+                errorResponseContent = errorResponseContent.Substring(0, maxErrorContentLength) + "... (truncated)";
+            }
+            
+            return errorResponseContent;
         }
     }
 }
