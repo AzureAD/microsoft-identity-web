@@ -13,21 +13,21 @@ namespace Microsoft.Identity.Web
     {
         internal static class Logger
         {
-            private static readonly Action<ILogger, string, string, string, Exception?> s_httpRequestError =
-                LoggerMessage.Define<string, string, string>(
+            private static readonly Action<ILogger, string, string, string, string, Exception?> s_httpRequestError =
+                LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Debug, 
                     DownstreamApiLoggingEventId.HttpRequestError, 
                     "[MsIdWeb] An error occurred during HTTP Request. " + 
                     "ServiceName: {serviceName}, " +
                     "BaseUrl: {BaseUrl}, " +
-                    "RelativePath: {RelativePath} ");
+                    "RelativePath: {RelativePath}, " +
+                    "ResponseContent: {responseContent}");
 
             private static readonly Action<ILogger, Exception?> s_unauthenticatedApiCall =
                 LoggerMessage.Define(
                     LogLevel.Information,
                     DownstreamApiLoggingEventId.UnauthenticatedApiCall, 
                     "[MsIdWeb] An unauthenticated call was made to the Api with null Scopes");
-
 
             /// <summary>
             /// Logger for handling options exceptions in DownstreamApi.
@@ -36,13 +36,15 @@ namespace Microsoft.Identity.Web
             /// <param name="ServiceName">Name of API receiving request.</param>
             /// <param name="BaseUrl">Base url from appsettings.</param>
             /// <param name="RelativePath">Relative path from appsettings.</param>
+            /// <param name="responseContent">Error content returned by the downstream API</param>
             /// <param name="ex">Exception.</param>
             public static void HttpRequestError(
                 ILogger logger, 
                 string ServiceName,
                 string BaseUrl, 
-                string RelativePath, 
-                Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, ex);
+                string RelativePath,
+                string responseContent,
+                Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, responseContent, ex);
 
             /// <summary>
             /// Logger for unauthenticated internal API call in DownstreamApi.

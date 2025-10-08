@@ -105,6 +105,7 @@ namespace Microsoft.Identity.Web
 <# } else { #>
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
 <# } } #>
+            string errorResponseContent = string.Empty;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, <#= hasApp ? "true" : "false" #>, <#= content #>, <#= user #>, cancellationToken).ConfigureAwait(false);
@@ -114,6 +115,10 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorResponseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
 <# }
@@ -134,7 +139,7 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, errorResponseContent, ex);
                 throw;
             }
         }
