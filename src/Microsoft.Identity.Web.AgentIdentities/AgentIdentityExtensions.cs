@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web
         private const string XmsParAppAzp = "xms_par_app_azp";
 
         /// <summary>
-        /// Claim type for subject function codes (space-separated integers).
+        /// Claim type for subject facets (space-separated integers).
         /// </summary>
         private const string XmsSubFct = "xms_sub_fct";
 
