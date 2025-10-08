@@ -665,15 +665,23 @@ namespace Microsoft.Identity.Web
                 return $"[Error response too large: {contentLength.Value} bytes, not captured]";
             }
             
+            // Use streaming to read only up to maxErrorContentLength to avoid loading entire response into memory
 #if NET5_0_OR_GREATER
-            string errorResponseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 #else
-            string errorResponseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
+            using var reader = new StreamReader(stream);
             
-            if (errorResponseContent.Length > maxErrorContentLength)
+            char[] buffer = new char[maxErrorContentLength];
+            int readCount = await reader.ReadBlockAsync(buffer, 0, maxErrorContentLength).ConfigureAwait(false);
+            
+            string errorResponseContent = new string(buffer, 0, readCount);
+            
+            // Check if there's more content that was truncated
+            if (readCount == maxErrorContentLength && reader.Peek() != -1)
             {
-                errorResponseContent = errorResponseContent.Substring(0, maxErrorContentLength) + "... (truncated)";
+                errorResponseContent += "... (truncated)";
             }
             
             return errorResponseContent;
