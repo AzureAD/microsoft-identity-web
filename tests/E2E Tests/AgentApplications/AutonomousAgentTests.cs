@@ -53,9 +53,9 @@ namespace AgentApplicationsTests
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
-            
-            // Verify the token represents an agent user identity using the extension method
-            Assert.True(claimsIdentity.IsAgentUserIdentity());
+
+            // Verify the token does not represent an agent user identity using the extension method
+            Assert.False(claimsIdentity.IsAgentUserIdentity());
             
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
