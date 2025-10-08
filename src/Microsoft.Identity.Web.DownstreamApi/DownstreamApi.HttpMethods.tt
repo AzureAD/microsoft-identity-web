@@ -124,11 +124,11 @@ namespace Microsoft.Identity.Web
 <# }
    if (hasOutput && framework == "net8")
    { #>
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
 <# } 
    else if (hasOutput)
    {#>
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
 <# } #>
             }
             catch(Exception ex) when (
