@@ -652,8 +652,9 @@ namespace Microsoft.Identity.Web
         /// Safely reads error response content with size limits to avoid performance issues with large payloads.
         /// </summary>
         /// <param name="response">The HTTP response message.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The error response content, truncated if necessary.</returns>
-        internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response)
+        internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             const int maxErrorContentLength = 4096;
             
@@ -664,7 +665,11 @@ namespace Microsoft.Identity.Web
                 return $"[Error response too large: {contentLength.Value} bytes, not captured]";
             }
             
+#if NET5_0_OR_GREATER
+            string errorResponseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
             string errorResponseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+#endif
             
             if (errorResponseContent.Length > maxErrorContentLength)
             {

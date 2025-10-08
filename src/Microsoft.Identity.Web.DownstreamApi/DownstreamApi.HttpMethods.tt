@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web
                 }
                 if (response.IsSuccessStatusCode == false)
                 {
-                    errorResponseContent = await ReadErrorResponseContentAsync(response).ConfigureAwait(false);
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
 <# }
