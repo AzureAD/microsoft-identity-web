@@ -15,9 +15,9 @@ namespace Microsoft.Identity.Web
         {
             private static readonly Action<ILogger, string, string, string, int, string, Exception?> s_httpRequestError =
                 LoggerMessage.Define<string, string, string, int, string>(
-                    LogLevel.Debug, 
-                    DownstreamApiLoggingEventId.HttpRequestError, 
-                    "[MsIdWeb] An error occurred during HTTP Request. " + 
+                    LogLevel.Debug,
+                    DownstreamApiLoggingEventId.HttpRequestError,
+                    "[MsIdWeb] An error occurred during HTTP Request. " +
                     "ServiceName: {serviceName}, " +
                     "BaseUrl: {BaseUrl}, " +
                     "RelativePath: {RelativePath}, " +
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
             private static readonly Action<ILogger, Exception?> s_unauthenticatedApiCall =
                 LoggerMessage.Define(
                     LogLevel.Information,
-                    DownstreamApiLoggingEventId.UnauthenticatedApiCall, 
+                    DownstreamApiLoggingEventId.UnauthenticatedApiCall,
                     "[MsIdWeb] An unauthenticated call was made to the Api with null Scopes");
 
             /// <summary>
@@ -41,9 +41,9 @@ namespace Microsoft.Identity.Web
             /// <param name="responseContent">Error content returned by the downstream API</param>
             /// <param name="ex">Exception.</param>
             public static void HttpRequestError(
-                ILogger logger, 
+                ILogger logger,
                 string ServiceName,
-                string BaseUrl, 
+                string BaseUrl,
                 string RelativePath,
                 int statusCode,
                 string responseContent,

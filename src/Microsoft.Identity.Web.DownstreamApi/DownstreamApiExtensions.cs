@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,8 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+        [RequiresUnreferencedCode()]
+        [RequiresDynamicCode()]
         public static IServiceCollection AddDownstreamApi(
             this IServiceCollection services,
             string serviceName,
@@ -65,6 +68,8 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder for chaining.</returns>
+        [RequiresUnreferencedCode()]
+        [RequiresDynamicCode()]
         public static IServiceCollection AddDownstreamApis(
             this IServiceCollection services,
             IConfigurationSection configurationSection)
@@ -73,7 +78,7 @@ namespace Microsoft.Identity.Web
 
             // Help the compiler figure out the type so that the code generator generates
             // the binding code
-            Dictionary<string, DownstreamApiOptions> options =configurationSection.Get<Dictionary<string, DownstreamApiOptions>>()
+            Dictionary<string, DownstreamApiOptions> options = configurationSection.Get<Dictionary<string, DownstreamApiOptions>>()
                 ?? new Dictionary<string, DownstreamApiOptions>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var optionsForService in options.Keys)

@@ -39,16 +39,16 @@ namespace Microsoft.Identity.Web
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -89,16 +89,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -124,16 +124,16 @@ namespace Microsoft.Identity.Web
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -173,16 +173,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -221,16 +221,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -271,16 +271,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -318,16 +318,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -367,16 +367,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -415,16 +415,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -465,16 +465,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -512,16 +512,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -561,16 +561,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -611,16 +611,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -661,16 +661,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -708,16 +708,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -757,16 +757,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -807,16 +807,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -857,16 +857,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -904,16 +904,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -953,16 +953,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -988,16 +988,16 @@ namespace Microsoft.Identity.Web
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1036,16 +1036,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1068,16 +1068,16 @@ namespace Microsoft.Identity.Web
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1115,16 +1115,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1160,16 +1160,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1208,16 +1208,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1252,16 +1252,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1299,16 +1299,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1344,16 +1344,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1392,16 +1392,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1436,16 +1436,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1483,16 +1483,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1528,16 +1528,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1576,16 +1576,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1620,16 +1620,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1667,16 +1667,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1712,16 +1712,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1760,16 +1760,16 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1804,16 +1804,16 @@ namespace Microsoft.Identity.Web
                 }
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
@@ -1851,20 +1851,20 @@ namespace Microsoft.Identity.Web
                 response.EnsureSuccessStatusCode();
                 return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
             }
-            catch(Exception ex) when (
+            catch (Exception ex) when (
                 ex is InvalidOperationException
                 || ex is HttpRequestException)
             {
                 Logger.HttpRequestError(
-                    _logger, 
+                    _logger,
                     serviceName!,
-                    effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, 
-                    errorStatusCode, 
+                    effectiveOptions.BaseUrl!,
+                    effectiveOptions.RelativePath!,
+                    errorStatusCode,
                     errorResponseContent, ex);
                 throw;
             }
         }
 #endif // NET8_0_OR_GREATER
-   }
+    }
 }

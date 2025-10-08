@@ -436,7 +436,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -602,7 +602,7 @@ namespace Microsoft.Identity.Web
                 var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
                 var existingQuery = uriBuilder.Query;
                 var queryString = new StringBuilder(existingQuery);
-                
+
                 foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
                 {
                     if (queryString.Length > 1) // if there are existing query parameters
@@ -613,12 +613,12 @@ namespace Microsoft.Identity.Web
                     {
                         queryString.Append('?');
                     }
-                    
+
                     queryString.Append(Uri.EscapeDataString(queryParam.Key));
                     queryString.Append('=');
                     queryString.Append(Uri.EscapeDataString(queryParam.Value));
                 }
-                
+
                 uriBuilder.Query = queryString.ToString().TrimStart('?');
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
@@ -629,7 +629,7 @@ namespace Microsoft.Identity.Web
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
           {
-              { "caller-sdk-id", "IdWeb_1" },  
+              { "caller-sdk-id", "IdWeb_1" },
               { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
           };
 
