@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.DownstreamApi.Logger.HttpRequestError(Microsoft.Extensions.Logging.ILogger! logger, string! ServiceName, string! BaseUrl, string! RelativePath, string! responseContent, System.Exception? ex) -> void
