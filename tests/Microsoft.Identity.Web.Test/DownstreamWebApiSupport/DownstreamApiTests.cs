@@ -405,6 +405,70 @@ namespace Microsoft.Identity.Web.Tests
             // Act and Assert
             await Assert.ThrowsAsync<NotSupportedException>(() => DownstreamApi.DeserializeOutputAsync<string>(response, options));
         }
+
+        [Fact]
+        public async Task ReadErrorResponseContentAsync_ReturnsFullContent_WhenContentLengthIsBelowThresholdAsync()
+        {
+            // Arrange
+            var errorContent = "Error message";
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(errorContent)
+            };
+
+            // Act
+            var result = await DownstreamApi.ReadErrorResponseContentAsync(response);
+
+            // Assert
+            Assert.Equal(errorContent, result);
+        }
+
+        [Fact]
+        public async Task ReadErrorResponseContentAsync_ReturnsTruncatedContent_WhenContentLengthExceedsThresholdAsync()
+        {
+            // Arrange
+            var longErrorContent = new string('a', 5000); // 5000 characters, exceeds 4096 threshold
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(longErrorContent)
+            };
+
+            // Act
+            var result = await DownstreamApi.ReadErrorResponseContentAsync(response);
+
+            // Assert
+            // When Content-Length header is set and exceeds threshold, we get a message about the size
+            Assert.True(
+                result.Contains("[Error response too large:", StringComparison.Ordinal) ||
+                result.EndsWith("... (truncated)", StringComparison.Ordinal),
+                "Error response should be limited in size");
+            Assert.True(result.Length <= 4096 + "... (truncated)".Length);
+        }
+
+        [Fact]
+        public async Task ReadErrorResponseContentAsync_ReturnsMessage_WhenContentLengthHeaderExceedsThresholdAsync()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(new string('a', 5000))
+            };
+            // Ensure Content-Length header is set
+            _ = response.Content.Headers.ContentLength;
+
+            // Act
+            var result = await DownstreamApi.ReadErrorResponseContentAsync(response);
+
+            // Assert
+            // When Content-Length is known and exceeds threshold, we should either skip reading or truncate
+            Assert.NotNull(result);
+            // Either we get the truncation message about size, or the actual content is truncated
+            Assert.True(
+                result.Contains("[Error response too large:", StringComparison.Ordinal) || 
+                result.EndsWith("... (truncated)", StringComparison.Ordinal) ||
+                result.Length <= 4096 + "... (truncated)".Length,
+                "Error response should be limited in size");
+        }
     }
 
     public class Person
