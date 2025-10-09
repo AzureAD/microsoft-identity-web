@@ -301,16 +301,7 @@ fi
 - Filter generated code.
 - Verify custom wrappers before mass-replace.
 
-### 7.6 Optional Pre‑Commit Hook
-```bash
-#!/usr/bin/env bash
-bash ./scripts/scan-legacy-symbols.sh || {
-  echo "Pre-commit: legacy Microsoft.Identity.Web symbols detected. Aborting."
-  exit 1
-}
-```
-
-### 7.7 Future Analyzer Integration
+### 7.6 Future Analyzer Integration
 An analyzer (planned rules IDW4001–IDW4009) will provide automated diagnostics + code fixes; prefer it over manual scanning once released. (aspirational: https://github.com/AzureAD/microsoft-identity-web/issues/3539)
 
 ---
