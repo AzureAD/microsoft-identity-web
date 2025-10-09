@@ -16,8 +16,17 @@ namespace Microsoft.Identity.Web
     /// <item><description>No authentication options are configured (neither default nor per-request)</description></item>
     /// <item><description>No scopes are specified in the authentication options</description></item>
     /// <item><description>Token acquisition fails due to authentication provider issues</description></item>
-    /// <item><description>WWW-Authenticate challenge handling fails</description></item>
     /// </list>
+    /// <para>
+    /// <strong>Note on WWW-Authenticate Challenge Handling:</strong>
+    /// When a downstream API returns a 401 Unauthorized response with a WWW-Authenticate header containing 
+    /// additional claims (e.g., for Conditional Access), the handler automatically extracts these claims using 
+    /// <see cref="Microsoft.Identity.Client.WwwAuthenticateParameters"/> and attempts to acquire a new token 
+    /// with the requested claims. If this automatic retry succeeds, no exception is thrown. If the retry also 
+    /// fails with a 401, the response is returned to the caller without throwing an exception - the caller 
+    /// should check the status code. Exceptions are only thrown for token acquisition failures, not for 
+    /// HTTP 401 responses themselves.
+    /// </para>
     /// <para>
     /// When handling this exception, examine the <see cref="Exception.Message"/> property for specific details
     /// about what caused the authentication failure. If an inner exception is present, it may contain

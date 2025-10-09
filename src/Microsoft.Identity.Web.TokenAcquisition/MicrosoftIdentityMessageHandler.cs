@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -151,13 +152,6 @@ namespace Microsoft.Identity.Web
     /// <seealso cref="IAuthorizationHeaderProvider"/>
     public class MicrosoftIdentityMessageHandler : DelegatingHandler
     {
-        /// <summary>
-        /// Compiled regular expression for extracting claims from WWW-Authenticate challenge headers.
-        /// Matches the claims parameter in Bearer challenges with format: claims="base64encodedclaims"
-        /// </summary>
-        private static readonly System.Text.RegularExpressions.Regex ClaimsExtractionRegex =
-            new(@"claims=""([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
-
         private readonly IAuthorizationHeaderProvider _headerProvider;
         private readonly MicrosoftIdentityMessageHandlerOptions? _defaultOptions;
         private readonly ILogger<MicrosoftIdentityMessageHandler>? _logger;
@@ -275,28 +269,8 @@ namespace Microsoft.Identity.Web
             // Handle WWW-Authenticate challenge if present
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                string? challengeClaims = null;
-                
-                // Try to extract claims from WWW-Authenticate header if available
-                if (response.Headers.WwwAuthenticate != null)
-                {
-                    foreach (var authenticateHeader in response.Headers.WwwAuthenticate)
-                    {
-                        var headerValue = authenticateHeader.ToString();
-                        if (headerValue.StartsWith("Bearer", StringComparison.OrdinalIgnoreCase))
-                        {
-                            // Look for claims parameter in the Bearer challenge
-                            // Format: Bearer realm="...", claims="base64encodedclaims"
-                            var claimsMatch = ClaimsExtractionRegex.Match(headerValue);
-                            
-                            if (claimsMatch.Success)
-                            {
-                                challengeClaims = claimsMatch.Groups[1].Value;
-                                break;
-                            }
-                        }
-                    }
-                }
+                // Use MSAL's WWW-Authenticate parser to extract claims from challenge headers
+                string? challengeClaims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(response.Headers);
                 
                 if (!string.IsNullOrEmpty(challengeClaims))
                 {
@@ -309,24 +283,28 @@ namespace Microsoft.Identity.Web
                     // Clone the original request for retry
                     using var retryRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
                     
-                    try
+                    // Attempt to get a new token with the challenge claims
+                    var retryResponse = await SendWithAuthenticationAsync(retryRequest, challengeOptions, scopes, cancellationToken).ConfigureAwait(false);
+                    
+                    // Log information about the retry response
+                    if (retryResponse.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        // Attempt to get a new token with the challenge claims
-                        var retryResponse = await SendWithAuthenticationAsync(retryRequest, challengeOptions, scopes, cancellationToken).ConfigureAwait(false);
-                        
-                        // Dispose the original response and return the retry response
-                        response.Dispose();
-                        return retryResponse;
+                        _logger?.LogWarning(
+                            "Retry after WWW-Authenticate challenge still returned 401 Unauthorized. WWW-Authenticate header present: {HasWwwAuthenticate}",
+                            retryResponse.Headers.WwwAuthenticate?.Any() == true);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger?.LogWarning(ex, "Failed to handle WWW-Authenticate challenge. Returning original response.");
-                        // Return the original response if challenge handling fails
+                        _logger?.LogInformation("Successfully handled WWW-Authenticate challenge. Status code: {StatusCode}", retryResponse.StatusCode);
                     }
+                    
+                    // Dispose the original response and return the retry response
+                    response.Dispose();
+                    return retryResponse;
                 }
                 else
                 {
-                    _logger?.LogDebug("Received 401 Unauthorized but no Bearer WWW-Authenticate challenge with claims found.");
+                    _logger?.LogWarning("Received 401 Unauthorized but no WWW-Authenticate challenge with claims found.");
                 }
             }
 
@@ -468,7 +446,7 @@ namespace Microsoft.Identity.Web
             foreach (var property in originalRequest.Properties)
             {
                 // Skip our authentication options as they will be set separately
-                if (!property.Key.Equals("Microsoft.Identity.AuthenticationOptions"))
+                if (!property.Key.Equals("Microsoft.Identity.AuthenticationOptions", StringComparison.Ordinal))
                 {
                     clonedRequest.Properties[property.Key] = property.Value;
                 }

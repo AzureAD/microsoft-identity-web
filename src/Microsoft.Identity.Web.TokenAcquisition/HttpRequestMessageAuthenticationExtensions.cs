@@ -15,8 +15,8 @@ namespace Microsoft.Identity.Web
     /// <remarks>
     /// These extension methods enable flexible per-request authentication configuration that can override
     /// or supplement the default options configured in the message handler. The methods support both
-    /// modern .NET (using <see cref="HttpRequestMessage.Options"/>) and legacy frameworks 
-    /// (using <see cref="HttpRequestMessage.Properties"/>).
+    /// modern .NET (using HttpRequestMessage.Options) and legacy frameworks 
+    /// (using HttpRequestMessage.Properties).
     /// </remarks>
     /// <example>
     /// <para>Setting authentication options with an object:</para>
