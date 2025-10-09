@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #if !FROM_GITHUB_ACTION
 
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
@@ -9,6 +10,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AgentApplicationsTests
 {
@@ -45,6 +47,20 @@ namespace AgentApplicationsTests
 
             //// Request user tokens in autonomous agents.
             string authorizationHeaderWithAppToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithAppToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+
+            // Verify the token does not represent an agent user identity using the extension method
+            Assert.False(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            string agentApplication = configuration["AzureAd:ClientId"]!;
+            Assert.Equal(agentApplication, parentBlueprint);
 
             //// If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();

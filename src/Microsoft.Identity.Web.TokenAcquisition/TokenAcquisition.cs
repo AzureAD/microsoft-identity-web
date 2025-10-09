@@ -58,8 +58,11 @@ namespace Microsoft.Identity.Web
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
-        protected readonly ICertificatesObserver? _certificatesObserver;
+        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
+
+        [Obsolete("Use _certificatesObservers instead.")]
+        protected readonly ICertificatesObserver? _certificatesObserver;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -106,7 +109,10 @@ namespace Microsoft.Identity.Web
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
+            _certificatesObservers = [.. serviceProvider.GetServices<ICertificatesObserver>()];
+#pragma warning disable CS0618 // Type or member is obsolete. Setup for backward compatibility.
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
+#pragma warning restore CS0618 // Type or member is obsolete
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
@@ -171,14 +177,16 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+
                 return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId,
-                result.TokenType);
+                    result.AccessToken,
+                    result.ExpiresOn,
+                    result.TenantId,
+                    result.IdToken,
+                    result.Scopes,
+                    result.CorrelationId,
+                    result.TokenType);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
@@ -365,6 +373,12 @@ namespace Microsoft.Identity.Web
                 username = extraParameters[Constants.UsernameKey] as string;
                 agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
                 password = "password";
+            }
+            else if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UserIdKey))
+            {
+                username = extraParameters[Constants.UserIdKey]?.ToString();
+                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
+                password = "password"; // placeholder removed by add-in
             }
 
             if (username == null)
@@ -660,7 +674,9 @@ namespace Microsoft.Identity.Web
 
             try
             {
-                return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+                var result = await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
+                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+                return result;
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
@@ -1020,17 +1036,19 @@ namespace Microsoft.Identity.Web
             Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
-            if (_certificatesObserver != null
-                && selectedCertificate != null)
+            if (selectedCertificate != null)
             {
-                _certificatesObserver.OnClientCertificateChanged(
-                    new CertificateChangeEventArg()
-                    {
-                        Action = action,
-                        Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
-                        ThrownException = exception,
-                    });
+                for (int i = 0; i < _certificatesObservers.Count; i++)
+                {
+                    _certificatesObservers[i].OnClientCertificateChanged(
+                        new CertificateChangeEventArg()
+                        {
+                            Action = action,
+                            Certificate = app.AppConfig.ClientCredentialCertificate,
+                            CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
+                            ThrownException = exception,
+                        });
+                }
             }
         }
 

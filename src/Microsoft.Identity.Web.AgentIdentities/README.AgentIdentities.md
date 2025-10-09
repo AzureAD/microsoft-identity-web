@@ -151,18 +151,47 @@ string authHeader = await authorizationHeaderProvider
 
 #### Agent User Identity
 
-For your agent application to acquire tokens on behalf of a agent user identity:
+For your agent application to acquire tokens on behalf of a agent user identity, you can use either the user's UPN (User Principal Name) or OID (Object ID).
+
+##### Using UPN (User Principal Name)
 
 ```csharp
 // Get the required services
 IAuthorizationHeaderProvider authorizationHeaderProvider =
     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-// Configure options for the agent user identity
+// Configure options for the agent user identity using UPN
 string agentIdentity = "agent-identity-client-id";
 string userUpn = "user@contoso.com";
 var options = new AuthorizationHeaderProviderOptions()
     .WithAgentUserIdentity(agentIdentity, userUpn);
+
+// Create a ClaimsPrincipal to enable token caching
+ClaimsPrincipal user = new ClaimsPrincipal();
+
+// Acquire a user token
+string authHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        scopes: ["https://graph.microsoft.com/.default"],
+        options: options,
+        user: user);
+
+// The user object now has claims including uid and utid. If you use it
+// in another call it will use the cached token.
+```
+
+##### Using OID (Object ID)
+
+```csharp
+// Get the required services
+IAuthorizationHeaderProvider authorizationHeaderProvider =
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+// Configure options for the agent user identity using OID
+string agentIdentity = "agent-identity-client-id";
+Guid userOid = Guid.Parse("e1f76997-1b35-4aa8-8a58-a5d8f1ac4636");
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentity, userOid);
 
 // Create a ClaimsPrincipal to enable token caching
 ClaimsPrincipal user = new ClaimsPrincipal();
@@ -211,14 +240,21 @@ var applications = await graphServiceClient.Applications
 
 #### Using Agent User Identity with Microsoft Graph:
 
+You can use either UPN or OID with Microsoft Graph:
+
 ```csharp
 // Get the GraphServiceClient
 GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
 
-// Call Microsoft Graph APIs with the agent user identity
+// Call Microsoft Graph APIs with the agent user identity using UPN
 var me = await graphServiceClient.Me
     .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
         options.WithAgentUserIdentity(agentIdentity, userUpn)));
+
+// Or using OID
+var me = await graphServiceClient.Me
+    .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
+        options.WithAgentUserIdentity(agentIdentity, userOid)));
 ```
 
 ### 5. Downstream API Integration
@@ -265,10 +301,15 @@ var response = await downstreamApi.GetForAppAsync<string>(
     "MyApi",
     options => options.WithAgentIdentity(agentIdentity));
 
-// Call API with agent user identity
+// Call API with agent user identity using UPN
 var userResponse = await downstreamApi.GetForUserAsync<string>(
     "MyApi",
     options => options.WithAgentUserIdentity(agentIdentity, userUpn));
+
+// Or using OID
+var userResponseByOid = await downstreamApi.GetForUserAsync<string>(
+    "MyApi",
+    options => options.WithAgentUserIdentity(agentIdentity, userOid));
 ```
 
 
