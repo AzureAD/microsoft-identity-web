@@ -311,7 +311,7 @@ bash ./scripts/scan-legacy-symbols.sh || {
 ```
 
 ### 7.7 Future Analyzer Integration
-An analyzer (planned rules IDW4001–IDW4009) will provide automated diagnostics + code fixes; prefer it over manual scanning once released.
+An analyzer (planned rules IDW4001–IDW4009) will provide automated diagnostics + code fixes; prefer it over manual scanning once released. (aspirational: https://github.com/AzureAD/microsoft-identity-web/issues/3539)
 
 ---
 
