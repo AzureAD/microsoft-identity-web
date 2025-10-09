@@ -17,7 +17,7 @@ Microsoft.Identity.Web 4.0.0 is a major release that modernizes the library by c
 
 Version 4.0.0 includes several important changes that necessitate a major version bump:
 
-- Drop net6.0 / net7.0 support (both are EOL). Targets now .NET 8.0, .NET 9.0, and .NET Framework 4.7.2+.
+- Drop net6.0 / net7.0 support (both are EOL). Targets now .NET 8.0, .NET 9.0, and .NET Framework 4.6.2+.
 - Consolidate onto Microsoft.Identity.Abstractions for consistency and extensibility.
 - Remove legacy downstream web API surface (`IDownstreamWebApi`, `DownstreamWebApi`, their extension methods).
 - Unify Azure credential usage around `MicrosoftIdentityTokenCredential`.
