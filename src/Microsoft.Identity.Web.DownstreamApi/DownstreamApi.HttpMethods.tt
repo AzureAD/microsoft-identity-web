@@ -119,18 +119,18 @@ namespace Microsoft.Identity.Web
                 }
                 if (response.IsSuccessStatusCode == false)
                 {
-                    errorResponseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
 <# }
    if (hasOutput && framework == "net8")
    { #>
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
 <# } 
    else if (hasOutput)
    {#>
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
 <# } #>
             }
             catch(Exception ex) when (

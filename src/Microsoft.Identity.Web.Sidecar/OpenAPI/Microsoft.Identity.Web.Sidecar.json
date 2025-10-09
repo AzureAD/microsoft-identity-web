@@ -74,7 +74,7 @@
           {
             "name": "AgentUsername",
             "in": "query",
-            "description": "The username (UPN) of the agent.",
+            "description": "The username (UPN) of the user agent identity.",
             "schema": {
               "type": "string"
             }
@@ -272,7 +272,7 @@
           {
             "name": "AgentUsername",
             "in": "query",
-            "description": "The username (UPN) of the agent.",
+            "description": "The username (UPN) of the user agent identity.",
             "schema": {
               "type": "string"
             }
@@ -478,7 +478,7 @@
           {
             "name": "AgentUserId",
             "in": "query",
-            "description": "The Object ID of the agent (OID).",
+            "description": "The Object ID of the user agent identity (OID).",
             "schema": {
               "type": "string"
             }
@@ -676,7 +676,7 @@
           {
             "name": "AgentUserId",
             "in": "query",
-            "description": "The Object ID of the agent (OID).",
+            "description": "The Object ID of the user agent identity (OID).",
             "schema": {
               "type": "string"
             }
