@@ -33,7 +33,7 @@ Version 4.0.0 includes several important changes that necessitate a major versio
 
 | Category | Removed Symbol(s) | Impact | Migration Path |
 |----------|-------------------|--------|----------------|
-| Framework Targets | net6.0, net7.0 | Older TFMs fail to build | Upgrade to net8.0/net9.0 or stay on net472+ dual-target |
+| Framework Targets | net6.0, net7.0 | Older TFMs fail to build | Upgrade to net8.0/net9.0 or stay on net462+ dual-target |
 | Downstream API Surface | `IDownstreamWebApi`, `DownstreamWebApi`, `AddDownstreamWebApi(...)` | Compile errors | Use `IDownstreamApi`, `DownstreamApi`, `AddDownstreamApi(...)` |
 | Generic Helper Extensions | `PostForUserAsync<T>`, `PutForUserAsync<T>`, etc. | Compile errors | Use new strongly typed `IDownstreamApi` methods |
 | Legacy Credentials | `TokenAcquisitionTokenCredential`, `TokenAcquisitionAppTokenCredential` | Compile errors | Use `MicrosoftIdentityTokenCredential` |
