@@ -5,7 +5,7 @@
 
 ### New features
 - Various improvements to performance logging, authentication, and credential loading capabilities.
-- Bumped MSAL.NET to 4.76
+- Bumped MSAL.NET to 4.77
 - Added credential description extensibility. For details, see [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3487)
 - Added a new CerticateObserverAction type: SuccessfullyUsed. See [#3505](https://github.com/AzureAD/microsoft-identity-web/pull/3505)
 - Add specification of OID (in addition to upn) for Agent User Identity. See [#3513](https://github.com/AzureAD/microsoft-identity-web/pull/3513)
