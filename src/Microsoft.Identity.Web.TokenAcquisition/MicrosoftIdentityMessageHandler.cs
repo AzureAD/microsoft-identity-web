@@ -267,10 +267,10 @@ namespace Microsoft.Identity.Web
             var response = await SendWithAuthenticationAsync(request, options, scopes, cancellationToken).ConfigureAwait(false);
 
             // Handle WWW-Authenticate challenge if present
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            if (WwwAuthenticateChallengeHelper.ShouldAttemptClaimsChallengeRetry(response))
             {
                 // Use MSAL's WWW-Authenticate parser to extract claims from challenge headers
-                string? challengeClaims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(response.Headers);
+                string? challengeClaims = WwwAuthenticateChallengeHelper.ExtractClaimsChallenge(response.Headers);
                 
                 if (!string.IsNullOrEmpty(challengeClaims))
                 {
@@ -278,9 +278,13 @@ namespace Microsoft.Identity.Web
                         "Received WWW-Authenticate challenge with claims. Attempting token refresh.");
 
                     // Create a new options instance with the challenge claims
-                    var challengeOptions = CreateOptionsWithChallengeClaims(options, challengeClaims);
+                    // Note: We do NOT set ForceRefresh when claims are present because MSAL.NET
+                    // automatically bypasses the cache when claims are included (see
+                    // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/main/src/client/Microsoft.Identity.Client/Cache/CacheRefreshReason.cs#L16).
+                    var challengeOptions = CreateOptionsWithChallengeClaims(options, challengeClaims!);
                     
-                    // Clone the original request for retry
+                    // Clone the original request for retry.
+                    // This is necessary because HttpContent can only be read once, especially with non-seekable streams.
                     using var retryRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
                     
                     // Attempt to get a new token with the challenge claims
@@ -382,7 +386,9 @@ namespace Microsoft.Identity.Web
                     ExtraHeadersParameters = originalOptions.AcquireTokenOptions.ExtraHeadersParameters,
                     ExtraQueryParameters = originalOptions.AcquireTokenOptions.ExtraQueryParameters,
                     ExtraParameters = originalOptions.AcquireTokenOptions.ExtraParameters,
-                    ForceRefresh = true, // Force refresh when handling challenges
+                    // Note: We do NOT set ForceRefresh when claims are present because MSAL.NET
+                    // automatically bypasses the cache when claims are included.
+                    ForceRefresh = originalOptions.AcquireTokenOptions.ForceRefresh,
                     ManagedIdentity = originalOptions.AcquireTokenOptions.ManagedIdentity,
                     PopPublicKey = originalOptions.AcquireTokenOptions.PopPublicKey,
                     Tenant = originalOptions.AcquireTokenOptions.Tenant,
@@ -393,8 +399,8 @@ namespace Microsoft.Identity.Web
             {
                 challengeOptions.AcquireTokenOptions = new AcquireTokenOptions
                 {
-                    Claims = challengeClaims,
-                    ForceRefresh = true
+                    Claims = challengeClaims
+                    // ForceRefresh is not set - MSAL.NET will automatically bypass cache when claims are present
                 };
             }
 
