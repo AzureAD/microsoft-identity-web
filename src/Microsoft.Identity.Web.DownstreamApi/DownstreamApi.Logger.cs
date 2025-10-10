@@ -13,21 +13,22 @@ namespace Microsoft.Identity.Web
     {
         internal static class Logger
         {
-            private static readonly Action<ILogger, string, string, string, Exception?> s_httpRequestError =
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug, 
-                    DownstreamApiLoggingEventId.HttpRequestError, 
-                    "[MsIdWeb] An error occurred during HTTP Request. " + 
+            private static readonly Action<ILogger, string, string, string, int, string, Exception?> s_httpRequestError =
+                LoggerMessage.Define<string, string, string, int, string>(
+                    LogLevel.Debug,
+                    DownstreamApiLoggingEventId.HttpRequestError,
+                    "[MsIdWeb] An error occurred during HTTP Request. " +
                     "ServiceName: {serviceName}, " +
                     "BaseUrl: {BaseUrl}, " +
-                    "RelativePath: {RelativePath} ");
+                    "RelativePath: {RelativePath}, " +
+                    "StatusCode: {statusCode}, " +
+                    "ResponseContent: {responseContent}");
 
             private static readonly Action<ILogger, Exception?> s_unauthenticatedApiCall =
                 LoggerMessage.Define(
                     LogLevel.Information,
-                    DownstreamApiLoggingEventId.UnauthenticatedApiCall, 
+                    DownstreamApiLoggingEventId.UnauthenticatedApiCall,
                     "[MsIdWeb] An unauthenticated call was made to the Api with null Scopes");
-
 
             /// <summary>
             /// Logger for handling options exceptions in DownstreamApi.
@@ -36,13 +37,17 @@ namespace Microsoft.Identity.Web
             /// <param name="ServiceName">Name of API receiving request.</param>
             /// <param name="BaseUrl">Base url from appsettings.</param>
             /// <param name="RelativePath">Relative path from appsettings.</param>
+            /// <param name="statusCode">HTTP status code from the response.</param>
+            /// <param name="responseContent">Error content returned by the downstream API</param>
             /// <param name="ex">Exception.</param>
             public static void HttpRequestError(
-                ILogger logger, 
+                ILogger logger,
                 string ServiceName,
-                string BaseUrl, 
-                string RelativePath, 
-                Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, ex);
+                string BaseUrl,
+                string RelativePath,
+                int statusCode,
+                string responseContent,
+                Exception? ex) => s_httpRequestError(logger, ServiceName, BaseUrl, RelativePath, statusCode, responseContent, ex);
 
             /// <summary>
             /// Logger for unauthenticated internal API call in DownstreamApi.
