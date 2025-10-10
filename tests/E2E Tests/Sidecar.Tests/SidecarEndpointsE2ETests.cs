@@ -133,7 +133,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
 
         Assert.True(result.IsSuccessStatusCode);
 
-        var response = await result.Content.ReadFromJsonAsync<AuthorizationHeaderResult>();
+        var response = await result.Content.ReadFromJsonAsync<Microsoft.Identity.Web.Sidecar.Models.AuthorizationHeaderResult>();
 
         Assert.NotNull(response?.AuthorizationHeader);
         Assert.StartsWith("Bearer ey", response.AuthorizationHeader, StringComparison.Ordinal);

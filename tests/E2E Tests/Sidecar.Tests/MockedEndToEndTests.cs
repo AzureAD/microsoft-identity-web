@@ -62,7 +62,7 @@ public class MockedEndToEndTests(SidecarApiFactory factory) : IClassFixture<Side
         }
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = JsonSerializer.Deserialize<AuthorizationHeaderResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var result = JsonSerializer.Deserialize<Microsoft.Identity.Web.Sidecar.Models.AuthorizationHeaderResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         Assert.NotNull(result);
         Assert.Equal(expectedAuthHeader, result.AuthorizationHeader);
     }
