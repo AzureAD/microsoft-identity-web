@@ -47,7 +47,7 @@ public static class AuthorizationHeaderEndpoint
                 "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.");
     }
 
-    private static async Task<Results<Ok<AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
+    private static async Task<Results<Ok<Models.AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
         [Description("The downstream API to acquire an authorization header for.")]
         [FromRoute]
@@ -114,6 +114,6 @@ public static class AuthorizationHeaderEndpoint
                 statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        return TypedResults.Ok(new AuthorizationHeaderResult(authorizationHeader));
+        return TypedResults.Ok(new Models.AuthorizationHeaderResult(authorizationHeader));
     }
 }
