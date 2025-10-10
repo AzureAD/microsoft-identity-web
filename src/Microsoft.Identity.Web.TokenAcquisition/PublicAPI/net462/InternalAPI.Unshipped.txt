@@ -1,3 +1,7 @@
 #nullable enable
 const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
+Microsoft.Identity.Web.WwwAuthenticateChallengeHelper
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
+static Microsoft.Identity.Web.WwwAuthenticateChallengeHelper.CloneHttpContentAsync(System.Net.Http.HttpContent? originalContent, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Net.Http.HttpContent?>!
+static Microsoft.Identity.Web.WwwAuthenticateChallengeHelper.ExtractClaimsChallenge(System.Net.Http.Headers.HttpResponseHeaders! responseHeaders) -> string?
+static Microsoft.Identity.Web.WwwAuthenticateChallengeHelper.ShouldAttemptClaimsChallengeRetry(System.Net.Http.HttpResponseMessage! response) -> bool
