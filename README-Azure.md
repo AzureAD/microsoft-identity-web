@@ -139,14 +139,13 @@ You can customize the token acquisition behavior:
 tokenCredential.Options.AcquireTokenOptions.CorrelationId = Guid.NewGuid();
 tokenCredential.Options.AcquireTokenOptions.Tenant = "GUID";
 
-## Working with older versions
+## Credential Status (v4)
 
-This package includes two token credentials classes:
-
-- `MicrosoftIdentityTokenCredential` (recommended)
-- `TokenAcquirerTokenCredential` (deprecated)
-
-The `TokenAcquirerTokenCredential` is marked as obsolete and is included for backward compatibility. New applications should use `MicrosoftIdentityTokenCredential` instead.
+| Credential | Status | Guidance |
+|------------|--------|----------|
+| `MicrosoftIdentityTokenCredential` | Recommended | Unified credential for user, app, and agent scenarios. Configure via `Options` (e.g., `RequestAppToken`, `WithAgentIdentity`). |
+| `TokenAcquirerTokenCredential` | Obsolete | Replace with `MicrosoftIdentityTokenCredential`. See [migration guide](https://aka.ms/ms-id-web/v3-to-v4). |
+| `TokenAcquirerAppTokenCredential` | Obsolete | Replace with `MicrosoftIdentityTokenCredential` (`Options.RequestAppToken = true`). See [migration guide](https://aka.ms/ms-id-web/v3-to-v4). |
 
 ## Integration with Azure SDKs
 
