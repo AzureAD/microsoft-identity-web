@@ -522,17 +522,27 @@ namespace Microsoft.Identity.Web
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
             // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
-            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            if (WwwAuthenticateChallengeHelper.ShouldAttemptClaimsChallengeRetry(downstreamApiResult))
             {
-                effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
+                string? claimsChallenge = WwwAuthenticateChallengeHelper.ExtractClaimsChallenge(downstreamApiResult.Headers);
 
-                if (!string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
+                if (!string.IsNullOrEmpty(claimsChallenge))
                 {
+                    // Clone the content defensively to handle non-seekable streams.
+                    // HttpContent can only be read once, so we need to clone it for the retry.
+                    HttpContent? clonedContent = await WwwAuthenticateChallengeHelper.CloneHttpContentAsync(content, cancellationToken).ConfigureAwait(false);
+
+                    // Set the claims challenge in the acquire token options.
+                    // Note: We do NOT set ForceRefresh when claims are present because MSAL.NET
+                    // automatically bypasses the cache when claims are included (see
+                    // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/main/src/client/Microsoft.Identity.Client/Cache/CacheRefreshReason.cs#L16).
+                    effectiveOptions.AcquireTokenOptions.Claims = claimsChallenge;
+
                     using HttpRequestMessage retryHttpRequestMessage = new(
                         new HttpMethod(effectiveOptions.HttpMethod),
                         apiUrl);
 
-                    await UpdateRequestAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+                    await UpdateRequestAsync(retryHttpRequestMessage, clonedContent, effectiveOptions, appToken, user, cancellationToken);
 
                     return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
                 }
