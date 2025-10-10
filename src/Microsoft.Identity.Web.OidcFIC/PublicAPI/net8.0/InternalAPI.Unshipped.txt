@@ -1,5 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.OidcFic.LoggerExtensions
-static Microsoft.Identity.Web.OidcFic.LoggerExtensions.AcquiredToken(this Microsoft.Extensions.Logging.ILogger! logger, string? fmiPath) -> void
-static Microsoft.Identity.Web.OidcFic.LoggerExtensions.AcquiringToken(this Microsoft.Extensions.Logging.ILogger! logger, string! tokenExchangeUrl, string? fmiPath) -> void
-static Microsoft.Identity.Web.OidcFic.LoggerExtensions.PostponingToFirstCall(this Microsoft.Extensions.Logging.ILogger! logger) -> void

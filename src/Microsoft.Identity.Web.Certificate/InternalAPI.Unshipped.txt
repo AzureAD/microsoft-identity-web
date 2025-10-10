@@ -1,10 +1,1 @@
 #nullable enable
-const Microsoft.Identity.Web.LoggerExtensions.nameMissing = "NameMissing" -> string!
-Microsoft.Identity.Web.LoggerExtensions
-static Microsoft.Identity.Web.LoggerExtensions.CredentialLoadingFailure(this Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.CredentialDescription! cd, System.Exception? ex) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNameAlreadyExists(this Microsoft.Extensions.Logging.ILogger! logger, string! providerName) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNameNullOrEmpty(this Microsoft.Extensions.Logging.ILogger! logger) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNotFound(this Microsoft.Extensions.Logging.ILogger! logger, string! providerName) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomProviderSourceLoaderNullOrEmpty(this Microsoft.Extensions.Logging.ILogger! logger) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomSignedAssertionProviderLoadingFailure(this Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.CredentialDescription! cd, System.Exception! ex) -> void
-static Microsoft.Identity.Web.LoggerExtensions.CustomSignedAssertionProviderLoadingFailureMessage(string! providerName, string! sourceType, string! skip) -> string!

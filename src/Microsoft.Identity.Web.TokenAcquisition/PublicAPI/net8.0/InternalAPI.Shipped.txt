@@ -49,6 +49,7 @@ const Microsoft.Identity.Web.Constants.TestSlice = "dc" -> string!
 const Microsoft.Identity.Web.Constants.True = "True" -> string!
 const Microsoft.Identity.Web.Constants.Upn = "upn" -> string!
 const Microsoft.Identity.Web.Constants.UserAgent = "User-Agent" -> string!
+const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
 const Microsoft.Identity.Web.Constants.UsernameKey = "IDWEB_USERNAME" -> string!
 const Microsoft.Identity.Web.Constants.UserReadScope = "user.read" -> string!
 const Microsoft.Identity.Web.Constants.V1 = "1.0" -> string!
@@ -73,8 +74,8 @@ const Microsoft.Identity.Web.IDWebErrorMessage.ClientCredentialTenantShouldBeTen
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. " -> string!
-const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextIsNull = "IDW10001: HttpContext is null. " -> string!
@@ -290,6 +291,7 @@ Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcqui
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.Util.Base64UrlHelpers
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObserver -> Microsoft.Identity.Web.Experimental.ICertificatesObserver?
+readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
 readonly Microsoft.Identity.Web.TokenAcquisition._credentialsLoader -> Microsoft.Identity.Abstractions.ICredentialsLoader!
 readonly Microsoft.Identity.Web.TokenAcquisition._httpClientFactory -> Microsoft.Identity.Client.IMsalHttpClientFactory!
 readonly Microsoft.Identity.Web.TokenAcquisition._logger -> Microsoft.Extensions.Logging.ILogger!

@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Azure SDK token credential based on the ITokenAcquisition service.
     /// </summary>
-    [Obsolete("Rather use TokenAcquirerTokenCredential")]
+    [Obsolete("Use MicrosoftIdentityTokenCredential (registered via AddMicrosoftIdentityAzureTokenCredential). See https://aka.ms/ms-id-web/v3-to-v4", true)]
     public class TokenAcquisitionTokenCredential : TokenCredential
     {
         private ITokenAcquisition _tokenAcquisition;

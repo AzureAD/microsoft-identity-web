@@ -1,7 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.AgentIdentityExtensions
-static Microsoft.Identity.Web.AgentIdentityExtension.WithAgentUserIdentity(this Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions! options, string! agentApplicationId, System.Guid userId) -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!
-static Microsoft.Identity.Web.AgentIdentityExtensions.GetParentAgentBlueprint(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> string?
-static Microsoft.Identity.Web.AgentIdentityExtensions.GetParentAgentBlueprint(this System.Security.Claims.ClaimsIdentity! identity) -> string?
-static Microsoft.Identity.Web.AgentIdentityExtensions.IsAgentUserIdentity(this System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> bool
-static Microsoft.Identity.Web.AgentIdentityExtensions.IsAgentUserIdentity(this System.Security.Claims.ClaimsIdentity! identity) -> bool
