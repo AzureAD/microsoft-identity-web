@@ -13,4 +13,3 @@ override Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.SendAsync(System
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.GetAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request) -> Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions?
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions! options) -> System.Net.Http.HttpRequestMessage!
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, System.Action<Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions!>! configure) -> System.Net.Http.HttpRequestMessage!
-Microsoft.Identity.Web.Experimental.CerticateObserverAction.SuccessfullyUsed = 2 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
