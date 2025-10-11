@@ -8,7 +8,7 @@
 - Bumped MSAL.NET to 4.77.1
 - Added credential description extensibility. For details, see [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3487)
 - Added a new CerticateObserverAction type: SuccessfullyUsed and support for multiple certificate observers for improved certificate lifecycle management and telemetry. See [#3505](https://github.com/AzureAD/microsoft-identity-web/pull/3505)
-- Add specification of OID (in addition to upn) when requesting an authorizatio header for Agent User Identity. See [#3513](https://github.com/AzureAD/microsoft-identity-web/pull/3513)
+- Add specification of OID (in addition to upn) when requesting an authorization header for Agent User Identity. See [#3513](https://github.com/AzureAD/microsoft-identity-web/pull/3513)
 - Added ClaimsPrincipal and ClaimsIdentity extension methods for agent identity detection in web APIs enabling developers to easily detect agent identities and retrieve parent agent blueprint from token claims. See [#3515](https://github.com/AzureAD/microsoft-identity-web/pull/3515)
 - Added MicrosoftIdentityMessageHandler for flexible HttpClient authentication. Provides composable alternative to DownstreamApi with per-request authentication configuration. Supports WWW-Authenticate challenge handling. See [#3503](https://github.com/AzureAD/microsoft-identity-web/pull/3503)
 - Support for multiple certificate observers. See [#3506](https://github.com/AzureAD/microsoft-identity-web/pull/3506)
