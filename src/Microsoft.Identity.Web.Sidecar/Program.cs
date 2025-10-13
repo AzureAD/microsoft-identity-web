@@ -27,6 +27,11 @@ public class Program
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
+        builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
+        {
+            options.AllowWebApiToBeAuthorizedByACL = true;
+        });
+
         ConfigureDataProtection(builder);
 
         // Add the agent identities and downstream APIs
