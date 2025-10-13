@@ -147,7 +147,7 @@ string authHeader = await authorizationHeaderProvider
 
 // The authHeader contains "Bearer " + the access token (or another protocol
 // depending on the options)
-
+```
 
 #### Agent User Identity
 
@@ -433,6 +433,25 @@ var response = await httpClient.SendAsync(request);
 ```
 
 The `MicrosoftIdentityMessageHandler` provides a flexible, composable way to add authentication to your HttpClient-based code while maintaining full compatibility with existing Microsoft Identity Web extension methods for agent identities.
+
+4. Validate tokens
+
+Token validation of token acquired for agent identities or agent user identities is the same as for any web API. However you can:
+- check if a token was issued for an agent identity and for which agent blueprint.
+
+  ```csharp
+  HttpContext.User.GetParentAgentBlueprint()
+  ```
+   returns the ClientId of the parent agent blueprint if the token is issued for an agent identity (or agent user identity)\
+
+- check if a token was issued for an agent user identity.
+
+  ```csharp
+  HttpContext.User.IsAgentUserIdentity()
+  ```
+
+These 2 extensions methods, apply to both ClaimsIdentity and ClaimsPrincipal.
+
 
 ## Prerequisites
 
