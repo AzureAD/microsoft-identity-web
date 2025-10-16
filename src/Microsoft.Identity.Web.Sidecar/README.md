@@ -24,7 +24,6 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
     "ClientCredentials": [
       { "SourceType": "...", }
     ],
-    "AllowWebApiToBeAuthorizedByACL": true
   },
   "DownstreamApis": {
     "graph": {
@@ -39,6 +38,8 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
   ]
 }
 ```
+
+`AllowWebApiToBeAuthorizedByACL` will be set to true by the application. No action is required from the user to configure this.
 
 *Important sections*
 

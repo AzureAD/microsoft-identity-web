@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Xunit;
@@ -132,5 +133,19 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
 
         var downstreamApiSection = configuration.GetSection("DownstreamApi");
         Assert.NotNull(downstreamApiSection);
+    }
+
+    [Fact]
+    public void MicrosoftIdentityOptions_AllowWebApiToBeAuthorizedByACL_IsSetToTrue()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>();
+
+        // Act
+        var options = optionsMonitor.CurrentValue;
+
+        // Assert
+        Assert.True(options.AllowWebApiToBeAuthorizedByACL);
     }
 }
