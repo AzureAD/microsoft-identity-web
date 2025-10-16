@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.ServiceCollectionExtensions.AddTokenAcquisition(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, bool isTokenAcquisitionSingleton = false, bool isTokenBinding = false) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

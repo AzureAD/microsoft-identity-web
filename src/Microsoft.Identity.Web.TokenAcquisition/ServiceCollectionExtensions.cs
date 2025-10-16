@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.PlatformsCommon.Shared;
 using Microsoft.Identity.Web.Hosts;
 
 namespace Microsoft.Identity.Web
@@ -22,6 +23,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <param name="isTokenAcquisitionSingleton">Specifies if an instance of <see cref="ITokenAcquisition"/> should be a singleton.</param>
+        /// <param name="isTokenBinding">Specifies if token binding support needs to be configured.</param>
         /// <returns>The service collection.</returns>
         /// <example>
         /// This method is typically called from the <c>ConfigureServices(IServiceCollection services)</c> in Startup.cs.
@@ -37,7 +39,8 @@ namespace Microsoft.Identity.Web
         /// </example>
         public static IServiceCollection AddTokenAcquisition(
             this IServiceCollection services,
-            bool isTokenAcquisitionSingleton = false)
+            bool isTokenAcquisitionSingleton = false,
+            bool isTokenBinding = false)
         {
             _ = Throws.IfNull(services);
 
@@ -63,14 +66,19 @@ namespace Microsoft.Identity.Web
                 services.TryAddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
             }
 
-            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));             
+            if (isTokenBinding)
+            {
+                services.TryAddSingleton<IMsalHttpClientFactory>(s => new MsalMtlsHttpClientFactory(new SecureHttpClientFactory()));
+            }
+
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
             ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
-            
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && 
+
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null &&
                 tokenAcquisitionhost != null && authenticationHeaderCreator != null && authSchemeInfoProvider != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))

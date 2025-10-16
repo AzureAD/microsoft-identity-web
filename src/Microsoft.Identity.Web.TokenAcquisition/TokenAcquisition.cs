@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.PlatformsCommon.Shared;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders;
@@ -526,7 +527,7 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
-            // If using managed identity 
+            // If using managed identity
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
                 try
@@ -569,6 +570,14 @@ namespace Microsoft.Identity.Web
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            // TODO: read this setting from `mergedOptions`
+            bool isTokenBinding = true;
+
+            if (isTokenBinding)
+            {
+                builder.WithMtlsProofOfPossession();
+            }
 
             if (addInOptions != null)
             {
@@ -966,11 +975,15 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
+                    // TODO: read this setting from `mergedOptions`
+                    bool isTokenBinding = true;
+
                     await builder.WithClientCredentialsAsync(
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {

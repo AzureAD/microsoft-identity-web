@@ -30,7 +30,8 @@ namespace Microsoft.Identity.Web
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
             ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
+            bool isTokenBinding = false)
         {
             var credential = await LoadCredentialForMsalOrFailAsync(
                     clientCredentials,
@@ -42,6 +43,17 @@ namespace Microsoft.Identity.Web
             if (credential == null)
             {
                 return builder;
+            }
+
+            // regardless of credential type being set, bound token requires a certificate
+            if (isTokenBinding)
+            {
+                if (credential.Certificate == null)
+                {
+                    logger.LogError("Loaded credentials for token binding doesn't contain a certificate");
+                }
+
+                return builder.WithCertificate(credential.Certificate);
             }
 
             switch (credential.CredentialType)
