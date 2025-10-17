@@ -212,7 +212,7 @@ app.MapReverseProxy();
 app.Run();
 ```
 
-```json
+```jsonc
 // appsettings.json
 {
   "ReverseProxy": {
