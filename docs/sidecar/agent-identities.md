@@ -1,6 +1,6 @@
 # Agent Identities
 
-Agent identities enable sophisticated authentication scenarios where an agent application acts autonomously or on behalf of specific users. This document explains the semantics and usage patterns for agent identities in the sidecar.
+Agent identities enable sophisticated authentication scenarios where an agent application acts autonomously or on behalf of users for interactive agents. This document explains the semantics and usage patterns for agent identities in the sidecar. It focuses on the SDK aspects. More documentation exists for agents identity in general in <a href="https://learn.microsoft.com/entra/agentic-identity-platform">Agentic identity platform documentation</a>
 
 ## Overview
 

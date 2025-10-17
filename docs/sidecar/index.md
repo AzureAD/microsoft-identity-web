@@ -36,24 +36,22 @@ The sidecar pattern decouples authentication logic from your application code, p
 The sidecar runs as a separate container alongside your application container, typically in the same pod in Kubernetes environments. Your application communicates with the sidecar over HTTP (usually via localhost) to:
 
 1. Validate incoming tokens from client applications
-2. Acquire tokens for calling downstream APIs
+2. Acquire authorization headers (tokens) for calling downstream APIs
 3. Make authenticated HTTP calls to downstream services
 
-```
-┌─────────────────────────────────────┐
-│         Kubernetes Pod              │
-│                                     │
-│  ┌──────────────┐  ┌─────────────┐ │
-│  │              │  │             │ │
-│  │  Application │◄─┤  Sidecar    │ │
-│  │  Container   │  │  Container  │ │
-│  │              │  │             │ │
-│  └──────────────┘  └─────────────┘ │
-│                          │          │
-└──────────────────────────┼──────────┘
-                           │
-                           ▼
-                Microsoft Entra ID
+```mermaid
+graph TB
+    subgraph pod["Kubernetes Pod"]
+        app["Application<br/>Container"]
+        sidecar["Sidecar<br/>Container"]
+        app -->|HTTP| sidecar
+    end
+    sidecar -->|Authentication| entra["Microsoft Entra ID"]
+    
+    style pod fill:#f0f0f0,stroke:#333,stroke-width:2px
+    style app fill:#e1f5ff,stroke:#0078d4,stroke-width:2px
+    style sidecar fill:#fff4e1,stroke:#ff8c00,stroke-width:2px
+    style entra fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
 ```
 
 ## Getting Started
@@ -70,6 +68,7 @@ The sidecar runs as a separate container alongside your application container, t
 
 Explore task-focused guides:
 
+- [Validate an Authorization Header](scenarios/validate-authorization-header.md)
 - [Obtain an Authorization Header](scenarios/obtain-authorization-header.md)
 - [Call a Downstream API](scenarios/call-downstream-api.md)
 - [Use Managed Identity](scenarios/managed-identity.md)

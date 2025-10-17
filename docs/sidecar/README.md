@@ -23,6 +23,7 @@ This directory contains comprehensive documentation for the Microsoft Entra Iden
 
 The **[scenarios/](scenarios/)** directory contains task-focused guides:
 
+- [Validate an Authorization Header](scenarios/validate-authorization-header.md)
 - [Obtain an Authorization Header](scenarios/obtain-authorization-header.md)
 - [Call a Downstream API](scenarios/call-downstream-api.md)
 - [Use Managed Identity](scenarios/managed-identity.md)
