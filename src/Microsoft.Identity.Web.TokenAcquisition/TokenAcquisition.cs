@@ -919,6 +919,9 @@ namespace Microsoft.Identity.Web
 
                 // Build and store the application
                 var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+
+                // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
+                key = GetApplicationKey(mergedOptions);
                 _applicationsByAuthorityClientId[key] = newApp;
                 return newApp;
             }
