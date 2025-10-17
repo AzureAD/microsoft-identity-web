@@ -112,7 +112,6 @@ Allowing both could create ambiguity. Choose the identifier that best fits your 
 - Building systems that store user identifiers
 - Need consistent identification across tenants
 
-Object IDs are generally more stable and recommended for long-running processes.
 
 ### How do I configure agent identities in Microsoft Entra ID?
 
