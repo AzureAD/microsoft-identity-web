@@ -380,19 +380,23 @@ You can use both approaches in the same architecture:
 
 Example architecture:
 
-```
-┌─────────────────────────────────────────────┐
-│  Kubernetes Cluster                         │
-│                                             │
-│  ┌─────────────────┐  ┌─────────────────┐  │
-│  │ .NET API Pod    │  │ Node.js API Pod │  │
-│  │                 │  │                 │  │
-│  │ ┌─────────────┐ │  │ ┌───────┬─────┐ │  │
-│  │ │ .NET API    │ │  │ │ Node  │Side-│ │  │
-│  │ │ (IdWeb)     │ │  │ │ API   │car  │ │  │
-│  │ └─────────────┘ │  │ └───────┴─────┘ │  │
-│  └─────────────────┘  └─────────────────┘  │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph cluster["Kubernetes Cluster"]
+        subgraph netpod["<b>.NET API Pod</b>"]
+            netapi["<b>.NET API</b><br/>(Microsoft.Identity.Web)"]
+            style netapi fill:#0078d4,stroke:#005a9e,stroke-width:2px,color:#fff
+        end
+        subgraph nodepod["<b>Node.js API Pod</b>"]
+            nodeapi["<b>Node.js API</b>"]
+            sidecar["<b>Sidecar</b>"]
+            style nodeapi fill:#68a063,stroke:#4a7c45,stroke-width:2px,color:#fff
+            style sidecar fill:#f2711c,stroke:#d85e10,stroke-width:2px,color:#fff
+        end
+    end
+    style cluster fill:#f0f0f0,stroke:#333,stroke-width:3px
+    style netpod fill:#e8f4f8,stroke:#0078d4,stroke-width:2px
+    style nodepod fill:#e8f4e8,stroke:#68a063,stroke-width:2px
 ```
 
 ## Next Steps
