@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.PlatformsCommon.Shared;
 using Microsoft.Identity.Web.Hosts;
 
 namespace Microsoft.Identity.Web
@@ -68,7 +68,8 @@ namespace Microsoft.Identity.Web
 
             if (isTokenBinding)
             {
-                services.TryAddSingleton<IMsalHttpClientFactory>(s => new MsalMtlsHttpClientFactory(new SecureHttpClientFactory()));
+                services.TryAddSingleton<IMsalHttpClientFactory>(s =>
+                    new MsalMtlsHttpClientFactory(s.GetRequiredService<IHttpClientFactory>()));
             }
 
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
