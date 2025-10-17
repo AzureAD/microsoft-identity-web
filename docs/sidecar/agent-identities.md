@@ -7,12 +7,12 @@ Agent identities enable sophisticated authentication scenarios where an agent ap
 Agent identities support two primary patterns:
 
 1. **Autonomous Agent**: The agent application operates in its own application context
-2. **Delegated Agent**: The agent application operates on behalf of a specific user identity
+2. **Delegated Agent**: An interactive agent that operates on behalf the user that triggered it.
 
 The sidecar accepts three optional query parameters that control agent identity behavior:
-- `AgentIdentity` - The client/application ID of the agent identity
-- `AgentUsername` - The user principal name (UPN) for delegated scenarios
-- `AgentUserId` - The user object ID (OID) for delegated scenarios
+- `AgentIdentity` - GUID of the agent identity
+- `AgentUsername` - The user principal name (UPN) for agent user identities.
+- `AgentUserId` - The user object ID (OID) for agent user identities as an alternative to UPN
 
 ## Semantic Rules
 
@@ -53,7 +53,7 @@ GET /AuthorizationHeader/Graph?AgentIdentity=agent-id&AgentUserId=user-object-id
 
 When only `AgentIdentity` is provided without `AgentUsername` or `AgentUserId`, the sidecar acquires an application token for the agent identity.
 
-**`AgentIdentity` + (`AgentUsername` OR `AgentUserId`) = delegated agent (user context)**
+**`AgentIdentity` + (`AgentUsername` OR `AgentUserId`) = user agent (context of the agent user identity)**
 
 When `AgentIdentity` is combined with either `AgentUsername` or `AgentUserId`, the sidecar acquires a user token for that specific user in the context of the agent identity.
 
@@ -81,7 +81,7 @@ GET /AuthorizationHeader/Graph?AgentIdentity=12345678-1234-1234-1234-12345678901
 - System-to-system operations
 - Scheduled jobs without user context
 
-### Pattern 2: Delegated Agent with Username
+### Pattern 2: Autonomous user agent with username
 
 The agent operates on behalf of a specific user identified by their UPN.
 
@@ -103,7 +103,7 @@ GET /AuthorizationHeader/Graph?AgentIdentity=12345678-1234-1234-1234-12345678901
 - User-scoped automation
 - Personalized workflows
 
-### Pattern 3: Delegated Agent with User ID
+### Pattern 3: Autonomous user Agent with user ID
 
 The agent operates on behalf of a specific user identified by their object ID (OID).
 
@@ -124,7 +124,40 @@ GET /AuthorizationHeader/Graph?AgentIdentity=12345678-1234-1234-1234-12345678901
 - Batch operations on behalf of multiple users
 - Systems using object IDs for user reference
 
-### Pattern 4: Regular Request (No Agent)
+### Pattern 4: Interactive agent (acting on behalf of the user calling it)
+
+An agent web API that receives a user token, validates it, and calls downstream APIs on behalf of that user.
+
+**Scenario**: A web API acting as an interactive agent that validates incoming user tokens and makes delegated calls to downstream services.
+
+**Flow**:
+1. The agent web API receives a user token from the calling application
+2. It validates the token by calling the sidecar's `/Validate` endpoint
+3. It acquires tokens for downstream APIs by calling `/AuthorizationHeader` with only the `AgentIdentity` and the incoming Authorization header
+
+```bash
+# Step 1: Validate incoming user token
+GET /Validate
+Authorization: Bearer <user-token>
+
+# Step 2: Get authorization header for downstream API on behalf of the user
+GET /AuthorizationHeader/Graph?AgentIdentity=<agent-client-id>
+Authorization: Bearer <user-token>
+```
+
+**Token Characteristics**:
+- Token type: User token (OBO flow)
+- Subject (`sub`): Original user's object ID
+- Agent acts as intermediary for the user
+- Permissions: Delegated permissions scoped to the user
+
+**Use Cases**:
+- Web APIs that act as agents
+- Interactive agent services
+- Agent-based middleware that delegates to downstream APIs
+- Services that validate and forward user context
+
+### Pattern 5: Regular Request (No Agent)
 
 When no agent parameters are provided, the sidecar uses the incoming token's identity.
 
@@ -132,6 +165,7 @@ When no agent parameters are provided, the sidecar uses the incoming token's ide
 
 ```bash
 GET /AuthorizationHeader/Graph
+Authorization: Bearer <user-token>
 ```
 
 **Token Characteristics**:
@@ -156,11 +190,10 @@ However, this scenario should be avoided and will result in a validation error i
 1. **Agent Application Registration**:
    - Register the parent agent application in Microsoft Entra ID
    - Configure API permissions for downstream APIs
-   - Set up client credentials (certificate or secret)
+   - Set up client credentials (FIC+MSI or certificate or secret)
 
 2. **Agent Identity Configuration**:
-   - Create agent identity registrations
-   - Configure Federated Identity Credentials (FIC) between the parent agent and agent identities
+   - Create agent identities using the agent blueprint
    - Assign necessary permissions to agent identities
 
 3. **Application Permissions**:
@@ -168,89 +201,11 @@ However, this scenario should be avoided and will result in a validation error i
    - Grant delegated permissions for user delegation scenarios
    - Ensure admin consent is provided where required
 
-### Example: Configuring an Agent Identity
-
-```bash
-# Create agent identity app registration
-az ad app create --display-name "MyAgent Identity"
-
-# Get the agent identity client ID
-AGENT_IDENTITY_ID=$(az ad app list --display-name "MyAgent Identity" --query [0].appId -o tsv)
-
-# Configure FIC between parent agent and agent identity
-az ad app federated-credential create \
-  --id $PARENT_AGENT_APP_ID \
-  --parameters '{
-    "name": "MyAgentIdentityFIC",
-    "issuer": "https://login.microsoftonline.com/<tenant-id>/v2.0",
-    "subject": "'$AGENT_IDENTITY_ID'",
-    "audiences": ["api://AzureADTokenExchange"]
-  }'
-
-# Grant permissions to the agent identity
-az ad app permission add \
-  --id $AGENT_IDENTITY_ID \
-  --api 00000003-0000-0000-c000-000000000000 \
-  --api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope
-
-# Grant admin consent
-az ad app permission admin-consent --id $AGENT_IDENTITY_ID
-```
+For detailed step-by-step instructions on configuring agent identities in Microsoft Entra ID, see the <a href="https://learn.microsoft.com/entra/agentic-identity-platform">Agentic identity platform documentation</a>.
 
 ## Token Claims
 
-### Autonomous Agent Token Claims
-
-When using autonomous agent pattern (`AgentIdentity` only):
-
-```json
-{
-  "aud": "https://graph.microsoft.com",
-  "iss": "https://sts.windows.net/<tenant-id>/",
-  "appid": "12345678-1234-1234-1234-123456789012",
-  "sub": "12345678-1234-1234-1234-123456789012",
-  "roles": ["User.Read.All", "Mail.Read.All"],
-  "oid": "<agent-object-id>",
-  "tid": "<tenant-id>"
-}
-```
-
-### Delegated Agent Token Claims
-
-When using delegated agent pattern (`AgentIdentity` + `AgentUsername`/`AgentUserId`):
-
-```json
-{
-  "aud": "https://graph.microsoft.com",
-  "iss": "https://sts.windows.net/<tenant-id>/",
-  "appid": "12345678-1234-1234-1234-123456789012",
-  "sub": "87654321-4321-4321-4321-210987654321",
-  "scp": "User.Read Mail.Read",
-  "oid": "87654321-4321-4321-4321-210987654321",
-  "upn": "alice@contoso.com",
-  "xms_sub_fct": "1 2 13 15",
-  "xms_par_app_azp": "<parent-agent-client-id>",
-  "tid": "<tenant-id>"
-}
-```
-
-**Key Claims**:
-- `xms_sub_fct`: Subject facets (13 = agent identity user facet)
-- `xms_par_app_azp`: Parent agent blueprint (client ID of the parent agent)
-
-### Validating Agent Identity Claims
-
-Use the Microsoft.Identity.Web.AgentIdentities package to validate agent identity claims:
-
-```csharp
-using Microsoft.Identity.Web;
-
-// Check if token represents an agent user identity
-bool isAgentUser = claimsPrincipal.IsAgentUserIdentity();
-
-// Get the parent agent blueprint
-string? parentAgent = claimsPrincipal.GetParentAgentBlueprint();
-```
+For detailed information about token claims for agent identities, including autonomous and delegated agent patterns, see the <a href="https://learn.microsoft.com/entra/agentic-identity-platform">Agentic identity platform documentation</a>.
 
 ## Error Scenarios
 
@@ -307,24 +262,41 @@ GET /AuthorizationHeader/Graph?AgentIdentity=agent-id&AgentUserId=invalid-guid
 
 ## Code Examples
 
+The sidecar is called by a web API that receives an authorization header. All these examples show this authorization header being transmitted to the sidecar.
+
 ### TypeScript/JavaScript
 
 ```typescript
 // Autonomous agent
 const autonomousResponse = await fetch(
-  `http://localhost:5000/AuthorizationHeader/Graph?AgentIdentity=${agentClientId}`
+  `http://localhost:5000/AuthorizationHeader/Graph?AgentIdentity=${agentClientId}`,
+  {
+    headers: {
+      'Authorization': incomingAuthorizationHeader
+    }
+  }
 );
 
 // Delegated agent with username
 const delegatedResponse = await fetch(
   `http://localhost:5000/AuthorizationHeader/Graph?` +
-  `AgentIdentity=${agentClientId}&AgentUsername=${encodeURIComponent(userPrincipalName)}`
+  `AgentIdentity=${agentClientId}&AgentUsername=${encodeURIComponent(userPrincipalName)}`,
+  {
+    headers: {
+      'Authorization': incomingAuthorizationHeader
+    }
+  }
 );
 
 // Delegated agent with user ID
 const delegatedByIdResponse = await fetch(
   `http://localhost:5000/AuthorizationHeader/Graph?` +
-  `AgentIdentity=${agentClientId}&AgentUserId=${userObjectId}`
+  `AgentIdentity=${agentClientId}&AgentUserId=${userObjectId}`,
+  {
+    headers: {
+      'Authorization': incomingAuthorizationHeader
+    }
+  }
 );
 ```
 
@@ -336,7 +308,8 @@ import requests
 # Autonomous agent
 response = requests.get(
     "http://localhost:5000/AuthorizationHeader/Graph",
-    params={"AgentIdentity": agent_client_id}
+    params={"AgentIdentity": agent_client_id},
+    headers={"Authorization": incoming_authorization_header}
 )
 
 # Delegated agent with username
@@ -345,7 +318,8 @@ response = requests.get(
     params={
         "AgentIdentity": agent_client_id,
         "AgentUsername": user_principal_name
-    }
+    },
+    headers={"Authorization": incoming_authorization_header}
 )
 
 # Delegated agent with user ID
@@ -354,7 +328,8 @@ response = requests.get(
     params={
         "AgentIdentity": agent_client_id,
         "AgentUserId": user_object_id
-    }
+    },
+    headers={"Authorization": incoming_authorization_header}
 )
 ```
 

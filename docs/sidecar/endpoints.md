@@ -149,7 +149,7 @@ GET /AuthorizationHeader/Graph?AgentIdentity=agent-client-id HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 
-**Delegated agent with username**:
+**Autonomous agent with user agent identity specified by username**:
 ```http
 GET /AuthorizationHeader/Graph?AgentIdentity=agent-client-id&AgentUsername=user@contoso.com HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
@@ -212,7 +212,7 @@ Acquires an access token and makes an HTTP request to the downstream API, return
 
 ### Path Parameters
 
-- `serviceName` - The name of the downstream API as configured in `DownstreamApis` section
+- `serviceName` - The name of the downstream API as configured in `DownstreamApis` section of the configuration
 
 ### Query Parameters
 

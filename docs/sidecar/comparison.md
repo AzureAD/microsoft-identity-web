@@ -74,7 +74,7 @@ async function getUserData(incomingToken: string) {
 | **Downstream API** | ✅ IDownstreamApi | ✅ /DownstreamApi endpoint |
 | **Microsoft Graph** | ✅ Graph SDK integration | ⚠️ Via DownstreamApi |
 | **Performance** | ⚡ In-process (fastest) | 🔄 HTTP overhead |
-| **Configuration** | appsettings.json, code | Environment variables |
+| **Configuration** | appsettings.json, code | appsettings.json, Environment variables |
 | **Debugging** | ✅ Standard .NET debugging | ⚠️ Container debugging |
 | **Hot Reload** | ✅ .NET Hot Reload | ❌ Container restart |
 | **Package Updates** | 📦 NuGet packages | 🐳 Container images |
@@ -89,6 +89,7 @@ async function getUserData(incomingToken: string) {
    - ASP.NET Core Web Apps
    - .NET Worker Services
    - Blazor applications
+   - Daemon apps
 
 2. **Performance is Critical**
    - High-throughput scenarios
@@ -182,13 +183,14 @@ Transfer settings from `appsettings.json` to environment variables:
   "DownstreamApis": {
     "Graph": {
       "BaseUrl": "https://graph.microsoft.com/v1.0",
-      "Scopes": "User.Read Mail.Read"
+      "Scopes": "User.Read Mail.Read", 
+      "RelativePath": "/me"
     }
   }
 }
 ```
 
-**After (Kubernetes ConfigMap)**:
+**After (Kubernetes ConfigMap / Environment Variables)**:
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -200,6 +202,7 @@ data:
   AzureAd__ClientId: "your-client-id"
   DownstreamApis__Graph__BaseUrl: "https://graph.microsoft.com/v1.0"
   DownstreamApis__Graph__Scopes: "User.Read Mail.Read"
+  DownstreamApis__Graph__RelativePath: "/me"
 ```
 
 #### Step 3: Update Application Code
@@ -247,12 +250,12 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<User>> GetMe()
     {
-        var token = Request.Headers["Authorization"].ToString();
+        var inboundAuthorizationHeader = Request.Headers["Authorization"].ToString();
         var request = new HttpRequestMessage(
             HttpMethod.Get,
             $"{_sidecarUrl}/DownstreamApi/Graph?optionsOverride.RelativePath=me"
         );
-        request.Headers.Add("Authorization", token);
+        request.Headers.Add("Authorization", inboundAuthorizationHeader);
         
         var response = await _httpClient.SendAsync(request);
         var result = await response.Content.ReadFromJsonAsync<SidecarResponse>();
@@ -310,92 +313,6 @@ If still validating tokens in your app, you can continue using authentication mi
 2. **Integration Tests**: Test sidecar communication in staging
 3. **Performance Tests**: Measure HTTP overhead impact
 4. **Security Tests**: Validate token handling and network policies
-
-### Migrating from Sidecar to Microsoft.Identity.Web
-
-If migrating from sidecar to in-process (e.g., consolidating .NET services):
-
-#### Step 1: Add Microsoft.Identity.Web Packages
-
-```bash
-dotnet add package Microsoft.Identity.Web
-dotnet add package Microsoft.Identity.Web.DownstreamApi
-```
-
-#### Step 2: Transfer Configuration
-
-Create `appsettings.json` from sidecar environment variables:
-
-```json
-{
-  "AzureAd": {
-    "Instance": "https://login.microsoftonline.com/",
-    "TenantId": "your-tenant-id",
-    "ClientId": "your-client-id",
-    "ClientCredentials": [
-      {
-        "SourceType": "KeyVault",
-        "KeyVaultUrl": "https://your-keyvault.vault.azure.net",
-        "KeyVaultCertificateName": "your-cert-name"
-      }
-    ]
-  },
-  "DownstreamApis": {
-    "Graph": {
-      "BaseUrl": "https://graph.microsoft.com/v1.0",
-      "Scopes": "User.Read Mail.Read"
-    }
-  }
-}
-```
-
-#### Step 3: Configure Services
-
-```csharp
-// Program.cs or Startup.cs
-builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
-    .EnableTokenAcquisitionToCallDownstreamApi()
-    .AddDownstreamApi("Graph", builder.Configuration.GetSection("DownstreamApis:Graph"))
-    .AddInMemoryTokenCaches();
-```
-
-#### Step 4: Update Application Code
-
-Replace HTTP calls with IDownstreamApi:
-
-```csharp
-public class UserController : ControllerBase
-{
-    private readonly IDownstreamApi _downstreamApi;
-    
-    public UserController(IDownstreamApi downstreamApi)
-    {
-        _downstreamApi = downstreamApi;
-    }
-    
-    [HttpGet]
-    public async Task<ActionResult<User>> GetMe()
-    {
-        var user = await _downstreamApi.GetForUserAsync<User>(
-            "Graph",
-            options => options.RelativePath = "me"
-        );
-        return Ok(user);
-    }
-}
-```
-
-#### Step 5: Remove Sidecar Container
-
-Update Kubernetes deployment to remove sidecar container:
-
-```yaml
-# Remove sidecar container from pod spec
-containers:
-- name: app
-  image: myregistry/myapp:latest
-  # Remove SIDECAR_URL environment variable
-```
 
 ## Performance Considerations
 

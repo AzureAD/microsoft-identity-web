@@ -55,7 +55,7 @@ See [Installation Guide](installation.md) for examples.
 
 Agent identities enable sophisticated authentication scenarios where an agent application operates either:
 - **Autonomously** - in its own application context
-- **Delegated** - on behalf of a specific user identity
+- **Delegated** - on behalf of the user that called the agent web API.
 
 See [Agent Identities](agent-identities.md) for comprehensive documentation.
 
@@ -196,7 +196,7 @@ See [Configuration Reference](configuration.md#configuration-overrides) for all 
 
 ### How do I configure for multi-tenant applications?
 
-Set `TenantId` to `common`, `organizations`, or `consumers`:
+Set `TenantId` to `common`, `organizations`, or `consumers` in the configuration:
 
 ```yaml
 env:
@@ -246,6 +246,7 @@ See [Security Best Practices](security.md#signed-http-requests-shr) for detailed
 
 ### How do I generate keys for SHR?
 
+**Linux/macOS (OpenSSL)**:
 ```bash
 # Generate RSA key pair
 openssl genrsa -out private.pem 2048
@@ -253,6 +254,25 @@ openssl rsa -in private.pem -pubout -out public.pem
 
 # Base64 encode public key
 base64 -w 0 public.pem > public.pem.b64
+```
+
+**Windows (PowerShell)**:
+```powershell
+# Generate RSA key pair
+$rsa = [System.Security.Cryptography.RSA]::Create(2048)
+
+# Export private key
+$privateKey = $rsa.ExportRSAPrivateKeyPem()
+Set-Content -Path "private.pem" -Value $privateKey
+
+# Export public key
+$publicKey = $rsa.ExportRSAPublicKeyPem()
+Set-Content -Path "public.pem" -Value $publicKey
+
+# Base64 encode public key
+$publicKeyBytes = [System.Text.Encoding]::UTF8.GetBytes($publicKey)
+$base64PublicKey = [Convert]::ToBase64String($publicKeyBytes)
+Set-Content -Path "public.pem.b64" -Value $base64PublicKey
 ```
 
 Store the base64-encoded public key in configuration and keep the private key secure for signing requests.
@@ -350,7 +370,7 @@ Use Kubernetes Network Policies to enforce this restriction. See [Security Best 
 
 Yes! The sidecar automatically uses OBO flow when:
 - You provide an incoming user token
-- Request a token for a downstream API
+- Request a user token for a downstream API (that is `RequestAppToken` is false)
 - `RequestAppToken` is not set to true
 
 Example:

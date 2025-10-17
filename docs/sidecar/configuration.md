@@ -43,6 +43,7 @@ env:
 
 ### Client Credentials Configuration
 
+If you want to call downstream APIs, you'll need to describe client credentials to use.
 The sidecar supports multiple credential types with priority-based selection:
 
 #### Client Secret
@@ -135,6 +136,8 @@ Configure APIs that your application will call:
   value: "https://graph.microsoft.com/v1.0"
 - name: DownstreamApis__Graph__Scopes
   value: "User.Read Mail.Read"
+- name: DownstreamApis__Graph__RelativePath
+  value: "/me"
 
 - name: DownstreamApis__MyApi__BaseUrl
   value: "https://api.contoso.com"
