@@ -26,7 +26,8 @@ namespace Microsoft.Identity.Web.AgentIdentities
             IServiceProvider serviceProvider = (IServiceProvider)options.ExtraParameters![Constants.ExtensionOptionsServiceProviderKey];
             options.ExtraParameters.TryGetValue(Constants.AgentIdentityKey, out object? agentIdentityObject);
             options.ExtraParameters.TryGetValue(Constants.UsernameKey, out object? usernameObject);
-            if (agentIdentityObject is string agentIdentity && usernameObject is string username)
+            options.ExtraParameters.TryGetValue(Constants.UserIdKey, out object? userIdObject);
+            if (agentIdentityObject is string agentIdentity && (usernameObject is string || userIdObject is string))
             {
                 // Register the MSAL extension that will modify the token request just in time.
                 MsalAuthenticationExtension extension = new()
@@ -65,7 +66,25 @@ namespace Microsoft.Identity.Web.AgentIdentities
                         // User FIC parameters
                         request.BodyParameters["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
                         request.BodyParameters["client_assertion"] = clientAssertion;
-                        request.BodyParameters["username"] = username;
+                        
+                        // Handle UPN vs OID: UPN takes precedence if both are present
+                        if (usernameObject is string username && !string.IsNullOrEmpty(username))
+                        {
+                            request.BodyParameters["username"] = username;
+                            if (request.BodyParameters.ContainsKey("user_id"))
+                            {
+                                request.BodyParameters.Remove("user_id");
+                            }
+                        }
+                        else if (userIdObject is string userId && !string.IsNullOrEmpty(userId))
+                        {
+                            request.BodyParameters["user_id"] = userId;
+                            if (request.BodyParameters.ContainsKey("username"))
+                            {
+                                request.BodyParameters.Remove("username");
+                            }
+                        }
+                        
                         request.BodyParameters["user_federated_identity_credential"] = userFicAssertion;
                         request.BodyParameters["grant_type"] = "user_fic";
                         request.BodyParameters.Remove("password");

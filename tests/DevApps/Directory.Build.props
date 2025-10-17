@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0; net8.0; net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <UseWip>true</UseWip>
     <IsPackable>false</IsPackable>
@@ -9,15 +9,9 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-  </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
-    <SystemDrawingCommon>6.0.0</SystemDrawingCommon>
-  </PropertyGroup>
+
+
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->

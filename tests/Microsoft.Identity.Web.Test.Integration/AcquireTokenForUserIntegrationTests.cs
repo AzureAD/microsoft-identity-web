@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.True(response.IsSuccessStatusCode);
         }
 
-#if NET7_0
+#if NET9_0
         [Fact]
         public async Task TestSigningKeyIssuerAsync()
         {
@@ -136,7 +136,6 @@ namespace Microsoft.Identity.Web.Test.Integration
             }
         }
 #endif
-
 
         private static async Task<HttpResponseMessage> CreateHttpResponseMessageAsync(string webApiUrl, HttpClient client, AuthenticationResult result)
         {

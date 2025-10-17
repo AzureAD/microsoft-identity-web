@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <TargetFrameworks>net6.0; net8.0; net9.0; net462; net472</TargetFrameworks>
+    <TargetFrameworks>net8.0; net9.0; net462; net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
@@ -10,10 +10,7 @@
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <!-- Suppress the "Microsoft.Bcl.Memory 9.0.0 doesn't support net6.0/net7.0 and has not been tested with it" warning -->
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-  </PropertyGroup>
+
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftAspNetCoreMvcTestingVersion>8.0.1</MicrosoftAspNetCoreMvcTestingVersion>
@@ -41,15 +38,14 @@
     <MicrosoftIdentityLabApiVersion>1.0.2</MicrosoftIdentityLabApiVersion>
     <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>
     <SystemTextRegularExpressionsVersion>4.3.1</SystemTextRegularExpressionsVersion>
+    <MoqVersion>4.18.4</MoqVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <DefineConstants>$(DefineConstants);AZURE_DEVOPS_BUILD</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <MicrosoftAspNetCoreMvcTestingVersion>6.0.12</MicrosoftAspNetCoreMvcTestingVersion>
-  </PropertyGroup>
+
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <MicrosoftAspNetCoreMvcTestingVersion>8.0.10</MicrosoftAspNetCoreMvcTestingVersion>

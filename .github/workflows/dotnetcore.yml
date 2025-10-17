@@ -29,6 +29,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+
+
     - name: Setup .NET 9.0.x
       uses: actions/setup-dotnet@v4
       with:
@@ -55,15 +57,13 @@ jobs:
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
 
     - name: Test with .NET 9.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)&(FullyQualifiedName!~SidecarEndpointsE2ETests)"
+
 
     - name: Test with .NET 10.0.x
       if: env.TargetNetNext == 'True'
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net10.0 -v m -p:FROM_GITHUB_ACTION=true -p:TargetNetNext=${{env.TargetNetNext}} --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
       continue-on-error: true
-
-    - name: Test with .NET 6.0.x
-      run: dotnet test Microsoft.Identity.Web.sln -f net6.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
 
     - name: Create code coverage report
       run: |

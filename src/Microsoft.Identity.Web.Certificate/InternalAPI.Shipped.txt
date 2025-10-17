@@ -14,6 +14,7 @@ const Microsoft.Identity.Web.CertificateErrorMessage.InvalidBase64UrlString = "I
 const Microsoft.Identity.Web.CertificateErrorMessage.InvalidCertificateStorePath = "IDW10703: Certificate store path must be of the form 'StoreLocation/StoreName'. StoreLocation must be one of 'CurrentUser', 'LocalMachine'. StoreName must be empty or one of '{0}'. " -> string!
 const Microsoft.Identity.Web.CertificateErrorMessage.OnlyPkcs12IsSupported = "IDW10701: Only PKCS #12 content type is supported. Found Content-Type: {0}. " -> string!
 const Microsoft.Identity.Web.DefaultCredentialsLoader.nameMissing = "NameMissing" -> string!
+const Microsoft.Identity.Web.LoggerExtensions.nameMissing = "NameMissing" -> string!
 Microsoft.Identity.Web.Base64EncodedCertificateLoader
 Microsoft.Identity.Web.Base64EncodedCertificateLoader.Base64EncodedCertificateLoader() -> void
 Microsoft.Identity.Web.Base64EncodedCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
@@ -36,6 +37,7 @@ Microsoft.Identity.Web.KeyVaultCertificateLoader
 Microsoft.Identity.Web.KeyVaultCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
 Microsoft.Identity.Web.KeyVaultCertificateLoader.KeyVaultCertificateLoader() -> void
 Microsoft.Identity.Web.KeyVaultCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.LoggerExtensions
 Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader
 Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
 Microsoft.Identity.Web.SignedAssertionFilePathCredentialsLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task!
@@ -65,3 +67,10 @@ static Microsoft.Identity.Web.DefaultCredentialsLoader.CustomSignedAssertionProv
 static Microsoft.Identity.Web.KeyVaultCertificateLoader.LoadFromKeyVaultAsync(string! keyVaultUrl, string! certificateName, string? managedIdentityClientId, System.Security.Cryptography.X509Certificates.X509KeyStorageFlags x509KeyStorageFlags) -> System.Threading.Tasks.Task<System.Security.Cryptography.X509Certificates.X509Certificate2?>!
 static Microsoft.Identity.Web.KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId.get -> string?
 static Microsoft.Identity.Web.KeyVaultCertificateLoader.UserAssignedManagedIdentityClientId.set -> void
+static Microsoft.Identity.Web.LoggerExtensions.CredentialLoadingFailure(this Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.CredentialDescription! cd, System.Exception? ex) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNameAlreadyExists(this Microsoft.Extensions.Logging.ILogger! logger, string! providerName) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNameNullOrEmpty(this Microsoft.Extensions.Logging.ILogger! logger) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomProviderNotFound(this Microsoft.Extensions.Logging.ILogger! logger, string! providerName) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomProviderSourceLoaderNullOrEmpty(this Microsoft.Extensions.Logging.ILogger! logger) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomSignedAssertionProviderLoadingFailure(this Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.CredentialDescription! cd, System.Exception! ex) -> void
+static Microsoft.Identity.Web.LoggerExtensions.CustomSignedAssertionProviderLoadingFailureMessage(string! providerName, string! sourceType, string! skip) -> string!
