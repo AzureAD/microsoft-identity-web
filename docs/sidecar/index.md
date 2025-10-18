@@ -107,7 +107,7 @@ See [Comparison with Microsoft.Identity.Web](comparison.md) for detailed migrati
 The sidecar is available as a container image:
 
 ```
-mcr.microsoft.com/identity/sidecar:<tag>
+mcr.microsoft.com/entra-sdk/auth-sidecar:<tag>
 ```
 
 > **Note**: The container image is currently in preview. Check the [installation guide](installation.md) for the latest image coordinates and version information.

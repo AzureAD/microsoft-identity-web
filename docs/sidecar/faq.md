@@ -6,7 +6,7 @@ Common questions and answers about the Microsoft Entra Identity Sidecar.
 
 ### What is the Microsoft Entra Identity Sidecar?
 
-The Microsoft Entra Identity Sidecar is a containerized service that provides token acquisition and validation capabilities for applications in any language. It runs as a separate container alongside your application and exposes HTTP endpoints for authentication operations.
+The Microsoft Entra Identity Sidecar is a containerized web API that provides token acquisition and validation capabilities for applications in any language. It runs as a separate container alongside your application and exposes HTTP endpoints for authentication operations.
 
 ### Why would I use the sidecar instead of Microsoft.Identity.Web?
 
@@ -31,7 +31,7 @@ The sidecar is currently in preview. Check the [GitHub repository](https://githu
 
 The sidecar is distributed from Microsoft Container Registry:
 ```
-mcr.microsoft.com/identity/sidecar:<tag>
+mcr.microsoft.com/entra-sdk/auth-sidecar:<tag>
 ```
 
 Available tags:
@@ -427,7 +427,7 @@ The sidecar adds HTTP communication overhead:
 - **Cached tokens**: Minimal overhead (direct cache hit)
 - **New tokens**: Microsoft Entra ID acquisition time (~100-500ms)
 
-For most applications, this overhead is acceptable. Consider in-process Microsoft.Identity.Web for ultra-low-latency scenarios.
+For most applications, this overhead is acceptable. Consider in-process Microsoft.Identity.Web for low-latency scenarios.
 
 ### How can I optimize performance?
 

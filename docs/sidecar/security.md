@@ -212,7 +212,7 @@ volumes:
     defaultMode: 0400  # Read-only for owner
 ```
 
-### Client Secrets (Use Sparingly)
+### Client Secrets (Avoid if possible)
 
 If client secrets must be used:
 

@@ -361,7 +361,7 @@ response = await httpClient.GetAsync(delegatedByIdUrl);
 ## Best Practices
 
 1. **Validate Input**: Always validate agent identity parameters before making requests
-2. **Use Object IDs When Available**: Object IDs are more stable than UPNs for long-running processes
+2. **Use Object IDs When Available**: Object IDs are more stable
 3. **Implement Proper Error Handling**: Handle agent identity validation errors gracefully
 4. **Secure Agent Credentials**: Protect agent identity client IDs and credentials
 5. **Audit Agent Operations**: Log and monitor agent identity usage for security and compliance

@@ -7,7 +7,7 @@ This guide covers how to acquire, deploy, and configure the Microsoft Entra Iden
 The sidecar is distributed as a container image from Microsoft Container Registry (MCR):
 
 ```
-mcr.microsoft.com/identity/sidecar:<tag>
+mcr.microsoft.com/entra-sdk/auth-sidecar:<tag>
 ```
 
 ### Version Tags
@@ -260,7 +260,7 @@ spec:
           value: "http://localhost:5000"
       
       - name: sidecar
-        image: mcr.microsoft.com/identity/sidecar:latest
+        image: mcr.microsoft.com/entra-sdk/auth-sidecar:<tag>
         ports:
         - containerPort: 5000
         env:

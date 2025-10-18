@@ -11,7 +11,7 @@ The sidecar exposes the following endpoints:
 | `/Validate` | GET | Validate incoming bearer token | Yes |
 | `/AuthorizationHeader/{serviceName}` | GET | Get authorization header for downstream API | Yes |
 | `/DownstreamApi/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Call downstream API with automatic token acquisition | Yes |
-| `/health` | GET | Health check endpoint | No |
+| `/healthz` | GET | Health check endpoint | No |
 | `/openapi/v1.json` | GET | OpenAPI specification | No (Dev only) |
 
 ## Authentication
@@ -226,7 +226,7 @@ Supports all parameters from `/AuthorizationHeader/{serviceName}` plus:
 
 ### Request Body
 
-For POST, PUT, and PATCH requests, the request body is forwarded to the downstream API:
+For POST requests, the request body is forwarded to the downstream API:
 
 ```http
 POST /DownstreamApi/Graph?optionsOverride.RelativePath=me/messages HTTP/1.1
@@ -308,14 +308,14 @@ The response includes:
 
 Similar to `/AuthorizationHeader/{serviceName}`, plus downstream API errors are returned with their original status codes.
 
-## /health
+## /healthz
 
 Health check endpoint for liveness and readiness probes.
 
 ### Request
 
 ```http
-GET /health HTTP/1.1
+GET /healthz HTTP/1.1
 ```
 
 ### Response
