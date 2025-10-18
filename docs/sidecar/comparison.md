@@ -65,7 +65,7 @@ async function getUserData(incomingToken: string) {
 | **Language Support** | C# / .NET only | Any language (HTTP) |
 | **Deployment** | In-process library | Separate container |
 | **Token Acquisition** | ✅ Direct MSAL.NET | ✅ Via HTTP API |
-| **Token Caching** | ✅ In-memory, distributed | ✅ In-memory, distributed |
+| **Token Caching** | ✅ In-memory, ❌distributed | ✅ In-memory, ❌distributed |
 | **OBO Flow** | ✅ Native support | ✅ Via HTTP endpoint |
 | **Client Credentials** | ✅ Native support | ✅ Via HTTP endpoint |
 | **Managed Identity** | ✅ Direct support | ✅ Direct support |
