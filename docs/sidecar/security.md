@@ -17,51 +17,28 @@ The sidecar handles sensitive operations including token acquisition, storage, a
 
 **The sidecar should only be accessible from your application container.**
 
-#### Kubernetes Network Policies
+#### Configure Kestrel to Listen on Localhost
 
-Implement network policies to prevent external access:
+Configure the sidecar to listen only on localhost (127.0.0.1) to ensure it's not accessible from outside the pod:
 
 ```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: sidecar-isolation
-  namespace: default
-spec:
-  podSelector:
-    matchLabels:
-      app: myapp
-  policyTypes:
-  - Ingress
-  - Egress
-  
-  # No ingress from outside the pod
-  ingress: []
-  
-  egress:
-  # Allow DNS
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: kube-system
-    ports:
-    - protocol: TCP
-      port: 53
-    - protocol: UDP
-      port: 53
-  
-  # Allow outbound to Microsoft Entra ID
-  - to:
-    - namespaceSelector: {}
-    ports:
-    - protocol: TCP
-      port: 443
-  
-  # Allow pod-internal communication
-  - to:
-    - podSelector:
-        matchLabels:
-          app: myapp
+containers:
+- name: sidecar
+  image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
+  env:
+  - name: Kestrel__Endpoints__Http__Url
+    value: "http://127.0.0.1:5000"
+```
+
+Alternatively, use Kestrel's host filtering with AllowedHosts to restrict access:
+
+```yaml
+containers:
+- name: sidecar
+  image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
+  env:
+  - name: AllowedHosts
+    value: "localhost;127.0.0.1"
 ```
 
 ### Use Localhost Communication
