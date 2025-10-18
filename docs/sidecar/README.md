@@ -15,7 +15,6 @@ This directory contains comprehensive documentation for the Microsoft Entra Iden
 - **[endpoints.md](endpoints.md)** - HTTP API reference
 - **[security.md](security.md)** - Security best practices and hardening
 - **[comparison.md](comparison.md)** - Comparison with in-process Microsoft.Identity.Web
-- **[reverse-proxy.md](reverse-proxy.md)** - Reverse proxy integration patterns
 - **[troubleshooting.md](troubleshooting.md)** - Common issues and solutions
 - **[faq.md](faq.md)** - Frequently asked questions
 

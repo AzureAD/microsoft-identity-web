@@ -134,7 +134,7 @@ spec:
       
       # Sidecar container
       - name: sidecar
-        image: mcr.microsoft.com/identity/sidecar:latest
+        image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
         ports:
         - containerPort: 5000
         env:
@@ -316,7 +316,7 @@ kubectl get pod -l app=myapp -o yaml | grep -A 10 "env:"
 1. **Separate Identities per Environment**: Use different managed identities for dev, staging, production
 2. **Least Privilege**: Grant only required permissions to managed identity
 3. **Monitor Usage**: Enable diagnostic logging for managed identity
-4. **Rotate Regularly**: While no secrets to rotate, review permissions regularly
+4. **Review permissions regularly**: While no secrets to rotate, review permissions regularly
 5. **Document Permissions**: Maintain documentation of granted permissions
 6. **Test Thoroughly**: Verify workload identity in staging before production
 7. **Use Labels**: Properly label pods with `azure.workload.identity/use: "true"`

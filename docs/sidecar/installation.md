@@ -44,7 +44,7 @@ spec:
   
   # Sidecar container
   - name: sidecar
-    image: mcr.microsoft.com/identity/sidecar:latest
+    image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
     ports:
     - containerPort: 5000
     env:
@@ -97,7 +97,7 @@ spec:
             cpu: "500m"
       
       - name: sidecar
-        image: mcr.microsoft.com/identity/sidecar:latest
+        image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
         ports:
         - containerPort: 5000
         env:
@@ -154,7 +154,7 @@ services:
       - app-network
 
   sidecar:
-    image: mcr.microsoft.com/identity/sidecar:latest
+    image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
     ports:
       - "5000:5000"
     environment:

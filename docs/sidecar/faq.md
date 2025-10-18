@@ -282,31 +282,6 @@ Store the base64-encoded public key in configuration and keep the private key se
 
 The sidecar automatically caches tokens in memory by default. When you request a token for the same resource and scopes, the cached token is returned if still valid.
 
-### Can I use distributed cache?
-
-Yes! Configure Redis for distributed caching across multiple sidecar instances:
-
-```yaml
-env:
-- name: TokenCache__EnableDistributedCache
-  value: "true"
-- name: TokenCache__RedisConnection
-  value: "redis-host:6379,password=<password>,ssl=true"
-```
-
-### When should I use distributed cache?
-
-Use distributed cache when:
-- Running multiple replicas of your application
-- Wanting consistent token caching across instances
-- Optimizing for token acquisition performance
-- Reducing calls to Microsoft Entra ID
-
-Use in-memory cache when:
-- Running single instance
-- Simplicity is important
-- No need for cross-instance caching
-
 ### How long are tokens cached?
 
 Tokens are cached based on their expiration time from Microsoft Entra ID:
@@ -326,10 +301,6 @@ The sidecar automatically refreshes tokens before expiration.
 **Recommended (production)**:
 - Memory: 256Mi
 - CPU: 250m
-
-**High traffic**:
-- Memory: 512Mi
-- CPU: 500m
 
 Adjust based on your token acquisition frequency and API call patterns.
 

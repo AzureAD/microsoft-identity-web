@@ -1,6 +1,6 @@
 # Configuration Reference
 
-This document provides comprehensive configuration options for the Microsoft Entra Identity Sidecar.
+This document provides comprehensive configuration options for the Microsoft Entra Identity Sidecar. This is very similar to the Microsoft.Identity.Web regular configuration.
 
 ## Configuration Overview
 
@@ -88,7 +88,7 @@ The sidecar supports multiple credential types with priority-based selection:
   value: "<thumbprint>"
 ```
 
-#### Signed Assertion
+#### FIC+MSI
 
 ```yaml
 - name: AzureAd__ClientCredentials__0__SourceType
@@ -170,6 +170,8 @@ Fine-tune token acquisition behavior:
   value: "<correlation-id>"  # For request tracing
 ```
 
+Here we suppose Graph is the name of one of the downstream API sections you want to call.
+
 ### Signed HTTP Request (SHR) Configuration
 
 Enable Signed HTTP Requests for enhanced security:
@@ -198,12 +200,6 @@ Control token caching behavior:
 ```yaml
 - name: TokenCache__EnableDistributedCache
   value: "false"  # Use in-memory cache (default)
-
-# For distributed cache (Redis)
-- name: TokenCache__EnableDistributedCache
-  value: "true"
-- name: TokenCache__RedisConnection
-  value: "<redis-connection-string>"
 ```
 
 ### Logging Configuration
@@ -217,10 +213,6 @@ Configure logging levels and outputs:
   value: "Debug"
 - name: Logging__LogLevel__Microsoft.AspNetCore
   value: "Warning"
-
-# Application Insights (optional)
-- name: ApplicationInsights__ConnectionString
-  value: "<app-insights-connection-string>"
 ```
 
 ### ASP.NET Core Settings
@@ -265,18 +257,22 @@ Specify agent identity parameters at request time:
 # Autonomous agent (application context)
 GET /AuthorizationHeader/Graph?AgentIdentity=<agent-client-id>
 
-# Delegated agent with username
+# Autonomous or interactive agent (called on behalf of the agent identity)
+GET /AuthorizationHeader/Graph?AgentIdentity=<agent-client-id>
+
+# Autonomous agent user identity specified by username
 GET /AuthorizationHeader/Graph?AgentIdentity=<agent-client-id>&AgentUsername=user@contoso.com
 
-# Delegated agent with user object ID
+# # Autonomous agent user identity specified by user Object ID
 GET /AuthorizationHeader/Graph?AgentIdentity=<agent-client-id>&AgentUserId=<user-object-id>
 ```
 
 **Important Rules:**
 - `AgentUsername` and `AgentUserId` **require** `AgentIdentity` to be specified
 - `AgentUsername` and `AgentUserId` are **mutually exclusive**
-- `AgentIdentity` alone acquires an application token for the agent (autonomous mode)
-- `AgentIdentity` with `AgentUsername` or `AgentUserId` acquires a user token for the agent identity (delegated mode)
+- `AgentIdentity` alone with RequestAppToken=true acquires an application token for the agent (autonomous mode)
+- `AgentIdentity` alone with RequestAppToken=false acquires a user token for the agent on behalf of the user calling the agent (interactive agent)
+- `AgentIdentity` with `AgentUsername` or `AgentUserId` acquires a user token for the agent user identity (autonomous mode)
 
 See [Agent Identities](agent-identities.md) for detailed semantics.
 
@@ -333,7 +329,7 @@ spec:
     spec:
       containers:
       - name: sidecar
-        image: mcr.microsoft.com/identity/sidecar:latest
+        image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
         envFrom:
         - configMapRef:
             name: sidecar-config
@@ -396,7 +392,7 @@ kubectl logs <pod-name> -c sidecar
 
 ## Best Practices
 
-1. **Use Secrets for Credentials**: Store client secrets and certificates in Kubernetes Secrets or Azure Key Vault
+1. **Use Secrets for Credentials**: Store client secrets and certificates in Kubernetes Secrets or Azure Key Vault. See also https://aka.ms/msidweb/client-credentials
 2. **Separate Configuration per Environment**: Use ConfigMaps to manage environment-specific settings
 3. **Enable Appropriate Logging**: Use Debug logging in development, Information/Warning in production
 4. **Configure Health Checks**: Ensure health check endpoints are properly configured

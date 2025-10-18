@@ -25,8 +25,10 @@ Configure the downstream API in your sidecar:
 env:
 - name: DownstreamApis__Graph__BaseUrl
   value: "https://graph.microsoft.com/v1.0"
-- name: DownstreamApis__Graph__Scopes
-  value: "User.Read Mail.Read"
+- name: DownstreamApis__Graph__Scopes__0
+  value: "User.Read"
+- name: DownstreamApis__Graph__Scopes__1
+  value: "Mail.Read"
 ```
 
 ## Implementation Examples
@@ -34,8 +36,6 @@ env:
 ### TypeScript/Node.js
 
 ```typescript
-import fetch from 'node-fetch';
-
 interface DownstreamApiResponse {
   statusCode: number;
   headers: Record<string, string>;

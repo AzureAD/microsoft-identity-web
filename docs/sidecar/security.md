@@ -138,7 +138,7 @@ spec:
       serviceAccountName: myapp-sa
       containers:
       - name: sidecar
-        image: mcr.microsoft.com/identity/sidecar:latest
+        image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
         env:
         - name: AzureAd__ClientId
           value: "<managed-identity-client-id>"
@@ -288,8 +288,11 @@ Use SHR for:
 openssl genrsa -out private.pem 2048
 openssl rsa -in private.pem -pubout -out public.pem
 
-# Base64 encode public key for configuration
+# Base64 encode public key for configuration (Linux/macOS)
 base64 -w 0 public.pem > public.pem.b64
+
+# Base64 encode public key for configuration (Windows PowerShell)
+[Convert]::ToBase64String([System.IO.File]::ReadAllBytes("public.pem")) | Out-File -Encoding ASCII public.pem.b64
 ```
 
 #### Configure SHR in Kubernetes
@@ -380,7 +383,7 @@ Configure the sidecar to run as a non-root user:
 ```yaml
 containers:
 - name: sidecar
-  image: mcr.microsoft.com/identity/sidecar:latest
+  image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
@@ -486,7 +489,7 @@ containers:
 
 ### Validate Agent Parameters
 
-Implement validation for agent identity parameters:
+Don't use unvalidated user input for any of the options to the container API. Implement validation for agent identity parameters:
 
 ```typescript
 function validateAgentParams(
@@ -614,7 +617,7 @@ If access tokens are exposed:
 - [ ] Enable comprehensive logging (but avoid Debug in production)
 - [ ] Configure Application Insights or monitoring
 - [ ] Set up security alerts for anomalies
-- [ ] Implement agent identity parameter validation
+- [  ]  Always validate user input for any of the options to the container API
 - [ ] Apply least privilege to agent identities
 - [ ] Configure Conditional Access policies
 - [ ] Document incident response procedures

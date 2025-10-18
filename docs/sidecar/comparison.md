@@ -141,6 +141,8 @@ async function getUserData(incomingToken: string) {
 
 ### Migrating from Microsoft.Identity.Web to Sidecar
 
+Microsoft doesn't recommend that you move from Microsoft.Identity.Web to the sidecar, but if you chose to do so, here is how you would do. This also gives an idea on how you would do in other languages and framework as the concepts are similar.
+
 #### Step 1: Deploy Sidecar Container
 
 Add sidecar container to your pod:
@@ -160,7 +162,7 @@ containers:
     value: "http://localhost:5000"
 
 - name: sidecar
-  image: mcr.microsoft.com/identity/sidecar:latest
+  image: mcr.microsoft.com/entra-sdk/auth-sidecar:1.0.0
   env:
   - name: AzureAd__TenantId
     value: "your-tenant-id"

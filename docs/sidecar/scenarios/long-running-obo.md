@@ -229,19 +229,14 @@ async function callApiWithRetry(
     try {
       return await apiCall(token);
     } catch (error) {
-      if (isTokenExpiredError(error) && attempt < maxRetries) {
-        // Token expired, wait and retry (sidecar will refresh)
+      if (attempt < maxRetries) {
+        // Wait and retry
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         continue;
       }
       throw error;
     }
   }
-}
-
-function isTokenExpiredError(error: any): boolean {
-  return error.message?.includes('401') || 
-         error.message?.includes('token_expired');
 }
 ```
 

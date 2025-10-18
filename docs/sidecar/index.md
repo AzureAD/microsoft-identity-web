@@ -98,7 +98,6 @@ See [Comparison with Microsoft.Identity.Web](comparison.md) for detailed migrati
 
 - [Troubleshooting Guide](troubleshooting.md)
 - [Frequently Asked Questions](faq.md)
-- [Reverse Proxy Integration](reverse-proxy.md)
 - [Microsoft Entra ID Documentation](https://docs.microsoft.com/en-us/azure/active-directory/)
 - [Microsoft Identity Web GitHub Repository](https://github.com/AzureAD/microsoft-identity-web)
 

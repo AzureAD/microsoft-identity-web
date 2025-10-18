@@ -2,6 +2,12 @@
 
 This document provides comprehensive reference for all HTTP endpoints exposed by the Microsoft Entra Identity Sidecar.
 
+**Note for agents**
+The Open API spec is also available from <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.Sidecar/OpenAPI/Microsoft.Identity.Web.Sidecar.json">https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.Sidecar/OpenAPI/Microsoft.Identity.Web.Sidecar.json</a>. From it you can:
+- auto-generate client libraries or code from the calling API
+- validate request before sending
+- have tools that auto-discover available endpoints
+
 ## Endpoint Overview
 
 The sidecar exposes the following endpoints:
@@ -9,8 +15,10 @@ The sidecar exposes the following endpoints:
 | Endpoint | Method | Purpose | Auth Required |
 |----------|--------|---------|---------------|
 | `/Validate` | GET | Validate incoming bearer token | Yes |
-| `/AuthorizationHeader/{serviceName}` | GET | Get authorization header for downstream API | Yes |
-| `/DownstreamApi/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Call downstream API with automatic token acquisition | Yes |
+| `/AuthorizationHeader/{serviceName}` | GET | Validates the inbound authorization header and get an authorization header for a downstream API | Yes |
+| `//AuthorizationHeaderUnauthenticated//{serviceName}` | GET | Get an authorization header for a downstream API called with an app token | Yes |
+| `/DownstreamApi/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Validates the inbound authorization header and call a downstream API with automatic token acquisition | Yes |
+| `/DownstreamApiUnauthenticated/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Call a downstream API with automatic token acquisition (app token or agent identity only) | Yes |
 | `/healthz` | GET | Health check endpoint | No |
 | `/openapi/v1.json` | GET | OpenAPI specification | No (Dev only) |
 
@@ -206,6 +214,10 @@ For SHR requests, the authorization header will use the PoP scheme:
 }
 ```
 
+## /AuthorizationHeaderUnauthenticated/{serviceName}
+
+The configuration and parameters are the same as `/AuthorizationHeader/{serviceName}` but, as an optimization, you don't provide an inbound authorization header (no user context), and therefore you can only request outbound authorization headers with app tokens (RequestAppToken=true), or for user agent identities. Make sure that you always call /Validate first, though in your web API.
+
 ## /DownstreamApi/{serviceName}
 
 Acquires an access token and makes an HTTP request to the downstream API, returning the response.
@@ -226,7 +238,7 @@ Supports all parameters from `/AuthorizationHeader/{serviceName}` plus:
 
 ### Request Body
 
-For POST requests, the request body is forwarded to the downstream API:
+The request body is forwarded to the downstream API:
 
 ```http
 POST /DownstreamApi/Graph?optionsOverride.RelativePath=me/messages HTTP/1.1
@@ -320,22 +332,9 @@ GET /healthz HTTP/1.1
 
 ### Response
 
-**Healthy (200 OK)**:
+**Healthy**: Returns HTTP 200 OK
 
-```json
-{
-  "status": "Healthy"
-}
-```
-
-**Unhealthy (503 Service Unavailable)**:
-
-```json
-{
-  "status": "Unhealthy",
-  "errors": ["Configuration error", "Unable to connect to Microsoft Entra ID"]
-}
-```
+**Unhealthy**: Returns HTTP 503 Service Unavailable
 
 ## /openapi/v1.json
 

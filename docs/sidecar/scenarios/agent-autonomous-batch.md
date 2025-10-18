@@ -20,21 +20,7 @@ Autonomous agents operate in application context to:
 
 ### Create Agent Identity
 
-```bash
-# Create agent identity app registration
-az ad app create --display-name "Batch Processing Agent"
-
-AGENT_ID=$(az ad app list --display-name "Batch Processing Agent" --query [0].appId -o tsv)
-
-# Grant application permissions
-az ad app permission add \
-  --id $AGENT_ID \
-  --api 00000003-0000-0000-c000-000000000000 \
-  --api-permissions df021288-bdef-4463-88db-98f22de89214=Role  # User.Read.All
-
-# Grant admin consent
-az ad app permission admin-consent --id $AGENT_ID
-```
+For details on creating agent identities and configuring federated identity credentials, see the [Agentic identity platform documentation](https://learn.microsoft.com/en-us/entra/agentic-identity-platform).
 
 ## Implementation
 

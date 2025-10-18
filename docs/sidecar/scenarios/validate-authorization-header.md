@@ -588,63 +588,14 @@ The `/Validate` endpoint returns:
 }
 ```
 
-## Caching Validation Results
-
-```typescript
-// Simple in-memory cache with expiration
-class TokenCache {
-  private cache = new Map<string, { validation: ValidateResponse, expiry: number }>();
-  
-  set(token: string, validation: ValidateResponse, ttlSeconds: number = 300) {
-    const expiry = Date.now() + (ttlSeconds * 1000);
-    this.cache.set(token, { validation, expiry });
-  }
-  
-  get(token: string): ValidateResponse | null {
-    const cached = this.cache.get(token);
-    
-    if (!cached) return null;
-    
-    if (Date.now() > cached.expiry) {
-      this.cache.delete(token);
-      return null;
-    }
-    
-    return cached.validation;
-  }
-}
-
-const tokenCache = new TokenCache();
-
-async function validateTokenWithCache(authHeader: string): Promise<ValidateResponse> {
-  // Extract token from "Bearer <token>"
-  const token = authHeader.split(' ')[1];
-  
-  // Check cache first
-  const cached = tokenCache.get(token);
-  if (cached) {
-    return cached;
-  }
-  
-  // Validate and cache
-  const validation = await validateToken(authHeader);
-  tokenCache.set(token, validation, 300);  // Cache for 5 minutes
-  
-  return validation;
-}
-```
-
-**Important**: Only cache validation results for short periods (5 minutes recommended) to ensure timely token revocation.
-
 ## Best Practices
 
 1. **Validate Early**: Validate tokens at the API gateway or entry point
-2. **Cache Judiciously**: Cache validation results with short TTL (5 minutes)
-3. **Check Scopes**: Always verify token has required scopes for the operation
-4. **Log Failures**: Log validation failures for security monitoring
-5. **Handle Errors**: Provide clear error messages for debugging
-6. **Use Middleware**: Implement validation as middleware for consistency
-7. **Secure Sidecar**: Ensure sidecar is only accessible from your application
+2. **Check Scopes**: Always verify token has required scopes for the operation
+3. **Log Failures**: Log validation failures for security monitoring
+4. **Handle Errors**: Provide clear error messages for debugging
+5. **Use Middleware**: Implement validation as middleware for consistency
+6. **Secure Sidecar**: Ensure sidecar is only accessible from your application
 
 ## Next Steps
 
