@@ -63,6 +63,30 @@ public static class DownstreamApiOptionsMerger
             }
         }
 
+        if (right.ExtraHeaderParameters is not null)
+        {
+            if (res.ExtraHeaderParameters is null)
+            {
+                res.ExtraHeaderParameters = new Dictionary<string, string>();
+            }
+            foreach (var extraHeader in right.ExtraHeaderParameters)
+            {
+                res.ExtraHeaderParameters[extraHeader.Key] = extraHeader.Value;
+            }
+        }
+
+        if (right.ExtraQueryParameters is not null)
+        {
+            if (res.ExtraQueryParameters is null)
+            {
+                res.ExtraQueryParameters = new Dictionary<string, string>();
+            }
+            foreach (var extraQueryParam in right.ExtraQueryParameters)
+            {
+                res.ExtraQueryParameters[extraQueryParam.Key] = extraQueryParam.Value;
+            }
+        }
+
         return res;
     }
 }

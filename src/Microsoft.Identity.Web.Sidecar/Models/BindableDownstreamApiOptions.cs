@@ -121,6 +121,26 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
             {
                 result.AcceptHeader = values.LastOrDefault() ?? string.Empty;
             }
+            else if (path.StartsWith("ExtraHeaderParameters.", StringComparison.OrdinalIgnoreCase))
+            {
+                var headerKey = path.Substring("ExtraHeaderParameters.".Length);
+                var headerValue = values.LastOrDefault();
+                if (!string.IsNullOrEmpty(headerKey) && !string.IsNullOrEmpty(headerValue))
+                {
+                    result.ExtraHeaderParameters ??= new Dictionary<string, string>();
+                    result.ExtraHeaderParameters[headerKey] = headerValue;
+                }
+            }
+            else if (path.StartsWith("ExtraQueryParameters.", StringComparison.OrdinalIgnoreCase))
+            {
+                var queryKey = path.Substring("ExtraQueryParameters.".Length);
+                var queryValue = values.LastOrDefault();
+                if (!string.IsNullOrEmpty(queryKey) && !string.IsNullOrEmpty(queryValue))
+                {
+                    result.ExtraQueryParameters ??= new Dictionary<string, string>();
+                    result.ExtraQueryParameters[queryKey] = queryValue;
+                }
+            }
         }
 
         return ValueTask.FromResult<BindableDownstreamApiOptions?>(result);

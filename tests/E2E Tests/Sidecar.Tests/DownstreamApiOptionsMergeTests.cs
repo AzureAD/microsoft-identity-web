@@ -379,4 +379,178 @@ public class DownstreamApiOptionsMergeTests
         Assert.Equal("original-tenant", result.AcquireTokenOptions.Tenant);
         Assert.Equal("original-claims", result.AcquireTokenOptions.Claims);
     }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithExtraHeaderParameters_MergesHeaderParameters()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = new Dictionary<string, string>
+            {
+                { "Header1", "Value1" },
+                { "Header2", "Value2" }
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = new Dictionary<string, string>
+            {
+                { "Header3", "Value3" },
+                { "Header4", "Value4" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraHeaderParameters);
+        Assert.Equal(4, result.ExtraHeaderParameters.Count);
+        Assert.Equal("Value1", result.ExtraHeaderParameters["Header1"]);
+        Assert.Equal("Value2", result.ExtraHeaderParameters["Header2"]);
+        Assert.Equal("Value3", result.ExtraHeaderParameters["Header3"]);
+        Assert.Equal("Value4", result.ExtraHeaderParameters["Header4"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithExtraHeaderParametersConflict_OverwritesWithRight()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = new Dictionary<string, string>
+            {
+                { "Header1", "OriginalValue" }
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = new Dictionary<string, string>
+            {
+                { "Header1", "NewValue" },
+                { "Header2", "Value2" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraHeaderParameters);
+        Assert.Equal("NewValue", result.ExtraHeaderParameters["Header1"]);
+        Assert.Equal("Value2", result.ExtraHeaderParameters["Header2"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithExtraQueryParameters_MergesQueryParameters()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "param1", "value1" },
+                { "param2", "value2" }
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "param3", "value3" },
+                { "param4", "value4" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraQueryParameters);
+        Assert.Equal(4, result.ExtraQueryParameters.Count);
+        Assert.Equal("value1", result.ExtraQueryParameters["param1"]);
+        Assert.Equal("value2", result.ExtraQueryParameters["param2"]);
+        Assert.Equal("value3", result.ExtraQueryParameters["param3"]);
+        Assert.Equal("value4", result.ExtraQueryParameters["param4"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithExtraQueryParametersConflict_OverwritesWithRight()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "param1", "original-value" }
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "param1", "new-value" },
+                { "param2", "value2" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraQueryParameters);
+        Assert.Equal("new-value", result.ExtraQueryParameters["param1"]);
+        Assert.Equal("value2", result.ExtraQueryParameters["param2"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRightExtraHeaderParametersButLeftNull_CreatesNewDictionary()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = null
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraHeaderParameters = new Dictionary<string, string>
+            {
+                { "Header1", "Value1" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraHeaderParameters);
+        Assert.Single(result.ExtraHeaderParameters);
+        Assert.Equal("Value1", result.ExtraHeaderParameters["Header1"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRightExtraQueryParametersButLeftNull_CreatesNewDictionary()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = null
+        };
+        var right = new DownstreamApiOptions
+        {
+            ExtraQueryParameters = new Dictionary<string, string>
+            {
+                { "param1", "value1" }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.ExtraQueryParameters);
+        Assert.Single(result.ExtraQueryParameters);
+        Assert.Equal("value1", result.ExtraQueryParameters["param1"]);
+    }
 }
