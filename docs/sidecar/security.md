@@ -92,24 +92,6 @@ spec:
   - port: 5000
 ```
 
-### Service Mesh Integration
-
-If using a service mesh (Istio, Linkerd), configure mTLS for pod-to-pod communication:
-
-```yaml
-apiVersion: security.istio.io/v1beta1
-kind: PeerAuthentication
-metadata:
-  name: sidecar-mtls
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: myapp
-  mtls:
-    mode: STRICT
-```
-
 ## Credential Management
 
 ### Use Managed Identity (Preferred)
