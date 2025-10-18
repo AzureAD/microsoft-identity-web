@@ -251,6 +251,9 @@ public class UserController : ControllerBase
     public async Task<ActionResult<User>> GetMe()
     {
         var inboundAuthorizationHeader = Request.Headers["Authorization"].ToString();
+        // this validates the inbound authorization header and calls the downstream API.
+        // If you don't call a downstream API, Do validate the inbound authorization header 
+        // (calling the /Validate endpoint)
         var request = new HttpRequestMessage(
             HttpMethod.Get,
             $"{_sidecarUrl}/DownstreamApi/Graph?optionsOverride.RelativePath=me"
