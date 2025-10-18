@@ -495,6 +495,52 @@ az ad app permission add \
 # ❌ Don't: --api-permissions 00000000-0000-0000-0000-000000000000=Role  # All permissions
 ```
 
+### Input Validation
+
+**Critical**: Always validate and sanitize any user input before passing it to the sidecar API as part of option overrides or parameters.
+
+When your web API receives requests from users and forwards parameters to the sidecar (such as through `optionsOverride.*` query parameters), you must validate all user-provided data to prevent injection attacks and unauthorized access:
+
+```csharp
+// ✅ Good: Validate user input before passing to sidecar
+public async Task<IActionResult> GetUserData(string userId)
+{
+    // Validate the userId format
+    if (!Guid.TryParse(userId, out _))
+    {
+        return BadRequest("Invalid user ID format");
+    }
+    
+    // Validate against allowed values
+    var allowedScopes = new[] { "User.Read", "Mail.Read" };
+    if (!allowedScopes.Contains(requestedScope))
+    {
+        return BadRequest("Requested scope not allowed");
+    }
+    
+    // Now safe to pass to sidecar
+    var response = await httpClient.GetAsync(
+        $"http://localhost:8080/DownstreamApi/graph?optionsOverride.Scopes={requestedScope}");
+    // ...
+}
+
+// ❌ Bad: Passing unvalidated user input to sidecar
+public async Task<IActionResult> GetUserData(string userInput)
+{
+    // DANGEROUS: userInput could contain malicious values
+    var response = await httpClient.GetAsync(
+        $"http://localhost:8080/DownstreamApi/api?optionsOverride.RelativePath={userInput}");
+    // ...
+}
+```
+
+**Key validation practices**:
+- Use allowlists for expected values (scopes, API names, etc.)
+- Validate format of GUIDs, URLs, and other structured data
+- Reject unexpected or suspicious input
+- Use parameterized queries and avoid string concatenation
+- Never expose sidecar endpoints directly to external users
+
 ## Compliance and Governance
 
 ### Data Residency
@@ -525,30 +571,34 @@ Configure Microsoft Entra ID Conditional Access:
 
 ## Incident Response
 
+**Important**: Always follow your organization's incident response plan. The steps below should be integrated into your existing security incident response procedures.
+
 ### Compromised Credentials
 
 If credentials are compromised:
 
-1. **Immediately Revoke**:
+1. **Follow Your Incident Response Plan**: Activate your organization's incident response procedures immediately
+
+2. **Immediately Revoke**:
    ```bash
    # Revoke application credentials
    az ad app credential reset --id $APP_ID
    ```
 
-2. **Rotate Secrets**:
+3. **Rotate Secrets**:
    - Generate new client secret or certificate
    - Update Kubernetes Secrets
    - Redeploy sidecar containers
 
-3. **Audit Access**:
+4. **Audit Access**:
    - Review Microsoft Entra ID sign-in logs
    - Check for unauthorized API access
    - Identify affected resources
 
-4. **Notify Stakeholders**:
+5. **Notify Stakeholders**:
    - Inform security team
    - Document incident
-   - Follow incident response procedures
+   - Follow escalation procedures per your incident response plan
 
 ### Token Exposure
 
