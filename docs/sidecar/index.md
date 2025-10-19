@@ -64,20 +64,6 @@ graph TB
 - [Agent Identities](agent-identities.md) - Understand agent identity patterns
 - [Security Best Practices](security.md) - Secure your sidecar deployment
 
-### Common Scenarios
-
-Explore task-focused guides:
-
-- [Validate an Authorization Header](scenarios/validate-authorization-header.md)
-- [Obtain an Authorization Header](scenarios/obtain-authorization-header.md)
-- [Call a Downstream API](scenarios/call-downstream-api.md)
-- [Use Managed Identity](scenarios/managed-identity.md)
-- [Implement Long-Running OBO](scenarios/long-running-obo.md)
-- [Use Signed HTTP Requests](scenarios/signed-http-request.md)
-- [Agent Autonomous Batch Processing](scenarios/agent-autonomous-batch.md)
-- [Integration from TypeScript](scenarios/using-from-typescript.md)
-- [Integration from Python](scenarios/using-from-python.md)
-
 ## When to Use the Sidecar
 
 **Use the sidecar when:**
