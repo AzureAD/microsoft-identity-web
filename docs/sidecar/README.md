@@ -38,6 +38,6 @@ This directory contains comprehensive documentation for the Microsoft Entra Iden
 
 | Resource | Link |
 |----------|------|
-| **Microsoft Entra ID Documentation** | https://docs.microsoft.com/en-us/azure/active-directory/ |
+| **Microsoft Entra ID Documentation** | https://learn.microsoft.com/en-us/entra/identity/ |
 | **Microsoft Identity Web GitHub Repository** | https://github.com/AzureAD/microsoft-identity-web |
-| **Microsoft Identity Platform Documentation** | https://docs.microsoft.com/en-us/azure/active-directory/develop/ |
+| **Microsoft Identity Platform Documentation** | https://learn.microsoft.com/en-us/entra/identity-platform/ |
