@@ -6,25 +6,13 @@ This guide helps you choose and implement the right approach for calling downstr
 
 Use this decision tree to select the best method for your scenario:
 
-```mermaid
-graph LR
-    A[What API are you calling?] --> B{Microsoft Graph?}
-    B -->|Yes| C[Use GraphServiceClient]
-    B -->|No| D{Azure SDK<br/>Storage, KeyVault, etc?}
-    D -->|Yes| E[Use MicrosoftIdentityTokenCredential<br/>with Azure SDK clients]
-    D -->|No| F{Custom API or<br/>other service?}
-    F -->|Yes| G{Need flexible<br/>HTTP control?}
-    G -->|No| H[Use IDownstreamApi<br/>Simple, configured approach]
-    G -->|Yes| I{Using HttpClient<br/>with DI?}
-    I -->|Yes| J[Use MicrosoftIdentityMessageHandler<br/>Composable HTTP pipeline]
-    I -->|No| K[Use IAuthorizationHeaderProvider<br/>Maximum flexibility]
-    
-    style C fill:#d4edda
-    style E fill:#d4edda
-    style H fill:#d4edda
-    style J fill:#d4edda
-    style K fill:#d4edda
-```
+| API Type / Scenario                  | Decision / Criteria                   | Recommended Client/Class                                |
+|--------------------------------------|---------------------------------------|---------------------------------------------------------|
+| Microsoft Graph                      | You need to call Microsoft Graph APIS | GraphServiceClient                                      |
+| Azure SDK (Storage, KeyVault, etc.)  | You need to call Azure APIs (Azure SDK) | MicrosoftIdentityTokenCredential with Azure SDK clients  |
+| Custom API                           | simple, configurable                  | IDownstreamApi                                          |
+| Custom API                           | using HttpClient + delegating handler | MicrosoftIdentityMessageHandler                         |
+| Custom API                           | using your HttpClient                 | IAuthorizationHeaderProvider                            |
 
 ## 📊 Comparison Table
 
