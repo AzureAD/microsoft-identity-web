@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Microsoft Entra Identity Sidecar is a containerized service that provides token acquisition and validation capabilities for applications running in distributed environments. It enables applications written in any language or framework to integrate with Microsoft Entra ID without requiring language-specific SDKs.
+The Microsoft Entra Identity Sidecar is a containerized service that provides token acquisition and validation capabilities for applications running in distributed environments. It enables applications to authenticate with Microsoft Entra ID and call protected APIs without embedding authentication SDKs directly in application code.
 
 The sidecar pattern decouples authentication logic from your application code, providing:
 
@@ -33,7 +33,7 @@ The sidecar pattern decouples authentication logic from your application code, p
 
 ## Architecture
 
-The sidecar runs as a separate container alongside your application container, typically in the same pod in Kubernetes environments. Your application communicates with the sidecar over HTTP (usually via localhost) to:
+The sidecar runs as a separate container alongside your application container, typically in the same pod in Kubernetes environments. Your application communicates with the sidecar over HTTP (usually localhost) to:
 
 1. Validate incoming tokens from client applications
 2. Acquire authorization headers (tokens) for calling downstream APIs
@@ -63,20 +63,6 @@ graph TB
 - [Endpoints Reference](endpoints.md) - HTTP API documentation
 - [Agent Identities](agent-identities.md) - Understand agent identity patterns
 - [Security Best Practices](security.md) - Secure your sidecar deployment
-
-### Common Scenarios
-
-Explore task-focused guides:
-
-- [Validate an Authorization Header](scenarios/validate-authorization-header.md)
-- [Obtain an Authorization Header](scenarios/obtain-authorization-header.md)
-- [Call a Downstream API](scenarios/call-downstream-api.md)
-- [Use Managed Identity](scenarios/managed-identity.md)
-- [Implement Long-Running OBO](scenarios/long-running-obo.md)
-- [Use Signed HTTP Requests](scenarios/signed-http-request.md)
-- [Agent Autonomous Batch Processing](scenarios/agent-autonomous-batch.md)
-- [Integration from TypeScript](scenarios/using-from-typescript.md)
-- [Integration from Python](scenarios/using-from-python.md)
 
 ## When to Use the Sidecar
 
