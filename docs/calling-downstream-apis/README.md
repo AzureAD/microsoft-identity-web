@@ -1,6 +1,6 @@
 # Calling Downstream APIs with Microsoft.Identity.Web
 
-This guide helps you choose and implement the right approach for calling downstream APIs (Microsoft Graph, Azure services, or custom APIs) from your ASP.NET Core or OWIN applications using Microsoft.Identity.Web.
+This guide helps you choose and implement the right approach for calling downstream APIs (Microsoft Graph, Azure services, or custom APIs) from your ASP.NET Core, OWIN or .NET applications using Microsoft.Identity.Web.
 
 ## 🎯 Choosing the Right Approach
 
@@ -43,8 +43,8 @@ Microsoft.Identity.Web supports three main token acquisition patterns:
 ```mermaid
 graph LR
     A[Token Acquisition] --> B[Delegated<br/>On behalf of user]
-    A --> C[App-Only<br/>Application permissions]
-    A --> D[On-Behalf-Of OBO<br/>From web API]
+    A --> C[App-Only<br/>Application permissions in all apps]
+    A --> D[On-Behalf-Of OBO<br/>in web API]
     
     B --> B1[Web Apps]
     B --> B2[Daemon acting as user / user agent]
@@ -173,7 +173,7 @@ public class StorageService
 // Startup configuration
 using Microsoft.Identity.Web;
 
-builder.Services.AddDownstreamApis("MyApi", 
+builder.Services.AddDownstreamApis(
     builder.Configuration.GetSection("DownstreamApis"));
 
 // Usage
@@ -240,7 +240,7 @@ public class ApiService
             .WithAuthenticationOptions(options => 
             {
                 options.RequestAppToken = false; // Use delegated token
-                // options.scopes = [ "scopes" ];
+                options.scopes = [ "myApi.scopes" ];
             });
             
         var response = await _httpClient.SendAsync(request);
@@ -358,11 +358,11 @@ The best approach depends on where you're calling the API from:
 ### From Web APIs  
 - **Primary pattern**: On-Behalf-Of (OBO) flow
 - **Token acquisition**: Exchange incoming token for downstream token
-- **Special considerations**: Long-running processes, token caching
+- **Special considerations**: Long-running processes, token caching, agent identities.
 
 [📖 Read the Web APIs guide](from-web-apis.md)
 
-### From Daemon Apps
+### From Daemon Apps scenarios (also happen in web apps and APIs)
 - **Primary pattern**: Application permissions (app-only)
 - **Token acquisition**: Client credentials flow
 - **Special considerations**: No user context, requires admin consent
@@ -371,7 +371,9 @@ The best approach depends on where you're calling the API from:
 
 ## ⚠️ Error Handling
 
-All token acquisition methods can throw exceptions that you should handle:
+All token acquisition methods can throw exceptions that you should handle.
+In web apps the `[AuthorizeForScope(scopes)]` attribute handles user incremental
+consent or re-signing.
 
 ```csharp
 using Microsoft.Identity.Abstractions;
@@ -397,7 +399,7 @@ catch (HttpRequestException ex)
 
 | Exception | Meaning | Solution |
 |-----------|---------|----------|
-| `MicrosoftIdentityWebChallengeUserException` | User consent required | Redirect to Azure AD for consent |
+| `MicrosoftIdentityWebChallengeUserException` | User consent required | Redirect to Azure AD for consent. Use AuthorizeForScopes attribute or ConsentHandler class |
 | `MsalUiRequiredException` | Interactive auth needed | Handle in web apps with challenge |
 | `MsalServiceException` | Azure AD service error | Check configuration, retry |
 | `HttpRequestException` | Downstream API error | Handle API-specific errors |
@@ -407,17 +409,18 @@ catch (HttpRequestException ex)
 - **[Credentials Configuration](../authentication/credentials/README.md)** - How to configure authentication credentials
 - **[Web App Scenarios](../scenarios/web-apps/README.md)** - Building web applications
 - **[Web API Scenarios](../scenarios/web-apis/README.md)** - Building and protecting APIs  
-- **[Agent Identities](../scenarios/agent-identities/README.md)** - Using agent identities with downstream APIs
+- **[Agent Identities](../scenarios/agent-identities/README.md)** - Calling downstream APIs from agent identities.
 
 ## 📦 NuGet Packages
 
 | Package | Purpose | When to Use |
 |---------|---------|-------------|
-| **Microsoft.Identity.Web** | Core authentication | Always (base package) |
+| **Microsoft.Identity.Web.TokenAcquisition** | Token acquisition services | core package |
 | **Microsoft.Identity.Web.DownstreamApi** | IDownstreamApi abstraction | Calling REST APIs |
 | **Microsoft.Identity.Web.GraphServiceClient** | Microsoft Graph integration | Calling Microsoft Graph |
 | **Microsoft.Identity.Web.Azure** | Azure SDK integration | Calling Azure services |
-| **Microsoft.Identity.Web.TokenAcquisition** | Token acquisition services | Included in core packages |
+| **Microsoft.Identity.Web** | ASP.NET Core web apps and web APIs | ASP.NET Core |
+| **Microsoft.Identity.Web.OWIN** | ASP.NET OWIN web apps and web APIs | OWIN |
 
 ## 🎓 Next Steps
 
