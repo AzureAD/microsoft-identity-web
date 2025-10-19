@@ -4,23 +4,25 @@ This directory contains comprehensive documentation for the Microsoft Entra Iden
 
 ## Start Here
 
-👉 **[Sidecar Overview](index.md)** - Begin with the overview to understand what the sidecar is and how it works.
+👉 **[Sidecar Overview](index.md)** — Overview, architecture, and key concepts
 
-## Documentation Structure
+## Documentation
 
-- **[index.md](index.md)** - Overview hub with architecture and key concepts
-- **[installation.md](installation.md)** - Container deployment and configuration
-- **[configuration.md](configuration.md)** - Configuration schema and options
-- **[agent-identities.md](agent-identities.md)** - Agent identity patterns and semantics
-- **[endpoints.md](endpoints.md)** - HTTP API reference
-- **[security.md](security.md)** - Security best practices and hardening
-- **[comparison.md](comparison.md)** - Comparison with in-process Microsoft.Identity.Web
-- **[troubleshooting.md](troubleshooting.md)** - Common issues and solutions
-- **[faq.md](faq.md)** - Frequently asked questions
+| Guide | Description |
+|-------|-------------|
+| [Overview](index.md) | Conceptual overview and architecture |
+| [Installation](installation.md) | Deploy the sidecar container |
+| [Configuration](configuration.md) | Configuration schema and options |
+| [Endpoints](endpoints.md) | HTTP API reference |
+| [Agent Identities](agent-identities.md) | Agent identity patterns |
+| [Security](security.md) | Security best practices |
+| [Comparison](comparison.md) | vs in-process Microsoft.Identity.Web |
+| [Troubleshooting](troubleshooting.md) | Common issues and solutions |
+| [FAQ](faq.md) | Frequently asked questions |
 
 ## Scenario Guides
 
-The **[scenarios/](scenarios/)** directory contains task-focused guides:
+See [scenarios/](scenarios/) for task-focused guides, or jump directly to:
 
 - [Validate an Authorization Header](scenarios/validate-authorization-header.md)
 - [Obtain an Authorization Header](scenarios/obtain-authorization-header.md)
