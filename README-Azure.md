@@ -32,41 +32,30 @@ public void ConfigureServices(IServiceCollection services)
 {
     // Register Microsoft Identity Web
     services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-             .AddMicrosoftIdentityWebAppAuthentication(Configuration);
+      .AddMicrosoftIdentityWebAppAuthentication(Configuration)
+      .EnableTokenAcquisitionToCallDownstreamApi();
 
-    services.AddTokenAcquisition(true)
-            .AddInMemoryTokenCaches();
+    services.AddInMemoryTokenCaches() // or others
 
     // Add the Azure Token Credential
     services.AddMicrosoftIdentityAzureTokenCredential();
-
-    // Register Azure services
-    services.AddAzureClients(builder =>
-    {
-        // Configure Azure Blob Storage client
-        builder.AddBlobServiceClient(new Uri("https://your-storage-account.blob.core.windows.net"));
-        // Add other Azure clients as needed
-    });
 }
 ```
 
 ### Using with Azure SDK clients
 
-Once registered, the BlobServiceClient can be injected directly into your controllers or services:
+Once registered, the MicrosoftIdentityAzureTokenCredential can be injected directly into your controllers or services:
 // Direct injection into a controller or Razor Page
 
 ```csharp
 [Authorize]
 public class BlobController : Controller
 {
-    private readonly BlobServiceClient _blobServiceClient;
     private readonly MicrosoftIdentityTokenCredential _tokenCredential;
 
     public BlobController(
-        BlobServiceClient blobServiceClient,
         MicrosoftIdentityTokenCredential tokenCredential)
     {
-        _blobServiceClient = blobServiceClient;
         _tokenCredential = tokenCredential;
     }
 
@@ -77,7 +66,8 @@ public class BlobController : Controller
         {
             // If you want to have get a blob on behalf of the app itself.
             _tokenCredential.Options.RequestAppToken = true;
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            BlobContainerClient containerClient = new BlobContainerClient(new Uri($"https://storageaccountname.blob.core.windows.net/{containername}"), _microsoftIdentityTokenCredential);
+
             var blobClient = containerClient.GetBlobClient(blobName);
 
             // Check if blob exists
@@ -104,20 +94,16 @@ For Razor Pages, you can similarly inject the client directly:
 ```csharp
 public class BlobModel : PageModel
 {
-    private readonly BlobServiceClient _blobServiceClient;
     private readonly MicrosoftIdentityTokenCredential _tokenCredential;
 
-    public BlobModel(BlobServiceClient blobServiceClient,
-        MicrosoftIdentityTokenCredential tokenCredential)
+    public BlobModel(MicrosoftIdentityTokenCredential tokenCredential)
     {
-        _blobServiceClient = blobServiceClient;
         _tokenCredential = tokenCredential;
     }
 
     public async Task<IActionResult> OnGetAsync(string containerName, string blobName)
     {
-        // Use the blob service client directly in your page handler
-        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName, _tokenCredential);
+        BlobContainerClient containerClient = new BlobContainerClient(new Uri($"https://storageaccountname.blob.core.windows.net/{containername}"), _microsoftIdentityTokenCredential);
         // ...rest of the implementation
     }
 }
