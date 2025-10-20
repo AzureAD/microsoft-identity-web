@@ -1,3 +1,15 @@
+4.0.1
+=========
+## Bugs fixes
+* Correctly compute Application Key when credential usage fails. [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3562)
+* Fix bugs where agent user identities didn't work with non-default authentication schemes. [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3568)
+
+## Fundamentals
+* Update .net version to CG compliance [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3561)
+
+## Entra ID SDK sidecar
+* Configure Sidecar to default AllowWebApiToBeAuthorizedByACL to true as the container doesn't do authZ [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3557)
+
 4.0.0
 =========
 ### Breaking Changes
