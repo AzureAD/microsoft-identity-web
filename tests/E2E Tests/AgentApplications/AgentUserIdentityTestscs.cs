@@ -83,6 +83,46 @@ namespace AgentApplicationsTests
         }
 
         [Fact]
+        public async Task AgentUserIdentityGetsTokenOtherAuthenticationSchemeAsync()
+        {
+            string alternateAuthenticationScheme = "AlternateScheme";
+            IServiceCollection services = new ServiceCollection();
+
+            // Configure the information about the agent application
+            services.Configure<MicrosoftIdentityApplicationOptions>(alternateAuthenticationScheme,
+                options =>
+                {
+                    options.Instance = instance;
+                    options.TenantId = tenantId; // Replace with your tenant ID
+                    options.ClientId = agentApplication; // Agent application.
+                    options.ClientCredentials = [
+                        CertificateDescription.FromStoreWithDistinguishedName(
+                            "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
+                    ];
+                });
+            IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
+
+            // Get an authorization header and handle the call to the downstream API yourself
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
+            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
+                agentApplicationId: agentIdentity,
+                username: userUpn
+                );
+            options.AcquireTokenOptions.AuthenticationOptionsName = alternateAuthenticationScheme;
+
+            string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                scopes: ["https://graph.microsoft.com/.default"],
+                options);
+            Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+        }
+
+        [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphWithTenantOverrideAsync()
         {
             IServiceCollection services = new ServiceCollection();
