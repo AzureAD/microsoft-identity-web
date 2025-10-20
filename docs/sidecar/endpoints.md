@@ -53,9 +53,15 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
     "iat": 1234567890,
     "nbf": 1234567890,
     "exp": 1234571490,
+    "acr": "1",
+    "appid": "client-id",
+    "appidacr": "1",
+    "idp": "https://sts.windows.net/tenant-id/",
     "oid": "user-object-id",
     "tid": "tenant-id",
     "scp": "access_as_user"
+    "sub": "subject",
+    "ver": "1.0"
   }
 }
 ```
@@ -96,10 +102,10 @@ Acquires an access token for the configured downstream API and returns it as an 
 | `AgentUserId` | string | User object ID (delegated agent) | `?AgentIdentity=<id>&AgentUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee` |
 
 Rules:
-- `AgentUsername` or `AgentUserId` require `AgentIdentity`.
+- `AgentUsername` or `AgentUserId` require `AgentIdentity` (user agent).
 - `AgentUsername` and `AgentUserId` are mutually exclusive.
 - `AgentIdentity` alone = autonomous agent.
-- `AgentIdentity` + user identifier = delegated agent.
+- `AgentIdentity` + user inbound token = delegated agent.
 
 ### Examples
 ```http
@@ -111,7 +117,7 @@ GET /AuthorizationHeader/Graph?optionsOverride.RequestAppToken=true HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 ```http
-GET /AuthorizationHeader/Graph?AgentIdentity=agent-client-id HTTP/1.1
+GET /AuthorizationHeader/Graph?AgentIdentity=agent-id HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 
@@ -232,9 +238,17 @@ AgentUsername=<user-upn>            # Requires AgentIdentity
 AgentUserId=<user-object-id>        # Requires AgentIdentity
 ```
 
+### Examples of override
+
+**Override scopes**:
+```http
+GET /AuthorizationHeader/Graph?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read HTTP/1.1
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
+```
+
 ## Rate Limiting
 The Sidecar itself does not impose rate limits. Effective limits come from:
-1. Microsoft Entra ID token service throttling
+1. Microsoft Entra ID token service throttling (shouldn't happen as the sidecar caches token)
 2. Downstream API limits
 3. Token cache efficiency (reduces acquisition volume)
 
