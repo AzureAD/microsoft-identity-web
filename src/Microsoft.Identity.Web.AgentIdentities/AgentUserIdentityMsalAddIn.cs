@@ -43,8 +43,7 @@ namespace Microsoft.Identity.Web.AgentIdentities
 
                         // Get the FIC token for the agent application.
                         string authenticationScheme = authenticationSchemeInformationProvider.GetEffectiveAuthenticationScheme(options.AuthenticationOptionsName);
-                        ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationScheme);
-                        ITokenAcquirer agentApplicationTokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
+                        ITokenAcquirer agentApplicationTokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(authenticationScheme);
                         AcquireTokenResult aaFic = await agentApplicationTokenAcquirer.GetFicTokenAsync(new() { Tenant = options.Tenant, FmiPath = agentIdentity }); // Uses the regular client credentials
                         string? clientAssertion = aaFic.AccessToken;
 
