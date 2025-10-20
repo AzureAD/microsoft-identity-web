@@ -2,101 +2,96 @@
 
 ## Overview
 
-The Microsoft Entra Identity Sidecar is a containerized service that provides token acquisition and validation capabilities for applications running in distributed environments. It enables applications written in any language or framework to integrate with Microsoft Entra ID without requiring language-specific SDKs.
+The Microsoft Entra Identity Sidecar is a containerized service that handles token acquisition, validation, and secure downstream calls so your application code stays focused on business logic. You offload identity concerns to a companion container.
 
-The sidecar pattern decouples authentication logic from your application code, providing:
-
-- **Language Agnostic**: Call the sidecar from any language via HTTP APIs
-- **Simplified Deployment**: Centralized authentication configuration and token management
-- **Enhanced Security**: Token caching and secure credential storage isolated from application code
-- **Reduced Dependencies**: No need for language-specific Microsoft.Identity.Web packages in your application
-
-## Key Capabilities
-
-### Token Acquisition
-- Acquire access tokens for downstream APIs using various flows:
-  - On-Behalf-Of (OBO) flow for user delegation scenarios
-  - Client credentials flow for application-to-application scenarios
-  - Managed Identity support for Azure-hosted applications
-- Support for agent identities (autonomous and delegated scenarios)
-- Token caching and lifecycle management
-
-### Token Validation
-- Validate incoming bearer tokens
-- Decrypt encrypted tokens
-- Extract and surface token claims
-
-### Downstream API Integration
-- Simplified HTTP calls to protected APIs with automatic token attachment
-- Configurable request/response handling
-- Support for Signed HTTP Requests (SHR)
 
 ## Architecture
 
-The sidecar runs as a separate container alongside your application container, typically in the same pod in Kubernetes environments. Your application communicates with the sidecar over HTTP (usually via localhost) to:
-
-1. Validate incoming tokens from client applications
-2. Acquire authorization headers (tokens) for calling downstream APIs
-3. Make authenticated HTTP calls to downstream services
+A typical flow: a client calls your Web API. The Web API delegates identity operations to the Sidecar via its HTTP endpoints. The Sidecar validates inbound tokens (/Validate), acquires tokens (/AuthorizationHeader and /AuthorizationHeaderUnauthenticated), and can directly invoke downstream APIs (/DownstreamApi and /DownstreamApiUnauthenticated). It interacts with Microsoft Entra ID for token issuance and Open ID Connect metadata retrieval.
 
 ```mermaid
-graph TB
-    subgraph pod["Kubernetes Pod"]
-        app["Application<br/>Container"]
-        sidecar["Sidecar<br/>Container"]
-        app -->|HTTP| sidecar
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "background": "#121212",
+    "primaryColor": "#1E1E1E",
+    "primaryBorderColor": "#FFFFFF",
+    "primaryTextColor": "#FFFFFF",
+    "textColor": "#FFFFFF",
+    "lineColor": "#FFFFFF",
+    "labelBackground": "#000000"
+  }
+}}%%
+flowchart LR
+    classDef dnode fill:#1E1E1E,stroke:#FFFFFF,stroke-width:2px,color:#FFFFFF
+    linkStyle default stroke:#FFFFFF,stroke-width:2px,color:#FFFFFF
+
+    client[Client Application]:::dnode -->| Bearer over HTTP | webapi[Web API]:::dnode
+    subgraph Pod / Host
+        webapi -->|"/Validate<br/>/AuthorizationHeader/{name}<br/>/DownstreamApi/{name}"| sidecar[Identity Sidecar]:::dnode
     end
-    sidecar -->|Authentication| entra["Microsoft Entra ID"]
-    
-    style pod fill:#f0f0f0,stroke:#333,stroke-width:2px
-    style app fill:#e1f5ff,stroke:#0078d4,stroke-width:2px
-    style sidecar fill:#fff4e1,stroke:#ff8c00,stroke-width:2px
-    style entra fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    sidecar -->|Token validation & acquisition| entra[Microsoft Entra ID]:::dnode
 ```
 
-## Getting Started
+Benefits:
 
-### Quick Links
+- **Language agnostic** – Call over HTTP from any stack.
+- **Centralized config** – One place for identity settings and secrets.
+- **Improved security posture** – Keep tokens and credentials out of app code.
+- **Lower dependency footprint** – No Microsoft.Identity.Web library needed in non-.NET apps.
 
-- [Installation Guide](installation.md) - Deploy the sidecar container
-- [Configuration Reference](configuration.md) - Configure authentication settings
-- [Endpoints Reference](endpoints.md) - HTTP API documentation
-- [Agent Identities](agent-identities.md) - Understand agent identity patterns
-- [Security Best Practices](security.md) - Secure your sidecar deployment
+## Key Capabilities
+
+### Token Validation
+- Validate bearer tokens
+- (Optional) decrypt encrypted tokens
+- Surface claims for authorization decisions
+
+### Token Acquisition / Authorization header creation
+- On-Behalf-Of OAuth 2.0 flow (user delegation)
+- Client credentials OAuth 2.0 flow (application-to-application)
+- Managed identity (Azure hosting scenarios)
+- Agent identities (autonomous or delegated)
+- Caching and lifecycle management
+
+### Downstream API Calls
+- Acquire and attach tokens automatically
+- Optional request overrides (scopes, method, headers)
+- Signed HTTP Requests (PoP/SHR) support
 
 ## When to Use the Sidecar
 
-**Use the sidecar when:**
-- Building microservices in multiple languages that need Microsoft Entra authentication
-- Deploying in Kubernetes or container orchestration environments
-- Wanting to centralize authentication configuration
-- Building applications in languages without Microsoft.Identity.Web support
+### Use the Sidecar when:
+- You have polyglot microservices.
+- You run in containers (Kubernetes, Docker).
+- You want a consistent identity surface across services.
+- You need agent identity patterns in languages other than .NET
+- You need Entra token validation in languages other than .NET
+- You prefer isolating secrets and token handling.
 
-**Use in-process Microsoft.Identity.Web when:**
-- Building ASP.NET Core applications exclusively
-- Wanting maximum performance with zero HTTP overhead
-- Requiring direct access to MSAL.NET features
-- Working in non-containerized environments
+### Use in-process Microsoft.Identity.Web when:
+- All services are in .NET.
+- You want maximum performance (no extra hop).
+- You are not containerized.
 
-See [Comparison with Microsoft.Identity.Web](comparison.md) for detailed migration guidance.
+See the **[Comparison Guide](comparison.md)** for nuances.
 
-## Support and Resources
+## Getting Started
 
-- [Troubleshooting Guide](troubleshooting.md)
-- [Frequently Asked Questions](faq.md)
-- [Microsoft Entra ID Documentation](https://docs.microsoft.com/en-us/azure/active-directory/)
-- [Microsoft Identity Web GitHub Repository](https://github.com/AzureAD/microsoft-identity-web)
+Next steps:
+1. **Install** – Pull and run the container: [Installation](installation.md)
+2. **Configure** – Define identity settings: [Configuration](configuration.md)
+3. **Call Endpoints** – Use the HTTP API: [Endpoints](endpoints.md)
+4. **Pick a Scenario** – Try a focused guide: [README navigation](README.md)
 
 ## Container Image
-
-The sidecar is available as a container image:
 
 ```
 mcr.microsoft.com/entra-sdk/auth-sidecar:<tag>
 ```
 
-> **Note**: The container image is currently in preview. Check the [installation guide](installation.md) for the latest image coordinates and version information.
+> Note: The image is currently in preview. See [Installation](installation.md) for supported tags.
 
 ## License
 
-The Microsoft Entra Identity Sidecar is released under the MIT License.
+MIT License.
