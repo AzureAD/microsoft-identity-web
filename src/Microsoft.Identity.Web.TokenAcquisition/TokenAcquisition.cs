@@ -190,9 +190,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -218,7 +219,8 @@ namespace Microsoft.Identity.Web
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
-            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion);
+            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
 
         /// <summary>
@@ -316,9 +318,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -680,9 +683,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -896,9 +900,7 @@ namespace Microsoft.Identity.Web
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions)
         {
-            // Use all credentials to compute a credential chain ID. Each individual ID should be unique.
-            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
-            string key = GetApplicationKey(mergedOptions) + credentialId;
+            string key = GetApplicationKey(mergedOptions);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -917,6 +919,9 @@ namespace Microsoft.Identity.Web
 
                 // Build and store the application
                 var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+
+                // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
+                key = GetApplicationKey(mergedOptions);
                 _applicationsByAuthorityClientId[key] = newApp;
                 return newApp;
             }
