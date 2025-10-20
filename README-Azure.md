@@ -31,9 +31,11 @@ using Microsoft.Identity.Web;
 public void ConfigureServices(IServiceCollection services)
 {
     // Register Microsoft Identity Web
-    services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
-        .EnableTokenAcquisitionToCallDownstreamApi()
-        .AddInMemoryTokenCaches();
+    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+             .AddMicrosoftIdentityWebAppAuthentication(Configuration);
+
+    services.AddTokenAcquisition(true)
+            .AddInMemoryTokenCaches();
 
     // Add the Azure Token Credential
     services.AddMicrosoftIdentityAzureTokenCredential();
@@ -41,9 +43,6 @@ public void ConfigureServices(IServiceCollection services)
     // Register Azure services
     services.AddAzureClients(builder =>
     {
-        // Use the Microsoft Identity credential for all Azure clients
-        builder.UseCredential(sp => sp.GetRequiredService<MicrosoftIdentityTokenCredential>());
-
         // Configure Azure Blob Storage client
         builder.AddBlobServiceClient(new Uri("https://your-storage-account.blob.core.windows.net"));
         // Add other Azure clients as needed
@@ -65,7 +64,7 @@ public class BlobController : Controller
 
     public BlobController(
         BlobServiceClient blobServiceClient,
-        MicrosoftIdentityTokenCredential tokenCredential) // Optional: inject if you need to modify token behavior
+        MicrosoftIdentityTokenCredential tokenCredential)
     {
         _blobServiceClient = blobServiceClient;
         _tokenCredential = tokenCredential;
@@ -106,16 +105,19 @@ For Razor Pages, you can similarly inject the client directly:
 public class BlobModel : PageModel
 {
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly MicrosoftIdentityTokenCredential _tokenCredential;
 
-    public BlobModel(BlobServiceClient blobServiceClient)
+    public BlobModel(BlobServiceClient blobServiceClient,
+        MicrosoftIdentityTokenCredential tokenCredential)
     {
         _blobServiceClient = blobServiceClient;
+        _tokenCredential = tokenCredential;
     }
 
     public async Task<IActionResult> OnGetAsync(string containerName, string blobName)
     {
         // Use the blob service client directly in your page handler
-        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName, _tokenCredential);
         // ...rest of the implementation
     }
 }
