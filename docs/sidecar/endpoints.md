@@ -1,53 +1,48 @@
 # Endpoints Reference
 
-This document provides comprehensive reference for all HTTP endpoints exposed by the Microsoft Entra Identity Sidecar.
+This document provides reference for the HTTP endpoints exposed by the Microsoft Entra Identity Sidecar.
 
-**Note for agents**
-The Open API spec is also available from <a href="https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.Sidecar/OpenAPI/Microsoft.Identity.Web.Sidecar.json">https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.Sidecar/OpenAPI/Microsoft.Identity.Web.Sidecar.json</a>. From it you can:
-- auto-generate client libraries or code from the calling API
-- validate request before sending
-- have tools that auto-discover available endpoints
+**OpenAPI specification**: Available at `/openapi/v1.json` (development environment) and in the repository: https://github.com/AzureAD/microsoft-identity-web/blob/master/src/Microsoft.Identity.Web.Sidecar/OpenAPI/Microsoft.Identity.Web.Sidecar.json
+Use it to:
+- Generate client code
+- Validate requests
+- Discover available endpoints
 
 ## Endpoint Overview
 
-The sidecar exposes the following endpoints:
-
-| Endpoint | Method | Purpose | Auth Required |
-|----------|--------|---------|---------------|
-| `/Validate` | GET | Validate incoming bearer token | Yes |
-| `/AuthorizationHeader/{serviceName}` | GET | Validates the inbound authorization header and get an authorization header for a downstream API | Yes |
-| `//AuthorizationHeaderUnauthenticated//{serviceName}` | GET | Get an authorization header for a downstream API called with an app token | Yes |
-| `/DownstreamApi/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Validates the inbound authorization header and call a downstream API with automatic token acquisition | Yes |
-| `/DownstreamApiUnauthenticated/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Call a downstream API with automatic token acquisition (app token or agent identity only) | Yes |
-| `/healthz` | GET | Health check endpoint | No |
-| `/openapi/v1.json` | GET | OpenAPI specification | No (Dev only) |
+| Endpoint | Method(s) | Purpose | Auth Required |
+|----------|-----------|---------|---------------|
+| `/Validate` | GET | Validate an inbound bearer token and return claims | Yes |
+| `/AuthorizationHeader/{serviceName}` | GET | Validate inbound token (if present) and acquire an authorization header for a downstream API | Yes |
+| `/AuthorizationHeaderUnauthenticated/{serviceName}` | GET | Acquire an authorization header (app or agent identity) with no inbound user token | Yes |
+| `/DownstreamApi/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Validate inbound token (if present) and call downstream API with automatic token acquisition | Yes |
+| `/DownstreamApiUnauthenticated/{serviceName}` | GET, POST, PUT, PATCH, DELETE | Call downstream API (app or agent identity only) | Yes |
+| `/healthz` | GET | Health probe (liveness/readiness) | No |
+| `/openapi/v1.json` | GET | OpenAPI 3.0 document | No (Dev only) |
 
 ## Authentication
 
-All token acquisition and validation endpoints require authentication via bearer token in the Authorization header:
+All token acquisition and validation endpoints require a bearer token in the `Authorization` header unless explicitly marked unauthenticated.
 
 ```http
 GET /AuthorizationHeader/Graph
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 
-The bearer token is validated against the configured Azure AD settings and must contain the required scopes if scope validation is enabled.
+Tokens are validated against configured Microsoft Entra ID settings (tenant, audience, issuer, scopes if enabled).
 
+---
 ## /Validate
 
-Validates the incoming bearer token and returns its claims.
+Validates the inbound bearer token and returns its claims.
 
 ### Request
-
 ```http
 GET /Validate HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 
-### Response
-
-**Success (200 OK)**:
-
+### Successful Response (200)
 ```json
 {
   "protocol": "Bearer",
@@ -58,440 +53,203 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
     "iat": 1234567890,
     "nbf": 1234567890,
     "exp": 1234571490,
-    "acr": "1",
-    "aio": "...",
-    "appid": "client-id",
-    "appidacr": "1",
-    "idp": "https://sts.windows.net/tenant-id/",
     "oid": "user-object-id",
-    "rh": "...",
-    "sub": "subject",
     "tid": "tenant-id",
-    "uti": "...",
-    "ver": "1.0",
     "scp": "access_as_user"
   }
 }
 ```
 
-**Error (400 Bad Request)**:
-
+### Error Examples
 ```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "No token found"
-}
+// 400 Bad Request - No token
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1", "title": "Bad Request", "status": 400, "detail": "No token found" }
+
+// 401 Unauthorized - Invalid token
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1", "title": "Unauthorized", "status": 401 }
 ```
 
-**Error (401 Unauthorized)**:
-
-Invalid or missing token.
-
+---
 ## /AuthorizationHeader/{serviceName}
 
-Acquires an access token for the specified downstream API and returns it formatted as an Authorization header value.
+Acquires an access token for the configured downstream API and returns it as an authorization header value. If a user bearer token is provided inbound, OBO (delegated) is used; otherwise app context patterns apply (if enabled).
 
-### Path Parameters
-
-- `serviceName` - The name of the downstream API as configured in `DownstreamApis` section
+### Path Parameter
+- `serviceName` – Name of the downstream API in configuration.
 
 ### Query Parameters
 
-#### Standard Override Parameters
-
+#### Standard Overrides
 | Parameter | Type | Description | Example |
 |-----------|------|-------------|---------|
-| `optionsOverride.Scopes` | string[] | Override scopes (can be repeated) | `?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read` |
-| `optionsOverride.RequestAppToken` | boolean | Request application token instead of OBO | `?optionsOverride.RequestAppToken=true` |
+| `optionsOverride.Scopes` | string[] | Override configured scopes (repeatable) | `?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read` |
+| `optionsOverride.RequestAppToken` | boolean | Force app-only token (skip OBO) | `?optionsOverride.RequestAppToken=true` |
 | `optionsOverride.AcquireTokenOptions.Tenant` | string | Override tenant ID | `?optionsOverride.AcquireTokenOptions.Tenant=tenant-guid` |
-| `optionsOverride.AcquireTokenOptions.PopPublicKey` | string | Enable SHR with public key (base64) | `?optionsOverride.AcquireTokenOptions.PopPublicKey=base64key` |
-| `optionsOverride.AcquireTokenOptions.PopClaims` | string | Additional PoP claims (JSON) | `?optionsOverride.AcquireTokenOptions.PopClaims={"claim":"value"}` |
+| `optionsOverride.AcquireTokenOptions.PopPublicKey` | string | Enable PoP/SHR (base64 public key) | `?optionsOverride.AcquireTokenOptions.PopPublicKey=base64key` |
+| `optionsOverride.AcquireTokenOptions.PopClaims` | string | Additional PoP claims (JSON) | `?optionsOverride.AcquireTokenOptions.PopClaims={"nonce":"abc"}` |
 
-#### Agent Identity Parameters
-
+#### Agent Identity
 | Parameter | Type | Description | Example |
 |-----------|------|-------------|---------|
-| `AgentIdentity` | string | Agent application client ID | `?AgentIdentity=12345678-...` |
-| `AgentUsername` | string | User principal name for delegated agent | `?AgentUsername=user@contoso.com` |
-| `AgentUserId` | string | User object ID (GUID) for delegated agent | `?AgentUserId=87654321-...` |
+| `AgentIdentity` | string | Agent app (client) ID | `?AgentIdentity=11111111-2222-3333-4444-555555555555` |
+| `AgentUsername` | string | User principal name (delegated agent) | `?AgentIdentity=<id>&AgentUsername=user@contoso.com` |
+| `AgentUserId` | string | User object ID (delegated agent) | `?AgentIdentity=<id>&AgentUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee` |
 
-**Agent Identity Rules**:
-- `AgentUsername` or `AgentUserId` **require** `AgentIdentity`
-- `AgentUsername` and `AgentUserId` are **mutually exclusive**
-- `AgentIdentity` alone = autonomous agent (application context)
-- `AgentIdentity` + `AgentUsername`/`AgentUserId` = delegated agent (user context)
+Rules:
+- `AgentUsername` or `AgentUserId` require `AgentIdentity`.
+- `AgentUsername` and `AgentUserId` are mutually exclusive.
+- `AgentIdentity` alone = autonomous agent.
+- `AgentIdentity` + user identifier = delegated agent.
 
-See [Agent Identities](agent-identities.md) for detailed semantics.
-
-### Request Examples
-
-**Basic request**:
+### Examples
 ```http
 GET /AuthorizationHeader/Graph HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
-
-**Override scopes**:
-```http
-GET /AuthorizationHeader/Graph?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-**Request application token**:
 ```http
 GET /AuthorizationHeader/Graph?optionsOverride.RequestAppToken=true HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
-
-**Multi-tenant override**:
-```http
-GET /AuthorizationHeader/Graph?optionsOverride.AcquireTokenOptions.Tenant=tenant-guid HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-**Autonomous agent**:
 ```http
 GET /AuthorizationHeader/Graph?AgentIdentity=agent-client-id HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 ```
 
-**Autonomous agent with user agent identity specified by username**:
-```http
-GET /AuthorizationHeader/Graph?AgentIdentity=agent-client-id&AgentUsername=user@contoso.com HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-**Signed HTTP Request (SHR)**:
-```http
-GET /AuthorizationHeader/Graph?optionsOverride.AcquireTokenOptions.PopPublicKey=base64EncodedPublicKey HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-### Response
-
-**Success (200 OK)**:
-
+### Responses
 ```json
-{
-  "authorizationHeader": "Bearer eyJ0eXAiOiJKV1QiLCJhbGc..."
-}
+{ "authorizationHeader": "Bearer eyJ0eXAiOiJKV1QiLCJhbGc..." }
 ```
-
-For SHR requests, the authorization header will use the PoP scheme:
-
+PoP / SHR example:
 ```json
-{
-  "authorizationHeader": "PoP eyJ0eXAiOiJhdCtqd3QiLCJhbGc..."
-}
+{ "authorizationHeader": "PoP eyJ0eXAiOiJhdCtqd3QiLCJhbGc..." }
 ```
 
-**Error Responses**:
-
-```json
-// 400 Bad Request - Invalid parameters
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "AgentUsername requires AgentIdentity to be specified"
-}
-
-// 401 Unauthorized - Token validation failed
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Unauthorized",
-  "status": 401
-}
-
-// 404 Not Found - Service name not configured
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-  "title": "Not Found",
-  "status": 404,
-  "detail": "Downstream API 'UnknownService' not configured"
-}
-```
-
+---
 ## /AuthorizationHeaderUnauthenticated/{serviceName}
 
-The configuration and parameters are the same as `/AuthorizationHeader/{serviceName}` but, as an optimization, you don't provide an inbound authorization header (no user context), and therefore you can only request outbound authorization headers with app tokens (RequestAppToken=true), or for user agent identities. Make sure that you always call /Validate first, though in your web API.
+Same behavior and parameters as `/AuthorizationHeader/{serviceName}` but no inbound user token is expected. Used for app-only or autonomous/agent identity acquisition without a user context. Avoids the overhead of validating a user token.
 
+---
 ## /DownstreamApi/{serviceName}
 
-Acquires an access token and makes an HTTP request to the downstream API, returning the response.
+Acquires an access token and performs an HTTP request to the downstream API. Returns status code, headers, and body from the downstream response. Supports user OBO, app-only, or agent identity patterns.
 
-### Path Parameters
+### Path Parameter
+- `serviceName` – Configured downstream API name.
 
-- `serviceName` - The name of the downstream API as configured in `DownstreamApis` section of the configuration
-
-### Query Parameters
-
-Supports all parameters from `/AuthorizationHeader/{serviceName}` plus:
-
+### Additional Query Parameters (in addition to `/AuthorizationHeader` parameters)
 | Parameter | Type | Description | Example |
 |-----------|------|-------------|---------|
-| `optionsOverride.HttpMethod` | string | HTTP method to use | `?optionsOverride.HttpMethod=POST` |
-| `optionsOverride.RelativePath` | string | Relative path to append to BaseUrl | `?optionsOverride.RelativePath=me/messages` |
-| `optionsOverride.CustomHeader.<name>` | string | Custom header to add | `?optionsOverride.CustomHeader.X-Custom=value` |
+| `optionsOverride.HttpMethod` | string | Override HTTP method | `?optionsOverride.HttpMethod=POST` |
+| `optionsOverride.RelativePath` | string | Append relative path to configured BaseUrl | `?optionsOverride.RelativePath=me/messages` |
+| `optionsOverride.CustomHeader.<Name>` | string | Add custom header(s) | `?optionsOverride.CustomHeader.X-Custom=value` |
 
-### Request Body
-
-The request body is forwarded to the downstream API:
-
+### Request Body Forwarding
+Body is passed through unchanged:
 ```http
 POST /DownstreamApi/Graph?optionsOverride.RelativePath=me/messages HTTP/1.1
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
 Content-Type: application/json
 
-{
-  "subject": "Test Message",
-  "body": {
-    "contentType": "Text",
-    "content": "Hello, World!"
-  },
-  "toRecipients": [
-    {
-      "emailAddress": {
-        "address": "recipient@contoso.com"
-      }
-    }
-  ]
-}
+{ "subject": "Hello", "body": { "contentType": "Text", "content": "Hello world" } }
 ```
 
-### Request Examples
-
-**GET request**:
-```http
-GET /DownstreamApi/Graph?optionsOverride.RelativePath=me HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-**POST request**:
-```http
-POST /DownstreamApi/MyApi?optionsOverride.RelativePath=items HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-Content-Type: application/json
-
-{
-  "name": "New Item",
-  "description": "Item description"
-}
-```
-
-**Custom headers**:
-```http
-GET /DownstreamApi/Graph?optionsOverride.RelativePath=me&optionsOverride.CustomHeader.X-Custom=value HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-**Agent with relative path**:
-```http
-GET /DownstreamApi/Graph?AgentIdentity=agent-id&optionsOverride.RelativePath=users HTTP/1.1
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
-
-### Response
-
-**Success (200 OK)**:
-
+### Response (Example)
 ```json
 {
   "statusCode": 200,
-  "headers": {
-    "content-type": "application/json; charset=utf-8",
-    "request-id": "...",
-    "client-request-id": "...",
-    "x-ms-ags-diagnostic": "...",
-    "date": "..."
-  },
-  "content": "{\"@odata.context\":\"...\",\"displayName\":\"...\",\"mail\":\"...\"}"
+  "headers": { "content-type": "application/json" },
+  "content": "{\"@odata.context\":\"...\",\"displayName\":\"...\"}"
 }
 ```
 
-The response includes:
-- `statusCode` - HTTP status code from downstream API
-- `headers` - Response headers from downstream API
-- `content` - Response body from downstream API (as string)
+Errors mirror `/AuthorizationHeader` plus downstream API error status codes.
 
-**Error Responses**:
+---
+## /DownstreamApiUnauthenticated/{serviceName}
 
-Similar to `/AuthorizationHeader/{serviceName}`, plus downstream API errors are returned with their original status codes.
+Same as `/DownstreamApi/{serviceName}` but no inbound user token is validated. Use for app-only or autonomous agent operations.
 
+---
 ## /healthz
 
-Health check endpoint for liveness and readiness probes.
+Basic health probe.
+- 200 OK when healthy
+- 503 Service Unavailable when failing internal checks
 
-### Request
-
-```http
-GET /healthz HTTP/1.1
-```
-
-### Response
-
-**Healthy**: Returns HTTP 200 OK
-
-**Unhealthy**: Returns HTTP 503 Service Unavailable
-
+---
 ## /openapi/v1.json
 
-OpenAPI specification for the sidecar API (available in Development environment only).
+Returns OpenAPI 3.0 specification (development environment only).
 
-### Request
-
-```http
-GET /openapi/v1.json HTTP/1.1
-```
-
-### Response
-
-Returns OpenAPI 3.0 specification as JSON.
-
+---
 ## Error Patterns
 
 ### Common Error Responses
-
-**400 Bad Request - Missing Required Parameter**:
 ```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "Service name is required"
-}
+// 400 Bad Request - Missing service name
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1", "title": "Bad Request", "status": 400, "detail": "Service name is required" }
+
+// 400 Bad Request - Invalid agent combination
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1", "title": "Bad Request", "status": 400, "detail": "AgentUsername and AgentUserId are mutually exclusive" }
+
+// 401 Unauthorized - Invalid token
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1", "title": "Unauthorized", "status": 401 }
+
+// 403 Forbidden - Missing scope
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3", "title": "Forbidden", "status": 403, "detail": "The scope 'access_as_user' is required" }
+
+// 404 Not Found - Service not configured
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4", "title": "Not Found", "status": 404, "detail": "Downstream API 'UnknownService' not configured" }
+
+// 500 Internal Server Error - Token acquisition failure
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1", "title": "Internal Server Error", "status": 500, "detail": "Failed to acquire token for downstream API" }
 ```
 
-**400 Bad Request - Invalid Agent Parameter Combination**:
+### MSAL Error Example
 ```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "AgentUsername and AgentUserId are mutually exclusive"
-}
+{ "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1", "title": "Internal Server Error", "status": 500, "detail": "MSAL.NetCore.invalid_grant: AADSTS50076: Due to a configuration change ...", "extensions": { "errorCode": "invalid_grant", "correlationId": "..." } }
 ```
 
-**400 Bad Request - Agent Parameter Without Identity**:
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "AgentUsername requires AgentIdentity to be specified"
-}
-```
-
-**401 Unauthorized - Invalid Token**:
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "Unauthorized",
-  "status": 401
-}
-```
-
-**403 Forbidden - Insufficient Scopes**:
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
-  "title": "Forbidden",
-  "status": 403,
-  "detail": "The scope 'access_as_user' is required"
-}
-```
-
-**404 Not Found - Service Not Configured**:
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-  "title": "Not Found",
-  "status": 404,
-  "detail": "Downstream API 'UnknownService' not configured"
-}
-```
-
-**500 Internal Server Error - Token Acquisition Failed**:
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-  "title": "Internal Server Error",
-  "status": 500,
-  "detail": "Failed to acquire token for downstream API"
-}
-```
-
-### MSAL Errors
-
-When token acquisition fails, MSAL error details may be included:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-  "title": "Internal Server Error",
-  "status": 500,
-  "detail": "MSAL.NetCore.4.56.0.invalid_grant: AADSTS50076: Due to a configuration change made by your administrator, or because you moved to a new location, you must use multi-factor authentication to access...",
-  "extensions": {
-    "errorCode": "invalid_grant",
-    "correlationId": "..."
-  }
-}
-```
-
+---
 ## Complete Override Reference
 
-### Token Acquisition Overrides
-
-```
-optionsOverride.Scopes=<scope>                          # Can be repeated
+```text
+optionsOverride.Scopes=<scope>                     # Repeatable
 optionsOverride.RequestAppToken=<true|false>
 optionsOverride.BaseUrl=<url>
 optionsOverride.RelativePath=<path>
 optionsOverride.HttpMethod=<method>
-
 optionsOverride.AcquireTokenOptions.Tenant=<tenant-id>
 optionsOverride.AcquireTokenOptions.AuthenticationScheme=<scheme>
 optionsOverride.AcquireTokenOptions.CorrelationId=<guid>
 optionsOverride.AcquireTokenOptions.PopPublicKey=<base64-key>
 optionsOverride.AcquireTokenOptions.PopClaims=<json>
+optionsOverride.CustomHeader.<Name>=<value>
 
-optionsOverride.CustomHeader.<name>=<value>             # Custom headers
-```
-
-### Agent Identity Parameters
-
-```
 AgentIdentity=<agent-client-id>
-AgentUsername=<user-upn>                                # Requires AgentIdentity
-AgentUserId=<user-object-id>                            # Requires AgentIdentity
+AgentUsername=<user-upn>            # Requires AgentIdentity
+AgentUserId=<user-object-id>        # Requires AgentIdentity
 ```
 
 ## Rate Limiting
-
-The sidecar does not implement rate limiting itself but relies on:
-
-1. **Microsoft Entra ID throttling**: Token requests are subject to Microsoft Entra ID rate limits
-2. **Downstream API limits**: API calls are subject to the target API's rate limiting
-3. **Token caching**: Reduces token acquisition requests through intelligent caching
-
-Monitor token cache hit rates and adjust cache configuration if needed.
+The Sidecar itself does not impose rate limits. Effective limits come from:
+1. Microsoft Entra ID token service throttling
+2. Downstream API limits
+3. Token cache efficiency (reduces acquisition volume)
 
 ## Best Practices
-
-1. **Use Configuration Over Overrides**: Configure downstream APIs in settings; use overrides for exceptional cases
-2. **Cache Service Names**: Don't construct service names dynamically; use configured names
-3. **Handle All Error Codes**: Implement retry logic for transient errors (500, 503)
-4. **Validate Agent Parameters**: Check agent identity parameter combinations before making requests
-5. **Monitor Token Acquisition**: Track token acquisition latency and failure rates
-6. **Use Health Checks**: Configure proper liveness and readiness probes
-7. **Log Correlation IDs**: Use correlation IDs for request tracing across services
+1. Prefer configuration over ad-hoc overrides.
+2. Keep service names static and declarative.
+3. Implement retry policies for transient failures (HTTP 500/503).
+4. Validate agent parameters before calling.
+5. Log correlation IDs for tracing across services.
+6. Monitor token acquisition latency and error rates.
+7. Use health probes in orchestration platforms.
 
 ## Next Steps
-
-- [Configuration Reference](configuration.md) - Configure downstream APIs
-- [Agent Identities](agent-identities.md) - Understand agent identity patterns
-- [Security Best Practices](security.md) - Secure your endpoints
-- [Scenarios](scenarios/README.md) - Practical usage examples
-- [Troubleshooting](troubleshooting.md) - Resolve endpoint errors
+- [Configuration](configuration.md)
+- [Agent Identities](agent-identities.md)
+- [Security](security.md)
+- [Scenarios](README.md#scenario-guides)
+- [Troubleshooting](troubleshooting.md)
