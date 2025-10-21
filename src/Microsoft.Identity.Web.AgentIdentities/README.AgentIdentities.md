@@ -434,7 +434,7 @@ var response = await httpClient.SendAsync(request);
 
 The `MicrosoftIdentityMessageHandler` provides a flexible, composable way to add authentication to your HttpClient-based code while maintaining full compatibility with existing Microsoft Identity Web extension methods for agent identities.
 
-4. Validate tokens
+### Validate tokens from Agent identities
 
 Token validation of token acquired for agent identities or agent user identities is the same as for any web API. However you can:
 - check if a token was issued for an agent identity and for which agent blueprint.
