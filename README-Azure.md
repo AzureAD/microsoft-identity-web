@@ -9,7 +9,7 @@ This package enables ASP.NET Core web apps and web APIs to use the Azure SDKs wi
 - **MicrosoftIdentityTokenCredential** - Provides seamless integration between Microsoft.Identity.Web and Azure SDK's TokenCredential, enabling your application to use Azure services with Microsoft Entra ID (formerly Azure Active Directory) authentication.
 - Supports both user delegated and application permission scenarios
 - Works with the standard Azure SDK authentication flow
-- Is Scoped (injected for each request)
+- Is Scoped (injected for each request, which means credendials can be different at each request.)
 
 ## Installation
 
@@ -109,6 +109,21 @@ public class BlobModel : PageModel
 }
 ```
 
+### How does this differ
+
+The Azure SDK guidance proposes a credential which is the same for **all** Azure clients (so likely app only credentials). MicrosoftIdentityTokenCredential enables you to have one credential at each request, with user context, long running process, and all the flexibility that Microsoft.Identity.Web bring. 
+
+```csharp
+    // Register Azure services
+    services.AddAzureClients(builder =>
+    {
+        // Use the Microsoft Identity credential for all Azure clients
+        builder.UseCredential(sp => sp.GetRequiredService<TokenCredential>());
+        // Configure Azure Blob Storage client
+        builder.AddBlobServiceClient(new Uri("https://your-storage-account.blob.core.windows.net"));
+        // Add other Azure clients as needed
+    });
+```
 
 ### Advanced scenarios
 
