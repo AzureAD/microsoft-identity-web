@@ -120,6 +120,9 @@ namespace AgentApplicationsTests
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());  
         }
 
         [Fact]
