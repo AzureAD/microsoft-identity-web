@@ -111,7 +111,7 @@ public class BlobModel : PageModel
 
 ### How does this differ
 
-The Azure SDK guidance proposes a credential which is the same for **all** Azure clients (so likely app only credentials). MicrosoftIdentityTokenCredential enables you to have one credential at each request, with user context, long running process, and all the flexibility that Microsoft.Identity.Web bring. 
+The Azure SDK guidance proposes to set Azure clients as singletons at stardup (so likely app only credentials). MicrosoftIdentityTokenCredential enables you to have one credential at each request, with user context, tenant, long running process, and all the flexibility that Microsoft.Identity.Web bring. 
 
 ```csharp
     // Register Azure services
