@@ -1,82 +1,252 @@
-# Microsoft Identity Web
+<!-- Follow-up PR tracking (temporary; remove before merge):
+Addressed: #2434549342 #2434553565 #2434555474 #2434558476 #2436604554 #2446576057 #2446582808 #2446591268
+Clarified / Adjusted: #2434550139 (contrast) #2440660142 (route template) #2440662758 (query params) #2440673357 (resilience)
+Deferred/Informational: #2442609155 #2442609361 #2442609463
+-->
+# Calling Downstream APIs with Microsoft.Identity.Web
 
-[Microsoft Identity Web](https://www.nuget.org/packages/Microsoft.Identity.Web) is a library which contains a set of reusable classes used in conjunction with ASP.NET Core for integrating with the [Microsoft identity platform](https://learn.microsoft.com/azure/active-directory/develop/) (formerly *Azure AD v2.0 endpoint*) and [AAD B2C](https://learn.microsoft.com/azure/active-directory-b2c/).
+This guide helps you choose and implement the right approach for calling downstream APIs (Microsoft Graph, Azure services, or custom APIs) from your ASP.NET Core, OWIN, or other .NET applications using Microsoft.Identity.Web.
 
-This library is for specific usage with:
+## 🎯 Choosing the Right Approach
 
-- [Web applications](https://github.com/AzureAD/microsoft-identity-web/wiki/web-apps), which sign in users and, optionally, call web APIs
-- [Protected web APIs](https://github.com/AzureAD/microsoft-identity-web/wiki/web-apis), which optionally call protected downstream web APIs
+| API Type / Scenario                  | Decision / Criteria                         | Recommended Client/Class                    |
+|-------------------------------------|---------------------------------------------|---------------------------------------------|
+| Microsoft Graph                     | Need to call Microsoft Graph APIs           | GraphServiceClient                          |
+| Azure SDK (Storage, etc.)           | Need Azure SDK auth                         | MicrosoftIdentityTokenCredential + Azure SDK |
+| Custom API                          | Simple configurable REST                    | IDownstreamApi                              |
+| Custom API                          | HttpClient + handler pipeline               | MicrosoftIdentityMessageHandler             |
+| Custom API                          | Full custom control                         | IAuthorizationHeaderProvider                |
 
-Quick links:
+## 📊 Comparison Table
 
-| [Conceptual documentation](https://github.com/AzureAD/microsoft-identity-web/wiki) | [Getting Started](https://github.com/AzureAD/microsoft-identity-web/wiki#getting-started-with-microsoft-identity-web) | [Reference documentation](https://learn.microsoft.com/dotnet/api/microsoft.identity.web?view=azure-dotnet-preview) | [Sample Code Web App](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples) | [Sample Code Web API](https://github.com/AzureAD/microsoft-identity-web/wiki/web-api-samples) | [Support](README.md#community-help-and-support) |
-| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| Approach | Best For | Complexity | Configuration | Flexibility |
+|----------|----------|-----------|---------------|-------------|
+| GraphServiceClient | Microsoft Graph | Low | Simple | Medium |
+| MicrosoftIdentityTokenCredential | Azure SDK clients | Low | Simple | Low |
+| IDownstreamApi | Standard REST | Low | JSON + Code | Medium |
+| MicrosoftIdentityMessageHandler | HttpClient pipeline | Medium | Code | High |
+| IAuthorizationHeaderProvider | Custom logic | High | Code | Very High |
 
-## Nuget package
+## 🔑 Token Acquisition Scenarios (Updated per review)
 
- [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)
+- Web apps calling web APIs on behalf of users
+- Web APIs calling web APIs on behalf of users (OBO)
+- Web apps, web APIs, and daemons calling APIs on their own behalf (application permissions)
+- Daemon scenarios with a user identity (Agent user identities)
 
-## Version Lifecycle and Support Matrix
+```mermaid
+graph LR
+    A[Token Acquisition] --> B[Delegated<br/>On behalf of user]
+    A --> C[App-Only<br/>Application permissions]
+    A --> D[OBO<br/>Web API exchanges user token]
+    B --> B1[Web Apps]
+    B --> B2[Agent user identities]
+    C --> C1[Daemon Apps]
+    C --> C2[Web APIs (app perms)]
+    D --> D1[Web APIs calling other APIs]
+```
 
-See [Long Term Support policy](./supportPolicy.md) for details.
+### Delegated Permissions (User Tokens)
+Scenario: Web app or agent user identity calling downstream API with user context.  
+Methods: `CreateAuthorizationHeaderForUserAsync()`, `GetForUserAsync()`
 
-The following table lists IdentityWeb versions currently supported and receiving security fixes.
+### Application Permissions (App-Only Tokens)
+Scenario: Daemon/background process or API acting without user context.  
+Methods: `CreateAuthorizationHeaderForAppAsync()`, `GetForAppAsync()`
 
-| Major Version | Last Release | Patch release date  | Support phase|End of support |
-| --------------|--------------|--------|------------|--------|
-| 3.x           | [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)   |Monthly| Active | Not planned.<br/>✅Supported versions: from 3.0.0 to [![NuGet](https://img.shields.io/nuget/v/Microsoft.Identity.Web.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.Identity.Web/)<br/>⚠️Unsupported versions `< 3.0.0`.|
+### On-Behalf-Of (OBO)
+Scenario: Web API exchanges incoming user token for downstream token.  
+Methods: `GetForUserAsync()` (incoming token utilized automatically)
 
-## Build Status
+## 🚀 Quick Start Examples
 
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FAzureAD%2Fmicrosoft-identity-web%2Fbadge&style=flat)](https://actions-badge.atrox.dev/AzureAD/microsoft-identity-web/goto)
+> All examples assume you have token acquisition and a token cache configured.
 
-## Release notes, roadmap and SLA
+### Microsoft Graph
+```csharp
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
 
-### Release notes and roadmap
+builder.Services.AddTokenAcquisition();
+builder.Services.AddMicrosoftGraph();
 
-The Microsoft Identity Web roadmap is available from [Roadmap](https://github.com/AzureAD/microsoft-identity-web/wiki/#roadmap) in the [Wiki pages](https://github.com/AzureAD/microsoft-identity-web/wiki), along with release notes.
+[Authorize]
+[AuthorizeForScopes(Scopes = new[] {"User.Read"})]
+public class HomeController : Controller
+{
+    private readonly GraphServiceClient _graphClient;
+    public HomeController(GraphServiceClient graphClient) => _graphClient = graphClient;
 
-### Support SLA
+    public async Task<IActionResult> Profile()
+    {
+        var user = await _graphClient.Me.GetAsync();
+        var users = await _graphClient.Users.GetAsync(r => r.Options.WithAppOnly());
+        return View(user);
+    }
+}
+```
+[Learn more about Microsoft Graph integration](microsoft-graph.md)
 
-- Major versions are supported for twelve months after the release of the next major version.
-- Minor versions older than N-1 are not supported.
-  > Minor versions are bugfixes or features with non-breaking (additive) API changes.  It is expected apps can upgrade.  Therefore, we will not patch old minor versions of the library. You should also confirm, in issue repros, that you are using the latest minor version before the Microsoft Identity Web team spends time investigating an issue.
+### Azure SDKs
+(See updated Azure SDK DI pattern in `azure-sdks.md` using `AddAzureClients`.)
+```csharp
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
 
-## Using Microsoft Identity Web
+builder.Services.AddTokenAcquisition();
+builder.Services.AddMicrosoftIdentityAzureTokenCredential();
+// Blob, KeyVault examples removed per review.
+```
+[Learn more about Azure SDK integration](azure-sdks.md)
 
-- The conceptual documentation is currently available from the [Wiki pages](https://github.com/AzureAD/microsoft-identity-web/wiki).
-- Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
-  and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
+### IDownstreamApi
+```csharp
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
 
-## Where do I file issues
+builder.Services.AddTokenAcquisition();
+builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
+public class ApiService
+{
+    private readonly IDownstreamApi _api;
+    public ApiService(IDownstreamApi api) => _api = api;
 
-This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-identity-web/issues).
+    public Task<Product> GetProductAsync(int id) =>
+        _api.GetForUserAsync<Product>("MyApi", $"api/products/{id}");
 
-## Community Help and Support
+    public Task<List<Product>> GetAllProductsAsync() =>
+        _api.GetForAppAsync<List<Product>>("MyApi", "api/products");
+}
+```
+[Learn more about IDownstreamApi](custom-apis.md)
 
-If you find a bug or have a feature or documentation request, please raise the issue on [GitHub Issues](https://github.com/AzureAD/microsoft-identity-web/issues).
+### MicrosoftIdentityMessageHandler
+```csharp
+builder.Services.AddHttpClient("MyApiClient", client =>
+{
+    client.BaseAddress = new Uri("https://myapi.example.com/");
+})
+.AddHttpMessageHandler(sp => new MicrosoftIdentityMessageHandler(
+    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+    new MicrosoftIdentityMessageHandlerOptions{ Scopes = new[] {"api://myapi/.default"} }));
+```
+[Learn more](custom-apis.md#microsoftidentitymessagehandler)
 
-We use [Stack Overflow](http://stackoverflow.com/questions/) with the community to provide support, using the tags `web-app`, `web-api`, `asp.net-core`, `microsoft-identity-web`. We highly recommend you ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
+### IAuthorizationHeaderProvider
+```csharp
+public class CustomAuthService
+{
+    private readonly IAuthorizationHeaderProvider _provider;
+    public CustomAuthService(IAuthorizationHeaderProvider provider) => _provider = provider;
 
-To provide a recommendation, visit our [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+    public async Task<string> CallApiAsync()
+    {
+        var authHeader = await _provider.CreateAuthorizationHeaderForUserAsync(new[]{"api://myapi/.default"});
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Authorization", authHeader);
+        return await client.GetStringAsync("https://myapi.example.com/data");
+    }
+}
+```
+[Learn more](custom-apis.md#iauthorizationheaderprovider)
 
-## Contribute
+## 📑 Configuration Patterns
 
-We enthusiastically welcome contributions and feedback. You can clone the repo and start contributing now. Read our [Contribution Guide](CONTRIBUTING.md) for more information.
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "your-tenant-id",
+    "ClientId": "your-client-id",
+    "ClientCredentials": [ { "SourceType": "SignedAssertionFromManagedIdentity" } ]
+  },
+  "DownstreamApis": {
+    "MicrosoftGraph": { "BaseUrl": "https://graph.microsoft.com/v1.0", "Scopes": ["User.Read"] },
+    "MyApi": { "BaseUrl": "https://myapi.example.com", "Scopes": ["api://myapi/read"] }
+  }
+}
+```
+[Credentials configuration guide](../authentication/credentials/README.md)
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+Code-based:
+```csharp
+builder.Services.Configure<MicrosoftIdentityApplicationOptions>(o =>
+{
+    o.Instance = "https://login.microsoftonline.com/";
+    o.TenantId = "your-tenant-id";
+    o.ClientId = "your-client-id";
+});
+builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
+```
 
-## Security Library
+Daemon / Console note: Ensure `appsettings.json` is copied to output (Copy if newer).
 
-This library controls how users sign-in and access services. We recommend you always take the latest version of our library in your app when possible. We use [semantic versioning](http://semver.org) so you can control the risk associated with updating your app. As an example, always downloading the latest minor version number (e.g. x.*y*.x) ensures you get the latest security and feature enhancements, but our API surface remains the same. You can always see the latest version and release notes under the Releases tab of GitHub.
+## 🧪 Scenario Guides
+- [From Web Apps](from-web-apps.md)
+- [From Web APIs](from-web-apis.md)
+- [Daemon applications](../README.md#daemon-applications)
 
-## Security Reporting
+## ⚠️ Error Handling
+```csharp
+try
+{
+    var result = await _api.GetForUserAsync<Data>("MyApi", "api/data");
+}
+catch (MicrosoftIdentityWebChallengeUserException)
+{
+    // triggers consent/challenge
+    throw;
+}
+catch (HttpRequestException ex)
+{
+    _logger.LogError(ex, "API call failed");
+}
+```
 
-If you find a security issue with our libraries or services, please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
+| Exception | Meaning | Solution |
+|-----------|---------|----------|
+| MicrosoftIdentityWebChallengeUserException | User consent required | Redirect (web app) or 401 (API) |
+| MsalUiRequiredException | Interactive auth required | Challenge user |
+| MsalServiceException | Service/config error | Retry / verify settings |
+| HttpRequestException | Downstream API error | Inspect response |
 
-## Trademarks
+## 🛡️ Resilience (HTTP + Azure)
+Use built-in .NET resilience handlers instead of manual retry loops:
+```csharp
+builder.Services.AddHttpClient("MyApi")
+    .AddStandardResilienceHandler(o => o.Retry.MaxRetries = 3);
+```
+For Azure SDK calls, rely on SDK internal retries or wrap operations with Polly policies if needed.
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/legal/intellectualproperty/trademarks). Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
+## 🔗 Related Documentation
+- [Credentials Configuration](../authentication/credentials/README.md)
+- [Web App Scenarios](../scenarios/web-apps/README.md)
+- [Web API Scenarios](../scenarios/web-apis/README.md)
+- [Agent Identities](../scenarios/agent-identities/README.md)
 
-Copyright (c) Microsoft Corporation.  All rights reserved. Licensed under the MIT License (the "License").
+## 📦 NuGet Packages
+| Package | Purpose | When to Use |
+|---------|---------|------------|
+| Microsoft.Identity.Web.TokenAcquisition | Token acquisition | Always |
+| Microsoft.Identity.Web.DownstreamApi | REST abstraction | Custom APIs |
+| Microsoft.Identity.Web.GraphServiceClient | Graph integration | Microsoft Graph |
+| Microsoft.Identity.Web.Azure | Azure SDK integration | Azure services |
+| Microsoft.Identity.Web | ASP.NET Core web apps/APIs | ASP.NET Core |
+| Microsoft.Identity.Web.OWIN | OWIN apps/APIs | OWIN |
+
+## ✅ Next Steps
+1. Choose your approach
+2. Read scenario guide
+3. Configure credentials
+4. Implement & test
+5. Handle errors gracefully
+
+---
+**Version Support**: Microsoft.Identity.Web 3.14.1+ (.NET 8 / .NET 9)
