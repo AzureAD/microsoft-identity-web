@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -25,7 +26,7 @@ namespace Microsoft.Identity.Web
     internal partial class DownstreamApi : IDownstreamApi
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMsalHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string Authorization = "Authorization";
         protected readonly ILogger<DownstreamApi> _logger;
@@ -36,17 +37,17 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
-        /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="msalHttpClientFactory">MSAL HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
-            IHttpClientFactory httpClientFactory,
+            IMsalHttpClientFactory msalHttpClientFactory,
             ILogger<DownstreamApi> logger)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
-            _httpClientFactory = httpClientFactory;
+            _httpClientFactory = msalHttpClientFactory;
             _logger = logger;
         }
 
@@ -514,11 +515,13 @@ namespace Microsoft.Identity.Web
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
-            await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+            var authorizationHeaderInformation = await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
 
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
+            using HttpClient client = _httpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory && authorizationHeaderInformation ?.BindingCertificate != null
+                ? msalMtlsHttpClientFactory.GetHttpClient(authorizationHeaderInformation.BindingCertificate)
+                : _httpClientFactory.GetHttpClient();
 
-            // Send the HTTP message           
+            // Send the HTTP message
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
             // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
@@ -541,7 +544,7 @@ namespace Microsoft.Identity.Web
             return downstreamApiResult;
         }
 
-        internal /* internal for test */ async Task UpdateRequestAsync(
+        internal /* internal for test */ async Task<AuthorizationHeaderInformation?> UpdateRequestAsync(
             HttpRequestMessage httpRequestMessage,
             HttpContent? content,
             DownstreamApiOptions effectiveOptions,
@@ -558,16 +561,19 @@ namespace Microsoft.Identity.Web
 
             effectiveOptions.RequestAppToken = appToken;
 
+            AuthorizationHeaderInformation? authorizationHeaderInformation = null;
+
             // Obtention of the authorization header (except when calling an anonymous endpoint
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                authorizationHeaderInformation = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                        effectiveOptions.Scopes,
                        effectiveOptions,
                        user,
                        cancellationToken).ConfigureAwait(false);
 
+                var authorizationHeader = authorizationHeaderInformation.AuthorizationHeaderValue!;
                 if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
                 {
                     // TryAddWithoutValidation method bypasses strict validation, allowing non-standard headers to be added for custom Header schemes that cannot be parsed.
@@ -625,6 +631,8 @@ namespace Microsoft.Identity.Web
 
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+
+            return authorizationHeaderInformation;
         }
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()

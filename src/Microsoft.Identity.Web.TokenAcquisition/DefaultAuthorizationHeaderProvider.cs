@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderForUserAsync(
+        public async Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderForUserAsync(
             IEnumerable<string> scopes,
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderForAppAsync(
+        public async Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderForAppAsync(
             string scopes,
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             CancellationToken cancellationToken = default)
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateAuthorizationHeaderAsync(
+        public async Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderAsync(
             IEnumerable<string> scopes,
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             ClaimsPrincipal? claimsPrincipal = null,

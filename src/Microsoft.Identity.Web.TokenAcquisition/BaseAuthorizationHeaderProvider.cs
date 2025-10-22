@@ -33,19 +33,19 @@ namespace Microsoft.Identity.Web.Extensibility
         private readonly IAuthorizationHeaderProvider _headerProvider;
 
         /// <inheritdoc/>
-        public virtual Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        public virtual Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
         {
             return _headerProvider.CreateAuthorizationHeaderForUserAsync(scopes, authorizationHeaderProviderOptions, claimsPrincipal, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public virtual Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+        public virtual Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
         {
             return _headerProvider.CreateAuthorizationHeaderForAppAsync(scopes, downstreamApiOptions, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public virtual Task<string> CreateAuthorizationHeaderAsync(
+        public virtual Task<AuthorizationHeaderInformation> CreateAuthorizationHeaderAsync(
             IEnumerable<string> scopes, 
             AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, 
             ClaimsPrincipal? claimsPrincipal = null, 

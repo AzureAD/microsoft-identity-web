@@ -175,4 +175,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);SUPPORTS_MTLS;</DefineConstants>
+  </PropertyGroup>
 </Project>

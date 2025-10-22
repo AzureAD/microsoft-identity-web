@@ -51,9 +51,11 @@ namespace Microsoft.Identity.Web
                 request.Headers.Remove(Constants.Authorization);
             }
 
+            var authorizationHeaderInformation = authResult.CreateAuthorizationHeader();
+
             request.Headers.Add(
                 Constants.Authorization,
-                authResult.CreateAuthorizationHeader());
+                authorizationHeaderInformation.AuthorizationHeaderValue);
 
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }

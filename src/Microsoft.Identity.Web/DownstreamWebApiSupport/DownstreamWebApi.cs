@@ -99,9 +99,11 @@ namespace Microsoft.Identity.Web
                     httpRequestMessage.Content = content;
                 }
 
+                var authorizationHeaderInformation = authResult.CreateAuthorizationHeader();
+
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
-                    authResult.CreateAuthorizationHeader());
+                    authorizationHeaderInformation.AuthorizationHeaderValue);
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
                 return await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }
@@ -186,9 +188,11 @@ namespace Microsoft.Identity.Web
                     httpRequestMessage.Content = content;
                 }
 
+                var authorizationHeaderInformation = authResult.CreateAuthorizationHeader();
+
                 httpRequestMessage.Headers.Add(
                     Constants.Authorization,
-                    authResult.CreateAuthorizationHeader());
+                    authorizationHeaderInformation.AuthorizationHeaderValue);
                 effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
                 response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
             }

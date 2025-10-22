@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web
     /// It uses a hybrid approach with leveraging IHttpClientFactory for non-mTLS HTTL clients and maintaining
     /// a pool of mTLS clients with using certificate as a key.
     /// </summary>
-    internal sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory
+    public sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory
     {
         private const long MaxMtlsHttpClientCountInPool = 1000;
         private const long MaxResponseContentBufferSizeInBytes = 1024 * 1024;
@@ -26,11 +26,24 @@ namespace Microsoft.Identity.Web
 
         private readonly IHttpClientFactory _httpClientFactory;
 
+        /// <summary>
+        /// Initializes a new instance of the MsalMtlsHttpClientFactory class using the specified HTTP client factory.
+        /// </summary>
+        /// <param name="httpClientFactory">The factory used to create HttpClient instances for mutual TLS (mTLS) operations. Cannot be null.</param>
         public MsalMtlsHttpClientFactory(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
+        /// <summary>
+        /// Creates and configures a new instance of <see cref="HttpClient"/> with telemetry headers applied.
+        /// </summary>
+        /// <remarks>
+        /// The returned <see cref="HttpClient"/> includes a telemetry header for tracking or
+        /// diagnostics purposes. Callers are responsible for disposing the <see cref="HttpClient"/> instance when it is
+        /// no longer needed.
+        /// </remarks>
+        /// <returns>A new <see cref="HttpClient"/> instance with telemetry information included in the default request headers.</returns>
         public HttpClient GetHttpClient()
         {
             HttpClient httpClient = _httpClientFactory.CreateClient();
@@ -38,6 +51,17 @@ namespace Microsoft.Identity.Web
             return httpClient;
         }
 
+        /// <summary>
+        /// Returns an instance of <see cref="HttpClient"/> configured to use the specified X.509 client certificate for
+        /// mutual TLS authentication.
+        /// </summary>
+        /// <remarks>
+        /// The returned <see cref="HttpClient"/> instance is pooled and reused for the given certificate.
+        /// The client includes a telemetry header in each request. Callers should not modify the default
+        /// request headers or dispose the returned instance.
+        /// </remarks>
+        /// <param name="x509Certificate2">The X.509 certificate to use for client authentication. If <see langword="null"/>, a default <see cref="HttpClient"/> instance without client certificate authentication is returned.</param>
+        /// <returns>A <see cref="HttpClient"/> instance configured for mutual TLS authentication using the specified certificate or default <see cref="HttpClient"/> instance.</returns>
         public HttpClient GetHttpClient(X509Certificate2 x509Certificate2)
         {
             if (x509Certificate2 == null)
