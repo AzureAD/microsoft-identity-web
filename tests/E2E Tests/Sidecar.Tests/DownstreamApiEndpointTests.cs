@@ -631,4 +631,149 @@ public class DownstreamApiEndpointTests(SidecarApiFactory factory) : IClassFixtu
         // Just verify it returns 400 - that's sufficient for this test
     }
 
+    [Fact]
+    public async Task DownstreamApi_WithExtraHeaderParametersOverride_PassesHeadersToOptionsAsync()
+    {
+        // Arrange
+        var responseContent = "{\"result\": \"success\"}";
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+        };
+
+        DownstreamApiOptions? capturedOptions = null;
+        var mockDownstreamApi = new Mock<IDownstreamApi>();
+        mockDownstreamApi
+            .Setup(x => x.CallApiAsync(It.IsAny<DownstreamApiOptions>(), It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Callback<DownstreamApiOptions, System.Security.Claims.ClaimsPrincipal, HttpContent?, CancellationToken>((options, _, _, _) =>
+            {
+                capturedOptions = options;
+            })
+            .ReturnsAsync(mockResponse);
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.PostAsync("/DownstreamApi/test-api?OptionsOverride.ExtraHeaderParameters.X-Custom-Header=test-value&OptionsOverride.ExtraHeaderParameters.OData-Version=4.0", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(capturedOptions?.ExtraHeaderParameters);
+        Assert.Equal("test-value", capturedOptions.ExtraHeaderParameters["X-Custom-Header"]);
+        Assert.Equal("4.0", capturedOptions.ExtraHeaderParameters["OData-Version"]);
+    }
+
+    [Fact]
+    public async Task DownstreamApi_WithExtraQueryParametersOverride_PassesQueryParametersToOptionsAsync()
+    {
+        // Arrange
+        var responseContent = "{\"result\": \"success\"}";
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+        };
+
+        DownstreamApiOptions? capturedOptions = null;
+        var mockDownstreamApi = new Mock<IDownstreamApi>();
+        mockDownstreamApi
+            .Setup(x => x.CallApiAsync(It.IsAny<DownstreamApiOptions>(), It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Callback<DownstreamApiOptions, System.Security.Claims.ClaimsPrincipal, HttpContent?, CancellationToken>((options, _, _, _) =>
+            {
+                capturedOptions = options;
+            })
+            .ReturnsAsync(mockResponse);
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.PostAsync("/DownstreamApi/test-api?OptionsOverride.ExtraQueryParameters.param1=value1&OptionsOverride.ExtraQueryParameters.param2=value2", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(capturedOptions?.ExtraQueryParameters);
+        Assert.Equal("value1", capturedOptions.ExtraQueryParameters["param1"]);
+        Assert.Equal("value2", capturedOptions.ExtraQueryParameters["param2"]);
+    }
+
+    [Fact]
+    public async Task DownstreamApi_WithBothExtraHeaderAndQueryParametersOverride_PassesBothToOptionsAsync()
+    {
+        // Arrange
+        var responseContent = "{\"result\": \"success\"}";
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
+        };
+
+        DownstreamApiOptions? capturedOptions = null;
+        var mockDownstreamApi = new Mock<IDownstreamApi>();
+        mockDownstreamApi
+            .Setup(x => x.CallApiAsync(It.IsAny<DownstreamApiOptions>(), It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
+            .Callback<DownstreamApiOptions, System.Security.Claims.ClaimsPrincipal, HttpContent?, CancellationToken>((options, _, _, _) =>
+            {
+                capturedOptions = options;
+            })
+            .ReturnsAsync(mockResponse);
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.PostAsync("/DownstreamApi/test-api?OptionsOverride.ExtraHeaderParameters.X-Test=header-val&OptionsOverride.ExtraQueryParameters.qparam=query-val", null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(capturedOptions?.ExtraHeaderParameters);
+        Assert.NotNull(capturedOptions?.ExtraQueryParameters);
+        Assert.Equal("header-val", capturedOptions.ExtraHeaderParameters["X-Test"]);
+        Assert.Equal("query-val", capturedOptions.ExtraQueryParameters["qparam"]);
+    }
+
 }
