@@ -13,7 +13,7 @@ string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
 Mise mise = new();
 
 // Agent blueprint credentials with SN/I Cert
-Credential agentBlueprintCredentials = mise.GetCredential(new()
+Credential agentBlueprintCredentials = mise.NewCredential(new()
 {
     ClientId = agentBluePrintAppId,
     TenantId = tenantId,
@@ -33,7 +33,7 @@ Credential agentBlueprintFic = await mise.ExchangeCredentialAsync(agentBlueprint
 });
 
 // Get the Agent identity FIC credentials
-Credential agentIdentityCredentials = mise.GetCredential(agentBlueprintFic, new()
+Credential agentIdentityCredentials = mise.NewCredential(agentBlueprintFic, new()
 {
     ClientId = agentIdentity,
     TenantId = tenantId
@@ -45,7 +45,7 @@ string tokenForAgentIdentityToCallGraph = await mise.GetToken(agentIdentityCrede
     Scopes = ["https://graph.microsoft.com/.default"]
 });
 
-
+// Or get authorization header for Agent identity to call Graph
 var authorizationHeader = await mise.GetAuthorizationHeaderAsync(agentIdentityCredentials, new DownstreamApiOptions()
 {
     Scopes = ["https://graph.microsoft.com/.default"]
@@ -54,8 +54,7 @@ var authorizationHeader = await mise.GetAuthorizationHeaderAsync(agentIdentityCr
 
 
 #if !CrossCloudFic for GGC-M
-// Get the Agent identity credentials
-Credential appInFairFaxCredentials = mise.GetCredential(new()
+Credential appInFairFaxCredentials = mise.NewCredential(new()
 {
     Instance = "https://login.microsoftonline.us/",
     ClientId = "FairFax AppID",
@@ -69,7 +68,7 @@ Credential appInFairFaxCredentials = mise.GetCredential(new()
 // Token exchange to get FIC token for FairFax App (tokne exchange determined automatically based on clouds instance)
 Credential FicForAppInFairFax = await mise.ExchangeCredentialAsync(agentIdentityCredentials);
 
-Credential CredentialInPublicCloud = mise.GetCredential(appInFairFaxCredentials, new()
+Credential CredentialInPublicCloud = mise.NewCredential(appInFairFaxCredentials, new()
 {
     Instance = "https://login.microsoftonline.us/",
     ClientId = "Public cloud AppId",

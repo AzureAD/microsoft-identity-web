@@ -60,12 +60,12 @@ namespace Vision2028
             });
         }
 
-        public Credential GetCredential(CredentialOptions? credentialOptions = null)
+        public Credential NewCredential(CredentialOptions? credentialOptions = null)
         {
             return new Credential(credentialOptions ?? new CredentialOptions(), this);
         }
 
-        public Credential GetCredential(Credential credential, CredentialOptions? credentialOptions)
+        public Credential NewCredential(Credential credential, CredentialOptions? credentialOptions)
         {
             Credential newCredential = new Credential(credentialOptions ?? new CredentialOptions(), this);
             newCredential.credentialToken = credential.credentialToken;
