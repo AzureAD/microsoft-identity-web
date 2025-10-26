@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -60,6 +61,33 @@ namespace Microsoft.Identity.Web.Hosts
 
             _microsoftIdentityOptionsMonitor.Get(effectiveAuthenticationScheme);
             _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme);
+
+            // Get the merged options again after the merging has occurred
+            mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
+
+            if (string.IsNullOrEmpty(mergedOptions.Instance))
+            {
+                // Check if the issue is that MicrosoftIdentityApplicationOptions are not configured
+                var microsoftIdentityApplicationOptions = _MicrosoftIdentityApplicationOptionsMonitor.Get(effectiveAuthenticationScheme);
+                
+                bool isMicrosoftIdentityApplicationOptionsConfigured = microsoftIdentityApplicationOptions != null && 
+                    (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) || 
+                     (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "//v2.0") ||
+                     !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.ClientId));
+
+                if (!isMicrosoftIdentityApplicationOptionsConfigured)
+                {
+                    string msg = string.Format(System.Globalization.CultureInfo.InvariantCulture, IDWebErrorMessage.MicrosoftIdentityApplicationOptionsNotConfigured,
+                        effectiveAuthenticationScheme);
+                    throw new InvalidOperationException(msg);
+                }
+                else
+                {
+                    string msg = string.Format(System.Globalization.CultureInfo.InvariantCulture, IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect,
+                        authenticationScheme, effectiveAuthenticationScheme, string.Empty);
+                    throw new InvalidOperationException(msg);
+                }
+            }
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
             return mergedOptions;
