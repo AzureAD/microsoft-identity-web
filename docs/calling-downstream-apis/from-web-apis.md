@@ -97,11 +97,8 @@ app.Run();
 ```csharp
 using Microsoft.Identity.Web;
 
-builder.Services.AddDownstreamApi("GraphAPI",
-    builder.Configuration.GetSection("DownstreamApis:GraphAPI"));
-    
-builder.Services.AddDownstreamApi("PartnerAPI",
-    builder.Configuration.GetSection("DownstreamApis:PartnerAPI"));
+builder.Services.AddDownstreamApis(
+    builder.Configuration.GetSection("DownstreamApis"));
 ```
 
 ### 4. Call Downstream API from Your API
@@ -168,23 +165,7 @@ public class DataController : ControllerBase
 }
 ```
 
-## Token Caching for OBO
-
-Token caching is **critical** for OBO scenarios to avoid performance issues and rate limiting.
-
-### Why Token Caching Matters
-
-1. **Performance**: Avoid redundant token exchanges with Azure AD
-2. **Rate Limiting**: Azure AD throttles excessive token requests
-3. **Reliability**: Cached tokens work even during temporary Azure AD issues
-4. **User Experience**: Faster API responses
-
-### Cache Key Structure
-
-OBO tokens are cached per user using these claims:
-- `oid` (Object ID) - User's unique identifier
-- `tid` (Tenant ID) - Azure AD tenant
-- Requested scopes
+## Token cache
 
 ### In-Memory Cache (Development)
 
@@ -194,7 +175,7 @@ builder.Services.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("Az
     .AddInMemoryTokenCaches();
 ```
 
-⚠️ **Warning**: In-memory cache doesn't work across multiple API instances. Use distributed cache for production.
+⚠️ **Warning**: Use distributed cache for production.
 
 ### Distributed Cache (Production)
 
@@ -251,22 +232,6 @@ graph TD
     style F fill:#d4edda
 ```
 
-### Solution: Cache Refresh Token
-
-You need to request `offline_access` scope to get a refresh token:
-
-```csharp
-// In your API's app registration, add API permissions:
-// - offline_access (to get refresh token)
-// - Downstream API scopes
-
-// In client app, request offline_access when calling your API
-var scopes = new[] { 
-    "api://your-api-client-id/access_as_user",
-    "offline_access" 
-};
-```
-
 ### Long-Running Process Pattern
 
 ```csharp
@@ -314,7 +279,10 @@ public class ProcessingController : ControllerBase
             // The cached refresh token allows token acquisition even if original token expired
             var data = await _downstreamApi.GetForUserAsync<ProcessData>(
                 "PartnerAPI",
-                "api/process/data",
+                options => {
+                   options.RelativePath = "api/process/data";
+                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString() 
+                },
                 cancellationToken: cancellationToken);
                 
             // Process data...
@@ -323,7 +291,10 @@ public class ProcessingController : ControllerBase
             // Call API again (token may need refresh)
             await _downstreamApi.PostForUserAsync<ProcessData, ProcessResult>(
                 "PartnerAPI",
-                "api/process/complete",
+                options => {
+                   options.RelativePath = "api/process/complete";
+                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString() 
+                },
                 data,
                 cancellationToken: cancellationToken);
         }
@@ -337,7 +308,6 @@ public class ProcessingController : ControllerBase
 
 ### Important Considerations
 
-1. **Offline Access Scope**: Client must request `offline_access` when calling your API
 2. **Token Cache**: Must use distributed cache for background processes
 3. **User Context**: `HttpContext.User` is available in the background worker
 4. **Error Handling**: Token may still expire if user revokes consent
@@ -432,16 +402,12 @@ public class Startup
 {
     public void Configuration(IAppBuilder app)
     {
-        app.AddMicrosoftIdentityWebApi(
-            jwtBearerOptions: options =>
-            {
-                Configuration.Bind("AzureAd", options);
-            },
-            configureMicrosoftIdentityOptions: options =>
-            {
-                options.EnableTokenAcquisitionToCallDownstreamApi();
-                options.AddInMemoryTokenCaches();
-            });
+      OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+      app.AddMicrosoftIdentityWebApi(factory);
+      factory.Services
+        .AddMicrosoftGraph()
+        .AddDownstreamApis(factory.Configuration.GetSection("DownstreamAPIs"));
+       factory.Build();
     }
 }
 ```
@@ -450,6 +416,7 @@ public class Startup
 
 ```csharp
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using System.Web.Http;
 
 [Authorize]
@@ -459,7 +426,19 @@ public class DataController : ApiController
     
     public DataController()
     {
-        _downstreamApi = OwinContextExtensions.GetDownstreamApi(Request.GetOwinContext());
+      GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
+      var me = await graphServiceClient.Me.Request().GetAsync();
+
+      // OR - Example calling a downstream directly with the IDownstreamApi helper (uses the
+      // authorization header provider, encapsulates MSAL.NET)
+      // downstreamApi won't be null if you added services.AddMicrosoftGraph()
+      // in the Startup.auth.cs
+      IDownstreamApi downstreamApi = this.GetDownstreamApi();
+      var result = await downstreamApi.CallApiForUserAsync("DownstreamAPI");
+
+      // OR - Get an authorization header (uses the token acquirer)
+      IAuthorizationHeaderProvider authorizationHeaderProvider =
+           this.GetAuthorizationHeaderProvider();
     }
     
     [HttpGet]
@@ -468,7 +447,7 @@ public class DataController : ApiController
     {
         var data = await _downstreamApi.GetForUserAsync<Data>(
             "PartnerAPI",
-            "api/data",
+            options => options.RelativePath = "api/data",
             options => options.Scopes = new[] { "api://partner/read" });
             
         return Ok(data);
@@ -525,35 +504,7 @@ public async Task<ActionResult<Dashboard>> GetDashboard()
 .AddDistributedTokenCaches();
 ```
 
-### 2. Request offline_access for Long Processes
-
-```json
-{
-  "DownstreamApis": {
-    "PartnerAPI": {
-      "Scopes": ["api://partner/read", "offline_access"]
-    }
-  }
-}
-```
-
-### 3. Handle Consent Gracefully
-
-Return proper error responses that clients can handle:
-
-```csharp
-catch (MicrosoftIdentityWebChallengeUserException ex)
-{
-    return Unauthorized(new ConsentRequiredError
-    {
-        Error = "consent_required",
-        Scopes = ex.Scopes,
-        Claims = ex.Claims
-    });
-}
-```
-
-### 4. Log OBO Token Acquisitions
+### 3. Log
 
 ```csharp
 builder.Services.AddLogging(config =>
@@ -564,7 +515,7 @@ builder.Services.AddLogging(config =>
 });
 ```
 
-### 5. Set Appropriate Timeouts
+### 4. Set Appropriate Timeouts
 
 ```csharp
 builder.Services.AddDownstreamApi("PartnerAPI", options =>
@@ -579,7 +530,7 @@ builder.Services.AddHttpClient("PartnerAPI", client =>
 });
 ```
 
-### 6. Validate Incoming Tokens
+### 5. Validate Incoming Tokens
 
 Ensure your API validates tokens properly:
 
@@ -587,14 +538,6 @@ Ensure your API validates tokens properly:
 builder.Services.AddMicrosoftIdentityWebApi(options =>
 {
     builder.Configuration.Bind("AzureAd", options);
-    
-    // Validate audience
-    options.TokenValidationParameters.ValidateAudience = true;
-    options.TokenValidationParameters.ValidAudiences = new[] 
-    { 
-        "api://your-api-client-id",
-        builder.Configuration["AzureAd:ClientId"]
-    };
 });
 ```
 
