@@ -82,6 +82,8 @@ app.Run();
 
 ### Inject and Use with Azure SDK Clients
 
+This code sample shows how to use MicrosoftIdentityTokenCredential with the Blob Storage. The same principle applies to all Azure SDKs
+
 ```csharp
 using Azure.Storage.Blobs;
 using Microsoft.Identity.Web;
@@ -160,45 +162,6 @@ public class FileController : Controller
 }
 ```
 
-### Azure KeyVault Example
-
-```csharp
-using Azure.Security.KeyVault.Secrets;
-using Microsoft.Identity.Web;
-
-[Authorize]
-public class SecretsController : Controller
-{
-    private readonly MicrosoftIdentityTokenCredential _credential;
-    
-    public SecretsController(MicrosoftIdentityTokenCredential credential)
-    {
-        _credential = credential;
-    }
-    
-    public async Task<IActionResult> GetSecret(string secretName)
-    {
-        // Access KeyVault on behalf of user
-        var client = new SecretClient(
-            new Uri("https://myvault.vault.azure.net"),
-            _credential);
-        
-        try
-        {
-            var secret = await client.GetSecretAsync(secretName);
-            return View(new SecretViewModel 
-            { 
-                Name = secret.Value.Name,
-                Value = secret.Value.Value 
-            });
-        }
-        catch (Azure.RequestFailedException ex) when (ex.Status == 403)
-        {
-            return Forbid("Insufficient permissions to access secret");
-        }
-    }
-}
-```
 
 ## Application Permissions (App-Only Tokens)
 
@@ -274,195 +237,6 @@ class Program
 }
 ```
 
-## Common Azure SDK Integrations
-
-### Azure Storage Blobs
-
-```csharp
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-
-public class BlobStorageService
-{
-    private readonly BlobServiceClient _blobClient;
-    
-    public BlobStorageService(MicrosoftIdentityTokenCredential credential)
-    {
-        _blobClient = new BlobServiceClient(
-            new Uri("https://myaccount.blob.core.windows.net"),
-            credential);
-    }
-    
-    public async Task<BlobContentInfo> UploadAsync(string containerName, string blobName, Stream content)
-    {
-        var container = _blobClient.GetBlobContainerClient(containerName);
-        await container.CreateIfNotExistsAsync();
-        
-        var blob = container.GetBlobClient(blobName);
-        return await blob.UploadAsync(content, overwrite: true);
-    }
-    
-    public async Task<Stream> DownloadAsync(string containerName, string blobName)
-    {
-        var container = _blobClient.GetBlobContainerClient(containerName);
-        var blob = container.GetBlobClient(blobName);
-        
-        var response = await blob.DownloadStreamingAsync();
-        return response.Value.Content;
-    }
-}
-```
-
-### Azure KeyVault Secrets
-
-```csharp
-using Azure.Security.KeyVault.Secrets;
-
-public class KeyVaultService
-{
-    private readonly SecretClient _secretClient;
-    
-    public KeyVaultService(MicrosoftIdentityTokenCredential credential)
-    {
-        _secretClient = new SecretClient(
-            new Uri("https://myvault.vault.azure.net"),
-            credential);
-    }
-    
-    public async Task<string> GetSecretAsync(string secretName)
-    {
-        var secret = await _secretClient.GetSecretAsync(secretName);
-        return secret.Value.Value;
-    }
-    
-    public async Task SetSecretAsync(string secretName, string secretValue)
-    {
-        await _secretClient.SetSecretAsync(secretName, secretValue);
-    }
-}
-```
-
-### Azure Service Bus
-
-```csharp
-using Azure.Messaging.ServiceBus;
-
-public class ServiceBusService
-{
-    private readonly ServiceBusClient _client;
-    
-    public ServiceBusService(MicrosoftIdentityTokenCredential credential)
-    {
-        _client = new ServiceBusClient(
-            "myservicebus.servicebus.windows.net",
-            credential);
-    }
-    
-    public async Task SendMessageAsync(string queueName, string message)
-    {
-        var sender = _client.CreateSender(queueName);
-        
-        try
-        {
-            var serviceBusMessage = new ServiceBusMessage(message);
-            await sender.SendMessageAsync(serviceBusMessage);
-        }
-        finally
-        {
-            await sender.DisposeAsync();
-        }
-    }
-    
-    public async Task<List<string>> ReceiveMessagesAsync(string queueName, int maxMessages = 10)
-    {
-        var receiver = _client.CreateReceiver(queueName);
-        var messages = new List<string>();
-        
-        try
-        {
-            var receivedMessages = await receiver.ReceiveMessagesAsync(maxMessages, TimeSpan.FromSeconds(5));
-            
-            foreach (var message in receivedMessages)
-            {
-                messages.Add(message.Body.ToString());
-                await receiver.CompleteMessageAsync(message);
-            }
-        }
-        finally
-        {
-            await receiver.DisposeAsync();
-        }
-        
-        return messages;
-    }
-}
-```
-
-### Azure Tables
-
-```csharp
-using Azure.Data.Tables;
-
-public class TableStorageService
-{
-    private readonly TableServiceClient _tableClient;
-    
-    public TableStorageService(MicrosoftIdentityTokenCredential credential)
-    {
-        _tableClient = new TableServiceClient(
-            new Uri("https://myaccount.table.core.windows.net"),
-            credential);
-    }
-    
-    public async Task<T> GetEntityAsync<T>(string tableName, string partitionKey, string rowKey) 
-        where T : class, ITableEntity, new()
-    {
-        var table = _tableClient.GetTableClient(tableName);
-        var response = await table.GetEntityAsync<T>(partitionKey, rowKey);
-        return response.Value;
-    }
-    
-    public async Task AddEntityAsync<T>(string tableName, T entity) 
-        where T : class, ITableEntity
-    {
-        var table = _tableClient.GetTableClient(tableName);
-        await table.CreateIfNotExistsAsync();
-        await table.AddEntityAsync(entity);
-    }
-}
-```
-
-### Azure Cosmos DB
-
-```csharp
-using Azure.Cosmos;
-
-public class CosmosDbService
-{
-    private readonly CosmosClient _cosmosClient;
-    
-    public CosmosDbService(MicrosoftIdentityTokenCredential credential)
-    {
-        _cosmosClient = new CosmosClient(
-            "https://myaccount.documents.azure.com:443/",
-            credential);
-    }
-    
-    public async Task<T> GetItemAsync<T>(string databaseId, string containerId, string id, string partitionKey)
-    {
-        var container = _cosmosClient.GetContainer(databaseId, containerId);
-        var response = await container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
-        return response.Resource;
-    }
-    
-    public async Task CreateItemAsync<T>(string databaseId, string containerId, T item)
-    {
-        var container = _cosmosClient.GetContainer(databaseId, containerId);
-        await container.CreateItemAsync(item);
-    }
-}
-```
-
 ## Using with Agent Identities
 
 `MicrosoftIdentityTokenCredential` supports agent identities through the `Options` property:
@@ -519,7 +293,7 @@ See [Agent Identities documentation](../scenarios/agent-identities/README.md) fo
 
 ## FIC+Managed Identity Integration
 
-`MicrosoftIdentityTokenCredential` works seamlessly with Azure Managed Identity:
+`MicrosoftIdentityTokenCredential` works seamlessly with FIC+Azure Managed Identity:
 
 ### Configuration for Managed Identity
 
@@ -600,17 +374,15 @@ public class Startup
 {
     public void Configuration(IAppBuilder app)
     {
-        app.AddMicrosoftIdentityWebApp(
-            updateOptions: options =>
-            {
-                Configuration.Bind("AzureAd", options);
-            },
-            configureMicrosoftIdentityOptions: options =>
-            {
-                options.EnableTokenAcquisitionToCallDownstreamApi();
-                options.AddMicrosoftIdentityAzureTokenCredential();
-                options.AddInMemoryTokenCaches();
-            });
+     app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
+     app.UseCookieAuthentication(new CookieAuthenticationOptions());
+
+     OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+
+     app.AddMicrosoftIdentityWebApp(factory);
+     factory.Services
+        .AddMicrosoftIdentityAzureTokenCredential();
+      factory.Build();
     }
 }
 ```
@@ -619,18 +391,7 @@ public class Startup
 
 ### 1. Reuse Azure SDK Clients
 
-Azure SDK clients are thread-safe and should be reused:
-
-```csharp
-// ✅ Good: Register as singleton
-builder.Services.AddSingleton<BlobServiceClient>(sp =>
-{
-    var credential = sp.GetRequiredService<MicrosoftIdentityTokenCredential>();
-    return new BlobServiceClient(
-        new Uri("https://myaccount.blob.core.windows.net"),
-        credential);
-});
-```
+Azure SDK clients are thread-safe and should be reused, but `MicrosoftIdentityTokenCredential` is a scoped service. You can't use it with AddAzureServices() which creates singletons.
 
 ### 2. Use Managed Identity in Production
 
@@ -645,26 +406,7 @@ builder.Services.AddSingleton<BlobServiceClient>(sp =>
 }
 ```
 
-### 3. Configure Appropriate Scopes
-
-For delegated scenarios, Azure resources use specific scopes:
-
-```csharp
-// Storage scope
-_credential.Options.Scopes = new[] { "https://storage.azure.com/user_impersonation" };
-
-// KeyVault scope
-_credential.Options.Scopes = new[] { "https://vault.azure.net/user_impersonation" };
-```
-
-For app-only, use `.default`:
-
-```csharp
-_credential.Options.RequestAppToken = true;
-// Scopes automatically become ["https://storage.azure.com/.default"]
-```
-
-### 4. Handle Azure SDK Exceptions
+### 3. Handle Azure SDK Exceptions
 
 ```csharp
 using Azure;
