@@ -185,6 +185,7 @@ Request additional scopes dynamically when needed:
 
 ```csharp
 [Authorize]
+[AuthorizeForScopes("Mail.Read")]
 public class MailController : Controller
 {
     private readonly GraphServiceClient _graphClient;
@@ -625,7 +626,6 @@ public async Task<IActionResult> SearchUsers(string searchTerm)
 
 For ASP.NET applications using OWIN:
 
-### 1. Configure Startup
 
 ```csharp
 using Microsoft.Identity.Web;
@@ -636,44 +636,32 @@ public class Startup
 {
     public void Configuration(IAppBuilder app)
     {
-        app.AddMicrosoftIdentityWebApp(
-            updateOptions: options =>
-            {
-                Configuration.Bind("AzureAd", options);
-            },
-            configureMicrosoftIdentityOptions: options =>
-            {
-                options.EnableTokenAcquisitionToCallDownstreamApi();
-                options.AddMicrosoftGraph();
-                options.AddInMemoryTokenCaches();
-            });
+      OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+      app.AddMicrosoftIdentityWebApi(factory);
+      factory.Services
+        .AddMicrosoftGraph()
+       factory.Build();
     }
 }
 ```
 
-### 2. Use GraphServiceClient
+### 2. Call API from Controllers
 
 ```csharp
-using Microsoft.Graph;
-using System.Web.Mvc;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
+using System.Web.Http;
 
 [Authorize]
-public class ProfileController : Controller
+public class DataController : ApiController
 {
-    private readonly GraphServiceClient _graphClient;
+    private readonly IDownstreamApi _downstreamApi;
     
-    public ProfileController()
+    public DataController()
     {
-        _graphClient = OwinContextExtensions.GetGraphServiceClient(
-            HttpContext.GetOwinContext());
+      GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
+      var me = await graphServiceClient.Me.Request().GetAsync();
     }
-    
-    public async Task<ActionResult> Index()
-    {
-        var user = await _graphClient.Me.GetAsync();
-        return View(user);
-    }
-}
 ```
 
 ## Migration from Microsoft.Identity.Web.MicrosoftGraph 2.x
@@ -834,38 +822,6 @@ var users = await _graphClient.Users.GetAsync();
 var users = await _graphClient.Users
     .GetAsync(r => r.QueryParameters.Select = 
         new[] { "displayName", "mail", "id" });
-```
-
-### 5. Handle Throttling
-
-Implement retry logic for throttling (HTTP 429):
-
-```csharp
-public async Task<User> GetUserWithRetry(string userId)
-{
-    int retryCount = 0;
-    int maxRetries = 3;
-    
-    while (retryCount < maxRetries)
-    {
-        try
-        {
-            return await _graphClient.Users[userId].GetAsync();
-        }
-        catch (ODataError ex) when (ex.ResponseStatusCode == 429)
-        {
-            retryCount++;
-            var retryAfter = ex.Error?.AdditionalData?["Retry-After"];
-            var delay = retryAfter != null ? 
-                int.Parse(retryAfter.ToString()) : 
-                Math.Pow(2, retryCount);
-            
-            await Task.Delay(TimeSpan.FromSeconds(delay));
-        }
-    }
-    
-    throw new Exception("Max retries exceeded");
-}
 ```
 
 ## Troubleshooting
