@@ -727,31 +727,6 @@ public async Task<IActionResult> GetDataWithLogging()
 }
 ```
 
-### 4. Cache API Responses
-
-```csharp
-public class CachedProductService
-{
-    private readonly IDownstreamApi _api;
-    private readonly IMemoryCache _cache;
-    
-    public CachedProductService(IDownstreamApi api, IMemoryCache cache)
-    {
-        _api = api;
-        _cache = cache;
-    }
-    
-    public async Task<List<Product>> GetProductsAsync()
-    {
-        return await _cache.GetOrCreateAsync("products", async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-            return await _api.GetForUserAsync<List<Product>>("MyApi", "products");
-        });
-    }
-}
-```
-
 ## OWIN Implementation
 
 ```csharp
@@ -763,17 +738,13 @@ public class Startup
 {
     public void Configuration(IAppBuilder app)
     {
-        app.AddMicrosoftIdentityWebApp(
-            updateOptions: options =>
-            {
-                Configuration.Bind("AzureAd", options);
-            },
-            configureMicrosoftIdentityOptions: options =>
-            {
-                options.EnableTokenAcquisitionToCallDownstreamApi();
-                options.AddDownstreamApi("MyApi", Configuration.GetSection("DownstreamApis:MyApi"));
-                options.AddInMemoryTokenCaches();
-            });
+      OwinTokenAcquirerFactory factory = TokenAcquirerFactory.GetDefaultInstance<OwinTokenAcquirerFactory>();
+
+      app.AddMicrosoftIdentityWebApp(factory);
+      factory.Services
+        .AddDownstreamApis(factory.Configuration.GetSection("DownstreamAPI"))
+        .AddInMemoryTokenCaches();
+        factory.Build();
     }
 }
 ```
