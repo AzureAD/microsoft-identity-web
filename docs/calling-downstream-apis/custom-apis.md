@@ -69,11 +69,8 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddInMemoryTokenCaches();
 
 // Register downstream APIs
-builder.Services.AddDownstreamApi("MyApi",
-    builder.Configuration.GetSection("DownstreamApis:MyApi"));
-    
-builder.Services.AddDownstreamApi("PartnerApi",
-    builder.Configuration.GetSection("DownstreamApis:PartnerApi"));
+builder.Services.AddDownstreamApis(
+    builder.Configuration.GetSection("DownstreamApis"));
 
 builder.Services.AddControllersWithViews();
 
@@ -111,7 +108,7 @@ public class ProductsController : Controller
         return View(products);
     }
     
-    // GET with route parameters
+    // Call downstream API with GET request with query parameters
     public async Task<IActionResult> Details(int id)
     {
         var product = await _api.GetForUserAsync<Product>(
@@ -121,7 +118,7 @@ public class ProductsController : Controller
         return View(product);
     }
     
-    // POST request
+    // Call downstream API with POST request
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Product product)
     {
@@ -133,7 +130,7 @@ public class ProductsController : Controller
         return CreatedAtAction(nameof(Details), new { id = created.Id }, created);
     }
     
-    // PUT request
+    // Call downstream API with PUT request
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Product product)
     {
@@ -145,7 +142,7 @@ public class ProductsController : Controller
         return Ok(updated);
     }
     
-    // DELETE request
+    // Call downstream API with DELETE request
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -222,6 +219,8 @@ public async Task<IActionResult> Search(string query, int page, int pageSize)
     return Ok(results);
 }
 ```
+
+You can also use the options.ExtraQueryParameters dictionary.
 
 #### Handling Response Headers
 
@@ -701,38 +700,7 @@ public class ProductApiClient : IProductApiClient
 builder.Services.AddScoped<IProductApiClient, ProductApiClient>();
 ```
 
-### 3. Handle Rate Limiting
-
-```csharp
-public async Task<IActionResult> GetDataWithRetry()
-{
-    int retryCount = 0;
-    int maxRetries = 3;
-    
-    while (retryCount < maxRetries)
-    {
-        try
-        {
-            var data = await _api.GetForUserAsync<MyData>("MyApi", "data");
-            return Ok(data);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-        {
-            retryCount++;
-            
-            if (retryCount >= maxRetries)
-                throw;
-            
-            // Exponential backoff
-            await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, retryCount)));
-        }
-    }
-    
-    return StatusCode(429, "Too many requests");
-}
-```
-
-### 4. Log Request Details
+### 3. Log Request Details
 
 ```csharp
 public async Task<IActionResult> GetDataWithLogging()
@@ -759,7 +727,7 @@ public async Task<IActionResult> GetDataWithLogging()
 }
 ```
 
-### 5. Cache API Responses
+### 4. Cache API Responses
 
 ```csharp
 public class CachedProductService
