@@ -517,7 +517,7 @@ public class AgentService
 
 See [Agent Identities documentation](../scenarios/agent-identities/README.md) for more details.
 
-## Managed Identity Integration
+## FIC+Managed Identity Integration
 
 `MicrosoftIdentityTokenCredential` works seamlessly with Azure Managed Identity:
 
