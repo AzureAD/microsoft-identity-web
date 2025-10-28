@@ -27,6 +27,11 @@ Microsoft.Identity.Web caches several types of tokens:
 | **Refresh Tokens** | Variable | Per user account | Manual or policy-based |
 | **ID Tokens** | ~2-7 KB | Per user | Automatic |
 
+**Where token caching applies:**
+- **[Web apps calling APIs](../../calling-downstream-apis/from-web-apps.md)** - User tokens for delegated access
+- **[Web APIs calling downstream APIs](../../calling-downstream-apis/from-web-apis.md)** - OBO tokens (requires careful eviction policies)
+- **Daemon applications** - App-only tokens for service-to-service calls
+
 ### Why Cache Tokens?
 
 **Performance Benefits:**
@@ -466,6 +471,12 @@ For **10,000 concurrent users**:
 - **[Cache Eviction Strategies](eviction.md)** - Managing OBO tokens, sliding expiration
 - **[Troubleshooting Guide](troubleshooting.md)** - Common issues and solutions
 - **[Encryption Guide](encryption.md)** - Data protection in distributed systems
+
+### Using Token Caching in Your Application
+
+- **[Calling Downstream APIs from Web Apps](../../calling-downstream-apis/from-web-apps.md)** - User token acquisition and caching
+- **[Calling Downstream APIs from Web APIs](../../calling-downstream-apis/from-web-apis.md)** - OBO token caching considerations
+- **[Web App Quickstart](../../getting-started/quickstart-webapp.md)** - Getting started with authentication
 
 ### Common Scenarios
 

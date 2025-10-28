@@ -67,7 +67,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add authentication
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd");
+                .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd")
+                .EnableTokenAcquisitionToCallDownstreamApi() // Optional: if calling APIs
+                .AddInMemoryTokenCaches(); // For production, use distributed cache
 
 // Add Razor Pages or MVC
 builder.Services.AddRazorPages()

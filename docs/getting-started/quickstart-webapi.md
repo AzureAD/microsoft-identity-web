@@ -325,6 +325,7 @@ builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
 Now that you have a protected API:
 
 ✅ **[Call downstream APIs](../scenarios/web-apis/call-downstream-api.md)** - Call Microsoft Graph or other APIs  
+✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios  
 ✅ **[Authorization policies](../scenarios/web-apis/authorization-policies.md)** - Implement role-based or policy-based authorization  
 ✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens  
 ✅ **[Deploy behind API Gateway](../deployment/api-gateways.md)** - Azure API Management, Azure Front Door  

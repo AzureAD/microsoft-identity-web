@@ -1290,6 +1290,7 @@ var settings = settingsTask.Result;
 ## Additional Resources
 
 - **[Back to Downstream APIs Overview](./README.md)** - Compare all approaches
+- **[Token Cache Configuration](../authentication/token-cache/README.md)** - Production cache strategies
 - **[Microsoft Graph Integration](./microsoft-graph.md)** - Graph-specific guidance
 - **[Azure SDK Integration](./azure-sdks.md)** - Azure service calls
 - **[Custom API Calls](./custom-apis.md)** - Custom REST APIs
@@ -1304,7 +1305,7 @@ var settings = settingsTask.Result;
 3. **Add downstream API** configuration
 4. **Implement error handling** for consent and failures
 5. **Test incremental consent** scenarios
-6. **Configure distributed cache** for production
+6. **[Configure distributed cache](../authentication/token-cache/README.md)** for production
 
 ---
 
