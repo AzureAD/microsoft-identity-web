@@ -25,10 +25,10 @@ Modernize the Microsoft.Identity.Web documentation by:
 | Milestone | Target | Status |
 |-----------|--------|--------|
 | Foundation (README + Quickstarts) | Week of Oct 6 | ✅ Complete |
-| Calling Downstream APIs | Week of Oct 6 | ✅ Complete (1 file pending) |
+| Calling Downstream APIs | Week of Oct 27 | ✅ Complete |
 | Sidecar Documentation | Before Ignite Nov 2025 | ✅ Complete |
 | Agent Identities Documentation | Before Ignite Nov 2025 | ✅ Complete |
-| Credentials Documentation | Week of Oct 27 | 🚀 High Priority |
+| Credentials Documentation | Week of Oct 27 | ✅ Complete |
 | Core Scenarios (Web Apps, APIs, Daemon) | TBD | 📝 TODO |
 
 ---
@@ -42,9 +42,9 @@ docs/
 │   ├── quickstart-webapp.md           ✅ COMPLETE - Updated with explicit auth schemes
 │   ├── quickstart-webapi.md           ✅ COMPLETE - Updated with explicit auth schemes
 │   └── why-microsoft-identity-web.md  📝 TODO
-├── calling-downstream-apis/           ✅ COMPLETE (5 of 6 files done)
+├── calling-downstream-apis/           ✅ COMPLETE - All 6 files done
 │   ├── README.md                      ✅ COMPLETE - Overview, patterns, IDownstreamApi
-│   ├── from-web-apps.md               📝 MISSING - Web app specific aspects
+│   ├── from-web-apps.md               ✅ COMPLETE - Web app specific aspects (user tokens)
 │   ├── from-web-apis.md               ✅ COMPLETE - Web API specific aspects (OBO)
 │   ├── microsoft-graph.md             ✅ COMPLETE - GraphServiceClient integration
 │   ├── azure-sdks.md                  ✅ COMPLETE - MicrosoftIdentityTokenCredential
@@ -63,12 +63,12 @@ docs/
 │   ├── scenarios/                     ✅ COMPLETE - Scenario examples
 │   └── toc.yaml                       ✅ COMPLETE - Table of contents
 ├── authentication/
-│   ├── credentials/                   🚀 HIGH PRIORITY - Top remaining gap
-│   │   ├── README.md                  ✅ COMPLETE - Moved from Credentials.md
-│   │   ├── certificateless.md         ✅ EXISTS - FIC+MSI deep dive
-│   │   ├── certificates.md            ✅ EXISTS - All cert types
-│   │   ├── client-secrets.md          ✅ EXISTS - Dev/test only
-│   │   └── token-decryption.md        ✅ EXISTS - Special case
+│   ├── credentials/                   ✅ COMPLETE - Comprehensive credential documentation
+│   │   ├── README.md                  ✅ COMPLETE - Hub with decision flow and examples
+│   │   ├── certificateless.md         ✅ COMPLETE - FIC+MSI deep dive
+│   │   ├── certificates.md            ✅ COMPLETE - All cert types
+│   │   ├── client-secrets.md          ✅ COMPLETE - Dev/test only
+│   │   └── token-decryption.md        ✅ COMPLETE - Special case
 │   └── token-cache/                   📝 TODO
 │       ├── README.md
 │       ├── serialization.md
@@ -171,7 +171,7 @@ docs/
 
 ### Phase 2: Calling Downstream APIs (October 6-27, 2025)
 
-**Transverse Documentation - SUBSTANTIALLY COMPLETE** ✅
+**Transverse Documentation - COMPLETE** ✅
 
 **1. docs/calling-downstream-apis/README.md** ✅
 - Main overview of downstream API patterns
@@ -208,14 +208,16 @@ docs/
 - Adding custom headers
 - Handling API-specific authentication patterns
 
-**6. docs/calling-downstream-apis/from-web-apps.md** 📝 MISSING
+**6. docs/calling-downstream-apis/from-web-apps.md** ✅ **COMPLETE**
 - Acquiring tokens on behalf of signed-in user
-- Incremental consent
-- Handling token acquisition failures
-- ASP.NET Core examples
-- OWIN examples (if different)
+- Incremental consent patterns and handling
+- Token caching (in-memory and distributed)
+- Error handling and graceful degradation
+- ASP.NET Core and OWIN examples
+- Microsoft Graph, Azure SDK, and custom API integration
+- Security best practices
 
-**Status:** 5 of 6 files complete (83% done). `from-web-apps.md` remains as a gap.
+**Status:** 6 of 6 files complete (100% done). ✅ **Phase 2 Complete!**
 
 ### Phase 3: Sidecar & Agent Identities (October 2025)
 
@@ -255,13 +257,13 @@ The sidecar documentation is comprehensive and production-ready:
 2. **✅ FIXED - Credentials File Structure**
    - Moved `authentication/Credentials.md` → `authentication/credentials/README.md`
    - Properly integrates with credential subfiles (certificateless.md, certificates.md, etc.)
-   - **Status:** Structure now correct, ready for credential file creation
+   - **Status:** Structure now correct, all credential files complete
    - **Action Taken:** File moved and all references updated
 
-3. **📝 KNOWN - Missing calling-downstream-apis/from-web-apps.md**
-   - Already tracked in plan as 1 remaining file for Phase 2
-   - Multiple files link to it
-   - **Action:** Create file as part of completing Phase 2
+3. **✅ FIXED - Missing calling-downstream-apis/from-web-apps.md**
+   - Created comprehensive guide covering user token acquisition
+   - Includes incremental consent, error handling, caching strategies
+   - **Action Taken:** File created with 600+ lines of documentation
 
 4. **📝 TRACKED - Missing Folders (Lower Priority)**
    - All documented in plan as TODO sections:
@@ -669,26 +671,26 @@ How we'll know this modernization is successful:
 ## 📅 Timeline & Status
 
 **Current Sprint:** Week of October 27, 2025
-**Current Phase:** Phase 3 ✅ Complete / Phase 4 🚀 In Progress
-**Next Milestone:** Credentials documentation complete
+**Current Phase:** Phase 5 Planning - Core Scenarios
+**Recent Milestone:** Phase 2 and Phase 4 complete! 🎉
 **Branch:** `feature/doc-modernization`
-**Target for PR:** After credentials documentation complete
+**Target for PR:** After core scenarios documentation begins
 
 ### Progress Summary
 
 **Completion Status:**
 - ✅ **Phase 1 (Foundation):** 100% complete
-- ✅ **Phase 2 (Downstream APIs):** 83% complete (5 of 6 files)
+- ✅ **Phase 2 (Downstream APIs):** 100% complete (all 6 files) ⭐ **JUST COMPLETED**
 - ✅ **Phase 3 (Sidecar/Agent Identities):** 100% complete
-- 🚀 **Phase 4 (Credentials):** 0% complete - **HIGH PRIORITY**
-- 📝 **Phase 5 (Core Scenarios):** 0% complete
+- ✅ **Phase 4 (Credentials):** 100% complete ⭐ **JUST VERIFIED**
+- 📝 **Phase 5 (Core Scenarios):** 0% complete - **NEXT PRIORITY**
 - 📝 **Phase 6+ (Advanced, Deployment, Migration):** 0% complete
 
-**Overall Documentation Modernization Progress:** ~40% complete
+**Overall Documentation Modernization Progress:** ~50% complete (up from 40%)
 
-**Key Achievement:** Ignite 2025 (November) readiness ✅ - Sidecar and agent identities documentation is production-ready!
-
----
+**Key Achievements:**
+- ✅ Ignite 2025 (November) readiness - Sidecar and agent identities documentation is production-ready!
+- ✅ Four major phases complete - Strong foundation for remaining work---
 
 ## 📝 Open Questions & Decisions Needed
 
@@ -701,9 +703,10 @@ How we'll know this modernization is successful:
 
 ### New Questions Based on Progress
 
-1. **Credentials documentation status?** - README.md complete ✅, need to review existing detail files
-2. **from-web-apps.md priority?** - Complete as part of Phase 2 finalization
-3. **Next scenario priority after credentials review?** - Web Apps, Web APIs, or Daemon first?
+1. **✅ RESOLVED - Credentials documentation status?** - All files complete, reviewed, and production-ready
+2. **✅ RESOLVED - from-web-apps.md priority?** - Complete! Phase 2 is now 100% done
+3. **Next scenario priority?** - Web Apps, Web APIs, or Daemon first?
+4. **Core scenarios approach?** - Should we tackle all three scenarios in parallel or sequentially?
 
 ### Pending Research
 
@@ -748,24 +751,26 @@ How we'll know this modernization is successful:
 ## 🎉 Major Achievements to Date
 
 1. ✅ **Foundation Complete** - README and quickstarts modernized with .NET 9
-2. ✅ **Downstream APIs Substantially Complete** - 5 of 6 comprehensive guides done
+2. ✅ **Downstream APIs Complete** - All 6 comprehensive guides done, including from-web-apps.md
 3. ✅ **Sidecar Documentation Complete** - 12 comprehensive files covering all aspects
 4. ✅ **Agent Identities Ready for Ignite 2025** - Production-ready documentation
-5. ✅ **Clear Structure Established** - Scalable organization for future content
-6. ✅ **Modern Code Patterns** - Explicit authentication schemes, .NET 8/9 focus
+5. ✅ **Credentials Documentation Complete** - 5 comprehensive credential guides with decision framework
+6. ✅ **Clear Structure Established** - Scalable organization for future content
+7. ✅ **Modern Code Patterns** - Explicit authentication schemes, .NET 8/9 focus
+8. ✅ **Four Complete Phases** - Foundation, Downstream APIs, Sidecar, and Credentials all done!
 
 ---
 
-**Last Updated:** October 27, 2025, 23:50 UTC
+**Last Updated:** October 27, 2025, 23:55 UTC
 **Updated By:** Jean-Marc Prieur (@jmprieur), GitHub Copilot
 **Recent Changes:**
+- ✅ **MAJOR:** Completed Phase 2 - Created from-web-apps.md (600+ lines)
+- ✅ **MAJOR:** Phase 4 Credentials documentation verified complete
 - ✅ Fixed broken links (quickstart filenames)
 - ✅ Moved Credentials.md to credentials/README.md
 - ✅ Added Documentation Health section
-- 📝 Updated credentials documentation status (README complete, detail files exist)
-**Next Review:** After reviewing existing credential detail files
-**Next Major Milestone:** Complete Phase 2 (from-web-apps.md) and finalize credentials documentation
-
----
+- � **Progress:** 50% complete (4 of 8 major phases done)
+**Next Review:** After determining Phase 5 priorities
+**Next Major Milestone:** Begin Core Scenarios documentation (Web Apps, Web APIs, or Daemon)---
 
 *This is a living document. Update as we progress through the modernization effort.*
