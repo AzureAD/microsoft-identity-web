@@ -9,10 +9,6 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
-
-
-
-
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <!--CVE-2021-24112 from ASpNetCore.Protection, and Redis-->
     <SystemDrawingCommon>8.0.0</SystemDrawingCommon>

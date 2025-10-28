@@ -7,10 +7,8 @@
     <SignAssembly>True</SignAssembly>
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
-    <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(BuildDirectory)/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-
-
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftAspNetCoreMvcTestingVersion>8.0.1</MicrosoftAspNetCoreMvcTestingVersion>
@@ -61,9 +59,8 @@
 
   <PropertyGroup>
     <!--RS0016: Add public types and members to the declared API-->
-    <NoWarn>RS0016</NoWarn>
     <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
-    <NoWarn>RS0037</NoWarn>
+    <NoWarn>$(NoWarn);RS0016;RS0037</NoWarn>
   </PropertyGroup>
 
 </Project>

@@ -7,12 +7,10 @@
     <EnablePackageValidation>false</EnablePackageValidation>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\build\MSAL.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(BuildDirectory)/MSAL.snk</AssemblyOriginatorKeyFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityLabApiVersion>1.0.0</MicrosoftIdentityLabApiVersion>
@@ -28,8 +26,7 @@
 
   <PropertyGroup>
     <!--RS0016: Add public types and members to the declared API-->
-    <NoWarn>RS0016</NoWarn>
     <!--RS0031: The list of banned symbols contains a duplicate-->
-    <NoWarn>RS0031</NoWarn>
+    <NoWarn>$(NoWarn);RS0016; RS0031</NoWarn>
   </PropertyGroup>
 </Project>

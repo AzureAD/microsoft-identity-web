@@ -11,7 +11,8 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>3.14.1</PackageValidationBaselineVersion>
 
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <BuildDirectory>$(MSBuildThisFileDirectory)/build</BuildDirectory>
+    <AssemblyOriginatorKeyFile>$(BuildDirectory)/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <RepositoryType>git</RepositoryType>
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation</Company>
