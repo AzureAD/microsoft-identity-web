@@ -6,6 +6,7 @@
     <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <CodeAnalysisRuleSet>..\..\..\.sonarlint\azuread_microsoft-identity-webcsharp.ruleset</CodeAnalysisRuleSet>
     <AssemblyOriginatorKeyFile>$(BuildDirectory)/MSAL.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
