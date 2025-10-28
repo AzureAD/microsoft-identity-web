@@ -240,10 +240,10 @@ Some scenarios require enabling ID token:
 
 Now that you have a working web app with sign-in:
 
-✅ **[Call a downstream API](../scenarios/web-apps/call-downstream-api.md)** - Call Microsoft Graph or your own API  
-✅ **[Customize authentication](../scenarios/web-apps/customization.md)** - Modify claims, handle events  
-✅ **[Configure token cache](../authentication/token-cache/README.md)** - Set up distributed caching  
-✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions  
+✅ **[Call a downstream API](../scenarios/web-apps/call-downstream-api.md)** - Call Microsoft Graph or your own API
+✅ **[Customize authentication](../scenarios/web-apps/customization.md)** - Modify claims, handle events
+✅ **[Configure token cache](../authentication/token-cache/README.md)** - Set up distributed caching
+✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions
 ✅ **[Deploy to Azure](../deployment/azure-app-service.md)** - Production deployment guidance
 
 ## Troubleshooting

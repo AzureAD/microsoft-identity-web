@@ -121,7 +121,7 @@ public class WeatherForecastController : ControllerBase
         // Access user information
         var userId = User.FindFirst("oid")?.Value;
         var userName = User.Identity?.Name;
-        
+
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -150,7 +150,7 @@ public class TodoController : ControllerBase
     {
         return Ok(new[] { "Todo 1", "Todo 2" });
     }
-    
+
     [HttpPost]
     [RequiredScope("write")] // ⭐ Different scope for write operations
     public IActionResult Create([FromBody] string item)
@@ -271,7 +271,7 @@ var accessToken = result.AccessToken;
 
 // Use the token to call your API
 using var client = new HttpClient();
-client.DefaultRequestHeaders.Authorization = 
+client.DefaultRequestHeaders.Authorization =
     new AuthenticationHeaderValue("Bearer", accessToken);
 
 var response = await client.GetAsync("https://localhost:5001/api/weatherforecast");
@@ -324,11 +324,11 @@ builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
 
 Now that you have a protected API:
 
-✅ **[Call downstream APIs](../scenarios/web-apis/call-downstream-api.md)** - Call Microsoft Graph or other APIs  
-✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios  
-✅ **[Authorization policies](../scenarios/web-apis/authorization-policies.md)** - Implement role-based or policy-based authorization  
-✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens  
-✅ **[Deploy behind API Gateway](../deployment/api-gateways.md)** - Azure API Management, Azure Front Door  
+✅ **[Call downstream APIs](../scenarios/web-apis/call-downstream-api.md)** - Call Microsoft Graph or other APIs
+✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios
+✅ **[Authorization policies](../scenarios/web-apis/authorization-policies.md)** - Implement role-based or policy-based authorization
+✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens
+✅ **[Deploy behind API Gateway](../deployment/api-gateways.md)** - Azure API Management, Azure Front Door
 ✅ **[gRPC services](../scenarios/web-apis/grpc.md)** - Protect gRPC endpoints
 
 ## Troubleshooting
@@ -355,7 +355,7 @@ Now that you have a protected API:
 
 **Problem:** `[RequiredScope]` attribute fails.
 
-**Solution:** 
+**Solution:**
 1. Verify the client app has permission to the scope
 2. Ensure admin consent was granted (if required)
 3. Check that the scope is requested when acquiring the token (e.g., `api://your-api/.default` or specific scopes)
