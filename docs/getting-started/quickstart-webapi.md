@@ -324,12 +324,18 @@ builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration)
 
 Now that you have a protected API:
 
-✅ **[Call downstream APIs](../scenarios/web-apis/call-downstream-api.md)** - Call Microsoft Graph or other APIs
+### Learn More
+
+✅ **[Authorization Guide](../authentication/authorization.md)** - RequiredScope attribute, authorization policies, tenant filtering
+✅ **[Customization Guide](../advanced/customization.md)** - Configure JWT bearer options and validation parameters
+✅ **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot authentication issues with correlation IDs
+
+### Advanced Scenarios
+
+✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apis.md)** - Call Microsoft Graph or other APIs on behalf of users
 ✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios
-✅ **[Authorization policies](../scenarios/web-apis/authorization-policies.md)** - Implement role-based or policy-based authorization
 ✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens
 ✅ **[Deploy behind API Gateway](../deployment/api-gateways.md)** - Azure API Management, Azure Front Door
-✅ **[gRPC services](../scenarios/web-apis/grpc.md)** - Protect gRPC endpoints
 
 ## Troubleshooting
 
@@ -343,13 +349,13 @@ Now that you have a protected API:
 - Token is for the wrong tenant
 - Required scope is missing
 
-**Solution:** Decode the token at [jwt.ms](https://jwt.ms) and verify the claims.
+**Solution:** Decode the token at [jwt.ms](https://jwt.ms) and verify the claims. See [Logging & Diagnostics](../advanced/logging.md) for detailed troubleshooting.
 
 ### AADSTS50013: Invalid signature
 
 **Problem:** Token signature validation fails.
 
-**Solution:** Ensure your `TenantId` and `ClientId` are correct. The token must be issued by the expected authority.
+**Solution:** Ensure your `TenantId` and `ClientId` are correct. The token must be issued by the expected authority. Enable detailed logging to see validation errors.
 
 ### Scopes not found in token
 
@@ -358,6 +364,7 @@ Now that you have a protected API:
 **Solution:**
 1. Verify the client app has permission to the scope
 2. Ensure admin consent was granted (if required)
+3. See [Authorization Guide](../authentication/authorization.md) for complete scope validation patterns
 3. Check that the scope is requested when acquiring the token (e.g., `api://your-api/.default` or specific scopes)
 
 **See more:** [Web API Troubleshooting Guide](../scenarios/web-apis/troubleshooting.md)

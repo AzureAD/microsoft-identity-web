@@ -240,10 +240,17 @@ Some scenarios require enabling ID token:
 
 Now that you have a working web app with sign-in:
 
-✅ **[Call a downstream API](../scenarios/web-apps/call-downstream-api.md)** - Call Microsoft Graph or your own API
-✅ **[Customize authentication](../scenarios/web-apps/customization.md)** - Modify claims, handle events
-✅ **[Configure token cache](../authentication/token-cache/README.md)** - Set up distributed caching
-✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions
+### Learn More
+
+✅ **[Authorization Guide](../authentication/authorization.md)** - Protect controllers with policies and scopes
+✅ **[Customization Guide](../advanced/customization.md)** - OpenID Connect events, login hints, claims transformation
+✅ **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot authentication issues with correlation IDs
+
+### Advanced Scenarios
+
+✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apps.md)** - Call Microsoft Graph or your own API
+✅ **[Configure token cache](../authentication/token-cache/README.md)** - Set up distributed caching for production
+✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions dynamically
 ✅ **[Deploy to Azure](../deployment/azure-app-service.md)** - Production deployment guidance
 
 ## Troubleshooting
@@ -264,7 +271,7 @@ Now that you have a working web app with sign-in:
 
 **Problem:** Missing or invalid `Instance` or `TenantId`.
 
-**Solution:** Ensure `Instance` is `https://login.microsoftonline.com/` and `TenantId` is valid.
+**Solution:** Ensure `Instance` is `https://login.microsoftonline.com/` and `TenantId` is valid. See [Logging & Diagnostics](../advanced/logging.md) for detailed troubleshooting.
 
 **See more:** [Web App Troubleshooting Guide](../scenarios/web-apps/troubleshooting.md)
 

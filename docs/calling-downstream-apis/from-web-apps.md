@@ -1237,6 +1237,8 @@ catch (MsalUiRequiredException)
 2. Check app registration has API permissions
 3. Ensure tokens are being cached and refreshed
 
+**For detailed diagnostics:** See [Logging & Diagnostics Guide](../advanced/logging.md) for correlation IDs, token cache debugging, and comprehensive troubleshooting patterns.
+
 ---
 
 ## Performance Considerations

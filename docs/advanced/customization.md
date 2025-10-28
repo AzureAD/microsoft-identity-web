@@ -815,6 +815,15 @@ app.MapControllers();    // Then endpoints
 
 ---
 
+## See Also
+
+- **[Authorization Guide](../authentication/authorization.md)** - Scope validation and authorization policies
+- **[Logging & Diagnostics](logging.md)** - Debug customization issues with correlation IDs and detailed logging
+- **[Token Cache](../authentication/token-cache/README.md)** - Configure distributed token caching
+- **[Quickstart: Web App](../getting-started/quickstart-webapp.md)** - Get started with web application authentication
+
+---
+
 ## Additional Resources
 
 - [ASP.NET Core Authentication](https://learn.microsoft.com/aspnet/core/security/authentication/)

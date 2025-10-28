@@ -763,12 +763,22 @@ services.AddDistributedTokenCaches(cacheServices =>
 
 ---
 
+## See Also
+
+- **[MSAL.NET with Microsoft.Identity.Web](msal-dotnet-framework.md)** - For console apps and daemon services
+- **[ASP.NET Framework Overview](aspnet-framework.md)** - Choose the right package for your scenario
+- **[Authorization Guide](../authentication/authorization.md)** - Scope validation and authorization policies
+- **[Customization Guide](../advanced/customization.md)** - Configure OWIN authentication options
+- **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot OWIN authentication issues
+
+---
+
 ## Additional Resources
 
 - [Microsoft.Identity.Web.OWIN on GitHub](https://github.com/AzureAD/microsoft-identity-web)
 - [OWIN Integration Wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/OWIN)
 - [Sample: ASP.NET MVC with OWIN](https://github.com/Azure-Samples/ms-identity-aspnet-webapp-openidconnect)
-- [Token Cache Serialization](token-cache-serialization.md)
+- [Token Cache Serialization](../authentication/token-cache/README.md)
 
 ---
 

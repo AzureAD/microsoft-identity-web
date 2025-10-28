@@ -14,7 +14,7 @@ sequenceDiagram
     participant YourAPI as Your Web API
     participant AzureAD as Azure AD
     participant DownstreamAPI as Downstream API
-    
+
     Client->>YourAPI: 1. Call with access token
     Note over YourAPI: Validate token
     YourAPI->>AzureAD: 2. OBO request with user token
@@ -116,7 +116,7 @@ public class DataController : ControllerBase
 {
     private readonly IDownstreamApi _downstreamApi;
     private readonly ILogger<DataController> _logger;
-    
+
     public DataController(
         IDownstreamApi downstreamApi,
         ILogger<DataController> logger)
@@ -124,7 +124,7 @@ public class DataController : ControllerBase
         _downstreamApi = downstreamApi;
         _logger = logger;
     }
-    
+
     [HttpGet("userdata")]
     public async Task<ActionResult<UserData>> GetUserData()
     {
@@ -135,7 +135,7 @@ public class DataController : ControllerBase
             var userData = await _downstreamApi.GetForUserAsync<UserData>(
                 "PartnerAPI",
                 "api/users/me");
-                
+
             return Ok(userData);
         }
         catch (MicrosoftIdentityWebChallengeUserException ex)
@@ -150,7 +150,7 @@ public class DataController : ControllerBase
             return StatusCode(500, "Failed to retrieve data from downstream service");
         }
     }
-    
+
     [HttpPost("process")]
     public async Task<ActionResult<ProcessResult>> ProcessData([FromBody] DataRequest request)
     {
@@ -159,7 +159,7 @@ public class DataController : ControllerBase
             "PartnerAPI",
             "api/process",
             request);
-            
+
         return Ok(result);
     }
 }
@@ -227,7 +227,7 @@ graph TD
     C --> D{Token expires?}
     D -->|Yes| E[❌ OBO fails]
     D -->|No| F[✅ OBO succeeds]
-    
+
     style E fill:#f8d7da
     style F fill:#d4edda
 ```
@@ -242,7 +242,7 @@ public class ProcessingController : ControllerBase
 {
     private readonly IDownstreamApi _downstreamApi;
     private readonly IBackgroundTaskQueue _taskQueue;
-    
+
     public ProcessingController(
         IDownstreamApi downstreamApi,
         IBackgroundTaskQueue taskQueue)
@@ -250,28 +250,28 @@ public class ProcessingController : ControllerBase
         _downstreamApi = downstreamApi;
         _taskQueue = taskQueue;
     }
-    
+
     [HttpPost("start")]
     public async Task<ActionResult<ProcessStatus>> StartLongProcess([FromBody] ProcessRequest request)
     {
         var processId = Guid.NewGuid();
-        
+
         // Queue the long-running task
         _taskQueue.QueueBackgroundWorkItem(async (cancellationToken) =>
         {
             await ProcessDataAsync(processId, request, cancellationToken);
         });
-        
-        return Accepted(new ProcessStatus 
-        { 
-            ProcessId = processId, 
-            Status = "Started" 
+
+        return Accepted(new ProcessStatus
+        {
+            ProcessId = processId,
+            Status = "Started"
         });
     }
-    
+
     private async Task ProcessDataAsync(
-        Guid processId, 
-        ProcessRequest request, 
+        Guid processId,
+        ProcessRequest request,
         CancellationToken cancellationToken)
     {
         try
@@ -281,19 +281,19 @@ public class ProcessingController : ControllerBase
                 "PartnerAPI",
                 options => {
                    options.RelativePath = "api/process/data";
-                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString() 
+                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString()
                 },
                 cancellationToken: cancellationToken);
-                
+
             // Process data...
             await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
-            
+
             // Call API again (token may need refresh)
             await _downstreamApi.PostForUserAsync<ProcessData, ProcessResult>(
                 "PartnerAPI",
                 options => {
                    options.RelativePath = "api/process/complete";
-                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString() 
+                   options.AcquireTokenOptions.LongRunningWebApiSessionKey = processId.ToString()
                 },
                 data,
                 cancellationToken: cancellationToken);
@@ -330,7 +330,7 @@ public async Task<ActionResult> GetData()
     catch (MicrosoftIdentityWebChallengeUserException ex)
     {
         // Return 401 with consent information
-        return Unauthorized(new 
+        return Unauthorized(new
         {
             error = "consent_required",
             error_description = "Additional user consent required",
@@ -352,7 +352,7 @@ var response = await httpClient.GetAsync("https://yourapi.example.com/api/data")
 if (response.StatusCode == HttpStatusCode.Unauthorized)
 {
     var error = await response.Content.ReadFromJsonAsync<ConsentError>();
-    
+
     if (error?.error == "consent_required")
     {
         // Trigger incremental consent in client app
@@ -423,7 +423,7 @@ using System.Web.Http;
 public class DataController : ApiController
 {
     private readonly IDownstreamApi _downstreamApi;
-    
+
     public DataController()
     {
       GraphServiceClient graphServiceClient = this.GetGraphServiceClient();
@@ -440,7 +440,7 @@ public class DataController : ApiController
       IAuthorizationHeaderProvider authorizationHeaderProvider =
            this.GetAuthorizationHeaderProvider();
     }
-    
+
     [HttpGet]
     [Route("api/data")]
     public async Task<IHttpActionResult> GetData()
@@ -449,7 +449,7 @@ public class DataController : ApiController
             "PartnerAPI",
             options => options.RelativePath = "api/data",
             options => options.Scopes = new[] { "api://partner/read" });
-            
+
         return Ok(data);
     }
 }
@@ -468,15 +468,15 @@ public async Task<ActionResult<Dashboard>> GetDashboard()
         // Call multiple APIs in parallel
         var userTask = _downstreamApi.GetForUserAsync<User>(
             "GraphAPI", "me");
-            
+
         var dataTask = _downstreamApi.GetForUserAsync<Data>(
             "PartnerAPI", "api/data");
-            
+
         var settingsTask = _downstreamApi.GetForUserAsync<Settings>(
             "PartnerAPI", "api/settings");
-            
+
         await Task.WhenAll(userTask, dataTask, settingsTask);
-        
+
         return Ok(new Dashboard
         {
             User = userTask.Result,
@@ -559,7 +559,7 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 
 **Cause**: Clock skew between servers or expired token.
 
-**Solution**: 
+**Solution**:
 - Sync server clocks
 - Check token expiration
 - Ensure token cache is working properly
@@ -579,6 +579,8 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 
 **Solution**: Switch to distributed cache (Redis, SQL Server, Cosmos DB).
 
+**For detailed diagnostics:** See [Logging & Diagnostics Guide](../advanced/logging.md) for correlation IDs, token cache debugging, PII logging configuration, and comprehensive troubleshooting workflows.
+
 ## Related Documentation
 
 - [Long-Running Processes](../advanced/long-running-processes.md)
@@ -586,6 +588,9 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 - [Calling from Web Apps](from-web-apps.md)
 - [Web API Scenarios](../scenarios/web-apis/README.md)
 - [API Behind Gateways](../advanced/api-gateways.md)
+- **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshooting authentication and token issues
+- **[Authorization Guide](../authentication/authorization.md)** - RequiredScope and app permission validation
+- **[Customization Guide](../advanced/customization.md)** - Advanced token acquisition customization
 
 ---
 

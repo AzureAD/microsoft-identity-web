@@ -242,15 +242,21 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [Credentials Guide](./authentication/credentials/README.md) - Choose and configure credentials
 - [Token Cache](./authentication/token-cache/README.md) - Configure distributed caching
 - [Token Decryption](./authentication/token-cache/token-decryption.md) - Decrypt encrypted tokens
+- [Authorization](./authentication/authorization.md) - Scope validation, authorization policies, tenant filtering
 
 ### Advanced Topics
+- [Customization](./advanced/customization.md) - Configure options, event handlers, login hints
+- [Logging & Diagnostics](./advanced/logging.md) - PII logging, correlation IDs, troubleshooting
 - [Multiple Authentication Schemes](./advanced/multiple-auth-schemes.md)
 - [Incremental Consent & Conditional Access](./advanced/incremental-consent-ca.md)
 - [Long-Running Processes](./advanced/long-running-processes.md)
 - [APIs Behind Gateways](./advanced/api-gateways.md)
 - [Performance Optimization](./advanced/performance.md)
-- [Logging & Diagnostics](./advanced/logging.md)
-- [Customization](./advanced/customization.md)
+
+### .NET Framework Support
+- [ASP.NET Framework & .NET Standard](./frameworks/aspnet-framework.md) - Overview and package guide
+- [MSAL.NET with Microsoft.Identity.Web](./frameworks/msal-dotnet-framework.md) - Token cache and certificates for console/daemon apps
+- [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
 
 ### Deployment
 - [Azure App Service](./deployment/azure-app-service.md)

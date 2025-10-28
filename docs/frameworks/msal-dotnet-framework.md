@@ -718,6 +718,15 @@ AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsy
 
 ---
 
+## See Also
+
+- **[OWIN Integration](owin.md)** - For ASP.NET MVC and Web API applications
+- **[ASP.NET Framework Overview](aspnet-framework.md)** - Choose the right package for your scenario
+- **[Credentials Guide](../authentication/credentials/README.md)** - Certificate and client secret management
+- **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot token acquisition issues
+
+---
+
 ## Additional Resources
 
 - [Token Cache Serialization in MSAL.NET](https://learn.microsoft.com/azure/active-directory/develop/msal-net-token-cache-serialization)
