@@ -84,16 +84,14 @@ After systematic review of `/docs` folder and `/docs/wiki-archive`, here's the r
    - Application Insights and Serilog integration
    - **Status:** ✅ **COMPLETE** - Essential troubleshooting guide with practical examples
 
-4. **ASP.NET Framework / OWIN** (`asp-net.md` wiki) → **docs/frameworks/aspnet-framework.md** (~750 lines)
-   - Token cache serializers for .NET Framework (.NET 4.7.2+)
-   - Using Microsoft.Identity.Web.TokenCache package
-   - .NET Standard 2.0 support and package options
-   - All cache providers: In-memory, SQL Server, Redis, Cosmos DB
-   - Certificate management with DefaultCertificateLoader
-   - Loading certificates from KeyVault, certificate store, file system, Base64
-   - OWIN integration patterns (Startup.Auth.cs, controller extensions)
-   - Migration guide from ADAL.NET to MSAL.NET
-   - **Status:** ✅ **COMPLETE** - Comprehensive .NET Framework support guide
+4. **✅ docs/frameworks/aspnet-framework.md** - REORGANIZED (~200 lines landing page)
+   - Source: wiki-archive/asp-net.md
+   - **Structure:** Landing page directing to specialized guides
+   - Content: Overview, package comparison, quick navigation
+   - **Split into:**
+     - **msal-dotnet-framework.md** (~650 lines) - MSAL.NET with TokenCache/Certificate packages for console apps, daemons
+     - **owin.md** (~700 lines) - OWIN integration for ASP.NET MVC/Web API
+   - Status: ✅ **COMPLETE** - Clean separation between MSAL.NET utilities and OWIN web integration
 
 5. **Performance Guidance** (`Performance.md` wiki)
    - Performance test results
@@ -241,13 +239,16 @@ docs/
 │   ├── customization.md               ✅ COMPLETE (~800 lines) - Session Oct 27
 │   └── logging.md                     ✅ COMPLETE (~650 lines) - Session Oct 27
 ├── frameworks/
-│   └── aspnet-framework.md            ✅ COMPLETE (~750 lines) - Session Oct 27
+│   ├── aspnet-framework.md            ✅ COMPLETE (~200 lines) - Landing page
+│   ├── msal-dotnet-framework.md       ✅ COMPLETE (~650 lines) - MSAL.NET utilities
+│   └── owin.md                        ✅ COMPLETE (~700 lines) - OWIN integration
 ├── blog-posts/                        ✅ EXISTS
 ├── design/                            ✅ EXISTS
 └── wiki-archive/                      ✅ COMPLETE
 ```
 
-**✅ MISSION ACCOMPLISHED!** All high-priority gaps filled. Documentation now at ~85% completion.
+**✅ MISSION ACCOMPLISHED!** All high-priority gaps filled + reorganized .NET Framework documentation.  
+**Documentation now at ~85% completion with clean separation of concerns.**
 
 ---
 
