@@ -33,33 +33,33 @@ Microsoft.Identity.Web provides a unified `ClientCredentials` configuration mode
 ```mermaid
 flowchart LR
     Start[Choose Credential Type] --> Q1{Avoid certificate<br/>management?}
-    
+
     Q1 -->|Yes| Q2{Running on Azure?}
     Q1 -->|No| Q5{Production<br/>environment?}
-    
+
     Q2 -->|Yes| FIC[✅ FIC + Managed Identity<br/>Certificateless]
     Q2 -->|No| Q3{Can use other<br/>certificateless?}
-    
+
     Q3 -->|Yes| OtherCertless[✅ Other Certificateless<br/>Methods]
     Q3 -->|No| Q5
-    
+
     Q5 -->|Yes| Q6{Need credential<br/>rotation?}
     Q5 -->|No| DevCreds[ℹ️ Development Credentials<br/>Secrets or File Certs]
-    
+
     Q6 -->|Yes| Q7{On Windows?}
     Q6 -->|No| KeyVault[✅ Key Vault<br/>with Managed Certs]
-    
+
     Q7 -->|Yes| CertStore[✅ Certificate Store<br/>with Distinguished Name]
     Q7 -->|No| KeyVault
-    
+
     FIC --> Recommended[⭐ Recommended for Production]
     KeyVault --> Recommended
     CertStore --> GoodChoice[✅ Good for Production]
-    
+
     style FIC fill:#28a745,stroke:#1e7e34,stroke-width:2px,color:#fff
     style KeyVault fill:#28a745,stroke:#1e7e34,stroke-width:2px,color:#fff
     style CertStore fill:#17a2b8,stroke:#117a8b,stroke-width:2px,color:#fff
-    style DevCreds fill:#ffc107,stroke:#d39e00,stroke-width:2px,color:#000
+    style DevCreds fill:#ffc107,stroke:#d39e00,stroke-width:2px,color:#fff
     style Recommended fill:#fd7e14,stroke:#dc6502,stroke-width:2px,color:#fff
     style OtherCertless fill:#28a745,stroke:#1e7e34,stroke-width:2px,color:#fff
     style GoodChoice fill:#17a2b8,stroke:#117a8b,stroke-width:2px,color:#fff
@@ -369,7 +369,7 @@ var credentialDescription = new CredentialDescription
 };
 ```
 
-**⚠️ Security Warning:** 
+**⚠️ Security Warning:**
 - **Not for production use**
 - Lower security than certificates or certificateless methods
 - Some organizations prohibit client secrets entirely

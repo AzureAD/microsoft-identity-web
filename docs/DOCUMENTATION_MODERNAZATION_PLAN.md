@@ -1,9 +1,9 @@
 # Microsoft.Identity.Web Documentation Modernization Plan
 
-**Status:** In Progress  
-**Branch:** `feature/doc-modernization`  
-**Started:** October 6, 2025  
-**Contributors:** Jean-Marc Prieur (@jmprieur), GitHub Copilot  
+**Status:** In Progress
+**Branch:** `feature/doc-modernization`
+**Started:** October 6, 2025
+**Contributors:** Jean-Marc Prieur (@jmprieur), GitHub Copilot
 
 ---
 
@@ -64,11 +64,11 @@ docs/
 │   └── toc.yaml                       ✅ COMPLETE - Table of contents
 ├── authentication/
 │   ├── credentials/                   🚀 HIGH PRIORITY - Top remaining gap
-│   │   ├── README.md                  📝 TODO - Comprehensive decision guide
-│   │   ├── certificateless.md         📝 TODO - FIC+MSI deep dive
-│   │   ├── certificates.md            📝 TODO - All cert types
-│   │   ├── client-secrets.md          📝 TODO - Dev/test only
-│   │   └── token-decryption.md        📝 TODO - Special case
+│   │   ├── README.md                  ✅ COMPLETE - Moved from Credentials.md
+│   │   ├── certificateless.md         ✅ EXISTS - FIC+MSI deep dive
+│   │   ├── certificates.md            ✅ EXISTS - All cert types
+│   │   ├── client-secrets.md          ✅ EXISTS - Dev/test only
+│   │   └── token-decryption.md        ✅ EXISTS - Special case
 │   └── token-cache/                   📝 TODO
 │       ├── README.md
 │       ├── serialization.md
@@ -240,7 +240,54 @@ The sidecar documentation is comprehensive and production-ready:
 
 ---
 
-## 🚀 Current Sprint: Week of October 27, 2025
+## � Documentation Health & Broken Links
+
+### Broken Links Audit (October 27, 2025) ✅ COMPLETED
+
+**Critical Issues Identified and Fixed:**
+
+1. **✅ FIXED - Filename Mismatches in docs/README.md**
+   - `quickstart-web-app.md` → corrected to `quickstart-webapp.md`
+   - `quickstart-web-api.md` → corrected to `quickstart-webapi.md`
+   - **Impact:** Main documentation page now has working quickstart links
+   - **Effort:** 2 minutes
+
+2. **✅ FIXED - Credentials File Structure**
+   - Moved `authentication/Credentials.md` → `authentication/credentials/README.md`
+   - Properly integrates with credential subfiles (certificateless.md, certificates.md, etc.)
+   - **Status:** Structure now correct, ready for credential file creation
+   - **Action Taken:** File moved and all references updated
+
+3. **📝 KNOWN - Missing calling-downstream-apis/from-web-apps.md**
+   - Already tracked in plan as 1 remaining file for Phase 2
+   - Multiple files link to it
+   - **Action:** Create file as part of completing Phase 2
+
+4. **📝 TRACKED - Missing Folders (Lower Priority)**
+   - All documented in plan as TODO sections:
+     - `scenarios/` (web-apps, web-apis, daemon, azure-functions)
+     - `packages/`
+     - `advanced/`
+     - `deployment/`
+     - `migration/`
+   - **Action:** Create as part of planned phases
+
+### Link Health Strategy Going Forward
+
+**Completed Actions:**
+- ✅ Fixed immediate broken links in main README
+- ✅ Corrected credentials documentation structure
+- ✅ Verified quickstart file paths
+
+**Next Steps:**
+- Run broken link check before completing each phase
+- Ensure new docs don't reference unplanned future docs
+- Use relative links consistently
+- Consider adding link checker to CI/CD when docs are more complete
+
+---
+
+## �🚀 Current Sprint: Week of October 27, 2025
 
 ### Revised Priorities Based on Actual Progress
 
@@ -256,44 +303,32 @@ The sidecar documentation is comprehensive and production-ready:
 
 #### Files to Create:
 
-1. **docs/authentication/credentials/README.md** (Main hub - 20-30 min read)
-   - Overview of authentication approaches
-   - Decision flow chart (Mermaid diagram)
-   - Comparison table (when to use what)
-   - Quick start examples for all credential types
-   - Links to detailed guides
-   - Security best practices
+~~1. **docs/authentication/credentials/README.md** (Main hub - 20-30 min read)~~ ✅ **COMPLETE**
+   - ✅ Overview of authentication approaches
+   - ✅ Decision flow chart (Mermaid diagram)
+   - ✅ Comparison table (when to use what)
+   - ✅ Quick start examples for all credential types
+   - ✅ Links to detailed guides
+   - ✅ Security best practices
+   - **Status:** Moved from authentication/Credentials.md, properly structured
 
-2. **docs/authentication/credentials/certificateless.md** (15-20 min read)
-   - FIC + Managed Identity deep dive
-   - Benefits and use cases
-   - Azure deployment setup
-   - Configuration examples (JSON + code)
-   - System-assigned vs user-assigned MSI
-   - Troubleshooting
-   - Migration from certificates
+**Remaining Files:**
 
-3. **docs/authentication/credentials/certificates.md** (25-30 min read)
-   - All certificate types (Key Vault, Store, File, Base64)
-   - Key Vault setup and integration
-   - Certificate rotation strategies
-   - Store management (Windows)
-   - Development with file-based certificates
-   - Configuration examples (JSON + code)
-   - Troubleshooting
+The credentials folder already contains the detailed guide files. They may need review/updates:
 
-4. **docs/authentication/credentials/client-secrets.md** (10 min read)
-   - When to use (development/testing only)
-   - How to configure
-   - Key Vault integration for secrets
-   - Security warnings and best practices
-   - Migration to production-ready credentials
+2. **docs/authentication/credentials/certificateless.md** ✅ EXISTS
+   - Review for completeness and consistency with README
 
-5. **docs/authentication/credentials/token-decryption.md** (10-15 min read)
-   - AutoDecryptKeys overview
-   - Use cases for token decryption
-   - Configuration examples
-   - Integration with credentials
+3. **docs/authentication/credentials/certificates.md** ✅ EXISTS
+   - Review for completeness and consistency with README
+
+4. **docs/authentication/credentials/client-secrets.md** ✅ EXISTS
+   - Review for completeness and consistency with README
+
+5. **docs/authentication/credentials/token-decryption.md** ✅ EXISTS
+   - Review for completeness and consistency with README
+
+**Next Action:** Review existing credential files to ensure they align with the comprehensive README.md hub document.
 
 **Content Source:**
 - Adapt credentialdescription.md from microsoft-identity-abstractions
@@ -444,7 +479,9 @@ var api = sp.GetRequiredService<IDownstreamApi>();
 ### Content Priorities (Updated)
 
 **This Week (Critical Path):**
-1. 🚀 **Credentials documentation** - Primary remaining gap
+1. ✅ **COMPLETED** - Fixed quickstart filename references in docs/README.md (2 min)
+2. ✅ **COMPLETED** - Moved Credentials.md to credentials/README.md (proper structure)
+3. 🚀 **IN PROGRESS** - Credentials documentation - Primary remaining gap (5 files to create)
 
 **Quick Win:**
 2. 📝 **Complete calling-downstream-apis/from-web-apps.md** - Single file to finish section
@@ -631,10 +668,10 @@ How we'll know this modernization is successful:
 
 ## 📅 Timeline & Status
 
-**Current Sprint:** Week of October 27, 2025  
-**Current Phase:** Phase 3 ✅ Complete / Phase 4 🚀 In Progress  
-**Next Milestone:** Credentials documentation complete  
-**Branch:** `feature/doc-modernization`  
+**Current Sprint:** Week of October 27, 2025
+**Current Phase:** Phase 3 ✅ Complete / Phase 4 🚀 In Progress
+**Next Milestone:** Credentials documentation complete
+**Branch:** `feature/doc-modernization`
 **Target for PR:** After credentials documentation complete
 
 ### Progress Summary
@@ -664,9 +701,9 @@ How we'll know this modernization is successful:
 
 ### New Questions Based on Progress
 
-1. **Credentials documentation start date?** - Ready to begin immediately?
-2. **from-web-apps.md priority?** - Complete before or after credentials docs?
-3. **Next scenario priority after credentials?** - Web Apps, Web APIs, or Daemon first?
+1. **Credentials documentation status?** - README.md complete ✅, need to review existing detail files
+2. **from-web-apps.md priority?** - Complete as part of Phase 2 finalization
+3. **Next scenario priority after credentials review?** - Web Apps, Web APIs, or Daemon first?
 
 ### Pending Research
 
@@ -719,10 +756,15 @@ How we'll know this modernization is successful:
 
 ---
 
-**Last Updated:** October 27, 2025, 23:40 UTC  
-**Updated By:** Jean-Marc Prieur (@jmprieur), GitHub Copilot  
-**Next Review:** After completing credentials documentation  
-**Next Major Milestone:** Credentials documentation complete
+**Last Updated:** October 27, 2025, 23:50 UTC
+**Updated By:** Jean-Marc Prieur (@jmprieur), GitHub Copilot
+**Recent Changes:**
+- ✅ Fixed broken links (quickstart filenames)
+- ✅ Moved Credentials.md to credentials/README.md
+- ✅ Added Documentation Health section
+- 📝 Updated credentials documentation status (README complete, detail files exist)
+**Next Review:** After reviewing existing credential detail files
+**Next Major Milestone:** Complete Phase 2 (from-web-apps.md) and finalize credentials documentation
 
 ---
 

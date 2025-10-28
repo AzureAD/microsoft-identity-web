@@ -12,20 +12,20 @@ Whether you're building web apps that sign in users, web APIs that validate toke
 
 Choose your scenario:
 
-- **[Web App - Sign in users](./getting-started/quickstart-web-app.md)** - Add authentication to your ASP.NET Core web application
-- **[Web API - Protect your API](./getting-started/quickstart-web-api.md)** - Secure your ASP.NET Core web API with bearer tokens
+- **[Web App - Sign in users](./getting-started/quickstart-webapp.md)** - Add authentication to your ASP.NET Core web application
+- **[Web API - Protect your API](./getting-started/quickstart-webapi.md)** - Secure your ASP.NET Core web API with bearer tokens
 - **[Daemon App - Call APIs](./scenarios/daemon/README.md)** - Build background services that call protected APIs
 
 ## 📦 What's Included
 
 Microsoft.Identity.Web provides:
 
-✅ **Simplified Authentication** - Minimal configuration for signing in users and validating tokens  
+✅ **Simplified Authentication** - Minimal configuration for signing in users and validating tokens
 ✅ **Downstream API Calls** - Call Microsoft Graph, Azure SDKs, or your own protected APIs with automatic token management
    - **Token Acquisition** - Acquire tokens on behalf of users or your application
-   - **Token Cache Management** - Distributed cache support with Redis, SQL Server, Cosmos DB  
-✅ **Multiple Credential Types** - Support for certificates, managed identities, and certificateless authentication  
-✅ **Automatic Authorization Headers** - Authentication is handled transparently when calling APIs  
+   - **Token Cache Management** - Distributed cache support with Redis, SQL Server, Cosmos DB
+✅ **Multiple Credential Types** - Support for certificates, managed identities, and certificateless authentication
+✅ **Automatic Authorization Headers** - Authentication is handled transparently when calling APIs
 ✅ **Production-Ready** - Used by thousands of Microsoft and customer applications
 
 ### Calling APIs with Automatic Authentication
@@ -222,14 +222,14 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 | **.NET Framework 4.7.2** | ✅ Supported | For OWIN applications (via specific packages) |
 | **.NET Framework 4.6.2** | ✅ Supported | For OWIN applications (via specific packages) |
 
-**Current stable version:** 3.14.1  
+**Current stable version:** 3.14.1
 **Upcoming:** Version 4.0.0 will remove .NET 6.0 and .NET 7.0 support
 
 ## 📖 Documentation Structure
 
 ### Getting Started
-- [Quickstart: Web App](./getting-started/quickstart-web-app.md) - Sign in users in 10 minutes
-- [Quickstart: Web API](./getting-started/quickstart-web-api.md) - Protect your API in 10 minutes
+- [Quickstart: Web App](./getting-started/quickstart-webapp.md) - Sign in users in 10 minutes
+- [Quickstart: Web API](./getting-started/quickstart-webapi.md) - Protect your API in 10 minutes
 - [Why Microsoft.Identity.Web?](./getting-started/why-microsoft-identity-web.md)
 
 ### Scenarios
