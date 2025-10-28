@@ -33,13 +33,13 @@ graph LR
     A[Token Acquisition] --> B[Delegated<br/>On behalf of user]
     A --> C[App-Only<br/>Application permissions in all apps]
     A --> D[On-Behalf-Of OBO<br/>in web API]
-    
+
     B --> B1[Web Apps]
     B --> B2[Daemon acting as user / user agent]
     C --> C1[Daemon Apps]
     C --> C2[Web APIs with app permissions]
     D --> D1[Web APIs calling other APIs]
-    
+
     style B fill:#cfe2ff
     style C fill:#fff3cd
     style D fill:#f8d7da
@@ -77,21 +77,21 @@ builder.Services.AddMicrosoftGraph();
 public class HomeController : Controller
 {
     private readonly GraphServiceClient _graphClient;
-    
+
     public HomeController(GraphServiceClient graphClient)
     {
         _graphClient = graphClient;
     }
-    
+
     public async Task<IActionResult> Profile()
     {
         // Delegated - calls on behalf of signed-in user
         var user = await _graphClient.Me.GetAsync();
-        
+
         // App-only - requires app permissions
         var users = await _graphClient.Users
             .GetAsync(r => r.Options.WithAppOnly());
-            
+
         return View(user);
     }
 }
@@ -115,26 +115,26 @@ builder.Services.AddMicrosoftIdentityAzureTokenCredential();
 public class StorageService
 {
     private readonly MicrosoftIdentityTokenCredential _credential;
-    
+
     public StorageService(MicrosoftIdentityTokenCredential credential)
     {
         _credential = credential;
     }
-    
+
     public async Task<List<string>> ListBlobsAsync()
     {
         var blobClient = new BlobServiceClient(
             new Uri("https://myaccount.blob.core.windows.net"),
             _credential);
-            
+
         var container = blobClient.GetBlobContainerClient("mycontainer");
         var blobs = new List<string>();
-        
+
         await foreach (var blob in container.GetBlobsAsync())
         {
             blobs.Add(blob.Name);
         }
-        
+
         return blobs;
     }
 }
@@ -168,21 +168,21 @@ builder.Services.AddDownstreamApis(
 public class ApiService
 {
     private readonly IDownstreamApi _api;
-    
+
     public ApiService(IDownstreamApi api)
     {
         _api = api;
     }
-    
+
     public async Task<Product> GetProductAsync(int id)
     {
         // Delegated - on behalf of user
         return await _api.GetForUserAsync<Product>(
-            "MyApi", 
+            "MyApi",
             $"api/products/{id}"
         );
     }
-    
+
     public async Task<List<Product>> GetAllProductsAsync()
     {
         // App-only - using app permissions
@@ -207,8 +207,8 @@ builder.Services.AddHttpClient("MyApiClient", client =>
 })
 .AddHttpMessageHandler(sp => new MicrosoftIdentityMessageHandler(
     sp.GetRequiredService<IAuthorizationHeaderProvider>(),
-    new MicrosoftIdentityMessageHandlerOptions 
-    { 
+    new MicrosoftIdentityMessageHandlerOptions
+    {
         Scopes = new[] { "api://myapi/.default" }
     }));
 
@@ -216,24 +216,24 @@ builder.Services.AddHttpClient("MyApiClient", client =>
 public class ApiService
 {
     private readonly HttpClient _httpClient;
-    
+
     public ApiService(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient("MyApiClient");
     }
-    
+
     public async Task<Product> GetProductAsync(int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/products/{id}")
-            .WithAuthenticationOptions(options => 
+            .WithAuthenticationOptions(options =>
             {
                 options.RequestAppToken = false; // Use delegated token
                 options.scopes = [ "myApi.scopes" ];
             });
-            
+
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        
+
         return await response.Content.ReadFromJsonAsync<Product>();
     }
 }
@@ -248,23 +248,23 @@ public class ApiService
 public class CustomAuthService
 {
     private readonly IAuthorizationHeaderProvider _headerProvider;
-    
+
     public CustomAuthService(IAuthorizationHeaderProvider headerProvider)
     {
         _headerProvider = headerProvider;
     }
-    
+
     public async Task<string> CallApiAsync()
     {
         // Get auth header (includes "Bearer " + token)
         string authHeader = await _headerProvider
             .CreateAuthorizationHeaderForUserAsync(
                 scopes: new[] { "api://myapi/.default" });
-        
+
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Add("Authorization", authHeader);
         client.DefaultRequestHeaders.Add("X-Custom-Header", "MyValue");
-        
+
         var response = await client.GetStringAsync("https://myapi.example.com/data");
         return response;
     }
@@ -343,7 +343,7 @@ The best approach depends on where you're calling the API from:
 
 [📖 Read the Web Apps guide](from-web-apps.md)
 
-### From Web APIs  
+### From Web APIs
 - **Primary pattern**: On-Behalf-Of (OBO) flow
 - **Token acquisition**: Exchange incoming token for downstream token
 - **Special considerations**: Long-running processes, token caching, agent identities.
@@ -354,8 +354,9 @@ The best approach depends on where you're calling the API from:
 - **Primary pattern**: Application permissions (app-only)
 - **Token acquisition**: Client credentials flow
 - **Special considerations**: No user context, requires admin consent
+- **Advanced**: Autonomous agents, agent user identities
 
-[📖 Read the main documentation](../README.md#daemon-applications)
+[📖 Read the Daemon Applications guide](../scenarios/daemon/README.md)
 
 ## ⚠️ Error Handling
 
@@ -396,7 +397,7 @@ catch (HttpRequestException ex)
 
 - **[Credentials Configuration](../authentication/credentials/README.md)** - How to configure authentication credentials
 - **[Web App Scenarios](../scenarios/web-apps/README.md)** - Building web applications
-- **[Web API Scenarios](../scenarios/web-apis/README.md)** - Building and protecting APIs  
+- **[Web API Scenarios](../scenarios/web-apis/README.md)** - Building and protecting APIs
 - **[Agent Identities](../scenarios/agent-identities/README.md)** - Calling downstream APIs from agent identities.
 
 ## 📦 NuGet Packages

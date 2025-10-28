@@ -127,7 +127,7 @@ builder.Services.AddControllers();
 
 ### Daemon Applications
 
-Build background services and console apps that call APIs using their own identity.
+Build background services, console apps, and autonomous agents that call APIs using application identity or agent identities.
 
 ```csharp
 // In Program.cs
@@ -175,9 +175,14 @@ var result = await api.GetForAppAsync<IEnumerable<MyData>>("MyApi");
 
 > **Note:** `ClientCredentials` supports multiple authentication methods including certificates, Key Vault, managed identities, and certificateless authentication (FIC+MSI). See the [Credentials Guide](./authentication/credentials/README.md) for all options.
 
-> **Alternative:** For more control over HTTP calls, use `IAuthorizationHeaderProvider` to get authorization headers and manage HTTP requests yourself. See [Daemon Scenario](./scenarios/daemon/README.md) for details.
+**Supported Scenarios:**
+- **Standard Daemon** - Client credentials for app-only tokens
+- **Autonomous Agents** - Agent identities for app-only tokens with isolated identity.
+- **Agent User Identity** - Agent identities for user agent tokens without user interaction (Same thing)
 
-**Learn more:** [Daemon Scenario](./scenarios/daemon/README.md)
+⚠️ For agent scenarios, be sure to run them in a secure environment. That's a confidential client!
+
+**Learn more:** [Daemon Applications & Agent Identities](./scenarios/daemon/README.md)
 
 ## 🏗️ Package Architecture
 
@@ -235,7 +240,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 ### Scenarios
 - [Web Applications](./scenarios/web-apps/README.md) - Sign-in users, call APIs
 - [Web APIs](./scenarios/web-apis/README.md) - Protect APIs, call downstream services
-- [Daemon Applications](./scenarios/daemon/README.md) - Background services with app identity
+- [Daemon Applications and Agent Identities](./scenarios/daemon/README.md) - Background services, autonomous agents, agent user identities
 - [Azure Functions](./scenarios/azure-functions/README.md) - Serverless authentication
 
 ### Authentication & Tokens
