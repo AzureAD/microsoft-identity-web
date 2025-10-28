@@ -134,8 +134,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <NetTenRuntimeVersion>10.0.0-preview.*</NetTenRuntimeVersion>
-    <AspNetCoreTenRuntimeVersion>10.0.0-preview.*</AspNetCoreTenRuntimeVersion>
+    <NetTenRuntimeVersion>10.0.0-rc.1.25451.107</NetTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.0-rc.1.25451.107</AspNetCoreTenRuntimeVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>

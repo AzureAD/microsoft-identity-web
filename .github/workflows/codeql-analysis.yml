@@ -57,11 +57,11 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Setup .NET 10.0.x preview
+    - name: Setup .NET 10.0 RC1
       uses: actions/setup-dotnet@v4
       if: env.TargetNetNext == 'True'
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 10.0.100-rc.1.25451.107
 
    # Install workload
     - name: Setup wasm-tools
