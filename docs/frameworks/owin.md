@@ -76,19 +76,19 @@ dotnet add package Microsoft.Identity.Web.OWIN
     <add key="AzureAd:ClientSecret" value="your-client-secret" />
     <add key="AzureAd:RedirectUri" value="https://localhost:44368/" />
     <add key="AzureAd:PostLogoutRedirectUri" value="https://localhost:44368/" />
-    
+
     <!-- Microsoft Graph Configuration -->
     <add key="DownstreamApi:MicrosoftGraph:BaseUrl" value="https://graph.microsoft.com/v1.0" />
     <add key="DownstreamApi:MicrosoftGraph:Scopes" value="user.read" />
-    
+
     <!-- Custom Downstream API Configuration -->
     <add key="DownstreamApi:TodoListService:BaseUrl" value="https://localhost:44351" />
     <add key="DownstreamApi:TodoListService:Scopes" value="api://todo-api-client-id/.default" />
   </appSettings>
-  
+
   <connectionStrings>
     <!-- Optional: SQL Server Token Cache -->
-    <add name="TokenCache" 
+    <add name="TokenCache"
          connectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=TokenCache;Integrated Security=True;" />
   </connectionStrings>
 </configuration>
@@ -166,16 +166,16 @@ namespace MyMvcApp
                     Authority = $"https://login.microsoftonline.com/{ConfigurationManager.AppSettings["AzureAd:TenantId"]}",
                     RedirectUri = ConfigurationManager.AppSettings["AzureAd:RedirectUri"],
                     PostLogoutRedirectUri = ConfigurationManager.AppSettings["AzureAd:PostLogoutRedirectUri"],
-                    
+
                     Scope = "openid profile email offline_access",
                     ResponseType = "code id_token",
-                    
+
                     TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         NameClaimType = "preferred_username"
                     },
-                    
+
                     Notifications = new OpenIdConnectAuthenticationNotifications
                     {
                         AuthenticationFailed = context =>
@@ -189,30 +189,30 @@ namespace MyMvcApp
 
             // Configure Microsoft Identity Web services
             var services = CreateOwinServiceCollection();
-            
+
             // Add token acquisition
             services.AddTokenAcquisition();
-            
+
             // Add Microsoft Graph support
             services.AddMicrosoftGraph();
-            
+
             // Add downstream API support
             services.AddDownstreamApi("MicrosoftGraph", services.BuildServiceProvider()
                 .GetRequiredService<IConfiguration>().GetSection("DownstreamApi:MicrosoftGraph"));
-            
+
             services.AddDownstreamApi("TodoListService", services.BuildServiceProvider()
                 .GetRequiredService<IConfiguration>().GetSection("DownstreamApi:TodoListService"));
-            
+
             // Configure token cache (choose one option)
             ConfigureTokenCache(services);
 
             // Build service provider
             var serviceProvider = services.BuildServiceProvider();
-            
+
             // Create and register token acquirer factory
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Build(serviceProvider);
-            
+
             // Add OWIN token acquisition middleware
             app.Use<OwinTokenAcquisitionMiddleware>(tokenAcquirerFactory);
         }
@@ -220,7 +220,7 @@ namespace MyMvcApp
         private IServiceCollection CreateOwinServiceCollection()
         {
             var services = new ServiceCollection();
-            
+
             // Add configuration from appsettings.json and/or Web.config
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
@@ -234,9 +234,9 @@ namespace MyMvcApp
                     ["DownstreamApi:MicrosoftGraph:Scopes"] = ConfigurationManager.AppSettings["DownstreamApi:MicrosoftGraph:Scopes"],
                 })
                 .Build();
-            
+
             services.AddSingleton(configuration);
-            
+
             return services;
         }
 
@@ -247,7 +247,7 @@ namespace MyMvcApp
             {
                 cacheServices.AddDistributedMemoryCache();
             });
-            
+
             // Option 2: SQL Server cache (production)
             /*
             services.AddDistributedTokenCaches(cacheServices =>
@@ -261,7 +261,7 @@ namespace MyMvcApp
                 });
             });
             */
-            
+
             // Option 3: Redis cache (production, high-scale)
             /*
             services.AddDistributedTokenCaches(cacheServices =>
@@ -306,11 +306,11 @@ namespace MyMvcApp.Controllers
                 // Access Microsoft Graph using extension method
                 var graphClient = this.GetGraphServiceClient();
                 var user = await graphClient.Me.GetAsync();
-                
+
                 ViewBag.UserName = user.DisplayName;
                 ViewBag.Email = user.Mail ?? user.UserPrincipalName;
                 ViewBag.JobTitle = user.JobTitle;
-                
+
                 return View();
             }
             catch (MsalUiRequiredException)
@@ -328,11 +328,11 @@ namespace MyMvcApp.Controllers
         public async Task<ActionResult> Profile()
         {
             var graphClient = this.GetGraphServiceClient();
-            
+
             // Get user profile
             var user = await graphClient.Me
                 .GetAsync(requestConfig => requestConfig.QueryParameters.Select = new[] { "displayName", "mail", "jobTitle", "department" });
-            
+
             return View(user);
         }
 
@@ -340,7 +340,7 @@ namespace MyMvcApp.Controllers
         public async Task<ActionResult> Photo()
         {
             var graphClient = this.GetGraphServiceClient();
-            
+
             try
             {
                 // Get user photo
@@ -382,14 +382,14 @@ namespace MyWebApi.Controllers
             {
                 // Call downstream API using extension method
                 var downstreamApi = this.GetDownstreamApi();
-                
+
                 var todos = await downstreamApi.GetForUserAsync<List<TodoItem>>(
                     "TodoListService",
                     options =>
                     {
                         options.RelativePath = "api/todolist";
                     });
-                
+
                 return Ok(todos);
             }
             catch (MsalUiRequiredException)
@@ -408,7 +408,7 @@ namespace MyWebApi.Controllers
         public async Task<IHttpActionResult> CreateTodo([FromBody] TodoItem todo)
         {
             var downstreamApi = this.GetDownstreamApi();
-            
+
             var createdTodo = await downstreamApi.PostForUserAsync<TodoItem, TodoItem>(
                 "TodoListService",
                 todo,
@@ -416,7 +416,7 @@ namespace MyWebApi.Controllers
                 {
                     options.RelativePath = "api/todolist";
                 });
-            
+
             return Created($"api/todos/{createdTodo.Id}", createdTodo);
         }
     }
@@ -444,7 +444,7 @@ public class GraphController : Controller
     {
         var graphClient = this.GetGraphServiceClient();
         var user = await graphClient.Me.GetAsync();
-        
+
         return View(user);
     }
 
@@ -452,7 +452,7 @@ public class GraphController : Controller
     {
         var graphClient = this.GetGraphServiceClient();
         var manager = await graphClient.Me.Manager.GetAsync();
-        
+
         return View(manager);
     }
 
@@ -460,14 +460,14 @@ public class GraphController : Controller
     {
         var graphClient = this.GetGraphServiceClient();
         var directReports = await graphClient.Me.DirectReports.GetAsync();
-        
+
         return View(directReports.Value);
     }
 
     public async Task<ActionResult> SendEmail([FromBody] EmailMessage message)
     {
         var graphClient = this.GetGraphServiceClient();
-        
+
         var email = new Message
         {
             Subject = message.Subject,
@@ -487,12 +487,12 @@ public class GraphController : Controller
                 }
             }
         };
-        
+
         await graphClient.Me.SendMail.PostAsync(new SendMailPostRequestBody
         {
             Message = email
         });
-        
+
         return RedirectToAction("Index");
     }
 }
@@ -525,14 +525,14 @@ public class TodoController : Controller
     public async Task<ActionResult> Index()
     {
         var downstreamApi = this.GetDownstreamApi();
-        
+
         var todos = await downstreamApi.GetForUserAsync<List<TodoItem>>(
             "TodoListService",
             options =>
             {
                 options.RelativePath = "api/todolist";
             });
-        
+
         return View(todos);
     }
 
@@ -540,14 +540,14 @@ public class TodoController : Controller
     public async Task<ActionResult> Details(int id)
     {
         var downstreamApi = this.GetDownstreamApi();
-        
+
         var todo = await downstreamApi.GetForUserAsync<TodoItem>(
             "TodoListService",
             options =>
             {
                 options.RelativePath = $"api/todolist/{id}";
             });
-        
+
         return View(todo);
     }
 
@@ -556,7 +556,7 @@ public class TodoController : Controller
     public async Task<ActionResult> Create(TodoItem todo)
     {
         var downstreamApi = this.GetDownstreamApi();
-        
+
         var createdTodo = await downstreamApi.PostForUserAsync<TodoItem, TodoItem>(
             "TodoListService",
             todo,
@@ -564,7 +564,7 @@ public class TodoController : Controller
             {
                 options.RelativePath = "api/todolist";
             });
-        
+
         return RedirectToAction("Index");
     }
 
@@ -573,7 +573,7 @@ public class TodoController : Controller
     public async Task<ActionResult> Edit(int id, TodoItem todo)
     {
         var downstreamApi = this.GetDownstreamApi();
-        
+
         await downstreamApi.CallApiForUserAsync(
             "TodoListService",
             options =>
@@ -582,7 +582,7 @@ public class TodoController : Controller
                 options.RelativePath = $"api/todolist/{id}";
                 options.RequestBody = todo;
             });
-        
+
         return RedirectToAction("Index");
     }
 
@@ -591,7 +591,7 @@ public class TodoController : Controller
     public async Task<ActionResult> Delete(int id)
     {
         var downstreamApi = this.GetDownstreamApi();
-        
+
         await downstreamApi.CallApiForUserAsync(
             "TodoListService",
             options =>
@@ -599,7 +599,7 @@ public class TodoController : Controller
                 options.HttpMethod = HttpMethod.Delete;
                 options.RelativePath = $"api/todolist/{id}";
             });
-        
+
         return RedirectToAction("Index");
     }
 }
@@ -772,6 +772,6 @@ services.AddDistributedTokenCaches(cacheServices =>
 
 ---
 
-**Last Updated:** October 27, 2025  
-**Microsoft.Identity.Web Version:** 3.14.1+  
+**Last Updated:** October 27, 2025
+**Microsoft.Identity.Web Version:** 3.14.1+
 **Supported Frameworks:** ASP.NET MVC, ASP.NET Web API (.NET Framework 4.7.2+)

@@ -247,7 +247,7 @@ services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = ConfigurationManager.AppSettings["Redis:ConnectionString"];
     options.InstanceName = "MyDaemonApp_";
-    
+
     // Optional: Configure Redis options
     options.ConfigurationOptions = new ConfigurationOptions
     {
@@ -321,7 +321,7 @@ namespace DaemonApp
 
             // Acquire token for app-only access
             string[] scopes = new[] { "https://graph.microsoft.com/.default" };
-            
+
             try
             {
                 var result = await _app.AcquireTokenForClient(scopes)
@@ -330,7 +330,7 @@ namespace DaemonApp
                 Console.WriteLine($"Token acquired successfully!");
                 Console.WriteLine($"Token source: {result.AuthenticationResultMetadata.TokenSource}");
                 Console.WriteLine($"Expires on: {result.ExpiresOn}");
-                
+
                 // Use token to call API
                 await CallProtectedApi(result.AccessToken);
             }
@@ -517,12 +517,12 @@ loader.LoadIfNeeded(certDescription);
 <appSettings>
   <add key="AzureAd:ClientId" value="your-client-id" />
   <add key="AzureAd:TenantId" value="your-tenant-id" />
-  
+
   <!-- Option 1: KeyVault -->
   <add key="Certificate:SourceType" value="KeyVault" />
   <add key="Certificate:KeyVaultUrl" value="https://my-vault.vault.azure.net" />
   <add key="Certificate:KeyVaultCertificateName" value="MyCert" />
-  
+
   <!-- Option 2: Store -->
   <!--
   <add key="Certificate:SourceType" value="StoreWithThumbprint" />
@@ -532,7 +532,7 @@ loader.LoadIfNeeded(certDescription);
 </appSettings>
 
 <connectionStrings>
-  <add name="TokenCache" 
+  <add name="TokenCache"
        connectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=TokenCache;Integrated Security=True;" />
 </connectionStrings>
 ```
@@ -549,13 +549,13 @@ public static CertificateDescription GetCertificateFromConfig()
             ConfigurationManager.AppSettings["Certificate:KeyVaultUrl"],
             ConfigurationManager.AppSettings["Certificate:KeyVaultCertificateName"]
         ),
-        
+
         "StoreWithThumbprint" => CertificateDescription.FromStoreWithThumbprint(
             ConfigurationManager.AppSettings["Certificate:CertificateThumbprint"],
             StoreName.My,
             StoreLocation.CurrentUser
         ),
-        
+
         _ => throw new ConfigurationErrorsException("Invalid certificate source type")
     };
 }
@@ -590,10 +590,10 @@ public static IConfidentialClientApplication GetApp()
             .WithClientSecret(clientSecret)
             .WithTenantId(tenantId)
             .Build();
-        
+
         _app.AddDistributedTokenCaches(/* ... */);
     }
-    
+
     return _app;
 }
 ```
@@ -727,6 +727,6 @@ AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsy
 
 ---
 
-**Last Updated:** October 27, 2025  
-**Microsoft.Identity.Web Version:** 3.14.1+  
+**Last Updated:** October 27, 2025
+**Microsoft.Identity.Web Version:** 3.14.1+
 **Supported Frameworks:** .NET Framework 4.7.2+, .NET Standard 2.0
