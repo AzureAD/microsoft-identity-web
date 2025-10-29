@@ -41,6 +41,8 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 
 `AllowWebApiToBeAuthorizedByACL` will be set to true by the application. No action is required from the user to configure this.
 
+`AllowedHosts` is not used by the sidecar. It will always be `localhost` outside of development environments.
+
 *Important sections*
 
 - **AzureAd**: Standard Microsoft.Identity.Web web API registration; client credentials are optional if only delegated flows are required.
