@@ -1,5 +1,7 @@
 # Microsoft.Identity.Web.AgentIdentities
 
+Not .NET? See [Entra SDK container sidecar](https://github.com/AzureAD/microsoft-identity-web/blob/feature/doc-modernization/docs/sidecar/agent-identities.md) for the Entra SDK container documentation allowing support of agent identies in any language and platform. 
+
 ## Overview
 
 The Microsoft.Identity.Web.AgentIdentities NuGet package provides support for Agent Identities in Microsoft Entra ID. It enables applications to securely authenticate and acquire tokens for agent applications, agent identities, and agent user identities, which is useful for autonomous agents, interactive agents acting on behalf of their user, and agents having their own user identity.
