@@ -37,6 +37,13 @@ namespace Microsoft.Identity.Web.Internal
         {
             if (configuration != null)
             {
+#if NET8_0_OR_GREATER
+                // For .NET 8+, use source generator-based binding for AOT compatibility
+                services.AddOptions<MicrosoftIdentityApplicationOptions>(authenticationScheme)
+                    .Bind(configuration);
+                services.AddOptions<MicrosoftIdentityOptions>(authenticationScheme)
+                    .Bind(configuration);
+#else
                 // TODO: This never was right. And the configureConfidentialClientApplicationOptions delegate is not used
                 // services.Configure<ConfidentialClientApplicationOptions>(authenticationScheme, configuration);
                 services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
@@ -45,6 +52,7 @@ namespace Microsoft.Identity.Web.Internal
                 services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
                     =>
                 { configuration.Bind(options); });
+#endif
             }
             services.AddTokenAcquisition();
 

@@ -94,6 +94,27 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(builder);
             _ = Throws.IfNull(configurationSection);
 
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            AddMicrosoftIdentityWebAppInternal(
+                builder,
+                _ => { }, // No-op - binding handled below via AddOptions
+                null,
+                openIdConnectScheme,
+                cookieScheme,
+                subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
+                displayName);
+
+            // Use source generator-based binding
+            builder.Services.AddOptions<MicrosoftIdentityOptions>(openIdConnectScheme)
+                .Bind(configurationSection);
+
+            return new MicrosoftIdentityWebAppAuthenticationBuilderWithConfiguration(
+                builder.Services,
+                openIdConnectScheme,
+                _ => { }, // No-op - binding handled via AddOptions
+                configurationSection);
+#else
             return builder.AddMicrosoftIdentityWebAppWithConfiguration(
                 options => configurationSection.Bind(options),
                 null,
@@ -102,6 +123,7 @@ namespace Microsoft.Identity.Web
                 subscribeToOpenIdConnectMiddlewareDiagnosticsEvents,
                 displayName,
                 configurationSection);
+#endif
         }
 
         /// <summary>

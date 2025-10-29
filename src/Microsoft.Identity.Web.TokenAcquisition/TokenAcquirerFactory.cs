@@ -95,6 +95,17 @@ namespace Microsoft.Identity.Web
                         defaultInstance = instance;
                         instance.Services.AddTokenAcquisition();
                         instance.Services.AddHttpClient();
+#if NET8_0_OR_GREATER
+                        // For .NET 8+, use source generator-based binding for AOT compatibility
+                        var configSection2 = instance.Configuration.GetSection(configSection);
+                        instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>()
+                            .Bind(configSection2);
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+#else
                         instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
                         {
                             instance.Configuration.GetSection(configSection).Bind(option);
@@ -102,6 +113,7 @@ namespace Microsoft.Identity.Web
                             // This is temporary and will be removed eventually.
                             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
                         });
+#endif
                         instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                         instance.Services.AddSingleton(defaultInstance.Configuration);
                     }
@@ -138,6 +150,17 @@ namespace Microsoft.Identity.Web
                         defaultInstance = instance;
                         instance.Services.AddTokenAcquisition();
                         instance.Services.AddHttpClient();
+#if NET8_0_OR_GREATER
+                        // For .NET 8+, use source generator-based binding for AOT compatibility
+                        var configSection2 = instance.Configuration.GetSection(configSection);
+                        instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>()
+                            .Bind(configSection2);
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+#else
                         instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
                         {
                             instance.Configuration.GetSection(configSection).Bind(option);
@@ -145,6 +168,7 @@ namespace Microsoft.Identity.Web
                             // This is temporary and will be removed eventually.
                             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
                         });
+#endif
                         instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                         instance.Services.AddSingleton(defaultInstance.Configuration);
                     }
