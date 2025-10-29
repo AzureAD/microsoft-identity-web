@@ -32,8 +32,15 @@ namespace Microsoft.Identity.Web
             this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder,
             IConfigurationSection configurationSection)
         {
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            builder.Services.AddOptions<MicrosoftGraphOptions>()
+                .Bind(configurationSection);
+            return builder.AddMicrosoftGraph(_ => { }); // No-op, binding already done
+#else
             return builder.AddMicrosoftGraph(
                 options => configurationSection.Bind(options));
+#endif
         }
 
         /// <summary>

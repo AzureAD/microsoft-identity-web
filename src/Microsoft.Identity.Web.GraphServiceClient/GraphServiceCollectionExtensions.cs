@@ -42,7 +42,14 @@ namespace Microsoft.Identity.Web
         /// <returns>The service collection to chain.</returns>
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, IConfiguration configurationSection)
         {
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            services.AddOptions<GraphServiceClientOptions>()
+                .Bind(configurationSection);
+            return services.AddMicrosoftGraph(_ => { }); // No-op, binding already done
+#else
             return services.AddMicrosoftGraph(o => configurationSection.Bind(o));
+#endif
         }
 
         /// <summary>

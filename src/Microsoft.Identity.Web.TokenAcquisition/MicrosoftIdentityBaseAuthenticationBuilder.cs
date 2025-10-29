@@ -34,7 +34,15 @@ namespace Microsoft.Identity.Web
             ConfigurationSection = configurationSection;
 
             LoggingOptions logOptions = new LoggingOptions();
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            if (configurationSection != null)
+            {
+                configurationSection.Bind(logOptions);
+            }
+#else
             configurationSection?.Bind(logOptions);
+#endif
             IdentityModelEventSource.ShowPII = logOptions.EnablePiiLogging;
         }
 
