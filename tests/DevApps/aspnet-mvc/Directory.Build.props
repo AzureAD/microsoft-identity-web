@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <LangVersion>13</LangVersion>
+    <NoWarn>RS0031</NoWarn>
   </PropertyGroup>
 </Project>

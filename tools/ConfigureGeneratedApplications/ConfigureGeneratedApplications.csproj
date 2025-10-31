@@ -10,13 +10,10 @@
 
   <PropertyGroup>
     <!--RS0016: Add public types and members to the declared API-->
-    <NoWarn>RS0016</NoWarn>
     <!--RS0036: Annotate nullability of public types and members in the declared API-->
-    <NoWarn>RS0036</NoWarn>
     <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
-    <NoWarn>RS0037</NoWarn>
     <!--RS0051: Add internal types and members to the declared API-->
-    <NoWarn>RS0051</NoWarn>
+    <NoWarn>$(NoWarn);RS0016;RS0036;RS0037;RS0051</NoWarn>
   </PropertyGroup>
 
 </Project>
