@@ -15,7 +15,7 @@ using Process = System.Diagnostics.Process;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests
-#if !FROM_GITHUB_ACTION
+#if !FROM_GITHUB_ACTION && !NET10_0
 {
     // since these tests change environment variables we'd prefer it not run at the same time as other tests
     [Collection(nameof(UiTestNoParallelization))]
