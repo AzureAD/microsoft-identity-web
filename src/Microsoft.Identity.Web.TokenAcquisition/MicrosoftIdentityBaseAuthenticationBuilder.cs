@@ -26,6 +26,10 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "LoggingOptions is a simple POCO compatible with source generators")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "LoggingOptions is a simple POCO compatible with source generators")]
+#endif
         protected MicrosoftIdentityBaseAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
@@ -38,6 +42,9 @@ namespace Microsoft.Identity.Web
             IdentityModelEventSource.ShowPII = logOptions.EnablePiiLogging;
         }
 
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "GetValue<string> for primitive types is AOT-safe")]
+#endif
         internal static void SetIdentityModelLogger(IServiceProvider serviceProvider)
         {
             if (serviceProvider != null)

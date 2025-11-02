@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,10 @@ namespace Microsoft.Identity.Web
         /// <param name="services">Builder.</param>
         /// <param name="configurationSection">Configuration section containing the Microsoft graph config.</param>
         /// <returns>The service collection to chain.</returns>
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, IConfiguration configurationSection)
         {
 #if NET8_0_OR_GREATER
