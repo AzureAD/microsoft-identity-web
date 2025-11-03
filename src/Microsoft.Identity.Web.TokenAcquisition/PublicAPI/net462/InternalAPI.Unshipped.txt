@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, (string! value, bool includeInCacheKey)>?
