@@ -32,14 +32,24 @@ public class Program
             options.AllowWebApiToBeAuthorizedByACL = true;
         });
 
+        if (!builder.Environment.IsDevelopment())
+        {
+            // When not in a development environment, only allow connecting over
+            // localhost.
+            // AddHostFiltering is needed because this is using SlimBuilder which doesn't include
+            // that middleware by default.
+            builder.Services.AddHostFiltering(options =>
+            {
+                options.AllowedHosts = ["localhost"];
+            });
+        }
+
         ConfigureDataProtection(builder);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
                .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
-        // Health checks:
-        // Tag checks that should participate in readiness with "ready".
         builder.Services.AddHealthChecks();
 
         ConfigureAuthN(builder);
@@ -55,12 +65,15 @@ public class Program
 
         // Single endpoint for both liveness and readiness
         // as no checks are performed as part of startup.
-        // httpGet: path: /health
         app.MapHealthChecks("/healthz");
 
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+        }
+        else
+        {
+            app.UseHostFiltering();
         }
 
         app.AddValidateRequestEndpoints();
