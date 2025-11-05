@@ -14,8 +14,7 @@ using Xunit.Abstractions;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests;
-
-#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD && !NET10_0 // NET 10 is temporary and will be removed before using official release of .NET 10
 
 // Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
 [Collection(nameof(UiTestNoParallelization))]

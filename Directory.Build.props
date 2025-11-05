@@ -27,9 +27,9 @@
   </PropertyGroup>
 
   <!-- Uncomment this property group to build with NET 10.0 locally or set TargetNetNext to True in a CLI arg-->
-  <!-- <PropertyGroup>
+  <PropertyGroup>
     <TargetNetNext>True</TargetNetNext>
-  </PropertyGroup> -->
+  </PropertyGroup>
 
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
