@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Resource;
+using NSubstitute;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Tests
@@ -22,6 +23,7 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private readonly DownstreamApi _downstreamApi;
 
         public ExtraParametersTests()
@@ -30,12 +32,14 @@ namespace Microsoft.Identity.Web.Tests
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
             _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            _serviceProvider = Substitute.For<IServiceProvider>();
 
             _downstreamApi = new DownstreamApi(
                 _authorizationHeaderProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger);
+                _logger,
+                _serviceProvider);
         }
 
         [Fact]

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -63,14 +64,14 @@ namespace Microsoft.Identity.Web
                 services.TryAddSingleton<IPostConfigureOptions<ConfidentialClientApplicationOptions>, ConfidentialClientApplicationOptionsMerger>();
             }
 
-            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));             
+            ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
             ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
-            
-            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null && 
+
+            if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null &&
                 tokenAcquisitionhost != null && authenticationHeaderCreator != null && authSchemeInfoProvider != null)
             {
                 if (isTokenAcquisitionSingleton ^ (tokenAcquisitionService.Lifetime == ServiceLifetime.Singleton))
@@ -161,6 +162,29 @@ namespace Microsoft.Identity.Web
             }
 
             services.TryAddSingleton<IMergedOptionsStore, MergedOptionsStore>();
+            return services;
+        }
+
+        /// <summary>
+        /// Enables token binding by registering mTLS HTTP client factory in the service collection.
+        /// </summary>
+        /// <remarks>
+        /// Previous registered implementations of <see cref="IMsalHttpClientFactory"/> will be removed to make sure that
+        /// its implementation is <see cref="MsalMtlsHttpClientFactory"/>.
+        /// </remarks>
+        /// <param name="services">The service collection to which the token binding support will be added. Must not be null.</param>
+        /// <returns>The same IServiceCollection instance, allowing for method chaining.</returns>
+        public static IServiceCollection EnableTokenBinding(this IServiceCollection services)
+        {
+            ServiceDescriptor? msalHttpClientFactory = services.FirstOrDefault(s => s.ServiceType == typeof(IMsalHttpClientFactory));
+            if (msalHttpClientFactory != null)
+            {
+                services.Remove(msalHttpClientFactory);
+            }
+
+            services.AddSingleton<IMsalHttpClientFactory>(sp =>
+                new MsalMtlsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>()));
+
             return services;
         }
 

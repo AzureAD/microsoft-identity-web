@@ -1,1 +1,2 @@
 #nullable enable
+Microsoft.Identity.Web.DownstreamApi.DownstreamApi(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! authorizationHeaderProvider, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.DownstreamApiOptions!>! namedDownstreamApiOptions, System.Net.Http.IHttpClientFactory! httpClientFactory, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DownstreamApi!>! logger, System.IServiceProvider! serviceProvider) -> void

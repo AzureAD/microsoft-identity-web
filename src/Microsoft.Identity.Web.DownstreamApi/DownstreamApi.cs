@@ -14,6 +14,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -26,6 +27,12 @@ namespace Microsoft.Identity.Web
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
+
+        // This MSAL HTTP client factory is used to create HTTP clients with mTLS bindign certificate.
+        // Note, that it doesn't replace _httpClientFactory to keep backward compatibility and ability
+        // to create named HTTP clients for non-mTLS scenarios.
+        private readonly IMsalHttpClientFactory _msalHttpClientFactory;
+
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string Authorization = "Authorization";
         protected readonly ILogger<DownstreamApi> _logger;
@@ -38,15 +45,18 @@ namespace Microsoft.Identity.Web
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
-            ILogger<DownstreamApi> logger)
+            ILogger<DownstreamApi> logger,
+            IServiceProvider serviceProvider)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
+            _msalHttpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
         }
 
@@ -436,7 +446,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -518,7 +528,7 @@ namespace Microsoft.Identity.Web
 
             using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
 
-            // Send the HTTP message           
+            // Send the HTTP message
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
             // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
@@ -602,7 +612,7 @@ namespace Microsoft.Identity.Web
                 var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
                 var existingQuery = uriBuilder.Query;
                 var queryString = new StringBuilder(existingQuery);
-                
+
                 foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
                 {
                     if (queryString.Length > 1) // if there are existing query parameters
@@ -613,12 +623,12 @@ namespace Microsoft.Identity.Web
                     {
                         queryString.Append('?');
                     }
-                    
+
                     queryString.Append(Uri.EscapeDataString(queryParam.Key));
                     queryString.Append('=');
                     queryString.Append(Uri.EscapeDataString(queryParam.Value));
                 }
-                
+
                 uriBuilder.Query = queryString.ToString().TrimStart('?');
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
@@ -629,7 +639,7 @@ namespace Microsoft.Identity.Web
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
           {
-              { "caller-sdk-id", "IdWeb_1" },  
+              { "caller-sdk-id", "IdWeb_1" },
               { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
           };
 
@@ -657,14 +667,14 @@ namespace Microsoft.Identity.Web
         internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             const int maxErrorContentLength = 4096;
-            
+
             long? contentLength = response.Content.Headers.ContentLength;
-            
+
             if (contentLength.HasValue && contentLength.Value > maxErrorContentLength)
             {
                 return $"[Error response too large: {contentLength.Value} bytes, not captured]";
             }
-            
+
             // Use streaming to read only up to maxErrorContentLength to avoid loading entire response into memory
 #if NET5_0_OR_GREATER
             using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -672,18 +682,18 @@ namespace Microsoft.Identity.Web
             using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
             using var reader = new StreamReader(stream);
-            
+
             char[] buffer = new char[maxErrorContentLength];
             int readCount = await reader.ReadBlockAsync(buffer, 0, maxErrorContentLength).ConfigureAwait(false);
-            
+
             string errorResponseContent = new string(buffer, 0, readCount);
-            
+
             // Check if there's more content that was truncated
             if (readCount == maxErrorContentLength && reader.Peek() != -1)
             {
                 errorResponseContent += "... (truncated)";
             }
-            
+
             return errorResponseContent;
         }
     }

@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Resource;
+using NSubstitute;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Tests
@@ -28,6 +29,7 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private readonly DownstreamApi _input;
         private readonly DownstreamApi _inputSaml;
 
@@ -38,18 +40,21 @@ namespace Microsoft.Identity.Web.Tests
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
             _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            _serviceProvider = Substitute.For<IServiceProvider>();
 
             _input = new DownstreamApi(
              _authorizationHeaderProvider,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger);
+             _logger,
+             _serviceProvider);
 
             _inputSaml = new DownstreamApi(
              _authorizationHeaderProviderSaml,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger);
+             _logger,
+             _serviceProvider);
         }
 
         [Fact]
@@ -77,10 +82,10 @@ namespace Microsoft.Identity.Web.Tests
             // Arrange
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com");
             var content = new StringContent("test content");
-            var options = new DownstreamApiOptions() {  
-                AcquireTokenOptions = new AcquireTokenOptions() { 
-                    ExtraQueryParameters = new Dictionary<string, string>() 
-                    { 
+            var options = new DownstreamApiOptions() {
+                AcquireTokenOptions = new AcquireTokenOptions() {
+                    ExtraQueryParameters = new Dictionary<string, string>()
+                    {
                         { "n1", "v1" },
                         { "n2", "v2" },
                         { "caller-sdk-id", "bogus" } // value will be overwritten by the SDK
@@ -97,7 +102,7 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal("v1", options.AcquireTokenOptions.ExtraQueryParameters["n1"]);
             Assert.Equal("v2", options.AcquireTokenOptions.ExtraQueryParameters["n2"]);
             Assert.Equal(
-                DownstreamApi.CallerSDKDetails["caller-sdk-id"], 
+                DownstreamApi.CallerSDKDetails["caller-sdk-id"],
                 options.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-id"] );
             Assert.Equal(
                 DownstreamApi.CallerSDKDetails["caller-sdk-ver"],
@@ -464,7 +469,7 @@ namespace Microsoft.Identity.Web.Tests
             Assert.NotNull(result);
             // Either we get the truncation message about size, or the actual content is truncated
             Assert.True(
-                result.Contains("[Error response too large:", StringComparison.Ordinal) || 
+                result.Contains("[Error response too large:", StringComparison.Ordinal) ||
                 result.EndsWith("... (truncated)", StringComparison.Ordinal) ||
                 result.Length <= 4096 + "... (truncated)".Length,
                 "Error response should be limited in size");
