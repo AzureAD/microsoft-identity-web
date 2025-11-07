@@ -27,9 +27,9 @@
   </PropertyGroup>
 
   <!-- Uncomment this property group to build with NET 10.0 locally or set TargetNetNext to True in a CLI arg-->
-  <PropertyGroup>
+  <!-- <PropertyGroup>
     <TargetNetNext>True</TargetNetNext>
-  </PropertyGroup>
+  </PropertyGroup> -->
 
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
@@ -46,7 +46,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-
   <PropertyGroup Condition="'$(TargetNetNext)' == 'True'">
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <!-- Compiling w/ Net 10.0 SDK gives the NU1510 warning in every net core version "PackageReference System.Formats.Asn1 will not be pruned.
@@ -56,8 +55,6 @@
     <NoWarn>$(NoWarn);NU1510;NU5104</NoWarn>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
-
-
 
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -203,8 +200,6 @@
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
-    <!-- Microsoft Security Advisory CVE-2024-38095 -->
-    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
   </PropertyGroup>
 
   <ItemGroup>
