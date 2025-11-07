@@ -166,12 +166,8 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Enables token binding by registering mTLS HTTP client factory in the service collection.
+        /// Enables token binding by registering required for it services in the service collection.
         /// </summary>
-        /// <remarks>
-        /// Previous registered implementations of <see cref="IMsalHttpClientFactory"/> will be removed to make sure that
-        /// its implementation is <see cref="MsalMtlsHttpClientFactory"/>.
-        /// </remarks>
         /// <param name="services">The service collection to which the token binding support will be added. Must not be null.</param>
         /// <returns>The same IServiceCollection instance, allowing for method chaining.</returns>
         public static IServiceCollection EnableTokenBinding(this IServiceCollection services)
@@ -182,8 +178,44 @@ namespace Microsoft.Identity.Web
                 services.Remove(msalHttpClientFactory);
             }
 
+            // Registering HTTP client factory which allows to create HTTP client with client certificate
             services.AddSingleton<IMsalHttpClientFactory>(sp =>
                 new MsalMtlsHttpClientFactory(sp.GetRequiredService<IHttpClientFactory>()));
+
+            ServiceDescriptor? existingAuthorizationHeaderProvider = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
+            if (existingAuthorizationHeaderProvider != null)
+            {
+                services.Remove(existingAuthorizationHeaderProvider);
+            }
+
+            if (existingAuthorizationHeaderProvider?.Lifetime == ServiceLifetime.Singleton)
+            {
+                // Registering authorization header provider which returns authorization header with bound certificate
+                services.AddSingleton<IAuthorizationHeaderProvider>(sp =>
+                {
+                    IAuthorizationHeaderProvider parentAuthorizationHeaderProvider = existingAuthorizationHeaderProvider != null
+                        ? (IAuthorizationHeaderProvider)ActivatorUtilities.CreateInstance(sp, existingAuthorizationHeaderProvider.ImplementationType ?? typeof(DefaultAuthorizationHeaderProvider))
+                        : new DefaultAuthorizationHeaderProvider(sp.GetRequiredService<ITokenAcquisition>());
+
+                    return new DefaultAuthorizationHeaderBoundProvider(
+                        parentAuthorizationHeaderProvider,
+                        sp.GetRequiredService<ITokenAcquisition>());
+                });
+            }
+            else
+            {
+                // Registering authorization header provider which returns authorization header with bound certificate
+                services.AddScoped<IAuthorizationHeaderProvider>(sp =>
+                {
+                    IAuthorizationHeaderProvider parentAuthorizationHeaderProvider = existingAuthorizationHeaderProvider != null
+                        ? (IAuthorizationHeaderProvider)ActivatorUtilities.CreateInstance(sp, existingAuthorizationHeaderProvider.ImplementationType ?? typeof(DefaultAuthorizationHeaderProvider))
+                        : new DefaultAuthorizationHeaderProvider(sp.GetRequiredService<ITokenAcquisition>());
+
+                    return new DefaultAuthorizationHeaderBoundProvider(
+                        parentAuthorizationHeaderProvider,
+                        sp.GetRequiredService<ITokenAcquisition>());
+                });
+            }
 
             return services;
         }

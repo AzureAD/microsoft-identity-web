@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
         {
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
+            var newTokenAcquisitionOptions = TokenAcquisitionOptionsHelper.CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
                 downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web
                 claimsPrincipal,
                 newTokenAcquisitionOptions).ConfigureAwait(false);
 
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
+            TokenAcquisitionOptionsHelper.UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
             return result.CreateAuthorizationHeader();
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web
                 scopes,
                 downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                 downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
+                TokenAcquisitionOptionsHelper.CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
 
             return result.CreateAuthorizationHeader();
         }
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web
             CancellationToken cancellationToken = default)
         {
             Client.AuthenticationResult result;
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
+            var newTokenAcquisitionOptions = TokenAcquisitionOptionsHelper.CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
 
             // Previously, with the API name we were able to distinguish between app and user token acquisition
             // This context is missing in the new API, so can we enforce that downstreamApiOptions.RequestAppToken
@@ -93,43 +93,8 @@ namespace Microsoft.Identity.Web
                     newTokenAcquisitionOptions).ConfigureAwait(false);
             }
 
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
+            TokenAcquisitionOptionsHelper.UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
             return result.CreateAuthorizationHeader();
-        }
-
-        private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(
-            AuthorizationHeaderProviderOptions? downstreamApiOptions,
-            CancellationToken cancellationToken)
-        {
-            return new TokenAcquisitionOptions()
-            {
-                AuthenticationOptionsName = downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                CancellationToken = cancellationToken,
-                Claims = downstreamApiOptions?.AcquireTokenOptions.Claims,
-                CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
-                ExtraHeadersParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraHeadersParameters,
-                ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,
-                ExtraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters,
-                ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
-                LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
-                ManagedIdentity = downstreamApiOptions?.AcquireTokenOptions.ManagedIdentity,
-                Tenant = downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                UserFlow = downstreamApiOptions?.AcquireTokenOptions.UserFlow,
-                PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
-                FmiPath = downstreamApiOptions?.AcquireTokenOptions.FmiPath,
-            };
-        }
-
-        /// <summary>
-        /// Since AcquireTokenOptions is recreated, we need to update the original TokenAcquisitionOptions wth the parameters that were
-        /// updated in the new TokenAcquisitionOptions.
-        /// </summary>
-        private void UpdateOriginalTokenAcquisitionOptions(AcquireTokenOptions? acquireTokenOptions, TokenAcquisitionOptions newTokenAcquisitionOptions)
-        {
-            if (acquireTokenOptions is not null && newTokenAcquisitionOptions is not null)
-            {
-                acquireTokenOptions.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
-            }
         }
     }
 }

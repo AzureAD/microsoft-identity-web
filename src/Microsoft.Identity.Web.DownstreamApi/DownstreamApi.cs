@@ -524,9 +524,14 @@ namespace Microsoft.Identity.Web
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
-            await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+            // Request result will contain authorization header and potentially binding certificate for mTLS
+            var requestResult = await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
 
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
+            // If a binding certificate is specified (which means mTLS is required), create an HttpClient with the certificate
+            // by using IMsalMtlsHttpClientFactory otherwise use the default HttpClientFactory with optional named client.
+            using HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
+                ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
+                : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
 
             // Send the HTTP message
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
@@ -551,7 +556,7 @@ namespace Microsoft.Identity.Web
             return downstreamApiResult;
         }
 
-        internal /* internal for test */ async Task UpdateRequestAsync(
+        internal /* internal for test */ async Task<AuthorizationHeaderInformation?> UpdateRequestAsync(
             HttpRequestMessage httpRequestMessage,
             HttpContent? content,
             DownstreamApiOptions effectiveOptions,
@@ -568,15 +573,37 @@ namespace Microsoft.Identity.Web
 
             effectiveOptions.RequestAppToken = appToken;
 
+            AuthorizationHeaderInformation? authorizationHeaderInformation = null;
+
             // Obtention of the authorization header (except when calling an anonymous endpoint
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
-                       effectiveOptions.Scopes,
-                       effectiveOptions,
-                       user,
-                       cancellationToken).ConfigureAwait(false);
+                string authorizationHeader = string.Empty;
+
+                // Firtsly check if it's token binding scenario so authorization header provider will return
+                // a binding certificate along with acquired authorization header.
+                if (_authorizationHeaderProvider is IAuthorizationHeaderBoundProvider authorizationHeaderBoundProvider)
+                {
+                    var authorizationHeaderResult = await authorizationHeaderBoundProvider.CreateAuthorizationHeaderAsync(
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (authorizationHeaderResult.Succeeded)
+                    {
+                        authorizationHeaderInformation = authorizationHeaderResult.Result;
+                        authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue ?? string.Empty;
+                    }
+                }
+                else
+                {
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                }
 
                 if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
                 {
@@ -635,6 +662,8 @@ namespace Microsoft.Identity.Web
 
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+
+            return authorizationHeaderInformation;
         }
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()

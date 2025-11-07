@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -413,6 +416,158 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotSame(originalMockFactory, resolvedFactory);
         }
 
+        [Fact]
+        public void EnableTokenBinding_WithNoExistingAuthorizationHeaderProvider_RegistersDefaultBoundProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+
+            // Act
+            services.EnableTokenBinding();
+
+            // Assert
+            ServiceDescriptor? authHeaderProviderService = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
+            Assert.NotNull(authHeaderProviderService);
+            Assert.Equal(ServiceLifetime.Scoped, authHeaderProviderService.Lifetime); // Default lifetime when no existing provider
+            Assert.NotNull(authHeaderProviderService.ImplementationFactory);
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.IsType<DefaultAuthorizationHeaderBoundProvider>(resolvedProvider);
+        }
+
+        [Fact]
+        public void EnableTokenBinding_WithExistingScopedAuthorizationHeaderProvider_ReplacesWithBoundProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+            services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+
+            // Act
+            services.EnableTokenBinding();
+
+            // Assert
+            ServiceDescriptor[] authHeaderProviderServices = services.Where(s => s.ServiceType == typeof(IAuthorizationHeaderProvider)).ToArray();
+            Assert.Single(authHeaderProviderServices); // Should still be only one registration
+
+            ServiceDescriptor authHeaderProviderService = authHeaderProviderServices[0];
+            Assert.Equal(ServiceLifetime.Scoped, authHeaderProviderService.Lifetime);
+            Assert.NotNull(authHeaderProviderService.ImplementationFactory);
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.IsType<DefaultAuthorizationHeaderBoundProvider>(resolvedProvider);
+        }
+
+        [Fact]
+        public void EnableTokenBinding_WithExistingSingletonAuthorizationHeaderProvider_ReplacesWithSingletonBoundProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+            services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+
+            // Act
+            services.EnableTokenBinding();
+
+            // Assert
+            ServiceDescriptor[] authHeaderProviderServices = services.Where(s => s.ServiceType == typeof(IAuthorizationHeaderProvider)).ToArray();
+            Assert.Single(authHeaderProviderServices); // Should still be only one registration
+
+            ServiceDescriptor authHeaderProviderService = authHeaderProviderServices[0];
+            Assert.Equal(ServiceLifetime.Singleton, authHeaderProviderService.Lifetime); // Should preserve singleton lifetime
+            Assert.NotNull(authHeaderProviderService.ImplementationFactory);
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.IsType<DefaultAuthorizationHeaderBoundProvider>(resolvedProvider);
+        }
+
+        [Fact]
+        public void EnableTokenBinding_WithCustomAuthorizationHeaderProvider_WrapsInBoundProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+            services.AddScoped<IAuthorizationHeaderProvider, MockAuthorizationHeaderProvider>();
+
+            // Act
+            services.EnableTokenBinding();
+
+            // Assert
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.IsType<DefaultAuthorizationHeaderBoundProvider>(resolvedProvider);
+
+            // Verify the bound provider can delegate to the underlying provider
+            var task = resolvedProvider.CreateAuthorizationHeaderAsync(new[] { "scope" });
+            Assert.NotNull(task);
+        }
+
+        [Fact]
+        public void EnableTokenBinding_CalledMultipleTimes_KeepsSingleAuthorizationHeaderProviderRegistration()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+            services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+
+            // Act
+            services.EnableTokenBinding();
+            services.EnableTokenBinding(); // Call again
+
+            // Assert
+            ServiceDescriptor[] authHeaderProviderServices = services.Where(s => s.ServiceType == typeof(IAuthorizationHeaderProvider)).ToArray();
+            Assert.Single(authHeaderProviderServices); // Should still be only one registration
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            Assert.IsType<DefaultAuthorizationHeaderBoundProvider>(resolvedProvider);
+        }
+
+        [Fact]
+        public void EnableTokenBinding_WithoutITokenAcquisition_ThrowsWhenResolvingProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.EnableTokenBinding(); // Add token binding without ITokenAcquisition
+
+            // Act & Assert
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            // The provider should be registered, but resolving it should throw because ITokenAcquisition is missing
+            Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>());
+        }
+
+        [Fact]
+        public async Task EnableTokenBinding_BoundProviderDelegatesToUnderlyingProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton<IHttpClientFactory, MockHttpClientFactory>();
+            services.AddSingleton<ITokenAcquisition, MockTokenAcquisition>();
+            services.AddScoped<IAuthorizationHeaderProvider, MockAuthorizationHeaderProvider>();
+
+            services.EnableTokenBinding();
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var resolvedProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            string result = await resolvedProvider.CreateAuthorizationHeaderAsync(new[] { "scope" });
+
+            // Assert
+            Assert.Equal("MockAuthorizationHeader", result); // Should delegate to MockAuthorizationHeaderProvider
+        }
+
         /// <summary>
         /// Mock HttpClientFactory for testing purposes.
         /// </summary>
@@ -432,6 +587,78 @@ namespace Microsoft.Identity.Web.Test
             public HttpClient GetHttpClient()
             {
                 return new HttpClient();
+            }
+        }
+
+        /// <summary>
+        /// Mock TokenAcquisition service for testing purposes.
+        /// </summary>
+        private sealed class MockTokenAcquisition : ITokenAcquisition
+        {
+            public Task<string> GetAccessTokenForAppAsync(string scope, string? authenticationScheme, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            {
+                return Task.FromResult("MockAppToken");
+            }
+
+            public Task<string> GetAccessTokenForUserAsync(IEnumerable<string> scopes, string? authenticationScheme, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            {
+                return Task.FromResult("MockUserToken");
+            }
+
+            public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scopes, string? authenticationOptionsName = null, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult(new AuthenticationResult("MockAppToken", false, null, DateTimeOffset.Now, DateTimeOffset.Now, null, null, null, null, Guid.Empty));
+            }
+
+            public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(string scope, string? authenticationScheme, string? tenant = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            {
+                return Task.FromResult(new AuthenticationResult("MockAppToken", false, null, DateTimeOffset.Now, DateTimeOffset.Now, null, null, null, null, Guid.Empty));
+            }
+
+            public Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? authenticationOptionsName = null, string? tenant = null, string? userFlow = null, ClaimsPrincipal? claimsPrincipal = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult(new AuthenticationResult("MockUserToken", false, null, DateTimeOffset.Now, DateTimeOffset.Now, null, null, null, null, Guid.Empty));
+            }
+
+            public Task<AuthenticationResult> GetAuthenticationResultForUserAsync(IEnumerable<string> scopes, string? authenticationScheme, string? tenantId = null, string? userFlow = null, ClaimsPrincipal? user = null, TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+            {
+                return Task.FromResult(new AuthenticationResult("MockUserToken", false, null, DateTimeOffset.Now, DateTimeOffset.Now, null, null, null, null, Guid.Empty));
+            }
+
+            public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
+            {
+                return authenticationScheme ?? "Bearer";
+            }
+
+            public void ReplyForbiddenWithWwwAuthenticateHeader(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, string? authenticationScheme, HttpResponse? httpResponse = null)
+            {
+                // Mock implementation
+            }
+
+            public Task ReplyForbiddenWithWwwAuthenticateHeaderAsync(IEnumerable<string> scopes, MsalUiRequiredException msalServiceException, HttpResponse? httpResponse = null)
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// Mock AuthorizationHeaderProvider for testing purposes.
+        /// </summary>
+        private sealed class MockAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+        {
+            public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? options = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult("MockAuthorizationHeader");
+            }
+
+            public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult("MockAuthorizationHeaderForApp");
+            }
+
+            public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+            {
+                return Task.FromResult("MockAuthorizationHeaderForUser");
             }
         }
     }
