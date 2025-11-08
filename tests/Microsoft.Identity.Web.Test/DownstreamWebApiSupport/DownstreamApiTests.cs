@@ -8,14 +8,19 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Resource;
 using NSubstitute;
 using Xunit;
@@ -473,6 +478,341 @@ namespace Microsoft.Identity.Web.Tests
                 result.EndsWith("... (truncated)", StringComparison.Ordinal) ||
                 result.Length <= 4096 + "... (truncated)".Length,
                 "Error response should be limited in size");
+        }
+
+        [Fact]
+        public void DownstreamApi_Constructor_WithBoundProvider_AcceptsIMsalMtlsHttpClientFactory()
+        {
+            // Arrange
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalMtlsHttpClientFactory>();
+
+            // Act & Assert - Should not throw
+            var downstreamApi = new DownstreamApi(
+                mockBoundProvider,
+                _namedDownstreamApiOptions,
+                mockMtlsHttpClientFactory,
+                _logger,
+                _serviceProvider);
+
+            Assert.NotNull(downstreamApi);
+        }
+
+        [Fact]
+        public async Task UpdateRequestAsync_WithAuthorizationHeaderBoundProvider_CallsCorrectInterface()
+        {
+            // Arrange
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var testCertificate = Substitute.For<X509Certificate2>();
+
+            var downstreamApi = new DownstreamApi(
+                mockBoundProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                _serviceProvider);
+
+            var options = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://api.example.com/.default" }
+            };
+
+            var authHeaderInfo = new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = "Bearer test-token",
+                BindingCertificate = testCertificate
+            };
+
+            var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
+
+            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+                .CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(mockResult);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
+
+            // Act
+            var result = await downstreamApi.UpdateRequestAsync(
+                httpRequestMessage,
+                null,
+                options,
+                false,
+                null,
+                CancellationToken.None);
+
+            // Assert - Verify the bound provider interface was called
+            await ((IAuthorizationHeaderBoundProvider)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Any<DownstreamApiOptions>(),
+                Arg.Any<ClaimsPrincipal>(),
+                Arg.Any<CancellationToken>());
+
+            // Verify the regular provider interface was NOT called
+            await mockBoundProvider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<DownstreamApiOptions>(),
+                Arg.Any<ClaimsPrincipal>(),
+                Arg.Any<CancellationToken>());
+
+            // Assert - Verify the returned AuthorizationHeaderInformation
+            Assert.NotNull(result);
+            Assert.Equal("Bearer test-token", result.AuthorizationHeaderValue);
+            Assert.Equal(testCertificate, result.BindingCertificate);
+            Assert.Equal("Bearer test-token", httpRequestMessage.Headers.Authorization?.ToString());
+        }
+
+        [Fact]
+        public async Task UpdateRequestAsync_WithRegularAuthorizationHeaderProvider_FallsBackCorrectly()
+        {
+            // Arrange - Using the existing regular provider from the constructor
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://api.example.com/.default" }
+            };
+
+            // Act
+            var result = await _input.UpdateRequestAsync(
+                httpRequestMessage,
+                null,
+                options,
+                false,
+                null,
+                CancellationToken.None);
+
+            // Assert
+            Assert.Null(result); // Regular provider doesn't return AuthorizationHeaderInformation
+            Assert.Equal("Bearer ey", httpRequestMessage.Headers.Authorization?.ToString());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_WithRegularAuthorizationHeaderProvider_UsesRegularHttpClientFactory()
+        {
+            // Arrange
+            var mockHttpClientFactory = Substitute.For<IHttpClientFactory>();
+            var mockHandler = new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"result\": \"success\"}")
+                }
+            };
+            var mockHttpClient = new HttpClient(mockHandler);
+
+            mockHttpClientFactory.CreateClient(Arg.Any<string>()).Returns(mockHttpClient);
+
+            var downstreamApi = new DownstreamApi(
+                _authorizationHeaderProvider, // Regular provider
+                _namedDownstreamApiOptions,
+                mockHttpClientFactory,
+                _logger,
+                _serviceProvider);
+
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com",
+                Scopes = new[] { "https://api.example.com/.default" },
+                HttpMethod = "GET"
+            };
+
+            // Act
+            await downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None);
+
+            // Assert
+            mockHttpClientFactory.Received(1).CreateClient(Arg.Any<string>());
+
+            // Note: HttpClient is disposed by DownstreamApi, no manual disposal needed
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderAndWithBindingCertificate_UsesMtlsHttpClientFactory()
+        {
+            // Arrange
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalHttpClientFactory, IMsalMtlsHttpClientFactory>();
+            var testCertificate = CreateTestCertificate();
+
+            var mockHandler = new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"result\": \"success\"}")
+                }
+            };
+
+            // Create HttpClient with our mock handler
+            var mockMtlsHttpClient = new HttpClient(mockHandler);
+
+            // Configure service provider to return our mock factory
+            var mockServiceProvider = Substitute.For<IServiceProvider>();
+            mockServiceProvider.GetService(typeof(IMsalHttpClientFactory)).Returns((IMsalHttpClientFactory)mockMtlsHttpClientFactory);
+
+            var downstreamApi = new DownstreamApi(
+                mockBoundProvider,
+                _namedDownstreamApiOptions,
+                mockMtlsHttpClientFactory,
+                _logger,
+                mockServiceProvider);
+
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com",
+                Scopes = new[] { "https://api.example.com/.default" },
+                HttpMethod = "GET"
+            };
+
+            var authHeaderInfo = new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = "Bearer test-token",
+                BindingCertificate = testCertificate
+            };
+
+            var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
+
+            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+                .CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(mockResult);
+
+            // Setup mTLS HTTP client factory to return our pre-configured HttpClient
+            ((IMsalMtlsHttpClientFactory)mockMtlsHttpClientFactory)
+                .GetHttpClient(testCertificate)
+                .Returns(mockMtlsHttpClient);
+
+            // Act
+            await downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None);
+
+            // Assert - Verify mTLS HTTP client factory was used
+            var _ = ((IMsalMtlsHttpClientFactory)mockMtlsHttpClientFactory).Received(1).GetHttpClient(testCertificate);
+
+            // Verify regular HTTP client factory was NOT used
+            ((IHttpClientFactory)mockMtlsHttpClientFactory).DidNotReceive().CreateClient(Arg.Any<string>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderButWithoutBindingCertificate_UsesRegularHttpClientFactory()
+        {
+            // Arrange
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalHttpClientFactory, IMsalMtlsHttpClientFactory>();
+
+            var mockHandler = new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"result\": \"success\"}")
+                }
+            };
+            var mockRegularHttpClient = new HttpClient(mockHandler);
+
+            // Configure service provider to return our mock factory
+            var mockServiceProvider = Substitute.For<IServiceProvider>();
+            mockServiceProvider.GetService(typeof(IMsalHttpClientFactory)).Returns((IMsalHttpClientFactory)mockMtlsHttpClientFactory);
+
+            var downstreamApi = new DownstreamApi(
+                mockBoundProvider,
+                _namedDownstreamApiOptions,
+                mockMtlsHttpClientFactory,
+                _logger,
+                mockServiceProvider);
+
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com",
+                Scopes = new[] { "https://api.example.com/.default" },
+                HttpMethod = "GET"
+            };
+
+            var authHeaderInfo = new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = "Bearer test-token",
+                BindingCertificate = null // No binding certificate
+            };
+
+            var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
+
+            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+                .CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(mockResult);
+
+            // Setup regular HTTP client factory to return our mocked HttpClient
+            ((IHttpClientFactory)mockMtlsHttpClientFactory)
+                .CreateClient(Arg.Any<string>())
+                .Returns(mockRegularHttpClient);
+
+            // Act
+            await downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None);
+
+            // Assert - Verify regular HTTP client factory was used
+            ((IHttpClientFactory)mockMtlsHttpClientFactory).Received(1).CreateClient(Arg.Any<string>());
+
+            // Verify mTLS HTTP client factory was NOT used
+            ((IMsalMtlsHttpClientFactory)mockMtlsHttpClientFactory).DidNotReceive().GetHttpClient(Arg.Any<X509Certificate2>());
+
+            // Note: HttpClient is disposed by DownstreamApi, no manual disposal needed
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderWithAuthenticationFailure_ThrowsException()
+        {
+            // Arrange
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockHttpClientFactory = Substitute.For<IHttpClientFactory>();
+
+            var downstreamApi = new DownstreamApi(
+                mockBoundProvider,
+                _namedDownstreamApiOptions,
+                mockHttpClientFactory,
+                _logger,
+                _serviceProvider);
+
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com",
+                Scopes = new[] { "https://api.example.com/.default" }
+            };
+
+            // Mock authentication failure
+            var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                new AuthorizationHeaderError("token_acquisition_failed", "Failed to acquire token"));
+
+            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+                .CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(mockResult);
+
+            // Act & Assert
+            await Assert.ThrowsAnyAsync<Exception>(() =>
+                downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None));
+        }
+
+        private static X509Certificate2 CreateTestCertificate()
+        {
+            // Create a simple test certificate for mocking purposes
+            // We don't need a real certificate with private key for HTTP client factory testing
+            var bytes = Convert.FromBase64String(TestConstants.CertificateX5c);
+
+#if NET9_0_OR_GREATER
+            // Use the new X509CertificateLoader for .NET 9.0+
+            return X509CertificateLoader.LoadCertificate(bytes);
+#else
+            // Use the legacy constructor for older frameworks
+#pragma warning disable SYSLIB0057 // Type or member is obsolete
+            return new X509Certificate2(bytes);
+#pragma warning restore SYSLIB0057 // Type or member is obsolete
+#endif
         }
     }
 
