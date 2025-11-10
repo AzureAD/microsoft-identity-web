@@ -13,6 +13,9 @@ on:
     branches:
       - master
 
+env:
+  TargetNetNext: 'True'
+
 jobs:
   analyse:
     name: Analyse
@@ -54,6 +57,12 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
+    - name: Setup .NET 10.0 RC1
+      uses: actions/setup-dotnet@v4
+      if: env.TargetNetNext == 'True'
+      with:
+        dotnet-version: 10.0.100-rc.1.25451.107
+
    # Install workload
     - name: Setup wasm-tools
       run: dotnet workload install wasm-tools
@@ -63,6 +72,11 @@ jobs:
 
     - name: Build with .NET 9
       run: dotnet test Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+
+    - name: Build with .NET 10
+      if: env.TargetNetNext == 'True'
+      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true -p:TargetNetNext=${{env.TargetNetNext}} --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+      continue-on-error: true
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

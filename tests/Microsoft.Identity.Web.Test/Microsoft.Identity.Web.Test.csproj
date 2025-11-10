@@ -10,7 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
-    <ProjectReference Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
+    <ProjectReference Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Azure\Microsoft.Identity.Web.Azure.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj" />
@@ -26,7 +26,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
     <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractionsVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
