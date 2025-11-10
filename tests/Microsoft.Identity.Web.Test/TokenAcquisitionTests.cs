@@ -126,6 +126,36 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("Bearer header.payload.signature", result);
         }
 
+        [Theory]
+        [InlineData("MTLS_POP", true)]
+        [InlineData("mtls_pop", true)]
+        [InlineData("Bearer", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void GetMergedOptions_SetsIsTokenBindingCorrectly(string? authenticationScheme, bool expectedIsTokenBinding)
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisitionInternal>() as TokenAcquisition;
+
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions();
+
+            // Act
+            // Use reflection to access the private GetMergedOptions method
+            var method = typeof(TokenAcquisition).GetMethod("GetMergedOptions",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(method);
+
+#pragma warning disable CS8601 // Possible null reference assignment.
+            var mergedOptions = method.Invoke(tokenAcquisition, new object[] { authenticationScheme, tokenAcquisitionOptions }) as MergedOptions;
+#pragma warning restore CS8601 // Possible null reference assignment.
+
+            // Assert
+            Assert.NotNull(mergedOptions);
+            Assert.Equal(expectedIsTokenBinding, mergedOptions.IsTokenBinding);
+        }
+
         private TokenAcquirerFactory InitTokenAcquirerFactory()
         {
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();

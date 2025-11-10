@@ -58,6 +58,29 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        public static async Task<ConfidentialClientApplicationBuilder> WithBindingCertificateAsync(
+            this ConfidentialClientApplicationBuilder builder,
+            IEnumerable<CredentialDescription> clientCredentials,
+            ILogger logger,
+            ICredentialsLoader credentialsLoader,
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
+        {
+            var credential = await LoadCredentialForMsalOrFailAsync(
+                clientCredentials,
+                logger,
+                credentialsLoader,
+                credentialSourceLoaderParameters).ConfigureAwait(false);
+
+            if (credential?.Certificate == null)
+            {
+                logger.LogError("Loaded credentials for token binding doesn't contain a certificate");
+
+                return builder;
+            }
+
+            return builder.WithCertificate(credential.Certificate);
+        }
+
         internal /* for test */ async static Task<CredentialDescription?> LoadCredentialForMsalOrFailAsync(
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,

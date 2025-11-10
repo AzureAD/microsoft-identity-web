@@ -52,6 +52,8 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
+        private const string MtlsPopAuthenticationSchema = "MTLS_POP";
+
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -587,6 +589,11 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
+            if (mergedOptions.IsTokenBinding)
+            {
+                builder.WithMtlsProofOfPossession();
+            }
+
             if (addInOptions != null)
             {
                 addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
@@ -746,6 +753,8 @@ namespace Microsoft.Identity.Web
             {
                 mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
             }
+
+            mergedOptions.IsTokenBinding = string.Equals(authenticationScheme, MtlsPopAuthenticationSchema, StringComparison.OrdinalIgnoreCase);
 
             return mergedOptions;
         }
@@ -987,11 +996,22 @@ namespace Microsoft.Identity.Web
 
                 try
                 {
-                    await builder.WithClientCredentialsAsync(
-                        mergedOptions.ClientCredentials!,
-                        _logger,
-                        _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                    if (mergedOptions.IsTokenBinding)
+                    {
+                        await builder.WithBindingCertificateAsync(
+                           mergedOptions.ClientCredentials!,
+                           _logger,
+                           _credentialsLoader,
+                           new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                    }
+                    else
+                    {
+                        await builder.WithClientCredentialsAsync(
+                            mergedOptions.ClientCredentials!,
+                            _logger,
+                            _credentialsLoader,
+                            new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                    }
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
