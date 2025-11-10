@@ -56,6 +56,7 @@ services.AddAgentIdentities();
 
 Configure your agent identity blueprint application with the necessary credentials using appsettings.json:
 
+**Using Client Certificate:**
 ```json
 {
   "AzureAd": {
@@ -69,12 +70,44 @@ Configure your agent identity blueprint application with the necessary credentia
         "CertificateStorePath": "LocalMachine/My",
         "CertificateDistinguishedName": "CN=YourCertificateName"
       }
+    ]
+  }
+}
+```
 
-      // Or for Federation Identity Credential with Managed Identity:
-      // {
-      //   "SourceType": "SignedAssertionFromManagedIdentity",
-      //   "ManagedIdentityClientId": "managed-identity-client-id"  // Omit for system-assigned
-      // }
+**Using Managed Identity (deployment scenario-specific):**
+
+For **containerized environments** (Kubernetes, AKS, Docker) with **Azure AD Workload Identity**, use `SignedAssertionFilePath`:
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "your-tenant-id",
+    "ClientId": "agent-application-client-id",
+
+    "ClientCredentials": [
+      {
+        "SourceType": "SignedAssertionFilePath",
+        "SignedAssertionFilePath": "/var/run/secrets/azure/tokens/azure-identity-token"
+      }
+    ]
+  }
+}
+```
+
+For **classic managed identity scenarios** (VMs, App Services) use `SignedAssertionFromManagedIdentity`:
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "your-tenant-id",
+    "ClientId": "agent-application-client-id",
+
+    "ClientCredentials": [
+      {
+        "SourceType": "SignedAssertionFromManagedIdentity",
+        "ManagedIdentityClientId": "managed-identity-client-id"  // Omit for system-assigned
+      }
     ]
   }
 }
@@ -97,9 +130,14 @@ services.Configure<MicrosoftIdentityApplicationOptions>(
     });
 ```
 
-See https://aka.ms/ms-id-web/credential-description for all the ways to express credentials.
+**Important Notes on Credential Types:**
+- For comprehensive credential configuration options, see the [CredentialDescription documentation](https://aka.ms/ms-id-web/credential-description)
+- For containerized workloads (Kubernetes, AKS, Docker), always use `SignedAssertionFilePath` with Azure AD Workload Identity
+- The `SignedAssertionFilePath` points to the projected service account token, typically mounted at `/var/run/secrets/azure/tokens/azure-identity-token`
+- Only use `SignedAssertionFromManagedIdentity` for classic managed identity scenarios on VMs or App Services
+- For detailed guidance on workload identity, see [Azure AD Workload Identity](https://azure.github.io/azure-workload-identity/)
 
-On ASP.NET Core, use the override of services.Configure taking an authentication scheeme. Youy can also
+On ASP.NET Core, use the override of services.Configure taking an authentication scheme. You can also
 use Microsoft.Identity.Web.Owin if you have an ASP.NET Core application on OWIN (not recommended for new
 apps), or even create a daemon application.
 
