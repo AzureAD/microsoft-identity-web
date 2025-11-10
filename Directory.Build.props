@@ -109,7 +109,7 @@
     <!--CVE-2024-43485-->
     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
-    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>9.0.8</SystemFormatsAsn1Version>
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
     <PublicApiAnalyzersVersion>4.14.0</PublicApiAnalyzersVersion>
   </PropertyGroup>
