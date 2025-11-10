@@ -4,6 +4,7 @@
     },
     "sdk": {
         "version": "9.0.111",
-        "rollForward": "latestFeature"
+        "allowPrerelease": true,
+        "rollForward": "latestMajor"
     }
 }
