@@ -21,7 +21,8 @@
     <XunitExtensibilityCoreVersion>2.9.2</XunitExtensibilityCoreVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
     <NSubstituteAnalyzersCSharpVersion>1.0.17</NSubstituteAnalyzersCSharpVersion>
-    <CoverletCollectorVersion>6.0.2</CoverletCollectorVersion>
+    <!--MVS-2025-w7cf-4mh5-->
+    <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
     <SeleniumWebDriverVersion>4.8.0</SeleniumWebDriverVersion>
     <SeleniumWebDriverChromeDriverVersion>108.0.5359.7100</SeleniumWebDriverChromeDriverVersion>
     <BenchmarkDotNetVersion>0.12.1</BenchmarkDotNetVersion>
