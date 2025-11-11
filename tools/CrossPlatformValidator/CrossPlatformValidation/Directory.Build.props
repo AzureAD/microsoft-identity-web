@@ -1,2 +1,6 @@
 <Project>
+  <PropertyGroup>
+     <!--MVS-2025-w7cf-4mh5-->
+     <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
+  </PropertyGroup>
 </Project>

@@ -8,6 +8,8 @@
      <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
      <EnablePackageValidation>false</EnablePackageValidation>
      <RootNamespace>Microsoft.Identity.App</RootNamespace>
+     <!--MVS-2025-w7cf-4mh5-->
+     <CoverletCollectorVersion>6.0.4</CoverletCollectorVersion>
   </PropertyGroup>
 
 
