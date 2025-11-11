@@ -1,3 +1,4 @@
 #nullable enable
 const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
+static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, (string! value, bool includeInCacheKey)>?
