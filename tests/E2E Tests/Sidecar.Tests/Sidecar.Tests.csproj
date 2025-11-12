@@ -5,7 +5,7 @@
     <RootNamespace>Sidecar.Tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn); CS1591;RS0037</NoWarn>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 

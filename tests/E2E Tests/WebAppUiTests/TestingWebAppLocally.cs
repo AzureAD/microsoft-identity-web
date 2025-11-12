@@ -14,8 +14,7 @@ using Xunit.Abstractions;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace WebAppUiTests;
-
-#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD
+#if !FROM_GITHUB_ACTION && !AZURE_DEVOPS_BUILD && !NET10_0 // NET 10 is temporary and will be removed before using official release of .NET 10
 
 // Since this test affects Kestrel environment variables it can cause a race condition when run in parallel with other UI tests.
 [Collection(nameof(UiTestNoParallelization))]
@@ -70,8 +69,8 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
         Process? process = null;
         string TraceFileName = traceFileClassName + "_ValidEmailPassword";
         using IPlaywright playwright = await Playwright.CreateAsync();
-        IBrowser browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        IBrowserContext context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+        var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+        var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         await context.Tracing.StartAsync(new() { Screenshots = true, Snapshots = true, Sources = true });
 
         try
@@ -81,7 +80,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             if (!UiTestHelpers.ProcessIsAlive(process))
             { Assert.Fail(TC.WebAppCrashedString); }
 
-            IPage page = await browser.NewPageAsync();
+            IPage page = await context.NewPageAsync();
 
             // The retry logic ensures the web app has time to start up to establish a connection.
             uint InitialConnectionRetryCount = 5;
@@ -137,6 +136,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             string path = UiTestHelpers.GetTracePath(_uiTestAssemblyLocation, TraceFileName);
             await context.Tracing.StopAsync(new() { Path = path });
             _output.WriteLine($"Trace data for {TraceFileName} recorded to {path}.");
+            await context.CloseAsync();
             await browser.DisposeAsync();
             playwright.Dispose();
         }
