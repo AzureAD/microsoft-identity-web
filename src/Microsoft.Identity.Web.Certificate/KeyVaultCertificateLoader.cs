@@ -79,6 +79,7 @@ namespace Microsoft.Identity.Web
                 };
             }
 
+            // CodeQL [SM05137] intentional: Using default credential because user may configure any of the supported auth methods. This method is also not used always as the resulting retrieved keys are cached.
             DefaultAzureCredential credential = new(options);
             CertificateClient certificateClient = new(keyVaultUri, credential);
             SecretClient secretClient = new(keyVaultUri, credential);
