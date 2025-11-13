@@ -50,7 +50,7 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build solution
-      run: msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
+      run: dotnet msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
 
     - name: Test with .NET 8.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
