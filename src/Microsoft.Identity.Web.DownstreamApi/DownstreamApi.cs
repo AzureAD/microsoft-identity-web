@@ -28,7 +28,8 @@ namespace Microsoft.Identity.Web
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        // This MSAL HTTP client factory is used to create HTTP clients with mTLS bindign certificate.
+        // This MSAL HTTP client factory is used to create HTTP clients with mTLS binding certificate.
+
         // Note, that it doesn't replace _httpClientFactory to keep backward compatibility and ability
         // to create named HTTP clients for non-mTLS scenarios.
         private readonly IMsalHttpClientFactory _msalHttpClientFactory;
