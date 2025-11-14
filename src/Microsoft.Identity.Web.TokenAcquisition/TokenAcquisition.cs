@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Web
             ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
@@ -1002,7 +1002,8 @@ namespace Microsoft.Identity.Web
                            mergedOptions.ClientCredentials!,
                            _logger,
                            _credentialsLoader,
-                           new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                           new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                           isTokenBinding: true);
                     }
                     else
                     {

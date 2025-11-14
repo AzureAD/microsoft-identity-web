@@ -14,7 +14,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -28,10 +27,10 @@ namespace Microsoft.Identity.Web
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        // This MSAL HTTP client factory is used to create HTTP clients with mTLS bindign certificate.
+        // This MSAL HTTP client factory is used to create HTTP clients with mTLS binding certificate.
         // Note, that it doesn't replace _httpClientFactory to keep backward compatibility and ability
         // to create named HTTP clients for non-mTLS scenarios.
-        private readonly IMsalHttpClientFactory _msalHttpClientFactory;
+        private readonly IMsalHttpClientFactory? _msalHttpClientFactory;
 
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private const string Authorization = "Authorization";
@@ -45,18 +44,38 @@ namespace Microsoft.Identity.Web
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
-        /// <param name="serviceProvider">The service provider.</param>
+        public DownstreamApi(
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
+            IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
+            IHttpClientFactory httpClientFactory,
+            ILogger<DownstreamApi> logger)
+            : this(authorizationHeaderProvider,
+                  namedDownstreamApiOptions,
+                  httpClientFactory,
+                  logger,
+                  msalHttpClientFactory: null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor which accepts optional MSAL HTTP client factory.
+        /// </summary>
+        /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
+        /// <param name="namedDownstreamApiOptions">Named options provider.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="msalHttpClientFactory">The MSAL HTTP client factoy for mTLS PoP scenarios.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<DownstreamApi> logger,
-            IServiceProvider serviceProvider)
+            IMsalHttpClientFactory? msalHttpClientFactory)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
-            _msalHttpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
+            _msalHttpClientFactory = msalHttpClientFactory ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
         }
 
@@ -527,9 +546,10 @@ namespace Microsoft.Identity.Web
             // Request result will contain authorization header and potentially binding certificate for mTLS
             var requestResult = await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
 
-            // If a binding certificate is specified (which means mTLS is required), create an HttpClient with the certificate
-            // by using IMsalMtlsHttpClientFactory otherwise use the default HttpClientFactory with optional named client.
-            using HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
+            // If a binding certificate is specified (which means mTLS is required) and MSAL mTLS HTTP factory is present
+            // then create an HttpClient with the certificate by using IMsalMtlsHttpClientFactory.
+            // Otherwise use the default HttpClientFactory with optional named client.
+            using HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
                 ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
                 : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
 
@@ -583,9 +603,9 @@ namespace Microsoft.Identity.Web
 
                 // Firtsly check if it's token binding scenario so authorization header provider will return
                 // a binding certificate along with acquired authorization header.
-                if (_authorizationHeaderProvider is IAuthorizationHeaderBoundProvider authorizationHeaderBoundProvider)
+                if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls)
                 {
-                    var authorizationHeaderResult = await authorizationHeaderBoundProvider.CreateAuthorizationHeaderAsync(
+                    var authorizationHeaderResult = await authorizationHeaderBoundProviderForMtls.CreateAuthorizationHeaderAsync(
                         effectiveOptions,
                         user,
                         cancellationToken).ConfigureAwait(false);

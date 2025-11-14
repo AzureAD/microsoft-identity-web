@@ -23,7 +23,6 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
-        private readonly IServiceProvider _serviceProvider;
         private readonly DownstreamApi _downstreamApi;
 
         public ExtraParametersTests()
@@ -32,14 +31,12 @@ namespace Microsoft.Identity.Web.Tests
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
             _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
-            _serviceProvider = Substitute.For<IServiceProvider>();
 
             _downstreamApi = new DownstreamApi(
                 _authorizationHeaderProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger,
-                _serviceProvider);
+                _logger);
         }
 
         [Fact]

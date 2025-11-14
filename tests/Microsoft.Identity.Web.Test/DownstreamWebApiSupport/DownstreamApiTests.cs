@@ -34,7 +34,6 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
-        private readonly IServiceProvider _serviceProvider;
         private readonly DownstreamApi _input;
         private readonly DownstreamApi _inputSaml;
 
@@ -45,21 +44,18 @@ namespace Microsoft.Identity.Web.Tests
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
             _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
-            _serviceProvider = Substitute.For<IServiceProvider>();
 
             _input = new DownstreamApi(
              _authorizationHeaderProvider,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger,
-             _serviceProvider);
+             _logger);
 
             _inputSaml = new DownstreamApi(
              _authorizationHeaderProviderSaml,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger,
-             _serviceProvider);
+             _logger);
         }
 
         [Fact]
@@ -484,7 +480,7 @@ namespace Microsoft.Identity.Web.Tests
         public void DownstreamApi_Constructor_WithBoundProvider_AcceptsIMsalMtlsHttpClientFactory()
         {
             // Arrange
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
             var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalMtlsHttpClientFactory>();
 
             // Act & Assert - Should not throw
@@ -492,8 +488,7 @@ namespace Microsoft.Identity.Web.Tests
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
-                _logger,
-                _serviceProvider);
+                _logger);
 
             Assert.NotNull(downstreamApi);
         }
@@ -502,15 +497,14 @@ namespace Microsoft.Identity.Web.Tests
         public async Task UpdateRequestAsync_WithAuthorizationHeaderBoundProvider_CallsCorrectInterface()
         {
             // Arrange
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
             var testCertificate = Substitute.For<X509Certificate2>();
 
             var downstreamApi = new DownstreamApi(
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger,
-                _serviceProvider);
+                _logger);
 
             var options = new DownstreamApiOptions
             {
@@ -525,7 +519,7 @@ namespace Microsoft.Identity.Web.Tests
 
             var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
 
-            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+            ((IAuthorizationHeaderProvider2)mockBoundProvider)
                 .CreateAuthorizationHeaderAsync(
                     Arg.Any<DownstreamApiOptions>(),
                     Arg.Any<ClaimsPrincipal>(),
@@ -544,7 +538,7 @@ namespace Microsoft.Identity.Web.Tests
                 CancellationToken.None);
 
             // Assert - Verify the bound provider interface was called
-            await ((IAuthorizationHeaderBoundProvider)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
+            await ((IAuthorizationHeaderProvider2)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
                 Arg.Any<DownstreamApiOptions>(),
                 Arg.Any<ClaimsPrincipal>(),
                 Arg.Any<CancellationToken>());
@@ -608,8 +602,7 @@ namespace Microsoft.Identity.Web.Tests
                 _authorizationHeaderProvider, // Regular provider
                 _namedDownstreamApiOptions,
                 mockHttpClientFactory,
-                _logger,
-                _serviceProvider);
+                _logger);
 
             var options = new DownstreamApiOptions
             {
@@ -631,7 +624,7 @@ namespace Microsoft.Identity.Web.Tests
         public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderAndWithBindingCertificate_UsesMtlsHttpClientFactory()
         {
             // Arrange
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
             var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalHttpClientFactory, IMsalMtlsHttpClientFactory>();
             var testCertificate = CreateTestCertificate();
 
@@ -647,16 +640,12 @@ namespace Microsoft.Identity.Web.Tests
             // Create HttpClient with our mock handler
             var mockMtlsHttpClient = new HttpClient(mockHandler);
 
-            // Configure service provider to return our mock factory
-            var mockServiceProvider = Substitute.For<IServiceProvider>();
-            mockServiceProvider.GetService(typeof(IMsalHttpClientFactory)).Returns((IMsalHttpClientFactory)mockMtlsHttpClientFactory);
-
             var downstreamApi = new DownstreamApi(
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                mockServiceProvider);
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
             {
@@ -673,7 +662,7 @@ namespace Microsoft.Identity.Web.Tests
 
             var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
 
-            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+            ((IAuthorizationHeaderProvider2)mockBoundProvider)
                 .CreateAuthorizationHeaderAsync(
                     Arg.Any<DownstreamApiOptions>(),
                     Arg.Any<ClaimsPrincipal>(),
@@ -699,7 +688,7 @@ namespace Microsoft.Identity.Web.Tests
         public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderButWithoutBindingCertificate_UsesRegularHttpClientFactory()
         {
             // Arrange
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
             var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalHttpClientFactory, IMsalMtlsHttpClientFactory>();
 
             var mockHandler = new MockHttpMessageHandler()
@@ -712,16 +701,12 @@ namespace Microsoft.Identity.Web.Tests
             };
             var mockRegularHttpClient = new HttpClient(mockHandler);
 
-            // Configure service provider to return our mock factory
-            var mockServiceProvider = Substitute.For<IServiceProvider>();
-            mockServiceProvider.GetService(typeof(IMsalHttpClientFactory)).Returns((IMsalHttpClientFactory)mockMtlsHttpClientFactory);
-
             var downstreamApi = new DownstreamApi(
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                mockServiceProvider);
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
             {
@@ -738,7 +723,7 @@ namespace Microsoft.Identity.Web.Tests
 
             var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
 
-            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+            ((IAuthorizationHeaderProvider2)mockBoundProvider)
                 .CreateAuthorizationHeaderAsync(
                     Arg.Any<DownstreamApiOptions>(),
                     Arg.Any<ClaimsPrincipal>(),
@@ -766,15 +751,14 @@ namespace Microsoft.Identity.Web.Tests
         public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderWithAuthenticationFailure_ThrowsException()
         {
             // Arrange
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderBoundProvider>();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
             var mockHttpClientFactory = Substitute.For<IHttpClientFactory>();
 
             var downstreamApi = new DownstreamApi(
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockHttpClientFactory,
-                _logger,
-                _serviceProvider);
+                _logger);
 
             var options = new DownstreamApiOptions
             {
@@ -786,7 +770,7 @@ namespace Microsoft.Identity.Web.Tests
             var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
                 new AuthorizationHeaderError("token_acquisition_failed", "Failed to acquire token"));
 
-            ((IAuthorizationHeaderBoundProvider)mockBoundProvider)
+            ((IAuthorizationHeaderProvider2)mockBoundProvider)
                 .CreateAuthorizationHeaderAsync(
                     Arg.Any<DownstreamApiOptions>(),
                     Arg.Any<ClaimsPrincipal>(),

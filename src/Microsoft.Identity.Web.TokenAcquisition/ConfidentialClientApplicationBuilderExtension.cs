@@ -63,7 +63,8 @@ namespace Microsoft.Identity.Web
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
             ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
+            bool isTokenBinding)
         {
             var credential = await LoadCredentialForMsalOrFailAsync(
                 clientCredentials,
@@ -71,14 +72,18 @@ namespace Microsoft.Identity.Web
                 credentialsLoader,
                 credentialSourceLoaderParameters).ConfigureAwait(false);
 
-            if (credential?.Certificate == null)
+            if (credential?.Certificate != null)
             {
-                logger.LogError("Loaded credentials for token binding doesn't contain a certificate");
-
-                return builder;
+                return builder.WithCertificate(credential.Certificate);
             }
 
-            return builder.WithCertificate(credential.Certificate);
+            if (isTokenBinding)
+            {
+                logger.LogError("A certificate, which is required for token binding, is missing in loaded credentials.");
+                throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
+            }
+
+            return builder;
         }
 
         internal /* for test */ async static Task<CredentialDescription?> LoadCredentialForMsalOrFailAsync(

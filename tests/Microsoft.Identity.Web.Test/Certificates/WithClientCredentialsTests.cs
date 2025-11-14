@@ -233,7 +233,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 new[] { credentialDescription },
                 logger,
                 credLoader,
-                null);
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: true);
 
             // Assert
             Assert.NotNull(result);
@@ -273,7 +274,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     new[] { credentialDescription },
                     logger,
                     credLoader,
-                    null));
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
         }
 
         [Fact]
@@ -300,16 +302,14 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     return Task.CompletedTask;
                 });
 
-            // Act
-            var result = await builder.WithBindingCertificateAsync(
-                new[] { credentialDescription },
-                logger,
-                credLoader,
-                null);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Same(builder, result); // Should return the same builder instance
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithBindingCertificateAsync(
+                    new[] { credentialDescription },
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
         }
 
         [Fact]
@@ -340,7 +340,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     new[] { credentialDescription },
                     logger,
                     credLoader,
-                    null));
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
 
             // Verify the exception is propagated from LoadCredentialForMsalOrFailAsync
             Assert.Contains("Certificate not found", actualException.Message, StringComparison.Ordinal);
@@ -355,19 +356,14 @@ namespace Microsoft.Identity.Web.Test.Certificates
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
 
-            // Act
-            var result = await builder.WithBindingCertificateAsync(
-                new CredentialDescription[0],
-                logger,
-                credLoader,
-                null);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Same(builder, result); // Should return the same builder instance
-
-            // Verify that no credentials were attempted to be loaded (empty list bypasses loader)
-            await credLoader.DidNotReceive().LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>());
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithBindingCertificateAsync(
+                    new CredentialDescription[0],
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
         }
 
         [Fact]
@@ -407,7 +403,8 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 new[] { credentialDescription },
                 logger,
                 credLoader,
-                credentialSourceLoaderParameters);
+                credentialSourceLoaderParameters,
+                isTokenBinding: true);
 
             // Assert
             Assert.NotNull(result);
