@@ -64,8 +64,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add authentication
 // Add authentication
-builder.Services.AddAuthentication(JwtBearertDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd");
 
 // Add authorization
 builder.Services.AddAuthorization();
@@ -335,7 +335,7 @@ Now that you have a protected API:
 ✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apis.md)** - Call Microsoft Graph or other APIs on behalf of users
 ✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios
 ✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens
-✅ **[Deploy behind API Gateway](../deployment/api-gateways.md)** - Azure API Management, Azure Front Door
+✅ **[Deploy behind API Gateway](../advanced/api-gateways.md)** - Azure API Management, Azure Front Door, Application Gateway
 
 ## Troubleshooting
 
