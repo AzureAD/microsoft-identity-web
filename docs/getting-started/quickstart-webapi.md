@@ -63,9 +63,8 @@ using Microsoft.Identity.Web;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add authentication
-// Add authentication
-builder.Services.AddAuthentication(JwtBearertDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(builder.Configuration, "AzureAd");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd");
 
 // Add authorization
 builder.Services.AddAuthorization();
