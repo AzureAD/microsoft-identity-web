@@ -97,7 +97,7 @@
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.14.0</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.79.1</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.79.2</MicrosoftIdentityClientVersion>
     <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">9.5.0</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
@@ -109,7 +109,7 @@
     <!--CVE-2024-43485-->
     <SystemTextJsonVersion>8.0.5</SystemTextJsonVersion>
     <!--CVE-2023-29331-->
-    <SystemFormatsAsn1Version>9.0.8</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>8.0.1</SystemFormatsAsn1Version>
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
     <PublicApiAnalyzersVersion>4.14.0</PublicApiAnalyzersVersion>
   </PropertyGroup>
