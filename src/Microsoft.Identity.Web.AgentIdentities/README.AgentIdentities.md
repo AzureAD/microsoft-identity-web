@@ -63,7 +63,6 @@ Configure your agent identity blueprint application with the necessary credentia
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
     "ClientId": "agent-application-client-id",
-
     "ClientCredentials": [
       {
         "SourceType": "StoreWithDistinguishedName",
@@ -84,7 +83,6 @@ For **containerized environments** (Kubernetes, AKS, Docker) with **Azure AD Wor
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
     "ClientId": "agent-application-client-id",
-
     "ClientCredentials": [
       {
         "SourceType": "SignedAssertionFilePath",
@@ -102,7 +100,6 @@ For **classic managed identity scenarios** (VMs, App Services) use `SignedAssert
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
     "ClientId": "agent-application-client-id",
-
     "ClientCredentials": [
       {
         "SourceType": "SignedAssertionFromManagedIdentity",
