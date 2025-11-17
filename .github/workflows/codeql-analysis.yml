@@ -14,7 +14,7 @@ on:
       - master
 
 env:
-  TargetNetNext: 'True'
+  TargetNetNext: 'False'
 
 jobs:
   analyse:
@@ -57,11 +57,10 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Setup .NET 10.0 RC1
-      uses: actions/setup-dotnet@v4
-      if: env.TargetNetNext == 'True'
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0.100-rc.1.25451.107
+        dotnet-version: 10.0.x
 
    # Install workload
     - name: Setup wasm-tools
@@ -74,9 +73,7 @@ jobs:
       run: dotnet test Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Build with .NET 10
-      if: env.TargetNetNext == 'True'
-      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true -p:TargetNetNext=${{env.TargetNetNext}} --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
-      continue-on-error: true
+      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
