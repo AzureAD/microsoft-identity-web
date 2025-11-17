@@ -86,7 +86,6 @@ For **containerized environments** (Kubernetes, AKS, Docker) with **Azure AD Wor
     "ClientCredentials": [
       {
         "SourceType": "SignedAssertionFilePath",
-        "SignedAssertionFilePath": "/var/run/secrets/azure/tokens/azure-identity-token"
       }
     ]
   }
