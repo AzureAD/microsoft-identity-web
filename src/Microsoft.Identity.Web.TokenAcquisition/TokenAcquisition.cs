@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
-                    builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+                    builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
                 }
 
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
@@ -1145,8 +1145,8 @@ namespace Microsoft.Identity.Web
                             // Special case when the OBO inbound token is composite (for instance PFT)
                             if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
-                                string assertion = dict[assertionConstant];
-                                string subAssertion = dict[subAssertionConstant];
+                                string assertion = dict[assertionConstant].value;
+                                string subAssertion = dict[subAssertionConstant].value;
 
                                 // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
                                 CheckAssertionsForInjectionAttempt(assertion, subAssertion);
@@ -1164,7 +1164,6 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(assertionConstant);
                                 dict.Remove(subAssertionConstant);
                             }
-
                             builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -1362,25 +1361,40 @@ namespace Microsoft.Identity.Web
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
-        internal static Dictionary<string, string>? MergeExtraQueryParameters(
+        internal static Dictionary<string, (string value, bool includeInCacheKey)>? MergeExtraQueryParameters(
             MergedOptions mergedOptions,
-            TokenAcquisitionOptions tokenAcquisitionOptions)
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
-            if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+            // Return null if both sources are empty
+            if (tokenAcquisitionOptions?.ExtraQueryParameters == null && mergedOptions.ExtraQueryParameters == null)
             {
-                var mergedDict = new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters);
-                if (mergedOptions.ExtraQueryParameters != null)
-                {
-                    foreach (var pair in mergedOptions!.ExtraQueryParameters)
-                    {
-                        if (!mergedDict!.ContainsKey(pair.Key))
-                            mergedDict.Add(pair.Key, pair.Value);
-                    }
-                }
-                return mergedDict;
+                return null;
             }
 
-            return (Dictionary<string, string>?)mergedOptions.ExtraQueryParameters;
+            var mergedDict = new Dictionary<string, (string value, bool includeInCacheKey)>(StringComparer.OrdinalIgnoreCase);
+
+            // Add from tokenAcquisitionOptions first (these take precedence)
+            if (tokenAcquisitionOptions?.ExtraQueryParameters != null)
+            {
+                foreach (var pair in tokenAcquisitionOptions.ExtraQueryParameters)
+                {
+                    mergedDict[pair.Key] = (pair.Value, true);
+                }
+            }
+
+            // Add from mergedOptions without overriding existing keys
+            if (mergedOptions.ExtraQueryParameters != null)
+            {
+                foreach (var pair in mergedOptions.ExtraQueryParameters)
+                {
+                    if (!mergedDict.ContainsKey(pair.Key))
+                    {
+                        mergedDict.Add(pair.Key, (pair.Value, true));
+                    }
+                }
+            }
+
+            return mergedDict;
         }
 
         protected static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)
