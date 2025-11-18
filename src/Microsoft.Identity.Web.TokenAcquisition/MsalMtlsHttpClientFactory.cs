@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Provides a factory for creating HTTP clients configured for mTLS authentication with using binding certificate.
-    /// It uses a hybrid approach with leveraging IHttpClientFactory for non-mTLS HTTL clients and maintaining
+    /// It uses a hybrid approach with leveraging IHttpClientFactory for non-mTLS HTTP clients and maintaining
     /// a pool of mTLS clients with using certificate as a key.
     /// </summary>
     public sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory
@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Web
         {
             lock (s_cacheLock)
             {
-                if (s_mtlsHttpClientPool.Count >= 1000)
+                if (s_mtlsHttpClientPool.Count >= MaxMtlsHttpClientCountInPool)
                 {
                     s_mtlsHttpClientPool.Clear();
                 }
