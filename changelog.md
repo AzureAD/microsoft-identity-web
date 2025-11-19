@@ -1,3 +1,28 @@
+4.0.2
+=========
+### New features
+- Migrate to .NET 10 GA. [#3449](https://github.com/AzureAD/microsoft-identity-web/pull/3449) and [#3590](https://github.com/AzureAD/microsoft-identity-web/pull/3590)
+
+### Dependencies updates
+- Bump MSAL.NET to version [4.79.2](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.79.2) and handle changes to deprecated WithExtraQueryParameters APIs. [#3583](https://github.com/AzureAD/microsoft-identity-web/pull/3583)
+- Update Microsoft.IdentityModel and Abstractions versions. [#3604](https://github.com/AzureAD/microsoft-identity-web/pull/3604)
+- Update coverlet.collector to 6.0.4. [#3587](https://github.com/AzureAD/microsoft-identity-web/pull/3587)
+- Update package validation baseline version to 4.0.0. [#3589](https://github.com/AzureAD/microsoft-identity-web/pull/3589)
+- Bump js-yaml from 4.1.0 to 4.1.1 in /tests/DevApps/SidecarAdapter/typescript. [#3595](https://github.com/AzureAD/microsoft-identity-web/pull/3595)
+
+### Entra ID SDK sidecar
+- Restrict hosts to localhost for sidecar. [#3579](https://github.com/AzureAD/microsoft-identity-web/pull/3579)
+- Update http file to match endpoints. [#3555](https://github.com/AzureAD/microsoft-identity-web/pull/3555)
+- Revise sidecar issue template for Entra ID. [#3577](https://github.com/AzureAD/microsoft-identity-web/pull/3577)
+
+### Documentation
+- Update README to include Entra SDK container info. [#3578](https://github.com/AzureAD/microsoft-identity-web/pull/3578)
+
+### Fundamentals
+- Include NET 9.0 in template-install-dependencies. [#3593](https://github.com/AzureAD/microsoft-identity-web/pull/3593)
+- Fix CodeQL alerts. [#3591](https://github.com/AzureAD/microsoft-identity-web/pull/3591)
+- Suppression file is needed. [#3592](https://github.com/AzureAD/microsoft-identity-web/pull/3592)
+
 4.0.1
 =========
 ## Bugs fixes

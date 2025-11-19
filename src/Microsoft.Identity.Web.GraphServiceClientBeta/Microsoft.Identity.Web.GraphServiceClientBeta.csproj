@@ -11,6 +11,7 @@
     <ProjectGuid>{608F0E0B-A52D-4E0F-9B1A-BA9BDA866484}</ProjectGuid>
     <PackageValidationBaselineVersion>2.12.2</PackageValidationBaselineVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
