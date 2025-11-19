@@ -1,4 +1,4 @@
-4.0.2
+4.1.0
 =========
 ### New features
 - Migrate to .NET 10 GA. [#3449](https://github.com/AzureAD/microsoft-identity-web/pull/3449) and [#3590](https://github.com/AzureAD/microsoft-identity-web/pull/3590)
