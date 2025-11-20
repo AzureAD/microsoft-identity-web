@@ -1,0 +1,27 @@
+<Project>
+  <!-- This file prevents inheriting properties from the parent Directory.Build.props -->
+  <PropertyGroup>
+    <!--This should be passed from the VSTS build-->
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">3.14.1</MicrosoftIdentityWebVersion>
+    <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
+    <Version>$(MicrosoftIdentityWebVersion)</Version>
+
+    <RepositoryType>git</RepositoryType>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft Corporation</Company>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AzureAD/microsoft-identity-web</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzureAD/microsoft-identity-web</RepositoryUrl>
+    <PackageReleaseNotes>The release notes are available at https://github.com/AzureAD/microsoft-identity-web/releases and the roadmap at https://github.com/AzureAD/microsoft-identity-web/wiki#roadmap </PackageReleaseNotes>
+    <PackageTags>Microsoft Identity Web;Roslyn;Analyzer;Code Fixer;Migration;v4</PackageTags>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+</Project>
