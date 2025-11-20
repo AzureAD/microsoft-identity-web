@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
-        private const string MtlsPopAuthenticationSchema = "MTLS_POP";
+        private const string RequestBoundTokenParameterName = "RequestBoundToken";
 
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
@@ -754,7 +754,9 @@ namespace Microsoft.Identity.Web
                 mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
             }
 
-            mergedOptions.IsTokenBinding = string.Equals(authenticationScheme, MtlsPopAuthenticationSchema, StringComparison.OrdinalIgnoreCase);
+            mergedOptions.IsTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(RequestBoundTokenParameterName, out var requestBoundTokenValue) == true
+                && requestBoundTokenValue is bool requestBoundToken
+                && requestBoundToken;
 
             return mergedOptions;
         }
