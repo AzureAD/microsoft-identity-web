@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Web
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
-        /// <param name="msalHttpClientFactory">The MSAL HTTP client factoy for mTLS PoP scenarios.</param>
+        /// <param name="msalHttpClientFactory">The MSAL HTTP client factory for mTLS PoP scenarios.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
@@ -601,7 +601,7 @@ namespace Microsoft.Identity.Web
             {
                 string authorizationHeader = string.Empty;
 
-                // Firtsly check if it's token binding scenario so authorization header provider returns
+                // Firstly check if it's token binding scenario so authorization header provider returns
 
                 // a binding certificate along with acquired authorization header.
                 if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls)
