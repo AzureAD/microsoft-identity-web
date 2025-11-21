@@ -385,9 +385,9 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(3, mergedDict!.Count);
-            Assert.Equal("newvalue1", mergedDict["key1"]);
-            Assert.Equal("value2", mergedDict["key2"]);
-            Assert.Equal("value3", mergedDict["key3"]);
+            Assert.Equal("newvalue1", mergedDict["key1"].value);
+            Assert.Equal("value2", mergedDict["key2"].value);
+            Assert.Equal("value3", mergedDict["key3"].value);
         }
 
         [Fact]
@@ -411,8 +411,8 @@ namespace Microsoft.Identity.Web.Test
             var mergedDict = TokenAcquisition.MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
             // Assert
-            Assert.Equal("value1", mergedDict!["key1"]);
-            Assert.Equal("value2", mergedDict["key2"]);
+            Assert.Equal("value1", mergedDict!["key1"].value);
+            Assert.Equal("value2", mergedDict["key2"].value);
         }
 
         [Fact]
