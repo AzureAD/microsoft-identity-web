@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Provides a factory for creating HTTP clients configured for mTLS authentication with using binding certificate.
     /// It uses a hybrid approach with leveraging IHttpClientFactory for non-mTLS HTTP clients and maintaining
-    /// a pool of mTLS clients with using certificate as a key.
+    /// a pool of mTLS clients with using certificate thumbprint as a key.
     /// </summary>
     public sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory
     {
