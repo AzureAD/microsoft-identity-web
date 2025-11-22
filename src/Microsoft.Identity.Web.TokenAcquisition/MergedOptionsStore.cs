@@ -11,7 +11,7 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, MergedOptions> _options;
         private readonly ILoggerFactory? _loggerFactory;
 
-        public MergedOptionsStore(ILoggerFactory? loggerFactory = null)
+        public MergedOptionsStore(ILoggerFactory? loggerFactory)
         {
             _options = new ConcurrentDictionary<string, MergedOptions>();
             _loggerFactory = loggerFactory;
