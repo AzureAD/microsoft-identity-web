@@ -50,6 +50,7 @@ namespace Microsoft.Identity.Web
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
+        public bool IsTokenBinding { get; set; }
         internal bool MergedWithCca { get; set; }
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
         internal bool PreserveAuthority { get; set; }
