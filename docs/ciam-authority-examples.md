@@ -15,16 +15,7 @@ Microsoft Entra External ID (CIAM) is a customer identity and access management 
 | **Primary Use Case** | Employee/organizational identity | Customer/consumer identity |
 | **Default Domain** | `login.microsoftonline.com` | `{tenant}.ciamlogin.com` |
 | **Custom Domains** | Optional | Commonly used for branding |
-| **Authority Parsing** | Automatic parsing supported | Use `PreserveAuthority: true` |
-
-### PreserveAuthority Property
-
-The `PreserveAuthority` property is critical for CIAM scenarios:
-
-- **When `false` (default)**: The library parses the Authority URL to extract Instance and TenantId
-- **When `true`**: The full Authority URL is used as-is without parsing, and TenantId is set to null
-
-**CIAM Recommendation**: Always set `PreserveAuthority: true` to prevent unwanted URL manipulation, especially with custom domains.
+| **Authority Handling** | Parsed into Instance + TenantId | Use complete Authority URL |
 
 ## Recommended Configuration Patterns
 
@@ -37,7 +28,6 @@ For CIAM tenants using the default `.ciamlogin.com` domain:
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
     "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true,
     "CallbackPath": "/signin-oidc"
   }
 }
@@ -45,8 +35,10 @@ For CIAM tenants using the default `.ciamlogin.com` domain:
 
 **Key Points**:
 - Include the full tenant domain in the Authority
-- Set `PreserveAuthority: true` to prevent parsing
-- The Authority is passed directly to MSAL as the Instance
+- The library automatically handles CIAM authorities correctly
+- Do not mix Authority with Instance/TenantId properties
+
+### CIAM with Custom Domain
 
 ### CIAM with Custom Domain
 
@@ -57,13 +49,12 @@ Custom domains are frequently used in CIAM for seamless brand experience:
   "AzureAd": {
     "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
     "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true,
     "CallbackPath": "/signin-oidc"
   }
 }
 ```
 
-**Important**: The `PreserveAuthority: true` setting is **essential** for custom domains. Without it, the library may incorrectly parse your custom domain URL.
+**Important**: Ensure your custom domain is properly configured in your CIAM tenant. The library handles custom CIAM domains automatically.
 
 ### CIAM with Tenant ID (GUID)
 
@@ -73,8 +64,7 @@ Using the tenant GUID instead of domain name:
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/12345678-1234-1234-1234-123456789012",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
@@ -87,58 +77,14 @@ For CIAM applications supporting multiple customer tenants:
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/common",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true,
+    "ClientId": "11111111-1111-1111-1111-111111111111"
+,
     "ValidateIssuer": false
   }
 }
 ```
 
 **Warning**: Multi-tenant CIAM scenarios require careful issuer validation configuration. Ensure you implement proper tenant isolation in your application logic.
-
-## PreserveAuthority Behavior Deep Dive
-
-### Without PreserveAuthority (Default)
-
-When `PreserveAuthority` is `false` or not set:
-
-```json
-{
-  "AzureAd": {
-    "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111"
-  }
-}
-```
-
-**Internal Processing**:
-- Authority is parsed into components
-- Instance: `https://contoso.ciamlogin.com`
-- TenantId: `contoso.onmicrosoft.com`
-- Passed to MSAL separately
-
-**Potential Issues**: This works for standard domains but may fail with complex custom domain configurations.
-
-### With PreserveAuthority (Recommended for CIAM)
-
-When `PreserveAuthority` is `true`:
-
-```json
-{
-  "AzureAd": {
-    "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
-  }
-}
-```
-
-**Internal Processing**:
-- Full Authority used as Instance: `https://login.contoso.com/contoso.onmicrosoft.com`
-- TenantId: `null`
-- Authority passed to MSAL as a complete URL
-
-**Benefits**: Preserves custom domain structure and prevents parsing issues.
 
 ## Code Configuration
 
@@ -155,9 +101,6 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
     {
         builder.Configuration.Bind("AzureAd", options);
-        
-        // Explicitly set PreserveAuthority if needed
-        options.PreserveAuthority = true;
     });
 
 builder.Services.AddAuthorization();
@@ -180,7 +123,6 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
     {
         builder.Configuration.Bind("AzureAd", options);
-        options.PreserveAuthority = true;
         
         options.Events = new OpenIdConnectEvents
         {
@@ -220,7 +162,6 @@ To use custom domains with CIAM, configure your tenant:
   "AzureAd": {
     "Authority": "https://login.contoso.com/{tenant-id-or-domain}",
     "ClientId": "your-client-id",
-    "PreserveAuthority": true,
     "CallbackPath": "/signin-oidc"
   }
 }
@@ -234,30 +175,7 @@ In your app registration, add redirect URIs using the custom domain:
 
 ## Common CIAM Configuration Mistakes
 
-### ❌ Mistake 1: Forgetting PreserveAuthority with Custom Domains
-
-**Wrong**:
-```json
-{
-  "AzureAd": {
-    "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111"
-  }
-}
-```
-
-**Correct**:
-```json
-{
-  "AzureAd": {
-    "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
-  }
-}
-```
-
-### ❌ Mistake 2: Mixing Authority with Instance/TenantId in CIAM
+### ❌ Mistake 1: Mixing Authority with Instance/TenantId in CIAM
 
 **Wrong**:
 ```json
@@ -266,32 +184,29 @@ In your app registration, add redirect URIs using the custom domain:
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
     "Instance": "https://contoso.ciamlogin.com/",
     "TenantId": "contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
 
-**Correct**: Use only Authority with PreserveAuthority:
+**Correct**: Use only Authority:
 ```json
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
 
-### ❌ Mistake 3: Using Standard AAD Login URL for CIAM
+### ❌ Mistake 2: Using Standard AAD Login URL for CIAM
 
 **Wrong**:
 ```json
 {
   "AzureAd": {
     "Authority": "https://login.microsoftonline.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
@@ -301,8 +216,7 @@ In your app registration, add redirect URIs using the custom domain:
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
@@ -328,8 +242,7 @@ Organizations migrating from Azure AD B2C to CIAM should note key differences:
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "22222222-2222-2222-2222-222222222222",
-    "PreserveAuthority": true
+    "ClientId": "22222222-2222-2222-2222-222222222222"
   }
 }
 ```
@@ -337,7 +250,7 @@ Organizations migrating from Azure AD B2C to CIAM should note key differences:
 **Key Differences**:
 - CIAM doesn't use policy IDs in the Authority
 - CIAM uses `AzureAd` configuration section (not `AzureAdB2C`)
-- `PreserveAuthority: true` is recommended for CIAM
+- The library automatically handles CIAM authorities
 - No need for `Domain` property unless specific scenarios require it
 
 ## Environment-Specific Configuration
@@ -349,7 +262,6 @@ Organizations migrating from Azure AD B2C to CIAM should note key differences:
   "AzureAd": {
     "Authority": "https://contoso-dev.ciamlogin.com/contoso-dev.onmicrosoft.com",
     "ClientId": "dev-client-id",
-    "PreserveAuthority": true,
     "CallbackPath": "/signin-oidc"
   }
 }
@@ -362,7 +274,6 @@ Organizations migrating from Azure AD B2C to CIAM should note key differences:
   "AzureAd": {
     "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
     "ClientId": "prod-client-id",
-    "PreserveAuthority": true,
     "CallbackPath": "/signin-oidc"
   }
 }
@@ -378,7 +289,7 @@ Use separate configuration files:
 ### Verify CIAM Configuration
 
 1. **Check Authority Format**: Ensure it uses CIAM domain (`.ciamlogin.com` or custom domain)
-2. **Confirm PreserveAuthority**: Set to `true` in configuration
+2. **Avoid Instance/TenantId**: Use Authority only, not mixed with Instance/TenantId
 3. **Test Sign-in Flow**: Verify authentication redirects work correctly
 4. **Monitor Logs**: Check for EventId 408 warnings indicating configuration conflicts
 
@@ -392,9 +303,9 @@ Use separate configuration files:
 - **Cause**: Custom domain not properly configured
 - **Fix**: Verify custom domain DNS settings and Azure CIAM configuration
 
-**Issue**: Authority parsing errors with custom domain
-- **Cause**: Missing `PreserveAuthority: true`
-- **Fix**: Add `PreserveAuthority: true` to configuration
+**Issue**: Authority configuration errors
+- **Cause**: Mixing Authority with Instance/TenantId
+- **Fix**: Use Authority only for CIAM configurations
 
 ## Advanced Scenarios
 
@@ -408,7 +319,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(options =>
     {
         builder.Configuration.Bind("AzureAd", options);
-        options.PreserveAuthority = true;
     },
     options =>
     {
@@ -423,7 +333,6 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
     {
         builder.Configuration.Bind("AzureAd", options);
-        options.PreserveAuthority = true;
     })
     .EnableTokenAcquisitionToCallDownstreamApi(
         builder.Configuration.GetSection("DownstreamApi:Scopes").Get<string[]>())
