@@ -1,4 +1,10 @@
 #nullable enable
 const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
 readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
+static Microsoft.Identity.Web.MergedOptions.ParseAuthorityIfNecessary(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+static Microsoft.Identity.Web.MergedOptionsLogging.AuthorityIgnored(Microsoft.Extensions.Logging.ILogger! logger, string! authority, string! instance, string! tenantId) -> void
 static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, (string! value, bool includeInCacheKey)>?
+static readonly Microsoft.Identity.Web.LoggingEventId.AuthorityConflict -> Microsoft.Extensions.Logging.EventId
+Microsoft.Identity.Web.MergedOptions.Logger.get -> Microsoft.Extensions.Logging.ILogger?
+Microsoft.Identity.Web.MergedOptions.Logger.set -> void
+Microsoft.Identity.Web.MergedOptionsLogging

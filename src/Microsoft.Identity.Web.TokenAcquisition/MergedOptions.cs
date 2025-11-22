@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MsalLogger = Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
@@ -21,6 +22,11 @@ namespace Microsoft.Identity.Web
     internal sealed class MergedOptions : MicrosoftIdentityOptions
     {
         private ConfidentialClientApplicationOptions? _confidentialClientApplicationOptions;
+
+        /// <summary>
+        /// Logger instance for diagnostics.
+        /// </summary>
+        internal MsalLogger.ILogger? Logger { get; set; }
 
         public ConfidentialClientApplicationOptions ConfidentialClientApplicationOptions
         {
@@ -416,7 +422,7 @@ namespace Microsoft.Identity.Web
 
             confidentialClientApplicationOptions.EnablePiiLogging = mergedOptions.EnablePiiLogging;
 
-            ParseAuthorityIfNecessary(mergedOptions);
+            ParseAuthorityIfNecessary(mergedOptions, mergedOptions.Logger);
 
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Instance))
             {
@@ -438,8 +444,25 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions)
+        internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, MsalLogger.ILogger? logger = null)
         {
+            // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
+            if (!string.IsNullOrEmpty(mergedOptions.Authority) && 
+                (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
+            {
+                // Log warning that Authority is being ignored
+                if (logger != null)
+                {
+                    MergedOptionsLogging.AuthorityIgnored(
+                        logger,
+                        mergedOptions.Authority!,
+                        mergedOptions.Instance ?? string.Empty,
+                        mergedOptions.TenantId ?? string.Empty);
+                }
+                // Authority is ignored; Instance and TenantId take precedence
+                return;
+            }
+
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
                 ReadOnlySpan<char> doubleSlash = "//".AsSpan();
