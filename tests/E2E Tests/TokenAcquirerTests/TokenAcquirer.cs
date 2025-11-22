@@ -243,6 +243,24 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_Authority_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
+        }
+
         [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
@@ -255,6 +273,24 @@ namespace TokenAcquirerTests
             {
                 option.Authority = "https://MSIDLABCIAM6.ciamlogin.com";
                 option.ClientId = "b244c86f-ed88-45bf-abda-6b37aa482c79";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_B2CAuthorityOnlyAsync()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Authority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi/v2.0";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
 

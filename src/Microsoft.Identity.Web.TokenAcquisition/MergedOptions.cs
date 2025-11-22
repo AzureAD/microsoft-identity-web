@@ -392,6 +392,8 @@ namespace Microsoft.Identity.Web
 
         internal static void UpdateConfidentialClientApplicationOptionsFromMergedOptions(MergedOptions mergedOptions, ConfidentialClientApplicationOptions confidentialClientApplicationOptions)
         {
+            ParseAuthorityIfNecessary(mergedOptions, mergedOptions.Logger);
+
             confidentialClientApplicationOptions.AadAuthorityAudience = mergedOptions.AadAuthorityAudience;
             confidentialClientApplicationOptions.AzureCloudInstance = mergedOptions.AzureCloudInstance;
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.AzureRegion) && !string.IsNullOrEmpty(mergedOptions.AzureRegion))
@@ -421,8 +423,6 @@ namespace Microsoft.Identity.Web
             }
 
             confidentialClientApplicationOptions.EnablePiiLogging = mergedOptions.EnablePiiLogging;
-
-            ParseAuthorityIfNecessary(mergedOptions, mergedOptions.Logger);
 
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Instance))
             {
@@ -496,6 +496,11 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
+            if (string.IsNullOrEmpty(Instance) && string.IsNullOrEmpty(TenantId) && !string.IsNullOrEmpty(Authority))
+            {
+                ParseAuthorityIfNecessary(this);
+            }
+
             if (string.IsNullOrEmpty(Instance))
             {
                 return;
