@@ -25,7 +25,7 @@ namespace TokenAcquirerTests
 {
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
 #if !FROM_GITHUB_ACTION
-    public class TokenAcquirer
+    public partial class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
         private static readonly CredentialDescription[] s_clientCredentials = new[]
