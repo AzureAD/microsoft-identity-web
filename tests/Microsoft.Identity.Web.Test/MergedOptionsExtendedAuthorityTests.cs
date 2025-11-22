@@ -8,54 +8,18 @@ using Xunit;
 namespace Microsoft.Identity.Web.Test
 {
     /// <summary>
-    /// Extended test coverage for MergedOptions authority parsing logic.
-    /// Issue #3610: Comprehensive authority parsing tests for AAD, B2C, CIAM scenarios.
+    /// Additional edge case tests for MergedOptions authority parsing logic.
+    /// Issue #3610: Tests for edge cases not covered by MergedOptionsAuthorityParsingTests.
     /// </summary>
     public class MergedOptionsExtendedAuthorityTests
     {
-        [Fact]
-        public void ParseAuthority_Aad_V2Authority_SetsInstanceTenant()
-        {
-            // Issue #3610: AAD v2.0 authority parsing
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://login.microsoftonline.com/contoso.onmicrosoft.com/v2.0"
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-
-            // Assert
-            Assert.Equal("https://login.microsoftonline.com", mergedOptions.Instance);
-            Assert.Equal("contoso.onmicrosoft.com", mergedOptions.TenantId);
-        }
-
-        [Fact]
-        public void ParseAuthority_Aad_V1Authority_NoV2Suffix_StillParses()
-        {
-            // Issue #3610: AAD v1.0 authority (without /v2.0) should still parse correctly
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://login.microsoftonline.com/organizations"
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-
-            // Assert
-            Assert.Equal("https://login.microsoftonline.com", mergedOptions.Instance);
-            Assert.Equal("organizations", mergedOptions.TenantId);
-        }
-
         [Theory]
         [InlineData("common")]
         [InlineData("organizations")]
         [InlineData("consumers")]
         public void ParseAuthority_SpecialTenantValues_ParsesCorrectly(string tenantValue)
         {
-            // Issue #3610: Special AAD tenant values (common, organizations, consumers)
+            // Issue #3610: Special AAD tenant values (common, organizations, consumers) with Theory
             // Arrange
             var mergedOptions = new MergedOptions
             {
@@ -86,99 +50,6 @@ namespace Microsoft.Identity.Web.Test
             // Assert - Should still parse the tenant correctly
             Assert.Equal("login.microsoftonline.com", mergedOptions.Instance);
             Assert.Equal("common", mergedOptions.TenantId);
-        }
-
-        [Fact]
-        public void PrepareAuthorityInstance_AfterAuthorityParse_ComputesPreparedInstance()
-        {
-            // Issue #3610: PreparedInstance should be computed correctly after parsing
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://login.microsoftonline.com/common/v2.0"
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-            mergedOptions.PrepareAuthorityInstanceForMsal();
-
-            // Assert
-            Assert.Equal("https://login.microsoftonline.com/", mergedOptions.PreparedInstance);
-        }
-
-        [Fact]
-        public void ParseAuthority_B2C_AuthorityOnly_PopulatesInstanceTenantPolicy()
-        {
-            // Issue #3610: B2C authority should populate Instance, TenantId (Domain), and detect policy
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi/v2.0"
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-
-            // Assert
-            Assert.Equal("https://fabrikamb2c.b2clogin.com", mergedOptions.Instance);
-            Assert.Equal("fabrikamb2c.onmicrosoft.com", mergedOptions.TenantId);
-        }
-
-        [Fact]
-        public void PrepareAuthorityInstance_B2C_WithTfpSegment_RemovesTfp()
-        {
-            // Issue #3610: B2C authority with /tfp/ segment should have it removed in PreparedInstance
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Instance = "https://fabrikamb2c.b2clogin.com/tfp/",
-                TenantId = "fabrikamb2c.onmicrosoft.com",
-                SignUpSignInPolicyId = "B2C_1_susi"
-            };
-
-            // Act
-            mergedOptions.PrepareAuthorityInstanceForMsal();
-
-            // Assert - /tfp/ should be removed
-            Assert.Equal("https://fabrikamb2c.b2clogin.com/", mergedOptions.PreparedInstance);
-        }
-
-        [Fact]
-        public void ParseAuthority_CIAM_PreserveAuthority_DoesNotSetTenantId()
-        {
-            // Issue #3610: CIAM with PreserveAuthority should keep full authority as Instance, TenantId null
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-                PreserveAuthority = true
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-
-            // Assert - PreserveAuthority means Instance is full Authority, TenantId is null
-            Assert.Equal("https://contoso.ciamlogin.com/contoso.onmicrosoft.com", mergedOptions.Instance);
-            Assert.Null(mergedOptions.TenantId);
-        }
-
-        [Fact]
-        public void ParseAuthority_CIAM_NoPreserve_SetsSplitValues()
-        {
-            // Issue #3610: CIAM without PreserveAuthority should split into Instance and TenantId
-            // Arrange
-            var mergedOptions = new MergedOptions
-            {
-                Authority = "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-                PreserveAuthority = false
-            };
-
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions);
-
-            // Assert - Should split authority
-            Assert.Equal("https://contoso.ciamlogin.com", mergedOptions.Instance);
-            Assert.Equal("contoso.onmicrosoft.com", mergedOptions.TenantId);
         }
 
         [Fact]
