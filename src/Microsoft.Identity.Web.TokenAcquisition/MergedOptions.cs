@@ -474,7 +474,7 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
-            if (string.IsNullOrEmpty(Instance) && !string.IsNullOrEmpty(Authority))
+            if (string.IsNullOrEmpty(Instance) && string.IsNullOrEmpty(TenantId) && !string.IsNullOrEmpty(Authority))
             {
                 ParseAuthorityIfNecessary(this);
             }

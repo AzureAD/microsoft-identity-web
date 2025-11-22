@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Identity.Web;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
