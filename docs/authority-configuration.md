@@ -20,9 +20,12 @@ This guide explains:
   - `https://contoso.b2clogin.com/contoso.onmicrosoft.com/B2C_1_susi`
 
 - **Instance**: The base URL of the authentication service without tenant information. Examples:
-  - `https://login.microsoftonline.com/`
+  - `https://login.microsoftonline.com/` (Azure Commercial)
   - `https://login.microsoftonline.us/` (Azure Government)
-  - `https://contoso.b2clogin.com/`
+  - `https://login.chinacloudapi.cn/` (Azure China)
+  - `https://contoso.b2clogin.com/` (B2C)
+  
+  See [Azure AD authentication endpoints](https://learn.microsoft.com/azure/active-directory/develop/authentication-national-cloud) for sovereign cloud instances.
 
 - **TenantId**: The tenant identifier, which can be:
   - A GUID (e.g., `12345678-1234-1234-1234-123456789012`)
@@ -30,8 +33,6 @@ This guide explains:
   - Special values (`common`, `organizations`, `consumers`)
 
 - **Domain**: The primary domain of your tenant (e.g., `contoso.onmicrosoft.com`). Used primarily with B2C configurations.
-
-- **PreserveAuthority**: A boolean flag (default: `false`) that prevents parsing of the Authority URL into Instance and TenantId components. This is particularly important for CIAM scenarios with custom domains.
 
 - **Policy IDs**: B2C-specific identifiers for user flows:
   - `SignUpSignInPolicyId` (e.g., `B2C_1_susi`)
@@ -48,14 +49,12 @@ flowchart TD
     B -- Yes --> C[Use Instance & TenantId<br/>Ignore Authority if present]
     B -- No --> D{Authority Provided?}
     D -- No --> E[Configuration Invalid<br/>Requires Instance+TenantId]
-    D -- Yes --> F{PreserveAuthority True?}
-    F -- Yes --> G[Use full Authority as Instance<br/>TenantId = null]
-    F -- No --> H[Parse Authority<br/>Extract Instance + TenantId]
+    D -- Yes --> H[Parse Authority<br/>Extract Instance + TenantId]
     H --> I{Is B2C?}
     I -- Yes --> J[Normalize /tfp/ if present<br/>Derive PreparedInstance]
     I -- No --> K[Derive PreparedInstance]
     C --> K
-    G --> K
+    J --> K
     K --> L[Pass PreparedInstance to MSAL]
 ```
 
@@ -63,18 +62,17 @@ flowchart TD
 
 The following table summarizes how different configuration combinations are resolved:
 
-| Authority Set | Instance Set | TenantId Set | PreserveAuthority | Result | Warning |
-|---------------|--------------|--------------|-------------------|--------|---------|
-| ✅ | ❌ | ❌ | `false` | Authority is parsed → Instance + TenantId | No |
-| ✅ | ❌ | ❌ | `true` | Full Authority used as Instance, TenantId = null | No |
-| ✅ | ✅ | ❌ | any | Instance used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ✅ | ❌ | ✅ | any | TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ✅ | ✅ | ✅ | any | Instance + TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ❌ | ✅ | ✅ | any | Instance + TenantId used | No |
-| ❌ | ✅ | ❌ | any | Instance used, tenant resolved at runtime | No* |
-| ❌ | ❌ | ✅ | any | Invalid configuration | Error |
+| Authority Set | Instance Set | TenantId Set | Result | Warning |
+|---------------|--------------|--------------|--------|---------|
+| ✅ | ❌ | ❌ | Authority is parsed → Instance + TenantId | No |
+| ✅ | ✅ | ❌ | Instance used, Authority **ignored** | ⚠️ Yes (EventId 408) |
+| ✅ | ❌ | ✅ | TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
+| ✅ | ✅ | ✅ | Instance + TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
+| ❌ | ✅ | ✅ | Instance + TenantId used | No |
+| ❌ | ✅ | ❌ | Instance used, tenant resolved at runtime | No* |
+| ❌ | ❌ | ✅ | Invalid configuration | Error |
 
-\* For single-tenant apps, this may cause issues. Always specify TenantId when using Instance.
+\* For single-tenant apps, always specify TenantId when using Instance.
 
 ## Recommended Configuration Patterns
 
@@ -150,14 +148,13 @@ See [B2C Authority Examples](b2c-authority-examples.md) for more details.
 
 ### CIAM (Customer Identity and Access Management)
 
-**Recommended**: Use `Authority` with `PreserveAuthority: true` to prevent unwanted parsing, especially with custom domains.
+**Recommended**: Use `Authority` for CIAM configurations. The library automatically handles CIAM authorities correctly.
 
 ```json
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
@@ -210,17 +207,18 @@ Microsoft.Identity.Web and MSAL.NET use the v2.0 endpoint by default. You do NOT
 
 ### Custom Domains with CIAM
 
-When using custom domains with CIAM, always set `PreserveAuthority: true` to prevent the library from attempting to parse the custom domain URL:
+When using custom domains with CIAM, use the full Authority URL. The library handles custom CIAM domains automatically:
 
 ```json
 {
   "AzureAd": {
-    "Authority": "https://login.contoso.com/",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
+
+**Note**: Ensure your custom domain is properly configured in your CIAM tenant before using it.
 
 ## Migration Guidance
 
