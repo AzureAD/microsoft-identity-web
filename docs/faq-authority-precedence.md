@@ -31,7 +31,7 @@ When you provide Instance and TenantId, they are combined to form an authority: 
 
 **Use Authority when**:
 - Configuring Azure AD B2C (must include policy path)
-- Configuring CIAM with custom domains (with `PreserveAuthority: true`)
+- Configuring CIAM (standard or custom domains)
 - You prefer a single, complete URL
 - Migrating from legacy configurations
 
@@ -156,34 +156,11 @@ Both formats work identically. The modern format without `/tfp/` is recommended 
 
 ## CIAM-Specific Questions
 
-### Q: What is PreserveAuthority and when should I use it?
+### Q: How do I configure CIAM applications?
 
-**A**: `PreserveAuthority` is a boolean setting (default: `false`) that controls how the library processes the Authority URL:
+**A**: For CIAM applications, use the complete Authority URL. The library automatically handles CIAM authorities correctly:
 
-- **When `false` (default)**: Authority is parsed into Instance and TenantId components
-- **When `true`**: The full Authority URL is used as-is without parsing
-
-**Use `PreserveAuthority: true` for**:
-- CIAM with custom domains
-- Any scenario where you want to prevent authority URL parsing
-- Complex authority structures that shouldn't be split
-
-**Example**:
-```json
-{
-  "AzureAd": {
-    "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "your-client-id",
-    "PreserveAuthority": true
-  }
-}
-```
-
-### Q: Do I need PreserveAuthority for standard CIAM domains (ciamlogin.com)?
-
-**A**: It's **recommended but not always required** for standard CIAM domains:
-
-**Without PreserveAuthority** (works but may have edge cases):
+**Standard CIAM domain**:
 ```json
 {
   "AzureAd": {
@@ -193,24 +170,7 @@ Both formats work identically. The modern format without `/tfp/` is recommended 
 }
 ```
 
-**With PreserveAuthority** (recommended best practice):
-```json
-{
-  "AzureAd": {
-    "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "your-client-id",
-    "PreserveAuthority": true
-  }
-}
-```
-
-For **custom domains**, `PreserveAuthority: true` is **essential**.
-
-### Q: What happens if I don't set PreserveAuthority with a CIAM custom domain?
-
-**A**: The library may incorrectly parse your custom domain URL, leading to authentication failures:
-
-❌ **Without PreserveAuthority** (may fail):
+**Custom CIAM domain**:
 ```json
 {
   "AzureAd": {
@@ -220,18 +180,22 @@ For **custom domains**, `PreserveAuthority: true` is **essential**.
 }
 ```
 
-**Potential Issue**: The library might parse `login.contoso.com` as the instance and `contoso.onmicrosoft.com` as the tenant, which could cause issues with custom domain routing.
+**Important**: Do not mix Authority with Instance/TenantId for CIAM scenarios. Use Authority only.
 
-✅ **With PreserveAuthority** (correct):
+### Q: Do I need special configuration for CIAM custom domains?
+
+**A**: No special configuration is needed beyond ensuring your custom domain is properly configured in your CIAM tenant. Use the complete Authority URL with your custom domain, and the library will handle it automatically:
+
 ```json
 {
   "AzureAd": {
     "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "your-client-id",
-    "PreserveAuthority": true
+    "ClientId": "your-client-id"
   }
 }
 ```
+
+Make sure your custom domain DNS records are correctly configured in the Azure portal before using it in your application.
 
 ## Multi-Tenant Questions
 

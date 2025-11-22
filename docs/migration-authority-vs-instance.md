@@ -186,7 +186,7 @@ For B2C, **always use Authority** including the policy path. Do NOT use Instance
 
 ### CIAM Applications
 
-For CIAM, use Authority with PreserveAuthority, especially with custom domains.
+For CIAM, use the complete Authority URL. The library handles CIAM authorities automatically.
 
 #### Remove Conflicting Properties
 
@@ -207,8 +207,7 @@ For CIAM, use Authority with PreserveAuthority, especially with custom domains.
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
@@ -231,13 +230,12 @@ For CIAM, use Authority with PreserveAuthority, especially with custom domains.
 {
   "AzureAd": {
     "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "11111111-1111-1111-1111-111111111111",
-    "PreserveAuthority": true
+    "ClientId": "11111111-1111-1111-1111-111111111111"
   }
 }
 ```
 
-**Critical**: `PreserveAuthority: true` is essential for CIAM custom domains to prevent incorrect URL parsing.
+**Note**: Ensure your custom domain is properly configured in your CIAM tenant before using it in your application.
 
 ## Government Cloud Migrations
 
@@ -470,18 +468,19 @@ Look for log entries confirming your authority configuration without warnings.
 
 **Symptom**: Authentication fails with custom domain.
 
-**Cause**: Missing `PreserveAuthority: true` setting.
+**Cause**: Mixing Authority with Instance/TenantId or custom domain not configured properly in Azure.
 
-**Solution**: Add PreserveAuthority to your configuration:
+**Solution**: Use Authority only and verify custom domain configuration:
 ```json
 {
   "AzureAd": {
     "Authority": "https://login.contoso.com/contoso.onmicrosoft.com",
-    "ClientId": "...",
-    "PreserveAuthority": true
+    "ClientId": "..."
   }
 }
 ```
+
+Ensure your custom domain is properly configured in the Azure portal.
 
 ## Rollback Plan
 
