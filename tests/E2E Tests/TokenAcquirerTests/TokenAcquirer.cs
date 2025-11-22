@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -404,6 +407,65 @@ namespace TokenAcquirerTests
                        PopClaim = CreatePopClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
                    });
             Assert.NotNull(result.AccessToken);
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        // [Fact]
+        public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
+        {
+            // For some reason when this test gets running or debugging separately, it fails with error:
+            // "System.ComponentModel.Win32Exception : The credentials supplied to the package were not recognized"
+            // However, it passes when it gets run as part of TokenAcquirer test suite
+
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "bea21ebe-8b64-4d06-9f6d-6a889b120a7c";
+                option.ClientId = "163ffef9-a313-45b4-ab2f-c7e2f5e0e23e";
+                option.AzureRegion = "westus3";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            services.AddInMemoryTokenCaches();
+
+            var serviceProvider = tokenAcquirerFactory.Build();
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
+
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object>
+                {
+                    { "RequestBoundToken", true }
+                }
+            };
+
+            // Act
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", tokenAcquisitionOptions);
+
+            // Assert
+            Assert.NotNull(result.AccessToken);
+            Assert.StartsWith("eyJ0e", result.AccessToken, StringComparison.OrdinalIgnoreCase);
+
+            var tokenParts = result.AccessToken.Split('.');
+            Assert.Equal(3, tokenParts.Length);
+
+            var tokenPayload = tokenParts[1];
+            var tokenPayloadBytes = Base64UrlEncoder.DecodeBytes(tokenPayload);
+            var tokenPayloadString = Encoding.UTF8.GetString(tokenPayloadBytes);
+
+            using var tokenPayloadJson = JsonDocument.Parse(tokenPayloadString);
+            var tokenPayloadJsonRoot = tokenPayloadJson.RootElement;
+
+            Assert.True(tokenPayloadJsonRoot.TryGetProperty("cnf", out var tokenCnfClaim), "The mTLS PoP token should contain a 'cnf' claim");
+            Assert.True(tokenCnfClaim.TryGetProperty("x5t#S256", out var tokenX5tS256), "The mTLS PoP 'cnf' claim should contain an 'x5t#S256' property");
+
+            var tokenX5tS256Value = tokenX5tS256.GetString();
+            Assert.False(string.IsNullOrEmpty(tokenX5tS256Value));
         }
 
         private static string CreatePopClaim(RsaSecurityKey key, string algorithm)
