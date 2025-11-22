@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MsalLogger = Microsoft.Extensions.Logging;
+using IdWebLogger = Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Logger instance for diagnostics.
         /// </summary>
-        internal MsalLogger.ILogger? Logger { get; set; }
+        internal IdWebLogger.ILogger? Logger { get; set; }
 
         public ConfidentialClientApplicationOptions ConfidentialClientApplicationOptions
         {
@@ -444,7 +444,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, MsalLogger.ILogger? logger = null)
+        internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
             // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
             if (!string.IsNullOrEmpty(mergedOptions.Authority) && 
