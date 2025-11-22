@@ -17,6 +17,7 @@
 
 ### Documentation
 - Update README to include Entra SDK container info. [#3578](https://github.com/AzureAD/microsoft-identity-web/pull/3578)
+- Added comprehensive authority configuration and precedence documentation, including guides for Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613)
 
 ### Fundamentals
 - Include NET 9.0 in template-install-dependencies. [#3593](https://github.com/AzureAD/microsoft-identity-web/pull/3593)
