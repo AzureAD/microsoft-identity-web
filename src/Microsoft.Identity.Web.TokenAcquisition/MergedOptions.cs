@@ -386,6 +386,8 @@ namespace Microsoft.Identity.Web
 
         internal static void UpdateConfidentialClientApplicationOptionsFromMergedOptions(MergedOptions mergedOptions, ConfidentialClientApplicationOptions confidentialClientApplicationOptions)
         {
+            ParseAuthorityIfNecessary(mergedOptions);
+
             confidentialClientApplicationOptions.AadAuthorityAudience = mergedOptions.AadAuthorityAudience;
             confidentialClientApplicationOptions.AzureCloudInstance = mergedOptions.AzureCloudInstance;
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.AzureRegion) && !string.IsNullOrEmpty(mergedOptions.AzureRegion))
@@ -416,8 +418,6 @@ namespace Microsoft.Identity.Web
 
             confidentialClientApplicationOptions.EnablePiiLogging = mergedOptions.EnablePiiLogging;
 
-            ParseAuthorityIfNecessary(mergedOptions);
-
             if (string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Instance))
             {
                 confidentialClientApplicationOptions.Instance = mergedOptions.Instance;
@@ -440,6 +440,7 @@ namespace Microsoft.Identity.Web
 
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions)
         {
+            // TODO: Issue #3611 - Add warning logging when Authority conflicts with Instance/TenantId
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
                 ReadOnlySpan<char> doubleSlash = "//".AsSpan();
@@ -473,6 +474,11 @@ namespace Microsoft.Identity.Web
 
         public void PrepareAuthorityInstanceForMsal()
         {
+            if (string.IsNullOrEmpty(Instance) && string.IsNullOrEmpty(TenantId) && !string.IsNullOrEmpty(Authority))
+            {
+                ParseAuthorityIfNecessary(this);
+            }
+
             if (string.IsNullOrEmpty(Instance))
             {
                 return;
