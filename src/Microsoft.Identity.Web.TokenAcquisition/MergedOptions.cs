@@ -498,7 +498,7 @@ namespace Microsoft.Identity.Web
         {
             if (string.IsNullOrEmpty(Instance) && string.IsNullOrEmpty(TenantId) && !string.IsNullOrEmpty(Authority))
             {
-                ParseAuthorityIfNecessary(this);
+                ParseAuthorityIfNecessary(this, this.Logger);
             }
 
             if (string.IsNullOrEmpty(Instance))
