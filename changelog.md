@@ -1,5 +1,5 @@
-## 4.0.2
-
+4.0.2
+=========
 ### Added
 - Authority-only configuration parsing improvements (Issue #3612): Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning.
 - Warning diagnostics for conflicting Authority vs Instance/TenantId (Issue #3611): Emits a single structured warning when both styles are provided (skipped when PreserveAuthority is true for CIAM).
