@@ -569,8 +569,9 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            // For non-managed identity flows, resolve the tenant
-            tenant = ResolveTenant(tenant, mergedOptions);
+            // For non-managed identity flows we only resolve tenant if the caller explicitly provided an override.
+            // This preserves the ability to use an authority-only configuration with meta-tenants like 'common'.
+            string? resolvedOverrideTenant = tenant != null ? ResolveTenant(tenant, mergedOptions) : null;
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -592,15 +593,14 @@ namespace Microsoft.Identity.Web
                 addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
             }
 
-            // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
-            // not be cross tenant operations with such an authority.
+            // Apply tenant override only for AAD authorities and only if non-empty
             if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
-                ))
+                ) && !string.IsNullOrEmpty(resolvedOverrideTenant))
             {
-                builder.WithTenantId(tenant);
+                builder.WithTenantId(resolvedOverrideTenant);
             }
 
             if (tokenAcquisitionOptions != null)
@@ -976,7 +976,41 @@ namespace Microsoft.Identity.Web
                 }
                 else if (mergedOptions.IsB2C)
                 {
-                    authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
+                    // B2C authority construction requires the tenant segment. If Domain was not configured
+                    // (scenario: authority-only configuration providing Instance + SignUpSignInPolicyId), derive it.
+                    string? domain = mergedOptions.Domain;
+                    if (string.IsNullOrEmpty(domain))
+                    {
+                        // Try tenantId first if provided
+                        if (!string.IsNullOrEmpty(mergedOptions.TenantId))
+                        {
+                            domain = mergedOptions.TenantId;
+                        }
+                        else if (!string.IsNullOrEmpty(mergedOptions.Instance))
+                        {
+                            try
+                            {
+                                // Extract first label from host (e.g. fabrikamb2c from fabrikamb2c.b2clogin.com)
+                                var host = new Uri(mergedOptions.Instance).Host;
+                                var firstLabel = host.Split('.').FirstOrDefault();
+                                if (!string.IsNullOrEmpty(firstLabel))
+                                {
+                                    domain = firstLabel + ".onmicrosoft.com";
+                                }
+                            }
+                            catch
+                            {
+                                // Ignore derivation failures; will throw below if still null.
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(domain))
+                    {
+                        throw new ArgumentException("B2C Domain could not be determined. Provide Domain or TenantId when using B2C authority-only configuration.");
+                    }
+
+                    authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{domain}/{mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else

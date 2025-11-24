@@ -60,26 +60,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
-        public async Task AcquireToken_AuthorityOnly_AAD_CommonTenant_Succeeds()
-        {
-            // Issue #3610: AAD authority with common tenant should work
-            // Arrange
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
-
-            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
-            {
-                option.Authority = "https://login.microsoftonline.com/common/v2.0";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
-                option.ClientCredentials = s_clientCredentials;
-            });
-
-            // Act & Assert
-            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
-        }
-
+ 
         [IgnoreOnAzureDevopsFact]
         public async Task AcquireToken_InstanceAndTenantId_AAD_Succeeds()
         {

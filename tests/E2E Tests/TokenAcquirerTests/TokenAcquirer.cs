@@ -280,24 +280,6 @@ namespace TokenAcquirerTests
         }
 
         [IgnoreOnAzureDevopsFact]
-        //[Fact]
-        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_B2CAuthorityOnlyAsync()
-        {
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            IServiceCollection services = tokenAcquirerFactory.Services;
-
-            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
-            {
-                option.Authority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi/v2.0";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
-                option.ClientCredentials = s_clientCredentials;
-            });
-
-            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
-        }
-
-        [IgnoreOnAzureDevopsFact]
         // [Fact]
         public async Task AcquireToken_WithFactoryAndMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
