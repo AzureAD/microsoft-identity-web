@@ -413,10 +413,6 @@ namespace TokenAcquirerTests
         // [Fact]
         public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
         {
-            // For some reason when this test gets running or debugging separately, it fails with error:
-            // "System.ComponentModel.Win32Exception : The credentials supplied to the package were not recognized"
-            // However, it passes when it gets run as part of TokenAcquirer test suite
-
             // Arrange
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
@@ -440,7 +436,7 @@ namespace TokenAcquirerTests
             {
                 ExtraParameters = new Dictionary<string, object>
                 {
-                    { "RequestBoundToken", true }
+                    { "RequestBoundToken", true } // mTLS PoP
                 }
             };
 
