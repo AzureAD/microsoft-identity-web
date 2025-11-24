@@ -1,3 +1,12 @@
+## 4.1.1
+
+### Added
+- Authority-only configuration parsing improvements (Issue #3612): Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning.
+- Warning diagnostics for conflicting Authority vs Instance/TenantId (Issue #3611): Emits a single structured warning when both styles are provided.
+
+### Fundamentals
+- Expanded authority test matrix (Issue #3610): Coverage for AAD (v1/v2), B2C (/tfp/ normalization, policy path), CIAM (PreserveAuthority), query parameters, scheme-less forms, and conflict scenarios.
+
 4.1.0
 =========
 ### New features
