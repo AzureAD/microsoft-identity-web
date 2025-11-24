@@ -177,7 +177,6 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net472'">
     <MicrosoftAspNetCoreDataProtectionVersion>2.1.0</MicrosoftAspNetCoreDataProtectionVersion>
     <!-- CVE-2022-34716 due to DataProtection 2.1.0 -->
-    <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>4.7.1</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>4.7.1</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsCachingMemoryVersion>2.1.0</MicrosoftExtensionsCachingMemoryVersion>
@@ -188,7 +187,12 @@
     <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
+    <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- Downgrade to 6.0.1 for compatibility with netstandard2.0 -->
     <SystemFormatsAsn1Version>6.0.1</SystemFormatsAsn1Version>
     <SystemSecurityCryptographyPkcsVersion>6.0.4</SystemSecurityCryptographyPkcsVersion>
   </PropertyGroup>
