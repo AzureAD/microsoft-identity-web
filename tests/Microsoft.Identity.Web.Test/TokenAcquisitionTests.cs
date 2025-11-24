@@ -127,25 +127,19 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, false)]
         [InlineData(null, false)]
-        public void GetMergedOptions_SetsIsTokenBindingCorrectly(bool? requestBoundToken, bool expectedIsTokenBinding)
+        [InlineData("", false)]
+        [InlineData("Bearer", false)]
+        [InlineData("mtls_pop", true)]
+        [InlineData("MTLS_pop", true)]
+        [InlineData("MTLS_POP", true)]
+        public void GetMergedOptions_SetsIsTokenBindingCorrectly(string? authenticationSchema, bool expectedIsTokenBinding)
         {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactory();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisitionInternal>() as TokenAcquisition;
-
             var tokenAcquisitionOptions = new TokenAcquisitionOptions();
-
-            if (requestBoundToken.HasValue)
-            {
-                tokenAcquisitionOptions.ExtraParameters = new Dictionary<string, object>
-                {
-                    { "RequestBoundToken", requestBoundToken.Value }
-                };
-            }
 
             // Act
             // Use reflection to access the private GetMergedOptions method
@@ -154,7 +148,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(method);
 
 #pragma warning disable CS8601 // Possible null reference assignment.
-            var mergedOptions = method.Invoke(tokenAcquisition, new object?[] { null, tokenAcquisitionOptions }) as MergedOptions;
+            var mergedOptions = method.Invoke(tokenAcquisition, new object?[] { authenticationSchema, tokenAcquisitionOptions }) as MergedOptions;
 #pragma warning restore CS8601 // Possible null reference assignment.
 
             // Assert
