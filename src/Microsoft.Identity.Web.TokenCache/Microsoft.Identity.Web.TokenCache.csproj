@@ -6,7 +6,13 @@
     <Description>This package bring token cache serializers for MSAL.NET confidential client applications.</Description>
     <ProjectGuid>{7885DFBB-0D20-4115-86E2-709C2E12253B}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <NoWarn>$(NoWarn);NU1510</NoWarn>
+    <!-- Allow downgrade of System.Formats.Asn1 for netstandard2.0 -->
+    <NoWarn>$(NoWarn);NU1510;NU1605</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- Allow downgrade of System.Formats.Asn1 for netstandard2.0 -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1605</WarningsNotAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
