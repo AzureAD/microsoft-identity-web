@@ -539,5 +539,358 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Same(testApp, app);
             }
         }
+
+        [Fact]
+        public async Task BuildConfidentialClient_ClientClaimsAppearInClientAssertionAsync()
+        {
+            // Arrange
+            var tenantId = Guid.NewGuid().ToString();
+            var clientId = Guid.NewGuid().ToString();
+            var instance = "https://login.microsoftonline.com/";
+
+            using var rsa = System.Security.Cryptography.RSA.Create(2048);
+            var req = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+                $"CN=TestClaimsCert", rsa, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+            var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(1));
+
+            var credential = CertificateDescription.FromCertificate(cert);
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Instance = instance,
+                TenantId = tenantId,
+                ClientId = clientId,
+                ClientCredentials = new[] { credential }
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = instance,
+                ClientId = clientId,
+                ClientSecret = "ignored"
+            });
+
+            var customClaims = new Dictionary<string, string>
+            {
+                { "custom_claim_one", "value_one" },
+                { "custom_claim_two", "value_two" }
+            };
+
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object>
+                {
+                    { "IDWEB_CLIENT_CLAIMS", customClaims }
+                }
+            };
+
+            var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
+            var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
+
+            // Build service collection
+            var services = new ServiceCollection();
+            services.AddTransient(provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(o => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddAuthentication();
+            services.AddMemoryCache();
+            services.AddHttpClient();
+            services.AddSingleton<IMsalHttpClientFactory>(httpClientFactory);
+            _provider = services.BuildServiceProvider();
+
+            InitializeTokenAcquisitionObjects();
+
+            var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            // Act first token acquisition (network call expected)
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                scope: "https://graph.microsoft.com/.default",
+                authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme,
+                tenant: tenantId,
+                tokenAcquisitionOptions: null);
+
+            // Assert first network call produced client assertion with claims
+            Assert.NotNull(result.AccessToken);
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var payloadJson = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
+            Assert.Contains("value_one", payloadJson, StringComparison.Ordinal);
+            Assert.Contains("value_two", payloadJson, StringComparison.Ordinal);
+
+            // Second call should be served from cache: no new network request, no new assertion captured
+            capturingHandler.ResetCapture();
+            var result2 = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                scope: "https://graph.microsoft.com/.default",
+                authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme,
+                tenant: tenantId,
+                tokenAcquisitionOptions: null);
+            Assert.NotNull(result2.AccessToken);
+            Assert.True(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+        }
+
+        [Fact]
+        public async Task ClientClaims_Cached_NoSecondNetworkCallAsync()
+        {
+            // Arrange: initial build with claims
+            var tenantId = Guid.NewGuid().ToString();
+            var clientId = Guid.NewGuid().ToString();
+            var instance = "https://login.microsoftonline.com/";
+            using var rsa = System.Security.Cryptography.RSA.Create(2048);
+            var req = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+                "CN=OptionACacheCert", rsa, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+            var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(1));
+            var credential = CertificateDescription.FromCertificate(cert);
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Instance = instance,
+                TenantId = tenantId,
+                ClientId = clientId,
+                ClientCredentials = new[] { credential }
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = instance,
+                ClientId = clientId,
+                ClientSecret = "ignored"
+            });
+            var customClaims = new Dictionary<string, string>
+            {
+                { "custom_claim_one", "value_one" },
+                { "custom_claim_two", "value_two" }
+            };
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", customClaims } }
+            };
+            var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
+            var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
+            var services = new ServiceCollection();
+            services.AddTransient(provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(o => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddAuthentication();
+            services.AddMemoryCache();
+            services.AddHttpClient();
+            services.AddSingleton<IMsalHttpClientFactory>(httpClientFactory);
+            _provider = services.BuildServiceProvider();
+            InitializeTokenAcquisitionObjects();
+            var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, null);
+            Assert.NotNull(first.AccessToken);
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var payloadJson = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
+            Assert.Contains("value_one", payloadJson, StringComparison.Ordinal);
+            capturingHandler.ResetCapture();
+            var second = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, null);
+            Assert.NotNull(second.AccessToken);
+            // Option A expectation: cached token => no new client_assertion sent
+            Assert.True(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            Assert.Equal(first.AccessToken, second.AccessToken); // token from cache
+        }
+
+        [Fact]
+        public async Task ClientClaims_ForceRefresh_NewAssertionAsync()
+        {
+            // Arrange similar to Option A
+            var tenantId = Guid.NewGuid().ToString();
+            var clientId = Guid.NewGuid().ToString();
+            var instance = "https://login.microsoftonline.com/";
+            using var rsa = System.Security.Cryptography.RSA.Create(2048);
+            var req = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+                "CN=OptionBForceRefreshCert", rsa, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+            var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(1));
+            var credential = CertificateDescription.FromCertificate(cert);
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Instance = instance,
+                TenantId = tenantId,
+                ClientId = clientId,
+                ClientCredentials = new[] { credential }
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = instance,
+                ClientId = clientId,
+                ClientSecret = "ignored"
+            });
+            var customClaims = new Dictionary<string, string> { { "claimX", "claimXValue" } };
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", customClaims } }
+            };
+            var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
+            var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
+            var services = new ServiceCollection();
+            services.AddTransient(provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(o => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddAuthentication();
+            services.AddMemoryCache();
+            services.AddHttpClient();
+            services.AddSingleton<IMsalHttpClientFactory>(httpClientFactory);
+            _provider = services.BuildServiceProvider();
+            InitializeTokenAcquisitionObjects();
+            var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, null);
+            Assert.NotNull(first.AccessToken);
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var firstAssertion = capturingHandler.CapturedClientAssertion;
+            capturingHandler.ResetCapture();
+            var forceOptions = new TokenAcquisitionOptions { ForceRefresh = true }; // Option B
+            var second = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, forceOptions);
+            Assert.NotNull(second.AccessToken);
+            // New network call expected (assertion recaptured)
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var payload2 = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
+            Assert.Contains("claimXValue", payload2, StringComparison.Ordinal);
+            // But assertions should differ (signed each time by MSAL with new exp etc.)
+            Assert.NotEqual(firstAssertion, capturingHandler.CapturedClientAssertion);
+        }
+
+        [Fact]
+        public async Task ClientClaims_ChangedClaimsNotAppliedWithoutRebuildAsync()
+        {
+            // Arrange initial app with initial claims
+            var tenantId = Guid.NewGuid().ToString();
+            var clientId = Guid.NewGuid().ToString();
+            var instance = "https://login.microsoftonline.com/";
+            using var rsa = System.Security.Cryptography.RSA.Create(2048);
+            var req = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+                "CN=OptionCChangedClaimsCert", rsa, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+            var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(1));
+            var credential = CertificateDescription.FromCertificate(cert);
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Instance = instance,
+                TenantId = tenantId,
+                ClientId = clientId,
+                ClientCredentials = new[] { credential }
+            });
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = instance,
+                ClientId = clientId,
+                ClientSecret = "ignored"
+            });
+            var initialClaims = new Dictionary<string, string> { { "c1", "v1" } };
+            var initialOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", initialClaims } }
+            };
+            var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
+            var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
+            var services = new ServiceCollection();
+            services.AddTransient(provider => _microsoftIdentityOptionsMonitor);
+            services.AddTransient(provider => _applicationOptionsMonitor);
+            services.Configure<MergedOptions>(o => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddAuthentication();
+            services.AddMemoryCache();
+            services.AddHttpClient();
+            services.AddSingleton<IMsalHttpClientFactory>(httpClientFactory);
+            _provider = services.BuildServiceProvider();
+            InitializeTokenAcquisitionObjects();
+            var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, initialOptions);
+            var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, null);
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var firstPayload = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
+            Assert.Contains("v1", firstPayload, StringComparison.Ordinal);
+            // Attempt to change claims (should not affect cached app)
+            var newClaims = new Dictionary<string, string> { { "c1", "v2" }, { "c2", "vNew" } };
+            var newOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", newClaims } }
+            };
+            // Call GetOrBuild again with new claims
+            var app2 = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, newOptions);
+            // Same instance expected
+            Assert.Same(app2, await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, null));
+            capturingHandler.ResetCapture();
+            var forceRefresh = new TokenAcquisitionOptions { ForceRefresh = true }; // network call
+            var second = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, forceRefresh);
+            Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
+            var secondPayload = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
+            // Validate old value still present and new ones absent
+            Assert.Contains("v1", secondPayload, StringComparison.Ordinal);
+            Assert.DoesNotContain("v2", secondPayload, StringComparison.Ordinal);
+            Assert.DoesNotContain("vNew", secondPayload, StringComparison.Ordinal);
+        }
+
+        private static string DecodeJwtPayload(string jwt)
+        {
+            var parts = jwt.Split('.');
+            Assert.True(parts.Length >= 2, "JWT format invalid");
+            string payload = parts[1];
+            // Base64Url decode
+            string padded = payload.Replace('-', '+').Replace('_', '/');
+            switch (padded.Length % 4)
+            {
+                case 2: padded += "=="; break;
+                case 3: padded += "="; break;
+            }
+            var bytes = Convert.FromBase64String(padded);
+            return System.Text.Encoding.UTF8.GetString(bytes);
+        }
+
+        private class CapturingMsalHttpClientFactory : IMsalHttpClientFactory
+        {
+            private readonly HttpClient _httpClient;
+            public CapturingMsalHttpClientFactory(HttpClient httpClient) => _httpClient = httpClient;
+            public HttpClient GetHttpClient() => _httpClient;
+        }
+
+        private class CapturingHandler : HttpMessageHandler
+        {
+            private readonly string _authorityBase;
+            public string? CapturedClientAssertion { get; private set; }
+            public CapturingHandler(string authorityBase) => _authorityBase = authorityBase.TrimEnd('/');
+            public void ResetCapture() => CapturedClientAssertion = null;
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                var uri = request.RequestUri!.ToString();
+                if (uri.EndsWith("/.well-known/openid-configuration", StringComparison.OrdinalIgnoreCase))
+                {
+                    var json = $"{{ \"token_endpoint\": \"{_authorityBase}/oauth2/v2.0/token\", \"issuer\": \"{_authorityBase}/\" }}";
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                    };
+                }
+                if (uri.EndsWith("/oauth2/v2.0/token", StringComparison.OrdinalIgnoreCase))
+                {
+                    var body = await request.Content!.ReadAsStringAsync();
+                    foreach (var kv in body.Split('&'))
+                    {
+                        var pair = kv.Split('=');
+                        if (pair.Length == 2 && pair[0] == "client_assertion")
+                        {
+                            CapturedClientAssertion = Uri.UnescapeDataString(pair[1]);
+                        }
+                    }
+                    var tokenResponse = "{ \"access_token\": \"at\", \"expires_in\": 3600, \"token_type\": \"Bearer\" }";
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(tokenResponse, System.Text.Encoding.UTF8, "application/json")
+                    };
+                }
+                return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+            }
+        }
     }
 }
