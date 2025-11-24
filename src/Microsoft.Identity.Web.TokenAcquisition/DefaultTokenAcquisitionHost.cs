@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -42,6 +43,12 @@ namespace Microsoft.Identity.Web.Hosts
 
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
+            if (string.Equals(authenticationScheme, "MTLS_POP", StringComparison.OrdinalIgnoreCase))
+            {
+                // acquiring token for MTLS_POP uses the default authentication scheme
+                return string.Empty;
+            }
+
             return authenticationScheme ?? string.Empty;
         }
 

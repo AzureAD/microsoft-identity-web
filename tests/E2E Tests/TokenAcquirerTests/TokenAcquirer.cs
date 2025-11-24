@@ -434,10 +434,7 @@ namespace TokenAcquirerTests
 
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object>
-                {
-                    { "RequestBoundToken", true } // mTLS PoP
-                }
+                AuthenticationOptionsName = "MTLS_POP"
             };
 
             // Act

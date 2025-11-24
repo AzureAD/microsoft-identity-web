@@ -754,9 +754,7 @@ namespace Microsoft.Identity.Web
                 mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
             }
 
-            mergedOptions.IsTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(RequestBoundTokenParameterName, out var requestBoundTokenValue) == true
-                && requestBoundTokenValue is bool requestBoundToken
-                && requestBoundToken;
+            mergedOptions.IsTokenBinding = string.Equals(authenticationScheme, "MTLS_POP", StringComparison.OrdinalIgnoreCase);
 
             return mergedOptions;
         }

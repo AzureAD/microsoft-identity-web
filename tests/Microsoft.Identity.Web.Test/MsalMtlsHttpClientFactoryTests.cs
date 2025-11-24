@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#if SUPPORTS_MTLS
 using System;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -22,6 +21,17 @@ namespace Microsoft.Identity.Web.Test
             _factory = new MsalMtlsHttpClientFactory(_httpClientFactory);
         }
 
+#if NET462
+        [Fact]
+        public void GetHttpClient_WithCertificateOnUnsupportedPlatform_ShouldThrowNotSupportedException()
+        {
+            // Arrange
+            using var certificate = CreateTestCertificate();
+
+            // Act & Assert
+            Assert.Throws<NotSupportedException>(() => _factory.GetHttpClient(certificate));
+        }
+#else // NET462
         [Fact]
         public void Constructor_WithValidHttpClientFactory_ShouldNotThrow()
         {
@@ -69,7 +79,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(actualHttpClient.DefaultRequestHeaders.Contains(Constants.TelemetryHeaderKey));
         }
 
-#if SUPPORTS_MTLS
         [Fact]
         public void GetHttpClient_WithSameCertificate_ShouldReturnCachedClient()
         {
@@ -100,17 +109,6 @@ namespace Microsoft.Identity.Web.Test
             // Verify max response buffer size
             Assert.Equal(1024 * 1024, httpClient.MaxResponseContentBufferSize);
         }
-#else
-        [Fact]
-        public void GetHttpClient_WithCertificateOnUnsupportedPlatform_ShouldThrowNotSupportedException()
-        {
-            // Arrange
-            using var certificate = CreateTestCertificate();
-
-            // Act & Assert
-            Assert.Throws<NotSupportedException>(() => _factory.GetHttpClient(certificate));
-        }
-#endif
 
         [Fact]
         public void GetHttpClient_CreatesClientFromFactory()
@@ -142,12 +140,12 @@ namespace Microsoft.Identity.Web.Test
 #if NET9_0_OR_GREATER
             // Use the new X509CertificateLoader for .NET 9.0+
             return X509CertificateLoader.LoadCertificate(bytes);
-#else
+#else // NET9_0_OR_GREATER
             // Use the legacy constructor for older frameworks
 #pragma warning disable SYSLIB0057 // Type or member is obsolete
             return new X509Certificate2(bytes);
 #pragma warning restore SYSLIB0057 // Type or member is obsolete
-#endif
+#endif // NET9_0_OR_GREATER
         }
 
         public void Dispose()
@@ -192,6 +190,6 @@ namespace Microsoft.Identity.Web.Test
                 }
             }
         }
+#endif // NET462
     }
 }
-#endif

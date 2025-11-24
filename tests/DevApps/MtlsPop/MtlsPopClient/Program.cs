@@ -27,12 +27,7 @@ namespace MtlsPopSample
 
             Console.WriteLine("Scenario 1: calling web API with mTLS PoP token...");
             var webApi = sp.GetRequiredService<IDownstreamApi>();
-            var result = await webApi.GetForAppAsync<IEnumerable<WeatherForecast>>("WebApi",
-                options =>
-                {
-                    options.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
-                    options.AcquireTokenOptions.ExtraParameters["RequestBoundToken"] = true; // mTLS PoP
-                }).ConfigureAwait(false);
+            var result = await webApi.GetForAppAsync<IEnumerable<WeatherForecast>>("WebApi").ConfigureAwait(false);
 
             Console.WriteLine("Web API result:");
             foreach (var forecast in result!)

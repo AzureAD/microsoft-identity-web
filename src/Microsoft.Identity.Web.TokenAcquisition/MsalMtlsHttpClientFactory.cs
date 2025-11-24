@@ -77,7 +77,9 @@ namespace Microsoft.Identity.Web
 
         private HttpClient CreateMtlsHttpClient(X509Certificate2 bindingCertificate)
         {
-#if SUPPORTS_MTLS
+#if NET462
+            throw new NotSupportedException("mTLS is not supported on this platform.");
+#else
             CheckAndManageCache();
 
             if (bindingCertificate == null)
@@ -93,8 +95,6 @@ namespace Microsoft.Identity.Web
             var httpClient = new HttpClient(handler);
             ConfigureRequestHeadersAndSize(httpClient);
             return httpClient;
-#else
-            throw new NotSupportedException("mTLS is not supported on this platform.");
 #endif
         }
 
