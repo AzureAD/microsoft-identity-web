@@ -29,8 +29,8 @@ namespace Microsoft.Identity.Web
         public static readonly EventId CredentialLoadAttemptFailed = new EventId(406, "CredentialLoadAttemptFailed");
         public static readonly EventId UsingSignedAssertionFromCustomProvider = new EventId(407, "UsingSignedAssertionFromCustomProvider");
 
-        // MergedOptions EventIds 408+
-        public static readonly EventId AuthorityConflict = new EventId(408, "AuthorityConflict");
+        // MergedOptions EventIds 500+
+        public static readonly EventId AuthorityIgnored = new EventId(500, "AuthorityIgnored");
 
 #pragma warning restore IDE1006 // Naming Styles
     }
