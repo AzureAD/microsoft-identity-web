@@ -18,9 +18,9 @@ namespace Microsoft.Identity.Web
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
         public const string CustomProviderNameAlreadyExists =
             "IDW10111 The custom signed assertion provider '{0}' already exists, only the the first instance of ICustomSignedAssertionProvider with this name will be used.";
-        public const string CustomProviderNameNullOrEmpty = "IDW10112 The name of the custom signed assertion provider is null or empty.";
-        public const string CustomProviderNotFound = "IDW10113: The custom signed assertion provider with name '{0}' was not found. Was it registered in the service collection?";
-        public const string CustomProviderSourceLoaderNullOrEmpty = "IDW10114 The dictionary of SourceLoaders for custom signed assertion providers is null or empty.";
+        public const string CustomProviderNameNullOrEmpty = "IDW10112: You configured a custom signed assertion but did not specify a provider name in the CustomSignedAssertionProviderName property of the CredentialDescription. Please specify the name of the custom assertion provider.";
+        public const string CustomProviderNotFound = "IDW10113: You configured a custom signed assertion with provider name '{0}' but it was not found. Did you register it in the service collection? You need to add a reference to the credential package and call the appropriate registration method, e.g., services.AddOidcFic() or services.AddFmiSignedAssertion().";
+        public const string CustomProviderSourceLoaderNullOrEmpty = "IDW10114: You configured a custom signed assertion but no custom assertion providers have been registered. You need to add a reference to the credential package and call the appropriate registration method, e.g., services.AddOidcFic() or services.AddFmiSignedAssertion().";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";
