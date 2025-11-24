@@ -90,7 +90,11 @@ namespace Microsoft.Identity.Web
             {
                 // No source loader for provider name
                 _logger.CustomProviderNotFound(credentialDescription.CustomSignedAssertionProviderName!);
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, credentialDescription.CustomSignedAssertionProviderName!));
+                string errorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    CertificateErrorMessage.CustomProviderNotFound,
+                    credentialDescription.CustomSignedAssertionProviderName!);
+                throw new InvalidOperationException(errorMessage);
             }
             else
             {
