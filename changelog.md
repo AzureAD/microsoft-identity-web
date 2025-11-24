@@ -1,11 +1,13 @@
 ## 4.1.1
 
-### Added
-- Authority-only configuration parsing improvements (Issue #3612): Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning.
-- Warning diagnostics for conflicting Authority vs Instance/TenantId (Issue #3611): Emits a single structured warning when both styles are provided.
+### Bug fixes
+- Authority-only configuration parsing improvements: Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning. See [#3612](https://github.com/AzureAD/microsoft-identity-web/issues/3612).
+
+### New features
+- Added warning diagnostics for conflicting Authority vs Instance/TenantId: Emitting a single structured warning when both styles are provided. See [#3611](https://github.com/AzureAD/microsoft-identity-web/issues/3611).
 
 ### Fundamentals
-- Expanded authority test matrix (Issue #3610): Coverage for AAD (v1/v2), B2C (/tfp/ normalization, policy path), CIAM (PreserveAuthority), query parameters, scheme-less forms, and conflict scenarios.
+- Expanded authority test matrix: Coverage for AAD (v1/v2), B2C (/tfp/ normalization, policy path), CIAM (PreserveAuthority), query parameters, scheme-less forms, and conflict scenarios. See [#3610](https://github.com/AzureAD/microsoft-identity-web/issues/3610).
 
 4.1.0
 =========
