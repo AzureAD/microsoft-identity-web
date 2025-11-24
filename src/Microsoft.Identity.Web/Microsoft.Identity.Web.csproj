@@ -12,13 +12,10 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- Allow downgrade of System.Formats.Asn1 for netstandard2.0 -->
+    <!-- NoWarn NU1605: Must be global (not conditional) because NuGet restore evaluates all target frameworks
+         before target-specific PropertyGroups are evaluated. This suppresses the package downgrade warning
+         for System.Formats.Asn1 6.0.1 used specifically for netstandard2.0 target. -->
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <!-- Allow downgrade of System.Formats.Asn1 for netstandard2.0 -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1605</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
