@@ -28,7 +28,7 @@ namespace TokenAcquirerTests
 {
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
 #if !FROM_GITHUB_ACTION
-    public class TokenAcquirer
+    public partial class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
         private static readonly CredentialDescription[] s_clientCredentials = new[]
@@ -239,6 +239,24 @@ namespace TokenAcquirerTests
             {
                 option.Instance = "https://login.microsoftonline.com/";
                 option.TenantId = "msidlab4.onmicrosoft.com";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_Authority_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0";
                 option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
                 option.ClientCredentials = s_clientCredentials;
             });
