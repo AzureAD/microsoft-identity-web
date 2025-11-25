@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
@@ -15,13 +15,13 @@ namespace Microsoft.Identity.Web
     /// It uses a hybrid approach with leveraging IHttpClientFactory for non-mTLS HTTP clients and maintaining
     /// a pool of mTLS clients with using certificate thumbprint as a key.
     /// </summary>
-    public sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory
+    public sealed class MsalMtlsHttpClientFactory : IMsalMtlsHttpClientFactory, IDisposable
     {
         private const long MaxMtlsHttpClientCountInPool = 1000;
         private const long MaxResponseContentBufferSizeInBytes = 1024 * 1024;
 
         // Please see (https://aka.ms/msal-httpclient-info) for important information regarding the HttpClient.
-        private static readonly ConcurrentDictionary<string, HttpClient> s_mtlsHttpClientPool = new ConcurrentDictionary<string, HttpClient>();
+        private static readonly Dictionary<string, HttpClient> s_mtlsHttpClientPool = new Dictionary<string, HttpClient>();
         private static readonly object s_cacheLock = new object();
 
         private readonly IHttpClientFactory _httpClientFactory;
@@ -70,9 +70,29 @@ namespace Microsoft.Identity.Web
             }
 
             string key = x509Certificate2.Thumbprint;
-            HttpClient httpClient = CreateMtlsHttpClient(x509Certificate2);
-            httpClient = s_mtlsHttpClientPool.GetOrAdd(key, httpClient);
-            return httpClient;
+
+            lock (s_cacheLock)
+            {
+                CheckAndManageCache();
+
+                if (!s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
+                {
+                    httpClient = CreateMtlsHttpClient(x509Certificate2);
+                    s_mtlsHttpClientPool[key] = httpClient;
+                }
+
+                return httpClient;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            lock (s_cacheLock)
+            {
+                DisposeAllClients();
+                s_mtlsHttpClientPool.Clear();
+            }
         }
 
         private HttpClient CreateMtlsHttpClient(X509Certificate2 bindingCertificate)
@@ -80,8 +100,6 @@ namespace Microsoft.Identity.Web
 #if NET462
             throw new NotSupportedException("mTLS is not supported on this platform.");
 #else
-            CheckAndManageCache();
-
             if (bindingCertificate == null)
             {
                 throw new ArgumentNullException(nameof(bindingCertificate), "A valid X509 certificate must be provided for mTLS.");
@@ -100,12 +118,20 @@ namespace Microsoft.Identity.Web
 
         private static void CheckAndManageCache()
         {
-            lock (s_cacheLock)
+            // lock is held by caller
+            if (s_mtlsHttpClientPool.Count >= MaxMtlsHttpClientCountInPool)
             {
-                if (s_mtlsHttpClientPool.Count >= MaxMtlsHttpClientCountInPool)
-                {
-                    s_mtlsHttpClientPool.Clear();
-                }
+                DisposeAllClients();
+                s_mtlsHttpClientPool.Clear();
+            }
+        }
+
+        private static void DisposeAllClients()
+        {
+            // lock is held by caller
+            foreach (var httpClient in s_mtlsHttpClientPool.Values)
+            {
+                httpClient?.Dispose();
             }
         }
 

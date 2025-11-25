@@ -11,6 +11,7 @@ Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityM
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.get -> System.Collections.Generic.IList<string!>!
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.set -> void
 Microsoft.Identity.Web.MsalMtlsHttpClientFactory
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory.Dispose() -> void
 Microsoft.Identity.Web.MsalMtlsHttpClientFactory.GetHttpClient() -> System.Net.Http.HttpClient!
 Microsoft.Identity.Web.MsalMtlsHttpClientFactory.GetHttpClient(System.Security.Cryptography.X509Certificates.X509Certificate2! x509Certificate2) -> System.Net.Http.HttpClient!
 Microsoft.Identity.Web.MsalMtlsHttpClientFactory.MsalMtlsHttpClientFactory(System.Net.Http.IHttpClientFactory! httpClientFactory) -> void
