@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.AgentIdentityExtension.ForAgentIdentity(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, string! agentApplicationId, string? tenantId) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!
