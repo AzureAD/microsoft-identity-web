@@ -266,6 +266,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                     { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
                     { "AzureAd:ClientId", TestConstants.ConfidentialClientId },
                     { "AzureAd:ClientSecret", _ccaSecret },
+                    { "AzureAd:EnablePiiLogging", true.ToString()  },
                 })
                 .Build();
 
@@ -293,6 +294,147 @@ namespace Microsoft.Identity.Web.Test.Integration
             _ = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default", tokenAcquisitionOptions: new());
 
             Assert.NotNull(serviceProvider);
+        }
+
+        [Fact]
+        public async Task CompareLoggingBehavior_PiiEnabledVsDisabled()
+        {
+            // This test directly compares PII enabled vs disabled logging behavior
+            _output.WriteLine("=== COMPARISON TEST: PII Logging Enabled vs Disabled ===\n");
+
+            // Test with PII ENABLED
+            var logMessagesWithPii = await GetLogsWithPiiSettingAsync(enablePii: true);
+            
+            // Test with PII DISABLED  
+            var logMessagesWithoutPii = await GetLogsWithPiiSettingAsync(enablePii: false);
+
+            // Analysis and comparison
+            _output.WriteLine($"\n=== COMPARISON RESULTS ===");
+            _output.WriteLine($"Log count with PII enabled: {logMessagesWithPii.Count}");
+            _output.WriteLine($"Log count with PII disabled: {logMessagesWithoutPii.Count}");
+
+            // Compare PII indicators
+            var piiEnabledUrls = logMessagesWithPii.Count(m => m.Contains("https://", StringComparison.OrdinalIgnoreCase));
+            var piiDisabledUrls = logMessagesWithoutPii.Count(m => m.Contains("https://", StringComparison.OrdinalIgnoreCase));
+            
+            var piiEnabledClientId = logMessagesWithPii.Count(m => m.Contains(TestConstants.ConfidentialClientId, StringComparison.OrdinalIgnoreCase));
+            var piiDisabledClientId = logMessagesWithoutPii.Count(m => m.Contains(TestConstants.ConfidentialClientId, StringComparison.OrdinalIgnoreCase));
+            
+            var piiEnabledTenant = logMessagesWithPii.Count(m => m.Contains(TestConstants.ConfidentialClientLabTenant, StringComparison.OrdinalIgnoreCase));
+            var piiDisabledTenant = logMessagesWithoutPii.Count(m => m.Contains(TestConstants.ConfidentialClientLabTenant, StringComparison.OrdinalIgnoreCase));
+
+            _output.WriteLine($"\nURL appearances:");
+            _output.WriteLine($"  With PII: {piiEnabledUrls}");
+            _output.WriteLine($"  Without PII: {piiDisabledUrls}");
+            
+            _output.WriteLine($"\nClientId appearances:");
+            _output.WriteLine($"  With PII: {piiEnabledClientId}");
+            _output.WriteLine($"  Without PII: {piiDisabledClientId}");
+            
+            _output.WriteLine($"\nTenantId appearances:");
+            _output.WriteLine($"  With PII: {piiEnabledTenant}");
+            _output.WriteLine($"  Without PII: {piiDisabledTenant}");
+
+            // Sample comparison of actual log messages
+            _output.WriteLine($"\n=== SAMPLE LOG COMPARISON ===");
+            _output.WriteLine($"\nWith PII ENABLED (first 3 logs):");
+            foreach (var log in logMessagesWithPii.Take(3))
+            {
+                _output.WriteLine($"  {log}");
+            }
+            
+            _output.WriteLine($"\nWith PII DISABLED (first 3 logs):");
+            foreach (var log in logMessagesWithoutPii.Take(3))
+            {
+                _output.WriteLine($"  {log}");
+            }
+
+            // Both should produce logs, but PII-enabled typically shows more detailed information
+            Assert.True(logMessagesWithoutPii.Count > 0, "Should have logs with PII disabled");
+            Assert.True(logMessagesWithPii.Count > 0, "Should have logs with PII enabled");
+            
+        }
+
+        private async Task<List<string>> GetLogsWithPiiSettingAsync(bool enablePii)
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    { "AzureAd:Instance", "https://login.microsoftonline.com/" },
+                    { "AzureAd:TenantId", TestConstants.ConfidentialClientLabTenant },
+                    { "AzureAd:ClientId", TestConstants.ConfidentialClientId },
+                    { "AzureAd:ClientSecret", _ccaSecret },
+                    { "AzureAd:EnablePiiLogging", enablePii.ToString() },
+                })
+                .Build();
+
+            var serviceCollection = WebApplication.CreateBuilder().Services;
+            
+            var logMessages = new System.Collections.Concurrent.ConcurrentBag<string>();
+            serviceCollection.AddLogging(builder =>
+            {
+                builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                builder.AddProvider(new TestLoggerProvider((logLevel, message) =>
+                {
+                    // Capture ALL logs to see what's being generated
+                    if (message != null)
+                    {
+                        logMessages.Add($"[{logLevel}] {message}");
+                    }
+                }));
+            });
+
+            serviceCollection.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(configuration)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            var services = serviceCollection.BuildServiceProvider();
+            var tokenAcquisition = services.GetRequiredService<ITokenAcquisition>();
+            
+            // Acquire token to trigger logging
+            var token = await tokenAcquisition.GetAccessTokenForAppAsync("https://graph.microsoft.com/.default");
+            Assert.NotNull(token);
+
+            return logMessages.ToList();
+        }
+
+        // Helper class to capture log messages for testing
+        private class TestLoggerProvider : ILoggerProvider
+        {
+            private readonly Action<Microsoft.Extensions.Logging.LogLevel, string?> _logAction;
+
+            public TestLoggerProvider(Action<Microsoft.Extensions.Logging.LogLevel, string?> logAction)
+            {
+                _logAction = logAction;
+            }
+
+            public ILogger CreateLogger(string categoryName)
+            {
+                return new TestLogger(_logAction);
+            }
+
+            public void Dispose() { }
+
+            private class TestLogger : ILogger
+            {
+                private readonly Action<Microsoft.Extensions.Logging.LogLevel, string?> _logAction;
+
+                public TestLogger(Action<Microsoft.Extensions.Logging.LogLevel, string?> logAction)
+                {
+                    _logAction = logAction;
+                }
+
+                public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+                public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
+
+                public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+                {
+                    var message = formatter(state, exception);
+                    _logAction(logLevel, message);
+                }
+            }
         }
 
         private void InitializeTokenAcquisitionObjects()
