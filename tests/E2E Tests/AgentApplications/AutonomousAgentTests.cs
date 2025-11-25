@@ -27,7 +27,7 @@ namespace AgentApplicationsTests
             configuration["AzureAd:TenantId"] = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // I expect this to be overridden when acquiring tokens for agent identities.
             configuration["AzureAd:ClientId"] = "a0fc0f59-e688-458e-be27-6016b8db3308"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "ClientSecret";
-            configuration["AzureAd:ClientCredentials:0:ClientSecret"] = "ASK_ME_TO_SHARE_THE_SECRET";
+            configuration["AzureAd:ClientCredentials:0:ClientSecret"] = "rtT8Q~L0Y6Ou~_27Qs4xO8W47wMhGKsAPNSkLcoW";
             //configuration["AzureAd:ExtraQueryParameters:dc"] = "ESTS-PUB-SCUS-FD000-TEST1-100";
 
             services.AddSingleton(configuration);
@@ -43,9 +43,10 @@ namespace AgentApplicationsTests
 
             //// Get an authorization header and handle the call to the downstream API yoursel
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
-            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentIdentity(agentIdentity);
+            string customerTenantId = "24e9ca3e-b997-4d54-9980-f2494ac3f784";
+            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentIdentity(agentIdentity, customerTenantId);
 
-            options.AcquireTokenOptions.Tenant = "24e9ca3e-b997-4d54-9980-f2494ac3f784";
+            options.AcquireTokenOptions.Tenant = customerTenantId;
 
             //// Request user tokens in autonomous agents.
             string authorizationHeaderWithAppToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);

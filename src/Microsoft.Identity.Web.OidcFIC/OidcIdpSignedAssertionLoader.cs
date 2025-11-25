@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 }
 
                 MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
-                
+
                 if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
                 {
                     // Get IConfiguration from service provider just-in-time
@@ -188,6 +188,13 @@ namespace Microsoft.Identity.Web.OidcFic
                     
                     Logger.ConfigurationBinding(_logger, sectionName);
                     configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
+
+                    string? tenantId = credentialDescription.CustomSignedAssertionProviderData["TenantId"] as string;
+                    if (!string.IsNullOrEmpty(tenantId))
+                    {
+                        microsoftIdentityApplicationOptions.TenantId = tenantId;
+                        microsoftIdentityApplicationOptions.Authority = $"{microsoftIdentityApplicationOptions.Instance?.TrimEnd('/')}/{microsoftIdentityApplicationOptions.TenantId}/v2.0";
+                    }
                 }
 
                 // Special case for Signed assertions with an FmiPath.

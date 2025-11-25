@@ -43,13 +43,25 @@ namespace Microsoft.Identity.Web
         /// <returns>The updated authorization header provider options.</returns>
         public static AuthorizationHeaderProviderOptions WithAgentIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId)
         {
+            return options.WithAgentIdentity(agentApplicationId, null);
+        }
+
+        /// <summary>
+        /// Updates the options to acquire a token for the agent identity.
+        /// </summary>
+        /// <param name="options">Authorization header provider options.</param>
+        /// <param name="agentApplicationId">The agent identity GUID.</param>
+        /// <param name="tenantId">The tenant ID where the agent identity is registered. If null, the default tenant configured will be used.</param>
+        /// <returns>The updated authorization header provider options.</returns>
+        public static AuthorizationHeaderProviderOptions WithAgentIdentity(this AuthorizationHeaderProviderOptions options, string agentApplicationId, string? tenantId = null)
+        {
             // It's possible to start with no options, so we initialize it if it's null.
             if (options == null)
                 options = new AuthorizationHeaderProviderOptions();
 
             // AcquireTokenOptions holds the information needed to acquire a token for the Agent Identity
             options.AcquireTokenOptions ??= new AcquireTokenOptions();
-            options.AcquireTokenOptions.ForAgentIdentity(agentApplicationId);
+            options.AcquireTokenOptions.ForAgentIdentity(agentApplicationId, tenantId);
 
             return options;
         }
@@ -110,7 +122,7 @@ namespace Microsoft.Identity.Web
         }
 
         // TODO:would it make sense to have it public?
-        internal static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId)
+        internal static AcquireTokenOptions ForAgentIdentity(this AcquireTokenOptions options, string agentApplicationId, string? tenantId)
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
@@ -122,11 +134,13 @@ namespace Microsoft.Identity.Web
             options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
             {
                 ClientId = agentApplicationId, // Agent identity Client ID.
+                TenantId = tenantId,
                 ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
                         { "ConfigurationSection", "AzureAd" },      // Use the default configuration section name
+                        { "TenantId", tenantId ?? string.Empty },
                         { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]
