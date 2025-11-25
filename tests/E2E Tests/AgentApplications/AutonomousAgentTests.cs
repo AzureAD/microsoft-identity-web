@@ -27,7 +27,7 @@ namespace AgentApplicationsTests
             configuration["AzureAd:TenantId"] = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // I expect this to be overridden when acquiring tokens for agent identities.
             configuration["AzureAd:ClientId"] = "a0fc0f59-e688-458e-be27-6016b8db3308"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "ClientSecret";
-            configuration["AzureAd:ClientCredentials:0:ClientSecret"] = "rtT8Q~L0Y6Ou~_27Qs4xO8W47wMhGKsAPNSkLcoW";
+            configuration["AzureAd:ClientCredentials:0:ClientSecret"] = "SECRET_GOES_HERE";
             //configuration["AzureAd:ExtraQueryParameters:dc"] = "ESTS-PUB-SCUS-FD000-TEST1-100";
 
             services.AddSingleton(configuration);
