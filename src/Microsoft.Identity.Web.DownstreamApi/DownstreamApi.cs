@@ -549,7 +549,7 @@ namespace Microsoft.Identity.Web
             // If a binding certificate is specified (which means mTLS is required) and MSAL mTLS HTTP factory is present
             // then create an HttpClient with the certificate by using IMsalMtlsHttpClientFactory.
             // Otherwise use the default HttpClientFactory with optional named client.
-            using HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
+            HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
                 ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
                 : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
 
