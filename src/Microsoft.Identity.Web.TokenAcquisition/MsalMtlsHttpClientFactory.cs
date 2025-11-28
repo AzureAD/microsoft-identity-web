@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
@@ -22,7 +23,8 @@ namespace Microsoft.Identity.Web
 
         // Please see (https://aka.ms/msal-httpclient-info) for important information regarding the HttpClient.
         private static readonly Dictionary<string, HttpClient> s_mtlsHttpClientPool = new Dictionary<string, HttpClient>();
-        private static readonly object s_cacheLock = new object();
+
+        private static readonly ReaderWriterLockSlim s_cacheLock = new ReaderWriterLockSlim();
 
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -71,28 +73,56 @@ namespace Microsoft.Identity.Web
 
             string key = x509Certificate2.Thumbprint;
 
-            lock (s_cacheLock)
+            s_cacheLock.EnterReadLock();
+            try
             {
-                CheckAndManageCache();
-
-                if (!s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
+                if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
                 {
-                    httpClient = CreateMtlsHttpClient(x509Certificate2);
-                    s_mtlsHttpClientPool[key] = httpClient;
+                    return httpClient;
+                }
+            }
+            finally
+            {
+                s_cacheLock.ExitReadLock();
+            }
+
+            s_cacheLock.EnterWriteLock();
+            try
+            {
+                // Double-check pattern: another thread may have added the client while we were waiting for write lock.
+                if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
+                {
+                    return httpClient;
                 }
 
+                CheckAndManageCache();
+
+                httpClient = CreateMtlsHttpClient(x509Certificate2);
+                s_mtlsHttpClientPool[key] = httpClient;
+
                 return httpClient;
+            }
+            finally
+            {
+                s_cacheLock.ExitWriteLock();
             }
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            lock (s_cacheLock)
+            s_cacheLock.EnterWriteLock();
+            try
             {
                 DisposeAllClients();
                 s_mtlsHttpClientPool.Clear();
             }
+            finally
+            {
+                s_cacheLock.ExitWriteLock();
+            }
+
+            // Note: s_cacheLock is static and shared across all instances, so it should not be disposed here
         }
 
         private HttpClient CreateMtlsHttpClient(X509Certificate2 bindingCertificate)
