@@ -11,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2
     {
         private readonly ITokenAcquisition _tokenAcquisition;
 
@@ -95,6 +95,33 @@ namespace Microsoft.Identity.Web
 
             UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
             return result.CreateAuthorizationHeader();
+        }
+
+        /// <inheritdoc/>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateAuthorizationHeaderAsync(
+            DownstreamApiOptions downstreamApiOptions,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
+        {
+            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
+
+            // Token binding flow currently supports only app tokens.
+            var tokenAcquisitionResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                downstreamApiOptions.Scopes?.FirstOrDefault() ?? string.Empty,
+                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                newTokenAcquisitionOptions).ConfigureAwait(false);
+
+            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
+
+            var authorizationHeader = tokenAcquisitionResult.CreateAuthorizationHeader();
+            var authorizationHeaderInformation = new AuthorizationHeaderInformation()
+            {
+                AuthorizationHeaderValue = authorizationHeader,
+                BindingCertificate = tokenAcquisitionResult.BindingCertificate
+            };
+
+            return new(authorizationHeaderInformation);
         }
 
         private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(
