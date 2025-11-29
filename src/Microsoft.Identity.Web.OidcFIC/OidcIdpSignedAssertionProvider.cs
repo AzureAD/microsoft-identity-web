@@ -109,7 +109,10 @@ namespace Microsoft.Identity.Web.OidcFic
             try
             {
                 var endpointUri = new Uri(tokenEndpoint!);
-                var instanceUri = new Uri(configuredInstance!.TrimEnd('/') + "/");
+                
+                // Safely construct instance URI by trimming trailing slash
+                var normalizedInstance = configuredInstance!.TrimEnd('/');
+                var instanceUri = new Uri(normalizedInstance);
 
                 // Only extract tenant if the host matches (same cloud instance)
                 if (!string.Equals(endpointUri.Host, instanceUri.Host, StringComparison.OrdinalIgnoreCase))
@@ -118,14 +121,22 @@ namespace Microsoft.Identity.Web.OidcFic
                 }
 
                 // TokenEndpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
-                // Extract {tenant} from the path.
+                // Validate the path follows the expected pattern before extracting tenant.
                 var pathSegments = endpointUri.AbsolutePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-                // The tenant is typically the first segment after the host
-                // e.g., /tenantId/oauth2/v2.0/token -> segments[0] = "tenantId"
-                if (pathSegments.Length > 0)
+                // Expected pattern: [tenantId, oauth2, v2.0, token] or similar
+                // We need at least the tenant segment and some oauth2 path segments
+                if (pathSegments.Length >= 2)
                 {
-                    return pathSegments[0];
+                    // Verify this looks like a token endpoint (contains "oauth2" somewhere after tenant)
+                    for (int i = 1; i < pathSegments.Length; i++)
+                    {
+                        if (string.Equals(pathSegments[i], "oauth2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Found oauth2 segment, the first segment is likely the tenant
+                            return pathSegments[0];
+                        }
+                    }
                 }
             }
             catch (UriFormatException)
