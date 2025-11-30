@@ -117,8 +117,9 @@ namespace Microsoft.Identity.Web
             // Until it makes it way through Abstractions
             options.ExtraParameters[Constants.FmiPathForClientAssertion] = agentApplicationId;
 
-            // TODO: do we want to expose a mechanism to override the MicrosoftIdentityOptions instead of leveraging
-            // the default configuration section / named options?.
+            // Use the developer's AuthenticationOptionsName if set, otherwise default to "AzureAd"
+            string configurationSection = options.AuthenticationOptionsName ?? "AzureAd";
+
             options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
             {
                 ClientId = agentApplicationId, // Agent identity Client ID.
@@ -126,7 +127,7 @@ namespace Microsoft.Identity.Web
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
-                        { "ConfigurationSection", "AzureAd" },      // Use the default configuration section name
+                        { "ConfigurationSection", configurationSection }, // Use the developer's choice or default to "AzureAd"
                         { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]
