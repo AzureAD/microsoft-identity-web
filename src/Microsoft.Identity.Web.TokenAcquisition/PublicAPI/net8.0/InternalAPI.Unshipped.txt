@@ -12,4 +12,4 @@ static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.With
 static Microsoft.Identity.Web.MergedOptions.ParseAuthorityIfNecessary(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 static Microsoft.Identity.Web.MergedOptionsLogging.AuthorityIgnored(Microsoft.Extensions.Logging.ILogger! logger, string! authority, string! instance, string! tenantId) -> void
 static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, (string! value, bool includeInCacheKey)>?
-static readonly Microsoft.Identity.Web.LoggingEventId.AuthorityConflict -> Microsoft.Extensions.Logging.EventId
+static readonly Microsoft.Identity.Web.LoggingEventId.AuthorityIgnored -> Microsoft.Extensions.Logging.EventId
