@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace Microsoft.Identity.Web.Hosts
         readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _MicrosoftIdentityApplicationOptionsMonitor;
 
         public DefaultTokenAcquisitionHost(
-            IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
+            IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor,
             IMergedOptionsStore mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
             IOptionsMonitor<MicrosoftIdentityApplicationOptions> microsoftIdentityApplicationOptionsMonitor)
@@ -43,12 +42,6 @@ namespace Microsoft.Identity.Web.Hosts
 
         public string GetEffectiveAuthenticationScheme(string? authenticationScheme)
         {
-            if (string.Equals(authenticationScheme, "MTLS_POP", StringComparison.OrdinalIgnoreCase))
-            {
-                // acquiring token for MTLS_POP uses the default authentication scheme
-                return string.Empty;
-            }
-
             return authenticationScheme ?? string.Empty;
         }
 

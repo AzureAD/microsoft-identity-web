@@ -602,7 +602,6 @@ namespace Microsoft.Identity.Web
                 string authorizationHeader = string.Empty;
 
                 // Firstly check if it's token binding scenario so authorization header provider returns
-
                 // a binding certificate along with acquired authorization header.
                 if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls)
                 {

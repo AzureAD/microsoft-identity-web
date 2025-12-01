@@ -56,7 +56,6 @@ namespace Microsoft.Identity.Web
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
-        public bool IsTokenBinding { get; set; }
         internal bool MergedWithCca { get; set; }
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
         internal bool PreserveAuthority { get; set; }
@@ -66,6 +65,14 @@ namespace Microsoft.Identity.Web
         /// This modifies this property so that the original value is not changed.
         /// </summary>
         internal string? PreparedInstance { get; set; }
+
+        /// <summary>
+        /// Whether a token binding (mTLS PoP) is enabled for the current context.
+        /// </summary>
+        /// <remarks>
+        /// It's evaluated based on token acquisition options and shouldn't be set directly.
+        /// </remarks>
+        internal bool IsTokenBinding { get; set; }
 
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
@@ -448,7 +455,7 @@ namespace Microsoft.Identity.Web
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
             // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
-            if (!string.IsNullOrEmpty(mergedOptions.Authority) && 
+            if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
                 (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
             {
                 // Log warning that Authority is being ignored

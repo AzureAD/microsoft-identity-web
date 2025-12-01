@@ -9,7 +9,7 @@ namespace MtlsPopSample.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "MtlsPop")]
+    [Authorize(AuthenticationSchemes = MtlsPopAuthenticationHandler.ProtocolScheme)]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

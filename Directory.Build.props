@@ -30,7 +30,6 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <!-- Please update SUPPORTS_MTLS constant below if needed when targeting new frameworks -->
     <TargetFrameworks>net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
@@ -200,8 +199,4 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net462'">
-    <DefineConstants>$(DefineConstants);SUPPORTS_MTLS;</DefineConstants>
-  </PropertyGroup>
 </Project>

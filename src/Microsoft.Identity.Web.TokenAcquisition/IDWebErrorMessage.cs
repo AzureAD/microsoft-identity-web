@@ -21,7 +21,8 @@ namespace Microsoft.Identity.Web
         public const string MissingRequiredScopesForAuthorizationFilter = "IDW10108: RequiredScope Attribute does not contain a value. The scopes need to be set on the controller, the page or action. See https://aka.ms/ms-id-web/required-scope-attribute. ";
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: No credential could be loaded. This can happen when certificates passed to the configuration have expired or can't be loaded and the code isn't running on Azure to be able to use Managed Identity, Pod Identity etc. Details: ";
         public const string ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret.";
-        public const string MissingTokenBindingCertificate = "IDW10111: A certificate, which is required for token binding, is missing in loaded credentials.";
+        public const string MissingTokenBindingCertificate = "IDW10115: A signing certificate, which is required for token binding, is missing in loaded credentials.";
+        public const string TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition.";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope nor roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";
@@ -72,7 +73,7 @@ namespace Microsoft.Identity.Web
         public const string InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. ";
         public const string FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. ";
         public const string AadIssuerValidatorIsObsolete = "IDW10804: Use MicrosoftIdentityIssuerValidator. ";
-        
+
         public const string WithClientCredentialsIsObsolete = "Use WithClientCredentialsAsync instead.";
     }
 }

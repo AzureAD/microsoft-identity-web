@@ -1,5 +1,6 @@
 #nullable enable
-const Microsoft.Identity.Web.IDWebErrorMessage.MissingTokenBindingCertificate = "IDW10111: A certificate, which is required for token binding, is missing in loaded credentials." -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.MissingTokenBindingCertificate = "IDW10115: A signing certificate, which is required for token binding, is missing in loaded credentials." -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition." -> string!
 Microsoft.Identity.Web.DefaultAuthorizationHeaderProvider.CreateAuthorizationHeaderAsync(Microsoft.Identity.Abstractions.DownstreamApiOptions! downstreamApiOptions, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.OperationResult<Microsoft.Identity.Abstractions.AuthorizationHeaderInformation!, Microsoft.Identity.Abstractions.AuthorizationHeaderError!>>!
 Microsoft.Identity.Web.MergedOptions.IsTokenBinding.get -> bool
 Microsoft.Identity.Web.MergedOptions.IsTokenBinding.set -> void

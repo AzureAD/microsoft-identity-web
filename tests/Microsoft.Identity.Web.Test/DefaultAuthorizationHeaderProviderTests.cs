@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -37,7 +38,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeader_WithValidOptions_ReturnsSuccessResult()
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithNonMtlsProtocolAndUserFlow_ReturnsValidResult()
         {
             // Arrange
             var downstreamApiOptions = new DownstreamApiOptions
@@ -46,12 +47,67 @@ namespace Microsoft.Identity.Web.Test
             };
 
             var mockAuthenticationResult = new AuthenticationResult(
-                "access_token",
+                "test_access_token",
                 false,
                 null,
                 DateTimeOffset.UtcNow.AddHours(1),
                 DateTimeOffset.UtcNow.AddHours(1),
-                "tenant_id",
+                "test_tenant_id",
+                null,
+                null,
+                new[] { "scope1" },
+                Guid.NewGuid());
+
+            _mockTokenAcquisition
+                .GetAuthenticationResultForUserAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<TokenAcquisitionOptions>())
+                .Returns(Task.FromResult(mockAuthenticationResult));
+
+            var claimsPrincipal = new ClaimsPrincipal();
+            var cancellationToken = CancellationToken.None;
+
+            // Act
+            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+                downstreamApiOptions,
+                claimsPrincipal,
+                cancellationToken);
+
+            // Assert
+            Assert.NotNull(result.Result);
+            Assert.Equal("Bearer test_access_token", result.Result.AuthorizationHeaderValue);
+            Assert.Null(result.Result.BindingCertificate);
+
+            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForUserAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<ClaimsPrincipal>(),
+                Arg.Any<TokenAcquisitionOptions>());
+        }
+
+        [Fact]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithNonMtlsProtocolAndAppFlow_ReturnsValidResult()
+        {
+            // Arrange
+            var downstreamApiOptions = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                RequestAppToken = true
+            };
+
+            var mockAuthenticationResult = new AuthenticationResult(
+                "test_access_token",
+                false,
+                null,
+                DateTimeOffset.UtcNow.AddHours(1),
+                DateTimeOffset.UtcNow.AddHours(1),
+                "test_tenant_id",
                 null,
                 null,
                 new[] { "scope1" },
@@ -76,22 +132,112 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.NotNull(result.Result);
-            Assert.Equal("Bearer access_token", result.Result.AuthorizationHeaderValue);
+            Assert.Equal("Bearer test_access_token", result.Result.AuthorizationHeaderValue);
+            Assert.Null(result.Result.BindingCertificate);
+
+            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<TokenAcquisitionOptions>());
+        }
+
+        [Fact]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithMtlsProtocolAndAppFlow_ReturnsValidResult()
+        {
+            // Arrange
+            var downstreamApiOptions = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true
+            };
+
+            var mockAuthenticationResult = new AuthenticationResult(
+                "test_access_token",
+                false,
+                null,
+                DateTimeOffset.UtcNow.AddHours(1),
+                DateTimeOffset.UtcNow.AddHours(1),
+                "test_tenant_id",
+                null,
+                null,
+                new[] { "scope1" },
+                Guid.NewGuid(),
+                "MTLS_POP");
+
+            _mockTokenAcquisition
+                .GetAuthenticationResultForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<TokenAcquisitionOptions>())
+                .Returns(Task.FromResult(mockAuthenticationResult));
+
+            var claimsPrincipal = new ClaimsPrincipal();
+            var cancellationToken = CancellationToken.None;
+
+            // Act
+            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+                downstreamApiOptions,
+                claimsPrincipal,
+                cancellationToken);
+
+            // Assert
+            Assert.NotNull(result.Result);
+            Assert.Equal("MTLS_POP test_access_token", result.Result.AuthorizationHeaderValue);
 
             await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
                 "https://graph.microsoft.com/.default",
                 null,
                 null,
-                Arg.Any<TokenAcquisitionOptions>());
+                Arg.Is<TokenAcquisitionOptions>(o =>
+                    o.ExtraParameters != null &&
+                    o.ExtraParameters.ContainsKey("IsTokenBinding") &&
+                    o.ExtraParameters["IsTokenBinding"] is bool &&
+                    (bool)o.ExtraParameters["IsTokenBinding"] == true));
         }
 
-        [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeader_WithBindingCertificate_ReturnsBindingCertificate()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(null)]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithMtlsProtocolForUserFlow_ThrowsArgumentException(bool? requestAppToken)
         {
             // Arrange
             var downstreamApiOptions = new DownstreamApiOptions
             {
-                Scopes = new[] { "https://graph.microsoft.com/.default" }
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                ProtocolScheme = "MTLS_POP"
+            };
+
+            if (requestAppToken.HasValue)
+            {
+                downstreamApiOptions.RequestAppToken = requestAppToken.Value;
+            }
+
+            var claimsPrincipal = new ClaimsPrincipal();
+            var cancellationToken = CancellationToken.None;
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+                    downstreamApiOptions,
+                    claimsPrincipal,
+                    cancellationToken));
+
+            Assert.Contains("Token binding requires enabled app token acquisition", exception.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("RequestAppToken", exception.ParamName);
+        }
+
+        [Fact]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithBindingCertificate_ReturnsBindingCertificate()
+        {
+            // Arrange
+            var downstreamApiOptions = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true
             };
 
             // Create test certificate
@@ -105,16 +251,17 @@ namespace Microsoft.Identity.Web.Test
 #endif
 
             var mockAuthenticationResult = new AuthenticationResult(
-                "access_token",
+                "test_access_token",
                 false,
                 null,
                 DateTimeOffset.UtcNow.AddHours(1),
                 DateTimeOffset.UtcNow.AddHours(1),
-                "tenant_id",
+                "test_tenant_id",
                 null,
                 null,
                 new[] { "scope1" },
-                Guid.NewGuid())
+                Guid.NewGuid(),
+                "MTLS_POP")
             {
                 BindingCertificate = bindingCertificate
             };
@@ -135,26 +282,28 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.NotNull(result.Result);
-            Assert.Equal("Bearer access_token", result.Result.AuthorizationHeaderValue);
+            Assert.Equal("MTLS_POP test_access_token", result.Result.AuthorizationHeaderValue);
             Assert.Same(bindingCertificate, result.Result.BindingCertificate);
         }
 
         [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeader_WithoutBindingCertificate_ReturnsNullBindingCertificate()
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithNullScopes_HandlesGracefully()
         {
             // Arrange
             var downstreamApiOptions = new DownstreamApiOptions
             {
-                Scopes = new[] { "https://graph.microsoft.com/.default" }
+                Scopes = null, // Null scopes
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true
             };
 
             var mockAuthenticationResult = new AuthenticationResult(
-                "access_token",
+                "test_access_token",
                 false,
                 null,
                 DateTimeOffset.UtcNow.AddHours(1),
                 DateTimeOffset.UtcNow.AddHours(1),
-                "tenant_id",
+                "test_tenant_id",
                 null,
                 null,
                 new[] { "scope1" },
@@ -168,108 +317,13 @@ namespace Microsoft.Identity.Web.Test
                     Arg.Any<TokenAcquisitionOptions>())
                 .Returns(Task.FromResult(mockAuthenticationResult));
 
-            // Act
+            // Act & Assert - Should not throw
             var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 null,
                 CancellationToken.None);
 
-            // Assert
             Assert.NotNull(result.Result);
-            Assert.Equal("Bearer access_token", result.Result.AuthorizationHeaderValue);
-            Assert.Null(result.Result.BindingCertificate);
-        }
-
-        [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeader_WithEmptyScopes_UsesEmptyString()
-        {
-            // Arrange
-            var downstreamApiOptions = new DownstreamApiOptions
-            {
-                Scopes = new string[0] // Empty scopes
-            };
-
-            var mockAuthenticationResult = new AuthenticationResult(
-                "access_token",
-                false,
-                null,
-                DateTimeOffset.UtcNow.AddHours(1),
-                DateTimeOffset.UtcNow.AddHours(1),
-                "tenant_id",
-                null,
-                null,
-                new[] { "scope1" },
-                Guid.NewGuid());
-
-            _mockTokenAcquisition
-                .GetAuthenticationResultForAppAsync(
-                    Arg.Any<string>(),
-                    Arg.Any<string>(),
-                    Arg.Any<string>(),
-                    Arg.Any<TokenAcquisitionOptions>())
-                .Returns(Task.FromResult(mockAuthenticationResult));
-
-            // Act
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
-                downstreamApiOptions,
-                null,
-                CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(result.Result);
-            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
-                string.Empty, // Should use empty string when no scopes
-                null,
-                null,
-                Arg.Any<TokenAcquisitionOptions>());
-        }
-
-        [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeader_WithAcquireTokenOptions_PassesCorrectParameters()
-        {
-            // Arrange
-            var downstreamApiOptions = new DownstreamApiOptions
-            {
-                Scopes = new[] { "https://graph.microsoft.com/.default" },
-                AcquireTokenOptions = new AcquireTokenOptions
-                {
-                    AuthenticationOptionsName = "TestAuth",
-                    Tenant = "test-tenant"
-                }
-            };
-
-            var mockAuthenticationResult = new AuthenticationResult(
-                "access_token",
-                false,
-                null,
-                DateTimeOffset.UtcNow.AddHours(1),
-                DateTimeOffset.UtcNow.AddHours(1),
-                "tenant_id",
-                null,
-                null,
-                new[] { "scope1" },
-                Guid.NewGuid());
-
-            _mockTokenAcquisition
-                .GetAuthenticationResultForAppAsync(
-                    Arg.Any<string>(),
-                    Arg.Any<string>(),
-                    Arg.Any<string>(),
-                    Arg.Any<TokenAcquisitionOptions>())
-                .Returns(Task.FromResult(mockAuthenticationResult));
-
-            // Act
-            await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
-                downstreamApiOptions,
-                null,
-                CancellationToken.None);
-
-            // Assert
-            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
-                "https://graph.microsoft.com/.default",
-                "TestAuth",
-                "test-tenant",
-                Arg.Any<TokenAcquisitionOptions>());
         }
 
         [Fact]
@@ -505,12 +559,14 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundProvider_TokenAcquisitionThrows_PropagatesException()
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProvider_TokenAcquisitionThrows_PropagatesException()
         {
             // Arrange
             var downstreamApiOptions = new DownstreamApiOptions
             {
-                Scopes = new[] { "https://graph.microsoft.com/.default" }
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true
             };
 
             var expectedException = new MsalServiceException("test-error", "Test error message");
@@ -528,6 +584,65 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(expectedException.ErrorCode, actualException.ErrorCode);
             Assert.Equal(expectedException.Message, actualException.Message);
+        }
+
+        [Fact]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProvider_WithExistingExtraParameters_MergesExtraParameters()
+        {
+            // Arrange
+            var existingParameters = new Dictionary<string, object>
+            {
+                { "custom_param", "custom_value" }
+            };
+
+            var downstreamApiOptions = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = existingParameters
+                }
+            };
+
+            var mockAuthenticationResult = new AuthenticationResult(
+                "test_access_token",
+                false,
+                null,
+                DateTimeOffset.UtcNow.AddHours(1),
+                DateTimeOffset.UtcNow.AddHours(1),
+                "test_tenant_id",
+                null,
+                null,
+                new[] { "scope1" },
+                Guid.NewGuid());
+
+            _mockTokenAcquisition
+                .GetAuthenticationResultForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<TokenAcquisitionOptions>())
+                .Returns(Task.FromResult(mockAuthenticationResult));
+
+            // Act
+            await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+                downstreamApiOptions,
+                null,
+                CancellationToken.None);
+
+            // Assert
+            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Is<TokenAcquisitionOptions>(o =>
+                    o.ExtraParameters != null &&
+                    o.ExtraParameters.ContainsKey("IsTokenBinding") &&
+                    o.ExtraParameters.ContainsKey("custom_param") &&
+                    (bool)o.ExtraParameters["IsTokenBinding"] == true &&
+                    (string)o.ExtraParameters["custom_param"] == "custom_value"));
         }
     }
 }
