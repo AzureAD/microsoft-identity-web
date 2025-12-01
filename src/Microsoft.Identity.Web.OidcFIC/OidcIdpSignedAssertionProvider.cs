@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web.OidcFic
         /// <param name="tokenEndpoint">Token endpoint URL in the format https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</param>
         /// <param name="configuredInstance">The configured instance URL (e.g., https://login.microsoftonline.com/)</param>
         /// <returns>The tenant ID if the endpoint is from the same instance, otherwise null.</returns>
-        private static string? ExtractTenantFromTokenEndpointIfSameInstance(string? tokenEndpoint, string? configuredInstance)
+        internal static string? ExtractTenantFromTokenEndpointIfSameInstance(string? tokenEndpoint, string? configuredInstance)
         {
             if (string.IsNullOrEmpty(tokenEndpoint) || string.IsNullOrEmpty(configuredInstance))
             {
