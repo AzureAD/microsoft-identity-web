@@ -153,13 +153,6 @@ namespace Microsoft.Identity.Web
             AuthorizationHeaderProviderOptions? downstreamApiOptions,
             CancellationToken cancellationToken)
         {
-            var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
-            if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                extraParameters ??= new Dictionary<string, object>();
-                extraParameters[TokenBindingParameterName] = true;
-            }
-
             return new TokenAcquisitionOptions()
             {
                 AuthenticationOptionsName = downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
@@ -168,7 +161,7 @@ namespace Microsoft.Identity.Web
                 CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
                 ExtraHeadersParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraHeadersParameters,
                 ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,
-                ExtraParameters = extraParameters,
+                ExtraParameters = GetExtraParameters(downstreamApiOptions),
                 ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
                 LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
                 ManagedIdentity = downstreamApiOptions?.AcquireTokenOptions.ManagedIdentity,
@@ -189,6 +182,24 @@ namespace Microsoft.Identity.Web
             {
                 acquireTokenOptions.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the collection of extra parameters to be included when acquiring a token, optionally adding
+        /// protocol-specific parameters based on the provided options.
+        /// </summary>
+        /// <param name="downstreamApiOptions">The options used to configure token acquisition.</param>
+        /// <returns>A dictionary containing extra parameters to be sent during token acquisition or null.</returns>
+        private static IDictionary<string, object>? GetExtraParameters(AuthorizationHeaderProviderOptions? downstreamApiOptions)
+        {
+            var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
+            if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+            {
+                extraParameters ??= new Dictionary<string, object>();
+                extraParameters[TokenBindingParameterName] = true;
+            }
+
+            return extraParameters;
         }
     }
 }

@@ -73,38 +73,40 @@ namespace Microsoft.Identity.Web
 
             string key = x509Certificate2.Thumbprint;
 
-            s_cacheLock.EnterReadLock();
+            s_cacheLock.EnterUpgradeableReadLock();
+
             try
             {
-                if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
+                if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? existingHttpClient))
                 {
+                    return existingHttpClient;
+                }
+
+                s_cacheLock.EnterWriteLock();
+
+                try
+                {
+                    // Double-check pattern: another thread may have added the client while we were waiting for write lock.
+                    if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
+                    {
+                        return httpClient;
+                    }
+
+                    CheckAndManageCache();
+
+                    httpClient = CreateMtlsHttpClient(x509Certificate2);
+                    s_mtlsHttpClientPool[key] = httpClient;
+
                     return httpClient;
+                }
+                finally
+                {
+                    s_cacheLock.ExitWriteLock();
                 }
             }
             finally
             {
-                s_cacheLock.ExitReadLock();
-            }
-
-            s_cacheLock.EnterWriteLock();
-            try
-            {
-                // Double-check pattern: another thread may have added the client while we were waiting for write lock.
-                if (s_mtlsHttpClientPool.TryGetValue(key, out HttpClient? httpClient))
-                {
-                    return httpClient;
-                }
-
-                CheckAndManageCache();
-
-                httpClient = CreateMtlsHttpClient(x509Certificate2);
-                s_mtlsHttpClientPool[key] = httpClient;
-
-                return httpClient;
-            }
-            finally
-            {
-                s_cacheLock.ExitWriteLock();
+                s_cacheLock.ExitUpgradeableReadLock();
             }
         }
 
