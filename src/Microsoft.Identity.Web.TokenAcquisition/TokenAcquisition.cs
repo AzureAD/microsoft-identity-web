@@ -594,7 +594,8 @@ namespace Microsoft.Identity.Web
             }
 
             // Apply tenant override only for AAD authorities and only if non-empty
-            if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
+            if (!string.IsNullOrEmpty(mergedOptions.Instance) && 
+                !mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
@@ -937,6 +938,16 @@ namespace Microsoft.Identity.Web
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
+
+            // Validate that we have enough configuration to build an authority
+            // When PreserveAuthority is true, we use Authority directly, so PreparedInstance is not required
+            // When IsB2C is true, we still need PreparedInstance
+            if (!mergedOptions.PreserveAuthority && 
+                string.IsNullOrEmpty(mergedOptions.PreparedInstance) && 
+                string.IsNullOrEmpty(mergedOptions.Authority))
+            {
+                throw new ArgumentException(IDWebErrorMessage.MissingIdentityConfiguration);
+            }
 
             try
             {
