@@ -9,7 +9,7 @@ This package enables ASP.NET Core web apps and web APIs to use the Azure SDKs wi
 - **MicrosoftIdentityTokenCredential** - Provides seamless integration between Microsoft.Identity.Web and Azure SDK's TokenCredential, enabling your application to use Azure services with Microsoft Entra ID (formerly Azure Active Directory) authentication.
 - Supports both user delegated and application permission scenarios
 - Works with the standard Azure SDK authentication flow
-- Is Scoped (injected for each request)
+- Is Scoped (injected for each request, which means credendials can be different at each request.)
 
 ## Installation
 
@@ -31,43 +31,31 @@ using Microsoft.Identity.Web;
 public void ConfigureServices(IServiceCollection services)
 {
     // Register Microsoft Identity Web
-    services.AddMicrosoftIdentityWebAppAuthentication(Configuration)
-        .EnableTokenAcquisitionToCallDownstreamApi()
-        .AddInMemoryTokenCaches();
+    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+      .AddMicrosoftIdentityWebAppAuthentication(Configuration)
+      .EnableTokenAcquisitionToCallDownstreamApi();
+
+    services.AddInMemoryTokenCaches() // or others
 
     // Add the Azure Token Credential
     services.AddMicrosoftIdentityAzureTokenCredential();
-
-    // Register Azure services
-    services.AddAzureClients(builder =>
-    {
-        // Use the Microsoft Identity credential for all Azure clients
-        builder.UseCredential(sp => sp.GetRequiredService<MicrosoftIdentityTokenCredential>());
-
-        // Configure Azure Blob Storage client
-        builder.AddBlobServiceClient(new Uri("https://your-storage-account.blob.core.windows.net"));
-        // Add other Azure clients as needed
-    });
 }
 ```
 
 ### Using with Azure SDK clients
 
-Once registered, the BlobServiceClient can be injected directly into your controllers or services:
+Once registered, the MicrosoftIdentityAzureTokenCredential can be injected directly into your controllers or services:
 // Direct injection into a controller or Razor Page
 
 ```csharp
 [Authorize]
 public class BlobController : Controller
 {
-    private readonly BlobServiceClient _blobServiceClient;
     private readonly MicrosoftIdentityTokenCredential _tokenCredential;
 
     public BlobController(
-        BlobServiceClient blobServiceClient,
-        MicrosoftIdentityTokenCredential tokenCredential) // Optional: inject if you need to modify token behavior
+        MicrosoftIdentityTokenCredential tokenCredential)
     {
-        _blobServiceClient = blobServiceClient;
         _tokenCredential = tokenCredential;
     }
 
@@ -78,7 +66,8 @@ public class BlobController : Controller
         {
             // If you want to have get a blob on behalf of the app itself.
             _tokenCredential.Options.RequestAppToken = true;
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            BlobContainerClient containerClient = new BlobContainerClient(new Uri($"https://storageaccountname.blob.core.windows.net/{containername}"), _microsoftIdentityTokenCredential);
+
             var blobClient = containerClient.GetBlobClient(blobName);
 
             // Check if blob exists
@@ -105,22 +94,36 @@ For Razor Pages, you can similarly inject the client directly:
 ```csharp
 public class BlobModel : PageModel
 {
-    private readonly BlobServiceClient _blobServiceClient;
+    private readonly MicrosoftIdentityTokenCredential _tokenCredential;
 
-    public BlobModel(BlobServiceClient blobServiceClient)
+    public BlobModel(MicrosoftIdentityTokenCredential tokenCredential)
     {
-        _blobServiceClient = blobServiceClient;
+        _tokenCredential = tokenCredential;
     }
 
     public async Task<IActionResult> OnGetAsync(string containerName, string blobName)
     {
-        // Use the blob service client directly in your page handler
-        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+        BlobContainerClient containerClient = new BlobContainerClient(new Uri($"https://storageaccountname.blob.core.windows.net/{containername}"), _microsoftIdentityTokenCredential);
         // ...rest of the implementation
     }
 }
 ```
 
+### How does this differ
+
+The Azure SDK guidance proposes to set Azure clients as singletons at stardup (so likely app only credentials). MicrosoftIdentityTokenCredential enables you to have one credential at each request, with user context, tenant, long running process, and all the flexibility that Microsoft.Identity.Web bring. 
+
+```csharp
+    // Register Azure services
+    services.AddAzureClients(builder =>
+    {
+        // Use the Microsoft Identity credential for all Azure clients
+        builder.UseCredential(sp => sp.GetRequiredService<TokenCredential>());
+        // Configure Azure Blob Storage client
+        builder.AddBlobServiceClient(new Uri("https://your-storage-account.blob.core.windows.net"));
+        // Add other Azure clients as needed
+    });
+```
 
 ### Advanced scenarios
 
@@ -139,14 +142,13 @@ You can customize the token acquisition behavior:
 tokenCredential.Options.AcquireTokenOptions.CorrelationId = Guid.NewGuid();
 tokenCredential.Options.AcquireTokenOptions.Tenant = "GUID";
 
-## Working with older versions
+## Credential Status (v4)
 
-This package includes two token credentials classes:
-
-- `MicrosoftIdentityTokenCredential` (recommended)
-- `TokenAcquirerTokenCredential` (deprecated)
-
-The `TokenAcquirerTokenCredential` is marked as obsolete and is included for backward compatibility. New applications should use `MicrosoftIdentityTokenCredential` instead.
+| Credential | Status | Guidance |
+|------------|--------|----------|
+| `MicrosoftIdentityTokenCredential` | Recommended | Unified credential for user, app, and agent scenarios. Configure via `Options` (e.g., `RequestAppToken`, `WithAgentIdentity`). |
+| `TokenAcquirerTokenCredential` | Obsolete | Replace with `MicrosoftIdentityTokenCredential`. See [migration guide](https://aka.ms/ms-id-web/v3-to-v4). |
+| `TokenAcquirerAppTokenCredential` | Obsolete | Replace with `MicrosoftIdentityTokenCredential` (`Options.RequestAppToken = true`). See [migration guide](https://aka.ms/ms-id-web/v3-to-v4). |
 
 ## Integration with Azure SDKs
 

@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -168,7 +168,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -185,7 +185,7 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
         }
 
 #if NET8_0_OR_GREATER
@@ -212,7 +212,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -227,7 +227,7 @@ namespace Microsoft.Identity.Web
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride);
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false,
                                                                           null, user, cancellationToken).ConfigureAwait(false);
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -251,7 +251,7 @@ namespace Microsoft.Identity.Web
                 effectiveInput?.Dispose();
             }
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
@@ -266,7 +266,7 @@ namespace Microsoft.Identity.Web
             HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true,
                                                                           null, null, cancellationToken).ConfigureAwait(false);
 
-            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+            return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
         }
 
         internal static HttpContent? SerializeInput<TInput>(TInput input, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TInput> inputJsonTypeInfo)
@@ -299,10 +299,10 @@ namespace Microsoft.Identity.Web
             return httpContent;
         }
 
-        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
+        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo, CancellationToken cancellationToken = default)
              where TOutput : class
         {
-            return await DeserializeOutputImplAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo);
+            return await DeserializeOutputImplAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken);
         }
 #endif
 
@@ -396,7 +396,7 @@ namespace Microsoft.Identity.Web
         [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
         [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
 #endif
-        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions)
+        internal static async Task<TOutput?> DeserializeOutputAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, CancellationToken cancellationToken = default)
              where TOutput : class
         {
             try
@@ -405,7 +405,7 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string error = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
 
 #if NET5_0_OR_GREATER
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
@@ -447,7 +447,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private static async Task<TOutput?> DeserializeOutputImplAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo)
+        private static async Task<TOutput?> DeserializeOutputImplAsync<TOutput>(HttpResponseMessage response, DownstreamApiOptions effectiveOptions, JsonTypeInfo<TOutput> outputJsonTypeInfo, CancellationToken cancellationToken = default)
              where TOutput : class
         {
             try
@@ -456,7 +456,7 @@ namespace Microsoft.Identity.Web
             }
             catch
             {
-                string error = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string error = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
 
 #if NET5_0_OR_GREATER
                 throw new HttpRequestException($"{(int)response.StatusCode} {response.StatusCode} {error}", null, response.StatusCode);
@@ -646,6 +646,45 @@ namespace Microsoft.Identity.Web
                 effectiveOptions.AcquireTokenOptions.ExtraQueryParameters["caller-sdk-ver"] =
                     CallerSDKDetails["caller-sdk-ver"];
             }
+        }
+
+        /// <summary>
+        /// Safely reads error response content with size limits to avoid performance issues with large payloads.
+        /// </summary>
+        /// <param name="response">The HTTP response message.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The error response content, truncated if necessary.</returns>
+        internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+        {
+            const int maxErrorContentLength = 4096;
+            
+            long? contentLength = response.Content.Headers.ContentLength;
+            
+            if (contentLength.HasValue && contentLength.Value > maxErrorContentLength)
+            {
+                return $"[Error response too large: {contentLength.Value} bytes, not captured]";
+            }
+            
+            // Use streaming to read only up to maxErrorContentLength to avoid loading entire response into memory
+#if NET5_0_OR_GREATER
+            using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+#else
+            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+#endif
+            using var reader = new StreamReader(stream);
+            
+            char[] buffer = new char[maxErrorContentLength];
+            int readCount = await reader.ReadBlockAsync(buffer, 0, maxErrorContentLength).ConfigureAwait(false);
+            
+            string errorResponseContent = new string(buffer, 0, readCount);
+            
+            // Check if there's more content that was truncated
+            if (readCount == maxErrorContentLength && reader.Peek() != -1)
+            {
+                errorResponseContent += "... (truncated)";
+            }
+            
+            return errorResponseContent;
         }
     }
 }

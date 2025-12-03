@@ -275,6 +275,11 @@ FakesAssemblies/
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
 node_modules/
+dist/
+*.js.map
+*.ts.map
+*.d.ts
+
 
 # Visual Studio 6 build log
 *.plg
@@ -357,3 +362,12 @@ MigrationBackup/
 /.SharedData
 /out/
 objd/
+/src/Microsoft.Identity.Web.Sidecar/http-client.env.json
+
+# Generated data protection keys
+
+key*.xml
+
+# bin files
+
+*.bin

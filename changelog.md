@@ -1,3 +1,80 @@
+## 4.1.1
+
+### Bug fixes
+- Authority-only configuration parsing improvements: Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning. See [#3612](https://github.com/AzureAD/microsoft-identity-web/issues/3612).
+
+### New features
+- Added warning diagnostics for conflicting Authority vs Instance/TenantId: Emitting a single structured warning when both styles are provided. See [#3611](https://github.com/AzureAD/microsoft-identity-web/issues/3611).
+
+### Fundamentals
+- Expanded authority test matrix: Coverage for AAD (v1/v2), B2C (/tfp/ normalization, policy path), CIAM (PreserveAuthority), query parameters, scheme-less forms, and conflict scenarios. See [#3610](https://github.com/AzureAD/microsoft-identity-web/issues/3610).
+
+4.1.0
+=========
+### New features
+- Migrate to .NET 10 GA. [#3449](https://github.com/AzureAD/microsoft-identity-web/pull/3449) and [#3590](https://github.com/AzureAD/microsoft-identity-web/pull/3590)
+
+### Dependencies updates
+- Bump MSAL.NET to version [4.79.2](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.79.2) and handle changes to deprecated WithExtraQueryParameters APIs. [#3583](https://github.com/AzureAD/microsoft-identity-web/pull/3583)
+- Update Microsoft.IdentityModel and Abstractions versions. [#3604](https://github.com/AzureAD/microsoft-identity-web/pull/3604)
+- Update coverlet.collector to 6.0.4. [#3587](https://github.com/AzureAD/microsoft-identity-web/pull/3587)
+- Update package validation baseline version to 4.0.0. [#3589](https://github.com/AzureAD/microsoft-identity-web/pull/3589)
+- Bump js-yaml from 4.1.0 to 4.1.1 in /tests/DevApps/SidecarAdapter/typescript. [#3595](https://github.com/AzureAD/microsoft-identity-web/pull/3595)
+
+### Entra ID SDK sidecar
+- Restrict hosts to localhost for sidecar. [#3579](https://github.com/AzureAD/microsoft-identity-web/pull/3579)
+- Update http file to match endpoints. [#3555](https://github.com/AzureAD/microsoft-identity-web/pull/3555)
+- Revise sidecar issue template for Entra ID. [#3577](https://github.com/AzureAD/microsoft-identity-web/pull/3577)
+
+### Documentation
+- Update README to include Entra SDK container info. [#3578](https://github.com/AzureAD/microsoft-identity-web/pull/3578)
+
+### Fundamentals
+- Include NET 9.0 in template-install-dependencies. [#3593](https://github.com/AzureAD/microsoft-identity-web/pull/3593)
+- Fix CodeQL alerts. [#3591](https://github.com/AzureAD/microsoft-identity-web/pull/3591)
+- Suppression file is needed. [#3592](https://github.com/AzureAD/microsoft-identity-web/pull/3592)
+
+4.0.1
+=========
+## Bugs fixes
+* Correctly compute Application Key when credential usage fails. [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3562)
+* Fix bugs where agent user identities didn't work with non-default authentication schemes. [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3568)
+
+## Fundamentals
+* Update .net version to CG compliance [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3561)
+
+## Entra ID SDK sidecar
+* Configure Sidecar to default AllowWebApiToBeAuthorizedByACL to true as the container doesn't do authZ [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3557)
+
+4.0.0
+=========
+### Breaking Changes
+**Removed support for .NET 6.0 and .NET 7.0** - Microsoft Identity Web 4.0.0 no longer targets .NET 6.0 and .NET 7.0, following Microsoft's support lifecycle. The supported target frameworks are now .NET 8.0, .NET 9.0, .NET Framework 4.6.2, .NET Framework 4.7.2, and .NET Standard 2.0.
+
+### New features
+- Various improvements to performance logging, authentication, and credential loading capabilities.
+- Bumped MSAL.NET to 4.77.1
+- Added credential description extensibility. For details, see [#3487](https://github.com/AzureAD/microsoft-identity-web/pull/3487)
+- Added a new CerticateObserverAction type: SuccessfullyUsed and support for multiple certificate observers for improved certificate lifecycle management and telemetry. See [#3505](https://github.com/AzureAD/microsoft-identity-web/pull/3505)
+- Add specification of OID (in addition to upn) when requesting an authorization header for Agent User Identity. See [#3513](https://github.com/AzureAD/microsoft-identity-web/pull/3513)
+- Added ClaimsPrincipal and ClaimsIdentity extension methods for agent identity detection in web APIs enabling developers to easily detect agent identities and retrieve parent agent blueprint from token claims. See [#3515](https://github.com/AzureAD/microsoft-identity-web/pull/3515)
+- Added MicrosoftIdentityMessageHandler for flexible HttpClient authentication. Provides composable alternative to DownstreamApi with per-request authentication configuration. Supports WWW-Authenticate challenge handling. See [#3503](https://github.com/AzureAD/microsoft-identity-web/pull/3503)
+- Support for multiple certificate observers. See [#3506](https://github.com/AzureAD/microsoft-identity-web/pull/3506)
+- The Microsoft.Identity.Web.Sidecar will provide a container solution for validation and token acquisition in any-language. See [#3524](https://github.com/AzureAD/microsoft-identity-web/pull/3524)
+
+### Bug Fixes
+- Fixed TokenAcquirerFactory null reference when AppContext.BaseDirectory is root path. See [#3443](https://github.com/AzureAD/microsoft-identity-web/pull/3443)
+- Fixed IDW10405 error when using managed identity with common tenant. See [#3415](https://github.com/AzureAD/microsoft-identity-web/pull/3415)
+- Removed hard dependency on IConfiguration in OidcIdpSignedAssertionLoader. See [#3414](https://github.com/AzureAD/microsoft-identity-web/pull/3414)
+
+### Fundamentals
+- Various improvements to .NET support and dependency optimizations.
+- Added doc for Agent identities. See [Agent identities](src/Microsoft.Identity.Web.AgentIdentities/README.AgentIdentities.md)
+- Combined and fixed test collections. See [#3472](https://github.com/AzureAD/microsoft-identity-web/pull/3472)
+- Migrate repository agent rules from .clinerules to agents.md. See [#3475](https://github.com/AzureAD/microsoft-identity-web/pull/3475)
+- Add .NET 6.x setup step to dotnetcore.yml workflow, as the default build agents don't have it any longer. See [#3489](https://github.com/AzureAD/microsoft-identity-web/pull/3489)
+- Renamed NET 7 tests to ThreadingTests for framework independence. See [#3501](https://github.com/AzureAD/microsoft-identity-web/pull/3501)
+
 3.14.1
 =======
 ##  Bug fix

@@ -17,6 +17,9 @@ on:
     branches:
       - master
 
+env:
+  TargetNetNext: 'False'
+
 jobs:
   build:
     runs-on: windows-latest
@@ -24,14 +27,19 @@ jobs:
     name: "Build and run unit tests"
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
 
 
     - name: Setup .NET 9.0.x
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
+
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
 
     - name: 'Setup MSBuild'
       uses: microsoft/setup-msbuild@v2
@@ -42,15 +50,17 @@ jobs:
       run: dotnet workload install wasm-tools
 
     - name: Build solution
-      run: msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
+      run: dotnet msbuild Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release
 
     - name: Test with .NET 8.0.x
       run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net8.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
 
     - name: Test with .NET 9.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net9.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~AgentApplicationsTests)&(FullyQualifiedName!~SidecarEndpointsE2ETests)"
 
 
+    - name: Test with .NET 10.0.x
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net10.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
 
     - name: Create code coverage report
       run: |

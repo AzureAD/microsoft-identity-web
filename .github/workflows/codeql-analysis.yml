@@ -13,6 +13,9 @@ on:
     branches:
       - master
 
+env:
+  TargetNetNext: 'False'
+
 jobs:
   analyse:
     name: Analyse
@@ -20,7 +23,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         # We must fetch at least the immediate parents so that if this is
         # a pull request then we can checkout the head.
@@ -45,14 +48,19 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
     - name: Setup .NET 8.0.x
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.x
         
     - name: Setup .NET 9.0.x
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
+
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
 
    # Install workload
     - name: Setup wasm-tools
@@ -63,6 +71,9 @@ jobs:
 
     - name: Build with .NET 9
       run: dotnet test Microsoft.Identity.Web.sln -f net9.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
+
+    - name: Build with .NET 10
+      run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

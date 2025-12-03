@@ -3,11 +3,9 @@
 
     <Title>Microsoft Identity Web Agentic Identity support</Title>
     <Product>Microsoft Identity Web for Agent Identities</Product>
-    <Description>Helper methods for Agent applications to act as the agent identities.</Description>
+    <Description>Helper methods for Agent identity blueprint to act as the agent identities.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <!-- The package is new in 3.10.0.-->
-    <PackageValidationBaselineVersion>3.10.0</PackageValidationBaselineVersion>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
@@ -30,5 +28,5 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj" />
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
-  
+
 </Project>
