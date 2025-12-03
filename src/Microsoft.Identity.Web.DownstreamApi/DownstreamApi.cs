@@ -33,9 +33,12 @@ namespace Microsoft.Identity.Web
         private readonly IMsalHttpClientFactory? _msalHttpClientFactory;
 
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
+
         private const string Authorization = "Authorization";
-        protected readonly ILogger<DownstreamApi> _logger;
+        private const string TokenBindingProtocolScheme = "MTLS_POP";
         private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
+
+        protected readonly ILogger<DownstreamApi> _logger;
 
         /// <summary>
         /// Constructor.
@@ -603,7 +606,8 @@ namespace Microsoft.Identity.Web
 
                 // Firstly check if it's token binding scenario so authorization header provider returns
                 // a binding certificate along with acquired authorization header.
-                if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls)
+                if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls
+                    && string.Equals(effectiveOptions.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
                     var authorizationHeaderResult = await authorizationHeaderBoundProviderForMtls.CreateAuthorizationHeaderAsync(
                         effectiveOptions,

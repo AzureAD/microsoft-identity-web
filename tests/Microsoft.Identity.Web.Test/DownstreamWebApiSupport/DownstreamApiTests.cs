@@ -493,8 +493,14 @@ namespace Microsoft.Identity.Web.Tests
             Assert.NotNull(downstreamApi);
         }
 
-        [Fact]
-        public async Task UpdateRequestAsync_WithAuthorizationHeaderBoundProvider_CallsCorrectInterface()
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData("Bearer", false)]
+        [InlineData("mtls_pop", true)]
+        [InlineData("Mtls_Pop", true)]
+        [InlineData("MTLS_POP", true)]
+        public async Task UpdateRequestAsync_WithAuthorizationHeaderBoundProvider_CallsCorrectInterface(string? ProtocolScheme, bool shouldCallAuthorizationHeaderProvider2)
         {
             // Arrange
             var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2>();
@@ -508,8 +514,13 @@ namespace Microsoft.Identity.Web.Tests
 
             var options = new DownstreamApiOptions
             {
-                Scopes = new[] { "https://api.example.com/.default" }
+                Scopes = new[] { "https://api.example.com/.default" },
             };
+
+            if (ProtocolScheme != null)
+            {
+                options.ProtocolScheme = ProtocolScheme;
+            }
 
             var authHeaderInfo = new AuthorizationHeaderInformation
             {
@@ -537,24 +548,41 @@ namespace Microsoft.Identity.Web.Tests
                 null,
                 CancellationToken.None);
 
-            // Assert - Verify the bound provider interface was called
-            await ((IAuthorizationHeaderProvider2)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
-                Arg.Any<DownstreamApiOptions>(),
-                Arg.Any<ClaimsPrincipal>(),
-                Arg.Any<CancellationToken>());
-
-            // Verify the regular provider interface was NOT called
-            await mockBoundProvider.DidNotReceive().CreateAuthorizationHeaderAsync(
-                Arg.Any<IEnumerable<string>>(),
-                Arg.Any<DownstreamApiOptions>(),
-                Arg.Any<ClaimsPrincipal>(),
-                Arg.Any<CancellationToken>());
-
-            // Assert - Verify the returned AuthorizationHeaderInformation
+            // Assert
             Assert.NotNull(result);
             Assert.Equal("Bearer test-token", result.AuthorizationHeaderValue);
-            Assert.Equal(testCertificate, result.BindingCertificate);
             Assert.Equal("Bearer test-token", httpRequestMessage.Headers.Authorization?.ToString());
+
+            if (shouldCallAuthorizationHeaderProvider2)
+            {
+                await ((IAuthorizationHeaderProvider2)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>());
+
+                await mockBoundProvider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>());
+
+                Assert.Equal(testCertificate, result.BindingCertificate);
+            }
+            else
+            {
+                await ((IAuthorizationHeaderProvider2)mockBoundProvider).DidNotReceive().CreateAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>());
+
+                await mockBoundProvider.Received(1).CreateAuthorizationHeaderAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>());
+            }
+
+            Assert.Null(result.BindingCertificate);
         }
 
         [Fact]
@@ -651,7 +679,8 @@ namespace Microsoft.Identity.Web.Tests
             {
                 BaseUrl = "https://api.example.com",
                 Scopes = new[] { "https://api.example.com/.default" },
-                HttpMethod = "GET"
+                HttpMethod = "GET",
+                ProtocolScheme = "MTLS_POP"
             };
 
             var authHeaderInfo = new AuthorizationHeaderInformation
@@ -712,7 +741,8 @@ namespace Microsoft.Identity.Web.Tests
             {
                 BaseUrl = "https://api.example.com",
                 Scopes = new[] { "https://api.example.com/.default" },
-                HttpMethod = "GET"
+                HttpMethod = "GET",
+                ProtocolScheme = "MTLS_POP"
             };
 
             var authHeaderInfo = new AuthorizationHeaderInformation
