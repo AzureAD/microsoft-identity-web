@@ -26,6 +26,11 @@ steps:
 - task: UseDotNet@2
   displayName: 'Use .NET SDK 9.0.x'
   inputs:
+    version: 9.0.x
+
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK from global json'
+  inputs:
     useGlobalJson: true
 
 # Run Nuget Tool Installer
@@ -57,3 +62,4 @@ steps:
    Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\LocalMachine\My
    
   displayName: 'Install Keyvault Secrets'
+

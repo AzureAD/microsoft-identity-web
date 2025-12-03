@@ -11,6 +11,9 @@ on:
       - ready_for_review
     branches: [ "master", "rel/v2" ]
 
+env:
+  TargetNetNext: False
+
 jobs:
   analyze:
     runs-on: windows-latest
@@ -18,16 +21,25 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 1
 
     - name: Setup .NET 9.0.x
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
 
-    - name: Runs powershell script
-      id: aot-powershell
+    - name: Setup .NET 10.0.x
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Runs AOT check with .NET 9.0
+      id: aot-powershell-net9
       run: build\test-aot.ps1 'net9.0'
+
+    - name: Runs AOT check with .NET 10.0
+      id: aot-powershell-net10
+      run: build\test-aot.ps1 'net10.0'
 

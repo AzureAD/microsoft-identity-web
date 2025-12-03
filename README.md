@@ -48,6 +48,16 @@ The Microsoft Identity Web roadmap is available from [Roadmap](https://github.co
 - Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
   and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
 
+### Authority Configuration
+
+Understanding how to properly configure authentication authorities is crucial for Azure AD, B2C, and CIAM applications:
+
+- **[Authority Configuration & Precedence Guide](docs/authority-configuration.md)** - Comprehensive guide explaining how Authority, Instance, TenantId, and PreserveAuthority work together
+- **[B2C Authority Examples](docs/b2c-authority-examples.md)** - Azure AD B2C-specific configuration patterns and best practices
+- **[CIAM Authority Examples](docs/ciam-authority-examples.md)** - Customer Identity Access Management (CIAM) scenarios with custom domains
+- **[Migration Guide](docs/migration-authority-vs-instance.md)** - Upgrade path for existing applications and resolving configuration conflicts
+- **[Authority FAQ](docs/faq-authority-precedence.md)** - Common questions and troubleshooting tips
+
 ## Where do I file issues
 
 
@@ -74,6 +84,38 @@ This library controls how users sign-in and access services. We recommend you al
 ## Security Reporting
 
 If you find a security issue with our libraries or services, please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
+
+## Building with .NET Preview Versions
+
+Microsoft Identity Web supports building and testing with .NET preview versions using the `TargetNetNext` conditional compilation flag. This enables early testing and compatibility validation with the latest .NET preview releases.
+
+### Prerequisites
+
+- Install .NET 10 preview SDK from [https://dotnet.microsoft.com/download/dotnet/10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Building with .NET 10 Preview
+
+To build the solution with .NET 10 preview support:
+
+```bash
+# Build with .NET 10 preview targets included
+dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
+
+# Or using MSBuild
+msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
+```
+You can also set the TargetNetNext environment variable on your machine with the value `True`.
+
+### Testing with .NET 10 Preview
+
+To run tests targeting .NET 10 preview:
+
+```bash
+# Run tests with .NET 10 preview (conditional)
+dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=True
+```
+
+**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=True` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
 
 ## Trademarks
 

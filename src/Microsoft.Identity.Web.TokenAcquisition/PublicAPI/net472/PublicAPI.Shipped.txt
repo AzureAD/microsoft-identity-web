@@ -39,6 +39,7 @@ Microsoft.Identity.Web.Constants
 Microsoft.Identity.Web.Experimental.CerticateObserverAction
 Microsoft.Identity.Web.Experimental.CerticateObserverAction.Deselected = 1 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
 Microsoft.Identity.Web.Experimental.CerticateObserverAction.Selected = 0 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
+Microsoft.Identity.Web.Experimental.CerticateObserverAction.SuccessfullyUsed = 2 -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Action.get -> Microsoft.Identity.Web.Experimental.CerticateObserverAction
 Microsoft.Identity.Web.Experimental.CertificateChangeEventArg.Action.set -> void

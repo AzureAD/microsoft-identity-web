@@ -25,7 +25,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Validators" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="$(MicrosoftIdentityModelVersion)" />
-    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
@@ -47,6 +46,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="$(MicrosoftAspNetCoreDataProtectionVersion)" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlVersion)" />
+    <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
   </ItemGroup>
 
   <ItemGroup>

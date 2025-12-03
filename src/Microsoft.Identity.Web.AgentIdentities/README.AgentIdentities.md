@@ -1,5 +1,7 @@
 # Microsoft.Identity.Web.AgentIdentities
 
+Not .NET? See [Entra SDK container sidecar](https://github.com/AzureAD/microsoft-identity-web/blob/feature/doc-modernization/docs/sidecar/agent-identities.md) for the Entra SDK container documentation allowing support of agent identies in any language and platform. 
+
 ## Overview
 
 The Microsoft.Identity.Web.AgentIdentities NuGet package provides support for Agent Identities in Microsoft Entra ID. It enables applications to securely authenticate and acquire tokens for agent applications, agent identities, and agent user identities, which is useful for autonomous agents, interactive agents acting on behalf of their user, and agents having their own user identity.
@@ -147,7 +149,7 @@ string authHeader = await authorizationHeaderProvider
 
 // The authHeader contains "Bearer " + the access token (or another protocol
 // depending on the options)
-
+```
 
 #### Agent User Identity
 
@@ -317,13 +319,13 @@ var userResponseByOid = await downstreamApi.GetForUserAsync<string>(
 
 To call Azure SDKs, use the MicrosoftIdentityAzureCredential class from the Microsoft.Identity.Web.Azure NuGet package.
 
-Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
+Install the Microsoft.Identity.Web.Azure package:
 
 ```bash
-dotnet dotnet add package Microsoft.Identity.Web.Azure
+dotnet add package Microsoft.Identity.Web.Azure
 ```
 
-Add the support for Microsoft Graph in your service collection.
+Add the support for Azure token credential in your service collection:
 
 ```bash
 services.AddMicrosoftIdentityAzureTokenCredential();
@@ -333,6 +335,125 @@ You can now get a `MicrosoftIdentityTokenCredential` from the service provider. 
 `.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
 
 See [Readme-azure](../../README-Azure.md)
+
+### 7. HttpClient with MicrosoftIdentityMessageHandler Integration
+
+For scenarios where you want to use HttpClient directly with flexible authentication options, you can use the `MicrosoftIdentityMessageHandler` from the Microsoft.Identity.Web.TokenAcquisition package.
+
+Note: The Microsoft.Identity.Web.TokenAcquisition package is already referenced by Microsoft.Identity.Web.AgentIdentities.
+
+#### Using Agent Identity with MicrosoftIdentityMessageHandler:
+
+```csharp
+// Configure HttpClient with MicrosoftIdentityMessageHandler in DI
+services.AddHttpClient("MyApiClient", client =>
+{
+    client.BaseAddress = new Uri("https://myapi.domain.com");
+})
+.AddHttpMessageHandler(serviceProvider => new MicrosoftIdentityMessageHandler(
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>(),
+    new MicrosoftIdentityMessageHandlerOptions 
+    { 
+        Scopes = { "https://myapi.domain.com/.default" }
+    }));
+
+// Usage in your service or controller
+public class MyService
+{
+    private readonly HttpClient _httpClient;
+
+    public MyService(IHttpClientFactory httpClientFactory)
+    {
+        _httpClient = httpClientFactory.CreateClient("MyApiClient");
+    }
+
+    public async Task<string> CallApiWithAgentIdentity(string agentIdentity)
+    {
+        // Create request with agent identity authentication
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
+            .WithAuthenticationOptions(options => 
+            {
+                options.WithAgentIdentity(agentIdentity);
+                options.RequestAppToken = true;
+            });
+
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+}
+```
+
+#### Using Agent User Identity with MicrosoftIdentityMessageHandler:
+
+```csharp
+public async Task<string> CallApiWithAgentUserIdentity(string agentIdentity, string userUpn)
+{
+    // Create request with agent user identity authentication
+    var request = new HttpRequestMessage(HttpMethod.Get, "/api/userdata")
+        .WithAuthenticationOptions(options => 
+        {
+            options.WithAgentUserIdentity(agentIdentity, userUpn);
+            options.Scopes.Add("https://myapi.domain.com/user.read");
+        });
+
+    var response = await _httpClient.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    return await response.Content.ReadAsStringAsync();
+}
+```
+
+#### Manual HttpClient Configuration:
+
+You can also configure the handler manually for more control:
+
+```csharp
+// Get the authorization header provider
+IAuthorizationHeaderProvider headerProvider = 
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+// Create the handler with default options
+var handler = new MicrosoftIdentityMessageHandler(
+    headerProvider, 
+    new MicrosoftIdentityMessageHandlerOptions 
+    { 
+        Scopes = { "https://graph.microsoft.com/.default" }
+    });
+
+// Create HttpClient with the handler
+using var httpClient = new HttpClient(handler);
+
+// Make requests with per-request authentication options
+var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/applications")
+    .WithAuthenticationOptions(options => 
+    {
+        options.WithAgentIdentity(agentIdentity);
+        options.RequestAppToken = true;
+    });
+
+var response = await httpClient.SendAsync(request);
+```
+
+The `MicrosoftIdentityMessageHandler` provides a flexible, composable way to add authentication to your HttpClient-based code while maintaining full compatibility with existing Microsoft Identity Web extension methods for agent identities.
+
+### Validate tokens from Agent identities
+
+Token validation of token acquired for agent identities or agent user identities is the same as for any web API. However you can:
+- check if a token was issued for an agent identity and for which agent blueprint.
+
+  ```csharp
+  HttpContext.User.GetParentAgentBlueprint()
+  ```
+   returns the ClientId of the parent agent blueprint if the token is issued for an agent identity (or agent user identity)\
+
+- check if a token was issued for an agent user identity.
+
+  ```csharp
+  HttpContext.User.IsAgentUserIdentity()
+  ```
+
+These 2 extensions methods, apply to both ClaimsIdentity and ClaimsPrincipal.
+
 
 ## Prerequisites
 

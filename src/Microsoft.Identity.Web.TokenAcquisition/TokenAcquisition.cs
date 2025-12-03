@@ -58,8 +58,11 @@ namespace Microsoft.Identity.Web
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsLoader _credentialsLoader;
-        protected readonly ICertificatesObserver? _certificatesObserver;
+        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
+
+        [Obsolete("Use _certificatesObservers instead.")]
+        protected readonly ICertificatesObserver? _certificatesObserver;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -106,7 +109,10 @@ namespace Microsoft.Identity.Web
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             _credentialsLoader = credentialsLoader;
+            _certificatesObservers = [.. serviceProvider.GetServices<ICertificatesObserver>()];
+#pragma warning disable CS0618 // Type or member is obsolete. Setup for backward compatibility.
             _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
+#pragma warning restore CS0618 // Type or member is obsolete
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
         }
@@ -148,7 +154,7 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
-                    builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+                    builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
                 }
 
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
@@ -184,9 +190,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -212,7 +219,8 @@ namespace Microsoft.Identity.Web
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
-            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion);
+            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
 
         /// <summary>
@@ -310,9 +318,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -674,9 +683,10 @@ namespace Microsoft.Identity.Web
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
-                _applicationsByAuthorityClientId[GetApplicationKey(mergedOptions)] = null;
+                _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry
                 _retryClientCertificate = true;
@@ -890,9 +900,7 @@ namespace Microsoft.Identity.Web
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions)
         {
-            // Use all credentials to compute a credential chain ID. Each individual ID should be unique.
-            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
-            string key = GetApplicationKey(mergedOptions) + credentialId;
+            string key = GetApplicationKey(mergedOptions);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -911,6 +919,9 @@ namespace Microsoft.Identity.Web
 
                 // Build and store the application
                 var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+
+                // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
+                key = GetApplicationKey(mergedOptions);
                 _applicationsByAuthorityClientId[key] = newApp;
                 return newApp;
             }
@@ -1030,17 +1041,19 @@ namespace Microsoft.Identity.Web
             Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
-            if (_certificatesObserver != null
-                && selectedCertificate != null)
+            if (selectedCertificate != null)
             {
-                _certificatesObserver.OnClientCertificateChanged(
-                    new CertificateChangeEventArg()
-                    {
-                        Action = action,
-                        Certificate = app.AppConfig.ClientCredentialCertificate,
-                        CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
-                        ThrownException = exception,
-                    });
+                for (int i = 0; i < _certificatesObservers.Count; i++)
+                {
+                    _certificatesObservers[i].OnClientCertificateChanged(
+                        new CertificateChangeEventArg()
+                        {
+                            Action = action,
+                            Certificate = app.AppConfig.ClientCredentialCertificate,
+                            CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
+                            ThrownException = exception,
+                        });
+                }
             }
         }
 
@@ -1132,8 +1145,8 @@ namespace Microsoft.Identity.Web
                             // Special case when the OBO inbound token is composite (for instance PFT)
                             if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
-                                string assertion = dict[assertionConstant];
-                                string subAssertion = dict[subAssertionConstant];
+                                string assertion = dict[assertionConstant].value;
+                                string subAssertion = dict[subAssertionConstant].value;
 
                                 // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
                                 CheckAssertionsForInjectionAttempt(assertion, subAssertion);
@@ -1151,7 +1164,6 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(assertionConstant);
                                 dict.Remove(subAssertionConstant);
                             }
-
                             builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -1349,25 +1361,40 @@ namespace Microsoft.Identity.Web
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
-        internal static Dictionary<string, string>? MergeExtraQueryParameters(
+        internal static Dictionary<string, (string value, bool includeInCacheKey)>? MergeExtraQueryParameters(
             MergedOptions mergedOptions,
-            TokenAcquisitionOptions tokenAcquisitionOptions)
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
-            if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+            // Return null if both sources are empty
+            if (tokenAcquisitionOptions?.ExtraQueryParameters == null && mergedOptions.ExtraQueryParameters == null)
             {
-                var mergedDict = new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters);
-                if (mergedOptions.ExtraQueryParameters != null)
-                {
-                    foreach (var pair in mergedOptions!.ExtraQueryParameters)
-                    {
-                        if (!mergedDict!.ContainsKey(pair.Key))
-                            mergedDict.Add(pair.Key, pair.Value);
-                    }
-                }
-                return mergedDict;
+                return null;
             }
 
-            return (Dictionary<string, string>?)mergedOptions.ExtraQueryParameters;
+            var mergedDict = new Dictionary<string, (string value, bool includeInCacheKey)>(StringComparer.OrdinalIgnoreCase);
+
+            // Add from tokenAcquisitionOptions first (these take precedence)
+            if (tokenAcquisitionOptions?.ExtraQueryParameters != null)
+            {
+                foreach (var pair in tokenAcquisitionOptions.ExtraQueryParameters)
+                {
+                    mergedDict[pair.Key] = (pair.Value, true);
+                }
+            }
+
+            // Add from mergedOptions without overriding existing keys
+            if (mergedOptions.ExtraQueryParameters != null)
+            {
+                foreach (var pair in mergedOptions.ExtraQueryParameters)
+                {
+                    if (!mergedDict.ContainsKey(pair.Key))
+                    {
+                        mergedDict.Add(pair.Key, (pair.Value, true));
+                    }
+                }
+            }
+
+            return mergedDict;
         }
 
         protected static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

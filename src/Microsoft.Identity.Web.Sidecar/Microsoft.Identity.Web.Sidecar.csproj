@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-Microsoft.Identity.Web.Sidecar-79d2a631-277f-4ef1-9253-4477001378e8</UserSecretsId>
+    <OpenApiDocumentsDirectory>OpenAPI</OpenApiDocumentsDirectory>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+    <!--RS0016: Add public types and members to the declared API-->
+    <!--RS0036: Annotate nullability of public types and members in the declared API-->
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <!--RS0051: Add internal types and members to the declared API-->
+    <NoWarn>$(NoWarn);RS0016;RS0036;RS0037;RS0051</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- Removes globalization-specific code and data -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- See: https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options#trim-framework-library-features -->
+    <!-- Removes code that enables better debugging experiences. This setting also removes symbols. -->
+    <DebuggerSupport>false</DebuggerSupport>
+    <!--Removes BinaryFormatter serialization support -->
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <!-- Removes support for generating stack traces (for example, Environment.StackTrace or Exception.ToString) by the runtime -->
+    <StackTraceSupport>false</StackTraceSupport>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" NoWarn="$(NoWarn);NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="$(MicrosoftAspNetCoreOpenApiVersion)" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="$(MicrosoftExtensionsApiDescriptionServerVersion)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="$(MicrosoftVisualStudioAzureContainersToolsTargetsVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
+  </ItemGroup>
+
+</Project>

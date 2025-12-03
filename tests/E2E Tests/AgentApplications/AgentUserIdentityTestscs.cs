@@ -4,25 +4,29 @@
 #if !FROM_GITHUB_ACTION
 
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AgentApplicationsTests
 {
     public class AgentUserIdentityTests
     {
+        string instance = "https://login.microsoftonline.com/";
+        string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
+        string agentApplication = "c4b2d4d9-9257-4c1a-a5c0-0a4907c83411"; // Replace with the actual agent application client ID
+        string agentIdentity = "44250d7d-2362-4fba-9ba0-49c19ae270e0";    // Replace with the actual agent identity
+        string userUpn = "aui3@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphAsync()
         {
-            string instance = "https://login.microsoftonline.com/";
-            string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-            string agentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-            string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
 
             IServiceCollection services = new ServiceCollection();
 
@@ -52,6 +56,19 @@ namespace AgentApplicationsTests
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
 
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            Assert.Equal(agentApplication, parentBlueprint);
+
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options => options.WithAgentUserIdentity(agentIdentity, userUpn)));
@@ -66,14 +83,51 @@ namespace AgentApplicationsTests
         }
 
         [Fact]
+        public async Task AgentUserIdentityGetsTokenOtherAuthenticationSchemeAsync()
+        {
+            string alternateAuthenticationScheme = "AlternateScheme";
+            IServiceCollection services = new ServiceCollection();
+
+            // Configure the information about the agent application
+            services.Configure<MicrosoftIdentityApplicationOptions>(alternateAuthenticationScheme,
+                options =>
+                {
+                    options.Instance = instance;
+                    options.TenantId = tenantId; // Replace with your tenant ID
+                    options.ClientId = agentApplication; // Agent application.
+                    options.ClientCredentials = [
+                        CertificateDescription.FromStoreWithDistinguishedName(
+                            "CN=LabAuth.MSIDLab.com", StoreLocation.LocalMachine, StoreName.My)
+                    ];
+                });
+            IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
+
+            // Get an authorization header and handle the call to the downstream API yourself
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
+            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
+                agentApplicationId: agentIdentity,
+                username: userUpn
+                );
+            options.AcquireTokenOptions.AuthenticationOptionsName = alternateAuthenticationScheme;
+
+            string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                scopes: ["https://graph.microsoft.com/.default"],
+                options);
+            Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());  
+        }
+
+        [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphWithTenantOverrideAsync()
         {
-            string instance = "https://login.microsoftonline.com/";
-            string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-            string agentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-            string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
-
             IServiceCollection services = new ServiceCollection();
 
             // Configure the information about the agent application
@@ -103,6 +157,19 @@ namespace AgentApplicationsTests
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
 
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            Assert.Equal(agentApplication, parentBlueprint);
+
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var me = await graphServiceClient.Me.GetAsync(r => r.Options.WithAuthenticationOptions(options =>
@@ -124,12 +191,6 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphWithCacheAsync()
         {
-            string instance = "https://login.microsoftonline.com/";
-            string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-            string agentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-            string userUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
-
             IServiceCollection services = new ServiceCollection();
 
             // Configure the information about the agent application
@@ -162,6 +223,19 @@ namespace AgentApplicationsTests
             Assert.True(user.HasClaim(c => c.Type == "uid"));
             Assert.True(user.HasClaim(c => c.Type == "utid"));
 
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            Assert.Equal(agentApplication, parentBlueprint);
+
             // Use the cached user
             authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                 scopes: ["https://graph.microsoft.com/.default"],
@@ -180,11 +254,7 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphByUserIdAsync()
         {
-            string instance = "https://login.microsoftonline.com/";
-            string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-            string agentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-            string userOid = "51c1aa1c-f6d0-4a92-936c-cadb27b717f2";           // Replace with the actual user OID.
+            string userOid = "04ea4dcd-f314-476f-be31-a13707cdd11e";           // Replace with the actual user OID.
 
             IServiceCollection services = new ServiceCollection();
 
@@ -213,6 +283,19 @@ namespace AgentApplicationsTests
                 scopes: ["https://graph.microsoft.com/.default"],
                 options);
             Assert.NotNull(authorizationHeaderWithUserToken);
+
+            // Extract token from authorization header and validate claims using extension methods
+            string token = authorizationHeaderWithUserToken.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claimsIdentity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
+            
+            // Verify the token represents an agent user identity using the extension method
+            Assert.True(claimsIdentity.IsAgentUserIdentity());
+            
+            // Verify we can retrieve the parent agent blueprint if present
+            string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
+            Assert.Equal(agentApplication, parentBlueprint);
 
             // If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();

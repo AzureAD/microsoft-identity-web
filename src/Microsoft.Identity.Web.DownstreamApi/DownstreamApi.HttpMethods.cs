@@ -32,10 +32,12 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -45,7 +47,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -66,6 +70,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -75,8 +81,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -86,7 +97,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -104,10 +117,12 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -117,7 +132,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -137,6 +154,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -146,8 +165,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -157,7 +181,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -177,6 +203,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -185,6 +213,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -196,7 +229,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -217,6 +252,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -226,8 +263,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -237,7 +279,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -256,6 +300,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -264,6 +310,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -275,7 +326,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -295,6 +348,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -304,8 +359,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -315,7 +375,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -335,6 +397,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -343,6 +407,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -354,7 +423,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -375,6 +446,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -384,8 +457,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -395,7 +473,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -414,6 +494,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -422,6 +504,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -433,7 +520,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -453,6 +542,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -462,8 +553,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -473,7 +569,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -495,6 +593,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -503,6 +603,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -514,7 +619,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -535,6 +642,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -544,8 +653,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -555,7 +669,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -574,6 +690,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -582,6 +700,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -593,7 +716,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -613,6 +738,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -622,8 +749,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -633,7 +765,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -655,6 +789,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -663,6 +799,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -674,7 +815,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -695,6 +838,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -704,8 +849,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -715,7 +865,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -734,6 +886,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -742,6 +896,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -753,7 +912,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -773,6 +934,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -782,8 +945,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -793,7 +961,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -811,10 +981,12 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, null, user, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -824,7 +996,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -843,6 +1017,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -852,8 +1028,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -863,7 +1044,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -878,10 +1061,12 @@ namespace Microsoft.Identity.Web
             where TOutput : class
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, null, null, cancellationToken).ConfigureAwait(false);
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -891,7 +1076,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -909,6 +1096,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Get);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -918,8 +1107,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -929,7 +1123,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -946,6 +1142,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -954,6 +1152,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -965,7 +1168,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -984,6 +1189,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -993,8 +1200,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1004,7 +1216,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1020,6 +1234,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1028,6 +1244,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1039,7 +1260,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1057,6 +1280,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Post);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1066,8 +1291,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1077,7 +1307,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1094,6 +1326,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1102,6 +1336,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1113,7 +1352,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1132,6 +1373,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1141,8 +1384,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1152,7 +1400,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1168,6 +1418,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1176,6 +1428,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1187,7 +1444,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1205,6 +1464,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Put);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1214,8 +1475,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1225,7 +1491,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1242,6 +1510,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1250,6 +1520,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1261,7 +1536,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1280,6 +1557,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1289,8 +1568,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1300,7 +1584,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1316,6 +1602,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1324,6 +1612,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1335,7 +1628,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1353,6 +1648,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Patch);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1362,8 +1659,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1373,7 +1675,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1390,6 +1694,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1398,6 +1704,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1409,7 +1720,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1428,6 +1741,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, false, effectiveInput, user, cancellationToken).ConfigureAwait(false);
@@ -1437,8 +1752,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1448,7 +1768,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1464,6 +1786,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1472,6 +1796,11 @@ namespace Microsoft.Identity.Web
                 if (input is not HttpContent)
                 {
                     effectiveInput?.Dispose();
+                }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
                 }
                 response.EnsureSuccessStatusCode();
             }
@@ -1483,7 +1812,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
@@ -1501,6 +1832,8 @@ namespace Microsoft.Identity.Web
         {
             DownstreamApiOptions effectiveOptions = MergeOptions(serviceName, downstreamApiOptionsOverride, HttpMethod.Delete);
             HttpContent? effectiveInput = SerializeInput(input, effectiveOptions, inputJsonTypeInfo);
+            string errorResponseContent = string.Empty;
+            int errorStatusCode = 0;
             try
             {
                 HttpResponseMessage response = await CallApiInternalAsync(serviceName, effectiveOptions, true, effectiveInput, null, cancellationToken).ConfigureAwait(false);
@@ -1510,8 +1843,13 @@ namespace Microsoft.Identity.Web
                 {
                     effectiveInput?.Dispose();
                 }
+                if (response.IsSuccessStatusCode == false)
+                {
+                    errorStatusCode = (int)response.StatusCode;
+                    errorResponseContent = await ReadErrorResponseContentAsync(response, cancellationToken).ConfigureAwait(false);
+                }
                 response.EnsureSuccessStatusCode();
-                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo).ConfigureAwait(false);
+                return await DeserializeOutputAsync<TOutput>(response, effectiveOptions, outputJsonTypeInfo, cancellationToken).ConfigureAwait(false);
             }
             catch(Exception ex) when (
                 ex is InvalidOperationException
@@ -1521,7 +1859,9 @@ namespace Microsoft.Identity.Web
                     _logger, 
                     serviceName!,
                     effectiveOptions.BaseUrl!, 
-                    effectiveOptions.RelativePath!, ex);
+                    effectiveOptions.RelativePath!, 
+                    errorStatusCode, 
+                    errorResponseContent, ex);
                 throw;
             }
         }
