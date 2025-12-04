@@ -25,7 +25,7 @@ namespace AgentApplicationsTests
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
-            configuration["AzureAd:TenantId"] = configuredTenantId;
+            configuration["AzureAd:TenantId"] = configuredTenantId; // Set to the GUID or organizations
             configuration["AzureAd:ClientId"] = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
             configuration["AzureAd:ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
