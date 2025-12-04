@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,15 +15,18 @@ namespace AgentApplicationsTests
 {
     public class AutonomousAgentTests
     {
-        [Fact]
-        public async Task AutonomousAgentGetsAppTokenForAgentIdentityToCallGraphAsync()
+        const string overriddenTenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
+        [Theory]
+        [InlineData("organizations")]
+        [InlineData("31a58c3b-ae9c-4448-9e8f-e9e143e800df")]
+        public async Task AutonomousAgentGetsAppTokenForAgentIdentityToCallGraphAsync(string configuredTenantId)
         {
             IServiceCollection services = new ServiceCollection();
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
-            configuration["AzureAd:TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
-            configuration["AzureAd:ClientId"] = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Agent application.
+            configuration["AzureAd:TenantId"] = configuredTenantId; // Set to the GUID or organizations
+            configuration["AzureAd:ClientId"] = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
             configuration["AzureAd:ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
             configuration["AzureAd:ClientCredentials:0:CertificateDistinguishedName"] = "CN=LabAuth.MSIDLab.com";
@@ -39,11 +41,15 @@ namespace AgentApplicationsTests
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();
 
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024"; // Replace with the actual agent identity
+            string agentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c"; // Replace with the actual agent identity
 
             //// Get an authorization header and handle the call to the downstream API yoursel
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
             AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentIdentity(agentIdentity);
+            if (configuredTenantId == "organizations")
+            {
+                options.AcquireTokenOptions.Tenant = overriddenTenantId;
+            }
 
             //// Request user tokens in autonomous agents.
             string authorizationHeaderWithAppToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
@@ -56,7 +62,7 @@ namespace AgentApplicationsTests
 
             // Verify the token does not represent an agent user identity using the extension method
             Assert.False(claimsIdentity.IsAgentUserIdentity());
-            
+
             // Verify we can retrieve the parent agent blueprint if present
             string? parentBlueprint = claimsIdentity.GetParentAgentBlueprint();
             string agentApplication = configuration["AzureAd:ClientId"]!;
@@ -65,10 +71,11 @@ namespace AgentApplicationsTests
             //// If you want to call Microsoft Graph, just inject and use the Microsoft Graph SDK with the agent identity.
             GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
             var apps = await graphServiceClient.Applications.GetAsync(r => r.Options.WithAuthenticationOptions(options =>
-                {
-                    options.WithAgentIdentity(agentIdentity);
-                    options.RequestAppToken = true;
-                }));
+            {
+                options.WithAgentIdentity(agentIdentity);
+                options.RequestAppToken = true;
+                options.AcquireTokenOptions.Tenant = configuredTenantId == "organizations" ? overriddenTenantId : null;
+            }));
             Assert.NotNull(apps);
 
             //// If you want to call downstream APIs letting IdWeb handle authentication.
