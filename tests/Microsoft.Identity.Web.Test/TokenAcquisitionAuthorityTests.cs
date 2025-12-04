@@ -478,9 +478,9 @@ namespace Microsoft.Identity.Web.Test
             InitializeTokenAcquisitionObjects();
 
             // Act
-            var app1 = 
+            var app1 =
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
-            var app2 = 
+            var app2 =
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
 
             // Assert

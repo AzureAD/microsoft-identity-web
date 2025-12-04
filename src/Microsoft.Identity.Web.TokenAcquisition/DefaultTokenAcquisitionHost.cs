@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web.Hosts
         readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _MicrosoftIdentityApplicationOptionsMonitor;
 
         public DefaultTokenAcquisitionHost(
-            IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor, 
+            IOptionsMonitor<MicrosoftIdentityOptions> optionsMonitor,
             IMergedOptionsStore mergedOptionsMonitor,
             IOptionsMonitor<ConfidentialClientApplicationOptions> ccaOptionsMonitor,
             IOptionsMonitor<MicrosoftIdentityApplicationOptions> microsoftIdentityApplicationOptionsMonitor)

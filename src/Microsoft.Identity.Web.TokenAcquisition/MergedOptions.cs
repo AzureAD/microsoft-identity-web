@@ -66,6 +66,14 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal string? PreparedInstance { get; set; }
 
+        /// <summary>
+        /// Whether a token binding (mTLS PoP) is enabled for the current context.
+        /// </summary>
+        /// <remarks>
+        /// It's evaluated based on token acquisition options and shouldn't be set directly.
+        /// </remarks>
+        internal bool IsTokenBinding { get; set; }
+
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
 
@@ -447,7 +455,7 @@ namespace Microsoft.Identity.Web
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
             // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
-            if (!string.IsNullOrEmpty(mergedOptions.Authority) && 
+            if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
                 (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
             {
                 // Log warning that Authority is being ignored
