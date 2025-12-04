@@ -28,7 +28,7 @@ namespace AgentApplicationsTests
             string overriddenTenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
             
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
-            configuration["AzureAd:TenantId"] = configuredTenantId; // Set to common or organizations
+            configuration["AzureAd:TenantId"] = configuredTenantId; // Set to the GUID or organizations
             configuration["AzureAd:ClientId"] = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
             configuration["AzureAd:ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
