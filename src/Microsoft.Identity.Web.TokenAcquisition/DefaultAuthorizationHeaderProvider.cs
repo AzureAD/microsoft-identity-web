@@ -13,6 +13,8 @@ namespace Microsoft.Identity.Web
 {
     internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2
     {
+        private static readonly object _boxedTrue = true;
+
         private readonly ITokenAcquisition _tokenAcquisition;
 
         private const string TokenBindingProtocolScheme = "MTLS_POP";
@@ -196,7 +198,7 @@ namespace Microsoft.Identity.Web
             if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
                 extraParameters ??= new Dictionary<string, object>();
-                extraParameters[TokenBindingParameterName] = true;
+                extraParameters[TokenBindingParameterName] = _boxedTrue;
             }
 
             return extraParameters;

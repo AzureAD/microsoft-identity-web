@@ -524,11 +524,19 @@ namespace Microsoft.Identity.Web.Tests
 
             var authHeaderInfo = new AuthorizationHeaderInformation
             {
-                AuthorizationHeaderValue = "Bearer test-token",
+                AuthorizationHeaderValue = "MTLS_POP test-token",
                 BindingCertificate = testCertificate
             };
 
             var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
+
+            ((IAuthorizationHeaderProvider)mockBoundProvider)
+                .CreateAuthorizationHeaderAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns("Bearer test-token");
 
             ((IAuthorizationHeaderProvider2)mockBoundProvider)
                 .CreateAuthorizationHeaderAsync(
@@ -549,10 +557,6 @@ namespace Microsoft.Identity.Web.Tests
                 CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal("Bearer test-token", result.AuthorizationHeaderValue);
-            Assert.Equal("Bearer test-token", httpRequestMessage.Headers.Authorization?.ToString());
-
             if (shouldCallAuthorizationHeaderProvider2)
             {
                 await ((IAuthorizationHeaderProvider2)mockBoundProvider).Received(1).CreateAuthorizationHeaderAsync(
@@ -566,7 +570,10 @@ namespace Microsoft.Identity.Web.Tests
                     Arg.Any<ClaimsPrincipal>(),
                     Arg.Any<CancellationToken>());
 
+                Assert.NotNull(result);
+                Assert.Equal("MTLS_POP test-token", result.AuthorizationHeaderValue);
                 Assert.Equal(testCertificate, result.BindingCertificate);
+                Assert.Equal("MTLS_POP test-token", httpRequestMessage.Headers.Authorization?.ToString());
             }
             else
             {
@@ -580,9 +587,10 @@ namespace Microsoft.Identity.Web.Tests
                     Arg.Any<DownstreamApiOptions>(),
                     Arg.Any<ClaimsPrincipal>(),
                     Arg.Any<CancellationToken>());
-            }
 
-            Assert.Null(result.BindingCertificate);
+                Assert.Null(result);
+                Assert.Equal("Bearer test-token", httpRequestMessage.Headers.Authorization?.ToString());
+            }
         }
 
         [Fact]
