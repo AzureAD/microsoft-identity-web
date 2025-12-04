@@ -66,6 +66,9 @@ namespace Microsoft.Identity.Web
             "StoreLocation must be one of 'CurrentUser', 'LocalMachine'. " +
             "StoreName must be empty or one of '{0}'. ";
 
+        // Configuration Validation IDW10700+ = "IDW10700+:"
+        public const string MissingIdentityConfiguration = "IDW10708: The identity configuration is incomplete. Provide either 'Instance' and 'TenantId', or 'Authority', or enable 'ManagedIdentity' in the configuration. Check your configuration keys for typos (e.g., trailing spaces). See https://aka.ms/ms-id-web/configuration. ";
+
         // Obsolete messages IDW10800 = "IDW10800:"
         public const string AadIssuerValidatorGetIssuerValidatorIsObsolete = "IDW10800: Use MicrosoftIdentityIssuerValidatorFactory.GetAadIssuerValidator. See https://aka.ms/ms-id-web/1.2.0. ";
         public const string InitializeAsyncIsObsolete = "IDW10801: Use Initialize instead. See https://aka.ms/ms-id-web/1.9.0. ";
