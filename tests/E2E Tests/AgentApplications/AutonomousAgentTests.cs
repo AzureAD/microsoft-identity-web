@@ -24,7 +24,7 @@ namespace AgentApplicationsTests
 
             configuration["AzureAd:Instance"] = "https://login.microsoftonline.com/";
             configuration["AzureAd:TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
-            configuration["AzureAd:ClientId"] = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Agent application.
+            configuration["AzureAd:ClientId"] = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Agent application.
             configuration["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
             configuration["AzureAd:ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
             configuration["AzureAd:ClientCredentials:0:CertificateDistinguishedName"] = "CN=LabAuth.MSIDLab.com";
@@ -39,7 +39,7 @@ namespace AgentApplicationsTests
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();
 
-            string agentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024"; // Replace with the actual agent identity
+            string agentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c"; // Replace with the actual agent identity
 
             //// Get an authorization header and handle the call to the downstream API yoursel
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
