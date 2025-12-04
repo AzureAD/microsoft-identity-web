@@ -25,8 +25,8 @@ public class SidecarApiFactory : WebApplicationFactory<Program>
             {
                 { "AzureAd:Instance", "https://login.microsoftonline.com/" },
                 { "AzureAd:TenantId", "31a58c3b-ae9c-4448-9e8f-e9e143e800df" },
-                { "AzureAd:ClientId", "d15884b6-a447-4dd5-a5a5-a668c49f6300" },
-                { "AzureAd:Audience", "d15884b6-a447-4dd5-a5a5-a668c49f6300" },
+                { "AzureAd:ClientId", "d05619c9-dbf2-4e60-95fd-cc75dd0db451" },
+                { "AzureAd:Audience", "d05619c9-dbf2-4e60-95fd-cc75dd0db451" },
                 { "AzureAd:ClientCredentials:0:SourceType", "StoreWithDistinguishedName" },
                 { "AzureAd:ClientCredentials:0:CertificateStorePath", "LocalMachine/My" },
                 { "AzureAd:ClientCredentials:0:CertificateDistinguishedName", "CN=LabAuth.MSIDLab.com" }, // Replace with the subject name of your certificate
