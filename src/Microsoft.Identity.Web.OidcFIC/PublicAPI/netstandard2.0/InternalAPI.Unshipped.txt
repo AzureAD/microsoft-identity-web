@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance(string? tokenEndpoint, string? configuredInstance) -> string?
