@@ -23,10 +23,10 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
     public SidecarEndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
 
     const string TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-    const string AgentApplication = "d15884b6-a447-4dd5-a5a5-a668c49f6300"; // Replace with the actual agent application client ID
-    const string AgentIdentity = "d84da24a-2ea2-42b8-b5ab-8637ec208024";    // Replace with the actual agent identity
-    const string UserUpn = "aui1@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
-    string UserOid = "51c1aa1c-f6d0-4a92-936c-cadb27b717f2";           // Replace with the actual user OID.
+    const string AgentApplication = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Replace with the actual agent application client ID
+    const string AgentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c";    // Replace with the actual agent identity
+    const string UserUpn = "agentuser1@msidlabtoint.onmicrosoft.com";       // Replace with the actual user upn.
+    string UserOid = "03d648e4-2e01-4dfb-b21d-81eb678fbcf4";           // Replace with the actual user OID.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -187,7 +187,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
         IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("api://d15884b6-a447-4dd5-a5a5-a668c49f6300/.default",
+        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("api://d05619c9-dbf2-4e60-95fd-cc75dd0db451/.default",
             new AuthorizationHeaderProviderOptions()
             {
                 AcquireTokenOptions = new AcquireTokenOptions()

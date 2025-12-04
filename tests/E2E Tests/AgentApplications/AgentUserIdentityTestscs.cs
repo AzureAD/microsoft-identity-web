@@ -20,9 +20,9 @@ namespace AgentApplicationsTests
     {
         string instance = "https://login.microsoftonline.com/";
         string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-        string agentApplication = "c4b2d4d9-9257-4c1a-a5c0-0a4907c83411"; // Replace with the actual agent application client ID
-        string agentIdentity = "44250d7d-2362-4fba-9ba0-49c19ae270e0";    // Replace with the actual agent identity
-        string userUpn = "aui3@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+        string agentApplication = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Replace with the actual agent application client ID
+        string agentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c";    // Replace with the actual agent identity
+        string userUpn = "agentuser1@msidlabtoint.onmicrosoft.com";       // Replace with the actual user upn.
 
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphAsync()
@@ -254,7 +254,7 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphByUserIdAsync()
         {
-            string userOid = "04ea4dcd-f314-476f-be31-a13707cdd11e";           // Replace with the actual user OID.
+            string userOid = "03d648e4-2e01-4dfb-b21d-81eb678fbcf4";           // Replace with the actual user OID.
 
             IServiceCollection services = new ServiceCollection();
 
