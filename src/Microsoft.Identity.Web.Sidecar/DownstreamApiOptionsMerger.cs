@@ -21,6 +21,37 @@ public static class DownstreamApiOptionsMerger
             res.Scopes = right.Scopes;
         }
 
+        // RequestAppToken determines whether to use client credentials (app token) or user delegation (OBO)
+        if (right.RequestAppToken)
+        {
+            res.RequestAppToken = right.RequestAppToken;
+        }
+
+        if (!string.IsNullOrEmpty(right.BaseUrl))
+        {
+            res.BaseUrl = right.BaseUrl;
+        }
+
+        if (!string.IsNullOrEmpty(right.RelativePath))
+        {
+            res.RelativePath = right.RelativePath;
+        }
+
+        if (!string.IsNullOrEmpty(right.HttpMethod))
+        {
+            res.HttpMethod = right.HttpMethod;
+        }
+
+        if (!string.IsNullOrEmpty(right.ContentType))
+        {
+            res.ContentType = right.ContentType;
+        }
+
+        if (!string.IsNullOrEmpty(right.AcceptHeader))
+        {
+            res.AcceptHeader = right.AcceptHeader;
+        }
+
         if (!string.IsNullOrEmpty(right.AcquireTokenOptions.Tenant))
         {
             res.AcquireTokenOptions.Tenant = right.AcquireTokenOptions.Tenant;
@@ -41,9 +72,24 @@ public static class DownstreamApiOptionsMerger
             res.AcquireTokenOptions.FmiPath = right.AcquireTokenOptions.FmiPath;
         }
 
-        if (!string.IsNullOrEmpty(right.RelativePath))
+        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.LongRunningWebApiSessionKey))
         {
-            res.RelativePath = right.RelativePath;
+            res.AcquireTokenOptions.LongRunningWebApiSessionKey = right.AcquireTokenOptions.LongRunningWebApiSessionKey;
+        }
+
+        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.PopPublicKey))
+        {
+            res.AcquireTokenOptions.PopPublicKey = right.AcquireTokenOptions.PopPublicKey;
+        }
+
+        if (right.AcquireTokenOptions.CorrelationId != Guid.Empty)
+        {
+            res.AcquireTokenOptions.CorrelationId = right.AcquireTokenOptions.CorrelationId;
+        }
+
+        if (right.AcquireTokenOptions.ManagedIdentity is not null)
+        {
+            res.AcquireTokenOptions.ManagedIdentity = right.AcquireTokenOptions.ManagedIdentity;
         }
 
         res.AcquireTokenOptions.ForceRefresh = right.AcquireTokenOptions.ForceRefresh;
