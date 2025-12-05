@@ -3,7 +3,6 @@
 
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Sidecar;
-using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Xunit;
 
 namespace Sidecar.Tests;
@@ -552,5 +551,115 @@ public class DownstreamApiOptionsMergeTests
         Assert.NotNull(result.ExtraQueryParameters);
         Assert.Single(result.ExtraQueryParameters);
         Assert.Equal("value1", result.ExtraQueryParameters["param1"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRequestAppTokenTrue_OverridesRequestAppToken()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            RequestAppToken = false
+        };
+        var right = new DownstreamApiOptions
+        {
+            RequestAppToken = true
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.True(result.RequestAppToken);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRequestAppTokenFalse_DoesNotOverride()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            RequestAppToken = true
+        };
+        var right = new DownstreamApiOptions
+        {
+            RequestAppToken = false
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert - left value preserved because right is false (default)
+        Assert.True(result.RequestAppToken);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithBaseUrlOverride_OverridesBaseUrl()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            BaseUrl = "https://original.api.com/"
+        };
+        var right = new DownstreamApiOptions
+        {
+            BaseUrl = "https://new.api.com/"
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.Equal("https://new.api.com/", result.BaseUrl);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithHttpMethodOverride_OverridesHttpMethod()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            HttpMethod = "GET"
+        };
+        var right = new DownstreamApiOptions
+        {
+            HttpMethod = "POST"
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.Equal("POST", result.HttpMethod);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithManagedIdentityOverride_OverridesManagedIdentity()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = null
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = new ManagedIdentityOptions
+                {
+                    UserAssignedClientId = "test-client-id"
+                }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.AcquireTokenOptions.ManagedIdentity);
+        Assert.Equal("test-client-id", result.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId);
     }
 }
