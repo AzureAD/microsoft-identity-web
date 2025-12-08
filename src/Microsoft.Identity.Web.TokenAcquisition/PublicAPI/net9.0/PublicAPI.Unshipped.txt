@@ -9,6 +9,8 @@ Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityMessageHandlerOptions() -> void
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.get -> System.Collections.Generic.IList<string!>!
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientAssertionClaims.get -> System.Collections.Generic.IDictionary<string!, string!>?
+Microsoft.Identity.Web.MicrosoftIdentityOptions.ClientAssertionClaims.set -> void
 override Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.SendAsync(System.Net.Http.HttpRequestMessage! request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage!>!
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.GetAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request) -> Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions?
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions! options) -> System.Net.Http.HttpRequestMessage!

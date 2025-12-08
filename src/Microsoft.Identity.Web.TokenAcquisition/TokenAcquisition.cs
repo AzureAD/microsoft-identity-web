@@ -215,16 +215,10 @@ namespace Microsoft.Identity.Web
         /// when supporting managed identities.
         /// </summary>
         /// <param name="mergedOptions">Merged configuration options.</param>
-        /// <param name="clientClaims">Optional client claims.</param>
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions, IDictionary<string, string>? clientClaims = null)
+        private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
-
-            if (clientClaims != null)
-            {
-                credentialId += "-" + string.Join("-", clientClaims.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-            }
 
             return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
@@ -745,6 +739,7 @@ namespace Microsoft.Identity.Web
                     Instance = microsoftEntraApplicationOptions.Instance ?? parentMergedOptions.Instance,
                     AzureRegion = microsoftEntraApplicationOptions.AzureRegion ?? parentMergedOptions.AzureRegion,
                     TenantId = microsoftEntraApplicationOptions.TenantId ?? parentMergedOptions.TenantId,
+                    ClientAssertionClaims = microsoftEntraApplicationOptions.ClientAssertionClaims ?? parentMergedOptions.ClientAssertionClaims
                 };
             }
             else
@@ -901,25 +896,13 @@ namespace Microsoft.Identity.Web
                 );
         }
 
-        private static IDictionary<string, string>? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
-        {
-            IDictionary<string, string>? clientClaims = null;
-            if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
-                tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] is not null)
-            {
-                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as IDictionary<string, string>;
-            }
-            return clientClaims;
-        }
-
 #pragma warning disable RS0051 // Add internal types and members to the declared API
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
 #pragma warning restore RS0051 // Add internal types and members to the declared API
             MergedOptions mergedOptions,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null) // just for PoC will drive this through MergedOptions later
         {
-            var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
-            string key = GetApplicationKey(mergedOptions, clientClaims);
+            string key = GetApplicationKey(mergedOptions);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -937,7 +920,7 @@ namespace Microsoft.Identity.Web
                     return app;
 
                 // Build and store the application
-                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, clientClaims);
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions);
@@ -953,7 +936,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions, IDictionary<string, string>? clientClaims)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
@@ -1010,8 +993,7 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
-                        clientClaims);
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
