@@ -150,5 +150,43 @@ namespace Microsoft.Identity.Web.Test
 
             return tokenAcquirerFactory;
         }
+
+        /// <summary>
+        /// Tests that when identity configuration is missing (simulating a misconfigured key like "ManagedIdentity " with trailing space),
+        /// a meaningful ArgumentException is thrown instead of a NullReferenceException.
+        /// This addresses issue #2921.
+        /// </summary>
+        [Fact]
+        public async Task GetAuthenticationResultForAppAsync_ThrowsMeaningfulError_WhenConfigurationIsMissing()
+        {
+            // Arrange - Create a factory with missing identity configuration
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                // Intentionally NOT setting Instance, TenantId, or Authority
+                // This simulates the scenario where configuration keys have typos
+                // (e.g., "ManagedIdentity " instead of "ManagedIdentity")
+                options.ClientId = "test-client-id";
+                options.ClientCredentials = [new CredentialDescription()
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "someSecret"
+                }];
+            });
+
+            tokenAcquirerFactory.Services.AddSingleton<IMsalHttpClientFactory, MockHttpClientFactory>();
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act & Assert - Should throw ArgumentException with meaningful message
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
+                await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                    "https://graph.microsoft.com/.default",
+                    new AuthorizationHeaderProviderOptions()));
+
+            Assert.StartsWith(IDWebErrorMessage.MissingIdentityConfiguration, exception.Message, System.StringComparison.Ordinal);
+        }
     }
 }

@@ -22,11 +22,11 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
 
     public SidecarEndpointsE2ETests(SidecarApiFactory factory) => _factory = factory;
 
-    const string TenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-    const string AgentApplication = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Replace with the actual agent application client ID
-    const string AgentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c";    // Replace with the actual agent identity
-    const string UserUpn = "agentuser1@msidlabtoint.onmicrosoft.com";       // Replace with the actual user upn.
-    string UserOid = "03d648e4-2e01-4dfb-b21d-81eb678fbcf4";           // Replace with the actual user OID.
+    const string TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
+    const string AgentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
+    const string AgentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
+    const string UserUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
+    string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -175,7 +175,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         services.AddSingleton<IConfiguration>(configuration);
         configuration["Instance"] = "https://login.microsoftonline.com/";
-        configuration["TenantId"] = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";
+        configuration["TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
         configuration["ClientId"] = "5cbcd9ff-c994-49ac-87e7-08a93a9c0794";
         configuration["SendX5C"] = "true";
         configuration["ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
@@ -187,7 +187,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
         IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("api://d05619c9-dbf2-4e60-95fd-cc75dd0db451/.default",
+        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("api://aab5089d-e764-47e3-9f28-cc11c2513821/.default",
             new AuthorizationHeaderProviderOptions()
             {
                 AcquireTokenOptions = new AcquireTokenOptions()
