@@ -17,9 +17,9 @@ namespace AgentApplicationsTests
         public async Task GetFicTokensTestsAsync()
         {
             string instance = "https://login.microsoftonline.com/";
-            string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-            string agentApplication = "d05619c9-dbf2-4e60-95fd-cc75dd0db451"; // Replace with the actual agent application client ID
-            string agentIdentity = "edbfbbe7-d240-40dd-aee2-435201dbaa9c";    // Replace with the actual agent identity
+            string tenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
+            string agentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
+            string agentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
 
             IServiceCollection services = new ServiceCollection();
 
