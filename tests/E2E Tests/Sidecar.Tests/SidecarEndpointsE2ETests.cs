@@ -26,7 +26,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
     const string AgentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
     const string AgentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
     const string UserUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
-    string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549a";           // Replace with the actual user OID.
+    string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()

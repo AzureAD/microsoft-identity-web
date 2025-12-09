@@ -254,7 +254,7 @@ namespace AgentApplicationsTests
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphByUserIdAsync()
         {
-            string userOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549a";           // Replace with the actual user OID.
+            string userOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
 
             IServiceCollection services = new ServiceCollection();
 
