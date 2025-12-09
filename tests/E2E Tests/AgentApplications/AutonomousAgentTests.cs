@@ -41,7 +41,7 @@ namespace AgentApplicationsTests
             services.AddMicrosoftGraph(); // If you want to call Microsoft Graph
             var serviceProvider = services.BuildServiceProvider();
 
-            string agentIdentity = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent identity
+            string agentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5"; // Replace with the actual agent identity
 
             //// Get an authorization header and handle the call to the downstream API yoursel
             IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;

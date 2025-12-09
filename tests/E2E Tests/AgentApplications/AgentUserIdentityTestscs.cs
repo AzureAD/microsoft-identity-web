@@ -21,7 +21,7 @@ namespace AgentApplicationsTests
         string instance = "https://login.microsoftonline.com/";
         string tenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
         string agentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
-        string agentIdentity = "aab5089d-e764-47e3-9f28-cc11c2513821";    // Replace with the actual agent identity
+        string agentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
         string userUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
 
         [Fact]

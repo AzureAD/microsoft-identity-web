@@ -24,7 +24,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
 
     const string TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
     const string AgentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
-    const string AgentIdentity = "aab5089d-e764-47e3-9f28-cc11c2513821";    // Replace with the actual agent identity
+    const string AgentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
     const string UserUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
     string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549a";           // Replace with the actual user OID.
 
