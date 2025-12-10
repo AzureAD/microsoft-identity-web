@@ -20,6 +20,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using TaskStatus = System.Threading.Tasks.TaskStatus;
@@ -465,21 +466,14 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
             Assert.StartsWith("eyJ0e", result.AccessToken, StringComparison.OrdinalIgnoreCase);
 
-            var tokenParts = result.AccessToken.Split('.');
-            Assert.Equal(3, tokenParts.Length);
-
-            var tokenPayload = tokenParts[1];
-            var tokenPayloadBytes = Base64UrlEncoder.DecodeBytes(tokenPayload);
-            var tokenPayloadString = Encoding.UTF8.GetString(tokenPayloadBytes);
-
-            using var tokenPayloadJson = JsonDocument.Parse(tokenPayloadString);
-            var tokenPayloadJsonRoot = tokenPayloadJson.RootElement;
-
-            Assert.True(tokenPayloadJsonRoot.TryGetProperty("cnf", out var tokenCnfClaim), "The mTLS PoP token should contain a 'cnf' claim");
-            Assert.True(tokenCnfClaim.TryGetProperty("x5t#S256", out var tokenX5tS256), "The mTLS PoP 'cnf' claim should contain an 'x5t#S256' property");
-
-            var tokenX5tS256Value = tokenX5tS256.GetString();
-            Assert.False(string.IsNullOrEmpty(tokenX5tS256Value));
+            var jsonWebToken = new JsonWebToken(result.AccessToken);
+            Assert.True(jsonWebToken.TryGetPayloadValue("cnf", out object? cnfClaim), "The mTLS PoP token should contain a 'cnf' claim");
+            
+            var cnfJson = JsonSerializer.Deserialize<JsonElement>(cnfClaim!.ToString()!);
+            Assert.True(cnfJson.TryGetProperty("x5t#S256", out var x5tS256), "The mTLS PoP 'cnf' claim should contain an 'x5t#S256' property");
+            
+            var x5tS256Value = x5tS256.GetString();
+            Assert.False(string.IsNullOrEmpty(x5tS256Value));
         }
 
         private static string CreatePopClaim(RsaSecurityKey key, string algorithm)
