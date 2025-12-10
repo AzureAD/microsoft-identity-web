@@ -606,10 +606,10 @@ namespace Microsoft.Identity.Web
 
                 // Firstly check if it's token binding scenario so authorization header provider returns
                 // a binding certificate along with acquired authorization header.
-                if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 authorizationHeaderBoundProviderForMtls
+                if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
                     && string.Equals(effectiveOptions.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
-                    var authorizationHeaderResult = await authorizationHeaderBoundProviderForMtls.CreateAuthorizationHeaderAsync(
+                    var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
                         effectiveOptions,
                         user,
                         cancellationToken).ConfigureAwait(false);

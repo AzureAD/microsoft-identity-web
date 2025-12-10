@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Web.Test
             var cancellationToken = CancellationToken.None;
 
             // Act
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            var result = await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 claimsPrincipal,
                 cancellationToken);
@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Web.Test
             var cancellationToken = CancellationToken.None;
 
             // Act
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            var result = await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 claimsPrincipal,
                 cancellationToken);
@@ -178,7 +178,7 @@ namespace Microsoft.Identity.Web.Test
             var cancellationToken = CancellationToken.None;
 
             // Act
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            var result = await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 claimsPrincipal,
                 cancellationToken);
@@ -220,7 +220,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(
-                () => ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+                () => ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                     downstreamApiOptions,
                     claimsPrincipal,
                     cancellationToken));
@@ -275,7 +275,7 @@ namespace Microsoft.Identity.Web.Test
                 .Returns(Task.FromResult(mockAuthenticationResult));
 
             // Act
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            var result = await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 null,
                 CancellationToken.None);
@@ -318,7 +318,7 @@ namespace Microsoft.Identity.Web.Test
                 .Returns(Task.FromResult(mockAuthenticationResult));
 
             // Act & Assert - Should not throw
-            var result = await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            var result = await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 null,
                 CancellationToken.None);
@@ -580,7 +580,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var actualException = await Assert.ThrowsAsync<MsalServiceException>(
-                () => ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(downstreamApiOptions, null, CancellationToken.None));
+                () => ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(downstreamApiOptions, null, CancellationToken.None));
 
             Assert.Equal(expectedException.ErrorCode, actualException.ErrorCode);
             Assert.Equal(expectedException.Message, actualException.Message);
@@ -627,7 +627,7 @@ namespace Microsoft.Identity.Web.Test
                 .Returns(Task.FromResult(mockAuthenticationResult));
 
             // Act
-            await ((IAuthorizationHeaderProvider2)_provider).CreateAuthorizationHeaderAsync(
+            await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
                 downstreamApiOptions,
                 null,
                 CancellationToken.None);

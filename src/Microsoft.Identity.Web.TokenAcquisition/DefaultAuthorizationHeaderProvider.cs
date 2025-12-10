@@ -11,7 +11,7 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider
     {
         private static readonly object _boxedTrue = true;
 
@@ -103,7 +103,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
-        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateAuthorizationHeaderAsync(
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateBoundAuthorizationHeaderAsync(
             DownstreamApiOptions downstreamApiOptions,
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
