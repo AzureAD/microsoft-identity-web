@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -168,7 +168,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             if (!string.IsNullOrEmpty(redirectUri))
             {
@@ -206,11 +206,11 @@ namespace Microsoft.Identity.Web.Test
 
             mergedOptions.AzureRegion = "UKEast";
 
-            IConfidentialClientApplication appEast = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication appEast = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             mergedOptions.AzureRegion = "UKWest";
 
-            IConfidentialClientApplication appWest = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication appWest = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             Assert.NotSame(appEast, appWest);
         }

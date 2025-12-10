@@ -196,7 +196,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
         #endregion
 
-        #region WithBindingCertificateAsync tests
+        #region Client credentials for token binding tests
 
         [Fact]
         public async Task WithBindingCertificateAsync_ValidCertificate_ReturnsOriginalBuilderWithCertificate()
@@ -229,7 +229,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 });
 
             // Act
-            var result = await builder.WithBindingCertificateAsync(
+            var result = await builder.WithClientCredentialsAsync(
                 new[] { credentialDescription },
                 logger,
                 credLoader,
@@ -243,7 +243,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task WithBindingCertificateAsync_NoValidCredentials_ReturnsOriginalBuilderAfterException()
+        public async Task WithBindingCertificateAsync_NoValidCredentials_ThrowsException()
         {
             // Arrange
             var logger = Substitute.For<ILogger>();
@@ -270,7 +270,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Act & Assert
             // This should throw because LoadCredentialForMsalOrFailAsync throws when no credentials can be loaded
             await Assert.ThrowsAsync<ArgumentException>(
-                () => builder.WithBindingCertificateAsync(
+                () => builder.WithClientCredentialsAsync(
                     new[] { credentialDescription },
                     logger,
                     credLoader,
@@ -279,7 +279,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task WithBindingCertificateAsync_CredentialWithoutCertificate_ReturnsOriginalBuilder()
+        public async Task WithBindingCertificateAsync_CredentialWithoutCertificate_ThrowsException()
         {
             // Arrange
             var logger = Substitute.For<ILogger>();
@@ -304,7 +304,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => builder.WithBindingCertificateAsync(
+                () => builder.WithClientCredentialsAsync(
                     new[] { credentialDescription },
                     logger,
                     credLoader,
@@ -336,7 +336,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             var actualException = await Assert.ThrowsAsync<ArgumentException>(
-                () => builder.WithBindingCertificateAsync(
+                () => builder.WithClientCredentialsAsync(
                     new[] { credentialDescription },
                     logger,
                     credLoader,
@@ -348,7 +348,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         }
 
         [Fact]
-        public async Task WithBindingCertificateAsync_EmptyCredentialsList_ReturnsOriginalBuilder()
+        public async Task WithBindingCertificateAsync_EmptyCredentialsList_ThrowsException()
         {
             // Arrange
             var logger = Substitute.For<ILogger>();
@@ -358,7 +358,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => builder.WithBindingCertificateAsync(
+                () => builder.WithClientCredentialsAsync(
                     new CredentialDescription[0],
                     logger,
                     credLoader,
@@ -399,7 +399,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 });
 
             // Act
-            var result = await builder.WithBindingCertificateAsync(
+            var result = await builder.WithClientCredentialsAsync(
                 new[] { credentialDescription },
                 logger,
                 credLoader,

@@ -693,7 +693,7 @@ namespace Microsoft.Identity.Web.Tests
 
             var authHeaderInfo = new AuthorizationHeaderInformation
             {
-                AuthorizationHeaderValue = "Bearer test-token",
+                AuthorizationHeaderValue = "MTLS_POP test-token",
                 BindingCertificate = testCertificate
             };
 
@@ -755,7 +755,7 @@ namespace Microsoft.Identity.Web.Tests
 
             var authHeaderInfo = new AuthorizationHeaderInformation
             {
-                AuthorizationHeaderValue = "Bearer test-token",
+                AuthorizationHeaderValue = "MTLS_POP test-token",
                 BindingCertificate = null // No binding certificate
             };
 
@@ -786,7 +786,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderWithAuthenticationFailure_ThrowsException()
+        public async Task CallApiInternalAsync_WithAuthorizationHeaderBoundProviderFailure_ThrowsException()
         {
             // Arrange
             var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider>();
@@ -801,7 +801,8 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions
             {
                 BaseUrl = "https://api.example.com",
-                Scopes = new[] { "https://api.example.com/.default" }
+                Scopes = new[] { "https://api.example.com/.default" },
+                ProtocolScheme = "MTLS_POP"
             };
 
             // Mock authentication failure
@@ -816,8 +817,10 @@ namespace Microsoft.Identity.Web.Tests
                 .Returns(mockResult);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(() =>
+            var exception = await Assert.ThrowsAnyAsync<InvalidOperationException>(() =>
                 downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None));
+
+            Assert.Equal("Cannot acquire bound authorization header.", exception.Message);
         }
 
         private static X509Certificate2 CreateTestCertificate()

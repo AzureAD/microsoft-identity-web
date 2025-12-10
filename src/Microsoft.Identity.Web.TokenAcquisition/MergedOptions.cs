@@ -66,14 +66,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal string? PreparedInstance { get; set; }
 
-        /// <summary>
-        /// Whether a token binding (mTLS PoP) is enabled for the current context.
-        /// </summary>
-        /// <remarks>
-        /// It's evaluated based on token acquisition options and shouldn't be set directly.
-        /// </remarks>
-        internal bool IsTokenBinding { get; set; }
-
         internal static void UpdateMergedOptionsFromMicrosoftIdentityOptions(MicrosoftIdentityOptions microsoftIdentityOptions, MergedOptions mergedOptions)
         {
 

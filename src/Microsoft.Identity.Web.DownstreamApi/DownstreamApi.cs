@@ -614,11 +614,15 @@ namespace Microsoft.Identity.Web
                         user,
                         cancellationToken).ConfigureAwait(false);
 
-                    if (authorizationHeaderResult.Succeeded)
+                    if (!authorizationHeaderResult.Succeeded)
                     {
-                        authorizationHeaderInformation = authorizationHeaderResult.Result;
-                        authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue ?? string.Empty;
+                        // in theory it shouldn't happen because in case of error during token acquisition
+                        // there will be thrown corresponding exception, so it's more a safeguard
+                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
                     }
+
+                    authorizationHeaderInformation = authorizationHeaderResult.Result;
+                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
                 }
                 else
                 {

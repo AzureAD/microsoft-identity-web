@@ -126,41 +126,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("Bearer header.payload.signature", result);
         }
 
-        [Theory]
-        [InlineData(null, false)]
-        [InlineData(false, false)]
-        [InlineData(true, true)]
-        public void GetMergedOptions_SetsIsTokenBindingCorrectly(bool? isTokenBindingParameter, bool expectedIsTokenBinding)
-        {
-            // Arrange
-            var tokenAcquirerFactory = InitTokenAcquirerFactory();
-            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
-            var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisitionInternal>() as TokenAcquisition;
-
-            var tokenAcquisitionOptions = new TokenAcquisitionOptions();
-            if (isTokenBindingParameter.HasValue)
-            {
-                tokenAcquisitionOptions.ExtraParameters = new Dictionary<string, object>
-                {
-                    { "IsTokenBinding", isTokenBindingParameter.Value }
-                };
-            }
-
-            // Act
-            // Use reflection to access the private GetMergedOptions method
-            var method = typeof(TokenAcquisition).GetMethod("GetMergedOptions",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Assert.NotNull(method);
-
-#pragma warning disable CS8601 // Possible null reference assignment.
-            var mergedOptions = method.Invoke(tokenAcquisition, new object?[] { null, tokenAcquisitionOptions }) as MergedOptions;
-#pragma warning restore CS8601 // Possible null reference assignment.
-
-            // Assert
-            Assert.NotNull(mergedOptions);
-            Assert.Equal(expectedIsTokenBinding, mergedOptions.IsTokenBinding);
-        }
-
         private TokenAcquirerFactory InitTokenAcquirerFactory()
         {
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
