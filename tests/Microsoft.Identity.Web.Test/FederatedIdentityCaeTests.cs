@@ -10,18 +10,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Test;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
 
-namespace Microsoft.Identity.Web.Test
+namespace Microsoft.Identity.Web.Tests.Certificateless
 {
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class FederatedIdentityCaeTests
     {
         private const string Scope = "https://graph.microsoft.com/.default";
-        private const string CaeClaims = @"{""access_token"":{""xms_cc"":{""values"":[""cp1""]}}}";
+        private const string CaeClaims = @"{""access_token"":{""xms_cc"":{""values"":[""claims1""]}}}";
         private const string UamiClientId = "04ca4d6a-c720-4ba1-aa06-f6634b73fe7a";
 
         [Fact]
@@ -36,6 +37,9 @@ namespace Microsoft.Identity.Web.Test
                 opts.Instance = "https://login.microsoftonline.com/";
                 opts.TenantId = "11111111-1111-1111-1111-111111111111";
                 opts.ClientId = "00000000-0000-0000-0000-000000000000";
+
+                // Make this a CP1-capable app
+                opts.ClientCapabilities = new[] { "cp1" };
                 opts.ClientCredentials = new[]
                 {
                     new CredentialDescription
@@ -46,6 +50,7 @@ namespace Microsoft.Identity.Web.Test
                 };
             });
 
+            // Mock IMDS (for the MI assertion)
             var mockMiHttp = new MockHttpClientFactory();
             mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion-token"));
 
@@ -68,14 +73,36 @@ namespace Microsoft.Identity.Web.Test
 
             var acquirer = factory.Build().GetRequiredService<ITokenAcquisition>();
 
-            // ---------- 1) First call – no claims, must hit IdP ----------
+            // ---------- 1) First call – no custom claims, must hit IdP ----------
             var r1 = await acquirer.GetAuthenticationResultForAppAsync(
                 Scope,
                 tokenAcquisitionOptions: new TokenAcquisitionOptions());
 
             Assert.Equal("token1", r1.AccessToken);
             Assert.Equal(TokenSource.IdentityProvider, r1.AuthenticationResultMetadata.TokenSource);
-            Assert.False(firstTokenHandler.ActualRequestPostData.ContainsKey("claims"));
+
+            // First HTTP request already contains CP1 in xms_cc because of ClientCapabilities
+            Assert.True(firstTokenHandler.ActualRequestPostData.TryGetValue("claims", out var firstClaimsJson));
+            using (var doc = JsonDocument.Parse(firstClaimsJson))
+            {
+                var values = doc.RootElement
+                                .GetProperty("access_token")
+                                .GetProperty("xms_cc")
+                                .GetProperty("values");
+
+                bool hasCp1 = false;
+                bool hasClaims1 = false;
+
+                foreach (var v in values.EnumerateArray())
+                {
+                    var s = v.GetString();
+                    if (s == "cp1") hasCp1 = true;
+                    if (s == "claims1") hasClaims1 = true;
+                }
+
+                Assert.True(hasCp1);       // capability propagated
+                Assert.False(hasClaims1);    // custom CAE claim NOT present yet
+            }
 
             // ---------- 2) Second call – still no claims, should come from CACHE ----------
             var r2 = await acquirer.GetAuthenticationResultForAppAsync(
@@ -95,10 +122,29 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("token2", r3.AccessToken);
             Assert.Equal(TokenSource.IdentityProvider, r3.AuthenticationResultMetadata.TokenSource);
 
-            // And the actual HTTP POST for that second AAD call contained the claims we passed
-            Assert.True(secondTokenHandler.ActualRequestPostData.ContainsKey("claims"));
-            Assert.Equal(CaeClaims, secondTokenHandler.ActualRequestPostData["claims"]);
-            //ManagedIdentityClientAssertionTestHook.HttpClientFactory = null;
+            // And the actual HTTP POST for that second AAD call contained the merged claims (cp1 + mark1)
+            Assert.True(secondTokenHandler.ActualRequestPostData.TryGetValue("claims", out var secondClaimsJson));
+
+            using (var doc = JsonDocument.Parse(secondClaimsJson))
+            {
+                var values = doc.RootElement
+                                .GetProperty("access_token")
+                                .GetProperty("xms_cc")
+                                .GetProperty("values");
+
+                bool hasCp1 = false;
+                bool hasClaims1 = false;
+
+                foreach (var v in values.EnumerateArray())
+                {
+                    var s = v.GetString();
+                    if (s == "cp1") hasCp1 = true;
+                    if (s == "claims1") hasClaims1 = true;
+                }
+
+                Assert.True(hasCp1);    // capability kept
+                Assert.True(hasClaims1);  // custom CAE claim merged in
+            }
         }
 
         [Theory]
@@ -222,8 +268,6 @@ namespace Microsoft.Identity.Web.Test
 
             // Bearer header returned
             Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
-
-            //ManagedIdentityClientAssertionTestHook.HttpClientFactory = null;
         }
     }
 }

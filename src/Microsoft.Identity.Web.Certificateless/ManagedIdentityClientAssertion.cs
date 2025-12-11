@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId) :
-    this(managedIdentityClientId, tokenExchangeUrl: null, logger: null)
+            this(managedIdentityClientId, tokenExchangeUrl: null, logger: null)
         {
 
         }
@@ -71,12 +71,12 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
         /// This value is different on clouds other than Azure Public</param>
         /// <param name="logger">A logger.</param>
-        /// <param name="httpClientFactory">Optional MSAL HttpClient factory.</param>
-        public ManagedIdentityClientAssertion(
+        /// <param name="testHttpClientFactory">Optional MSAL HttpClient factory.</param>
+        internal ManagedIdentityClientAssertion(
             string? managedIdentityClientId,
             string? tokenExchangeUrl,
             ILogger? logger,
-            IMsalHttpClientFactory? httpClientFactory)
+            IMsalHttpClientFactory? testHttpClientFactory)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
@@ -89,9 +89,9 @@ namespace Microsoft.Identity.Web
 
             var builder = ManagedIdentityApplicationBuilder.Create(id);
 
-            if (httpClientFactory != null)
+            if (testHttpClientFactory != null)
             {
-                builder = builder.WithHttpClientFactory(httpClientFactory);
+                builder = builder.WithHttpClientFactory(testHttpClientFactory);
             }
 
             if (_logger != null)
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <returns>The signed assertion.</returns>
         protected override async Task<ClientAssertion> GetClientAssertionAsync(
-    AssertionRequestOptions? assertionRequestOptions)
+            AssertionRequestOptions? assertionRequestOptions)
         {
             // Start the MI token request for the token-exchange audience
             var miBuilder = _managedIdentityApplication
