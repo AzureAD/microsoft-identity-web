@@ -59,10 +59,10 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(IdentityApplicationOptions);
 
             // Compute the Azure region if the option is a MicrosoftIdentityApplicationOptions.
-            MicrosoftIdentityApplicationOptions? MicrosoftIdentityApplicationOptions = IdentityApplicationOptions as MicrosoftIdentityApplicationOptions;
-            if (MicrosoftIdentityApplicationOptions == null)
+            MicrosoftIdentityApplicationOptions? microsoftIdentityApplicationOptions = IdentityApplicationOptions as MicrosoftIdentityApplicationOptions;
+            if (microsoftIdentityApplicationOptions == null)
             {
-                MicrosoftIdentityApplicationOptions = new MicrosoftIdentityApplicationOptions
+                microsoftIdentityApplicationOptions = new MicrosoftIdentityApplicationOptions
                 {
                     AllowWebApiToBeAuthorizedByACL = IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL,
                     Audience = IdentityApplicationOptions.Audience,
@@ -76,20 +76,21 @@ namespace Microsoft.Identity.Web
 
                 // If the IdentityApplicationOptions is of type MicrosoftEntraApplicationOptions,
                 // copy over those options too.
-                MicrosoftEntraApplicationOptions? MicrosoftEntraApplicationOptions = IdentityApplicationOptions as MicrosoftEntraApplicationOptions;
-                if (MicrosoftEntraApplicationOptions != null)
+                MicrosoftEntraApplicationOptions? microsoftEntraApplicationOptions = IdentityApplicationOptions as MicrosoftEntraApplicationOptions;
+                if (microsoftEntraApplicationOptions != null)
                 {
-                    MicrosoftIdentityApplicationOptions.Name = MicrosoftEntraApplicationOptions.Name;
-                    MicrosoftIdentityApplicationOptions.Instance = MicrosoftEntraApplicationOptions.Instance;
-                    MicrosoftIdentityApplicationOptions.TenantId = MicrosoftEntraApplicationOptions.TenantId;
-                    MicrosoftIdentityApplicationOptions.AppHomeTenantId = MicrosoftEntraApplicationOptions.AppHomeTenantId;
-                    MicrosoftIdentityApplicationOptions.AzureRegion = MicrosoftEntraApplicationOptions.AzureRegion;
-                    MicrosoftIdentityApplicationOptions.ClientCapabilities = MicrosoftEntraApplicationOptions.ClientCapabilities;
-                    MicrosoftIdentityApplicationOptions.SendX5C = MicrosoftEntraApplicationOptions.SendX5C;
+                    microsoftIdentityApplicationOptions.Authority = microsoftEntraApplicationOptions.Authority;
+                    microsoftIdentityApplicationOptions.Name = microsoftEntraApplicationOptions.Name;
+                    microsoftIdentityApplicationOptions.Instance = microsoftEntraApplicationOptions.Instance;
+                    microsoftIdentityApplicationOptions.TenantId = microsoftEntraApplicationOptions.TenantId;
+                    microsoftIdentityApplicationOptions.AppHomeTenantId = microsoftEntraApplicationOptions.AppHomeTenantId;
+                    microsoftIdentityApplicationOptions.AzureRegion = microsoftEntraApplicationOptions.AzureRegion;
+                    microsoftIdentityApplicationOptions.ClientCapabilities = microsoftEntraApplicationOptions.ClientCapabilities;
+                    microsoftIdentityApplicationOptions.SendX5C = microsoftEntraApplicationOptions.SendX5C;
                 }
             }
 
-            string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId, MicrosoftIdentityApplicationOptions.AzureRegion);
+            string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId, microsoftIdentityApplicationOptions.AzureRegion);
 
             return _authSchemes.GetOrAdd(key, (key) =>
             {
@@ -97,7 +98,7 @@ namespace Microsoft.Identity.Web
                 MergedOptions mergedOptions = optionsMonitor.Get(key);
 
        
-                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(microsoftIdentityApplicationOptions, mergedOptions);
                 return MakeTokenAcquirer(key);
             });
         }
