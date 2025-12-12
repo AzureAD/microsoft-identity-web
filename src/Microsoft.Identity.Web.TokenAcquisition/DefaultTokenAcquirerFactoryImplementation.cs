@@ -73,6 +73,20 @@ namespace Microsoft.Identity.Web
                     TokenDecryptionCredentials = IdentityApplicationOptions.TokenDecryptionCredentials,
                     EnablePiiLogging = IdentityApplicationOptions.EnablePiiLogging,
                 };
+
+                // If the IdentityApplicationOptions is of type MicrosoftEntraApplicationOptions,
+                // copy over those options too.
+                MicrosoftEntraApplicationOptions? MicrosoftEntraApplicationOptions = IdentityApplicationOptions as MicrosoftEntraApplicationOptions;
+                if (MicrosoftEntraApplicationOptions != null)
+                {
+                    MicrosoftIdentityApplicationOptions.Name = MicrosoftEntraApplicationOptions.Name;
+                    MicrosoftIdentityApplicationOptions.Instance = MicrosoftEntraApplicationOptions.Instance;
+                    MicrosoftIdentityApplicationOptions.TenantId = MicrosoftEntraApplicationOptions.TenantId;
+                    MicrosoftIdentityApplicationOptions.AppHomeTenantId = MicrosoftEntraApplicationOptions.AppHomeTenantId;
+                    MicrosoftIdentityApplicationOptions.AzureRegion = MicrosoftEntraApplicationOptions.AzureRegion;
+                    MicrosoftIdentityApplicationOptions.ClientCapabilities = MicrosoftEntraApplicationOptions.ClientCapabilities;
+                    MicrosoftIdentityApplicationOptions.SendX5C = MicrosoftEntraApplicationOptions.SendX5C;
+                }
             }
 
             string key = GetKey(IdentityApplicationOptions.Authority, IdentityApplicationOptions.ClientId, MicrosoftIdentityApplicationOptions.AzureRegion);
