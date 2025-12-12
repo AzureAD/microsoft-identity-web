@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
-                ManagedIdentityClientAssertionTestHook.HttpClientFactory)
+                ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
         {
         }
 

@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion-token"));
 
             var miTestFactory = new TestManagedIdentityHttpFactory(mockMiHttp);
-            ManagedIdentityClientAssertionTestHook.HttpClientFactory = miTestFactory.Create();
+            ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = miTestFactory.Create();
             factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(_ => miTestFactory);
 
             // Mock AAD token responses for client credentials
