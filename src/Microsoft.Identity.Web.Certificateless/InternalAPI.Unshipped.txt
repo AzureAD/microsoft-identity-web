@@ -1,2 +1,5 @@
 #nullable enable
 Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger, Microsoft.Identity.Client.IMsalHttpClientFactory? testHttpClientFactory) -> void
+Microsoft.Identity.Web.TestOnly.ManagedIdentityClientAssertionTestHook
+static Microsoft.Identity.Web.TestOnly.ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests.get -> Microsoft.Identity.Client.IMsalHttpClientFactory?
+static Microsoft.Identity.Web.TestOnly.ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests.set -> void
