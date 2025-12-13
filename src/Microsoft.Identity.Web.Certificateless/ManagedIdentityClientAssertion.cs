@@ -9,6 +9,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Certificateless;
+using Microsoft.Identity.Web.TestOnly;
 
 namespace Microsoft.Identity.Web
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
     {
-        IManagedIdentityApplication _managedIdentityApplication;
+        private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
         private readonly ILogger? _logger;
 
@@ -49,7 +50,33 @@ namespace Microsoft.Identity.Web
         /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
         /// This value is different on clouds other than Azure Public</param>
         /// <param name="logger">A logger</param>
-        public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, ILogger? logger)
+        public ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger)
+            : this(
+                managedIdentityClientId,
+                tokenExchangeUrl,
+                logger,
+                ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
+        {
+        }
+
+
+        /// <summary>
+        /// Same as <see cref="ManagedIdentityClientAssertion(string?, string?, ILogger?)"/>,
+        /// but allows injecting a custom MSAL HttpClient factory (used by tests).
+        /// </summary>
+        /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
+        /// This value is different on clouds other than Azure Public</param>
+        /// <param name="logger">A logger.</param>
+        /// <param name="testHttpClientFactory">Optional MSAL HttpClient factory.</param>
+        internal ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            IMsalHttpClientFactory? testHttpClientFactory)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
@@ -61,6 +88,12 @@ namespace Microsoft.Identity.Web
             }
 
             var builder = ManagedIdentityApplicationBuilder.Create(id);
+
+            if (testHttpClientFactory != null)
+            {
+                builder = builder.WithHttpClientFactory(testHttpClientFactory);
+            }
+
             if (_logger != null)
             {
                 builder = builder.WithLogging(Log, ConvertMicrosoftExtensionsLogLevelToMsal(_logger), enablePiiLogging: false);
@@ -76,10 +109,24 @@ namespace Microsoft.Identity.Web
         /// acquired with managed identity (certificateless).
         /// </summary>
         /// <returns>The signed assertion.</returns>
-        protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
+        protected override async Task<ClientAssertion> GetClientAssertionAsync(
+            AssertionRequestOptions? assertionRequestOptions)
         {
-            var result = await _managedIdentityApplication
-                .AcquireTokenForManagedIdentity(_tokenExchangeUrl)
+            // Start the MI token request for the token-exchange audience
+            var miBuilder = _managedIdentityApplication
+                .AcquireTokenForManagedIdentity(_tokenExchangeUrl);
+
+            if (assertionRequestOptions is not null)
+            {
+                // Propagate claims into the MI token request.
+                // This also forces MSAL to bypass the MI token cache when claims are present.
+                if (!string.IsNullOrEmpty(assertionRequestOptions.Claims))
+                {
+                    miBuilder.WithClaims(assertionRequestOptions.Claims);
+                }
+            }
+
+            var result = await miBuilder
                 .ExecuteAsync(assertionRequestOptions?.CancellationToken ?? CancellationToken.None)
                 .ConfigureAwait(false);
 
