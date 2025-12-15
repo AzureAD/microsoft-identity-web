@@ -888,13 +888,31 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
-            return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
+            if (_retryClientCertificate || 
+                !string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Only retry for certificate-related or signed assertion-related errors.
+            // Check for specific error codes that indicate certificate/assertion issues.
+            string responseBody = exMsal.ResponseBody;
+            
 #if NET6_0_OR_GREATER
-                , StringComparison.OrdinalIgnoreCase
+            return responseBody.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase) ||
+                   responseBody.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase) ||
+                   responseBody.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase) ||
+                   responseBody.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase) ||
+                   responseBody.Contains(Constants.CertificateNotWithinValidityPeriod, StringComparison.OrdinalIgnoreCase) ||
+                   responseBody.Contains(Constants.CertificateWasRevoked, StringComparison.OrdinalIgnoreCase);
+#else
+            return responseBody.Contains(Constants.InvalidKeyError) ||
+                   responseBody.Contains(Constants.SignedAssertionInvalidTimeRange) ||
+                   responseBody.Contains(Constants.CertificateHasBeenRevoked) ||
+                   responseBody.Contains(Constants.CertificateIsOutsideValidityWindow) ||
+                   responseBody.Contains(Constants.CertificateNotWithinValidityPeriod) ||
+                   responseBody.Contains(Constants.CertificateWasRevoked);
 #endif
-                );
         }
 
 
