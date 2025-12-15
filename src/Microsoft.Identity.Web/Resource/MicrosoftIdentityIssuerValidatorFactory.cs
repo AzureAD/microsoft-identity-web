@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Web.Resource
         /// Initializes a new instance of the <see cref="MicrosoftIdentityIssuerValidatorFactory"/> class.
         /// </summary>
         /// <param name="aadIssuerValidatorOptions">Options passed-in to create the AadIssuerValidator object.</param>
-        /// <param name="httpClientFactory">HttpClientFactory.</param>
+        /// <param name="httpClientFactory">HttpClientFactoryForTests.</param>
         public MicrosoftIdentityIssuerValidatorFactory(
             IOptions<AadIssuerValidatorOptions> aadIssuerValidatorOptions,
             IHttpClientFactory httpClientFactory)
