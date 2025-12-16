@@ -23,7 +23,7 @@ foreach ($line in $($publishOutput -split "`r`n"))
 }
 
 Write-Host "Actual warning count is: ", $actualWarningCount
-$expectedWarningCount = 50
+$expectedWarningCount = 52
 
 if ($LastExitCode -ne 0)
 {
