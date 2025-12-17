@@ -11,6 +11,7 @@
 - **Added meaningful error message when identity configuration is missing**. See [#3637](https://github.com/AzureAD/microsoft-identity-web/pull/3637) for details.
 
 ### Dependencies updates
+- Update Microsoft.Identity.Abstractions to version 10.0.0.
 - Bump express from 5.1.0 to 5.2.0 in /tests/DevApps/SidecarAdapter/typescript. [#3636](https://github.com/AzureAD/microsoft-identity-web/pull/3636)
 - Bump jws from 3.2.2 to 3.2.3 in /tests/DevApps/SidecarAdapter/typescript. [#3641](https://github.com/AzureAD/microsoft-identity-web/pull/3641)
 
