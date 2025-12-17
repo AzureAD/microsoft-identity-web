@@ -16,6 +16,7 @@
 - Bump jws from 3.2.2 to 3.2.3 in /tests/DevApps/SidecarAdapter/typescript. [#3641](https://github.com/AzureAD/microsoft-identity-web/pull/3641)
 
 ### Fundamentals
+- Update support policy. [#3656](https://github.com/AzureAD/microsoft-identity-web/pull/3656)
 - Update agent identity coordinates in E2E tests after deauth. [#3640](https://github.com/AzureAD/microsoft-identity-web/pull/3640)
 - Update E2E agent identity configuration to new tenant. [#3646](https://github.com/AzureAD/microsoft-identity-web/pull/3646)
 
