@@ -292,5 +292,26 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("organizations", options.TenantId); // TenantId remains unchanged
             Assert.Equal("https://login.microsoftonline.us/", options.PreparedInstance); // PreparedInstance based on original Instance
         }
+
+        [Fact]
+        public void PrepareAuthorityInstanceForMsal_LeavesNullPreparedInstance_WhenNoConfigurationProvided()
+        {
+            // This test verifies the scenario from issue #2921 where a misconfigured key
+            // (e.g., "ManagedIdentity " with trailing space instead of "ManagedIdentity")
+            // results in null Instance and null Authority, which should leave PreparedInstance as null
+            
+            // Arrange
+            var options = new MergedOptions();
+            // Simulating the scenario where configuration keys have typos and don't bind correctly
+
+            // Act
+            options.PrepareAuthorityInstanceForMsal();
+
+            // Assert
+            Assert.Null(options.Instance);
+            Assert.Null(options.TenantId);
+            Assert.Null(options.Authority);
+            Assert.Null(options.PreparedInstance);
+        }
     }
 }
