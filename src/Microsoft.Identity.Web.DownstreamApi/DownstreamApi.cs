@@ -26,10 +26,19 @@ namespace Microsoft.Identity.Web
     {
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly IHttpClientFactory _httpClientFactory;
+
+        // This MSAL HTTP client factory is used to create HTTP clients with mTLS binding certificate.
+        // Note, that it doesn't replace _httpClientFactory to keep backward compatibility and ability
+        // to create named HTTP clients for non-mTLS scenarios.
+        private readonly IMsalHttpClientFactory? _msalHttpClientFactory;
+
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
+
         private const string Authorization = "Authorization";
-        protected readonly ILogger<DownstreamApi> _logger;
+        private const string TokenBindingProtocolScheme = "MTLS_POP";
         private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
+
+        protected readonly ILogger<DownstreamApi> _logger;
 
         /// <summary>
         /// Constructor.
@@ -43,10 +52,33 @@ namespace Microsoft.Identity.Web
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<DownstreamApi> logger)
+            : this(authorizationHeaderProvider,
+                  namedDownstreamApiOptions,
+                  httpClientFactory,
+                  logger,
+                  msalHttpClientFactory: null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor which accepts optional MSAL HTTP client factory.
+        /// </summary>
+        /// <param name="authorizationHeaderProvider">Authorization header provider.</param>
+        /// <param name="namedDownstreamApiOptions">Named options provider.</param>
+        /// <param name="httpClientFactory">HTTP client factory.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="msalHttpClientFactory">The MSAL HTTP client factory for mTLS PoP scenarios.</param>
+        public DownstreamApi(
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
+            IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
+            IHttpClientFactory httpClientFactory,
+            ILogger<DownstreamApi> logger,
+            IMsalHttpClientFactory? msalHttpClientFactory)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
             _httpClientFactory = httpClientFactory;
+            _msalHttpClientFactory = msalHttpClientFactory ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
         }
 
@@ -436,7 +468,7 @@ namespace Microsoft.Identity.Web
                 string stringContent = await content.ReadAsStringAsync();
                 if (mediaType == "application/json")
                 {
-                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });                    
+                    return JsonSerializer.Deserialize<TOutput>(stringContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }
                 if (mediaType != null && !mediaType.StartsWith("text/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -514,11 +546,17 @@ namespace Microsoft.Identity.Web
                 new HttpMethod(effectiveOptions.HttpMethod),
                 apiUrl);
 
-            await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+            // Request result will contain authorization header and potentially binding certificate for mTLS
+            var requestResult = await UpdateRequestAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
 
-            using HttpClient client = string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName);
+            // If a binding certificate is specified (which means mTLS is required) and MSAL mTLS HTTP factory is present
+            // then create an HttpClient with the certificate by using IMsalMtlsHttpClientFactory.
+            // Otherwise use the default HttpClientFactory with optional named client.
+            HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
+                ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
+                : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
 
-            // Send the HTTP message           
+            // Send the HTTP message
             var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
 
             // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
@@ -541,7 +579,7 @@ namespace Microsoft.Identity.Web
             return downstreamApiResult;
         }
 
-        internal /* internal for test */ async Task UpdateRequestAsync(
+        internal /* internal for test */ async Task<AuthorizationHeaderInformation?> UpdateRequestAsync(
             HttpRequestMessage httpRequestMessage,
             HttpContent? content,
             DownstreamApiOptions effectiveOptions,
@@ -558,15 +596,42 @@ namespace Microsoft.Identity.Web
 
             effectiveOptions.RequestAppToken = appToken;
 
+            AuthorizationHeaderInformation? authorizationHeaderInformation = null;
+
             // Obtention of the authorization header (except when calling an anonymous endpoint
             // which is done by not specifying any scopes
             if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
             {
-                string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
-                       effectiveOptions.Scopes,
-                       effectiveOptions,
-                       user,
-                       cancellationToken).ConfigureAwait(false);
+                string authorizationHeader = string.Empty;
+
+                // Firstly check if it's token binding scenario so authorization header provider returns
+                // a binding certificate along with acquired authorization header.
+                if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
+                    && string.Equals(effectiveOptions.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (!authorizationHeaderResult.Succeeded)
+                    {
+                        // in theory it shouldn't happen because in case of error during token acquisition
+                        // there will be thrown corresponding exception, so it's more a safeguard
+                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
+                    }
+
+                    authorizationHeaderInformation = authorizationHeaderResult.Result;
+                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
+                }
+                else
+                {
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                }
 
                 if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
                 {
@@ -602,7 +667,7 @@ namespace Microsoft.Identity.Web
                 var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
                 var existingQuery = uriBuilder.Query;
                 var queryString = new StringBuilder(existingQuery);
-                
+
                 foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
                 {
                     if (queryString.Length > 1) // if there are existing query parameters
@@ -613,23 +678,25 @@ namespace Microsoft.Identity.Web
                     {
                         queryString.Append('?');
                     }
-                    
+
                     queryString.Append(Uri.EscapeDataString(queryParam.Key));
                     queryString.Append('=');
                     queryString.Append(Uri.EscapeDataString(queryParam.Value));
                 }
-                
+
                 uriBuilder.Query = queryString.ToString().TrimStart('?');
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
 
             // Opportunity to change the request message
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+
+            return authorizationHeaderInformation;
         }
 
         internal /* for test */ static Dictionary<string, string> CallerSDKDetails { get; } = new()
           {
-              { "caller-sdk-id", "IdWeb_1" },  
+              { "caller-sdk-id", "IdWeb_1" },
               { "caller-sdk-ver", IdHelper.GetIdWebVersion() }
           };
 
@@ -657,14 +724,14 @@ namespace Microsoft.Identity.Web
         internal static async Task<string> ReadErrorResponseContentAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
         {
             const int maxErrorContentLength = 4096;
-            
+
             long? contentLength = response.Content.Headers.ContentLength;
-            
+
             if (contentLength.HasValue && contentLength.Value > maxErrorContentLength)
             {
                 return $"[Error response too large: {contentLength.Value} bytes, not captured]";
             }
-            
+
             // Use streaming to read only up to maxErrorContentLength to avoid loading entire response into memory
 #if NET5_0_OR_GREATER
             using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -672,18 +739,18 @@ namespace Microsoft.Identity.Web
             using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
             using var reader = new StreamReader(stream);
-            
+
             char[] buffer = new char[maxErrorContentLength];
             int readCount = await reader.ReadBlockAsync(buffer, 0, maxErrorContentLength).ConfigureAwait(false);
-            
+
             string errorResponseContent = new string(buffer, 0, readCount);
-            
+
             // Check if there's more content that was truncated
             if (readCount == maxErrorContentLength && reader.Peek() != -1)
             {
                 errorResponseContent += "... (truncated)";
             }
-            
+
             return errorResponseContent;
         }
     }

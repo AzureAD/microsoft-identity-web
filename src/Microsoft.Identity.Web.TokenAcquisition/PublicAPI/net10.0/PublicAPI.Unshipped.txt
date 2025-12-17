@@ -11,6 +11,11 @@ Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityMessageHandlerOptions() -> void
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.get -> System.Collections.Generic.IList<string!>!
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.set -> void
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory.Dispose() -> void
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory.GetHttpClient() -> System.Net.Http.HttpClient!
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory.GetHttpClient(System.Security.Cryptography.X509Certificates.X509Certificate2! x509Certificate2) -> System.Net.Http.HttpClient!
+Microsoft.Identity.Web.MsalMtlsHttpClientFactory.MsalMtlsHttpClientFactory(System.Net.Http.IHttpClientFactory! httpClientFactory) -> void
 override Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.SendAsync(System.Net.Http.HttpRequestMessage! request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage!>!
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.GetAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request) -> Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions?
 static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions! options) -> System.Net.Http.HttpRequestMessage!

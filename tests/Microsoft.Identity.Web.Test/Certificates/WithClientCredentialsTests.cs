@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -193,6 +194,223 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 Assert.True(ex.Message.Contains($"Failed to load credential with ID {cd.Id}", StringComparison.OrdinalIgnoreCase));
             }
         }
+        #endregion
+
+        #region Client credentials for token binding tests
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_ValidCertificate_ReturnsOriginalBuilderWithCertificate()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "test-thumbprint",
+                CertificateStorePath = "CurrentUser/My"
+            };
+
+            var testCertificate = Base64EncodedCertificateLoader.LoadFromBase64Encoded(
+                TestConstants.CertificateX5cWithPrivateKey,
+                TestConstants.CertificateX5cWithPrivateKeyPassword,
+                X509KeyStorageFlags.DefaultKeySet);
+
+            // Mock the credential loader to successfully load the certificate
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Certificate = testCertificate;
+                    return Task.CompletedTask;
+                });
+
+            // Act
+            var result = await builder.WithClientCredentialsAsync(
+                new[] { credentialDescription },
+                logger,
+                credLoader,
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: true);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Same(builder, result); // Should return the same builder instance
+            await credLoader.Received(1).LoadCredentialsIfNeededAsync(credentialDescription, null);
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_NoValidCredentials_ThrowsException()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "test-thumbprint",
+                CertificateStorePath = "CurrentUser/My"
+            };
+
+            // Mock the credential loader to fail loading (Skip = true causes LoadCredentialForMsalOrFailAsync to throw)
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Skip = true;
+                    return Task.CompletedTask;
+                });
+
+            // Act & Assert
+            // This should throw because LoadCredentialForMsalOrFailAsync throws when no credentials can be loaded
+            await Assert.ThrowsAsync<ArgumentException>(
+                () => builder.WithClientCredentialsAsync(
+                    new[] { credentialDescription },
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_CredentialWithoutCertificate_ThrowsException()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.ClientSecret,
+                ClientSecret = "test-secret"
+            };
+
+            // Mock the credential loader to load a credential without a certificate
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    // Certificate is null by default
+                    return Task.CompletedTask;
+                });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithClientCredentialsAsync(
+                    new[] { credentialDescription },
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_CredentialLoadingFails_PropagatesException()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "invalid-thumbprint",
+                CertificateStorePath = "CurrentUser/My"
+            };
+
+            var expectedException = new Exception("Certificate not found");
+
+            // Mock the credential loader to throw an exception
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .ThrowsAsync(expectedException);
+
+            // Act & Assert
+            var actualException = await Assert.ThrowsAsync<ArgumentException>(
+                () => builder.WithClientCredentialsAsync(
+                    new[] { credentialDescription },
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
+
+            // Verify the exception is propagated from LoadCredentialForMsalOrFailAsync
+            Assert.Contains("Certificate not found", actualException.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_EmptyCredentialsList_ThrowsException()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithClientCredentialsAsync(
+                    new CredentialDescription[0],
+                    logger,
+                    credLoader,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_WithCredentialSourceLoaderParameters_PassesParametersCorrectly()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "test-thumbprint",
+                CertificateStorePath = "CurrentUser/My"
+            };
+
+            var testCertificate = Base64EncodedCertificateLoader.LoadFromBase64Encoded(
+                TestConstants.CertificateX5cWithPrivateKey,
+                TestConstants.CertificateX5cWithPrivateKeyPassword,
+                X509KeyStorageFlags.DefaultKeySet);
+
+            var credentialSourceLoaderParameters = new CredentialSourceLoaderParameters("test-client-id", "test-tenant-id");
+
+            // Mock the credential loader to successfully load the certificate
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Certificate = testCertificate;
+                    return Task.CompletedTask;
+                });
+
+            // Act
+            var result = await builder.WithClientCredentialsAsync(
+                new[] { credentialDescription },
+                logger,
+                credLoader,
+                credentialSourceLoaderParameters,
+                isTokenBinding: true);
+
+            // Assert
+            Assert.NotNull(result);
+            await credLoader.Received(1).LoadCredentialsIfNeededAsync(credentialDescription, credentialSourceLoaderParameters);
+        }
+
         #endregion
 
     }
