@@ -8,6 +8,8 @@ const Microsoft.Identity.Web.Constants.AzureADIssuerMetadataUrl = "https://login
 const Microsoft.Identity.Web.Constants.BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=" -> string!
 const Microsoft.Identity.Web.Constants.CertificateHasBeenRevoked = "AADSTS7000214" -> string!
 const Microsoft.Identity.Web.Constants.CertificateIsOutsideValidityWindow = "AADSTS1000502" -> string!
+const Microsoft.Identity.Web.Constants.CertificateNotWithinValidityPeriod = "AADSTS7000274" -> string!
+const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
 const Microsoft.Identity.Web.Constants.CiamAuthoritySuffix = ".ciamlogin.com" -> string!
 const Microsoft.Identity.Web.Constants.ClientAssertion = "IDWEB_CLIENT_ASSERTION" -> string!
 const Microsoft.Identity.Web.Constants.ClientInfo = "client_info" -> string!

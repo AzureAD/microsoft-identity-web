@@ -131,6 +131,8 @@ namespace Microsoft.Identity.Web
         internal const string SignedAssertionInvalidTimeRange = "AADSTS700024";
         internal const string CertificateHasBeenRevoked = "AADSTS7000214";
         internal const string CertificateIsOutsideValidityWindow = "AADSTS1000502";
+        internal const string CertificateNotWithinValidityPeriod = "AADSTS7000274";
+        internal const string CertificateWasRevoked = "AADSTS7000277";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
