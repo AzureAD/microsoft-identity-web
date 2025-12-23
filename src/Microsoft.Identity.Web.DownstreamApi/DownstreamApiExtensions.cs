@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,10 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configuration">Configuration.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         public static IServiceCollection AddDownstreamApi(
             this IServiceCollection services,
             string serviceName,
@@ -30,9 +35,16 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(services);
 
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            // Help the compiler figure out the type so that the code generator generates the binding code
+            services.AddOptions<DownstreamApiOptions>(serviceName)
+                .Bind(configuration);
+#else
             // Help the compiler figure out the type so that the code generator generates
             // the binding code
             services.Configure<DownstreamApiOptions>(serviceName, configuration);
+#endif
             RegisterDownstreamApi(services);
             return services;
         }
@@ -65,6 +77,10 @@ namespace Microsoft.Identity.Web
         /// This is the name used when calling the service from controller/pages.</param>
         /// <param name="configurationSection">Configuration section.</param>
         /// <returns>The builder for chaining.</returns>
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         public static IServiceCollection AddDownstreamApis(
             this IServiceCollection services,
             IConfigurationSection configurationSection)
@@ -78,7 +94,13 @@ namespace Microsoft.Identity.Web
 
             foreach (var optionsForService in options.Keys)
             {
+#if NET8_0_OR_GREATER
+                // For .NET 8+, use source generator-based binding for AOT compatibility
+                services.AddOptions<DownstreamApiOptions>(optionsForService)
+                    .Bind(configurationSection.GetSection(optionsForService));
+#else
                 services.Configure<DownstreamApiOptions>(optionsForService, configurationSection.GetSection(optionsForService));
+#endif
             }
             RegisterDownstreamApi(services);
             return services;

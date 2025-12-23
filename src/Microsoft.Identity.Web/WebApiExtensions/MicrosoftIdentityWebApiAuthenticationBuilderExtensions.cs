@@ -81,6 +81,27 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(configurationSection);
             _ = Throws.IfNull(builder);
             
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            AddMicrosoftIdentityWebApiImplementation(
+                builder,
+                _ => { }, // No-op - binding handled below via AddOptions
+                jwtBearerScheme,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+
+            // Use source generator-based binding for JwtBearerOptions and MicrosoftIdentityOptions
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Bind(configurationSection);
+            builder.Services.AddOptions<MicrosoftIdentityOptions>(jwtBearerScheme)
+                .Bind(configurationSection);
+
+            return new MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
+                builder.Services,
+                jwtBearerScheme,
+                _ => { }, // No-op - binding handled via AddOptions
+                _ => { }, // No-op - binding handled via AddOptions
+                configurationSection);
+#else
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 options => configurationSection.Bind(options),
@@ -93,6 +114,7 @@ namespace Microsoft.Identity.Web
                 options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 configurationSection);
+#endif
         }
 
         /// <summary>
