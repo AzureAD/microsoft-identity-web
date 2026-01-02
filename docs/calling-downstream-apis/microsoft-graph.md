@@ -208,6 +208,7 @@ public class MailController : Controller
         catch (MicrosoftIdentityWebChallengeUserException)
         {
             // ASP.NET Core will redirect user to consent
+            // thansk to the AuthorizeForScopes attribute.
             throw;
         }
     }

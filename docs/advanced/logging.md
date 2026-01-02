@@ -733,7 +733,7 @@ _logger.LogInformation("Token acquired, expires: {ExpiresOn}", expiresOn);
 - **[Customization Guide](customization.md)** - Configure authentication options and event handlers
 - **[Authorization Guide](../authentication/authorization.md)** - Troubleshoot scope validation and authorization issues
 - **[Token Cache Troubleshooting](../authentication/token-cache/troubleshooting.md)** - Debug token cache issues
-- **[Calling Downstream APIs](../calling-downstream-apis/README.md)** - Troubleshoot API calls and token acquisition
+- **[Calling Downstream APIs](../calling-downstream-apis/calling-downstream-apis-README.md)** - Troubleshoot API calls and token acquisition
 
 ---
 

@@ -952,7 +952,7 @@ https://gateway.contoso.com/signout-oidc
 
 - **[Quickstart: Web App](../getting-started/quickstart-webapp.md)** - Basic web app authentication
 - **[APIs Behind Gateways](api-gateways.md)** - Web API gateway patterns
-- **[Token Cache Configuration](../authentication/token-cache/README.md)** - Distributed caching for multi-region
+- **[Token Cache Configuration](../authentication/token-cache/token-cache-README.md)** - Distributed caching for multi-region
 - **[Customization Guide](customization.md)** - OpenIdConnect event handlers
 - **[Logging & Diagnostics](logging.md)** - Troubleshooting authentication
 

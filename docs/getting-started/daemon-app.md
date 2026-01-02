@@ -298,7 +298,7 @@ public class DaemonService
 }
 ```
 
-See also [Calling downstream APIs](../../calling-downstream-apis/README.md) to learn about all the ways
+See also [Calling downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md) to learn about all the ways
 Microsoft Identity Web proposes to call downstream APIs.
 
 ---
@@ -853,7 +853,7 @@ services.AddCosmosDbTokenCaches(options =>
 });
 ```
 
-**Learn more:** [Token Cache Configuration](../../authentication/token-cache/README.md)
+**Learn more:** [Token Cache Configuration](../../authentication/token-cache/token-cache-README.md)
 
 ---
 
@@ -978,7 +978,7 @@ Both approaches are fully supported and production-ready. Choose based on your a
 - **[Calling Downstream APIs from Web APIs](../../calling-downstream-apis/from-web-apis.md)** - OBO patterns
 - **[MSAL.NET Framework Guide](../../frameworks/msal-dotnet-framework.md)** - Token cache and certificate configuration for .NET Framework
 - **[Certificate Configuration](../../authentication/credentials.md)** - Loading certificates from KeyVault, store, file, Base64
-- **[Token Cache Configuration](../../authentication/token-cache/README.md)** - Production caching strategies
+- **[Token Cache Configuration](../../authentication/token-cache/token-cache-README.md)** - Production caching strategies
 - **[Logging & Diagnostics](../../advanced/logging.md)** - Troubleshooting token acquisition issues
 - **[Customization Guide](../../advanced/customization.md)** - Advanced configuration patterns
 

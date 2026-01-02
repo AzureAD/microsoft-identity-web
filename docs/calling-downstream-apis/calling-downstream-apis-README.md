@@ -306,7 +306,7 @@ Microsoft.Identity.Web supports both JSON configuration and code-based configura
 
 **Note**: For daemon/console apps, set `appsettings.json` properties: **"Copy to Output Directory" = "Copy if newer"**
 
-[📖 Learn more about credentials configuration](../authentication/credentials/README.md)
+[📖 Learn more about credentials configuration](../authentication/credentials/credentials-README.md)
 
 ### Code-Based Configuration
 
@@ -356,7 +356,7 @@ The best approach depends on where you're calling the API from:
 - **Special considerations**: No user context, requires admin consent
 - **Advanced**: Autonomous agents, agent user identities
 
-[📖 Read the Daemon Applications guide](../scenarios/daemon/README.md)
+[📖 Read the Daemon Applications guide](../getting-started/daemon-app.md)
 
 ## ⚠️ Error Handling
 
@@ -395,9 +395,9 @@ catch (HttpRequestException ex)
 
 ## 🔗 Related Documentation
 
-- **[Credentials Configuration](../authentication/credentials/README.md)** - How to configure authentication credentials
-- **[Web App Scenarios](../scenarios/web-apps/README.md)** - Building web applications
-- **[Web API Scenarios](../scenarios/web-apis/README.md)** - Building and protecting APIs
+- **[Credentials Configuration](../authentication/credentials/credentials-README.md)** - How to configure authentication credentials
+- **[Web App Scenarios](../getting-started/quickstart-webapp.md)** - Building web applications
+- **[Web API Scenarios](../getting-started/quickstart-webapi.md)** - Building and protecting APIs
 - **[Agent Identities](../scenarios/agent-identities/README.md)** - Calling downstream APIs from agent identities.
 
 ## 📦 NuGet Packages
@@ -415,7 +415,7 @@ catch (HttpRequestException ex)
 
 1. **Choose your approach** using the decision tree above
 2. **Read the scenario-specific guide** for your application type
-3. **Configure credentials** following the [credentials guide](../authentication/credentials/README.md)
+3. **Configure credentials** following the [credentials guide](../authentication/credentials/credentials-README.md)
 4. **Implement and test** using the code examples provided
 5. **Handle errors** gracefully using the patterns shown
 

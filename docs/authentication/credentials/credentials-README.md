@@ -682,15 +682,15 @@ Based on the decision flow and comparison table above, select the credential typ
 
 Learn how credentials are used in different application scenarios:
 
-- **[Web Applications](../../scenarios/web-apps/README.md)** - Sign-in users with web apps
-- **[Web APIs](../../scenarios/web-apis/README.md)** - Protect and call APIs
-- **[Daemon Applications](../../scenarios/daemon/README.md)** - Background services and console apps
+- **[Web Applications](../../getting-started/quickstart-webapp.md)** - Sign-in users with web apps
+- **[Web APIs](../../getting-started/quickstart-webapi.md)** - Protect and call APIs
+- **[Daemon Applications](../../getting-started/daemon-app.md)** - Background services and console apps
 - **[Agent Identities](../../scenarios/agent-identities/README.md)** - Call APIs on behalf of agents
 
 ### Related Topics
 
-- **[Calling Downstream APIs](../../calling-downstream-apis/README.md)** - Use credentials to call protected APIs
-- **[Token Cache](../token-cache/README.md)** - Configure token caching strategies
+- **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call protected APIs
+- **[Token Cache](../token-cache/token-cache-README.md)** - Configure token caching strategies
 - **[Migration Guides](../../migration/README.md)** - Upgrade from previous versions
 
 ---
@@ -723,7 +723,7 @@ Learn how credentials are used in different application scenarios:
 - Ensure network connectivity to Key Vault
 - Validate the Key Vault URL and certificate name are correct
 
-**More troubleshooting:** See scenario-specific troubleshooting guides in [Web Apps](../../scenarios/web-apps/troubleshooting.md), [Web APIs](../../scenarios/web-apis/troubleshooting.md), and [Daemon Apps](../../scenarios/daemon/README.md).
+**More troubleshooting:** See scenario-specific troubleshooting guides in [Web Apps](../../scenarios/web-apps/troubleshooting.md), [Web APIs](../../scenarios/web-apis/troubleshooting.md), and [Daemon Apps](../../getting-started/daemon-app.md).
 
 ---
 

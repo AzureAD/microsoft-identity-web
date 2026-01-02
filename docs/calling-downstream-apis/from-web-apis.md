@@ -584,9 +584,9 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 ## Related Documentation
 
 - [Long-Running Processes](../advanced/long-running-processes.md)
-- [Token Caching](../authentication/token-cache/README.md)
+- [Token Caching](../authentication/token-cache/token-cache-README.md)
 - [Calling from Web Apps](from-web-apps.md)
-- [Web API Scenarios](../scenarios/web-apis/README.md)
+- [Web API Scenarios](../getting-started/quickstart-webapi.md)
 - [API Behind Gateways](../advanced/api-gateways.md)
 - **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshooting authentication and token issues
 - **[Authorization Guide](../authentication/authorization.md)** - RequiredScope and app permission validation

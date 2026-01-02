@@ -333,7 +333,7 @@ Now that you have a protected API:
 ### Advanced Scenarios
 
 ✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apis.md)** - Call Microsoft Graph or other APIs on behalf of users
-✅ **[Configure token cache](../authentication/token-cache/README.md)** - Production cache strategies for OBO scenarios
+✅ **[Configure token cache](../authentication/token-cache/token-cache-README.md)** - Production cache strategies for OBO scenarios
 ✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens
 ✅ **[Deploy behind API Gateway](../advanced/api-gateways.md)** - Azure API Management, Azure Front Door, Application Gateway
 
@@ -373,6 +373,6 @@ Now that you have a protected API:
 
 ## Learn More
 
-- [Web API Scenario Documentation](../scenarios/web-apis/README.md)
+- [Web API Scenario Documentation](./quickstart-webapi.md)
 - [Protected Web API Tutorial](https://learn.microsoft.com/azure/active-directory/develop/tutorial-web-api-dotnet-protect-endpoint)
 - [API Samples](https://github.com/Azure-Samples/active-directory-dotnet-native-aspnetcore-v2)

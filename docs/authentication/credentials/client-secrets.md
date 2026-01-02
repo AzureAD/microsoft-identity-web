@@ -595,7 +595,7 @@ flowchart LR
 ### Learn More
 
 - **[Back to Credentials Overview](./README.md)** - Compare all credential types
-- **[Calling Downstream APIs](../../calling-downstream-apis/README.md)** - Use credentials to call APIs
+- **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call APIs
 - **[Security Best Practices](../../advanced/security-best-practices.md)** - Comprehensive security guidance
 
 ---

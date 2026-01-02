@@ -778,7 +778,7 @@ services.AddDistributedTokenCaches(cacheServices =>
 - [Microsoft.Identity.Web.OWIN on GitHub](https://github.com/AzureAD/microsoft-identity-web)
 - [OWIN Integration Wiki](https://github.com/AzureAD/microsoft-identity-web/wiki/OWIN)
 - [Sample: ASP.NET MVC with OWIN](https://github.com/Azure-Samples/ms-identity-aspnet-webapp-openidconnect)
-- [Token Cache Serialization](../authentication/token-cache/README.md)
+- [Token Cache Serialization](../authentication/token-cache/token-cache-README.md)
 
 ---
 

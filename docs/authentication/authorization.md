@@ -662,7 +662,7 @@ Ensure configuration path matches exactly.
 - **[Customization Guide](../advanced/customization.md)** - Configure authentication options and event handlers
 - **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot authentication and authorization issues with detailed logging
 - **[Quickstart: Web API](../getting-started/quickstart-webapi.md)** - Get started with API protection
-- **[Token Cache](token-cache/README.md)** - Configure token caching for optimal performance
+- **[Token Cache](token-cache/token-cache-README.md)** - Configure token caching for optimal performance
 
 ---
 

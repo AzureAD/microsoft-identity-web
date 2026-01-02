@@ -720,10 +720,10 @@ AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsy
 
 ## See Also
 
-- **[Daemon Applications Guide](../scenarios/daemon/README.md)** - Complete guide for daemon apps, autonomous agents, agent user identities
+- **[Daemon Applications Guide](../getting-started/daemon-app.md)** - Complete guide for daemon apps, autonomous agents, agent user identities
 - **[OWIN Integration](owin.md)** - For ASP.NET MVC and Web API applications
 - **[ASP.NET Framework Overview](aspnet-framework.md)** - Choose the right package for your scenario
-- **[Credentials Guide](../authentication/credentials/README.md)** - Certificate and client secret management
+- **[Credentials Guide](../authentication/credentials/credentials-README.md)** - Certificate and client secret management
 - **[Logging & Diagnostics](../advanced/logging.md)** - Troubleshoot token acquisition issues
 
 ---

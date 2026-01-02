@@ -551,7 +551,7 @@ Token decryption adds computational overhead:
 
 - **[Back to Credentials Overview](./README.md)** - Compare all credential types
 - **[Certificates Guide](./certificates.md)** - Certificate management
-- **[Calling Downstream APIs](../../calling-downstream-apis/README.md)** - Use credentials to call APIs
+- **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call APIs
 
 ---
 

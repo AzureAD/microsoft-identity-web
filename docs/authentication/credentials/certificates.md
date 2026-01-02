@@ -955,7 +955,7 @@ az keyvault set-policy --name <keyvault-name> --object-id <principal-id> --certi
 - **[Back to Credentials Overview](./README.md)** - Compare all credential types
 - **[Certificateless Authentication](./certificateless.md)** - Alternative to certificates
 - **[Client Secrets](./client-secrets.md)** - Simple authentication for development
-- **[Calling Downstream APIs](../../calling-downstream-apis/README.md)** - Use certificates to call APIs
+- **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use certificates to call APIs
 
 ---
 

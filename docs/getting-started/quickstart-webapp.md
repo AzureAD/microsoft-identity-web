@@ -249,9 +249,8 @@ Now that you have a working web app with sign-in:
 ### Advanced Scenarios
 
 ✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apps.md)** - Call Microsoft Graph or your own API
-✅ **[Configure token cache](../authentication/token-cache/README.md)** - Set up distributed caching for production
+✅ **[Configure token cache](../authentication/token-cache/token-cache-README.md)** - Set up distributed caching for production
 ✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions dynamically
-✅ **[Deploy to Azure](../deployment/azure-app-service.md)** - Production deployment guidance
 
 ## Troubleshooting
 
@@ -279,6 +278,6 @@ Now that you have a working web app with sign-in:
 
 ## Learn More
 
-- [Web Apps Scenario Documentation](../scenarios/web-apps/README.md)
+- [Web Apps Scenario Documentation](./quickstart-webapp.md)
 - [Complete Web App Tutorial](https://learn.microsoft.com/azure/active-directory/develop/tutorial-web-app-dotnet-sign-in-users)
 - [Microsoft.Identity.Web Samples](https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2)

@@ -490,7 +490,7 @@ var blobClient = new BlobServiceClient(new Uri(storageUri), credential);
 
 - [Azure SDK for .NET Documentation](https://learn.microsoft.com/dotnet/azure/sdk/overview)
 - [Managed Identity Documentation](https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview)
-- [Credentials Configuration](../authentication/credentials/README.md)
+- [Credentials Configuration](../authentication/credentials/credentials-README.md)
 - [Agent Identities](../scenarios/agent-identities/README.md)
 - [Calling Downstream APIs Overview](README.md)
 

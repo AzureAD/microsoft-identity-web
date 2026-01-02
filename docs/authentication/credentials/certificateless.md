@@ -690,8 +690,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 - **[Back to Credentials Overview](./README.md)** - Compare all credential types
 - **[Certificates Guide](./certificates.md)** - Alternative authentication methods
-- **[Calling Downstream APIs](../../calling-downstream-apis/README.md)** - Use certificateless auth to call APIs
-- **[Deployment Guide](../../deployment/azure-app-service.md)** - Deploy with certificateless authentication
+- **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use certificateless auth to call APIs
 
 ---
 

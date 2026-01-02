@@ -362,47 +362,6 @@ builder.Services.Configure<OpenIdConnectOptions>(
 
 ## Token Acquisition Customization
 
-### Using ITokenAcquisition with Custom Options
-
-```csharp
-using Microsoft.Identity.Web;
-
-public class TodoListController : ControllerBase
-{
-    private readonly ITokenAcquisition _tokenAcquisition;
-
-    public TodoListController(ITokenAcquisition tokenAcquisition)
-    {
-        _tokenAcquisition = tokenAcquisition;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetTodos(Guid correlationId)
-    {
-        // Customize token acquisition
-        var tokenAcquisitionOptions = new TokenAcquisitionOptions
-        {
-            // Set correlation ID for tracing
-            CorrelationId = correlationId,
-
-            // Add extra query parameters
-            ExtraQueryParameters = new Dictionary<string, string>
-            {
-                { "slice", "test_slice" },
-                { "dc", "westus2" }
-            }
-        };
-
-        string token = await _tokenAcquisition.GetAccessTokenForUserAsync(
-            new[] { "user.read" },
-            tokenAcquisitionOptions: tokenAcquisitionOptions);
-
-        // Use token to call API
-        return Ok(await CallApiWithToken(token));
-    }
-}
-```
-
 ### Using IDownstreamApi with Custom Options
 
 ```csharp
@@ -819,7 +778,7 @@ app.MapControllers();    // Then endpoints
 
 - **[Authorization Guide](../authentication/authorization.md)** - Scope validation and authorization policies
 - **[Logging & Diagnostics](logging.md)** - Debug customization issues with correlation IDs and detailed logging
-- **[Token Cache](../authentication/token-cache/README.md)** - Configure distributed token caching
+- **[Token Cache](../authentication/token-cache/token-cache-README.md)** - Configure distributed token caching
 - **[Quickstart: Web App](../getting-started/quickstart-webapp.md)** - Get started with web application authentication
 
 ---

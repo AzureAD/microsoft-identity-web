@@ -103,7 +103,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 builder.Services.AddRazorPages();
 ```
 
-**Learn more:** [Web Apps Scenario](./scenarios/web-apps/README.md)
+**Learn more:** [Web Apps Scenario](./getting-started/quickstart-webapp.md)
 
 ### Protected Web APIs
 
@@ -123,7 +123,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers();
 ```
 
-**Learn more:** [Web APIs Scenario](./scenarios/web-apis/README.md)
+**Learn more:** [Web APIs Scenario](./getting-started/quickstart-webapi.md)
 
 ### Daemon Applications
 
@@ -173,7 +173,7 @@ var result = await api.GetForAppAsync<IEnumerable<MyData>>("MyApi");
 }
 ```
 
-> **Note:** `ClientCredentials` supports multiple authentication methods including certificates, Key Vault, managed identities, and certificateless authentication (FIC+MSI). See the [Credentials Guide](./authentication/credentials/README.md) for all options.
+> **Note:** `ClientCredentials` supports multiple authentication methods including certificates, Key Vault, managed identities, and certificateless authentication (FIC+MSI). See the [Credentials Guide](./authentication/credentials/credentials-README.md) for all options.
 
 **Supported Scenarios:**
 - **Standard Daemon** - Client credentials for app-only tokens
@@ -182,7 +182,7 @@ var result = await api.GetForAppAsync<IEnumerable<MyData>>("MyApi");
 
 ⚠️ For agent scenarios, be sure to run them in a secure environment. That's a confidential client!
 
-**Learn more:** [Daemon Applications & Agent Identities](./scenarios/daemon/README.md)
+**Learn more:** [Daemon Applications & Agent Identities](./getting-started/daemon-app.md)
 
 ## 🏗️ Package Architecture
 
@@ -214,7 +214,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - **[Client Secrets](./authentication/credentials/client-secrets.md)** - Simple shared secrets (not for production)
 - **[Certificates from Files](./authentication/credentials/certificates.md#file-path)** - PFX/P12 files on disk
 
-**See:** [Credential Decision Guide](./authentication/credentials/README.md) for choosing the right approach.
+**See:** [Credential Decision Guide](./authentication/credentials/credentials-README.md) for choosing the right approach.
 
 ## 🌐 Supported .NET Versions
 
@@ -238,14 +238,14 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [Why Microsoft.Identity.Web?](./getting-started/why-microsoft-identity-web.md)
 
 ### Scenarios
-- [Web Applications](./scenarios/web-apps/README.md) - Sign-in users, call APIs
-- [Web APIs](./scenarios/web-apis/README.md) - Protect APIs, call downstream services
-- [Daemon Applications and Agent Identities](./scenarios/daemon/README.md) - Background services, autonomous agents, agent user identities
+- [Web Applications](./getting-started/quickstart-webapp.md) - Sign-in users, call APIs
+- [Web APIs](./getting-started/quickstart-webapi.md) - Protect APIs, call downstream services
+- [Daemon Applications and Agent Identities](./getting-started/daemon-app.md) - Background services, autonomous agents, agent user identities
 - [Azure Functions](./scenarios/azure-functions/README.md) - Serverless authentication
 
 ### Authentication & Tokens
-- [Credentials Guide](./authentication/credentials/README.md) - Choose and configure credentials
-- [Token Cache](./authentication/token-cache/README.md) - Configure distributed caching
+- [Credentials Guide](./authentication/credentials/credentials-README.md) - Choose and configure credentials
+- [Token Cache](./authentication/token-cache/token-cache-README.md) - Configure distributed caching
 - [Token Decryption](./authentication/token-cache/token-decryption.md) - Decrypt encrypted tokens
 - [Authorization](./authentication/authorization.md) - Scope validation, authorization policies, tenant filtering
 
@@ -263,13 +263,11 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [MSAL.NET with Microsoft.Identity.Web](./frameworks/msal-dotnet-framework.md) - Token cache and certificates for console/daemon apps
 - [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
 
+<!-- 
 ### Deployment
 - [Azure App Service](./deployment/azure-app-service.md)
 - [Containers & Docker](./deployment/containers.md)
-
-### Migration Guides
-- [Migrating from 1.x to 2.x](./migration/v1-to-v2.md)
-- [Migrating from 2.x to 3.x](./migration/v2-to-v3.md)
+-->
 
 ## 🔗 External Resources
 
