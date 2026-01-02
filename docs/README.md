@@ -14,7 +14,7 @@ Choose your scenario:
 
 - **[Web App - Sign in users](./getting-started/quickstart-webapp.md)** - Add authentication to your ASP.NET Core web application
 - **[Web API - Protect your API](./getting-started/quickstart-webapi.md)** - Secure your ASP.NET Core web API with bearer tokens
-- **[Daemon App - Call APIs](./scenarios/daemon/README.md)** - Build background services that call protected APIs
+- **[Daemon App - Call APIs](./getting-started/daemon-app.md)** - Build background services that call protected APIs
 
 ## 📦 What's Included
 
@@ -37,7 +37,7 @@ Microsoft.Identity.Web makes it easy to call protected APIs without manually man
 - **Your Own APIs** - Use `IDownstreamApi` or `IAuthorizationHeaderProvider` for seamless API calls
 - **Agent Identity APIs** - Call APIs on behalf of managed identities or service principals with automatic credential handling
 
-Authentication headers are automatically added to your requests, and tokens are acquired and cached transparently. See the [Microsoft.Identity.Web.DownstreamApi documentation](./packages/downstream-api.md) and [Agent Identities guide](./packages/agent-identities.md) for complete details.
+Authentication headers are automatically added to your requests, and tokens are acquired and cached transparently. See the [Calling Downstream APIs documentation](./calling-downstream-apis/calling-downstream-apis-README.md) and [Daemon Applications](./getting-started/daemon-app.md) and [Agent Identities guide](./calling-downstream-apis/AgentIdentities-Readme.md) for complete details.
 
 ## ⚙️ Configuration Approaches
 
