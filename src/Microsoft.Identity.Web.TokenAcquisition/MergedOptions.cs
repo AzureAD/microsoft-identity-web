@@ -447,7 +447,7 @@ namespace Microsoft.Identity.Web
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
             // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
-            if (!string.IsNullOrEmpty(mergedOptions.Authority) && 
+            if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
                 (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
             {
                 // Log warning that Authority is being ignored
