@@ -58,11 +58,11 @@ dotnet add package Microsoft.Identity.Web
 ### 2. Configure authentication in `Program.cs`
 
 ```csharp
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add authentication
 // Add authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(builder.Configuration, "AzureAd");
