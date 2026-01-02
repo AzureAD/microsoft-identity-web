@@ -332,8 +332,8 @@ namespace Microsoft.Identity.Web.Test
                             var errorResponse = new
                             {
                                 error = "invalid_client",
-                                error_description = $"Invalid certificate: {this.description.CachedValue}",
-                                error_codes = new[] { 50000 },
+                                error_description = $"AADSTS700027: Invalid certificate: {this.description.CachedValue}",
+                                error_codes = new[] { 700027 },
                                 timestamp = DateTime.UtcNow,
                             };
 
