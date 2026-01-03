@@ -663,8 +663,6 @@ For advanced scenarios, you can implement custom signed assertion providers:
 }
 ```
 
-See [Custom Signed Assertion Providers](../../advanced/custom-credential-providers.md) for details.
-
 ---
 
 ## Next Steps
@@ -685,13 +683,12 @@ Learn how credentials are used in different application scenarios:
 - **[Web Applications](../../getting-started/quickstart-webapp.md)** - Sign-in users with web apps
 - **[Web APIs](../../getting-started/quickstart-webapi.md)** - Protect and call APIs
 - **[Daemon Applications](../../getting-started/daemon-app.md)** - Background services and console apps
-- **[Agent Identities](../../scenarios/agent-identities/README.md)** - Call APIs on behalf of agents
+- **[Agent Identities](../../calling-downstream-apis/AgentIdentities-Readme.md)** - Call APIs on behalf of agents
 
 ### Related Topics
 
 - **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call protected APIs
 - **[Token Cache](../token-cache/token-cache-README.md)** - Configure token caching strategies
-- **[Migration Guides](../../migration/README.md)** - Upgrade from previous versions
 
 ---
 
@@ -723,7 +720,7 @@ Learn how credentials are used in different application scenarios:
 - Ensure network connectivity to Key Vault
 - Validate the Key Vault URL and certificate name are correct
 
-**More troubleshooting:** See scenario-specific troubleshooting guides in [Web Apps](../../scenarios/web-apps/troubleshooting.md), [Web APIs](../../scenarios/web-apis/troubleshooting.md), and [Daemon Apps](../../getting-started/daemon-app.md).
+**More troubleshooting:** See scenario-specific troubleshooting guides in [Web Apps](../../calling-downstream-apis/from-web-apps.md#troubleshooting), [Web APIs](../../calling-downstream-apis/from-web-apis.md#troubleshooting), and [Daemon Apps](../../getting-started/daemon-app.md).
 
 ---
 
@@ -736,4 +733,4 @@ Learn how credentials are used in different application scenarios:
 
 ---
 
-**Need help?** Visit our [troubleshooting guide](../../scenarios/web-apps/troubleshooting.md) or [open an issue](https://github.com/AzureAD/microsoft-identity-web/issues).
+**Need help?** Visit our [troubleshooting guide](../../calling-downstream-apis/from-web-apps.md#troubleshooting) or [open an issue](https://github.com/AzureAD/microsoft-identity-web/issues).

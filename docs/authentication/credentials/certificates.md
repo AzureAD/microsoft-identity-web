@@ -952,11 +952,11 @@ az keyvault set-policy --name <keyvault-name> --object-id <principal-id> --certi
 
 ## Next Steps
 
-- **[Back to Credentials Overview](./README.md)** - Compare all credential types
+- **[Back to Credentials Overview](./credentials-README.md)** - Compare all credential types
 - **[Certificateless Authentication](./certificateless.md)** - Alternative to certificates
 - **[Client Secrets](./client-secrets.md)** - Simple authentication for development
 - **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use certificates to call APIs
 
 ---
 
-**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../scenarios/web-apps/troubleshooting.md).
+**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../calling-downstream-apis/from-web-apps.md#troubleshooting).

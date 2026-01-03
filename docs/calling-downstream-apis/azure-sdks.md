@@ -289,7 +289,7 @@ public class AgentService
 }
 ```
 
-See [Agent Identities documentation](../scenarios/agent-identities/README.md) for more details.
+See [Agent Identities documentation](./AgentIdentities-Readme.md) for more details.
 
 ## FIC+Managed Identity Integration
 
@@ -491,8 +491,8 @@ var blobClient = new BlobServiceClient(new Uri(storageUri), credential);
 - [Azure SDK for .NET Documentation](https://learn.microsoft.com/dotnet/azure/sdk/overview)
 - [Managed Identity Documentation](https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview)
 - [Credentials Configuration](../authentication/credentials/credentials-README.md)
-- [Agent Identities](../scenarios/agent-identities/README.md)
-- [Calling Downstream APIs Overview](README.md)
+- [Agent Identities](./AgentIdentities-Readme.md)
+- [Calling Downstream APIs Overview](calling-downstream-apis-README.md)
 
 ---
 

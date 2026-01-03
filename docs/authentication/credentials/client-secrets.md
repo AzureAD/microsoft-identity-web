@@ -594,12 +594,11 @@ flowchart LR
 
 ### Learn More
 
-- **[Back to Credentials Overview](./README.md)** - Compare all credential types
+- **[Back to Credentials Overview](./credentials-README.md)** - Compare all credential types
 - **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call APIs
-- **[Security Best Practices](../../advanced/security-best-practices.md)** - Comprehensive security guidance
 
 ---
 
 **⚠️ Remember:** Client secrets are for development only. Always use certificates or certificateless authentication in production.
 
-**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../scenarios/web-apps/troubleshooting.md).
+**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../calling-downstream-apis/from-web-apps.md#troubleshooting).

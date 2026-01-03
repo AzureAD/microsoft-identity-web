@@ -334,7 +334,7 @@ services.AddMicrosoftIdentityAzureTokenCredential();
 You can now get a `MicrosoftIdentityTokenCredential` from the service provider. This class has a member Options to which you can apply the
 `.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
 
-See [Readme-azure](../../README-Azure.md)
+See [Azure SDKs integration](./azure-sdks.md) for more details.
 
 ### 7. HttpClient with MicrosoftIdentityMessageHandler Integration
 

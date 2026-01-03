@@ -543,16 +543,15 @@ Token decryption adds computational overhead:
 
 - **[Token Encryption in Microsoft Entra ID](https://learn.microsoft.com/azure/active-directory/develop/active-directory-certificate-credentials#token-encryption)** - Official documentation
 - **[Certificate-Based Authentication](./certificates.md)** - Detailed certificate guidance
-- **[Security Best Practices](../../advanced/security-best-practices.md)** - Comprehensive security guidance
 
 ---
 
 ## Next Steps
 
-- **[Back to Credentials Overview](./README.md)** - Compare all credential types
+- **[Back to Credentials Overview](./credentials-README.md)** - Compare all credential types
 - **[Certificates Guide](./certificates.md)** - Certificate management
 - **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use credentials to call APIs
 
 ---
 
-**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../scenarios/web-apps/troubleshooting.md).
+**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../calling-downstream-apis/from-web-apps.md#troubleshooting).

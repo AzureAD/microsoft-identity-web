@@ -334,7 +334,7 @@ Now that you have a protected API:
 
 ✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apis.md)** - Call Microsoft Graph or other APIs on behalf of users
 ✅ **[Configure token cache](../authentication/token-cache/token-cache-README.md)** - Production cache strategies for OBO scenarios
-✅ **[Long-running processes](../scenarios/web-apis/long-running-processes.md)** - Handle background jobs with OBO tokens
+✅ **[Long-running processes](../calling-downstream-apis/from-web-apis.md#long-running-processes-with-obo)** - Handle background jobs with OBO tokens
 ✅ **[Deploy behind API Gateway](../advanced/api-gateways.md)** - Azure API Management, Azure Front Door, Application Gateway
 
 ## Troubleshooting
@@ -367,7 +367,7 @@ Now that you have a protected API:
 3. See [Authorization Guide](../authentication/authorization.md) for complete scope validation patterns
 3. Check that the scope is requested when acquiring the token (e.g., `api://your-api/.default` or specific scopes)
 
-**See more:** [Web API Troubleshooting Guide](../scenarios/web-apis/troubleshooting.md)
+**See more:** [Web API Troubleshooting Guide](../calling-downstream-apis/from-web-apis.md#troubleshooting)
 
 ---
 

@@ -398,7 +398,7 @@ catch (HttpRequestException ex)
 - **[Credentials Configuration](../authentication/credentials/credentials-README.md)** - How to configure authentication credentials
 - **[Web App Scenarios](../getting-started/quickstart-webapp.md)** - Building web applications
 - **[Web API Scenarios](../getting-started/quickstart-webapi.md)** - Building and protecting APIs
-- **[Agent Identities](../scenarios/agent-identities/README.md)** - Calling downstream APIs from agent identities.
+- **[Agent Identities](./AgentIdentities-Readme.md)** - Calling downstream APIs from agent identities.
 
 ## 📦 NuGet Packages
 

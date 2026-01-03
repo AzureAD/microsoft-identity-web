@@ -1,12 +1,12 @@
 # Microsoft.Identity.Web Documentation
 
-Microsoft.Identity.Web is a set of libraries that simplifies adding authentication and authorization support to applications integrating with the Microsoft identity platform (formerly Azure AD v2.0). It supports:
+Microsoft.Identity.Web is a set of libraries that simplifies adding authentication and authorization support to services (confidential client applications) integrating with the Microsoft identity platform (formerly Azure AD v2.0). It supports:
 
 - **ASP.NET Core** web applications and web APIs
 - **OWIN** applications on .NET Framework
 - **.NET** daemon applications and background services
 
-Whether you're building web apps that sign in users, web APIs that validate tokens, or background services that call protected APIs, Microsoft.Identity.Web handles the authentication complexity for you.
+Whether you're building web apps that sign in users, web APIs that validate tokens, or background services that call protected APIs, Microsoft.Identity.Web handles the authentication complexity for you, including the client credentials.
 
 ## 🚀 Quick Start
 
@@ -200,8 +200,6 @@ Microsoft.Identity.Web is composed of several NuGet packages to support differen
 | **[Microsoft.Identity.Web.Certificateless](https://www.nuget.org/packages/Microsoft.Identity.Web.Certificateless)** | Certificateless authentication | .NET 6.0+ |
 | **[Microsoft.Identity.Web.OWIN](https://www.nuget.org/packages/Microsoft.Identity.Web.OWIN)** | OWIN/ASP.NET Framework support | .NET Framework 4.6.2+ |
 
-**Learn more:** [Package Reference Guide](./packages/README.md)
-
 ## 🔐 Authentication Credentials
 
 Microsoft.Identity.Web supports multiple ways to authenticate your application:
@@ -235,39 +233,31 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 ### Getting Started
 - [Quickstart: Web App](./getting-started/quickstart-webapp.md) - Sign in users in 10 minutes
 - [Quickstart: Web API](./getting-started/quickstart-webapi.md) - Protect your API in 10 minutes
-- [Why Microsoft.Identity.Web?](./getting-started/why-microsoft-identity-web.md)
 
 ### Scenarios
 - [Web Applications](./getting-started/quickstart-webapp.md) - Sign-in users, call APIs
 - [Web APIs](./getting-started/quickstart-webapi.md) - Protect APIs, call downstream services
-- [Daemon Applications and Agent Identities](./getting-started/daemon-app.md) - Background services, autonomous agents, agent user identities
-- [Azure Functions](./scenarios/azure-functions/README.md) - Serverless authentication
+- [Daemon Applications](./getting-started/daemon-app.md) - Background services, autonomous agents, agent user identities
+- [Agent identities](./calling-downstream-apis/AgentIdentities-Readme.md) for protected web APIs interpersonating agent identities or validating tokens from agent identities.
 
 ### Authentication & Tokens
 - [Credentials Guide](./authentication/credentials/credentials-README.md) - Choose and configure credentials
 - [Token Cache](./authentication/token-cache/token-cache-README.md) - Configure distributed caching
-- [Token Decryption](./authentication/token-cache/token-decryption.md) - Decrypt encrypted tokens
+- [Token Decryption](./authentication/credentials/token-decryption.md) - Decrypt encrypted tokens
 - [Authorization](./authentication/authorization.md) - Scope validation, authorization policies, tenant filtering
 
 ### Advanced Topics
 - [Customization](./advanced/customization.md) - Configure options, event handlers, login hints
 - [Logging & Diagnostics](./advanced/logging.md) - PII logging, correlation IDs, troubleshooting
 - [Multiple Authentication Schemes](./advanced/multiple-auth-schemes.md)
-- [Incremental Consent & Conditional Access](./advanced/incremental-consent-ca.md)
-- [Long-Running Processes](./advanced/long-running-processes.md)
+- [Incremental Consent & Conditional Access](./calling-downstream-apis/from-web-apps.md#incremental-consent--conditional-access)
+- [Long-Running Processes](./calling-downstream-apis/from-web-apis.md#long-running-processes-with-obo)
 - [APIs Behind Gateways](./advanced/api-gateways.md)
-- [Performance Optimization](./advanced/performance.md)
 
 ### .NET Framework Support
 - [ASP.NET Framework & .NET Standard](./frameworks/aspnet-framework.md) - Overview and package guide
 - [MSAL.NET with Microsoft.Identity.Web](./frameworks/msal-dotnet-framework.md) - Token cache and certificates for console/daemon apps
 - [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
-
-<!-- 
-### Deployment
-- [Azure App Service](./deployment/azure-app-service.md)
-- [Containers & Docker](./deployment/containers.md)
--->
 
 ## 🔗 External Resources
 
@@ -287,4 +277,4 @@ This project is licensed under the MIT License. See [LICENSE](https://github.com
 
 ---
 
-**Need help?** Start with our [Quickstart Guides](./getting-started/) or explore [Scenarios](./scenarios/) to find your use case.
+**Need help?** Start with our [Quickstart Guides](./getting-started/) to find your use case and learn from there.

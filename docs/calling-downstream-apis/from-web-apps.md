@@ -455,7 +455,7 @@ public class CustomApiService
 }
 ```
 
-[📖 Learn more about custom HTTP logic](custom-apis.md#using-iauthorizationheaderprovider)
+[📖 Learn more about custom HTTP logic](custom-apis.md#iauthorizationheaderprovider---maximum-control)
 
 ---
 
@@ -1145,7 +1145,7 @@ public class ProfileController : Controller
 }
 ```
 
-**Note:** OWIN support has some differences from ASP.NET Core. See [OWIN documentation](../../scenarios/web-apps/owin.md) for details.
+**Note:** OWIN support has some differences from ASP.NET Core. See [OWIN documentation](../frameworks/owin.md) for details.
 
 ---
 
@@ -1291,7 +1291,7 @@ var settings = settingsTask.Result;
 
 ## Additional Resources
 
-- **[Back to Downstream APIs Overview](./README.md)** - Compare all approaches
+- **[Back to Downstream APIs Overview](./calling-downstream-apis-README.md)** - Compare all approaches
 - **[Token Cache Configuration](../authentication/token-cache/token-cache-README.md)** - Production cache strategies
 - **[Microsoft Graph Integration](./microsoft-graph.md)** - Graph-specific guidance
 - **[Azure SDK Integration](./azure-sdks.md)** - Azure service calls
@@ -1311,4 +1311,4 @@ var settings = settingsTask.Result;
 
 ---
 
-**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check the [troubleshooting guide](../../scenarios/web-apps/troubleshooting.md).
+**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check the [token cache troubleshooting guide](../authentication/token-cache/troubleshooting.md).

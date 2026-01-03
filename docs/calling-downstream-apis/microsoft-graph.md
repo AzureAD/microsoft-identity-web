@@ -866,7 +866,7 @@ if (userResponse == null)
 
 - [Microsoft Graph Documentation](https://learn.microsoft.com/graph/)
 - [Graph SDK v5 Migration Guide](https://github.com/microsoftgraph/msgraph-sdk-dotnet/blob/dev/docs/upgrade-to-v5.md)
-- [Calling Downstream APIs Overview](README.md)
+- [Calling Downstream APIs Overview](calling-downstream-apis-README.md)
 - [Calling from Web Apps](from-web-apps.md)
 - [Calling from Web APIs](from-web-apis.md)
 

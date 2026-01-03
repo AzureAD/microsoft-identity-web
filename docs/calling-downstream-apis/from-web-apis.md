@@ -583,7 +583,7 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 
 ## Related Documentation
 
-- [Long-Running Processes](../advanced/long-running-processes.md)
+- [Long-Running Processes](#long-running-processes-with-obo)
 - [Token Caching](../authentication/token-cache/token-cache-README.md)
 - [Calling from Web Apps](from-web-apps.md)
 - [Web API Scenarios](../getting-started/quickstart-webapi.md)

@@ -688,10 +688,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 ## Next Steps
 
-- **[Back to Credentials Overview](./README.md)** - Compare all credential types
+- **[Back to Credentials Overview](./credentials-README.md)** - Compare all credential types
 - **[Certificates Guide](./certificates.md)** - Alternative authentication methods
 - **[Calling Downstream APIs](../../calling-downstream-apis/calling-downstream-apis-README.md)** - Use certificateless auth to call APIs
 
 ---
 
-**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../scenarios/web-apps/troubleshooting.md).
+**Need help?** [Open an issue](https://github.com/AzureAD/microsoft-identity-web/issues) or check [troubleshooting guides](../../calling-downstream-apis/from-web-apps.md#troubleshooting).

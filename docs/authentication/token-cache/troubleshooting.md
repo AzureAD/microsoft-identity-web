@@ -681,7 +681,7 @@ If you're still experiencing issues:
 2. **Verify configuration** - Review all cache-related configuration
 3. **Test connectivity** - Ensure cache infrastructure is accessible
 4. **Monitor performance** - Use Application Insights or similar tools
-5. **Review documentation** - [Token Cache Overview](README.md)
+5. **Review documentation** - [Token Cache Overview](./token-cache-README.md)
 
 ### Reporting Issues
 
@@ -698,9 +698,9 @@ When reporting token cache issues, include:
 
 ## Related Documentation
 
-- [Token Cache Overview](README.md)
-- [Distributed Cache Configuration](distributed.md)
-- [Cache Eviction Strategies](eviction.md)
+- [Token Cache Overview](token-cache-README.md)
+- [Distributed Cache Configuration](token-cache-README.md#2-distributed-cache-l2-with-automatic-l1-support)
+- [Cache Eviction Policies](token-cache-README.md#cache-eviction-policies)
 - [Data Protection & Encryption](https://learn.microsoft.com/aspnet/core/security/data-protection/)
 
 ---

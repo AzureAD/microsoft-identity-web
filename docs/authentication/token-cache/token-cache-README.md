@@ -191,7 +191,7 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     });
 ```
 
-[→ Learn more about in-memory cache configuration](in-memory.md)
+[→ Learn more about in-memory cache configuration](#1-in-memory-cache)
 
 ---
 
@@ -294,7 +294,7 @@ builder.Services.AddCosmosCache((CosmosCacheOptions options) =>
 });
 ```
 
-[→ Learn more about distributed cache configuration](distributed.md)
+[→ Learn more about distributed cache configuration](#2-distributed-cache-l2-with-automatic-l1-support)
 
 ---
 
@@ -349,8 +349,6 @@ builder.Services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
 - Users frequently prompted for MFA due to cache inconsistency
 - Trade-off: L2 access is slower (~30ms vs ~10ms)
 
-[→ Learn more about L1/L2 cache architecture](l1-l2-cache.md)
-
 ---
 
 ### Cache Eviction Policies
@@ -390,7 +388,7 @@ builder.Services.Configure<MsalDistributedTokenCacheAdapterOptions>(
 - Balance between memory usage and user experience
 - Consider: 72 hours absolute + 2 hours sliding for good UX
 
-[→ Learn more about cache eviction strategies](eviction.md)
+[→ Learn more about cache eviction strategies](#cache-eviction-policies)
 
 ---
 
@@ -435,7 +433,7 @@ builder.Services.AddDataProtection()
         new X509Certificate2("previous.pfx", builder.Configuration["PrevCertPassword"]));
 ```
 
-[→ Learn more about encryption and data protection](encryption.md)
+[→ Learn more about encryption and data protection](#encryption-at-rest)
 
 ---
 
@@ -467,10 +465,10 @@ For **10,000 concurrent users**:
 
 ### Documentation
 
-- **[Distributed Cache Deep Dive](distributed.md)** - L1/L2 architecture, configuration
-- **[Cache Eviction Strategies](eviction.md)** - Managing OBO tokens, sliding expiration
+- **[Distributed Cache Configuration](#2-distributed-cache-l2-with-automatic-l1-support)** - L1/L2 architecture, configuration
+- **[Cache Eviction Policies](#cache-eviction-policies)** - Managing OBO tokens, sliding expiration
 - **[Troubleshooting Guide](troubleshooting.md)** - Common issues and solutions
-- **[Encryption Guide](encryption.md)** - Data protection in distributed systems
+- **[Encryption at Rest](#encryption-at-rest)** - Data protection in distributed systems
 
 ### Using Token Caching in Your Application
 
@@ -480,10 +478,10 @@ For **10,000 concurrent users**:
 
 ### Common Scenarios
 
-- [Configuring Redis for Production](distributed.md#redis-production-setup)
-- [Handling L2 Cache Failures](troubleshooting.md#l2-cache-failures)
-- [Optimizing Cache Performance](distributed.md#performance-optimization)
-- [Multi-Region Cache Deployment](distributed.md#multi-region)
+- [Redis Cache Configuration](#redis-cache-recommended)
+- [Handling L2 Cache Failures](troubleshooting.md#l2-cache-not-being-written)
+- [L1 Cache Control](#l1-cache-control)
+- [Azure Cache for Redis](#azure-cache-for-redis)
 
 ---
 

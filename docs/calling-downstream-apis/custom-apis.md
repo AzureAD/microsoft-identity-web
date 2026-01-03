@@ -938,12 +938,11 @@ public class Startup
 
 ## Related Documentation
 
-- [IDownstreamApi Reference](../api-reference/idownstreamapi.md)
 - [Calling from Web Apps](from-web-apps.md)
 - [Calling from Web APIs](from-web-apis.md)
 - [Microsoft Graph Integration](microsoft-graph.md)
-- [Agent Identities](../scenarios/agent-identities/README.md)
+- [Agent Identities](./AgentIdentities-Readme.md)
 
 ---
 
-**Next Steps**: Review the [main documentation](README.md) for decision tree and comparison of all approaches.
+**Next Steps**: Review the [main documentation](calling-downstream-apis-README.md) for decision tree and comparison of all approaches.

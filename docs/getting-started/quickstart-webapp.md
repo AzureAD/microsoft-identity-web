@@ -222,7 +222,7 @@ Copy the **Directory (tenant) ID** from the overview page - you'll need this for
 
 ### Enable ID token issuance (if needed)
 
-Some scenarios require enabling ID token:
+Some scenarios require enabling ID token (if you don't want client credentials):
 
 1. In your app registration, go to **Authentication**
 2. Under **Implicit grant and hybrid flows**, check **ID tokens**
@@ -250,7 +250,7 @@ Now that you have a working web app with sign-in:
 
 ✅ **[Call downstream APIs](../calling-downstream-apis/from-web-apps.md)** - Call Microsoft Graph or your own API
 ✅ **[Configure token cache](../authentication/token-cache/token-cache-README.md)** - Set up distributed caching for production
-✅ **[Handle incremental consent](../advanced/incremental-consent-ca.md)** - Request additional permissions dynamically
+✅ **[Handle incremental consent](../calling-downstream-apis/from-web-apps.md#incremental-consent--conditional-access)** - Request additional permissions dynamically
 
 ## Troubleshooting
 
@@ -272,7 +272,7 @@ Now that you have a working web app with sign-in:
 
 **Solution:** Ensure `Instance` is `https://login.microsoftonline.com/` and `TenantId` is valid. See [Logging & Diagnostics](../advanced/logging.md) for detailed troubleshooting.
 
-**See more:** [Web App Troubleshooting Guide](../scenarios/web-apps/troubleshooting.md)
+**See more:** [Web App Troubleshooting Guide](../calling-downstream-apis/from-web-apps.md#troubleshooting)
 
 ---
 
