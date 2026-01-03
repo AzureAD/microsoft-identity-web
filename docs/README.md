@@ -28,6 +28,8 @@ Microsoft.Identity.Web provides:
 ✅ **Automatic Authorization Headers** - Authentication is handled transparently when calling APIs
 ✅ **Production-Ready** - Used by thousands of Microsoft and customer applications
 
+See **[NuGet Packages](./getting-started/packages.md)** - Overview of all available packages and when to use them.
+
 ### Calling APIs with Automatic Authentication
 
 Microsoft.Identity.Web makes it easy to call protected APIs without manually managing tokens:
@@ -233,12 +235,14 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 ### Getting Started
 - [Quickstart: Web App](./getting-started/quickstart-webapp.md) - Sign in users in 10 minutes
 - [Quickstart: Web API](./getting-started/quickstart-webapi.md) - Protect your API in 10 minutes
+- [Daemon Applications](./getting-started/daemon-app.md) - Call downstream APIs on behalf of a service.
 
 ### Scenarios
 - [Web Applications](./getting-started/quickstart-webapp.md) - Sign-in users, call APIs
 - [Web APIs](./getting-started/quickstart-webapi.md) - Protect APIs, call downstream services
 - [Daemon Applications](./getting-started/daemon-app.md) - Background services, autonomous agents, agent user identities
 - [Agent identities](./calling-downstream-apis/AgentIdentities-Readme.md) for protected web APIs interpersonating agent identities or validating tokens from agent identities.
+
 
 ### Authentication & Tokens
 - [Credentials Guide](./authentication/credentials/credentials-README.md) - Choose and configure credentials
@@ -258,6 +262,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [ASP.NET Framework & .NET Standard](./frameworks/aspnet-framework.md) - Overview and package guide
 - [MSAL.NET with Microsoft.Identity.Web](./frameworks/msal-dotnet-framework.md) - Token cache and certificates for console/daemon apps
 - [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
+- [Entra ID sidecar](./sidecar/Sidecar.md) - Microsoft Entra Identity Sidecar documentation when you want to protect web APIs in other languages than .NET
 
 ## 🔗 External Resources
 

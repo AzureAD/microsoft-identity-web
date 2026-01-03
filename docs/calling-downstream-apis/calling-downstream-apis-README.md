@@ -99,6 +99,8 @@ public class HomeController : Controller
 
 [📖 Learn more about Microsoft Graph integration](microsoft-graph.md)
 
+[📖 GraphServiceClient migration and detailed usage](GraphServiceClient-Readme.md)
+
 ### Azure SDKs (Recommended for Azure Services)
 
 ```csharp
@@ -406,7 +408,7 @@ catch (HttpRequestException ex)
 |---------|---------|-------------|
 | **Microsoft.Identity.Web.TokenAcquisition** | Token acquisition services | core package |
 | **Microsoft.Identity.Web.DownstreamApi** | IDownstreamApi abstraction | Calling REST APIs |
-| **Microsoft.Identity.Web.GraphServiceClient** | Microsoft Graph integration | Calling Microsoft Graph |
+| **Microsoft.Identity.Web.GraphServiceClient** | Microsoft Graph integration | Calling Microsoft Graph ([migration guide](GraphServiceClient-Readme.md)) |
 | **Microsoft.Identity.Web.Azure** | Azure SDK integration | Calling Azure services |
 | **Microsoft.Identity.Web** | ASP.NET Core web apps and web APIs | ASP.NET Core |
 | **Microsoft.Identity.Web.OWIN** | ASP.NET OWIN web apps and web APIs | OWIN |
