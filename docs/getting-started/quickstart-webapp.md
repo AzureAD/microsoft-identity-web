@@ -55,8 +55,6 @@ dotnet add package Microsoft.Identity.Web
 dotnet add package Microsoft.Identity.Web.UI
 ```
 
-**Current version:** 3.14.1
-
 ### 2. Configure authentication in `Program.cs`
 
 ```csharp

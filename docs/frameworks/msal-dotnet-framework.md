@@ -737,6 +737,4 @@ AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsy
 
 ---
 
-**Last Updated:** October 27, 2025
-**Microsoft.Identity.Web Version:** 3.14.1+
 **Supported Frameworks:** .NET Framework 4.7.2+, .NET Standard 2.0

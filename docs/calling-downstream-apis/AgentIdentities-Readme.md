@@ -1,6 +1,6 @@
 # Microsoft.Identity.Web.AgentIdentities
 
-Not .NET? See [Entra SDK container sidecar](https://github.com/AzureAD/microsoft-identity-web/blob/feature/doc-modernization/docs/sidecar/agent-identities.md) for the Entra SDK container documentation allowing support of agent identies in any language and platform. 
+Not .NET? See [Entra SDK container sidecar](https://github.com/AzureAD/microsoft-identity-web/blob/feature/doc-modernization/docs/sidecar/agent-identities.md) for the Entra SDK container documentation allowing support of agent identies in any language and platform.
 
 ## Overview
 
@@ -24,7 +24,10 @@ An agent user identity is an Agent identity that can also act as a user (think o
 
 ### Federated Identity Credentials (FIC)
 
-FIC is a trust mechanism in Microsoft Entra ID that enables applications to trust each other using OpenID Connect (OIDC) tokens. In the context of agent identities, FICs are used to establish trust between the agent application and agent identities, and agent identities and agent user identities
+FIC is a trust mechanism in Microsoft Entra ID that enables applications to trust each other using OpenID Connect (OIDC) tokens. In the context of agent identities, FICs are used to establish trust between the agent application and agent identities, and agent identities and agent user identities.
+
+### More information
+For details about Entra ID agent identities see [Microsoft Entra Agent ID documentation](https://learn.microsoft.com/entra/agent-id/)
 
 ## Installation
 
@@ -350,12 +353,10 @@ services.AddHttpClient("MyApiClient", client =>
 {
     client.BaseAddress = new Uri("https://myapi.domain.com");
 })
-.AddHttpMessageHandler(serviceProvider => new MicrosoftIdentityMessageHandler(
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>(),
-    new MicrosoftIdentityMessageHandlerOptions 
-    { 
-        Scopes = { "https://myapi.domain.com/.default" }
-    }));
+.AddMicrosoftIdentityMessageHandler(options =>
+{
+    options.Scopes= { "https://myapi.domain.com/.default" }
+});
 
 // Usage in your service or controller
 public class MyService
@@ -371,7 +372,7 @@ public class MyService
     {
         // Create request with agent identity authentication
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
-            .WithAuthenticationOptions(options => 
+            .WithAuthenticationOptions(options =>
             {
                 options.WithAgentIdentity(agentIdentity);
                 options.RequestAppToken = true;
@@ -391,7 +392,7 @@ public async Task<string> CallApiWithAgentUserIdentity(string agentIdentity, str
 {
     // Create request with agent user identity authentication
     var request = new HttpRequestMessage(HttpMethod.Get, "/api/userdata")
-        .WithAuthenticationOptions(options => 
+        .WithAuthenticationOptions(options =>
         {
             options.WithAgentUserIdentity(agentIdentity, userUpn);
             options.Scopes.Add("https://myapi.domain.com/user.read");
@@ -409,14 +410,14 @@ You can also configure the handler manually for more control:
 
 ```csharp
 // Get the authorization header provider
-IAuthorizationHeaderProvider headerProvider = 
+IAuthorizationHeaderProvider headerProvider =
     serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
 // Create the handler with default options
 var handler = new MicrosoftIdentityMessageHandler(
-    headerProvider, 
-    new MicrosoftIdentityMessageHandlerOptions 
-    { 
+    headerProvider,
+    new MicrosoftIdentityMessageHandlerOptions
+    {
         Scopes = { "https://graph.microsoft.com/.default" }
     });
 
@@ -425,7 +426,7 @@ using var httpClient = new HttpClient(handler);
 
 // Make requests with per-request authentication options
 var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/applications")
-    .WithAuthenticationOptions(options => 
+    .WithAuthenticationOptions(options =>
     {
         options.WithAgentIdentity(agentIdentity);
         options.RequestAppToken = true;

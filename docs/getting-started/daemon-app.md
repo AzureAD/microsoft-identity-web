@@ -992,6 +992,3 @@ Both approaches are fully supported and production-ready. Choose based on your a
 - [Microsoft.Identity.Abstractions API Reference](https://learn.microsoft.com/dotnet/api/microsoft.identity.abstractions)
 
 ---
-
-**Microsoft.Identity.Web Version:** 3.14.1+
-**Last Updated:** October 27, 2025

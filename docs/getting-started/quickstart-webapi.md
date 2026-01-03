@@ -53,7 +53,6 @@ Your API is now protected at `https://localhost:5001`.
 dotnet add package Microsoft.Identity.Web
 ```
 
-**Current version:** 3.14.1
 
 ### 2. Configure authentication in `Program.cs`
 

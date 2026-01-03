@@ -782,6 +782,4 @@ services.AddDistributedTokenCaches(cacheServices =>
 
 ---
 
-**Last Updated:** October 27, 2025
-**Microsoft.Identity.Web Version:** 3.14.1+
 **Supported Frameworks:** ASP.NET MVC, ASP.NET Web API (.NET Framework 4.7.2+)
