@@ -52,6 +52,8 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
+        private const string TokenBindingParameterName = "IsTokenBinding";
+
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -104,7 +106,7 @@ namespace Microsoft.Identity.Web
             ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
@@ -129,7 +131,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication? application = null;
             try
             {
-                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -261,7 +263,7 @@ namespace Microsoft.Identity.Web
 
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -543,6 +545,10 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
+            bool isTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(TokenBindingParameterName, out var isTokenBindingObject) == true
+                && isTokenBindingObject is bool isTokenBindingValue
+                && isTokenBindingValue;
+
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
@@ -582,11 +588,16 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            if (isTokenBinding)
+            {
+                builder.WithMtlsProofOfPossession();
+            }
 
             if (addInOptions != null)
             {
@@ -866,7 +877,7 @@ namespace Microsoft.Identity.Web
             {
                 MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -899,7 +910,8 @@ namespace Microsoft.Identity.Web
 
 
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-            MergedOptions mergedOptions)
+            MergedOptions mergedOptions,
+            bool isTokenBinding)
         {
             string key = GetApplicationKey(mergedOptions);
 
@@ -919,7 +931,7 @@ namespace Microsoft.Identity.Web
                     return app;
 
                 // Build and store the application
-                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions);
@@ -935,7 +947,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(
+            MergedOptions mergedOptions,
+            bool isTokenBinding)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
@@ -1036,7 +1050,8 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {

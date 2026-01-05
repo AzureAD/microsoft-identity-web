@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Resource;
+using NSubstitute;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Tests
