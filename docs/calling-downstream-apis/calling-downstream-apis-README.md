@@ -62,7 +62,7 @@ graph LR
 - **Methods**: `CreateAuthorizationHeaderForUserAsync()` from web API context
 
 ### Token Binding (mTLS PoP)
-- **Scenario**: Enhanced security where tokens are cryptographically bound to certificates
+- **Scenario**: Enhanced security where tokens are cryptographically bound to certificates as per [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705)
 - **Token type**: Access token with certificate binding (`cnf` claim)
 - **Methods**: `GetForAppAsync()` with `ProtocolScheme: "MTLS_POP"`
 - **Security**: Prevents token theft by binding tokens to specific certificates
