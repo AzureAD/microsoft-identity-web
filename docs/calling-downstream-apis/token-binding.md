@@ -2,7 +2,7 @@
 
 ## Overview
 
-Token binding (also known as mTLS PoP - Mutual TLS Proof-of-Possession) is an advanced security feature that cryptographically binds access tokens to a specific X.509 certificate. This binding ensures that even if a token is intercepted, it cannot be used by an attacker without possession of the corresponding private key.
+Certificate token binding (also known as mTLS PoP - Mutual TLS Proof-of-Possession) is an advanced security feature that cryptographically binds access tokens to a specific X.509 certificate. It is described in [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705). The binding ensures that even if a token is intercepted, it cannot be used by an attacker without possession of the corresponding private key. 
 
 ### How It Works
 
