@@ -10,6 +10,7 @@ Use this decision tree to select the best method for your scenario:
 |--------------------------------------|---------------------------------------|---------------------------------------------------------|
 | Microsoft Graph                      | You need to call Microsoft Graph APIS | GraphServiceClient                                      |
 | Azure SDK (Storage, KeyVault, etc.)  | You need to call Azure APIs (Azure SDK) | MicrosoftIdentityTokenCredential with Azure SDK clients  |
+| Custom API with Token Binding        | Enhanced security with certificate binding (mTLS PoP) | IDownstreamApi with `ProtocolScheme: "MTLS_POP"`        |
 | Custom API                           | simple, configurable                  | IDownstreamApi                                          |
 | Custom API                           | using HttpClient + delegating handler | MicrosoftIdentityMessageHandler                         |
 | Custom API                           | using your HttpClient                 | IAuthorizationHeaderProvider                            |
@@ -59,6 +60,14 @@ graph LR
 - **Scenario**: Web API receives user token, calls another API on behalf of that user and interactive agents.
 - **Token type**: New access token via OBO flow
 - **Methods**: `CreateAuthorizationHeaderForUserAsync()` from web API context
+
+### Token Binding (mTLS PoP)
+- **Scenario**: Enhanced security where tokens are cryptographically bound to certificates as per [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705)
+- **Token type**: Access token with certificate binding (`cnf` claim)
+- **Methods**: `GetForAppAsync()` with `ProtocolScheme: "MTLS_POP"`
+- **Security**: Prevents token theft by binding tokens to specific certificates
+
+[📖 Learn more about Token Binding with mTLS PoP](token-binding.md)
 
 ## 🚀 Quick Start Examples
 
@@ -196,6 +205,68 @@ public class ApiService
 ```
 
 [📖 Learn more about IDownstreamApi](custom-apis.md)
+
+### Token Binding with mTLS PoP (Enhanced Security)
+
+Token binding provides enhanced security by cryptographically binding access tokens to X.509 certificates. Even if a token is intercepted, it cannot be used without the corresponding certificate.
+
+```csharp
+// Installation
+// dotnet add package Microsoft.Identity.Web.DownstreamApi
+
+// appsettings.json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "your-tenant-id",
+    "ClientId": "your-client-id",
+    "ClientCredentials": [
+      {
+        "SourceType": "StoreWithDistinguishedName",
+        "CertificateStorePath": "CurrentUser/My",
+        "CertificateDistinguishedName": "CN=YourCertificate"
+      }
+    ],
+    "SendX5c": true
+  },
+  "SecureApi": {
+    "BaseUrl": "https://api.contoso.com/",
+    "RelativePath": "api/data",
+    "ProtocolScheme": "MTLS_POP",
+    "RequestAppToken": true,
+    "Scopes": [ "api://your-api/.default" ]
+  }
+}
+
+// Startup configuration
+builder.Services.AddDownstreamApi(
+    "SecureApi",
+    builder.Configuration.GetSection("SecureApi"));
+
+// Usage
+public class SecureApiService
+{
+    private readonly IDownstreamApi _api;
+
+    public SecureApiService(IDownstreamApi api)
+    {
+        _api = api;
+    }
+
+    public async Task<SecureData> GetSecureDataAsync()
+    {
+        // Token is bound to certificate - enhanced security
+        return await _api.GetForAppAsync<SecureData>("SecureApi");
+    }
+}
+```
+
+**Key Benefits:**
+- 🔒 **Token theft protection**: Stolen tokens are useless without the certificate
+- 🛡️ **Replay attack prevention**: Tokens cannot be replayed from different clients
+- ✅ **Zero trust alignment**: Strong cryptographic binding between client and token
+
+[📖 Learn more about Token Binding (mTLS PoP)](token-binding.md)
 
 ### MicrosoftIdentityMessageHandler (For HttpClient Integration)
 
@@ -397,6 +468,7 @@ catch (HttpRequestException ex)
 
 ## 🔗 Related Documentation
 
+- **[Token Binding (mTLS PoP)](token-binding.md)** - Enhanced security with certificate-bound tokens
 - **[Credentials Configuration](../authentication/credentials/credentials-README.md)** - How to configure authentication credentials
 - **[Web App Scenarios](../getting-started/quickstart-webapp.md)** - Building web applications
 - **[Web API Scenarios](../getting-started/quickstart-webapi.md)** - Building and protecting APIs
