@@ -2,7 +2,9 @@
 
 ## Overview
 
-Certificate token binding (also known as mTLS PoP - Mutual TLS Proof-of-Possession) is an advanced security feature that cryptographically binds access tokens to a specific X.509 certificate. It is described in [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705). The binding ensures that even if a token is intercepted, it cannot be used by an attacker without possession of the corresponding private key. 
+> Note that not all clients are allowed to obtain mTLS PoP certificate as this feature is currently in private preview.
+
+Certificate token binding (also known as mTLS PoP - Mutual TLS Proof-of-Possession) is an advanced security feature that cryptographically binds access tokens to a specific X.509 certificate. It is described in [RFC 8705](https://datatracker.ietf.org/doc/html/rfc8705). The binding ensures that even if a token is intercepted, it cannot be used by an attacker without possession of the corresponding private key.
 
 ### How It Works
 
@@ -580,12 +582,13 @@ Console.WriteLine($"Certificate thumbprint: {thumbprint}");
 ## Best Practices
 
 1. **Always use HTTPS**: mTLS PoP requires secure transport
-2. **Implement proper error handling**: Gracefully handle certificate and token errors
-3. **Monitor certificate expiration**: Automate certificate renewal
-4. **Use separate certificates per environment**: Dev, staging, and production certificates
-5. **Log security events**: Track token binding failures and certificate mismatches
-6. **Test certificate rotation**: Ensure your application handles certificate updates
-7. **Document your configuration**: Keep clear documentation of certificate requirements
+2. **Use a certificate that stores the private key material in hardware, e.g., in TPM**: Utilize hardware over software security for a better protection
+3. **Implement proper error handling**: Gracefully handle certificate and token errors
+4. **Monitor certificate expiration**: Automate certificate renewal
+5. **Use separate certificates per environment**: Dev, staging, and production certificates
+6. **Log security events**: Track token binding failures and certificate mismatches
+7. **Test certificate rotation**: Ensure your application handles certificate updates
+8. **Document your configuration**: Keep clear documentation of certificate requirements
 
 ## Related Resources
 
