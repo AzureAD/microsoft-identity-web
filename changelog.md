@@ -1,3 +1,15 @@
+## 4.3.0
+
+### New features
+- Added token binding (mTLS PoP) scenario. See [#3622](https://github.com/AzureAD/microsoft-identity-web/pull/3622).
+
+### Dependencies updates
+- Bumped **qs** from 6.14.0 to 6.14.1 in /tests/DevApps/SidecarAdapter/typescript. See [#3660]( https://github.com/AzureAD/microsoft-identity-web/pull/3660).
+
+### Documentation
+- Feature/doc modernization. See [#3566](https://github.com/AzureAD/microsoft-identity-web/pull/3566).
+- Added token binding (mTLS PoP) documentation. See [#3661](https://github.com/AzureAD/microsoft-identity-web/pull/3661).
+
 ## 4.2.0
 
 ### New features
