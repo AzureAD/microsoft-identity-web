@@ -348,3 +348,21 @@ static readonly Microsoft.Identity.Web.LoggingEventId.UsingManagedIdentity -> Mi
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingPodIdentityFile -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingSignedAssertionFromCustomProvider -> Microsoft.Extensions.Logging.EventId
 static readonly Microsoft.Identity.Web.LoggingEventId.UsingSignedAssertionFromVault -> Microsoft.Extensions.Logging.EventId
+const Microsoft.Identity.Web.Constants.UserIdKey = "IDWEB_USER_ID" -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.MissingTokenBindingCertificate = "IDW10115: A signing certificate, which is required for token binding, is missing in loaded credentials." -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition." -> string!
+readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
+Microsoft.Identity.Web.DefaultAuthorizationHeaderProvider.CreateBoundAuthorizationHeaderAsync(Microsoft.Identity.Abstractions.DownstreamApiOptions! downstreamApiOptions, System.Security.Claims.ClaimsPrincipal? claimsPrincipal = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.OperationResult<Microsoft.Identity.Abstractions.AuthorizationHeaderInformation!, Microsoft.Identity.Abstractions.AuthorizationHeaderError!>>!
+Microsoft.Identity.Web.MergedOptions.IsTokenBinding.get -> bool
+Microsoft.Identity.Web.MergedOptions.IsTokenBinding.set -> void
+Microsoft.Identity.Web.MergedOptions.Logger.get -> Microsoft.Extensions.Logging.ILogger?
+Microsoft.Identity.Web.MergedOptions.Logger.set -> void
+Microsoft.Identity.Web.MergedOptionsLogging
+Microsoft.Identity.Web.MergedOptionsStore.MergedOptionsStore(System.IServiceProvider! serviceProvider) -> void
+Microsoft.Identity.Web.TokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(Microsoft.Identity.Web.MergedOptions! mergedOptions, bool isTokenBinding) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.IConfidentialClientApplication!>!
+static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters, bool isTokenBinding) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!>!
+static Microsoft.Identity.Web.MergedOptions.ParseAuthorityIfNecessary(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+static Microsoft.Identity.Web.MergedOptionsLogging.AuthorityIgnored(Microsoft.Extensions.Logging.ILogger! logger, string! authority, string! instance, string! tenantId) -> void
+static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, (string! value, bool includeInCacheKey)>?
+static readonly Microsoft.Identity.Web.LoggingEventId.AuthorityIgnored -> Microsoft.Extensions.Logging.EventId
+const Microsoft.Identity.Web.IDWebErrorMessage.MissingIdentityConfiguration = "IDW10708: The identity configuration is incomplete. Provide either 'Instance' and 'TenantId', or 'Authority', or enable 'ManagedIdentity' in the configuration. Check your configuration keys for typos (e.g., trailing spaces). See https://aka.ms/ms-id-web/configuration. " -> string!
