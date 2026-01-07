@@ -4,12 +4,12 @@
     <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
     to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
     -->
-  <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.3.0</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.3.0</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
 
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>4.0.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>4.2.0</PackageValidationBaselineVersion>
 
     <BuildDirectory>$(MSBuildThisFileDirectory)/build</BuildDirectory>
     <AssemblyOriginatorKeyFile>$(BuildDirectory)/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
@@ -41,7 +41,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
@@ -53,14 +52,8 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFramework)' != 'net8.0' and '$(TargetFramework)' != 'net9.0' and '$(TargetFramework)' != 'net10.0'">
+  <ItemGroup Label="Build Tools" Condition="$([MSBuild]::IsOsPlatform('Windows')) and '$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(IsPackable)' == 'true'">
-    <PackageValidationBaselineFrameworkToIgnore Include="netcoreapp3.1" />
-    <PackageValidationBaselineFrameworkToIgnore Include="net6.0" />
-    <PackageValidationBaselineFrameworkToIgnore Include="net7.0" />
   </ItemGroup>
 
   <PropertyGroup Label="Source Link">
@@ -147,10 +140,6 @@
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
-
-
-
-
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.0.0-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
