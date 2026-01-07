@@ -35,7 +35,7 @@ namespace CustomSignedAssertionProviderTests
     [Collection("Non-Parallel Collection")]
     public class OidCIdPSignedAssertionProviderExtensibilityTests
     {
-        [Fact]
+        [OnlyOnAzureDevopsFact]
         public async Task CrossCloudFicIntegrationTest()
         {
 
