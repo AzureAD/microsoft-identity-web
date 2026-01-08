@@ -18,6 +18,8 @@ namespace Microsoft.Identity.Web
     ///  Scope or app permission authorization handler that needs to be called for a specific requirement type.
     ///  In this case, <see cref="ScopeOrAppPermissionAuthorizationRequirement"/>.
     /// </summary>
+    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
     internal class ScopeOrAppPermissionAuthorizationHandler : AuthorizationHandler<ScopeOrAppPermissionAuthorizationRequirement>
     {
         private readonly IConfiguration _configuration;
@@ -102,7 +104,7 @@ namespace Microsoft.Identity.Web
             {
                 return Task.CompletedTask;
             }
-            
+
             var hasScope = scopes != null && scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
 
             var hasAppPermission = appPermissions != null && appPermissionClaims.SelectMany(s => s.Value.Split(' ')).Intersect(appPermissions).Any();

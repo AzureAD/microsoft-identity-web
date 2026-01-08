@@ -2,6 +2,7 @@
   <PropertyGroup>
     <Title>Microsoft Identity Web.Azure</Title>
     <Product>Microsoft Identity Web.Azure</Product>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
     <Description>
       This package enables ASP.NET Core web apps and web APIs to use the Azure SDKs with the Microsoft identity platform (formerly Azure AD v2.0)
     </Description>

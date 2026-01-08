@@ -10,9 +10,8 @@ namespace Microsoft.Identity.Web
     /// Extension class on IApplicationBuilder to initialize the service provider of
     /// the TokenAcquirerFactory in ASP.NET Core.
     /// </summary>
-#if NET6_0_OR_GREATER
     [RequiresUnreferencedCode("Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance(String).")]
-#endif
+    [RequiresDynamicCode("Microsoft.Identity.Web.TokenAcquirerFactory.GetDefaultInstance(String).")]
     public static class ApplicationBuilderExtensions
     {
         /// <summary>

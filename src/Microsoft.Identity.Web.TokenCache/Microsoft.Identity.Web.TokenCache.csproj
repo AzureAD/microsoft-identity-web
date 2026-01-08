@@ -7,6 +7,7 @@
     <ProjectGuid>{7885DFBB-0D20-4115-86E2-709C2E12253B}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <NoWarn>$(NoWarn);NU1510</NoWarn>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
