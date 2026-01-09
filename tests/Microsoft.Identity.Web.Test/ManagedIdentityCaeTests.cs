@@ -49,6 +49,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             // Add instance discovery handler for the additional MSAL instance discovery call
             mockHttp.AddMockHandler(
                 MockHttpCreator.CreateInstanceDiscoveryMockHandler());
+            mockHttp.AddMockHandler(
+                MockHttpCreator.CreateInstanceDiscoveryMockHandler());
 
             mockHttp.AddMockHandler(
                 MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
