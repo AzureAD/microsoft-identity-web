@@ -1,1 +1,2 @@
 #nullable enable
+const Microsoft.Identity.Web.IDWebErrorMessage.MicrosoftIdentityApplicationOptionsNotConfigured = "IDW10503: Cannot determine the cloud Instance because MicrosoftIdentityApplicationOptions are not configured for the authentication scheme '{0}'. Please ensure the MicrosoftIdentityApplicationOptions are properly configured in your application setup. See https://aka.ms/ms-id-web/configuration for details. " -> string!

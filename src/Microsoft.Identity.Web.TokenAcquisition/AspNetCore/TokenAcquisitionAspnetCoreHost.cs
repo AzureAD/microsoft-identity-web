@@ -81,12 +81,32 @@ namespace Microsoft.Identity.Web
                 _serviceProvider.GetService<IOptionsMonitor<OpenIdConnectOptions>>()?.Get(effectiveAuthenticationScheme);
             }
 
+            // Get the merged options again after the merging has occurred
+            mergedOptions = _mergedOptionsMonitor.Get(effectiveAuthenticationScheme);
+
             if (string.IsNullOrEmpty(mergedOptions.Instance))
             {
-                var availableSchemes = _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetAllSchemesAsync()?.Result?.Select(a => a.Name);
-                string msg = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect,
-                    authenticationScheme, effectiveAuthenticationScheme, availableSchemes != null ? string.Join(",", availableSchemes) : string.Empty);
-                throw new InvalidOperationException(msg);
+                // Check if the issue is that MicrosoftIdentityApplicationOptions are not configured
+                // vs. an incorrect authentication scheme
+                var microsoftIdentityApplicationOptions = _serviceProvider.GetService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>()?.Get(effectiveAuthenticationScheme);
+                bool isMicrosoftIdentityApplicationOptionsConfigured = microsoftIdentityApplicationOptions != null && 
+                    (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) || 
+                     (!string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Authority) && microsoftIdentityApplicationOptions.Authority != "//v2.0") ||
+                     !string.IsNullOrEmpty(microsoftIdentityApplicationOptions.ClientId));
+
+                if (!isMicrosoftIdentityApplicationOptionsConfigured)
+                {
+                    string msg = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.MicrosoftIdentityApplicationOptionsNotConfigured,
+                        effectiveAuthenticationScheme);
+                    throw new InvalidOperationException(msg);
+                }
+                else
+                {
+                    var availableSchemes = _serviceProvider.GetService<IAuthenticationSchemeProvider>()?.GetAllSchemesAsync()?.Result?.Select(a => a.Name);
+                    string msg = string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect,
+                        authenticationScheme, effectiveAuthenticationScheme, availableSchemes != null ? string.Join(",", availableSchemes) : string.Empty);
+                    throw new InvalidOperationException(msg);
+                }
             }
 
             DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
