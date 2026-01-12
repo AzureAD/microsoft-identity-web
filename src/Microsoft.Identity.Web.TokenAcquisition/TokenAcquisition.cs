@@ -429,6 +429,8 @@ namespace Microsoft.Identity.Web
                 await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
             }
 
+            builder.WithSendX5C(mergedOptions.SendX5C);
+
             // Pass the token acquisition options to the builder
             if (tokenAcquisitionOptions != null)
             {
