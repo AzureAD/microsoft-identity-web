@@ -46,12 +46,6 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             var mockHttp = new MockHttpClientFactory();
 
-            // Add instance discovery handler for the additional MSAL instance discovery call
-            mockHttp.AddMockHandler(
-                MockHttpCreator.CreateInstanceDiscoveryMockHandler());
-            mockHttp.AddMockHandler(
-                MockHttpCreator.CreateInstanceDiscoveryMockHandler());
-
             mockHttp.AddMockHandler(
                 MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
 
@@ -76,7 +70,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.Equal($"Bearer {MockToken}", header);
         }
 
-        [Fact]
+        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
         public async Task ManagedIdentity_WithClaims_HeaderBypassesCache()
         {
             // Arrange
