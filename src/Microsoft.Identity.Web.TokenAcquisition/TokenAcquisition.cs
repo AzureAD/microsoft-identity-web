@@ -910,19 +910,23 @@ namespace Microsoft.Identity.Web
             string responseBody = exMsal.ResponseBody;
             
 #if NET6_0_OR_GREATER
-            return responseBody.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase) ||
-                   responseBody.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase) ||
-                   responseBody.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase) ||
-                   responseBody.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase) ||
-                   responseBody.Contains(Constants.CertificateNotWithinValidityPeriod, StringComparison.OrdinalIgnoreCase) ||
-                   responseBody.Contains(Constants.CertificateWasRevoked, StringComparison.OrdinalIgnoreCase);
+            foreach (var errorCode in Constants.CertificateRelatedErrorCodes)
+            {
+                if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }   
+            return false;
 #else
-            return responseBody.Contains(Constants.InvalidKeyError) ||
-                   responseBody.Contains(Constants.SignedAssertionInvalidTimeRange) ||
-                   responseBody.Contains(Constants.CertificateHasBeenRevoked) ||
-                   responseBody.Contains(Constants.CertificateIsOutsideValidityWindow) ||
-                   responseBody.Contains(Constants.CertificateNotWithinValidityPeriod) ||
-                   responseBody.Contains(Constants.CertificateWasRevoked);
+            foreach (var errorCode in Constants.CertificateRelatedErrorCodes)
+            {
+                if (responseBody.Contains(errorCode))
+                {
+                    return true;
+                }
+            }
+            return false;
 #endif
         }
 
