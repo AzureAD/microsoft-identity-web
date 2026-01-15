@@ -899,34 +899,32 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
-            if (_retryClientCertificate || 
+            if (_retryClientCertificate ||
                 !string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            // Only retry for certificate-related or signed assertion-related errors.
-            // Check for specific error codes that indicate certificate/assertion issues.
             string responseBody = exMsal.ResponseBody;
-            
+
 #if NET6_0_OR_GREATER
-            foreach (var errorCode in Constants.CertificateRelatedErrorCodes)
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
             {
                 if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
-            }   
-            return false;
-#else
-            foreach (var errorCode in Constants.CertificateRelatedErrorCodes)
-            {
-                if (responseBody.Contains(errorCode))
-                {
-                    return true;
-                }
             }
             return false;
+#else
+    foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+    {
+        if (responseBody.Contains(errorCode))
+        {
+            return true;
+        }
+    }
+    return false;
 #endif
         }
 

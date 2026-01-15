@@ -1,1 +1,2 @@
 #nullable enable
+static readonly Microsoft.Identity.Web.Constants.s_certificateRelatedErrorCodes -> System.Collections.Generic.HashSet<string!>!
