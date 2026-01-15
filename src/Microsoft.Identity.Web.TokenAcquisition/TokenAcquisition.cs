@@ -53,8 +53,8 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
         private const string TokenBindingParameterName = "IsTokenBinding";
+        private const int MaxCertificateRetryAttempts = 1;
 
-        private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
@@ -125,6 +125,13 @@ namespace Microsoft.Identity.Web
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
+            return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters,
+            int retryCount)
+        {
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
@@ -190,25 +197,20 @@ namespace Microsoft.Identity.Web
                     result.CorrelationId,
                     result.TokenType);
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal, retryCount))
             {
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
-                return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters).ConfigureAwait(false);
+                // Retry with incremented counter
+                return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters, retryCount + 1).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
                 Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, ex);
                 throw;
-            }
-            finally
-            {
-                _retryClientCertificate = false;
             }
         }
 
@@ -256,6 +258,25 @@ namespace Microsoft.Identity.Web
             string? userFlow = null,
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
+        {
+            return await GetAuthenticationResultForUserAsync(
+                scopes,
+                authenticationScheme,
+                tenantId,
+                userFlow,
+                user,
+                tokenAcquisitionOptions,
+                retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> GetAuthenticationResultForUserAsync(
+            IEnumerable<string> scopes,
+            string? authenticationScheme,
+            string? tenantId,
+            string? userFlow,
+            ClaimsPrincipal? user,
+            TokenAcquisitionOptions? tokenAcquisitionOptions,
+            int retryCount)
         {
             _ = Throws.IfNull(scopes);
 
@@ -318,22 +339,22 @@ namespace Microsoft.Identity.Web
                 LogAuthResult(authenticationResult);
                 return authenticationResult;
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal, retryCount))
             {
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
+                // Retry with incremented counter
                 return await GetAuthenticationResultForUserAsync(
                     scopes,
                     authenticationScheme: authenticationScheme,
                     tenantId: tenantId,
                     userFlow: userFlow,
                     user: user,
-                    tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+                    tokenAcquisitionOptions: tokenAcquisitionOptions,
+                    retryCount: retryCount + 1).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -343,10 +364,6 @@ namespace Microsoft.Identity.Web
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
-            }
-            finally
-            {
-                _retryClientCertificate = false;
             }
         }
 
@@ -536,6 +553,21 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
+            return await GetAuthenticationResultForAppAsync(
+                scope,
+                authenticationScheme,
+                tenant,
+                tokenAcquisitionOptions,
+                retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
+            string scope,
+            string? authenticationScheme,
+            string? tenant,
+            TokenAcquisitionOptions? tokenAcquisitionOptions,
+            int retryCount)
+        {
             _ = Throws.IfNull(scope);
 
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
@@ -693,20 +725,20 @@ namespace Microsoft.Identity.Web
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
                 return result;
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal, retryCount))
             {
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
+                // Retry with incremented counter
                 return await GetAuthenticationResultForAppAsync(
                     scope,
                     authenticationScheme: authenticationScheme,
                     tenant: tenant,
-                    tokenAcquisitionOptions: tokenAcquisitionOptions);
+                    tokenAcquisitionOptions: tokenAcquisitionOptions,
+                    retryCount: retryCount + 1);
             }
             catch (MsalException ex)
             {
@@ -714,10 +746,6 @@ namespace Microsoft.Identity.Web
                 // a web app or a web API
                 Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                 throw;
-            }
-            finally
-            {
-                _retryClientCertificate = false;
             }
         }
 
@@ -897,9 +925,9 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
+        private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal, int retryCount)
         {
-            return !_retryClientCertificate &&
+            return retryCount < MaxCertificateRetryAttempts &&
 #if !NETSTANDARD2_0 && !NET462 && !NET472
                 (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
                 || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
