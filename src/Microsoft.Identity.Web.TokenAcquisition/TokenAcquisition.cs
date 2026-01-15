@@ -900,12 +900,17 @@ namespace Microsoft.Identity.Web
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
             return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
-#if NET6_0_OR_GREATER
-                , StringComparison.OrdinalIgnoreCase
+#if !NETSTANDARD2_0 && !NET462 && !NET472
+                (exMsal.Message.Contains(Constants.InvalidKeyError, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked, StringComparison.OrdinalIgnoreCase)
+                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow, StringComparison.OrdinalIgnoreCase));
+#else
+                (exMsal.Message.Contains(Constants.InvalidKeyError)
+                || exMsal.Message.Contains(Constants.SignedAssertionInvalidTimeRange)
+                || exMsal.Message.Contains(Constants.CertificateHasBeenRevoked)
+                || exMsal.Message.Contains(Constants.CertificateIsOutsideValidityWindow));
 #endif
-                );
         }
 
 
