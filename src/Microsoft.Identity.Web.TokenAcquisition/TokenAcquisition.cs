@@ -919,14 +919,14 @@ namespace Microsoft.Identity.Web
             }
             return false;
 #else
-    foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
-    {
-        if (responseBody.Contains(errorCode))
-        {
-            return true;
-        }
-    }
-    return false;
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
 #endif
         }
 
