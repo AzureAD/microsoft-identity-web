@@ -32,25 +32,23 @@ namespace Microsoft.Identity.Web.Test.Integration
     /// </summary>
     public class AcquireTokenForAppDstsIntegrationTests
     {
-        private TokenAcquisition _tokenAcquisition;
+        private TokenAcquisition _tokenAcquisition = null!;
         private ServiceProvider? _provider;
-        private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
-        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
-        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
-        private ICredentialsLoader _credentialsLoader;
+        private MsalTestTokenCacheProvider _msalTestTokenCacheProvider = null!;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor = null!;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor = null!;
+        private ICredentialsLoader _credentialsLoader = null!;
 
-        private readonly string _dstsAuthority;
-        private readonly string _dstsClientId;
-        private readonly CredentialDescription _dstsCredential;
-        private readonly string _dstsTenantId;
-        private readonly string _dstsScope;
+        private readonly string _dstsAuthority = null!;
+        private readonly string _dstsClientId = null!;
+        private readonly CredentialDescription _dstsCredential = null!;
+        private readonly string _dstsTenantId = null!;
+        private readonly string _dstsScope = null!;
         private readonly ITestOutputHelper _output;
 
         private ServiceProvider Provider { get => _provider!; }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public AcquireTokenForAppDstsIntegrationTests(ITestOutputHelper output)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             _output = output;
 
