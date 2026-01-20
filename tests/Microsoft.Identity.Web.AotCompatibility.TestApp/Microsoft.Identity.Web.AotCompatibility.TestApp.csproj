@@ -11,6 +11,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- Generates extra info for https://github.com/MichalStrehovsky/sizoscope to read. Useful for debugging warnings since it tells you where each item came from.-->
   <PropertyGroup>
     <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
     <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
