@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("AADSTS700024", true)]  // SignedAssertionInvalidTimeRange
         [InlineData("AADSTS7000214", true)] // CertificateHasBeenRevoked
         [InlineData("AADSTS1000502", true)] // CertificateIsOutsideValidityWindow
-        [InlineData("AADSTS7000274", true)] // CertificateNotWithinValidityPeriod
+        [InlineData("AADSTS7000274", true)] // ClientAssertionContainsInvalidSignature
         [InlineData("AADSTS7000277", true)] // CertificateWasRevoked
         [InlineData("AADSTS7000215", false)] // Invalid client secret - should NOT trigger reload
         [InlineData("AADSTS700016", false)]  // Application not found - should NOT trigger reload

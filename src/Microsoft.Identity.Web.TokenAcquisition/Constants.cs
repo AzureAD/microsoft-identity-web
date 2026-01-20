@@ -134,7 +134,7 @@ namespace Microsoft.Identity.Web
         internal const string SignedAssertionInvalidTimeRange = "AADSTS700024";
         internal const string CertificateHasBeenRevoked = "AADSTS7000214";
         internal const string CertificateIsOutsideValidityWindow = "AADSTS1000502";
-        internal const string CertificateNotWithinValidityPeriod = "AADSTS7000274";
+        internal const string ClientAssertionContainsInvalidSignature = "AADSTS7000274";
         internal const string CertificateWasRevoked = "AADSTS7000277";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Web
             SignedAssertionInvalidTimeRange,    // AADSTS700024 - Signed assertion invalid time range
             CertificateHasBeenRevoked,          // AADSTS7000214 - Certificate has been revoked
             CertificateIsOutsideValidityWindow, // AADSTS1000502 - Certificate is outside validity window
-            CertificateNotWithinValidityPeriod, // AADSTS7000274 - Certificate not within validity period
+            ClientAssertionContainsInvalidSignature, // AADSTS7000274 - Client assertion contains an invalid signature
             CertificateWasRevoked,              // AADSTS7000277 - Certificate was revoked
         };
 
