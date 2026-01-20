@@ -213,13 +213,5 @@ namespace Microsoft.Identity.Web
         /// Sets query parameters for the query string in the HTTP request to the IdP.
         /// </summary>
         public IDictionary<string, string>? ExtraQueryParameters { get; set; }
-
-        /// <summary>
-        /// Gets or sets the claims used to create the client assertion for authentication.
-        /// </summary>
-        /// <remarks>The client assertion claims are typically used in scenarios where client
-        /// authentication requires a signed JWT (JSON Web Token). Ensure the claims are properly formatted and encoded
-        /// as a JSON string before setting this property.</remarks>
-        public IDictionary<string, string>? ClientAssertionClaims { get; set; }
     }
 }
