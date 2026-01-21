@@ -38,7 +38,12 @@ namespace Microsoft.Identity.Web
 #endif
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
         {
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding
+            return EnableTokenAcquisitionToCallDownstreamApi(_ => { }); // No-op, binding handled via AddOptions
+#else
             return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection?.Bind(options));
+#endif
         }
     }
 }
