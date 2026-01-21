@@ -32,18 +32,18 @@ namespace Microsoft.Identity.Web.Test.Integration
     /// </summary>
     public class AcquireTokenForAppDstsIntegrationTests
     {
-        private TokenAcquisition _tokenAcquisition = null!;
+        private TokenAcquisition _tokenAcquisition = default!;
         private ServiceProvider? _provider;
-        private MsalTestTokenCacheProvider _msalTestTokenCacheProvider = null!;
-        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor = null!;
-        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor = null!;
-        private ICredentialsLoader _credentialsLoader = null!;
+        private MsalTestTokenCacheProvider _msalTestTokenCacheProvider = default!;
+        private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor = default!;
+        private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor = default!;
+        private ICredentialsLoader _credentialsLoader = default!;
 
-        private readonly string _dstsAuthority = null!;
-        private readonly string _dstsClientId = null!;
-        private readonly CredentialDescription _dstsCredential = null!;
-        private readonly string _dstsTenantId = null!;
-        private readonly string _dstsScope = null!;
+        private readonly string _dstsAuthority;
+        private readonly string _dstsClientId;
+        private readonly CredentialDescription _dstsCredential;
+        private readonly string _dstsTenantId;
+        private readonly string _dstsScope;
         private readonly ITestOutputHelper _output;
 
         private ServiceProvider Provider { get => _provider!; }
@@ -70,11 +70,36 @@ namespace Microsoft.Identity.Web.Test.Integration
                 var jsonDoc = JsonDocument.Parse(dstsConfigSecret.Value);
                 var appElement = jsonDoc.RootElement.GetProperty("app");
 
-                // Extract configuration values
-                _dstsAuthority = appElement.GetProperty("authority").GetString()!;
-                _dstsClientId = appElement.GetProperty("appid").GetString()!;
-                _dstsTenantId = appElement.GetProperty("tenantid").GetString()!;
-                _dstsScope = appElement.GetProperty("defaultscopes").GetString()!;
+                // Extract and validate configuration values
+                string? authority = appElement.GetProperty("authority").GetString();
+                string? clientId = appElement.GetProperty("appid").GetString();
+                string? tenantId = appElement.GetProperty("tenantid").GetString();
+                string? scope = appElement.GetProperty("defaultscopes").GetString();
+
+                if (string.IsNullOrEmpty(authority))
+                {
+                    throw new InvalidOperationException("Authority is required in dSTS configuration");
+                }
+
+                if (string.IsNullOrEmpty(clientId))
+                {
+                    throw new InvalidOperationException("ClientId is required in dSTS configuration");
+                }
+
+                if (string.IsNullOrEmpty(tenantId))
+                {
+                    throw new InvalidOperationException("TenantId is required in dSTS configuration");
+                }
+
+                if (string.IsNullOrEmpty(scope))
+                {
+                    throw new InvalidOperationException("Scope is required in dSTS configuration");
+                }
+
+                _dstsAuthority = authority;
+                _dstsClientId = clientId;
+                _dstsTenantId = tenantId;
+                _dstsScope = scope;
 
                 // Load certificate
                 _dstsCredential = CertificateDescription.FromKeyVault(
@@ -82,6 +107,11 @@ namespace Microsoft.Identity.Web.Test.Integration
                     "LabAuth");
 
                 _output.WriteLine("✅ dSTS configuration and certificate loaded successfully from Key Vault");
+            }
+            catch (InvalidOperationException)
+            {
+                // Re-throw our own validation exceptions
+                throw;
             }
             catch (Exception ex)
             {
