@@ -145,6 +145,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.AddDenyGuestsAuthorization();
             builder.Services.AddRequiredScopeAuthorization();
             builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
