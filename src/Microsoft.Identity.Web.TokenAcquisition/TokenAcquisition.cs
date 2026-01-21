@@ -215,16 +215,10 @@ namespace Microsoft.Identity.Web
         /// when supporting managed identities.
         /// </summary>
         /// <param name="mergedOptions">Merged configuration options.</param>
-        /// <param name="clientClaims">Optional client claims.</param>
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions, IDictionary<string, string>? clientClaims = null)
+        private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
-
-            if (clientClaims != null)
-            {
-                credentialId += "-" + string.Join("-", clientClaims.Select(kvp => $"{kvp.Key}:{kvp.Value}"));
-            }
 
             return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
@@ -450,6 +444,11 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -565,6 +564,12 @@ namespace Microsoft.Identity.Web
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
+                    var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                    if (clientClaims != null)
+                    {
+                        miBuilder.WithExtraClientAssertionClaims(clientClaims);
+                    }
+
                     return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -640,6 +645,13 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
+
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
                 {
                     builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
@@ -919,7 +931,7 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionOptions? tokenAcquisitionOptions = null) // just for PoC will drive this through MergedOptions later
         {
             var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
-            string key = GetApplicationKey(mergedOptions, clientClaims);
+            string key = GetApplicationKey(mergedOptions);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -937,7 +949,7 @@ namespace Microsoft.Identity.Web
                     return app;
 
                 // Build and store the application
-                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, clientClaims);
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions);
@@ -953,7 +965,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions, IDictionary<string, string>? clientClaims)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
 
@@ -1010,8 +1022,7 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
-                        clientClaims);
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
@@ -1197,6 +1208,11 @@ namespace Microsoft.Identity.Web
                         }
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
+                        var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                        if (clientClaims != null)
+                        {
+                            builder.WithExtraClientAssertionClaims(clientClaims);
+                        }
                         if (tokenAcquisitionOptions.PoPConfiguration != null)
                         {
                             builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -1354,6 +1370,11 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);

@@ -25,15 +25,12 @@ namespace Microsoft.Identity.Web
                 credentialSourceLoaderParameters).GetAwaiter().GetResult();
         }
 
-#pragma warning disable RS0051
         public static async Task<ConfidentialClientApplicationBuilder> WithClientCredentialsAsync(
             this ConfidentialClientApplicationBuilder builder,
             IEnumerable<CredentialDescription> clientCredentials,
             ILogger logger,
             ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
-            IDictionary<string, string>? clientClaims = null)
-#pragma warning restore RS0051
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
         {
             var credential = await LoadCredentialForMsalOrFailAsync(
                     clientCredentials,
@@ -52,25 +49,13 @@ namespace Microsoft.Identity.Web
                 case CredentialType.SignedAssertion:
                     return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
                 case CredentialType.Certificate:
-                    return builder.WithCertificateInternal(credential, clientClaims);
+                    return builder.WithCertificate(credential.Certificate);
                 case CredentialType.Secret:
                     return builder.WithClientSecret(credential.ClientSecret);
                 default:
                     throw new NotImplementedException();
 
             }
-        }
-
-        private static ConfidentialClientApplicationBuilder WithCertificateInternal(
-            this ConfidentialClientApplicationBuilder builder,
-            CredentialDescription credentialDescription,
-            IDictionary<string, string>? clientClaims = null)
-        {
-            if (clientClaims != null && clientClaims.Count > 0)
-            {
-                return builder.WithClientClaims(credentialDescription.Certificate, clientClaims);
-            }
-            return builder.WithCertificate(credentialDescription.Certificate);
         }
 
         internal /* for test */ async static Task<CredentialDescription?> LoadCredentialForMsalOrFailAsync(
