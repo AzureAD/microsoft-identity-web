@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
-    
+
     public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
@@ -116,7 +116,12 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
         public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLAB4-IDLABS-APP-AzureADMyOrg-CC";
+        public const string DstsTestClientSecret = "MISE-dSTS-CustomAppConfig"; // dSTS test app client secret in ID4sKeyVault
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
+
+        // ID4s Key Vault (MsalTeam) - used for test configurations
+        public const string ID4sKeyVaultName = "id4skeyvault";
+        public const string ID4sKeyVaultUri = "https://id4skeyvault.vault.azure.net/";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
         public const string CertificateX5c = @"MIIDHzCCAgegAwIBAgIQM6NFYNBJ9rdOiK+C91ZzFDANBgkqhkiG9w0BAQsFADAgMR4wHAYDVQQDExVBQ1MyQ2xpZW50Q2VydGlmaWNhdGUwHhcNMTIwNTIyMj
@@ -217,7 +222,7 @@ namespace Microsoft.Identity.Web.Test.Common
                             ""preferred_network"":""login.microsoftonline.com"",
                             ""preferred_cache"":""login.windows.net"",
                             ""aliases"":[
-                                ""login.microsoftonline.com"", 
+                                ""login.microsoftonline.com"",
                                 ""login.windows.net"",
                                 ""login.microsoft.com"",
                                 ""sts.windows.net""]},

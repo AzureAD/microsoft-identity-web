@@ -3,14 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Lab.Api;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -35,10 +38,13 @@ namespace CustomSignedAssertionProviderTests
         [OnlyOnAzureDevopsFact]
         public async Task CrossCloudFicIntegrationTest()
         {
+
             // Arrange
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.AddOidcFic();
+
+            UpdateClientSecret(tokenAcquirerFactory); // for test only - get secret from KeyVault
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
@@ -76,6 +82,42 @@ namespace CustomSignedAssertionProviderTests
                                     .ToArray();
 
             Assert.Contains("cp1", xmsCcValues);
+        }
+
+        private static void UpdateClientSecret(TokenAcquirerFactory tokenAcquirerFactory)
+        {
+            KeyVaultSecretsProvider ksp = new KeyVaultSecretsProvider();
+            var secret = ksp.GetSecretByName("ARLMSIDLAB1-IDLASBS-App-CC-Secret").Value;
+
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            tokenAcquirerFactory.Services.AddSingleton<IConfiguration>(configuration);
+
+            // Bind the AzureAd2 section into the named options.
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                "AzureAd2",
+                configuration.GetSection("AzureAd2"));
+
+            // Apply any dynamic overrides after the JSON bind.
+            tokenAcquirerFactory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(
+                "AzureAd2",
+                options =>
+                {
+                    options.ClientCredentials = new[]
+                    {
+                        new CredentialDescription
+                        {
+                            SourceType = CredentialSource.ClientSecret,
+                            ClientSecret = secret
+                        }
+                    };
+
+                });
         }
 
         //[Fact(Skip ="Does not run if run with the E2E test")]

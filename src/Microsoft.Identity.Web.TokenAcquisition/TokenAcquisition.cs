@@ -429,6 +429,8 @@ namespace Microsoft.Identity.Web
                 await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
             }
 
+            builder.WithSendX5C(mergedOptions.SendX5C);
+
             // Pass the token acquisition options to the builder
             if (tokenAcquisitionOptions != null)
             {
@@ -899,13 +901,33 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
-            return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
+            if (_retryClientCertificate ||
+                !string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string responseBody = exMsal.ResponseBody;
+
 #if NET6_0_OR_GREATER
-                , StringComparison.OrdinalIgnoreCase
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+#else
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
 #endif
-                );
         }
 
 
