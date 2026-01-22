@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -386,6 +387,8 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static IHttpClientBuilder AddMicrosoftIdentityMessageHandler(
             this IHttpClientBuilder builder,
             IConfiguration configuration,

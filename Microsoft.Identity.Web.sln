@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11217.181 d18.0
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}"
 EndProject
@@ -180,6 +180,30 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MtlsPopClient", "tests\DevApps\MtlsPop\MtlsPopClient\MtlsPopClient.csproj", "{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MtlsPopWebApi", "tests\DevApps\MtlsPop\MtlsPopWebApi\MtlsPopWebApi.csproj", "{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FF3B93A1-B8A4-4120-AF3D-7B5C43C0735C}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.md = build\build.md
+		build\CodeCoverage.runsettings = build\CodeCoverage.runsettings
+		build\credscan-exclusion.json = build\credscan-exclusion.json
+		build\GenerateDocFx.ps1 = build\GenerateDocFx.ps1
+		build\Microsoft.Identity.Web-Source-Assemblies.dgml = build\Microsoft.Identity.Web-Source-Assemblies.dgml
+		build\MSAL.snk = build\MSAL.snk
+		build\pipeline-releasebuild.yaml = build\pipeline-releasebuild.yaml
+		build\policheck_exclusions.xml = build\policheck_exclusions.xml
+		build\policheck_filetypes.xml = build\policheck_filetypes.xml
+		build\release-provisioning-tool.yml = build\release-provisioning-tool.yml
+		build\template-install-dependencies.yaml = build\template-install-dependencies.yaml
+		build\template-onebranch-release-build.yaml = build\template-onebranch-release-build.yaml
+		build\template-pack-and-sign-all-nugets.yaml = build\template-pack-and-sign-all-nugets.yaml
+		build\template-pack-nuget.yaml = build\template-pack-nuget.yaml
+		build\template-postbuild-code-analysis.yaml = build\template-postbuild-code-analysis.yaml
+		build\template-prebuild-code-analysis.yaml = build\template-prebuild-code-analysis.yaml
+		build\template-publish-and-cleanup.yaml = build\template-publish-and-cleanup.yaml
+		build\template-restore-build-MSIdentityWeb.yaml = build\template-restore-build-MSIdentityWeb.yaml
+		build\template-run-unit-tests.yaml = build\template-run-unit-tests.yaml
+		build\tsaConfig.json = build\tsaConfig.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
