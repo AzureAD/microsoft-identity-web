@@ -130,6 +130,134 @@ namespace Microsoft.Identity.Web.Test.DownstreamWebApiSupport
                 Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims == null));
         }
 
+        [Fact]
+        public async Task DownstreamApi_GetForApp_Retries401WithTokenRevocationClaimsAsync()
+        {
+            // Arrange - Build services with TokenIssuedBeforeRevocationTimestamp error scenario
+            BuildRequiredServices("GraphApp", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            }, addUnauthorizedResponse: true, withClaims: true);
+
+            // Act - Call the API which will initially fail with 401, then retry with claims
+            var appVal = await _downstreamApi.GetForAppAsync<EmptyClass>("GraphApp");
+
+            // Assert - Verify that authorization header was created twice (initial + retry)
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderAsync(Enumerable.Empty<string>());
+            // Verify the second call included the parsed claims for token revocation
+            await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(ParsedClaims, StringComparison.Ordinal)));
+        }
+
+        [Fact]
+        public async Task DownstreamApi_GetForUser_Retries401WithTokenRevocationClaimsAsync()
+        {
+            // Arrange - Build services with TokenIssuedBeforeRevocationTimestamp error scenario
+            BuildRequiredServices("GraphUser", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = TestConstants.s_userReadScope;
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            }, addUnauthorizedResponse: true, withClaims: true);
+
+            // Act - Call the API for user which will initially fail with 401, then retry with claims
+            var userVal = await _downstreamApi.GetForUserAsync<EmptyClass>("GraphUser");
+
+            // Assert - Verify that authorization header was created twice (initial + retry)
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderAsync(Enumerable.Empty<string>());
+            // Verify the second call included the parsed claims for token revocation
+            await _authorizationHeaderProvider.Received().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Is<DownstreamApiOptions>(o => o.AcquireTokenOptions.Claims!.Equals(ParsedClaims, StringComparison.Ordinal)));
+        }
+
+        [Fact]
+        public async Task DownstreamApi_GetForApp_DoesNotRetryTwiceOnConsecutive401Async()
+        {
+            // Arrange - Build services with multiple 401 responses to ensure we don't retry infinitely
+            _authorizationHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string.Empty).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+            _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(Enumerable.Empty<string>()).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+            _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>()).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+
+            var httpMessageHandler = new QueueHttpMessageHandler();
+            
+            // Add two 401 responses with claims
+            for (int i = 0; i < 2; i++)
+            {
+                var unauthorizedResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("{}"),
+                };
+                unauthorizedResponse.Headers.Add(HeaderNames.WWWAuthenticate, WwwAuthenticateValue);
+                httpMessageHandler.AddHttpResponseMessage(unauthorizedResponse);
+            }
+
+            var services = new ServiceCollection();
+            var httpClientBuilder = services.AddHttpClient("GraphApp");
+            httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => httpMessageHandler);
+
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddSingleton(_authorizationHeaderProvider);
+            services.AddDownstreamApi("GraphApp", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = [TestConstants.s_scopeForApp];
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            });
+            _provider = services.BuildServiceProvider();
+            _downstreamApi = _provider.GetRequiredService<IDownstreamApi>();
+
+            // Act & Assert - Should throw after single retry fails
+            await Assert.ThrowsAsync<HttpRequestException>(() => _downstreamApi.GetForAppAsync<EmptyClass>("GraphApp"));
+
+            // Assert - Verify it only retried once (2 total calls: initial + 1 retry)
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderAsync(Enumerable.Empty<string>());
+        }
+
+        [Fact]
+        public async Task DownstreamApi_GetForUser_DoesNotRetryTwiceOnConsecutive401Async()
+        {
+            // Arrange - Build services with multiple 401 responses to ensure we don't retry infinitely
+            _authorizationHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            _authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(string.Empty).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+            _authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(Enumerable.Empty<string>()).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+            _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>()).ReturnsForAnyArgs("Bearer eyJhY2Nlc3NfdG9rZW4iOg==");
+
+            var httpMessageHandler = new QueueHttpMessageHandler();
+            
+            // Add two 401 responses with claims
+            for (int i = 0; i < 2; i++)
+            {
+                var unauthorizedResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("{}"),
+                };
+                unauthorizedResponse.Headers.Add(HeaderNames.WWWAuthenticate, WwwAuthenticateValue);
+                httpMessageHandler.AddHttpResponseMessage(unauthorizedResponse);
+            }
+
+            var services = new ServiceCollection();
+            var httpClientBuilder = services.AddHttpClient("GraphUser");
+            httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() => httpMessageHandler);
+
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddSingleton(_authorizationHeaderProvider);
+            services.AddDownstreamApi("GraphUser", downstreamApiOptions =>
+            {
+                downstreamApiOptions.Scopes = TestConstants.s_userReadScope;
+                downstreamApiOptions.BaseUrl = TestConstants.GraphBaseUrl;
+            });
+            _provider = services.BuildServiceProvider();
+            _downstreamApi = _provider.GetRequiredService<IDownstreamApi>();
+
+            // Act & Assert - Should throw after single retry fails
+            await Assert.ThrowsAsync<HttpRequestException>(() => _downstreamApi.GetForUserAsync<EmptyClass>("GraphUser"));
+
+            // Assert - Verify it only retried once (2 total calls: initial + 1 retry)
+            await _authorizationHeaderProvider.ReceivedWithAnyArgs(2).CreateAuthorizationHeaderAsync(Enumerable.Empty<string>());
+        }
+
         private void BuildRequiredServices(string serviceName, Action<DownstreamApiOptions> configureOptions, bool addUnauthorizedResponse, bool withClaims)
         {
             _authorizationHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();

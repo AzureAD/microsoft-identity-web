@@ -269,5 +269,143 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             // Bearer header returned
             Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
         }
+
+        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        public async Task FederatedIdentity_TokenRevocation_BypassesCache()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+
+            // Configure FIC with Managed Identity-signed assertion
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(opts =>
+            {
+                opts.Instance = "https://login.microsoftonline.com/";
+                opts.TenantId = "11111111-1111-1111-1111-111111111111";
+                opts.ClientId = "00000000-0000-0000-0000-000000000000";
+                opts.ClientCapabilities = new[] { "cp1" };
+                opts.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                        ManagedIdentityClientId = UamiClientId
+                    }
+                };
+            });
+
+            // Mock IMDS (for MI assertion)
+            var mockMiHttp = new MockHttpClientFactory();
+            mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion-1"));
+            mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion-2"));
+
+            var miTestFactory = new TestManagedIdentityHttpFactory(mockMiHttp);
+            ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = miTestFactory.Create();
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(_ => miTestFactory);
+
+            // Mock AAD token responses
+            var mockMsalHttp = new MockHttpClientFactory();
+            mockMsalHttp.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler("token-before-revocation"));
+            mockMsalHttp.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler("token-after-revocation"));
+
+            factory.Services.AddSingleton<IMsalHttpClientFactory>(_ => mockMsalHttp);
+
+            var acquirer = factory.Build().GetRequiredService<ITokenAcquisition>();
+
+            // Revocation claims with nbf timestamp
+            const string revocationClaims = @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
+
+            // Act - First call: get and cache token
+            var result1 = await acquirer.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions());
+
+            Assert.Equal("token-before-revocation", result1.AccessToken);
+            Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
+
+            // Act - Second call: with revocation claims, should bypass cache
+            var result2 = await acquirer.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions { Claims = revocationClaims });
+
+            // Assert - Should get new token from IdP
+            Assert.Equal("token-after-revocation", result2.AccessToken);
+            Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
+        }
+
+        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        public async Task FederatedIdentity_TokenRevocation_MergesWithClientCapabilities()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(opts =>
+            {
+                opts.Instance = "https://login.microsoftonline.com/";
+                opts.TenantId = "11111111-1111-1111-1111-111111111111";
+                opts.ClientId = "00000000-0000-0000-0000-000000000000";
+                opts.ClientCapabilities = new[] { "cp1" };
+                opts.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                        ManagedIdentityClientId = UamiClientId
+                    }
+                };
+            });
+
+            var mockMiHttp = new MockHttpClientFactory();
+            mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion"));
+
+            var miTestFactory = new TestManagedIdentityHttpFactory(mockMiHttp);
+            ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = miTestFactory.Create();
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(_ => miTestFactory);
+
+            var mockMsalHttp = new MockHttpClientFactory();
+            var tokenHandler = mockMsalHttp.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("token-with-merged-claims"));
+
+            factory.Services.AddSingleton<IMsalHttpClientFactory>(_ => mockMsalHttp);
+
+            var acquirer = factory.Build().GetRequiredService<ITokenAcquisition>();
+
+            // Revocation claims that should be merged with cp1
+            const string revocationClaims = @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
+
+            // Act
+            var result = await acquirer.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions { Claims = revocationClaims });
+
+            // Assert - Verify token was obtained
+            Assert.Equal("token-with-merged-claims", result.AccessToken);
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+
+            // Verify the claims sent to AAD include both cp1 and the nbf requirement
+            Assert.True(tokenHandler.ActualRequestPostData.TryGetValue("claims", out var claimsJson));
+            
+            using var doc = JsonDocument.Parse(claimsJson);
+            var accessToken = doc.RootElement.GetProperty("access_token");
+            
+            // Should have cp1 capability
+            Assert.True(accessToken.TryGetProperty("xms_cc", out var xmsCc));
+            bool hasCp1 = false;
+            foreach (var value in xmsCc.GetProperty("values").EnumerateArray())
+            {
+                if (value.GetString() == "cp1")
+                {
+                    hasCp1 = true;
+                    break;
+                }
+            }
+            Assert.True(hasCp1);
+
+            // Should also have nbf requirement from revocation
+            Assert.True(accessToken.TryGetProperty("nbf", out var nbf));
+            Assert.True(nbf.GetProperty("essential").GetBoolean());
+            Assert.Equal("1702682181", nbf.GetProperty("value").GetString());
+        }
     }
 }

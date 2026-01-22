@@ -285,5 +285,184 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             Assert.Equal(challengeB64, capturedOpts!.AcquireTokenOptions.Claims);
         }
+
+        [Fact]
+        public async Task ManagedIdentity_TokenRevocation_TriggersRetryWithNewToken()
+        {
+            // Arrange - Simulate token revocation scenario with TokenIssuedBeforeRevocationTimestamp
+            const string revocationClaims = @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
+            string revocationClaimsB64 = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(revocationClaims));
+
+            var authProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            DownstreamApiOptions? capturedOptions = null;
+
+            authProvider.CreateAuthorizationHeaderAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Do<DownstreamApiOptions>(o => capturedOptions = o),
+                    Arg.Any<ClaimsPrincipal?>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(ci => $"Bearer {FirstToken}",
+                         ci => $"Bearer {SecondToken}");
+
+            var queue = new QueueHttpMessageHandler();
+
+            // First response: 401 with token revocation claims challenge
+            var revocationResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            revocationResponse.Headers.WwwAuthenticate.ParseAdd(
+                $"Bearer realm=\"\", error=\"insufficient_claims\", " +
+                $"error_description=\"Continuous access evaluation resulted in challenge with result: InteractionRequired and code: TokenIssuedBeforeRevocationTimestamp\", " +
+                $"claims=\"{revocationClaimsB64}\"");
+            queue.AddHttpResponseMessage(revocationResponse);
+
+            // Second response: Success after token refresh
+            queue.AddHttpResponseMessage(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{ \"value\": \"SecretAfterRevocation\" }",
+                                            Encoding.UTF8, "application/json")
+            });
+
+            // Setup DI
+            var services = new ServiceCollection();
+            services.AddHttpClient("RevocationTest")
+                    .ConfigurePrimaryHttpMessageHandler(() => queue);
+            services.AddLogging();
+            services.AddTokenAcquisition();
+            services.AddSingleton(authProvider);
+
+            services.AddDownstreamApi("RevocationTest", opts =>
+            {
+                opts.BaseUrl = VaultBaseUrl;
+                opts.RelativePath = SecretPath;
+                opts.RequestAppToken = true;
+                opts.Scopes = [Scope];
+            });
+
+            var sp = services.BuildServiceProvider();
+            var api = sp.GetRequiredService<IDownstreamApi>();
+
+            // Act
+            VaultSecret? result = await api.GetForAppAsync<VaultSecret>("RevocationTest");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("SecretAfterRevocation", result!.Value);
+
+            // Verify two calls were made (initial + retry after revocation)
+            await authProvider.Received(2).CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<DownstreamApiOptions>(),
+                Arg.Any<ClaimsPrincipal?>(),
+                Arg.Any<CancellationToken>());
+
+            // Verify the retry included the revocation claims
+            Assert.Equal(revocationClaimsB64, capturedOptions!.AcquireTokenOptions.Claims);
+        }
+
+        [Fact]
+        public async Task ManagedIdentity_TokenRevocation_DoesNotRetryMultipleTimes()
+        {
+            // Arrange - Simulate repeated token revocation to ensure we don't retry infinitely
+            const string revocationClaims = @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
+            string revocationClaimsB64 = Base64UrlEncoder.Encode(Encoding.UTF8.GetBytes(revocationClaims));
+
+            var authProvider = Substitute.For<IAuthorizationHeaderProvider>();
+
+            authProvider.CreateAuthorizationHeaderAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal?>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(ci => $"Bearer {FirstToken}",
+                         ci => $"Bearer {SecondToken}");
+
+            var queue = new QueueHttpMessageHandler();
+
+            // Add two 401 responses with revocation claims to test retry limit
+            for (int i = 0; i < 2; i++)
+            {
+                var revocationResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                revocationResponse.Headers.WwwAuthenticate.ParseAdd(
+                    $"Bearer realm=\"\", error=\"insufficient_claims\", " +
+                    $"error_description=\"Continuous access evaluation resulted in challenge with result: InteractionRequired and code: TokenIssuedBeforeRevocationTimestamp\", " +
+                    $"claims=\"{revocationClaimsB64}\"");
+                queue.AddHttpResponseMessage(revocationResponse);
+            }
+
+            // Setup DI
+            var services = new ServiceCollection();
+            services.AddHttpClient("MultiRevocationTest")
+                    .ConfigurePrimaryHttpMessageHandler(() => queue);
+            services.AddLogging();
+            services.AddTokenAcquisition();
+            services.AddSingleton(authProvider);
+
+            services.AddDownstreamApi("MultiRevocationTest", opts =>
+            {
+                opts.BaseUrl = VaultBaseUrl;
+                opts.RelativePath = SecretPath;
+                opts.RequestAppToken = true;
+                opts.Scopes = [Scope];
+            });
+
+            var sp = services.BuildServiceProvider();
+            var api = sp.GetRequiredService<IDownstreamApi>();
+
+            // Act & Assert - Should throw after single retry
+            await Assert.ThrowsAsync<HttpRequestException>(() => 
+                api.GetForAppAsync<VaultSecret>("MultiRevocationTest"));
+
+            // Verify only 2 calls were made (initial + 1 retry), not infinite retries
+            await authProvider.Received(2).CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<DownstreamApiOptions>(),
+                Arg.Any<ClaimsPrincipal?>(),
+                Arg.Any<CancellationToken>());
+        }
+
+        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        public async Task ManagedIdentity_TokenRevocation_BypassesCache()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+            var mockHttp = new MockHttpClientFactory();
+
+            // Setup: token-1 will be cached, token-2 should be returned after revocation
+            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-cached"));
+            mockHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token-after-revocation"));
+
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
+
+            var provider = factory.Build();
+            var tokens = provider.GetRequiredService<ITokenAcquisition>();
+
+            // Revocation claims with nbf timestamp indicating token was issued before revocation
+            const string revocationClaims = @"{""access_token"":{""nbf"":{""essential"":true,""value"":""1702682181""}}}";
+
+            // Act - First call: get and cache token
+            var result1 = await tokens.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions { UserAssignedClientId = UamiClientId }
+                });
+
+            Assert.Equal(TokenSource.IdentityProvider, result1.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal("token-cached", result1.AccessToken);
+
+            // Act - Second call: same UAMI but with revocation claims - should bypass cache
+            var result2 = await tokens.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions { UserAssignedClientId = UamiClientId },
+                    Claims = revocationClaims
+                });
+
+            // Assert - Should get new token from IdP, not cached token
+            Assert.Equal(TokenSource.IdentityProvider, result2.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal("token-after-revocation", result2.AccessToken);
+        }
     }
 }
