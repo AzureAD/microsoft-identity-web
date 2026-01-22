@@ -119,9 +119,8 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
-#endif
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
         public Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,
@@ -185,9 +184,8 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
-#endif
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
         Task<TOutput?> CallWebApiForUserAsync<TInput, TOutput>(
             string serviceName,
             TInput input,

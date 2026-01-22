@@ -10,6 +10,10 @@
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
   <IsAotCompatible>true</IsAotCompatible>
 </PropertyGroup>
+  <!-- Include AOT attribute polyfills for older TFMs -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Include="..\Shared\CodeAnalysisAttributes.cs" Link="Polyfills\CodeAnalysisAttributes.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
