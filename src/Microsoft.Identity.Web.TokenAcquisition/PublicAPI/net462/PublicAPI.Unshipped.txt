@@ -1,1 +1,4 @@
 #nullable enable
+Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForOnBehalfOf -> Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf?
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf.Invoke(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void

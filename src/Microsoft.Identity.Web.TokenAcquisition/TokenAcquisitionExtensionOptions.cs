@@ -43,6 +43,25 @@ namespace Microsoft.Identity.Web
         public event BeforeTokenAcquisitionForTestUserAsync? OnBeforeTokenAcquisitionForTestUserAsync;
 
         /// <summary>
+        /// Occurs before an asynchronous token acquisition operation for the On-Behalf-Of authentication flow is
+        /// initiated.
+        /// </summary>
+        public event BeforeTokenAcquisitionForOnBehalfOf? OnBeforeTokenAcquisitionForOnBehalfOf;
+
+        /// <summary>
+        /// Invoke the OnBeforeTokenAcquisitionForApp event.
+        /// </summary>
+        internal void InvokeOnBeforeTokenAcquisitionForOnBehalfOf(AcquireTokenOnBehalfOfParameterBuilder builder,
+                                                           AcquireTokenOptions? acquireTokenOptions,
+                                                           ClaimsPrincipal user)
+        {
+            if (OnBeforeTokenAcquisitionForOnBehalfOf != null)
+            {
+                OnBeforeTokenAcquisitionForOnBehalfOf(builder, acquireTokenOptions, user);
+            }
+        }
+
+        /// <summary>
         /// Invoke the BeforeTokenAcquisitionForTestUser event.
         /// </summary>
         internal async Task InvokeOnBeforeTokenAcquisitionForTestUserAsync(AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder builder,

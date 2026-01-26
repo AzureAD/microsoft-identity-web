@@ -121,5 +121,56 @@ namespace Microsoft.Identity.Web.Tests
             Assert.NotNull(result);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
         }
+
+        [Fact]
+        public async Task InvokeOnBeforeTokenAcquisitionForOnBehalfOf_InvokesEvent()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            var acquireTokenOptions = new AcquireTokenOptions();
+            acquireTokenOptions.ForceRefresh = true;
+
+            //Configure mocks
+            using MockHttpClientFactory mockHttpClient = new();
+            mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+
+            var confidentialApp = ConfidentialClientApplicationBuilder
+                   .Create(TestConstants.ClientId)
+                   .WithAuthority(TestConstants.AuthorityCommonTenant)
+                   .WithHttpClientFactory(mockHttpClient)
+                   .WithInstanceDiscovery(false)
+                   .WithClientSecret(TestConstants.ClientSecret)
+                   .Build();
+
+            var userAssertion = new UserAssertion("user-assertion-token");
+            AcquireTokenOnBehalfOfParameterBuilder builder = confidentialApp
+                .AcquireTokenOnBehalfOf(new string[] { "scope" }, userAssertion);
+
+            bool eventInvoked = false;
+            options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, user) =>
+            {
+                eventInvoked = true;
+
+                //Set ForceRefresh on the builder
+                builder.WithForceRefresh(options!.ForceRefresh);
+            };
+
+            var user = new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[]
+                {
+                    new Claim(ClaimConstants.Sub, "user-id"),
+                    new Claim(ClaimConstants.Name, "Test User"),
+                }));
+
+            // Act
+            options.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(builder, acquireTokenOptions, user);
+
+            var result = await builder.ExecuteAsync();
+
+            // Assert
+            Assert.True(eventInvoked);
+            Assert.NotNull(result);
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        }
     }
 }
