@@ -1,1 +1,2 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(System.Action<Microsoft.Identity.Client.ConfidentialClientApplicationOptions!, Microsoft.Extensions.Configuration.IConfigurationSection?>? bindConfidentialClientApplicationOptions) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!

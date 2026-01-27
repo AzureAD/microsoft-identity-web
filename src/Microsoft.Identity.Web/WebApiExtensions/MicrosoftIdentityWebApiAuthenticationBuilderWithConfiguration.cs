@@ -6,14 +6,15 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Internal;
 
 namespace Microsoft.Identity.Web
 {
     /// <summary>
     /// Builder for web API authentication with configuration.
     /// </summary>
-    [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.MicrosoftIdentityWebApiAuthenticationBuilder(IServiceCollection, String, Action<JwtBearerOptions>, Action<MicrosoftIdentityOptions>, IConfigurationSection).")]
-    [RequiresDynamicCode("Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.MicrosoftIdentityWebApiAuthenticationBuilder(IServiceCollection, String, Action<JwtBearerOptions>, Action<MicrosoftIdentityOptions>, IConfigurationSection).")]
     public class MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration : MicrosoftIdentityWebApiAuthenticationBuilder
     {
         internal MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
@@ -37,6 +38,17 @@ namespace Microsoft.Identity.Web
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi()
         {
             return EnableTokenAcquisitionToCallDownstreamApi(options => ConfigurationSection?.Bind(options));
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// This overload is trim/AOT-safe as it uses built-in AOT safe configuration binders.
+        /// </summary>
+        /// <returns>The authentication builder to chain.</returns>
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApiTrimSafe()
+        {
+            return EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(ConfidentialClientApplicationOptionsBinder.Bind);
         }
     }
 }
