@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -96,12 +96,12 @@ public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBr
             }
 
             page = await NavigateToWebAppAsync(context, TodoListClientPort);
-            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
             // Initial sign in
             _output.WriteLine("Starting web app sign-in flow.");
-            string email = labResponse.User.Upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
+            string email = userConfig.Upn;
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName), _output);
             await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync(_assertVisibleOptions);
             await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
             _output.WriteLine("Web app sign-in flow successful.");
@@ -115,7 +115,7 @@ public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBr
             // Sign in again using Todo List button
             _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
             await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
-            await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
+            await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName), _output);
             var todoLink = page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
             await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
             _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");

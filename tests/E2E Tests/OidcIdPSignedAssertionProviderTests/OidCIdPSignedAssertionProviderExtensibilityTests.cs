@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -48,7 +48,7 @@ namespace CustomSignedAssertionProviderTests
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
-            /*            
+            /*
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";

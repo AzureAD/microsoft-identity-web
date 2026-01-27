@@ -12,7 +12,7 @@ using IntegrationTestService;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 
 namespace Microsoft.Identity.Web.Perf.Benchmark
 {
@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         private readonly WebApplicationFactory<Startup> _factory;
         private HttpClient _client;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
         // The GlobalSetup ensures that the _client is not null.
         public TokenAcquisitionTests()
         {
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
         public async Task GetAccessTokenForUserAsync()
         {
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, TestConstants.SecurePageGetTokenForUserAsync);
-            HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);    
+            HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"GetAccessTokenForUserAsync failed. Status code: {response.StatusCode}. Reason phrase: {response.ReasonPhrase}.");
@@ -79,18 +79,18 @@ namespace Microsoft.Identity.Web.Perf.Benchmark
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
         {
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser).ConfigureAwait(false);
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(TestConstants.OBOClientSideClientId)
-               .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
+               .WithAuthority($"{userConfig.Authority}{userConfig.TenantId}", TestConstants.Organizations)
                .Build();
 
 #pragma warning disable CS0618 // Obsolete
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 TestConstants.s_oBOApiScope,
-                TestConstants.OBOUser,
-                labResponse.User.GetOrFetchPassword())
+                userConfig.UPN,
+                LabResponseHelper.FetchUserPassword(userConfig.LabName))
                 .ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
 

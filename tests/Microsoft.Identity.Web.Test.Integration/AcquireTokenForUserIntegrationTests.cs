@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Web.Test.Integration
             string authority = "http://localhost:1234";
             Process? p = ExternalApp.Start(
                 typeof(AcquireTokenForUserIntegrationTests),
-                @"tests\E2E Tests\SimulateOidc\", 
+                @"tests\E2E Tests\SimulateOidc\",
                 "SimulateOidc.exe",
                 $"--urls={authority}");
             if (p != null && !p.HasExited)
@@ -193,18 +193,18 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
         {
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(TestConstants.OBOClientSideClientId)
-               .WithAuthority(labResponse.Lab.Authority, TestConstants.Organizations)
+               .WithAuthority($"{userConfig.Authority}{userConfig.TenantId}", TestConstants.Organizations)
                .Build();
 
 #pragma warning disable CS0618 // Obsolete
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 TestConstants.s_oBOApiScope,
-                TestConstants.OBOUser,
-                labResponse.User.GetOrFetchPassword())
+                userConfig.UPN,
+                LabResponseHelper.FetchUserPassword(userConfig.LabName))
                 .ExecuteAsync(CancellationToken.None)
                 ;
 #pragma warning restore CS0618 // Obsolete

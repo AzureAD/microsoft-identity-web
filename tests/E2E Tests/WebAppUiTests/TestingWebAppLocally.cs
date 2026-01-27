@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -29,7 +29,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     private readonly string _uiTestAssemblyLocation = typeof(TestingWebAppLocally).Assembly.Location;
     private readonly LocatorAssertionsToBeVisibleOptions _assertVisibleOptions = new() { Timeout = 15000 };
 
-    public TestingWebAppLocally(ITestOutputHelper output) 
+    public TestingWebAppLocally(ITestOutputHelper output)
     {
         _output = output;
     }
@@ -38,11 +38,11 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
     [SupportedOSPlatform("windows")]
     public async Task ChallengeUser_MicrosoftIdFlow_LocalApp_ValidEmailPasswordAsync()
     {
-        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
+        var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
         var clientEnvVars = new Dictionary<string, string>();
 
-        await ExecuteWebAppCallsGraphFlowAsync(labResponse.User.Upn, labResponse.User.GetOrFetchPassword(), clientEnvVars, TraceFileClassName);
+        await ExecuteWebAppCallsGraphFlowAsync(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName), clientEnvVars, TraceFileClassName);
     }
 
     [Theory(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/3288")]

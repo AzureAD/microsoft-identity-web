@@ -27,7 +27,7 @@ const loginRequest: LoginRequest = {
 const pca = new PublicClientApplication({
     auth: {
         clientId: "f79f9db9-c582-4b7b-9d4c-0e8fd40623f0",
-        authority: "https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+        authority: "https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f",
     }
 });
 

@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TestOnly;
@@ -106,14 +106,14 @@ namespace TokenAcquirerTests
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
                authority: "https://login.microsoftonline.com/organizations",
                clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
                clientCredentials: s_clientCredentials);
 
-            var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             var result = await tokenAcquirer.GetTokenForUserAsync(
                 scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
@@ -136,14 +136,14 @@ namespace TokenAcquirerTests
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             _ = tokenAcquirerFactory.Build();
 
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(TestConstants.OBOUser);
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
                authority: "https://login.microsoftonline.com/organizations",
                clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
                clientCredentials: s_clientCredentials);
 
-            var user = ClaimsPrincipalFactory.FromUsernamePassword(labResponse.User.Upn, labResponse.User.GetOrFetchPassword());
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             var result = await tokenAcquirer.GetTokenForUserAsync(
                 scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
@@ -468,10 +468,10 @@ namespace TokenAcquirerTests
 
             var jsonWebToken = new JsonWebToken(result.AccessToken);
             Assert.True(jsonWebToken.TryGetPayloadValue("cnf", out object? cnfClaim), "The mTLS PoP token should contain a 'cnf' claim");
-            
+
             var cnfJson = JsonSerializer.Deserialize<JsonElement>(cnfClaim!.ToString()!);
             Assert.True(cnfJson.TryGetProperty("x5t#S256", out var x5tS256), "The mTLS PoP 'cnf' claim should contain an 'x5t#S256' property");
-            
+
             var x5tS256Value = x5tS256.GetString();
             Assert.False(string.IsNullOrEmpty(x5tS256Value));
         }

@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;

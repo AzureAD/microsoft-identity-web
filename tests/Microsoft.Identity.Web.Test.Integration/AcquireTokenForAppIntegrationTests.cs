@@ -18,7 +18,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                 throw new ArgumentNullException(message: "No secret returned from Key Vault. ", null);
             }
         }
-        
+
         [Theory]
         [InlineData(true, Constants.Bearer)]
         [InlineData(true, "PoP")]
