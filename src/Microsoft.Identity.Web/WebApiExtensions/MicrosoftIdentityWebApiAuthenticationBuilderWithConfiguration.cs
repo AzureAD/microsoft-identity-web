@@ -49,10 +49,10 @@ namespace Microsoft.Identity.Web
         /// Pass <c>null</c> to use the default internal AOT-safe binder.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
         {
-            return base.EnableTokenAcquisitionToCallDownstreamApi(bindConfidentialClientApplicationOptions);
+            return EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(bindConfidentialClientApplicationOptions);
         }
     }
 }

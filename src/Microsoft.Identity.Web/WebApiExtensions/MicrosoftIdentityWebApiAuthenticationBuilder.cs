@@ -69,29 +69,6 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
-        /// <summary>
-        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
-        /// This overload is AOT-safe when binder delegates are provided.
-        /// </summary>
-        /// <param name="bindConfidentialClientApplicationOptions">
-        /// An action to bind <see cref="ConfidentialClientApplicationOptions"/> from configuration.
-        /// Pass <c>null</c> to use the default internal AOT-safe binder.
-        /// </param>
-        /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
-            Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
-        {
-            CallsWebApiImplementation(
-                Services,
-                JwtBearerAuthenticationScheme,
-                ConfigurationSection,
-                bindConfidentialClientApplicationOptions);
-
-            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
-                Services,
-                ConfigurationSection);
-        }
-
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
         [RequiresDynamicCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
         internal static void CallsWebApiImplementation(
@@ -124,6 +101,20 @@ namespace Microsoft.Identity.Web
                         await onTokenValidatedHandler(context).ConfigureAwait(false);
                     };
                 });
+        }
+
+        internal MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(
+            Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
+        {
+            CallsWebApiImplementation(
+                Services,
+                JwtBearerAuthenticationScheme,
+                ConfigurationSection,
+                bindConfidentialClientApplicationOptions);
+
+            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+                Services,
+                ConfigurationSection);
         }
 
         private static void CallsWebApiImplementation(
