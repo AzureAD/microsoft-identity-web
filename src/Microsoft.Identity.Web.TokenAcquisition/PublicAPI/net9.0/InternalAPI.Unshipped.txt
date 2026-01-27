@@ -2,9 +2,12 @@
 const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature = "AADSTS7000274" -> string!
 const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
 Microsoft.Identity.Web.Internal.ConfidentialClientApplicationOptionsBinder
+Microsoft.Identity.Web.Internal.CredentialDescriptionBinder
 Microsoft.Identity.Web.Internal.JwtBearerOptionsBinder
 Microsoft.Identity.Web.Internal.MicrosoftIdentityApplicationOptionsBinder
 Microsoft.Identity.Web.Internal.MicrosoftIdentityOptionsBinder
+static Microsoft.Identity.Web.Internal.CredentialDescriptionBinder.Bind(Microsoft.Identity.Abstractions.CredentialDescription! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
+static Microsoft.Identity.Web.Internal.CredentialDescriptionBinder.BindCollection(Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> System.Collections.Generic.List<Microsoft.Identity.Abstractions.CredentialDescription!>?
 static Microsoft.Identity.Web.Internal.ConfidentialClientApplicationOptionsBinder.Bind(Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
 static Microsoft.Identity.Web.Internal.JwtBearerOptionsBinder.Bind(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
 static Microsoft.Identity.Web.Internal.MicrosoftIdentityApplicationOptionsBinder.Bind(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
