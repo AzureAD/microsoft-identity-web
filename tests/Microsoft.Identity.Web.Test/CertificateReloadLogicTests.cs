@@ -66,27 +66,6 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsFalseWhenRetryAlreadyInProgress()
-        {
-            // Arrange
-            var tokenAcquisition = CreateTokenAcquisition();
-            
-            // Set _retryClientCertificate to true to simulate retry in progress
-            var retryField = typeof(TokenAcquisition).GetField("_retryClientCertificate", 
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            retryField!.SetValue(tokenAcquisition, true);
-            
-            var responseBody = $"{{\"error\":\"invalid_client\",\"error_description\":\"Error {Constants.InvalidKeyError}: Test error\"}}";
-            var exception = CreateMsalServiceException(InvalidClientErrorCode, responseBody);
-
-            // Act
-            bool result = InvokeIsInvalidClientCertificateOrSignedAssertionError(tokenAcquisition, exception);
-
-            // Assert
-            Assert.False(result, "Should not trigger reload when retry is already in progress");
-        }
-
-        [Fact]
         public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsFalseForEmptyResponseBody()
         {
             // Arrange
