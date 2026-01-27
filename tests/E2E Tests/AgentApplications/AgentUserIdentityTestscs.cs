@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
 
@@ -249,6 +250,79 @@ namespace AgentApplicationsTests
             string? response = await downstream.GetForAppAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
             response = await downstream.GetForUserAsync<string>("api", options => options.WithAgentIdentity("your-agent-identity-here"));
 #endif
+        }
+
+        [Fact]
+        public async Task AgentUserIdentityGetsTokenForGraphAsyncInvalidCertificate()
+        {
+            IServiceCollection services = new ServiceCollection();
+
+            // Configure the information about the agent application with an INVALID secret
+            services.Configure<MicrosoftIdentityApplicationOptions>(
+                options =>
+                {
+                    options.Instance = instance;
+                    options.TenantId = tenantId;
+                    options.ClientId = agentApplication;
+                    options.ClientCredentials = [
+                        new CredentialDescription
+                        {
+                            SourceType = CredentialSource.ClientSecret,
+                            ClientSecret = "invalid-secret-that-will-fail-authentication"
+                        }
+                    ];
+                });
+            IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
+
+            // Get an authorization header provider
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
+            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
+                agentApplicationId: agentIdentity,
+                username: userUpn
+                );
+
+            // Track start time to verify the request doesn't retry infinitely
+            var startTime = DateTime.UtcNow;
+
+            // Assert that authentication fails with invalid credentials
+            Exception? caughtException = null;
+            try
+            {
+                string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    scopes: ["https://graph.microsoft.com/.default"],
+                    options);
+
+                // If we got here, no exception was thrown - this is unexpected
+                Assert.Fail($"Expected authentication to fail with invalid secret, but it generated token.");
+            }
+            catch (MsalServiceException msalEx)
+            {
+                caughtException = msalEx;
+
+                // Calculate duration to ensure it doesn't hang indefinitely
+                var duration = DateTime.UtcNow - startTime;
+
+                // Verify it failed within a reasonable timeframe (no infinite retry loop)
+                Assert.True(duration.TotalSeconds < 30,
+                    $"Authentication failure took too long ({duration.TotalSeconds} seconds), indicating possible retry loop issue");
+
+                // Verify the exception indicates authentication failure
+                string message = msalEx.Message;
+                Assert.Contains("AADSTS7000215", message, StringComparison.Ordinal);
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+
+                // Calculate duration
+                var duration = DateTime.UtcNow - startTime;
+
+                // Verify it failed within a reasonable timeframe
+                Assert.True(duration.TotalSeconds < 30,
+                    $"Authentication failure took too long ({duration.TotalSeconds} seconds), indicating possible retry loop issue");
+            }
+
+
         }
 
         [Fact]
