@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Internal;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
@@ -53,6 +54,44 @@ namespace Microsoft.Identity.Web
 
             return builder.AddMicrosoftIdentityWebApi(
                 configurationSection,
+                jwtBearerScheme,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// This overload is AOT-safe when a binder delegate is provided.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="bindMicrosoftIdentityOptions">
+        /// An action to bind <see cref="MicrosoftIdentityOptions"/> from configuration.
+        /// Pass <c>null</c> to use the default internal AOT-safe binder.
+        /// </param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
+        /// </param>
+        /// <returns>The authentication builder to chain.</returns>
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
+            this AuthenticationBuilder builder,
+            IConfiguration configuration,
+            Action<MicrosoftIdentityOptions, IConfigurationSection?>? bindMicrosoftIdentityOptions,
+            string configSectionName = Constants.AzureAd,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
+        {
+            _ = Throws.IfNull(configuration);
+            _ = Throws.IfNull(configSectionName);
+
+            IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
+
+            return AddMicrosoftIdentityWebApiWithConfigurationSection(
+                builder,
+                configurationSection,
+                bindMicrosoftIdentityOptions,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
@@ -130,8 +169,6 @@ namespace Microsoft.Identity.Web
                 null);
         }
 
-        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
-        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
         private static void AddMicrosoftIdentityWebApiImplementation(
             AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -286,5 +323,33 @@ namespace Microsoft.Identity.Web
 #endif
                 s.ImplementationType == implementationType);
         }
+
+        private static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApiWithConfigurationSection(
+            AuthenticationBuilder builder,
+            IConfigurationSection configurationSection,
+            Action<MicrosoftIdentityOptions, IConfigurationSection?>? bindMicrosoftIdentityOptions,
+            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
+        {
+            _ = Throws.IfNull(configurationSection);
+            _ = Throws.IfNull(builder);
+
+            Action<MicrosoftIdentityOptions, IConfigurationSection?> effectiveIdentityBinder =
+                bindMicrosoftIdentityOptions ?? MicrosoftIdentityOptionsBinder.Bind;
+
+            AddMicrosoftIdentityWebApiImplementation(
+                builder,
+                options => JwtBearerOptionsBinder.Bind(options, configurationSection),
+                jwtBearerScheme,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+
+            return new MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration(
+                builder.Services,
+                jwtBearerScheme,
+                options => JwtBearerOptionsBinder.Bind(options, configurationSection),
+                options => effectiveIdentityBinder(options, configurationSection),
+                configurationSection);
+        }
+
     }
 }

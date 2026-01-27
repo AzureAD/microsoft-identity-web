@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Internal;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -28,8 +29,6 @@ namespace Microsoft.Identity.Web
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Configuration section from which to
         /// get parameters.</param>
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
-        [RequiresDynamicCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
         internal MicrosoftIdentityWebApiAuthenticationBuilder(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
@@ -70,6 +69,29 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This overload is AOT-safe when binder delegates are provided.
+        /// </summary>
+        /// <param name="bindConfidentialClientApplicationOptions">
+        /// An action to bind <see cref="ConfidentialClientApplicationOptions"/> from configuration.
+        /// Pass <c>null</c> to use the default internal AOT-safe binder.
+        /// </param>
+        /// <returns>The authentication builder to chain.</returns>
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
+            Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
+        {
+            CallsWebApiImplementation(
+                Services,
+                JwtBearerAuthenticationScheme,
+                ConfigurationSection,
+                bindConfidentialClientApplicationOptions);
+
+            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+                Services,
+                ConfigurationSection);
+        }
+
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
         [RequiresDynamicCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
         internal static void CallsWebApiImplementation(
@@ -82,6 +104,47 @@ namespace Microsoft.Identity.Web
 
             WebApiBuilders.EnableTokenAcquisition(
                 configureConfidentialClientApplicationOptions,
+                jwtBearerAuthenticationScheme,
+                services,
+                configurationSection);
+
+            services.AddHttpContextAccessor();
+
+            services.AddOptions<JwtBearerOptions>(jwtBearerAuthenticationScheme)
+                .Configure((options) =>
+                {
+                    options.Events ??= new JwtBearerEvents();
+
+                    var onTokenValidatedHandler = options.Events.OnTokenValidated;
+
+                    options.Events.OnTokenValidated = async context =>
+                    {
+                        // Only pass through a token if it is of an expected type
+                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken is JwtSecurityToken or JsonWebToken ? context.SecurityToken : null);
+                        await onTokenValidatedHandler(context).ConfigureAwait(false);
+                    };
+                });
+        }
+
+        private static void CallsWebApiImplementation(
+            IServiceCollection services,
+            string jwtBearerAuthenticationScheme,
+            IConfigurationSection? configurationSection,
+            Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
+        {
+            services.Configure<ConfidentialClientApplicationOptions>(jwtBearerAuthenticationScheme, options =>
+            {
+                if (bindConfidentialClientApplicationOptions != null)
+                {
+                    bindConfidentialClientApplicationOptions(options, configurationSection);
+                }
+                else
+                {
+                    ConfidentialClientApplicationOptionsBinder.Bind(options, configurationSection);
+                }
+            });
+
+            WebApiBuilders.EnableTokenAcquisition(
                 jwtBearerAuthenticationScheme,
                 services,
                 configurationSection);

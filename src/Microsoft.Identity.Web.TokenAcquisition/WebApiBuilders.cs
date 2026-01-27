@@ -51,5 +51,34 @@ namespace Microsoft.Identity.Web.Internal
                 services,
                 configuration);
         }
+
+        /// <summary>
+        /// Allows a higher level abstraction of security token (i.e. System.IdentityModel.Tokens.Jwt and more modern, Microsoft.IdentityModel.JsonWebTokens)
+        /// to be used with Microsoft Identity Web.
+        /// Developers should continue to use `EnableTokenAcquisitionToCallDownstreamApi`.
+        /// This API is not considered part of the public API and may change.
+        /// </summary>
+        /// <param name="authenticationScheme">Authentication scheme.</param>
+        /// <param name="services">The services being configured.</param>
+        /// <param name="configuration">IConfigurationSection.</param>
+        /// <returns>The authentication builder to chain.</returns>
+        public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
+            string authenticationScheme,
+            IServiceCollection services,
+            IConfigurationSection? configuration)
+        {
+            if (configuration != null)
+            {
+                services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options =>
+                    MicrosoftIdentityApplicationOptionsBinder.Bind(options, configuration));
+                services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options =>
+                    MicrosoftIdentityOptionsBinder.Bind(options, configuration));
+            }
+            services.AddTokenAcquisition();
+
+            return new MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
+                services,
+                configuration);
+        }
     }
 }

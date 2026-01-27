@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Abstractions;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Identity.Web
 {
@@ -23,8 +22,6 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="services">The services being configured.</param>
         /// <param name="configurationSection">Optional configuration section.</param>
-        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
-        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         protected MicrosoftIdentityBaseAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
@@ -32,19 +29,16 @@ namespace Microsoft.Identity.Web
             Services = services;
             ConfigurationSection = configurationSection;
 
-            LoggingOptions logOptions = new LoggingOptions();
-            configurationSection?.Bind(logOptions);
+            var logOptions = LoggingOptions.FromConfiguration(configurationSection);
             IdentityModelEventSource.ShowPII = logOptions.EnablePiiLogging;
         }
 
-        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
-        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
         internal static void SetIdentityModelLogger(IServiceProvider serviceProvider)
         {
             if (serviceProvider != null)
             {
                 var config = serviceProvider.GetRequiredService<IConfiguration>();
-                var loglevel = config.GetValue<string>("Logging:LogLevel:Microsoft.Identity.Web");
+                var loglevel = config["Logging:LogLevel:Microsoft.Identity.Web"];
 
                 // initialize logger only once
                 // If the user has configured LogLevel.None, don't initialize the logger

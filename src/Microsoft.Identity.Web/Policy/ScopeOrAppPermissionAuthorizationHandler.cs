@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -18,8 +16,6 @@ namespace Microsoft.Identity.Web
     ///  Scope or app permission authorization handler that needs to be called for a specific requirement type.
     ///  In this case, <see cref="ScopeOrAppPermissionAuthorizationRequirement"/>.
     /// </summary>
-    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
-    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
     internal class ScopeOrAppPermissionAuthorizationHandler : AuthorizationHandler<ScopeOrAppPermissionAuthorizationRequirement>
     {
         private readonly IConfiguration _configuration;
@@ -77,7 +73,7 @@ namespace Microsoft.Identity.Web
 
             if (appPermissionConfigurationKey != null)
             {
-                appPermissions = _configuration.GetValue<string>(appPermissionConfigurationKey)?.Split(' ');
+                appPermissions = _configuration[appPermissionConfigurationKey]?.Split(' ');
             }
 
             if (appPermissions is null)
