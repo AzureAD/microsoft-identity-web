@@ -57,19 +57,6 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Invoke the OnBeforeTokenAcquisitionForApp event.
         /// </summary>
-        internal void InvokeOnBeforeTokenAcquisitionForOnBehalfOf(AcquireTokenOnBehalfOfParameterBuilder builder,
-                                                           AcquireTokenOptions? acquireTokenOptions,
-                                                           ClaimsPrincipal user)
-        {
-            if (OnBeforeTokenAcquisitionForOnBehalfOf != null)
-            {
-                OnBeforeTokenAcquisitionForOnBehalfOf(builder, acquireTokenOptions, user);
-            }
-        }
-
-        /// <summary>
-        /// Invoke the OnBeforeTokenAcquisitionForApp event.
-        /// </summary>
         internal async Task InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(AcquireTokenOnBehalfOfParameterBuilder builder,
                                                            AcquireTokenOptions? acquireTokenOptions,
                                                            ClaimsPrincipal user)
