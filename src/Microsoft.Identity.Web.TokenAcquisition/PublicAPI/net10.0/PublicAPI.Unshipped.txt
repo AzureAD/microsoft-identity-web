@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(string! authenticationScheme, Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfigurationSection? configuration) -> Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder!

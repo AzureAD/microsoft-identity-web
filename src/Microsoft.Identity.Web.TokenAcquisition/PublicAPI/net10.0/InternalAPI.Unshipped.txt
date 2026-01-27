@@ -1,4 +1,13 @@
 #nullable enable
 const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature = "AADSTS7000274" -> string!
 const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
+Microsoft.Identity.Web.Internal.ConfidentialClientApplicationOptionsBinder
+Microsoft.Identity.Web.Internal.JwtBearerOptionsBinder
+Microsoft.Identity.Web.Internal.MicrosoftIdentityApplicationOptionsBinder
+Microsoft.Identity.Web.Internal.MicrosoftIdentityOptionsBinder
+static Microsoft.Identity.Web.Internal.ConfidentialClientApplicationOptionsBinder.Bind(Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
+static Microsoft.Identity.Web.Internal.JwtBearerOptionsBinder.Bind(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
+static Microsoft.Identity.Web.Internal.MicrosoftIdentityApplicationOptionsBinder.Bind(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
+static Microsoft.Identity.Web.Internal.MicrosoftIdentityOptionsBinder.Bind(Microsoft.Identity.Web.MicrosoftIdentityOptions! options, Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> void
+static Microsoft.Identity.Web.LoggingOptions.FromConfiguration(Microsoft.Extensions.Configuration.IConfigurationSection? configurationSection) -> Microsoft.Identity.Web.LoggingOptions!
 static readonly Microsoft.Identity.Web.Constants.s_certificateRelatedErrorCodes -> System.Collections.Generic.HashSet<string!>!
