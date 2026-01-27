@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Internal;
 
 namespace Microsoft.Identity.Web
 {
@@ -42,17 +43,12 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// This overload is AOT-safe when binder delegates are provided.
+        /// This overload is trim/AOT-safe as it uses built-in AOT safe configuration binders.
         /// </summary>
-        /// <param name="bindConfidentialClientApplicationOptions">
-        /// An action to bind <see cref="ConfidentialClientApplicationOptions"/> from configuration.
-        /// Pass <c>null</c> to use the default internal AOT-safe binder.
-        /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
-            Action<ConfidentialClientApplicationOptions, IConfigurationSection?>? bindConfidentialClientApplicationOptions)
+        public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApiTrimSafe()
         {
-            return EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(bindConfidentialClientApplicationOptions);
+            return EnableTokenAcquisitionToCallDownstreamApiCoreImplementation(ConfidentialClientApplicationOptionsBinder.Bind);
         }
     }
 }

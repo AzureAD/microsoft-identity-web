@@ -61,24 +61,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
-        /// This overload is AOT-safe when a binder delegate is provided.
+        /// This overload is trim/AOT-safe as it uses built-in AOT safe configuration binders.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configuration">The configuration instance.</param>
-        /// <param name="bindMicrosoftIdentityOptions">
-        /// An action to bind <see cref="MicrosoftIdentityOptions"/> from configuration.
-        /// Pass <c>null</c> to use the default internal AOT-safe binder.
-        /// </param>
         /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
         /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
+        public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApiTrimSafe(
             this AuthenticationBuilder builder,
             IConfiguration configuration,
-            Action<MicrosoftIdentityOptions, IConfigurationSection?>? bindMicrosoftIdentityOptions,
             string configSectionName = Constants.AzureAd,
             string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
             bool subscribeToJwtBearerMiddlewareDiagnosticsEvents = false)
@@ -91,7 +86,7 @@ namespace Microsoft.Identity.Web
             return AddMicrosoftIdentityWebApiWithConfigurationSection(
                 builder,
                 configurationSection,
-                bindMicrosoftIdentityOptions,
+                MicrosoftIdentityOptionsBinder.Bind,
                 jwtBearerScheme,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
