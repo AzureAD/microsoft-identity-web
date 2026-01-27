@@ -38,4 +38,12 @@ namespace Microsoft.Identity.Web
     /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
     /// <param name="user">User claims.</param>
     public delegate void BeforeTokenAcquisitionForOnBehalfOf(AcquireTokenOnBehalfOfParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
+
+    /// <summary>
+    /// Signature for token acquisition extensions that act on the request builder, for on-behalf-of flow (Async version).
+    /// </summary>
+    /// <param name="builder">Builder</param>
+    /// <param name="acquireTokenOptions">Token acquisition options for the request. Can be null.</param>
+    /// <param name="user">User claims.</param>
+    public delegate Task BeforeTokenAcquisitionForOnBehalfOfAsync(AcquireTokenOnBehalfOfParameterBuilder builder, AcquireTokenOptions? acquireTokenOptions, ClaimsPrincipal user);
 }

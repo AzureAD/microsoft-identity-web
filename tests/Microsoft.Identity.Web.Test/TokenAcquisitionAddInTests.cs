@@ -147,12 +147,19 @@ namespace Microsoft.Identity.Web.Tests
                 .AcquireTokenOnBehalfOf(new string[] { "scope" }, userAssertion);
 
             bool eventInvoked = false;
+            MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
             options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, user) =>
             {
-                eventInvoked = true;
+                MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
 
-                //Set ForceRefresh on the builder
-                builder.WithForceRefresh(options!.ForceRefresh);
+                extension.OnBeforeTokenRequestHandler = (request) =>
+                {
+                    eventInvoked = true;
+                    request.BodyParameters.Add("x-ms-user", user.FindFirst("user")?.Value);
+                    return Task.CompletedTask;
+                };
+
+                builder.WithAuthenticationExtension(extension);
             };
 
             var user = new ClaimsPrincipal(
@@ -163,7 +170,7 @@ namespace Microsoft.Identity.Web.Tests
                 }));
 
             // Act
-            options.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(builder, acquireTokenOptions, user);
+            await options.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, acquireTokenOptions, user);
 
             var result = await builder.ExecuteAsync();
 
