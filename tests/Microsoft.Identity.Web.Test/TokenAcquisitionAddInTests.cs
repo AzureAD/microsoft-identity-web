@@ -12,6 +12,9 @@ using Microsoft.Graph;
 using System.Collections.Generic;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Microsoft.Identity.Client.AuthScheme;
+using System.Threading;
+using System;
 
 namespace Microsoft.Identity.Web.Tests
 {
@@ -140,6 +143,7 @@ namespace Microsoft.Identity.Web.Tests
                    .WithHttpClientFactory(mockHttpClient)
                    .WithInstanceDiscovery(false)
                    .WithClientSecret(TestConstants.ClientSecret)
+                   .WithExperimentalFeatures(true)
                    .Build();
 
             var userAssertion = new UserAssertion("user-assertion-token");
@@ -147,11 +151,23 @@ namespace Microsoft.Identity.Web.Tests
                 .AcquireTokenOnBehalfOf(new string[] { "scope" }, userAssertion);
 
             bool eventInvoked = false;
+            bool formatResultInvoked = false;
+            
             MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
             options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, user) =>
             {
                 MsalAuthenticationExtension extension = new MsalAuthenticationExtension();
 
+                // Create a test authentication operation implementing IAuthenticationOperation2
+                var authOperation = new TestAuthenticationOperation2
+                {
+                    OnFormatResult = (result) =>
+                    {
+                        formatResultInvoked = true;
+                        return Task.FromResult(result);
+                    }
+                };
+                extension.AuthenticationOperation = authOperation;
                 extension.OnBeforeTokenRequestHandler = (request) =>
                 {
                     eventInvoked = true;
@@ -176,8 +192,38 @@ namespace Microsoft.Identity.Web.Tests
 
             // Assert
             Assert.True(eventInvoked);
+            Assert.True(formatResultInvoked);
             Assert.NotNull(result);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        }
+
+        // Helper class for testing IAuthenticationOperation2
+        private class TestAuthenticationOperation2 : IAuthenticationOperation2
+        {
+            public Func<AuthenticationResult, Task<AuthenticationResult>>? OnFormatResult { get; set; }
+
+            public int TelemetryTokenType => 0;
+
+            public string AuthorizationHeaderPrefix => "Bearer";
+
+            public string KeyId => string.Empty;
+
+            public string AccessTokenType => "Bearer";
+
+            public void FormatResult(AuthenticationResult authenticationResult) { }
+
+            public Task FormatResultAsync(AuthenticationResult authenticationResult, CancellationToken cancellationToken = default)
+            {
+                if (OnFormatResult != null)
+                {
+                    return OnFormatResult(authenticationResult);
+                }
+                return Task.FromResult(authenticationResult);
+            }
+
+            public IReadOnlyDictionary<string, string> GetTokenRequestParams() => new Dictionary<string, string>();
+            
+            public Task<bool> ValidateCachedTokenAsync(MsalCacheValidationData cachedTokenData) => Task.FromResult(false);
         }
     }
 }
