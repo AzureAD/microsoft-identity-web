@@ -56,12 +56,6 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(IsPackable)' == 'true'">
-    <PackageValidationBaselineFrameworkToIgnore Include="netcoreapp3.1" />
-    <PackageValidationBaselineFrameworkToIgnore Include="net6.0" />
-    <PackageValidationBaselineFrameworkToIgnore Include="net7.0" />
-  </ItemGroup>
-
   <PropertyGroup Label="Source Link">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

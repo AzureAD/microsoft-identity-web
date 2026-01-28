@@ -9,7 +9,6 @@
       that call Microsoft Graph. Works specifically with MS Graph SDK v5 and above. For MS Graph SDK v4 support, please use Microsoft.Identity.Web.MicrosoftGraph.
     </Description>
     <ProjectGuid>{4DF02DF7-D092-4F45-8892-8A1D3E612706}</ProjectGuid>
-    <PackageValidationBaselineVersion>2.12.2</PackageValidationBaselineVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
