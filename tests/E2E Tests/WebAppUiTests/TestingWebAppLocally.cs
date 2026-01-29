@@ -42,7 +42,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
 
         var clientEnvVars = new Dictionary<string, string>();
 
-        await ExecuteWebAppCallsGraphFlowAsync(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName), clientEnvVars, TraceFileClassName);
+        await ExecuteWebAppCallsGraphFlowAsync(userConfig.Upn, LabResponseHelper.FetchUserPassword(userConfig.LabName), clientEnvVars, TraceFileClassName);
     }
 
     [Theory(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/3288")]
@@ -60,7 +60,7 @@ public class TestingWebAppLocally : IClassFixture<InstallPlaywrightBrowserFixtur
             {"AzureAd__Instance", "" }
         };
 
-        await ExecuteWebAppCallsGraphFlowAsync("idlab@msidlabciam6.onmicrosoft.com", LabUserHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam);
+        await ExecuteWebAppCallsGraphFlowAsync("idlab@msidlabciam6.onmicrosoft.com", LabResponseHelper.FetchUserPassword("msidlabciam6"), clientEnvVars, TraceFileClassNameCiam);
     }
 
     private async Task ExecuteWebAppCallsGraphFlowAsync(string upn, string credential, Dictionary<string, string>? clientEnvVars, string traceFileClassName)
