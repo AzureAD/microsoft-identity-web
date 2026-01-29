@@ -102,7 +102,6 @@ public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowse
                     if (InitialConnectionRetryCount == 0) { throw ex; }
                 }
             }
-            UserConfig labResponse = await LabResponseHelper.GetUserConfigAsync("IdWeb-B2C-user");
 
             // Initial sign in
             _output.WriteLine("Starting web app sign-in flow.");
