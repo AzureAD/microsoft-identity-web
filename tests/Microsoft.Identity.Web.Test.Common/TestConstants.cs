@@ -106,7 +106,6 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
-        public const string OBOClientKeyVaultUri = "TodoListServiceV2-OBO";
         public const string ConfidentialClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/LabVaultAccessCert/";
         public const string ConfidentialClientId = "3bf56293-fbb5-42bd-a407-248ba7431a8c";
         public const string ConfidentialClientLabTenant = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
@@ -115,9 +114,8 @@ namespace Microsoft.Identity.Web.Test.Common
         public static string[] s_oBOApiScope = new string[] { "api://8837cde9-4029-4bfc-9259-e9e70ce670f7/.default" };
         public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLAB4-IDLABS-APP-AzureADMyOrg-CC";
+        public const string AzureADIdentityDivisionTestAgentSecret = "MISE-App-FMICLIENT";
         public const string DstsTestClientSecret = "MISE-dSTS-CustomAppConfig"; // dSTS test app client secret in ID4sKeyVault
-        public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
 
         // ID4s Key Vault (MsalTeam) - used for test configurations
         public const string ID4sKeyVaultName = "id4skeyvault";

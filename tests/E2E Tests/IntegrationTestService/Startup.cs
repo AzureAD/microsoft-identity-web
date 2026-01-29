@@ -25,9 +25,6 @@ namespace IntegrationTestService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            KeyVaultSecretsProvider keyVaultSecretsProvider = new();
-            string secret = keyVaultSecretsProvider.GetSecretByName(TestConstants.OBOClientKeyVaultUri).Value;
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                   .AddMicrosoftIdentityWebApi(Configuration, jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
                                   .EnableTokenAcquisitionToCallDownstreamApi()
@@ -46,16 +43,6 @@ namespace IntegrationTestService
 
             // Will be overriden by tests if needed
             services.AddInMemoryTokenCaches();
-
-            services.Configure<MicrosoftIdentityOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.ClientSecret = secret;
-            });
-
-            services.Configure<MicrosoftIdentityOptions>(TestConstants.CustomJwtScheme2, options =>
-            {
-                options.ClientSecret = secret;
-            });
 
             services.AddAuthorization();
 
