@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             var ficCredential = new CredentialDescription
             {
                 SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
-                ManagedIdentityClientId = "9a192b78-6580-4f8a-aace-f36ffea4f7be"
+                ManagedIdentityClientId = "a599ce88-0a5f-4a6e-beca-e67d3fc427f4"
             };
 
             await RunFailToLoadLogicAsync(new[] { ficCredential });
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             var ficCredential = new CredentialDescription
             {
                 SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
-                ManagedIdentityClientId = "9a192b78-6580-4f8a-aace-f36ffea4f7be"
+                ManagedIdentityClientId = "a599ce88-0a5f-4a6e-beca-e67d3fc427f4"
             };
 
             var certCredential = new CredentialDescription
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             var ficCredential = new CredentialDescription
             {
                 SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
-                ManagedIdentityClientId = "9a192b78-6580-4f8a-aace-f36ffea4f7be"
+                ManagedIdentityClientId = "a599ce88-0a5f-4a6e-beca-e67d3fc427f4"
             };
 
             await RunFailToLoadLogicAsync(new[] { ficCredential, certCredential });

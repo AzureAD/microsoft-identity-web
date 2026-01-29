@@ -109,11 +109,11 @@ namespace TokenAcquirerTests
             var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
-               authority: "https://login.microsoftonline.com/organizations",
-               clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
+                   authority: "https://login.microsoftonline.com/organizations",
+                   clientId: "a599ce88-0a5f-4a6e-beca-e67d3fc427f4",
                clientCredentials: s_clientCredentials);
 
-            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName));
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.Upn, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             var result = await tokenAcquirer.GetTokenForUserAsync(
                 scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
@@ -139,11 +139,11 @@ namespace TokenAcquirerTests
             var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
             ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
-               authority: "https://login.microsoftonline.com/organizations",
-               clientId: "9a192b78-6580-4f8a-aace-f36ffea4f7be",
+                   authority: "https://login.microsoftonline.com/organizations",
+                   clientId: "a599ce88-0a5f-4a6e-beca-e67d3fc427f4",
                clientCredentials: s_clientCredentials);
 
-            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.UPN, LabResponseHelper.FetchUserPassword(userConfig.LabName));
+            var user = ClaimsPrincipalFactory.FromUsernamePassword(userConfig.Upn, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             var result = await tokenAcquirer.GetTokenForUserAsync(
                 scopes: new[] { "https://graph.microsoft.com/.default" }, user: user);
@@ -213,8 +213,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 if (withClientCredentials)
                 {
                     option.ClientCertificates = s_clientCredentials.OfType<CertificateDescription>();
@@ -239,8 +239,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -257,8 +257,8 @@ namespace TokenAcquirerTests
 
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
-                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com/v2.0";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -295,8 +295,8 @@ namespace TokenAcquirerTests
             // Get the token acquirer from the options.
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
             {
-                ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba",
-                Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
+                ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d",
+                Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com",
                 ClientCredentials = s_clientCredentials
             });
 
@@ -314,8 +314,8 @@ namespace TokenAcquirerTests
             tokenAcquirerFactory.Build();
 
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
-                authority: "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
-                clientId: "f6b698c0-140c-448f-8155-4aa9bf77ceba",
+                authority: "https://login.microsoftonline.com/id4slab1.onmicrosoft.com",
+                clientId: "4ebc2cfc-14bf-4c88-9678-26543ec1c59d",
                 clientCredentials: s_clientCredentials);
 
             var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
@@ -333,8 +333,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -374,8 +374,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -404,8 +404,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -440,7 +440,7 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "bea21ebe-8b64-4d06-9f6d-6a889b120a7c";
+                option.TenantId = "bea21ebe-8b64-4d06-9f6d-6a889b120a7c"; // MSI Team tenant
                 option.ClientId = "163ffef9-a313-45b4-ab2f-c7e2f5e0e23e";
                 option.AzureRegion = "westus3";
                 option.ClientCredentials = s_clientCredentials;

@@ -23,11 +23,11 @@ namespace daemon_console
         {
             var builder = WebApplication.CreateBuilder(args);
             var services = builder.Services;
-            
+
             services.Configure<MicrosoftIdentityOptions>(option => builder.Configuration.GetSection("AzureAd").Bind(option));
             services.AddTokenAcquisition();
             services.AddHttpClient();
-           
+
             //services.AddMicrosoftGraph(); // or services.AddTokenAcquisition() if you don't need graph
 
             // Add a cache
@@ -47,7 +47,7 @@ namespace daemon_console
             // Get the token acquisition service
             ITokenAcquirerFactory tokenAcquirerFactory = app.Services.GetRequiredService<ITokenAcquirerFactory>();
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer();
-            var result = await tokenAcquirer.GetTokenForAppAsync("api://556d438d-2f4b-4add-9713-ede4e5f5d7da/.default");
+            var result = await tokenAcquirer.GetTokenForAppAsync("api://a021aff4-57ad-453a-bae8-e4192e5860f3/.default");
             Console.WriteLine($"Token expires on {result.ExpiresOn}");
 
 #endif

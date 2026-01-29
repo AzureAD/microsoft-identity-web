@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             var mergedOptions = new MergedOptions
             {
-                Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0"
+                Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com/v2.0"
             };
 
             // Act
@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal("https://login.microsoftonline.com", mergedOptions.Instance);
-            Assert.Equal("msidlab4.onmicrosoft.com", mergedOptions.TenantId);
+            Assert.Equal("id4slab1.onmicrosoft.com", mergedOptions.TenantId);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             var mergedOptions = new MergedOptions
             {
-                Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0"
+                Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com/v2.0"
             };
 
             // Act

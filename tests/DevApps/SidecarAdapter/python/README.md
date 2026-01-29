@@ -26,7 +26,7 @@ The examples depend on setting these variables
 ```sh
 $side_car_url = "<url sidecar is running at>"
 # Example values, use appropriate values for the token you want to request.
-$token = uv run --with msal get_token.py --client-id "f79f9db9-c582-4b7b-9d4c-0e8fd40623f0" --authority "https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f" --scope "api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user"
+$token = uv run --with msal get_token.py --client-id "9808c2f0-4555-4dc2-beea-b4dc3212d39e" --authority "https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f" --scope "api://a021aff4-57ad-453a-bae8-e4192e5860f3/access_as_user"
 ```
 
 Example: validate an authorization header returned by `get_token.py`:
