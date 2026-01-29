@@ -196,14 +196,14 @@ namespace Microsoft.Identity.Web.Test.Integration
             var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(TestConstants.OBOClientSideClientId)
-               .WithAuthority($"{userConfig.Authority}{userConfig.TenantId}", TestConstants.Organizations)
+               .WithAuthority($"https://login.microsoftonline.com/{TestConstants.TenantIdAsGuid}", TestConstants.Organizations)
                .Build();
 
 #pragma warning disable CS0618 // Obsolete
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 TestConstants.s_oBOApiScope,
-                userConfig.UPN,
+                userConfig.Upn,
                 LabResponseHelper.FetchUserPassword(userConfig.LabName))
                 .ExecuteAsync(CancellationToken.None)
                 ;

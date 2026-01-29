@@ -35,7 +35,7 @@ public class WebAppIntegrationTests
         {
             // Act
             Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-            string email = userConfig.UPN;
+            string email = userConfig.Upn;
             await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             // Assert

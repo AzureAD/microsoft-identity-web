@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -51,7 +52,7 @@ namespace Microsoft.Identity.Web.Test
 
                 string certName = $"CN=TestCert-{Guid.NewGuid():N}";
                 cert1 = CreateAndInstallCertificate(certName);
-                
+
                 // Verify certificate is properly installed in store with timeout
                 await VerifyCertificateInStoreAsync(cert1, TimeSpan.FromSeconds(5));
                 var description = new CredentialDescription
@@ -132,7 +133,7 @@ namespace Microsoft.Identity.Web.Test
                 // Change out the cert, so that if it reloads there will be a new one
                 RemoveCertificate(cert1);
                 cert2 = CreateAndInstallCertificate(certName);
-                
+
                 // Verify certificate is properly installed in store with timeout
                 await VerifyCertificateInStoreAsync(cert2, TimeSpan.FromSeconds(5));
 
@@ -207,23 +208,23 @@ namespace Microsoft.Identity.Web.Test
         {
             var stopwatch = Stopwatch.StartNew();
             var minWaitTime = TimeSpan.FromSeconds(2); // Minimum wait to ensure store operations complete
-            
+
             do
             {
                 using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
                 store.Open(OpenFlags.ReadOnly);
-                
+
                 var foundCerts = store.Certificates.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false);
-                
+
                 if (foundCerts.Count > 0 && stopwatch.Elapsed >= minWaitTime)
                 {
                     return; // Certificate found and minimum wait time elapsed
                 }
-                
+
                 await Task.Delay(100); // Wait 100ms before checking again
             }
             while (stopwatch.Elapsed < timeout);
-            
+
             throw new TimeoutException($"Certificate with thumbprint {certificate.Thumbprint} was not found in the certificate store within {timeout.TotalSeconds} seconds.");
         }
 
