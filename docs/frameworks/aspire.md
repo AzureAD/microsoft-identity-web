@@ -817,7 +817,7 @@ public class WeatherApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<WeatherForecast[]? > GetSensitiveDataAsync()
+    public async Task<WeatherForecast[]?> GetSensitiveDataAsync()
     {
         // Override scopes for this specific request
         var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast")
