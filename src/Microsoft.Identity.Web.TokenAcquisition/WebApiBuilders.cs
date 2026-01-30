@@ -29,6 +29,10 @@ namespace Microsoft.Identity.Web.Internal
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Bind, Configure with Unspecified Configuration and ServiceCollection.")]
 #endif
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string authenticationScheme,
@@ -37,6 +41,13 @@ namespace Microsoft.Identity.Web.Internal
         {
             if (configuration != null)
             {
+#if NET8_0_OR_GREATER
+                // For .NET 8+, use source generator-based binding for AOT compatibility
+                services.AddOptions<MicrosoftIdentityApplicationOptions>(authenticationScheme)
+                    .Bind(configuration);
+                services.AddOptions<MicrosoftIdentityOptions>(authenticationScheme)
+                    .Bind(configuration);
+#else
                 // TODO: This never was right. And the configureConfidentialClientApplicationOptions delegate is not used
                 // services.Configure<ConfidentialClientApplicationOptions>(authenticationScheme, configuration);
                 services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
@@ -45,6 +56,7 @@ namespace Microsoft.Identity.Web.Internal
                 services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
                     =>
                 { configuration.Bind(options); });
+#endif
             }
             services.AddTokenAcquisition();
 

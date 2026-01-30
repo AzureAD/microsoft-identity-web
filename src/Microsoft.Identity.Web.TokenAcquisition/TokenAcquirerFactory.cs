@@ -81,6 +81,10 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         static public T GetDefaultInstance<T>(string configSection="AzureAd") where T : TokenAcquirerFactory, new()
         {
             T instance;
@@ -95,6 +99,17 @@ namespace Microsoft.Identity.Web
                         defaultInstance = instance;
                         instance.Services.AddTokenAcquisition();
                         instance.Services.AddHttpClient();
+#if NET8_0_OR_GREATER
+                        // For .NET 8+, use source generator-based binding for AOT compatibility
+                        var configSection2 = instance.Configuration.GetSection(configSection);
+                        instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>()
+                            .Bind(configSection2);
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+#else
                         instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
                         {
                             instance.Configuration.GetSection(configSection).Bind(option);
@@ -102,6 +117,7 @@ namespace Microsoft.Identity.Web
                             // This is temporary and will be removed eventually.
                             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
                         });
+#endif
                         instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                         instance.Services.AddSingleton(defaultInstance.Configuration);
                     }
@@ -124,6 +140,10 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
+#if NET8_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Configuration binding with AddOptions<T>().Bind() uses source generators on .NET 8+")]
+#endif
         static public TokenAcquirerFactory GetDefaultInstance(string configSection = "AzureAd")
         {
             TokenAcquirerFactory instance;
@@ -138,6 +158,17 @@ namespace Microsoft.Identity.Web
                         defaultInstance = instance;
                         instance.Services.AddTokenAcquisition();
                         instance.Services.AddHttpClient();
+#if NET8_0_OR_GREATER
+                        // For .NET 8+, use source generator-based binding for AOT compatibility
+                        var configSection2 = instance.Configuration.GetSection(configSection);
+                        instance.Services.AddOptions<MicrosoftIdentityApplicationOptions>()
+                            .Bind(configSection2);
+                        instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
+                        {
+                            // This is temporary and will be removed eventually.
+                            CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
+                        });
+#else
                         instance.Services.Configure<MicrosoftIdentityApplicationOptions>(option =>
                         {
                             instance.Configuration.GetSection(configSection).Bind(option);
@@ -145,6 +176,7 @@ namespace Microsoft.Identity.Web
                             // This is temporary and will be removed eventually.
                             CiamAuthorityHelper.BuildCiamAuthorityIfNeeded(option);
                         });
+#endif
                         instance.Services.AddSingleton<ITokenAcquirerFactory, DefaultTokenAcquirerFactoryImplementation>();
                         instance.Services.AddSingleton(defaultInstance.Configuration);
                     }

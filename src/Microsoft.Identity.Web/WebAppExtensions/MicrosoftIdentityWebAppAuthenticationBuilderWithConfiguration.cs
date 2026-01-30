@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
@@ -49,6 +50,26 @@ namespace Microsoft.Identity.Web
         {
             Services.AddHttpClient();
 
+#if NET8_0_OR_GREATER
+            // For .NET 8+, use source generator-based binding for AOT compatibility
+            if (ConfigurationSection != null)
+            {
+                Services.AddOptions<ConfidentialClientApplicationOptions>()
+                    .Bind(ConfigurationSection);
+            }
+
+            return EnableTokenAcquisitionToCallDownstreamApi(
+                options =>
+                {
+                    if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
+                    {
+                        options.ClientId = AppServicesAuthenticationInformation.ClientId;
+                        options.ClientSecret = AppServicesAuthenticationInformation.ClientSecret;
+                        options.Instance = AppServicesAuthenticationInformation.Issuer;
+                    }
+                },
+                initialScopes);
+#else
             return EnableTokenAcquisitionToCallDownstreamApi(
                 options =>
                 {
@@ -61,6 +82,7 @@ namespace Microsoft.Identity.Web
                     }
                 },
                 initialScopes);
+#endif
         }
     }
 }
