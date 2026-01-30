@@ -12,6 +12,8 @@ It assumes you started with an Aspire project created using the following comman
 aspire new aspire-starter --name MyService
 ```
 
+> **Note:** The Aspire starter template automatically creates a `WeatherApiClient` class in the `MyService.Web` project. This typed HttpClient is used throughout this guide to demonstrate calling the protected API. You don't need to create this class yourself—it's part of the template.
+
 ---
 
 ## Quick Start (TL;DR)
@@ -76,6 +78,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddInMemoryTokenCaches();
 
+// WeatherApiClient is created by the Aspire starter template
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
     client.BaseAddress = new("https+http://apiservice"))
     .AddMicrosoftIdentityMessageHandler(builder.Configuration.GetSection("WeatherApi"));
@@ -127,7 +130,7 @@ flowchart LR
 1. **User visits Blazor app** → Not authenticated → sees "Login" button
 2. **User clicks Login** → Redirects to `/authentication/login` → OIDC challenge → Entra ID
 3. **User signs in** → Entra ID redirects to `/signin-oidc` → cookie established
-4. **User navigates to Weather page** → Blazor calls `WeatherApiClient.GetAsync()`
+4. **User navigates to Weather page** → Blazor calls `WeatherApiClient.GetAsync()` (the typed client created by the Aspire template)
 5. **`MicrosoftIdentityMessageHandler`** intercepts the request:
    - Checks token cache for valid access token
    - If expired/missing, silently acquires new token using refresh token
@@ -805,7 +808,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 ### 4.4: Override Options Per Request
 
-Override default options on a per-request basis using the `WithAuthenticationOptions` extension method:
+Override default options on a per-request basis using the `WithAuthenticationOptions` extension method. This example extends the `WeatherApiClient` class (created by the Aspire starter template) to add a method that uses different scopes:
 
 ```csharp
 public class WeatherApiClient
