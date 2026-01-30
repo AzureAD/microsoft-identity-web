@@ -983,5 +983,15 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 ---
 
+## 🤖 AI Coding Assistant Skill
+
+A condensed version of this guide is available as an **AI Skill** for GitHub Copilot, Claude, and other AI coding assistants. The skill helps AI assistants implement this authentication pattern in your Aspire projects.
+
+📁 **Location:** [.github/skills/entra-id-aspire-authentication/SKILL.md](../../.github/skills/entra-id-aspire-authentication/SKILL.md)
+
+See the [Skills README](../../.github/skills/README.md) for installation instructions.
+
+---
+
 **Last Updated:** January 2025
-**Solution:** MyService (.NET 9, Aspire, Microsoft.Identity.Web)
+**Solution:** MyService (.NET 10, Aspire, Microsoft.Identity.Web)

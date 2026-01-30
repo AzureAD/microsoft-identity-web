@@ -273,8 +273,8 @@ builder.Services.AddDownstreamApi("GraphApi", builder.Configuration.GetSection("
 
 ## Resources
 
+- 📖 **[Full Aspire Integration Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/frameworks/aspire.md)** - Comprehensive documentation with diagrams, detailed explanations, and advanced scenarios
 - [Microsoft.Identity.Web Documentation](https://github.com/AzureAD/microsoft-identity-web/tree/master/docs)
-- [Aspire Integration Guide](../../docs/frameworks/aspire.md)
 - [MicrosoftIdentityMessageHandler Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/calling-downstream-apis/custom-apis.md#microsoftidentitymessagehandler---for-httpclient-integration)
 - [.NET Aspire Service Discovery](https://learn.microsoft.com/dotnet/aspire/service-discovery/overview)
 - [Credentials Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/authentication/credentials/credentials-README.md)

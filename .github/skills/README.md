@@ -16,9 +16,11 @@ Skills work with multiple AI coding assistants that support the open skills form
 
 ## Available Skills
 
-| Skill | Description |
-|-------|-------------|
-| [entra-id-aspire-authentication](./entra-id-aspire-authentication/SKILL.md) | Adding Microsoft Entra ID authentication to .NET Aspire applications |
+| Skill | Description | Full Guide |
+|-------|-------------|------------|
+| [entra-id-aspire-authentication](./entra-id-aspire-authentication/SKILL.md) | Adding Microsoft Entra ID authentication to .NET Aspire applications | [Aspire Integration Guide](../../docs/frameworks/aspire.md) |
+
+> **💡 Tip:** Skills are condensed versions optimized for AI assistants. For comprehensive documentation with detailed explanations, diagrams, and troubleshooting, see the linked full guides.
 
 ## How to Use Skills
 
