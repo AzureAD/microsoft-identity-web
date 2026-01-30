@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -137,7 +138,7 @@ namespace Microsoft.Identity.Web.Resource
 
         private void DisplayProtocolMessage(OpenIdConnectMessage message)
         {
-            foreach (var property in message.GetType().GetProperties())
+            foreach (var property in typeof(OpenIdConnectMessage).GetProperties())
             {
                 object? value = property.GetValue(message);
                 if (value != null)
