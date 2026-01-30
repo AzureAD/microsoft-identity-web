@@ -896,7 +896,6 @@ builder.Services.AddTransient<LoggingHandler>();
 
 builder.Services.AddHttpClient("MyApi", client =>
 {
-    client.BaseAddress = new Uri("https://api.example.com");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
 .AddHttpMessageHandler<LoggingHandler>();
@@ -912,45 +911,39 @@ Add retry policies and circuit breakers using Polly:
 using Polly;
 using Polly.Extensions.Http;
 
-// Define retry policy
-var retryPolicy = HttpPolicyExtensions
-    .HandleTransientHttpError()
-    .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-
-// Configure HttpClient with Polly
+// Configure HttpClient with Polly retry policy
 builder.Services.AddHttpClient("MyApi", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
 })
-.AddPolicyHandler(retryPolicy);
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 ```
 
-#### 3. Custom IHttpClientFactory for Debugging
+#### 3. Extended Timeouts for Debugging
 
 For debugging scenarios where you need extended timeouts to avoid connection timeouts:
 
 ```csharp
-// Custom factory for debugging
-public class DebugHttpClientFactory : IHttpClientFactory
-{
-    public HttpClient CreateClient(string name)
-    {
-        return new HttpClient
-        {
-            // Extended timeout for debugging
-            Timeout = TimeSpan.FromMinutes(30)
-        };
-    }
-}
-
-// Register in Program.cs (only for development!)
+// Configure extended timeout for debugging
 #if DEBUG
-builder.Services.AddSingleton<IHttpClientFactory, DebugHttpClientFactory>();
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    // Extended timeout for debugging - allows you to step through code
+    // without the HTTP request timing out
+    client.Timeout = TimeSpan.FromMinutes(30);
+});
+#else
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 #endif
 ```
 
-**⚠️ Warning**: Using a custom `IHttpClientFactory` replaces the default factory for all named clients. Only use this approach when absolutely necessary and understand the implications.
+**💡 Tip**: Conditional compilation directives allow different timeout values for development and production environments.
 
 #### 4. Configuring Different HttpClients for Multiple APIs
 
@@ -960,19 +953,23 @@ When calling multiple downstream APIs, configure each with its own named HttpCli
 // Configure multiple downstream APIs
 builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
-// Configure individual HttpClients
+// Configure individual HttpClients with different settings
 builder.Services.AddHttpClient("CustomersApi", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(20);
 })
-.AddHttpMessageHandler<RetryHandler>();
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(2, _ => TimeSpan.FromMilliseconds(500)));
 
 builder.Services.AddHttpClient("OrdersApi", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(45);
 })
 .AddHttpMessageHandler<LoggingHandler>()
-.AddHttpMessageHandler<RetryHandler>();
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(1)));
 
 builder.Services.AddHttpClient("InventoryApi", client =>
 {
@@ -990,10 +987,10 @@ builder.Services.AddHttpClient("InventoryApi", client =>
 - Test your configuration with realistic load patterns
 
 ❌ **Don't:**
-- Replace `IHttpClientFactory` unless absolutely necessary
 - Use overly long timeouts in production (can cause resource exhaustion)
 - Add too many handlers (each adds overhead)
 - Forget to test timeout and retry configurations
+- Set both BaseUrl in DownstreamApiOptions and BaseAddress in HttpClient (can cause confusion)
 
 ## Best Practices
 
