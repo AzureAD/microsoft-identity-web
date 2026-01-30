@@ -14,6 +14,30 @@ aspire new aspire-starter --name MyService
 
 ---
 
+## Prerequisites
+
+- **.NET 10 SDK** or later
+- **.NET Aspire CLI** - See [Install Aspire CLI](https://aspire.dev/get-started/install-cli/)
+- **Azure AD tenant** with two app registrations
+
+<details>
+<summary><strong>📋 App Registration Details</strong></summary>
+
+- **Web app** (Blazor): supports redirect URIs (configured to `{URL of the blazorapp}/signin-oidc`). For details see:
+  - [How to add a redirect URI to your application](https://learn.microsoft.com/entra/identity-platform/how-to-add-redirect-uri)
+- **API app** (ApiService): exposes scopes (e.g., App ID URI is `api://<client-id>`). For details, see:
+  - [Configure an application to expose a web API](https://learn.microsoft.com/entra/identity-platform/quickstart-configure-app-expose-web-apis)
+- **Client credentials** (certificate or secret) for the web app registration. For details see:
+  - [Add and manage application credentials in Microsoft Entra ID](https://learn.microsoft.com/entra/identity-platform/how-to-add-credentials?tabs=certificate) and [Client credentials](../authentication/credentials/credentials-README.md)
+
+</details>
+
+> 📚 **New to Aspire?** See [.NET Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
+
+---
+
+> **Note:** The Aspire starter template automatically creates a `WeatherApiClient` class in the `MyService.Web` project. This "typed HttpClient" is used throughout this guide to demonstrate calling the protected API. You don't need to create this class yourself—it's part of the template.
+
 ## Quick Start (TL;DR)
 
 <details>
@@ -59,7 +83,7 @@ dotnet add package Microsoft.Identity.Web
 ```json
 {
   "AzureAd": {
-    "Instance": "https://login.microsoftonline.com",
+    "Instance": "https://login.microsoftonline.com/",
     "TenantId": "<tenant-id>",
     "ClientId": "<web-client-id>",
     "CallbackPath": "/signin-oidc",
@@ -153,27 +177,6 @@ client.BaseAddress = new("https+http://apiservice");
 📚 [Aspire Service Discovery](https://learn.microsoft.com/dotnet/aspire/service-discovery/overview)
 
 </details>
-
----
-
-## Prerequisites
-
-- **.NET 9 SDK** or later
-- **Azure AD tenant** with two app registrations
-
-<details>
-<summary><strong>📋 App Registration Details</strong></summary>
-
-- **Web app** (Blazor): supports redirect URIs (configured to `{URL of the blazorapp}/signin-oidc`). For details see:
-  - [How to add a redirect URI to your application](https://learn.microsoft.com/entra/identity-platform/how-to-add-redirect-uri)
-- **API app** (ApiService): exposes scopes (e.g., App ID URI is `api://<client-id>`). For details, see:
-  - [Configure an application to expose a web API](https://learn.microsoft.com/entra/identity-platform/quickstart-configure-app-expose-web-apis)
-- **Client credentials** (certificate or secret) for the web app registration. For details see:
-  - [Add and manage application credentials in Microsoft Entra ID](https://learn.microsoft.com/entra/identity-platform/how-to-add-credentials?tabs=certificate)
-
-</details>
-
-> 📚 **New to Aspire?** See [.NET Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
 
 ---
 
@@ -372,7 +375,7 @@ Add Azure AD configuration and downstream API scopes to `MyService.Web/appsettin
 ```json
 {
   "AzureAd": {
-    "Instance": "https://login.microsoftonline.com",
+    "Instance": "https://login.microsoftonline.com/",
     "Domain": "<your-tenant>.onmicrosoft.com",
     "TenantId": "<tenant-guid>",
     "ClientId":  "<web-app-client-id>",
@@ -566,7 +569,8 @@ internal static class LoginLogoutEndpointRouteBuilderExtensions
     {
         const string pathBase = "/";
         if (string.IsNullOrEmpty(returnUrl)) returnUrl = pathBase;
-        else if (! Uri.IsWellFormedUriString(returnUrl, UriKind.Relative)) returnUrl = new Uri(returnUrl, UriKind.Absolute).PathAndQuery;
+        else if (returnUrl.StartsWith("//", StringComparison.Ordinal)) returnUrl = pathBase; // Prevent protocol-relative redirects
+        else if (!Uri.IsWellFormedUriString(returnUrl, UriKind.Relative)) returnUrl = new Uri(returnUrl, UriKind.Absolute).PathAndQuery;
         else if (returnUrl[0] != '/') returnUrl = $"{pathBase}{returnUrl}";
         return new AuthenticationProperties { RedirectUri = returnUrl };
     }
@@ -841,7 +845,7 @@ For production deployments in Azure, use managed identity instead of client secr
 ```json
 {
   "AzureAd": {
-    "Instance": "https://login.microsoftonline.com",
+    "Instance": "https://login.microsoftonline.com/",
     "TenantId": "<tenant-guid>",
     "ClientId":  "<web-app-client-id>",
     "ClientCredentials": [
