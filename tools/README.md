@@ -5,7 +5,7 @@ This directory contains various tools and utilities used for development, testin
 ## Table of Contents
 
 - [PowerShell Scripts](#powershell-scripts)
-  - [Check-BrokenLinks.ps1](#check-brokenlinkps1)
+  - [Check-BrokenLinks.ps1](#check-brokenlinksps1)
   - [mark-shipped.ps1](#mark-shippedps1)
 - [.NET Tools](#net-tools)
   - [ConfigureGeneratedApplications](#configuregeneratedapplications)
