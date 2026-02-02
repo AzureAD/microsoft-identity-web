@@ -14,6 +14,24 @@ aspire new aspire-starter --name MyService
 
 ---
 
+## Table of contents
+
+- [Prerequisites](#prerequisites)
+- [Two-phase implementation workflow](#two-phase-implementation-workflow)
+- [App registrations in Entra ID](#app-registrations-in-entra-id)
+- [Quick start (TL;DR)](#quick-start-tldr)
+- [Files you'll modify](#files-youll-modify)
+- [What you'll build & how it works](#what-youll-build--how-it-works)
+- [Part 1: Secure the API (Phase 1)](#part-1-secure-the-api-backend-with-microsoftidentityweb)
+- [Part 2: Configure Blazor frontend (Phase 1)](#part-2-configure-blazor-frontend-for-authentication)
+- [Implementation checklist](#implementation-checklist)
+- [Part 3: Testing and troubleshooting](#part-3-testing-and-troubleshooting)
+- [Part 4: Common scenarios](#part-4-common-scenarios)
+- [Resources](#resources)
+- [AI coding assistant skills](#-ai-coding-assistant-skills)
+
+---
+
 ## Prerequisites
 
 - **.NET 9 SDK** or later (or .NET 10+ for latest features)
@@ -24,7 +42,7 @@ aspire new aspire-starter --name MyService
 
 ---
 
-## Two-Phase Implementation Workflow
+## Two-phase implementation workflow
 
 This guide follows a **two-phase approach**:
 
@@ -33,11 +51,11 @@ This guide follows a **two-phase approach**:
 | **Phase 1** | Add authentication code with placeholder values | App **builds** but won't **run** |
 | **Phase 2** | Provision Entra ID app registrations | App **runs** with real authentication |
 
-> 💡 **AI Assistant Tip:** If you're using GitHub Copilot or another AI assistant, the [entra-id-aspire-authentication](./../.github/skills/entra-id-aspire-authentication/SKILL.md) and [entra-id-aspire-provisioning](./../.github/skills/entra-id-aspire-provisioning/SKILL.md) skills can automate both phases.
+> 💡 **AI Assistant Tip:** If you're using GitHub Copilot or another AI assistant, the [entra-id-aspire-authentication](../../.github/skills/entra-id-aspire-authentication/SKILL.md) and [entra-id-aspire-provisioning](../../.github/skills/entra-id-aspire-provisioning/SKILL.md) skills can automate both phases.
 
 ---
 
-## App Registrations in Entra ID
+## App registrations in Entra ID
 
 <details>
 <summary><strong>📋 Already have app registrations?</strong> Skip to <a href="#quick-start-tldr">Quick Start</a> or <a href="#part-1-secure-the-api-backend-with-microsoftidentityweb">Part 1</a>.</summary>
@@ -59,7 +77,7 @@ Before your app can authenticate users, you need **two app registrations** in Mi
 | **API** (`MyService.ApiService`) | Validates incoming tokens | App ID URI, `access_as_user` scope |
 | **Web App** (`MyService.Web`) | Signs in users, acquires tokens | Redirect URIs, client secret, API permissions |
 
-### Option A: Azure Portal (Manual)
+### Option A: Azure Portal (manual)
 
 <details>
 <summary><strong>📋 Step 1: Register the API</strong></summary>
@@ -189,7 +207,7 @@ Then ask your AI assistant:
 
 > **Note:** The Aspire starter template automatically creates a `WeatherApiClient` class in the `MyService.Web` project. This "typed HttpClient" is used throughout this guide to demonstrate calling the protected API. You don't need to create this class yourself—it's part of the template.
 
-## Quick Start (TL;DR)
+## Quick start (TL;DR)
 
 <details>
 <summary><strong>Click to expand the 5-minute version</strong></summary>
@@ -251,7 +269,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddInMemoryTokenCaches();
 
-// Blazor auth challenge handler for incremental consent & Conditional Access
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<BlazorAuthenticationChallengeHandler>();
 
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
@@ -263,13 +281,15 @@ app.UseAuthorization();
 app.MapGroup("/authentication").MapLoginAndLogout();
 ```
 
+> ⚠️ **Don't forget:** Copy the helper files (`BlazorAuthenticationChallengeHandler.cs`, `LoginLogoutEndpointRouteBuilderExtensions.cs`) and create `UserInfo.razor`. See [Part 2](#part-2-configure-blazor-frontend-for-authentication) for details.
+
 **That's it!** The `MicrosoftIdentityMessageHandler` automatically acquires and attaches tokens, and `BlazorAuthenticationChallengeHandler` handles consent/Conditional Access challenges.
 
 </details>
 
 ---
 
-## Files You'll Modify
+## Files you'll modify
 
 | Project | File | Changes |
 |---------|------|---------|
@@ -288,24 +308,26 @@ app.MapGroup("/authentication").MapLoginAndLogout();
 
 ---
 
-## What you'll Build & How It Works
+## What you'll build & how it works
 
 ```mermaid
 flowchart LR
   A[User Browser] -->|1 Login OIDC| B[Blazor Server<br/>MyService.Web]
   B -->|2 Redirect| C[Entra ID]
   C -->|3 auth code| B
-  C -->|4 id token + cookie + Access token| B
-  B -->|5 HTTP + Bearer token| D[ASP.NET API<br/>MyService.ApiService<br/>Microsoft.Identity.Web]
-  D -->|6 Validate JWT| C
-  D -->|7 Weather data| B
+  B -->|4 exchange code| C
+  C -->|5 tokens| B
+  B -->|6 cookie + session| A
+  B -->|7 HTTP + Bearer token| D[ASP.NET API<br/>MyService.ApiService<br/>Microsoft.Identity.Web]
+  D -->|8 Validate JWT| C
+  D -->|9 Weather data| B
 ```
 
 **Key Technologies:**
 - **Microsoft.Identity.Web** (Blazor & API): OIDC authentication, JWT validation, token acquisition
 - **.NET Aspire**: Service discovery (`https+http://apiservice`), orchestration, health checks
 
-### How the Authentication Flow Works
+### How the authentication flow works
 
 1. **User visits Blazor app** → Not authenticated → sees "Login" button
 2. **User clicks Login** → Redirects to `/authentication/login` → OIDC challenge → Entra ID
@@ -339,7 +361,7 @@ client.BaseAddress = new("https+http://apiservice");
 
 ---
 
-## Solution Structure
+## Solution structure
 
 ```
 MyService/
@@ -352,13 +374,15 @@ MyService/
 
 ---
 
-## Part 1: Secure the API Backend with Microsoft.Identity.Web
+## Part 1: Secure the API backend with Microsoft.Identity.Web
+
+> 📍 **You are in Phase 1** — Parts 1 and 2 add the authentication code. After completing both, proceed to [App Registrations](#app-registrations-in-entra-id) if you haven't already.
 
 **Microsoft.Identity.Web** provides streamlined JWT Bearer authentication for ASP.NET Core APIs with minimal configuration.
 
 📚 **Learn more:** [Microsoft.Identity.Web Documentation](https://github.com/AzureAD/microsoft-identity-web/tree/master/docs)
 
-### 1.1: Add Microsoft.Identity.Web Package
+### 1.1: Add Microsoft.Identity.Web package
 
 ```powershell
 cd MyService.ApiService
@@ -377,7 +401,7 @@ dotnet add package Microsoft.Identity.Web
 
 </details>
 
-### 1.2: Configure Azure AD Settings
+### 1.2: Configure Azure AD settings
 
 Add Azure AD configuration to `MyService.ApiService/appsettings.json`:
 
@@ -479,7 +503,7 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 </details>
 
-### 1.4: Test the Protected API
+### 1.4: Test the protected API
 
 <details>
 <summary><strong>🧪 Test with curl</strong></summary>
@@ -502,14 +526,16 @@ curl -H "Authorization: Bearer <TOKEN>" https://localhost:<PORT>/weatherforecast
 
 ---
 
-## Part 2: Configure Blazor Frontend for Authentication
+## Part 2: Configure Blazor frontend for authentication
+
+> 📍 **Still in Phase 1** — This part completes the code implementation. You'll need the helper files from the skill folder.
 
 The Blazor Server app uses **Microsoft.Identity.Web** to:
 - Sign users in with OIDC
 - Acquire access tokens to call the API
 - Attach tokens to outgoing HTTP requests
 
-### 2.1: Add Microsoft.Identity.Web Package
+### 2.1: Add Microsoft.Identity.Web package
 
 ```powershell
 cd MyService.Web
@@ -527,7 +553,7 @@ dotnet add package Microsoft.Identity.Web
 
 </details>
 
-### 2.2: Configure Azure AD Settings
+### 2.2: Configure Azure AD settings
 
 Add Azure AD configuration and downstream API scopes to `MyService.Web/appsettings.json`:
 
@@ -655,7 +681,7 @@ app.Run();
 <details>
 <summary><strong>⚙️ Alternative Configuration Approaches</strong></summary>
 
-#### Alternative Configuration Approaches
+#### Alternative configuration approaches
 
 The `AddMicrosoftIdentityMessageHandler` extension supports multiple configuration patterns:
 
@@ -700,7 +726,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 </details>
 
-### 2.4: Copy Helper Files from Skill Folder
+### 2.4: Copy helper files from skill folder
 
 The authentication implementation requires two helper files. **Copy these from the skill folder** rather than creating them manually:
 
@@ -953,7 +979,7 @@ public class BlazorAuthenticationChallengeHandler(
 
 </details>
 
-### 2.5: Add Blazor UI Components
+### 2.5: Add Blazor UI components
 
 > ⚠️ **CRITICAL: This step is frequently forgotten!** Without the UserInfo component, users have **no way to log in**.
 
@@ -1030,7 +1056,7 @@ Replace `RouteView` with `AuthorizeRouteView` in `Components/Routes.razor`:
 </Router>
 ```
 
-### 2.7: Handle Exceptions on Pages Calling APIs
+### 2.7: Handle exceptions on pages calling APIs
 
 > ⚠️ **This is NOT optional** — Blazor Server requires explicit exception handling for Conditional Access and consent.
 
@@ -1127,7 +1153,7 @@ else
 
 </details>
 
-### 2.8: Store Client Secret in User Secrets
+### 2.8: Store client secret in user secrets
 
 > ⚠️ **Never commit secrets to source control!**
 
@@ -1157,17 +1183,17 @@ Alternatively, Microsoft.Identity.Web offers all kind of client credentials. See
 
 ---
 
-## Implementation Checklist
+## Implementation checklist
 
 Use this checklist to verify all steps are complete:
 
-### API Project
+### API project
 - [ ] Added `Microsoft.Identity.Web` package
 - [ ] Updated `appsettings.json` with `AzureAd` section
 - [ ] Updated `Program.cs` with `AddMicrosoftIdentityWebApi`
 - [ ] Added `.RequireAuthorization()` to protected endpoints
 
-### Web/Blazor Project
+### Web/Blazor project
 - [ ] Added `Microsoft.Identity.Web` package
 - [ ] Updated `appsettings.json` with `AzureAd` and `WeatherApi` sections
 - [ ] Updated `Program.cs` with OIDC, token acquisition
@@ -1187,9 +1213,9 @@ Use this checklist to verify all steps are complete:
 
 ---
 
-## Part 3: Testing and Troubleshooting
+## Part 3: Testing and troubleshooting
 
-### 3.1: Run the Application
+### 3.1: Run the application
 
 ```powershell
 # From solution root
@@ -1200,14 +1226,14 @@ dotnet build
 dotnet run --project .\MyService.AppHost\MyService.AppHost.csproj
 ```
 
-### 3.2: Test Flow
+### 3.2: Test flow
 
 1. Open browser → Blazor Web UI (check Aspire dashboard for URL)
 2. Click **Login** → Sign in with Azure AD
 3. Navigate to **Weather** page
 4. Verify weather data loads (from protected API)
 
-### 3.3: Common Issues
+### 3.3: Common issues
 
 | Issue | Solution |
 |-------|----------|
@@ -1221,7 +1247,7 @@ dotnet run --project .\MyService.AppHost\MyService.AppHost.csproj
 | **404 on `/MicrosoftIdentity/Account/Challenge`** | Use `BlazorAuthenticationChallengeHandler` instead of old `MicrosoftIdentityConsentHandler` |
 | **Consent loop** | Ensure try/catch with `HandleExceptionAsync` is on all API-calling pages |
 
-### 3.4: Enable MSAL Logging
+### 3.4: Enable MSAL logging
 
 <details>
 <summary><strong>🔍 Debug authentication with MSAL logs</strong></summary>
@@ -1270,7 +1296,7 @@ dbug: Microsoft.Identity.Web.MicrosoftIdentityMessageHandler[0]
 
 </details>
 
-### 3.5: Inspect Tokens
+### 3.5: Inspect tokens
 
 <details>
 <summary><strong>🎫 Decode and verify JWT tokens</strong></summary>
@@ -1286,9 +1312,9 @@ To debug token issues, decode your JWT at [jwt.ms](https://jwt.ms) and verify:
 
 ---
 
-## Part 4: Common Scenarios
+## Part 4: Common scenarios
 
-### 4.1: Protect Blazor Pages
+### 4.1: Protect Blazor pages
 
 Add `[Authorize]` to pages requiring authentication:
 
@@ -1311,7 +1337,7 @@ builder.Services.AddAuthorization(options =>
 @attribute [Authorize(Policy = "AdminOnly")]
 ```
 
-### 4.2: Scope Validation in the API
+### 4.2: Scope validation in the API
 
 To ensure the API only accepts tokens with specific scopes:
 
@@ -1338,7 +1364,7 @@ builder.Services.AddAuthorization(options =>
 });
 ```
 
-### 4.3: Use App-Only Tokens (Service-to-Service)
+### 4.3: Use app-only tokens (service-to-service)
 
 For daemon scenarios or service-to-service calls without a user context:
 
@@ -1355,7 +1381,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 });
 ```
 
-### 4.4: Override Options Per Request
+### 4.4: Override options per request
 
 Override default options on a per-request basis using the `WithAuthenticationOptions` extension method:
 
@@ -1386,7 +1412,7 @@ public class WeatherApiClient
 }
 ```
 
-### 4.5: Use Federated identity credentials with Managed Identity (Production)
+### 4.5: Use federated identity credentials with Managed Identity (production)
 
 For production deployments in Azure, use managed identity instead of client secrets:
 
@@ -1439,7 +1465,7 @@ For Blazor Server, use the `BlazorAuthenticationChallengeHandler` to handle cons
 
 > 📚 See [Section 2.7](#27-handle-exceptions-on-pages-calling-apis) for the complete pattern.
 
-### 4.7: Multi-Tenant API
+### 4.7: Multi-tenant API
 
 To accept tokens from any Azure AD tenant:
 
@@ -1453,7 +1479,7 @@ To accept tokens from any Azure AD tenant:
 }
 ```
 
-### 4.8: Call Downstream APIs from the API (On-Behalf-Of)
+### 4.8: Call downstream APIs from the API (on-behalf-of)
 
 If your API needs to call another downstream API on behalf of the user:
 
@@ -1487,7 +1513,7 @@ app.MapGet("/me", async (IDownstreamApi downstreamApi) =>
 
 📚 [Calling Downstream APIs](../calling-downstream-apis/calling-downstream-apis-README.md)
 
-### 4.9: Composing with Other Handlers
+### 4.9: Composing with other handlers
 
 Chain multiple handlers in the pipeline:
 
@@ -1539,7 +1565,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 ---
 
-## 🤖 AI Coding Assistant Skills
+## 🤖 AI coding assistant skills
 
 This guide has companion **AI Skills** for GitHub Copilot, Claude, and other AI coding assistants. The skills help automate both phases of the implementation:
 
