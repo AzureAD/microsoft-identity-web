@@ -315,7 +315,7 @@ flowchart LR
   A[User Browser] -->|1 Login OIDC| B[Blazor Server<br/>MyService.Web]
   B -->|2 Redirect| C[Entra ID]
   C -->|3 auth code| B
-  B -->|4 exchange code| C
+  B -->|4 exchange auth code| C
   C -->|5 tokens| B
   B -->|6 cookie + session| A
   B -->|7 HTTP + Bearer token| D[ASP.NET API<br/>MyService.ApiService<br/>Microsoft.Identity.Web]
