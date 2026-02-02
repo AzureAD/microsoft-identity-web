@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -14,7 +15,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
 
@@ -61,6 +65,43 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
         /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
+        /// This overload allows optional configuration of JwtBearerOptions.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="configSectionName">The configuration section with the necessary settings to initialize authentication options.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
+        /// </param>
+        /// <returns>The authentication builder to chain.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
+        public static AuthenticationBuilder AddMicrosoftIdentityWebApi(
+            this AuthenticationBuilder builder,
+            IConfiguration configuration,
+            string configSectionName,
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            _ = Throws.IfNull(configuration);
+            _ = Throws.IfNull(configSectionName);
+
+            IConfigurationSection configurationSection = configuration.GetSection(configSectionName);
+
+            return builder.AddMicrosoftIdentityWebApi(
+                configurationSection,
+                jwtBearerScheme,
+                configureJwtBearerOptions,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section, named "AzureAd" as default, with the necessary settings to initialize authentication options.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configurationSection">The configuration second from which to fill-in the options.</param>
@@ -93,6 +134,39 @@ namespace Microsoft.Identity.Web
                 options => configurationSection.Bind(options),
                 options => configurationSection.Bind(options),
                 configurationSection);
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
+        /// This method expects the configuration file will have a section with the necessary settings to initialize authentication options.
+        /// This overload allows optional configuration of JwtBearerOptions.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configurationSection">The configuration section from which to fill-in the options.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
+        /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.
+        /// </param>
+        /// <returns>The authentication builder to chain.</returns>
+#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+#endif
+        public static AuthenticationBuilder AddMicrosoftIdentityWebApi(
+            this AuthenticationBuilder builder,
+            IConfigurationSection configurationSection,
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            _ = Throws.IfNull(configurationSection);
+            _ = Throws.IfNull(builder);
+
+            return builder.AddMicrosoftIdentityWebApi(
+                (MicrosoftIdentityApplicationOptions options) => configurationSection.Bind(options),
+                jwtBearerScheme,
+                configureJwtBearerOptions,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
         }
 
         /// <summary>
@@ -131,6 +205,310 @@ namespace Microsoft.Identity.Web
                 configureJwtBearerOptions,
                 configureMicrosoftIdentityOptions,
                 null);
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft identity platform using AOT-compatible configuration.
+        /// This overload accepts an action to configure <see cref="MicrosoftIdentityApplicationOptions"/> programmatically,
+        /// making it suitable for Native AOT scenarios where reflection-based configuration binding is not available.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureOptions">The action to configure <see cref="MicrosoftIdentityApplicationOptions"/>.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used.</param>
+        /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
+        /// <returns>The authentication builder to chain.</returns>
+        public static AuthenticationBuilder AddMicrosoftIdentityWebApi(
+            this AuthenticationBuilder builder,
+            Action<MicrosoftIdentityApplicationOptions> configureOptions,
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureOptions);
+
+            return AddMicrosoftIdentityWebApiWithApplicationOptions(
+                builder,
+                configureOptions,
+                jwtBearerScheme,
+                configureJwtBearerOptions,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
+
+        /// <summary>
+        /// Protects the web API with Microsoft Entra ID (Azure AD) using AOT-compatible configuration.
+        /// This overload is specifically for Entra ID (non-B2C) scenarios and accepts an action to configure 
+        /// <see cref="MicrosoftEntraApplicationOptions"/> programmatically.
+        /// </summary>
+        /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
+        /// <param name="configureOptions">The action to configure <see cref="MicrosoftEntraApplicationOptions"/>.</param>
+        /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used.</param>
+        /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
+        /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
+        /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
+        /// <returns>The authentication builder to chain.</returns>
+        public static AuthenticationBuilder AddMicrosoftIdentityWebApi(
+            this AuthenticationBuilder builder,
+            Action<MicrosoftEntraApplicationOptions> configureOptions,
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            _ = Throws.IfNull(builder);
+            _ = Throws.IfNull(configureOptions);
+
+            // MicrosoftEntraApplicationOptions inherits from MicrosoftIdentityApplicationOptions
+            return builder.AddMicrosoftIdentityWebApi(
+                (MicrosoftIdentityApplicationOptions options) => configureOptions((MicrosoftEntraApplicationOptions)options),
+                jwtBearerScheme,
+                configureJwtBearerOptions,
+                subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+        }
+
+        private static AuthenticationBuilder AddMicrosoftIdentityWebApiWithApplicationOptions(
+            AuthenticationBuilder builder,
+            Action<MicrosoftIdentityApplicationOptions> configureOptions,
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            // 1. Register MicrosoftIdentityApplicationOptions
+            builder.Services.Configure(jwtBearerScheme, configureOptions);
+
+            // 2. Register JwtBearer scheme with optional user configuration
+            builder.AddJwtBearer(jwtBearerScheme, configureJwtBearerOptions ?? (_ => { }));
+
+            // 3. Infrastructure services
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpClient();
+            builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
+            builder.Services.AddRequiredScopeAuthorization();
+            builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
+            builder.Services.AddOptions<AadIssuerValidatorOptions>();
+
+            if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+            {
+                builder.Services.AddTransient<IJwtBearerMiddlewareDiagnostics, JwtBearerMiddlewareDiagnostics>();
+            }
+
+            // 4. Configure JwtBearerOptions FROM MicrosoftIdentityApplicationOptions
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IServiceProvider, IOptionsMonitor<MicrosoftIdentityApplicationOptions>>((
+                    options,
+                    serviceProvider,
+                    appOptionsMonitor) =>
+                {
+                    MicrosoftIdentityBaseAuthenticationBuilder.SetIdentityModelLogger(serviceProvider);
+                    var appOptions = appOptionsMonitor.Get(jwtBearerScheme);
+                    ConfigureJwtBearerOptionsFromApplicationOptions(
+                        options,
+                        appOptions,
+                        serviceProvider,
+                        jwtBearerScheme,
+                        subscribeToJwtBearerMiddlewareDiagnosticsEvents);
+                });
+
+            // 5. Configure ConfidentialClientApplicationOptions FROM MicrosoftIdentityApplicationOptions
+            builder.Services.AddOptions<ConfidentialClientApplicationOptions>(jwtBearerScheme)
+                .Configure<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>((
+                    ccaOptions,
+                    appOptionsMonitor) =>
+                {
+                    var appOptions = appOptionsMonitor.Get(jwtBearerScheme);
+                    ConfigureConfidentialClientOptionsFromApplicationOptions(ccaOptions, appOptions);
+                });
+
+            return builder;
+        }
+
+        private static void ConfigureJwtBearerOptionsFromApplicationOptions(
+            JwtBearerOptions options,
+            MicrosoftIdentityApplicationOptions appOptions,
+            IServiceProvider serviceProvider,
+            string jwtBearerScheme,
+            bool subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+        {
+            // Validate configuration
+            ValidateMicrosoftIdentityApplicationOptions(appOptions);
+
+            // Build and set authority
+            string authority = BuildAuthorityFromApplicationOptions(appOptions);
+            options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(authority);
+
+            // Audience validation (only if not already configured)
+            if (options.TokenValidationParameters.AudienceValidator == null
+                && options.TokenValidationParameters.ValidAudience == null
+                && options.TokenValidationParameters.ValidAudiences == null)
+            {
+                ConfigureAudienceValidationFromApplicationOptions(options.TokenValidationParameters, appOptions);
+            }
+
+            // Issuer validation (only if not already configured)
+            if (options.TokenValidationParameters.ValidateIssuer
+                && options.TokenValidationParameters.IssuerValidator == null)
+            {
+                var issuerValidatorFactory = serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
+                options.TokenValidationParameters.IssuerValidator =
+                    issuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
+            }
+
+            // Token decryption
+            if (appOptions.TokenDecryptionCredentials?.Any() == true)
+            {
+                ConfigureTokenDecryptionFromApplicationOptions(options.TokenValidationParameters, appOptions);
+            }
+
+            // =========================================================================
+            // EVENTS SETUP
+            // =========================================================================
+            options.Events ??= new JwtBearerEvents();
+            options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
+
+            // Configuration manager setup
+            var existingOnMessageReceivedHandler = options.Events.OnMessageReceived;
+            options.Events.OnMessageReceived = async context =>
+            {
+                context.Options.TokenValidationParameters.ConfigurationManager ??=
+                    context.Options.ConfigurationManager as BaseConfigurationManager;
+                await existingOnMessageReceivedHandler(context).ConfigureAwait(false);
+            };
+
+            // =========================================================================
+            // CRITICAL: Always store the validated token for TokenAcquisition (OBO flow)
+            // This enables:
+            //   services.AddMicrosoftIdentityWebApi(...)
+            //   services.AddTokenAcquisition()
+            // to work without needing EnableTokenAcquisitionToCallDownstreamApi()
+            // =========================================================================
+            var existingOnTokenValidatedHandler = options.Events.OnTokenValidated;
+            options.Events.OnTokenValidated = async context =>
+            {
+                // Store the SecurityToken so TokenAcquisition can use it for OBO
+                // Only store if it's a JWT type that can be used for OBO
+                if (context.SecurityToken is JwtSecurityToken or JsonWebToken)
+                {
+                    context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken);
+                }
+
+                await existingOnTokenValidatedHandler(context).ConfigureAwait(false);
+            };
+
+            // Claims validation (unless ACL mode)
+            if (!appOptions.AllowWebApiToBeAuthorizedByACL)
+            {
+                ChainOnTokenValidatedEventForClaimsValidation(options.Events, jwtBearerScheme);
+            }
+
+            // Diagnostics subscription
+            if (subscribeToJwtBearerMiddlewareDiagnosticsEvents)
+            {
+                var diagnostics = serviceProvider.GetRequiredService<IJwtBearerMiddlewareDiagnostics>();
+                diagnostics.Subscribe(options.Events);
+            }
+        }
+
+        private static string BuildAuthorityFromApplicationOptions(MicrosoftIdentityApplicationOptions options)
+        {
+            if (!string.IsNullOrEmpty(options.Authority))
+            {
+                return options.Authority;
+            }
+
+            string instance = options.Instance?.TrimEnd('/') ?? "https://login.microsoftonline.com";
+
+            // B2C authority format
+            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+            if (isB2C)
+            {
+                return $"{instance}/{options.Domain}/{options.SignUpSignInPolicyId}/v2.0";
+            }
+
+            // AAD authority format
+            string tenantId = options.TenantId ?? "common";
+            return $"{instance}/{tenantId}/v2.0";
+        }
+
+        private static void ValidateMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions options)
+        {
+            if (string.IsNullOrEmpty(options.ClientId))
+            {
+                throw new ArgumentNullException(nameof(options.ClientId),
+                    string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
+            }
+
+            if (string.IsNullOrEmpty(options.Authority))
+            {
+                if (string.IsNullOrEmpty(options.Instance))
+                {
+                    throw new ArgumentNullException(nameof(options.Instance),
+                        string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
+                }
+
+                bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+                if (isB2C)
+                {
+                    if (string.IsNullOrEmpty(options.Domain))
+                    {
+                        throw new ArgumentNullException(nameof(options.Domain),
+                            string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(options.TenantId))
+                    {
+                        throw new ArgumentNullException(nameof(options.TenantId),
+                            string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
+                    }
+                }
+            }
+        }
+
+        private static void ConfigureConfidentialClientOptionsFromApplicationOptions(
+            ConfidentialClientApplicationOptions ccaOptions,
+            MicrosoftIdentityApplicationOptions appOptions)
+        {
+            ccaOptions.ClientId = appOptions.ClientId;
+            ccaOptions.Instance = appOptions.Instance;
+            ccaOptions.TenantId = appOptions.TenantId;
+            ccaOptions.AzureRegion = appOptions.AzureRegion;
+            ccaOptions.ClientCapabilities = appOptions.ClientCapabilities;
+            ccaOptions.EnablePiiLogging = appOptions.EnablePiiLogging;
+
+            // Client secret from credentials
+            var secretCredential = appOptions.ClientCredentials?
+                .FirstOrDefault(c => c.CredentialType == CredentialType.Secret);
+            if (secretCredential != null)
+            {
+                ccaOptions.ClientSecret = secretCredential.ClientSecret;
+            }
+        }
+
+        private static void ConfigureAudienceValidationFromApplicationOptions(
+            TokenValidationParameters tokenValidationParameters,
+            MicrosoftIdentityApplicationOptions options)
+        {
+            var validAudiences = new List<string> { options.ClientId! };
+
+            // Add api://{clientId} format
+            if (!options.ClientId!.StartsWith("api://", StringComparison.OrdinalIgnoreCase))
+            {
+                validAudiences.Add($"api://{options.ClientId}");
+            }
+
+            tokenValidationParameters.ValidAudiences = validAudiences;
+        }
+
+        private static void ConfigureTokenDecryptionFromApplicationOptions(
+            TokenValidationParameters tokenValidationParameters,
+            MicrosoftIdentityApplicationOptions options)
+        {
+            var certificates = DefaultCertificateLoader.LoadAllCertificates(
+                options.TokenDecryptionCredentials!.OfType<CertificateDescription>());
+            var keys = certificates.Select(c => new X509SecurityKey(c));
+            tokenValidationParameters.TokenDecryptionKeys = keys;
         }
 
         private static void AddMicrosoftIdentityWebApiImplementation(
