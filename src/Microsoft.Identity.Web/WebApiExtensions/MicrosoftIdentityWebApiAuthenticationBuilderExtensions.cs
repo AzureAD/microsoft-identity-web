@@ -263,8 +263,28 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(configureOptions);
 
             // MicrosoftEntraApplicationOptions inherits from MicrosoftIdentityApplicationOptions
+            // Configure using Entra options but pass as base type
             return builder.AddMicrosoftIdentityWebApi(
-                (MicrosoftIdentityApplicationOptions options) => configureOptions((MicrosoftEntraApplicationOptions)options),
+                (MicrosoftIdentityApplicationOptions options) =>
+                {
+                    // Create a temporary Entra options instance to configure
+                    var entraOptions = new MicrosoftEntraApplicationOptions();
+                    configureOptions(entraOptions);
+                    
+                    // Copy all properties from entraOptions to options
+                    options.ClientId = entraOptions.ClientId;
+                    options.Instance = entraOptions.Instance;
+                    options.TenantId = entraOptions.TenantId;
+                    options.Authority = entraOptions.Authority;
+                    options.ClientCredentials = entraOptions.ClientCredentials;
+                    options.TokenDecryptionCredentials = entraOptions.TokenDecryptionCredentials;
+                    options.ClientCapabilities = entraOptions.ClientCapabilities;
+                    options.AzureRegion = entraOptions.AzureRegion;
+                    options.EnablePiiLogging = entraOptions.EnablePiiLogging;
+                    options.AllowWebApiToBeAuthorizedByACL = entraOptions.AllowWebApiToBeAuthorizedByACL;
+                    options.Audience = entraOptions.Audience;
+                    options.Audiences = entraOptions.Audiences;
+                },
                 jwtBearerScheme,
                 configureJwtBearerOptions,
                 subscribeToJwtBearerMiddlewareDiagnosticsEvents);
@@ -493,6 +513,7 @@ namespace Microsoft.Identity.Web
             TokenValidationParameters tokenValidationParameters,
             MicrosoftIdentityApplicationOptions options)
         {
+            // At this point, ClientId has been validated by ValidateMicrosoftIdentityApplicationOptions
             var validAudiences = new List<string> { options.ClientId! };
 
             // Add api://{clientId} format
@@ -508,6 +529,7 @@ namespace Microsoft.Identity.Web
             TokenValidationParameters tokenValidationParameters,
             MicrosoftIdentityApplicationOptions options)
         {
+            // At this point, TokenDecryptionCredentials has been validated to be non-null
             var certificates = DefaultCertificateLoader.LoadAllCertificates(
                 options.TokenDecryptionCredentials!.OfType<CertificateDescription>());
             var keys = certificates.Select(c => new X509SecurityKey(c));
