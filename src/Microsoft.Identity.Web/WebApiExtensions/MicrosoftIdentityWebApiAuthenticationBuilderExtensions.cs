@@ -44,6 +44,7 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthneticationBuilderExtensions.AddMicrosoftIdentityWebApi(AuthenticationBuilder, IConfigurationSection, string, bool).")]
 #endif
+        [SuppressMessage("ApiDesign", "RS0027", Justification = "Existing overload preserved for backward compatibility. New overloads with more parameters added for AOT support.")]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
         this AuthenticationBuilder builder,
         IConfiguration configuration,
@@ -113,6 +114,7 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
 #endif
+        [SuppressMessage("ApiDesign", "RS0027", Justification = "Existing overload preserved for backward compatibility. New overloads with more parameters added for AOT support.")]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
@@ -182,6 +184,7 @@ namespace Microsoft.Identity.Web
 #if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.MicrosoftIdentityWebApiAuthenticationBuilder(IServiceCollection, String, Action<JwtBearerOptions>, Action<MicrosoftIdentityOptions>, IConfigurationSection).")]
 #endif
+        [SuppressMessage("ApiDesign", "RS0027", Justification = "Existing overload preserved for backward compatibility. New overloads with more parameters added for AOT support.")]
         public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
