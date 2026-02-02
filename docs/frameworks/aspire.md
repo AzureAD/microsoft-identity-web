@@ -16,23 +16,174 @@ aspire new aspire-starter --name MyService
 
 ## Prerequisites
 
-- **.NET 10 SDK** or later
+- **.NET 9 SDK** or later (or .NET 10+ for latest features)
 - **.NET Aspire CLI** - See [Install Aspire CLI](https://aspire.dev/get-started/install-cli/)
-- **Azure AD tenant** with two app registrations
+- **Azure AD tenant** — See [App Registrations in Entra ID](#app-registrations-in-entra-id) section below for setup
+
+> 📚 **New to Aspire?** See [.NET Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
+
+---
+
+## Two-Phase Implementation Workflow
+
+This guide follows a **two-phase approach**:
+
+| Phase | What Happens | Result |
+|-------|--------------|--------|
+| **Phase 1** | Add authentication code with placeholder values | App **builds** but won't **run** |
+| **Phase 2** | Provision Entra ID app registrations | App **runs** with real authentication |
+
+> 💡 **AI Assistant Tip:** If you're using GitHub Copilot or another AI assistant, the [entra-id-aspire-authentication](./../.github/skills/entra-id-aspire-authentication/SKILL.md) and [entra-id-aspire-provisioning](./../.github/skills/entra-id-aspire-provisioning/SKILL.md) skills can automate both phases.
+
+---
+
+## App Registrations in Entra ID
 
 <details>
-<summary><strong>📋 App Registration Details</strong></summary>
+<summary><strong>📋 Already have app registrations?</strong> Skip to <a href="#quick-start-tldr">Quick Start</a> or <a href="#part-1-secure-the-api-backend-with-microsoftidentityweb">Part 1</a>.</summary>
 
-- **Web app** (Blazor): supports redirect URIs (configured to `{URL of the blazorapp}/signin-oidc`). For details see:
-  - [How to add a redirect URI to your application](https://learn.microsoft.com/entra/identity-platform/how-to-add-redirect-uri)
-- **API app** (ApiService): exposes scopes (e.g., App ID URI is `api://<client-id>`). For details, see:
-  - [Configure an application to expose a web API](https://learn.microsoft.com/entra/identity-platform/quickstart-configure-app-expose-web-apis)
-- **Client credentials** (certificate or secret) for the web app registration. For details see:
-  - [Add and manage application credentials in Microsoft Entra ID](https://learn.microsoft.com/entra/identity-platform/how-to-add-credentials?tabs=certificate) and [Client credentials](../authentication/credentials/credentials-README.md)
+If you already have app registrations configured, you just need these values for your `appsettings.json`:
+- **TenantId** — Your Azure AD tenant ID
+- **API ClientId** — Application (client) ID of your API app registration
+- **API App ID URI** — Usually `api://<api-client-id>` (used in `Audiences` and `Scopes`)
+- **Web App ClientId** — Application (client) ID of your web app registration
+- **Client Secret** (or certificate) — Credential for the web app (store in user-secrets, not appsettings.json)
+- **Scopes** — The scope(s) your web app requests, e.g., `api://<api-client-id>/.default` or `api://<api-client-id>/access_as_user`
 
 </details>
 
-> 📚 **New to Aspire?** See [.NET Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
+Before your app can authenticate users, you need **two app registrations** in Microsoft Entra ID:
+
+| App Registration | Purpose | Key Configuration |
+|------------------|---------|-------------------|
+| **API** (`MyService.ApiService`) | Validates incoming tokens | App ID URI, `access_as_user` scope |
+| **Web App** (`MyService.Web`) | Signs in users, acquires tokens | Redirect URIs, client secret, API permissions |
+
+### Option A: Azure Portal (Manual)
+
+<details>
+<summary><strong>📋 Step 1: Register the API</strong></summary>
+
+1. Go to [Microsoft Entra admin center](https://entra.microsoft.com) > **Identity** > **Applications** > **App registrations**
+2. Click **New registration**
+   - **Name:** `MyService.ApiService`
+   - **Supported account types:** Accounts in this organizational directory only (Single tenant)
+   - Click **Register**
+3. **Expose an API:**
+   - Go to **Expose an API** > **Add** next to Application ID URI
+   - Accept the default (`api://<client-id>`) or customize it
+   - Click **Add a scope**:
+     - **Scope name:** `access_as_user`
+     - **Who can consent:** Admins and users
+     - **Admin consent display name:** Access MyService API
+     - **Admin consent description:** Allows the app to access MyService API on behalf of the signed-in user.
+     - Click **Add scope**
+4. Copy the **Application (client) ID** — you'll need this for both `appsettings.json` files
+
+📚 [Quickstart: Configure an app to expose a web API](https://learn.microsoft.com/entra/identity-platform/quickstart-configure-app-expose-web-apis)
+
+</details>
+
+<details>
+<summary><strong>📋 Step 2: Register the Web App</strong></summary>
+
+1. Go to **App registrations** > **New registration**
+   - **Name:** `MyService.Web`
+   - **Supported account types:** Accounts in this organizational directory only
+   - **Redirect URI:** Select **Web** and enter your app's URL + `/signin-oidc`
+     - For local development: `https://localhost:7001/signin-oidc` (check your `launchSettings.json` for the actual port)
+   - Click **Register**
+2. **Configure redirect URIs:**
+   - Go to **Authentication** > **Add URI** to add all your dev URLs (from `launchSettings.json`)
+3. **Create a client secret:**
+   - Go to **Certificates & secrets** > **Client secrets** > **New client secret**
+   - Add a description and expiration
+   - **Copy the secret value immediately** — it won't be shown again!
+
+   > **Note:** Some organizations don't allow client secrets. Alternatives:
+   > - **Certificates** — See [Certificate credentials](https://learn.microsoft.com/entra/identity-platform/certificate-credentials) and [Microsoft.Identity.Web certificate support](../authentication/credentials/credentials-README.md#certificates)
+   > - **Federated Identity Credentials (FIC) + Managed Identity** — See [Workload identity federation](https://learn.microsoft.com/entra/workload-id/workload-identity-federation) and [Certificateless authentication](../authentication/credentials/certificateless.md)
+
+4. **Add API permission:**
+   - Go to **API permissions** > **Add a permission** > **My APIs**
+   - Select `MyService.ApiService`
+   - Check `access_as_user` > **Add permissions**
+   - Click **Grant admin consent for [tenant]** (or users will be prompted)
+5. Copy the **Application (client) ID** for the web app's `appsettings.json`
+
+📚 [Quickstart: Register an application](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app)
+📚 [Add credentials to your app](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app#add-credentials)
+📚 [Add a redirect URI](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app#add-a-redirect-uri)
+
+</details>
+
+<details>
+<summary><strong>📋 Step 3: Update Configuration</strong></summary>
+
+After creating the app registrations, update your `appsettings.json` files:
+
+**API (`MyService.ApiService/appsettings.json`):**
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "YOUR_TENANT_ID",
+    "ClientId": "YOUR_API_CLIENT_ID",
+    "Audiences": ["api://YOUR_API_CLIENT_ID"]
+  }
+}
+```
+
+**Web App (`MyService.Web/appsettings.json`):**
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "YOUR_TENANT_ID",
+    "ClientId": "YOUR_WEB_CLIENT_ID",
+    "CallbackPath": "/signin-oidc",
+    "ClientCredentials": [
+      { "SourceType": "ClientSecret" }
+    ]
+  },
+  "WeatherApi": {
+    "Scopes": ["api://YOUR_API_CLIENT_ID/.default"]
+  }
+}
+```
+
+**Store the secret securely:**
+```powershell
+cd MyService.Web
+dotnet user-secrets set "AzureAd:ClientCredentials:0:ClientSecret" "YOUR_SECRET_VALUE"
+```
+
+| Value | Where to Find |
+|-------|---------------|
+| `TenantId` | Azure Portal > Entra ID > Overview > Tenant ID |
+| `API ClientId` | App registrations > MyService.ApiService > Application (client) ID |
+| `Web ClientId` | App registrations > MyService.Web > Application (client) ID |
+| `Client Secret` | Created in Step 2 (copy immediately when created) |
+
+</details>
+
+### Option B: Automated with PowerShell
+
+For automated provisioning using Microsoft Graph PowerShell, use the **entra-id-aspire-provisioning** skill:
+
+```powershell
+# Prerequisites (one-time)
+Install-Module Microsoft.Graph.Applications -Scope CurrentUser
+
+# Connect to your tenant
+Connect-MgGraph -Scopes "Application.ReadWrite.All"
+```
+
+Then ask your AI assistant:
+> "Using the entra-id-aspire-provisioning skill, create app registrations for my Aspire solution"
+
+📚 [Microsoft Graph PowerShell SDK](https://learn.microsoft.com/powershell/microsoftgraph/installation)
+📁 [Provisioning Skill](../../.github/skills/entra-id-aspire-provisioning/SKILL.md)
 
 ---
 
@@ -100,15 +251,19 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddInMemoryTokenCaches();
 
+// Blazor auth challenge handler for incremental consent & Conditional Access
+builder.Services.AddScoped<BlazorAuthenticationChallengeHandler>();
+
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
     client.BaseAddress = new("https+http://apiservice"))
     .AddMicrosoftIdentityMessageHandler(builder.Configuration.GetSection("WeatherApi"));
 // ...
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGroup("/authentication").MapLoginAndLogout();
 ```
 
-**That's it!** The `MicrosoftIdentityMessageHandler` automatically acquires and attaches tokens.
+**That's it!** The `MicrosoftIdentityMessageHandler` automatically acquires and attaches tokens, and `BlazorAuthenticationChallengeHandler` handles consent/Conditional Access challenges.
 
 </details>
 
@@ -121,11 +276,15 @@ app.UseAuthorization();
 | **ApiService** | `Program.cs` | JWT Bearer auth, authorization middleware |
 | | `appsettings.json` | Azure AD configuration |
 | | `.csproj` | Add `Microsoft.Identity.Web` |
-| **Web** | `Program.cs` | OIDC auth, token acquisition, message handler |
+| **Web** | `Program.cs` | OIDC auth, token acquisition, BlazorAuthenticationChallengeHandler |
 | | `appsettings.json` | Azure AD config, downstream API scopes |
 | | `.csproj` | Add `Microsoft.Identity.Web` |
-| | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout endpoints *(new file)* |
-| | `Components/Layout/LogInOrOut.razor` | Login/logout UI *(new file)* |
+| | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout with incremental consent *(copy from skill)* |
+| | `BlazorAuthenticationChallengeHandler.cs` | Auth challenge handler *(copy from skill)* |
+| | `Components/UserInfo.razor` | **Login button UI** *(new file)* |
+| | `Components/Layout/MainLayout.razor` | Include UserInfo component |
+| | `Components/Routes.razor` | AuthorizeRouteView for protected pages |
+| | Pages calling APIs | Try/catch with ChallengeHandler |
 
 ---
 
@@ -438,23 +597,25 @@ builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.Authentic
 
 builder.Services.AddCascadingAuthenticationState();
 
-// 2) Blazor + consent handler
+// 2) Blazor components
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-builder.Services.AddServerSideBlazor().AddMicrosoftIdentityConsentHandler();
+
+// 3) Blazor authentication challenge handler for incremental consent & Conditional Access
+builder.Services.AddScoped<BlazorAuthenticationChallengeHandler>();
 
 builder.Services.AddOutputCache();
 
-// 3) Downstream API client with MicrosoftIdentityMessageHandler
+// 4) Downstream API client with MicrosoftIdentityMessageHandler
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
 {
-    // Aspire service discovery:  resolves "apiservice" at runtime
+    // Aspire service discovery: resolves "apiservice" at runtime
     client.BaseAddress = new("https+http://apiservice");
 })
 .AddMicrosoftIdentityMessageHandler(builder.Configuration.GetSection("WeatherApi"));
 
 var app = builder.Build();
 
-if (! app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
@@ -470,7 +631,7 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 
-// 4) Login/Logout endpoints
+// 5) Login/Logout endpoints with incremental consent support
 app.MapGroup("/authentication").MapLoginAndLogout();
 
 app.MapDefaultEndpoints();
@@ -482,7 +643,8 @@ app.Run();
 
 - **`AddMicrosoftIdentityWebApp`**: Configures OIDC authentication
 - **`EnableTokenAcquisitionToCallDownstreamApi`**: Enables token acquisition for downstream APIs
-- **`AddMicrosoftIdentityMessageHandler`**: Attaches bearer tokens to HttpClient requests automatically. Reads scopes from the `WeatherApi` configuration section.
+- **`AddScoped<BlazorAuthenticationChallengeHandler>`**: Handles incremental consent and Conditional Access in Blazor Server
+- **`AddMicrosoftIdentityMessageHandler`**: Attaches bearer tokens to HttpClient requests automatically
 - **`https+http://apiservice`**: Aspire service discovery resolves this to the actual API URL
 - **Middleware order**: `UseAuthentication()` → `UseAuthorization()` → endpoints
 
@@ -538,29 +700,99 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 </details>
 
-### 2.4: Add Login/Logout Endpoints
+### 2.4: Copy Helper Files from Skill Folder
 
-**Create `MyService.Web/LoginLogoutEndpointRouteBuilderExtensions.cs`:**
+The authentication implementation requires two helper files. **Copy these from the skill folder** rather than creating them manually:
+
+```powershell
+# From your solution root, copy the helper files
+$skillPath = ".github/skills/entra-id-aspire-authentication"
+Copy-Item "$skillPath/LoginLogoutEndpointRouteBuilderExtensions.cs" "MyService.Web/"
+Copy-Item "$skillPath/BlazorAuthenticationChallengeHandler.cs" "MyService.Web/"
+```
+
+> 💡 **Tip:** These files are in the `Microsoft.Identity.Web` namespace, so they're available once you reference the package. Eventually they will
+>    ship in the Microsoft.Identity.Web NuGet packge.
+
+<details>
+<summary><strong>📄 View LoginLogoutEndpointRouteBuilderExtensions.cs</strong></summary>
+
+This enhanced version supports **incremental consent** and **Conditional Access** via query parameters:
 
 ```csharp
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace MyService.Web;
+namespace Microsoft.Identity.Web;
 
-internal static class LoginLogoutEndpointRouteBuilderExtensions
+/// <summary>
+/// Extension methods for mapping login and logout endpoints that support
+/// incremental consent and Conditional Access scenarios.
+/// </summary>
+public static class LoginLogoutEndpointRouteBuilderExtensions
 {
-    internal static IEndpointConventionBuilder MapLoginAndLogout(this IEndpointRouteBuilder endpoints)
+    /// <summary>
+    /// Maps login and logout endpoints under the current route group.
+    /// The login endpoint supports incremental consent via scope, loginHint, domainHint, and claims parameters.
+    /// </summary>
+    public static IEndpointConventionBuilder MapLoginAndLogout(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("");
 
-        group.MapGet("/login", (string? returnUrl) => TypedResults.Challenge(GetAuthProperties(returnUrl)))
-            .AllowAnonymous();
+        // Enhanced login endpoint that supports incremental consent and Conditional Access
+        group.MapGet("/login", (
+            string? returnUrl,
+            string? scope,
+            string? loginHint,
+            string? domainHint,
+            string? claims) =>
+        {
+            var properties = GetAuthProperties(returnUrl);
 
-        group.MapPost("/logout", ([FromForm] string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl),
-            [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]));
+            // Add scopes if provided (for incremental consent)
+            if (!string.IsNullOrEmpty(scope))
+            {
+                var scopes = scope.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                properties.SetParameter(OpenIdConnectParameterNames.Scope, scopes);
+            }
+
+            // Add login hint (pre-fills username)
+            if (!string.IsNullOrEmpty(loginHint))
+            {
+                properties.SetParameter(OpenIdConnectParameterNames.LoginHint, loginHint);
+            }
+
+            // Add domain hint (skips home realm discovery)
+            if (!string.IsNullOrEmpty(domainHint))
+            {
+                properties.SetParameter(OpenIdConnectParameterNames.DomainHint, domainHint);
+            }
+
+            // Add claims challenge (for Conditional Access / step-up auth)
+            if (!string.IsNullOrEmpty(claims))
+            {
+                properties.Items["claims"] = claims;
+            }
+
+            return TypedResults.Challenge(properties, [OpenIdConnectDefaults.AuthenticationScheme]);
+        })
+        .AllowAnonymous();
+
+        group.MapPost("/logout", async (HttpContext context) =>
+        {
+            string? returnUrl = null;
+            if (context.Request.HasFormContentType)
+            {
+                var form = await context.Request.ReadFormAsync();
+                returnUrl = form["ReturnUrl"];
+            }
+
+            return TypedResults.SignOut(GetAuthProperties(returnUrl),
+                [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]);
+        })
+        .DisableAntiforgery();
 
         return group;
     }
@@ -569,7 +801,7 @@ internal static class LoginLogoutEndpointRouteBuilderExtensions
     {
         const string pathBase = "/";
         if (string.IsNullOrEmpty(returnUrl)) returnUrl = pathBase;
-        else if (returnUrl.StartsWith("//", StringComparison.Ordinal)) returnUrl = pathBase; // Prevent protocol-relative redirects
+        else if (returnUrl.StartsWith("//", StringComparison.Ordinal)) returnUrl = pathBase;
         else if (!Uri.IsWellFormedUriString(returnUrl, UriKind.Relative)) returnUrl = new Uri(returnUrl, UriKind.Absolute).PathAndQuery;
         else if (returnUrl[0] != '/') returnUrl = $"{pathBase}{returnUrl}";
         return new AuthenticationProperties { RedirectUri = returnUrl };
@@ -577,68 +809,381 @@ internal static class LoginLogoutEndpointRouteBuilderExtensions
 }
 ```
 
-**Features:**
-- `GET /authentication/login`: Initiates OIDC challenge
-- `POST /authentication/logout`: Signs out of both cookie and OIDC schemes
-- Prevents open redirects with URL validation
+**Key features:**
+- `scope`: Request additional scopes (incremental consent)
+- `loginHint`: Pre-fill username field
+- `domainHint`: Skip home realm discovery (`organizations` or `consumers`)
+- `claims`: Pass Conditional Access claims challenge
+
+</details>
+
+<details>
+<summary><strong>📄 View BlazorAuthenticationChallengeHandler.cs</strong></summary>
+
+This handler manages authentication challenges in Blazor Server components:
+
+```csharp
+using System.Security.Claims;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+
+namespace Microsoft.Identity.Web;
+
+/// <summary>
+/// Handles authentication challenges for Blazor Server components.
+/// Provides functionality for incremental consent and Conditional Access scenarios.
+/// </summary>
+public class BlazorAuthenticationChallengeHandler(
+    NavigationManager navigation,
+    AuthenticationStateProvider authenticationStateProvider,
+    IConfiguration configuration)
+{
+    private const string MsaTenantId = "9188040d-6c67-4c5b-b112-36a304b66dad";
+
+    /// <summary>
+    /// Gets the current user's authentication state.
+    /// </summary>
+    public async Task<ClaimsPrincipal> GetUserAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        return authState.User;
+    }
+
+    /// <summary>
+    /// Checks if the current user is authenticated.
+    /// </summary>
+    public async Task<bool> IsAuthenticatedAsync()
+    {
+        var user = await GetUserAsync();
+        return user.Identity?.IsAuthenticated == true;
+    }
+
+    /// <summary>
+    /// Handles exceptions that may require user re-authentication.
+    /// Returns true if a challenge was initiated, false otherwise.
+    /// </summary>
+    public async Task<bool> HandleExceptionAsync(Exception exception)
+    {
+        var challengeException = exception as MicrosoftIdentityWebChallengeUserException
+            ?? exception.InnerException as MicrosoftIdentityWebChallengeUserException;
+
+        if (challengeException != null)
+        {
+            var user = await GetUserAsync();
+            ChallengeUser(user, challengeException.Scopes, challengeException.MsalUiRequiredException?.Claims);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Initiates a challenge to authenticate the user or request additional consent.
+    /// </summary>
+    public void ChallengeUser(ClaimsPrincipal user, string[]? scopes = null, string? claims = null)
+    {
+        var currentUri = navigation.Uri;
+
+        // Build scopes string (add OIDC scopes)
+        var allScopes = (scopes ?? [])
+            .Union(["openid", "offline_access", "profile"])
+            .Distinct();
+        var scopeString = Uri.EscapeDataString(string.Join(" ", allScopes));
+
+        // Get login hint from user claims
+        var loginHint = Uri.EscapeDataString(GetLoginHint(user));
+
+        // Get domain hint
+        var domainHint = Uri.EscapeDataString(GetDomainHint(user));
+
+        // Build the challenge URL
+        var challengeUrl = $"/authentication/login?returnUrl={Uri.EscapeDataString(currentUri)}" +
+                          $"&scope={scopeString}" +
+                          $"&loginHint={loginHint}" +
+                          $"&domainHint={domainHint}";
+
+        // Add claims if present (for Conditional Access)
+        if (!string.IsNullOrEmpty(claims))
+        {
+            challengeUrl += $"&claims={Uri.EscapeDataString(claims)}";
+        }
+
+        navigation.NavigateTo(challengeUrl, forceLoad: true);
+    }
+
+    /// <summary>
+    /// Initiates a challenge with scopes from configuration.
+    /// </summary>
+    public async Task ChallengeUserWithConfiguredScopesAsync(string configurationSection)
+    {
+        var user = await GetUserAsync();
+        var scopes = configuration.GetSection(configurationSection).Get<string[]>();
+        ChallengeUser(user, scopes);
+    }
+
+    private static string GetLoginHint(ClaimsPrincipal user)
+    {
+        return user.FindFirst("preferred_username")?.Value ??
+               user.FindFirst("login_hint")?.Value ??
+               string.Empty;
+    }
+
+    private static string GetDomainHint(ClaimsPrincipal user)
+    {
+        var tenantId = user.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value ??
+                      user.FindFirst("tid")?.Value;
+
+        if (string.IsNullOrEmpty(tenantId))
+            return "organizations";
+
+        // MSA tenant
+        if (tenantId == MsaTenantId)
+            return "consumers";
+
+        return "organizations";
+    }
+}
+```
+
+**Key methods:**
+- `IsAuthenticatedAsync()`: Check if user is signed in before API calls
+- `HandleExceptionAsync(ex)`: Catches `MicrosoftIdentityWebChallengeUserException` and redirects for re-auth
+- `ChallengeUser()`: Manually trigger authentication with specific scopes/claims
+- `ChallengeUserWithConfiguredScopesAsync()`: Challenge with scopes from config section
+
+</details>
 
 ### 2.5: Add Blazor UI Components
 
-<details>
-<summary><strong>📄 Create LogInOrOut.razor component</strong></summary>
+> ⚠️ **CRITICAL: This step is frequently forgotten!** Without the UserInfo component, users have **no way to log in**.
 
-**Create `MyService.Web/Components/Layout/LogInOrOut.razor`:**
+<details>
+<summary><strong>📄 Create UserInfo.razor component (THE LOGIN BUTTON)</strong></summary>
+
+**Create `MyService.Web/Components/UserInfo.razor`:**
 
 ```razor
-@implements IDisposable
-@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
 
-<div class="nav-item px-3">
-    <AuthorizeView>
-        <Authorized>
-            <form action="authentication/logout" method="post">
-                <AntiforgeryToken />
-                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                <button type="submit" class="nav-link">
-                    <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                </button>
-            </form>
-        </Authorized>
-        <NotAuthorized>
-            <a class="nav-link" href="authentication/login">
-                <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-            </a>
-        </NotAuthorized>
-    </AuthorizeView>
-</div>
-
-@code {
-    private string? currentUrl;
-
-    protected override void OnInitialized()
-    {
-        currentUrl = Navigation.Uri;
-        Navigation.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = Navigation.Uri;
-        StateHasChanged();
-    }
-
-    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
-}
+<AuthorizeView>
+    <Authorized>
+        <span class="nav-item">Hello, @context.User.Identity?.Name</span>
+        <form action="/authentication/logout" method="post" class="nav-item">
+            <AntiforgeryToken />
+            <input type="hidden" name="returnUrl" value="/" />
+            <button type="submit" class="btn btn-link nav-link">Logout</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <a href="/authentication/login?returnUrl=/" class="nav-link">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 ```
 
 **Key Features:**
 - `<AuthorizeView>`: Renders different UI based on auth state
-- Tracks `currentUrl` for proper post-login/logout redirection
-- Implements `IDisposable` to clean up event handlers
+- Shows username when authenticated
+- Login link redirects to OIDC flow
+- Logout form posts to sign-out endpoint
 
 </details>
 
-**Add to Navigation:** Include `<LogInOrOut />` in your `NavMenu.razor` or `MainLayout.razor`.
+**Add to Layout:** Include `<UserInfo />` in your `MainLayout.razor`:
+
+```razor
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <UserInfo />  @* <-- THE LOGIN BUTTON *@
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+```
+
+### 2.6: Update Routes.razor for AuthorizeRouteView
+
+Replace `RouteView` with `AuthorizeRouteView` in `Components/Routes.razor`:
+
+```razor
+@using Microsoft.AspNetCore.Components.Authorization
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <p>You are not authorized to view this page.</p>
+                <a href="/authentication/login">Login</a>
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
+```
+
+### 2.7: Handle Exceptions on Pages Calling APIs
+
+> ⚠️ **This is NOT optional** — Blazor Server requires explicit exception handling for Conditional Access and consent.
+
+When calling APIs, Conditional Access policies or consent requirements can trigger `MicrosoftIdentityWebChallengeUserException`. You **MUST** handle this on **every page that calls a downstream API** unless your app is pre-authrorized and you have requested all the scopes ahead of time (in the Program.cs), which is possible if you call only one downstream API.
+
+**Example: Weather.razor with proper exception handling:**
+
+```razor
+@page "/weather"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Identity.Web
+
+@inject WeatherApiClient WeatherApi
+@inject BlazorAuthenticationChallengeHandler ChallengeHandler
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+else if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check authentication before making API calls
+        if (!await ChallengeHandler.IsAuthenticatedAsync())
+        {
+            // Not authenticated - redirect to login with required scopes
+            await ChallengeHandler.ChallengeUserWithConfiguredScopesAsync("WeatherApi:Scopes");
+            return;
+        }
+
+        try
+        {
+            forecasts = await WeatherApi.GetWeatherAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle incremental consent / Conditional Access
+            if (!await ChallengeHandler.HandleExceptionAsync(ex))
+            {
+                // Not a challenge exception - show error to user
+                errorMessage = $"Error loading weather data: {ex.Message}";
+            }
+            // If HandleExceptionAsync returned true, user is being redirected
+        }
+    }
+}
+```
+
+<details>
+<summary><strong>🧠 Why this pattern?</strong></summary>
+
+1. **`IsAuthenticatedAsync()`** checks if user is signed in before making API calls
+2. **`HandleExceptionAsync()`** catches `MicrosoftIdentityWebChallengeUserException` (or as InnerException)
+3. If it **is** a challenge exception → redirects user to re-authenticate with required claims/scopes
+4. If it is **NOT** a challenge exception → returns false so you can handle the error
+
+**Why isn't this automatic?** Blazor Server's circuit-based architecture requires explicit handling. The handler re-challenges the user by navigating to the login endpoint with the required claims/scopes.
+
+</details>
+
+### 2.8: Store Client Secret in User Secrets
+
+> ⚠️ **Never commit secrets to source control!**
+
+```powershell
+cd MyService.Web
+dotnet user-secrets init
+dotnet user-secrets set "AzureAd:ClientCredentials:0:ClientSecret" "<your-client-secret>"
+```
+
+Then update `appsettings.json` to reference user secrets (remove the hardcoded secret):
+
+```jsonc
+{
+  "AzureAd": {
+    "ClientCredentials": [
+      {
+        // Secret is stored in user-secrets, not here
+        // For more options see https://aka.ms/ms-id-web/credentials
+        "SourceType": "ClientSecret"
+      }
+    ]
+  }
+}
+```
+
+Alternatively, Microsoft.Identity.Web offers all kind of client credentials. See [Client credentials](../authentication/credentials/credentials-README.md)
+
+---
+
+## Implementation Checklist
+
+Use this checklist to verify all steps are complete:
+
+### API Project
+- [ ] Added `Microsoft.Identity.Web` package
+- [ ] Updated `appsettings.json` with `AzureAd` section
+- [ ] Updated `Program.cs` with `AddMicrosoftIdentityWebApi`
+- [ ] Added `.RequireAuthorization()` to protected endpoints
+
+### Web/Blazor Project
+- [ ] Added `Microsoft.Identity.Web` package
+- [ ] Updated `appsettings.json` with `AzureAd` and `WeatherApi` sections
+- [ ] Updated `Program.cs` with OIDC, token acquisition
+- [ ] Added `AddScoped<BlazorAuthenticationChallengeHandler>()`
+- [ ] Copied `LoginLogoutEndpointRouteBuilderExtensions.cs` from skill folder
+- [ ] Copied `BlazorAuthenticationChallengeHandler.cs` from skill folder
+- [ ] Created `Components/UserInfo.razor` (**THE LOGIN BUTTON**)
+- [ ] Updated `MainLayout.razor` to include `<UserInfo />`
+- [ ] Updated `Routes.razor` with `AuthorizeRouteView`
+- [ ] Added try/catch with `ChallengeHandler` on **every page calling APIs**
+- [ ] Stored client secret in user-secrets
+
+### Verification
+- [ ] `dotnet build` succeeds
+- [ ] App registrations created (via provisioning skill or Azure Portal)
+- [ ] `appsettings.json` has real GUIDs (no placeholders)
 
 ---
 
@@ -672,6 +1217,9 @@ dotnet run --project .\MyService.AppHost\MyService.AppHost.csproj
 | **Service discovery fails** | Check `AppHost.cs` references both projects and they're running |
 | **AADSTS65001** | Admin consent required - grant consent in Azure Portal |
 | **CORS errors** | Add CORS policy in API `Program.cs` if needed |
+| **No login button** | Ensure `UserInfo.razor` exists and is included in `MainLayout.razor` |
+| **404 on `/MicrosoftIdentity/Account/Challenge`** | Use `BlazorAuthenticationChallengeHandler` instead of old `MicrosoftIdentityConsentHandler` |
+| **Consent loop** | Ensure try/catch with `HandleExceptionAsync` is on all API-calling pages |
 
 ### 3.4: Enable MSAL Logging
 
@@ -868,20 +1416,28 @@ For production deployments in Azure, use managed identity instead of client secr
 3. Acquire a new token with the additional claims
 4. Retry the request with the new token
 
-For scenarios where you need to handle consent in the UI:
+For Blazor Server, use the `BlazorAuthenticationChallengeHandler` to handle consent and Conditional Access in the UI:
 
-```csharp
-// In Weather.razor or API client
-try
-{
-    forecasts = await WeatherApi.GetAsync();
-}
-catch (MicrosoftIdentityWebChallengeUserException ex)
-{
-    // Re-challenge user with additional claims
-    ConsentHandler.HandleException(ex);
+```razor
+@inject BlazorAuthenticationChallengeHandler ChallengeHandler
+
+@code {
+    try
+    {
+        forecasts = await WeatherApi.GetWeatherAsync();
+    }
+    catch (Exception ex)
+    {
+        // Handles MicrosoftIdentityWebChallengeUserException and redirects for re-auth
+        if (!await ChallengeHandler.HandleExceptionAsync(ex))
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
 }
 ```
+
+> 📚 See [Section 2.7](#27-handle-exceptions-on-pages-calling-apis) for the complete pattern.
 
 ### 4.7: Multi-Tenant API
 
@@ -983,15 +1539,22 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 ---
 
-## 🤖 AI Coding Assistant Skill
+## 🤖 AI Coding Assistant Skills
 
-A condensed version of this guide is available as an **AI Skill** for GitHub Copilot, Claude, and other AI coding assistants. The skill helps AI assistants implement this authentication pattern in your Aspire projects.
+This guide has companion **AI Skills** for GitHub Copilot, Claude, and other AI coding assistants. The skills help automate both phases of the implementation:
 
-📁 **Location:** [.github/skills/entra-id-aspire-authentication/SKILL.md](../../.github/skills/entra-id-aspire-authentication/SKILL.md)
+| Skill | Purpose | Location |
+|-------|---------|----------|
+| **entra-id-aspire-authentication** | Phase 1: Add authentication code | [SKILL.md](../../.github/skills/entra-id-aspire-authentication/SKILL.md) |
+| **entra-id-aspire-provisioning** | Phase 2: Create app registrations | [SKILL.md](../../.github/skills/entra-id-aspire-provisioning/SKILL.md) |
+
+The authentication skill folder also contains **ready-to-copy helper files**:
+- `BlazorAuthenticationChallengeHandler.cs` - Handles incremental consent and Conditional Access
+- `LoginLogoutEndpointRouteBuilderExtensions.cs` - Enhanced login/logout endpoints
 
 See the [Skills README](../../.github/skills/README.md) for installation instructions.
 
 ---
 
-**Last Updated:** January 2025
-**Solution:** MyService (.NET 10, Aspire, Microsoft.Identity.Web)
+**Last Updated:** February 2026
+**Solution:** MyService (.NET Aspire, Microsoft.Identity.Web)
