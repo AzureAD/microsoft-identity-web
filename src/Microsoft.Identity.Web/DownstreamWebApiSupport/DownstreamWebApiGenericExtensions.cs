@@ -38,9 +38,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
         public static async Task<TOutput?> GetForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -82,9 +81,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.GetForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
         public static async Task GetForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -129,9 +127,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.PostForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
         public static async Task<TOutput?> PostForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -178,9 +175,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertFromInput<TInput>(TInput).")]
         public static async Task PutForUserAsync<TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -226,9 +222,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.PutForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
         public static async Task<TOutput?> PutForUserAsync<TOutput, TInput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -274,9 +269,8 @@ namespace Microsoft.Identity.Web
         [Obsolete("Use IDownstreamApi.CallWebApiForUserAsync in Microsoft.Identity.Abstractions, implemented in Microsoft.Identity.Web.DownstreamApi." +
         "See aka.ms/id-web-downstream-api-v2 for migration details.", false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.DownstreamWebApiGenericExtensions.ConvertToOutput<TOutput>(TInput).")]
         public static async Task<TOutput?> CallWebApiForUserAsync<TOutput>(
             this IDownstreamWebApi downstreamWebApi,
             string serviceName,
@@ -296,17 +290,15 @@ namespace Microsoft.Identity.Web
             return await ConvertToOutputAsync<TOutput>(response).ConfigureAwait(false);
         }
 
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
-#endif
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions).")]
         private static StringContent ConvertFromInput<TInput>(TInput input)
         {
             return new StringContent(JsonSerializer.Serialize(input), Encoding.UTF8, "application/json");
         }
 
-#if NET6_0_OR_GREATER
         [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
-#endif
+        [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions).")]
         private static async Task<TOutput?> ConvertToOutputAsync<TOutput>(HttpResponseMessage response)
             where TOutput : class
         {
