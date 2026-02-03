@@ -19,9 +19,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public class MicrosoftIdentityAppCallsWebApiAuthenticationBuilder : MicrosoftIdentityBaseAuthenticationBuilder
     {
-#if NET6_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection)")]
-#endif
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
         internal MicrosoftIdentityAppCallsWebApiAuthenticationBuilder(
             IServiceCollection services,
             IConfigurationSection? configurationSection = null)
