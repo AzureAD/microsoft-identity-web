@@ -1156,10 +1156,13 @@ namespace Microsoft.Identity.Web
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+                TokenAcquisitionExtensionOptions? addInOptions = null;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
+                    addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
@@ -1216,6 +1219,11 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        if (addInOptions != null)
+                        {
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
+                        }
+
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
 
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
