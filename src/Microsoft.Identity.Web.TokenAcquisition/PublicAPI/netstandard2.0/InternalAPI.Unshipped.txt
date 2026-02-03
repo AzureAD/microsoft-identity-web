@@ -3,4 +3,5 @@ const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature =
 const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
+static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingCertThumbprint(Microsoft.Extensions.Logging.ILogger! logger, string? certThumbprint) -> void
 static readonly Microsoft.Identity.Web.Constants.s_certificateRelatedErrorCodes -> System.Collections.Generic.HashSet<string!>!
