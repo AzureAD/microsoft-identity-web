@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Web
 
         private static bool HasImplementationType(IServiceCollection services, Type implementationType)
         {
-            return System.Linq.Enumerable.Any(services, s =>
+            return services.Any(s =>
 #if NET8_0_OR_GREATER
                 s.ServiceKey is null &&
 #endif

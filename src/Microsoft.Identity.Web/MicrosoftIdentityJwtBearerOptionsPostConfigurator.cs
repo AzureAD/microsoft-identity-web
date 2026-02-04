@@ -159,10 +159,14 @@ namespace Microsoft.Identity.Web
                 }
 
                 // Store the token for OBO scenarios
-                context.HttpContext.StoreTokenUsedToCallWebAPI(
-                    context.SecurityToken is System.IdentityModel.Tokens.Jwt.JwtSecurityToken or Microsoft.IdentityModel.JsonWebTokens.JsonWebToken
-                        ? context.SecurityToken
-                        : null);
+                if (context.SecurityToken is System.IdentityModel.Tokens.Jwt.JwtSecurityToken or Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)
+                {
+                    context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken);
+                }
+                else
+                {
+                    context.HttpContext.StoreTokenUsedToCallWebAPI(null);
+                }
 
                 // Call the existing handler if any
                 if (existingTokenValidatedHandler != null)
