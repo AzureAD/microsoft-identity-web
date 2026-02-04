@@ -1,9 +1,6 @@
 #nullable enable
 const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature = "AADSTS7000274" -> string!
 const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
-Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger
-Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsStore) -> void
-Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 static readonly Microsoft.Identity.Web.Constants.s_certificateRelatedErrorCodes -> System.Collections.Generic.HashSet<string!>!
