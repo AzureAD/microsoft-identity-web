@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.IdentityModel.Tokens;
@@ -72,7 +73,8 @@ namespace Microsoft.Identity.Web.Internal
         {
             if (string.IsNullOrEmpty(options.ClientId))
             {
-                throw new ArgumentNullException(nameof(options.ClientId), 
+                throw new ArgumentNullException(
+                    options.ClientId, 
                     string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
             }
 
@@ -80,7 +82,8 @@ namespace Microsoft.Identity.Web.Internal
             {
                 if (string.IsNullOrEmpty(options.Instance))
                 {
-                    throw new ArgumentNullException(nameof(options.Instance), 
+                    throw new ArgumentNullException(
+                        options.Instance, 
                         string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
                 }
 
@@ -91,7 +94,8 @@ namespace Microsoft.Identity.Web.Internal
                 {
                     if (string.IsNullOrEmpty(options.Domain))
                     {
-                        throw new ArgumentNullException(nameof(options.Domain), 
+                        throw new ArgumentNullException(
+                            options.Domain, 
                             string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
                     }
                 }
@@ -99,7 +103,8 @@ namespace Microsoft.Identity.Web.Internal
                 {
                     if (string.IsNullOrEmpty(options.TenantId))
                     {
-                        throw new ArgumentNullException(nameof(options.TenantId), 
+                        throw new ArgumentNullException(
+                            options.TenantId, 
                             string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
                     }
                 }
@@ -110,6 +115,7 @@ namespace Microsoft.Identity.Web.Internal
         /// <summary>
         /// Configures audience validation on the token validation parameters.
         /// Sets up custom validator for handling v1.0/v2.0 and B2C tokens correctly.
+        /// This is AOT-compatible as it directly sets up the validator without using reflection or MicrosoftIdentityOptions.
         /// </summary>
         /// <param name="validationParameters">The token validation parameters to configure.</param>
         /// <param name="options">The application options containing client ID and B2C flag.</param>
@@ -117,8 +123,40 @@ namespace Microsoft.Identity.Web.Internal
             TokenValidationParameters validationParameters, 
             MicrosoftIdentityApplicationOptions options)
         {
-            var registerAudience = new Resource.RegisterValidAudience();
-            registerAudience.RegisterAudienceValidation(validationParameters, ConvertToMicrosoftIdentityOptions(options));
+            string? clientId = options.ClientId;
+            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+
+            // Set up the audience validator directly without converting to MicrosoftIdentityOptions
+            validationParameters.AudienceValidator = (audiences, securityToken, validationParams) =>
+            {
+                var claims = securityToken switch
+                {
+                    System.IdentityModel.Tokens.Jwt.JwtSecurityToken jwtSecurityToken => jwtSecurityToken.Claims,
+                    Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jwtWebToken => jwtWebToken.Claims,
+                    _ => throw new SecurityTokenValidationException(IDWebErrorMessage.TokenIsNotJwtToken),
+                };
+
+                validationParams.AudienceValidator = null;
+
+                // Case of a default App ID URI (the developer did not provide explicit valid audience(s))
+                if (string.IsNullOrEmpty(validationParams.ValidAudience) &&
+                    validationParams.ValidAudiences == null)
+                {
+                    // handle v2.0 access token or Azure AD B2C tokens (even if v1.0)
+                    if (isB2C || claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V2))
+                    {
+                        validationParams.ValidAudience = $"{clientId}";
+                    }
+                    // handle v1.0 access token
+                    else if (claims.Any(c => c.Type == Constants.Version && c.Value == Constants.V1))
+                    {
+                        validationParams.ValidAudience = $"api://{clientId}";
+                    }
+                }
+
+                Validators.ValidateAudience(audiences, securityToken, validationParams);
+                return true;
+            };
         }
 
         /// <summary>
@@ -140,31 +178,6 @@ namespace Microsoft.Identity.Web.Internal
                     await existingHandler(context).ConfigureAwait(false);
                 }
             };
-        }
-
-        /// <summary>
-        /// Converts MicrosoftIdentityApplicationOptions to MicrosoftIdentityOptions for internal use.
-        /// This is needed for compatibility with existing helper classes.
-        /// </summary>
-        private static MicrosoftIdentityOptions ConvertToMicrosoftIdentityOptions(MicrosoftIdentityApplicationOptions appOptions)
-        {
-            var options = new MicrosoftIdentityOptions();
-            options.ClientId = appOptions.ClientId!;
-            options.Instance = appOptions.Instance!;
-            options.TenantId = appOptions.TenantId;
-            options.Domain = appOptions.Domain;
-            options.Authority = appOptions.Authority;
-            // Use reflection to set the read-only property
-            var userFlow = appOptions.SignUpSignInPolicyId;
-            if (!string.IsNullOrEmpty(userFlow))
-            {
-                var property = typeof(MicrosoftIdentityOptions).GetProperty(nameof(MicrosoftIdentityOptions.DefaultUserFlow));
-                if (property != null && property.CanWrite)
-                {
-                    property.SetValue(options, userFlow);
-                }
-            }
-            return options;
         }
 #endif
     }
