@@ -3,6 +3,9 @@ const Microsoft.Identity.Web.Constants.ApplicationNotFound = "AADSTS700016" -> s
 const Microsoft.Identity.Web.Constants.CertificateWasRevoked = "AADSTS7000277" -> string!
 const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature = "AADSTS7000274" -> string!
 const Microsoft.Identity.Web.Constants.InvalidClientSecret = "AADSTS7000215" -> string!
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsStore) -> void
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingCertThumbprint(Microsoft.Extensions.Logging.ILogger! logger, string? certThumbprint) -> void
