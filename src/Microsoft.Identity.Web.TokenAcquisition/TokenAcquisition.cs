@@ -657,7 +657,7 @@ namespace Microsoft.Identity.Web
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)
                 {
-                    builder.WithExtraClientAssertionClaims(JsonSerializer.Serialize(clientClaims));
+                    builder.WithExtraClientAssertionClaims(clientClaims);
                 }
 
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
@@ -921,6 +921,10 @@ namespace Microsoft.Identity.Web
                 );
         }
 
+#if NET8_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
+        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
+#endif
         private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             IDictionary<string, string>? clientClaims = null;
