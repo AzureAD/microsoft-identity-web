@@ -3,8 +3,6 @@
 
 using System;
 using System.Globalization;
-using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Internal;
 
 namespace Microsoft.Identity.Web
 {
@@ -12,22 +10,33 @@ namespace Microsoft.Identity.Web
     {
         public static void Validate(MergedOptions options)
         {
-            // Delegate to shared validation helper
-            var appOptions = ConvertToApplicationOptions(options);
-            IdentityOptionsHelpers.ValidateRequiredOptions(appOptions);
-        }
-
-        private static MicrosoftIdentityApplicationOptions ConvertToApplicationOptions(MergedOptions options)
-        {
-            return new MicrosoftIdentityApplicationOptions
+            if (string.IsNullOrEmpty(options.ClientId))
             {
-                ClientId = options.ClientId,
-                Authority = options.Authority,
-                Instance = options.Instance,
-                TenantId = options.TenantId,
-                Domain = options.Domain,
-                SignUpSignInPolicyId = options.IsB2C ? (options.SignUpSignInPolicyId ?? options.DefaultUserFlow) : null,
-            };
+                throw new ArgumentNullException(options.ClientId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
+            }
+
+            if (string.IsNullOrEmpty(options.Authority))
+            {
+                if (string.IsNullOrEmpty(options.Instance))
+                {
+                    throw new ArgumentNullException(options.Instance, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
+                }
+
+                if (options.IsB2C)
+                {
+                    if (string.IsNullOrEmpty(options.Domain))
+                    {
+                        throw new ArgumentNullException(options.Domain, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(options.TenantId))
+                    {
+                        throw new ArgumentNullException(options.TenantId, string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
+                    }
+                }
+            }
         }
     }
 }
