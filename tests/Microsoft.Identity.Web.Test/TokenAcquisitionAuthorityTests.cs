@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             string expectedAuthority = string.Format(
                 CultureInfo.InvariantCulture,
@@ -168,7 +168,7 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             if (!string.IsNullOrEmpty(redirectUri))
             {
@@ -206,11 +206,11 @@ namespace Microsoft.Identity.Web.Test
 
             mergedOptions.AzureRegion = "UKEast";
 
-            IConfidentialClientApplication appEast = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication appEast = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             mergedOptions.AzureRegion = "UKWest";
 
-            IConfidentialClientApplication appWest = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            IConfidentialClientApplication appWest = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             Assert.NotSame(appEast, appWest);
         }
@@ -385,9 +385,9 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(3, mergedDict!.Count);
-            Assert.Equal("newvalue1", mergedDict["key1"]);
-            Assert.Equal("value2", mergedDict["key2"]);
-            Assert.Equal("value3", mergedDict["key3"]);
+            Assert.Equal("newvalue1", mergedDict["key1"].value);
+            Assert.Equal("value2", mergedDict["key2"].value);
+            Assert.Equal("value3", mergedDict["key3"].value);
         }
 
         [Fact]
@@ -411,8 +411,8 @@ namespace Microsoft.Identity.Web.Test
             var mergedDict = TokenAcquisition.MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
 
             // Assert
-            Assert.Equal("value1", mergedDict!["key1"]);
-            Assert.Equal("value2", mergedDict["key2"]);
+            Assert.Equal("value1", mergedDict!["key1"].value);
+            Assert.Equal("value2", mergedDict["key2"].value);
         }
 
         [Fact]
@@ -478,9 +478,9 @@ namespace Microsoft.Identity.Web.Test
             InitializeTokenAcquisitionObjects();
 
             // Act
-            var app1 = 
+            var app1 =
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
-            var app2 = 
+            var app2 =
                 await _tokenAcquisition.GetOrBuildManagedIdentityApplicationAsync(mergedOptions, managedIdentityOptions);
 
             // Assert

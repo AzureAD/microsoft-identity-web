@@ -53,6 +53,8 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
+        private const string TokenBindingParameterName = "IsTokenBinding";
+
         private bool _retryClientCertificate;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -105,7 +107,7 @@ namespace Microsoft.Identity.Web
             ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
@@ -130,7 +132,7 @@ namespace Microsoft.Identity.Web
             IConfidentialClientApplication? application = null;
             try
             {
-                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -156,7 +158,7 @@ namespace Microsoft.Identity.Web
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
 #pragma warning disable CS0618 // Type or member is obsolete
-                    builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+                    builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
 
@@ -263,7 +265,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -429,6 +431,8 @@ namespace Microsoft.Identity.Web
                 await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
             }
 
+            builder.WithSendX5C(mergedOptions.SendX5C);
+
             // Pass the token acquisition options to the builder
             if (tokenAcquisitionOptions != null)
             {
@@ -552,6 +556,10 @@ namespace Microsoft.Identity.Web
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
+            bool isTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(TokenBindingParameterName, out var isTokenBindingObject) == true
+                && isTokenBindingObject is bool isTokenBindingValue
+                && isTokenBindingValue;
+
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
@@ -585,8 +593,9 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            // For non-managed identity flows, resolve the tenant
-            tenant = ResolveTenant(tenant, mergedOptions);
+            // For non-managed identity flows we only resolve tenant if the caller explicitly provided an override.
+            // This preserves the ability to use an authority-only configuration with meta-tenants like 'common'.
+            string? resolvedOverrideTenant = tenant != null ? ResolveTenant(tenant, mergedOptions) : null;
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -597,26 +606,31 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            if (isTokenBinding)
+            {
+                builder.WithMtlsProofOfPossession();
+            }
 
             if (addInOptions != null)
             {
                 addInOptions.InvokeOnBeforeTokenAcquisitionForApp(builder, tokenAcquisitionOptions);
             }
 
-            // MSAL.net only allows .WithTenantId for AAD authorities. This makes sense as there should
-            // not be cross tenant operations with such an authority.
-            if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
+            // Apply tenant override only for AAD authorities and only if non-empty
+            if (!string.IsNullOrEmpty(mergedOptions.Instance) && 
+                !mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
-                ))
+                ) && !string.IsNullOrEmpty(resolvedOverrideTenant))
             {
-                builder.WithTenantId(tenant);
+                builder.WithTenantId(resolvedOverrideTenant);
             }
 
             if (tokenAcquisitionOptions != null)
@@ -890,7 +904,7 @@ namespace Microsoft.Identity.Web
             {
                 MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -912,13 +926,33 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
-            return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
+            if (_retryClientCertificate ||
+                !string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string responseBody = exMsal.ResponseBody;
+
 #if NET6_0_OR_GREATER
-                , StringComparison.OrdinalIgnoreCase
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+#else
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
 #endif
-                );
         }
 
         private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
@@ -934,9 +968,8 @@ namespace Microsoft.Identity.Web
 
 #pragma warning disable RS0051 // Add internal types and members to the declared API
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-#pragma warning restore RS0051 // Add internal types and members to the declared API
             MergedOptions mergedOptions,
-            TokenAcquisitionOptions? tokenAcquisitionOptions = null) // just for PoC will drive this through MergedOptions later
+            bool isTokenBinding)
         {
             string key = GetApplicationKey(mergedOptions);
 
@@ -956,7 +989,7 @@ namespace Microsoft.Identity.Web
                     return app;
 
                 // Build and store the application
-                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions);
@@ -972,9 +1005,21 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(
+            MergedOptions mergedOptions,
+            bool isTokenBinding)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
+
+            // Validate that we have enough configuration to build an authority
+            // When PreserveAuthority is true, we use Authority directly, so PreparedInstance is not required
+            // When IsB2C is true, we still need PreparedInstance
+            if (!mergedOptions.PreserveAuthority && 
+                string.IsNullOrEmpty(mergedOptions.PreparedInstance) && 
+                string.IsNullOrEmpty(mergedOptions.Authority))
+            {
+                throw new ArgumentException(IDWebErrorMessage.MissingIdentityConfiguration);
+            }
 
             try
             {
@@ -1014,7 +1059,41 @@ namespace Microsoft.Identity.Web
                 }
                 else if (mergedOptions.IsB2C)
                 {
-                    authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{mergedOptions.Domain}/{mergedOptions.DefaultUserFlow}";
+                    // B2C authority construction requires the tenant segment. If Domain was not configured
+                    // (scenario: authority-only configuration providing Instance + SignUpSignInPolicyId), derive it.
+                    string? domain = mergedOptions.Domain;
+                    if (string.IsNullOrEmpty(domain))
+                    {
+                        // Try tenantId first if provided
+                        if (!string.IsNullOrEmpty(mergedOptions.TenantId))
+                        {
+                            domain = mergedOptions.TenantId;
+                        }
+                        else if (!string.IsNullOrEmpty(mergedOptions.Instance))
+                        {
+                            try
+                            {
+                                // Extract first label from host (e.g. fabrikamb2c from fabrikamb2c.b2clogin.com)
+                                var host = new Uri(mergedOptions.Instance).Host;
+                                var firstLabel = host.Split('.').FirstOrDefault();
+                                if (!string.IsNullOrEmpty(firstLabel))
+                                {
+                                    domain = firstLabel + ".onmicrosoft.com";
+                                }
+                            }
+                            catch
+                            {
+                                // Ignore derivation failures; will throw below if still null.
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(domain))
+                    {
+                        throw new ArgumentException("B2C Domain could not be determined. Provide Domain or TenantId when using B2C authority-only configuration.");
+                    }
+
+                    authority = $"{mergedOptions.PreparedInstance}{ClaimConstants.Tfp}/{domain}/{mergedOptions.DefaultUserFlow}";
                     builder.WithB2CAuthority(authority);
                 }
                 else
@@ -1029,7 +1108,8 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
@@ -1112,10 +1192,13 @@ namespace Microsoft.Identity.Web
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+                TokenAcquisitionExtensionOptions? addInOptions = null;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
+                    addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
@@ -1172,6 +1255,11 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        if (addInOptions != null)
+                        {
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
+                        }
+
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
 
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
@@ -1183,8 +1271,8 @@ namespace Microsoft.Identity.Web
                             // Special case when the OBO inbound token is composite (for instance PFT)
                             if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
                             {
-                                string assertion = dict[assertionConstant];
-                                string subAssertion = dict[subAssertionConstant];
+                                string assertion = dict[assertionConstant].value;
+                                string subAssertion = dict[subAssertionConstant].value;
 
                                 // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
                                 CheckAssertionsForInjectionAttempt(assertion, subAssertion);
@@ -1414,25 +1502,40 @@ namespace Microsoft.Identity.Web
             return builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
         }
 
-        internal static Dictionary<string, string>? MergeExtraQueryParameters(
+        internal static Dictionary<string, (string value, bool includeInCacheKey)>? MergeExtraQueryParameters(
             MergedOptions mergedOptions,
-            TokenAcquisitionOptions tokenAcquisitionOptions)
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
-            if (tokenAcquisitionOptions.ExtraQueryParameters != null)
+            // Return null if both sources are empty
+            if (tokenAcquisitionOptions?.ExtraQueryParameters == null && mergedOptions.ExtraQueryParameters == null)
             {
-                var mergedDict = new Dictionary<string, string>(tokenAcquisitionOptions.ExtraQueryParameters);
-                if (mergedOptions.ExtraQueryParameters != null)
-                {
-                    foreach (var pair in mergedOptions!.ExtraQueryParameters)
-                    {
-                        if (!mergedDict!.ContainsKey(pair.Key))
-                            mergedDict.Add(pair.Key, pair.Value);
-                    }
-                }
-                return mergedDict;
+                return null;
             }
 
-            return (Dictionary<string, string>?)mergedOptions.ExtraQueryParameters;
+            var mergedDict = new Dictionary<string, (string value, bool includeInCacheKey)>(StringComparer.OrdinalIgnoreCase);
+
+            // Add from tokenAcquisitionOptions first (these take precedence)
+            if (tokenAcquisitionOptions?.ExtraQueryParameters != null)
+            {
+                foreach (var pair in tokenAcquisitionOptions.ExtraQueryParameters)
+                {
+                    mergedDict[pair.Key] = (pair.Value, true);
+                }
+            }
+
+            // Add from mergedOptions without overriding existing keys
+            if (mergedOptions.ExtraQueryParameters != null)
+            {
+                foreach (var pair in mergedOptions.ExtraQueryParameters)
+                {
+                    if (!mergedDict.ContainsKey(pair.Key))
+                    {
+                        mergedDict.Add(pair.Key, (pair.Value, true));
+                    }
+                }
+            }
+
+            return mergedDict;
         }
 
         protected static bool AcceptedTokenVersionMismatch(MsalUiRequiredException msalServiceException)

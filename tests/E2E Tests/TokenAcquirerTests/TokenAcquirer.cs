@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using TaskStatus = System.Threading.Tasks.TaskStatus;
@@ -25,7 +29,7 @@ namespace TokenAcquirerTests
 {
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
 #if !FROM_GITHUB_ACTION
-    public class TokenAcquirer
+    public partial class TokenAcquirer
     {
         private static readonly string s_optionName = string.Empty;
         private static readonly CredentialDescription[] s_clientCredentials = new[]
@@ -243,6 +247,24 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
+        [IgnoreOnAzureDevopsFact]
+        //[Fact]
+        public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_Authority_ClientCredentialsAsync()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0";
+                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
+        }
+
         [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
@@ -404,6 +426,54 @@ namespace TokenAcquirerTests
                        PopClaim = CreatePopClaim(rsaSecurityKey, SecurityAlgorithms.RsaSha256)
                    });
             Assert.NotNull(result.AccessToken);
+        }
+
+        [IgnoreOnAzureDevopsFact]
+        // [Fact]
+        public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            IServiceCollection services = tokenAcquirerFactory.Services;
+
+            services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
+            {
+                option.Instance = "https://login.microsoftonline.com/";
+                option.TenantId = "bea21ebe-8b64-4d06-9f6d-6a889b120a7c";
+                option.ClientId = "163ffef9-a313-45b4-ab2f-c7e2f5e0e23e";
+                option.AzureRegion = "westus3";
+                option.ClientCredentials = s_clientCredentials;
+            });
+
+            services.AddInMemoryTokenCaches();
+
+            var serviceProvider = tokenAcquirerFactory.Build();
+            ITokenAcquirer tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(s_optionName);
+
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new Dictionary<string, object>
+                {
+                    { "IsTokenBinding", true } // mTLS PoP
+                }
+            };
+
+            // Act
+            var result = await tokenAcquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", tokenAcquisitionOptions);
+
+            // Assert
+            Assert.NotNull(result.AccessToken);
+            Assert.StartsWith("eyJ0e", result.AccessToken, StringComparison.OrdinalIgnoreCase);
+
+            var jsonWebToken = new JsonWebToken(result.AccessToken);
+            Assert.True(jsonWebToken.TryGetPayloadValue("cnf", out object? cnfClaim), "The mTLS PoP token should contain a 'cnf' claim");
+            
+            var cnfJson = JsonSerializer.Deserialize<JsonElement>(cnfClaim!.ToString()!);
+            Assert.True(cnfJson.TryGetProperty("x5t#S256", out var x5tS256), "The mTLS PoP 'cnf' claim should contain an 'x5t#S256' property");
+            
+            var x5tS256Value = x5tS256.GetString();
+            Assert.False(string.IsNullOrEmpty(x5tS256Value));
         }
 
         private static string CreatePopClaim(RsaSecurityKey key, string algorithm)
