@@ -1,1 +1,6 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityJwtBearerOptionsPostConfigurator
+Microsoft.Identity.Web.MicrosoftIdentityJwtBearerOptionsPostConfigurator.MicrosoftIdentityJwtBearerOptionsPostConfigurator(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsStore, System.IServiceProvider! serviceProvider) -> void
+Microsoft.Identity.Web.MicrosoftIdentityJwtBearerOptionsPostConfigurator.PostConfigure(string? name, Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation
+static Microsoft.Identity.Web.MicrosoftIdentityOptionsValidation.Validate(Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> void
