@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -154,7 +155,9 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
@@ -432,7 +435,9 @@ namespace Microsoft.Identity.Web
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -564,11 +569,12 @@ namespace Microsoft.Identity.Web
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
-                    var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
-                    if (clientClaims != null)
-                    {
-                        miBuilder.WithExtraClientAssertionClaims(clientClaims);
-                    }
+                    //TODO: Should client assertion claims be supported for managed identity?
+                    //var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                    //if (clientClaims != null)
+                    //{
+                    //    miBuilder.WithExtraClientAssertionClaims(clientClaims);
+                    //}
 
                     return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
@@ -628,7 +634,9 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -649,7 +657,7 @@ namespace Microsoft.Identity.Web
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)
                 {
-                    builder.WithExtraClientAssertionClaims(clientClaims);
+                    builder.WithExtraClientAssertionClaims(JsonSerializer.Serialize(clientClaims));
                 }
 
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
@@ -913,7 +921,7 @@ namespace Microsoft.Identity.Web
                 );
         }
 
-        private static IDictionary<string, string>? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
+        private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             IDictionary<string, string>? clientClaims = null;
             if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
@@ -921,7 +929,7 @@ namespace Microsoft.Identity.Web
             {
                 clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as IDictionary<string, string>;
             }
-            return clientClaims;
+            return JsonSerializer.Serialize(clientClaims);
         }
 
 #pragma warning disable RS0051 // Add internal types and members to the declared API
@@ -930,7 +938,6 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null) // just for PoC will drive this through MergedOptions later
         {
-            var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
             string key = GetApplicationKey(mergedOptions);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
@@ -1196,7 +1203,9 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(subAssertionConstant);
                             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
                             builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -1358,7 +1367,9 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
