@@ -86,6 +86,11 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
             builder.Services.AddRequiredScopeAuthorization();
+            
+            // Note: AddRequiredScopeOrAppPermissionAuthorization is not fully AOT-compatible
+            // It has RequiresUnreferencedCode/RequiresDynamicCode attributes due to ConfigurationBinder usage
+            // For full AOT scenarios, customers should use RequiredScopeAuthorization instead
+            
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             // Register the post-configurator for AOT path
