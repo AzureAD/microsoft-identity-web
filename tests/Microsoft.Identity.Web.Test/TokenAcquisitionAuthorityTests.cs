@@ -579,7 +579,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 ExtraParameters = new Dictionary<string, object>
                 {
-                    { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) }
+                    { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(customClaims) }
                 }
             };
 
@@ -663,7 +663,7 @@ namespace Microsoft.Identity.Web.Test
             };
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -724,12 +724,12 @@ namespace Microsoft.Identity.Web.Test
             var customClaims = new Dictionary<string, string> { { "claimX", "claimXValue" } };
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var forceOptions = new TokenAcquisitionOptions
             {
                 ForceRefresh = true,
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -793,7 +793,7 @@ namespace Microsoft.Identity.Web.Test
             var initialClaims = new Dictionary<string, string> { { "c1", "v1" } };
             var initialOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(initialClaims) } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(initialClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -822,7 +822,7 @@ namespace Microsoft.Identity.Web.Test
             var newOptions = new TokenAcquisitionOptions
             {
                 ForceRefresh = true,
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(newClaims) } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(newClaims) } }
             };
             // Call GetOrBuild again with new claims
             var app2 = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);

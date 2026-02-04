@@ -157,9 +157,7 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
@@ -959,9 +957,9 @@ namespace Microsoft.Identity.Web
         {
             string? clientClaims = null;
             if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
-                tokenAcquisitionOptions.ExtraParameters.ContainsKey("IDWEB_CLIENT_CLAIMS"))
+                tokenAcquisitionOptions.ExtraParameters.ContainsKey("IDWEB_CLIENT_ASSERTION_CLAIMS"))
             {
-                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as string;
+                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_ASSERTION_CLAIMS"] as string;
             }
             return clientClaims;
         }
