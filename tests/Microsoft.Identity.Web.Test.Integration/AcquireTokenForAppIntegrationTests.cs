@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         {
             _output = output;
 
-            KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider(TestConstants.MSIDLabLabKeyVaultName);
+            KeyVaultSecretsProvider keyVaultSecretsProvider = new KeyVaultSecretsProvider(TestConstants.ID4sKeyVaultUri);
             _ccaSecret = keyVaultSecretsProvider.GetSecretByName(TestConstants.AzureADIdentityDivisionTestAgentSecret).Value;
 
             // Need the secret before building the services
