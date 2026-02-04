@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -578,7 +579,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 ExtraParameters = new Dictionary<string, object>
                 {
-                    { "IDWEB_CLIENT_CLAIMS", customClaims }
+                    { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) }
                 }
             };
 
@@ -605,7 +606,7 @@ namespace Microsoft.Identity.Web.Test
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
 
             // Act first token acquisition (network call expected)
-            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scope: "https://graph.microsoft.com/.default",
                 authenticationScheme: OpenIdConnectDefaults.AuthenticationScheme,
@@ -662,7 +663,7 @@ namespace Microsoft.Identity.Web.Test
             };
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", customClaims } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -681,7 +682,7 @@ namespace Microsoft.Identity.Web.Test
             var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);
             var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, tokenAcquisitionOptions);
             Assert.NotNull(first.AccessToken);
             Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
@@ -723,12 +724,12 @@ namespace Microsoft.Identity.Web.Test
             var customClaims = new Dictionary<string, string> { { "claimX", "claimXValue" } };
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", customClaims } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var forceOptions = new TokenAcquisitionOptions
             {
                 ForceRefresh = true,
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", customClaims } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(customClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -747,7 +748,7 @@ namespace Microsoft.Identity.Web.Test
             var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, tokenAcquisitionOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);
             var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, tokenAcquisitionOptions);
             Assert.NotNull(first.AccessToken);
             Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
@@ -792,7 +793,7 @@ namespace Microsoft.Identity.Web.Test
             var initialClaims = new Dictionary<string, string> { { "c1", "v1" } };
             var initialOptions = new TokenAcquisitionOptions
             {
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", initialClaims } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(initialClaims) } }
             };
             var capturingHandler = new CapturingHandler(instance.TrimEnd('/') + "/" + tenantId);
             var httpClientFactory = new CapturingMsalHttpClientFactory(new HttpClient(capturingHandler));
@@ -811,7 +812,7 @@ namespace Microsoft.Identity.Web.Test
             var mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
-            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, initialOptions);
+            await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);
             var first = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, initialOptions);
             Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));
             var firstPayload = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
@@ -821,12 +822,12 @@ namespace Microsoft.Identity.Web.Test
             var newOptions = new TokenAcquisitionOptions
             {
                 ForceRefresh = true,
-                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", newClaims } }
+                ExtraParameters = new Dictionary<string, object> { { "IDWEB_CLIENT_CLAIMS", JsonSerializer.Serialize(newClaims) } }
             };
             // Call GetOrBuild again with new claims
-            var app2 = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, newOptions);
+            var app2 = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false);
             // Same instance expected
-            Assert.Same(app2, await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, null));
+            Assert.Same(app2, await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, false));
             capturingHandler.ResetCapture();
             var second = await _tokenAcquisition.GetAuthenticationResultForAppAsync("https://graph.microsoft.com/.default", OpenIdConnectDefaults.AuthenticationScheme, tenantId, newOptions);
             Assert.False(string.IsNullOrEmpty(capturingHandler.CapturedClientAssertion));

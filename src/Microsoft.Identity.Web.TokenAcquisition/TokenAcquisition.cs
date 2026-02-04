@@ -352,10 +352,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-#if NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
-        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
-#endif
         // This method mutate the user claims to include claims uid and utid to perform the silent flow for subsequent calls.
         private async Task<AuthenticationResult?> TryGetAuthenticationResultForConfidentialClientUsingRopcAsync(
             IConfidentialClientApplication application,
@@ -545,10 +541,6 @@ namespace Microsoft.Identity.Web
         /// for multi tenant apps or daemons.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
         /// <returns>An authentication result for the app itself, based on its scopes.</returns>
-#if NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
-        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
-#endif
         public async Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? authenticationScheme = null,
@@ -963,19 +955,15 @@ namespace Microsoft.Identity.Web
 #endif
         }
 
-#if NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
-        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
-#endif
         private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
-            IDictionary<string, string>? clientClaims = null;
+            string? clientClaims = null;
             if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
                 tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] is not null)
             {
-                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as IDictionary<string, string>;
+                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as string;
             }
-            return JsonSerializer.Serialize(clientClaims);
+            return clientClaims;
         }
 
 #pragma warning disable RS0051 // Add internal types and members to the declared API
@@ -1187,10 +1175,6 @@ namespace Microsoft.Identity.Web
             }
         }
 
-#if NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
-        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
-#endif
         private async ValueTask<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string? tenantId,
@@ -1450,10 +1434,6 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">Merged options.</param>
         /// <param name="userFlow">Azure AD B2C user flow.</param>
         /// <param name="tokenAcquisitionOptions">Options passed-in to create the token acquisition object which calls into MSAL .NET.</param>
-#if NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
-        [RequiresDynamicCode("Calls JsonSerializer.Serialize<TInput>")]
-#endif
         private Task<AuthenticationResult> GetAuthenticationResultForWebAppWithAccountFromCacheAsync(
             IConfidentialClientApplication application,
             IAccount? account,
