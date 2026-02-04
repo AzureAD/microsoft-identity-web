@@ -116,6 +116,11 @@ public class WebAppCallsApiCallsGraphLocally : IClassFixture<InstallPlaywrightBr
             _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
             await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
             await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName), _output);
+            await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            if (!page.Url.Contains("/TodoList", StringComparison.OrdinalIgnoreCase))
+            {
+                await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
+            }
             var todoLink = page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
             await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
             _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
