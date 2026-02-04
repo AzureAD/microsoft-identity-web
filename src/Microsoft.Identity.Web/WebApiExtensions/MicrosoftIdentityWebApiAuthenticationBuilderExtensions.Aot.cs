@@ -4,6 +4,7 @@
 #if NET10_0_OR_GREATER
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.PostConfigureOptions;
+using Microsoft.Identity.Web.Resource;
 
 namespace Microsoft.Identity.Web
 {
@@ -23,17 +25,20 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Protects the web API with Microsoft identity platform (AOT-compatible).
         /// This method expects the configuration will have a section with the necessary settings to initialize authentication options.
+        /// Note: For true AOT compatibility, use the programmatic overload. This overload uses configuration binding which requires source generation.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configurationSection">The configuration section from which to fill-in the options.</param>
         /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Configuration binding is expected to use source generation in .NET 10")]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Configuration binding is expected to use source generation in .NET 10")]
         public static AuthenticationBuilder AddMicrosoftIdentityWebApiAot(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
-            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            Action<JwtBearerOptions>? configureJwtBearerOptions = null)
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions)
         {
             _ = Throws.IfNull(builder);
             _ = Throws.IfNull(configurationSection);
@@ -56,8 +61,8 @@ namespace Microsoft.Identity.Web
         public static AuthenticationBuilder AddMicrosoftIdentityWebApiAot(
             this AuthenticationBuilder builder,
             Action<MicrosoftIdentityApplicationOptions> configureOptions,
-            string jwtBearerScheme = JwtBearerDefaults.AuthenticationScheme,
-            Action<JwtBearerOptions>? configureJwtBearerOptions = null)
+            string jwtBearerScheme,
+            Action<JwtBearerOptions>? configureJwtBearerOptions)
         {
             _ = Throws.IfNull(builder);
             _ = Throws.IfNull(configureOptions);
@@ -81,7 +86,6 @@ namespace Microsoft.Identity.Web
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
             builder.Services.AddRequiredScopeAuthorization();
-            builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             // Register the post-configurator for AOT path
