@@ -959,7 +959,7 @@ namespace Microsoft.Identity.Web
         {
             string? clientClaims = null;
             if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
-                tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] is not null)
+                tokenAcquisitionOptions.ExtraParameters.ContainsKey("IDWEB_CLIENT_CLAIMS"))
             {
                 clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_CLAIMS"] as string;
             }
