@@ -94,11 +94,7 @@ namespace Microsoft.Identity.Web
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             // Register the post-configurator for AOT path
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>>(
-                    sp => new MicrosoftIdentityJwtBearerOptionsPostConfigurator(
-                        sp.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>(),
-                        sp)));
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, MicrosoftIdentityJwtBearerOptionsPostConfigurator>());
 
             // Register the merger to bridge MicrosoftIdentityApplicationOptions to MergedOptions
             // This ensures TokenAcquisition works without modification
