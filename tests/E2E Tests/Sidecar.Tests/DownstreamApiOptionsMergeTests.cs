@@ -732,6 +732,7 @@ public class DownstreamApiOptionsMergeTests
             "ExtraQueryParameters",
             "ExtraParameters",
             "ExtraHeadersParameters",
+            "PopClaim",
             // Properties intentionally not merged
             "UserFlow",
             "PopCryptoProvider",

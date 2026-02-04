@@ -82,6 +82,11 @@ public static class DownstreamApiOptionsMerger
             res.AcquireTokenOptions.PopPublicKey = right.AcquireTokenOptions.PopPublicKey;
         }
 
+        if (!string.IsNullOrEmpty(right.AcquireTokenOptions.PopClaim))
+        {
+            res.AcquireTokenOptions.PopClaim = right.AcquireTokenOptions.PopClaim;
+        }
+
         if (right.AcquireTokenOptions.CorrelationId != Guid.Empty)
         {
             res.AcquireTokenOptions.CorrelationId = right.AcquireTokenOptions.CorrelationId;
