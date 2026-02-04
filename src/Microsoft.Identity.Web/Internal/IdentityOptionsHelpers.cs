@@ -4,10 +4,13 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Abstractions;
 using Microsoft.IdentityModel.Tokens;
+
+#if !NETSTANDARD2_0 && !NET462 && !NET472
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+#endif
 
 namespace Microsoft.Identity.Web.Internal
 {
@@ -30,6 +33,7 @@ namespace Microsoft.Identity.Web.Internal
                 throw new ArgumentNullException(nameof(options.Instance));
             }
 
+#if !NETSTANDARD2_0 && !NET462 && !NET472
             Uri baseUri = new Uri(options.Instance);
             var domain = options.Domain;
             var tenantId = options.TenantId;
@@ -44,6 +48,19 @@ namespace Microsoft.Identity.Web.Internal
             }
 
             return new Uri(baseUri, new PathString($"{baseUri.PathAndQuery}{tenantId}/v2.0")).ToString();
+#else
+            // For non-ASP.NET Core, use simple string concatenation
+            // options.Instance is guaranteed to be non-null because we check it at the start of the method
+            var instance = options.Instance!.TrimEnd('/');
+            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+            
+            if (isB2C)
+            {
+                return $"{instance}/{options.Domain}/{options.SignUpSignInPolicyId}/v2.0";
+            }
+            
+            return $"{instance}/{options.TenantId}/v2.0";
+#endif
         }
 
         /// <summary>
@@ -89,6 +106,7 @@ namespace Microsoft.Identity.Web.Internal
             }
         }
 
+#if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
         /// Configures audience validation on the token validation parameters.
         /// Sets up custom validator for handling v1.0/v2.0 and B2C tokens correctly.
@@ -136,7 +154,7 @@ namespace Microsoft.Identity.Web.Internal
             options.TenantId = appOptions.TenantId;
             options.Domain = appOptions.Domain;
             options.Authority = appOptions.Authority;
-            // Use reflection to set the read-only property, or use init-only syntax
+            // Use reflection to set the read-only property
             var userFlow = appOptions.SignUpSignInPolicyId;
             if (!string.IsNullOrEmpty(userFlow))
             {
@@ -148,5 +166,6 @@ namespace Microsoft.Identity.Web.Internal
             }
             return options;
         }
+#endif
     }
 }
