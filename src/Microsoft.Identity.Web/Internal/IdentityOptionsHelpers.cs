@@ -130,15 +130,23 @@ namespace Microsoft.Identity.Web.Internal
         /// </summary>
         private static MicrosoftIdentityOptions ConvertToMicrosoftIdentityOptions(MicrosoftIdentityApplicationOptions appOptions)
         {
-            return new MicrosoftIdentityOptions
+            var options = new MicrosoftIdentityOptions();
+            options.ClientId = appOptions.ClientId!;
+            options.Instance = appOptions.Instance!;
+            options.TenantId = appOptions.TenantId;
+            options.Domain = appOptions.Domain;
+            options.Authority = appOptions.Authority;
+            // Use reflection to set the read-only property, or use init-only syntax
+            var userFlow = appOptions.SignUpSignInPolicyId;
+            if (!string.IsNullOrEmpty(userFlow))
             {
-                ClientId = appOptions.ClientId!,
-                Instance = appOptions.Instance!,
-                TenantId = appOptions.TenantId,
-                Domain = appOptions.Domain,
-                Authority = appOptions.Authority,
-                DefaultUserFlow = appOptions.SignUpSignInPolicyId,
-            };
+                var property = typeof(MicrosoftIdentityOptions).GetProperty(nameof(MicrosoftIdentityOptions.DefaultUserFlow));
+                if (property != null && property.CanWrite)
+                {
+                    property.SetValue(options, userFlow);
+                }
+            }
+            return options;
         }
     }
 }
