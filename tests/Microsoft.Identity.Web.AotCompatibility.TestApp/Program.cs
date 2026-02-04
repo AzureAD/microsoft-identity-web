@@ -16,7 +16,7 @@ internal sealed class Program
 
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApiAot(builder.Configuration.GetSection("AzureAd"), JwtBearerDefaults.AuthenticationScheme,  (o) => {});
+            .AddMicrosoftIdentityWebApiAot(builder.Configuration.GetSection("AzureAd"), JwtBearerDefaults.AuthenticationScheme, null);
 
         builder.Services.AddTokenAcquisition()
             .AddInMemoryTokenCaches();
