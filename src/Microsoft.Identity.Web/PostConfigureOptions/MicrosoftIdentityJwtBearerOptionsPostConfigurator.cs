@@ -35,13 +35,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             _serviceProvider = serviceProvider;
         }
 
-        public void PostConfigure(
-#if NET7_0_OR_GREATER
-            string? name,
-#else
-            string name,
-#endif
-            JwtBearerOptions options)
+        public void PostConfigure(string? name, JwtBearerOptions options)
         {
             var appOptions = _appOptionsMonitor.Get(name ?? string.Empty);
 
