@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -49,8 +50,12 @@ namespace Microsoft.Identity.Web.Test
                 var instance = "https://login.microsoftonline.com/";
                 var authority = instance + tenantId;
 
-                string certName = "CN=TestCert";
+                string certName = $"CN=TestCert-{Guid.NewGuid():N}";
                 cert1 = CreateAndInstallCertificate(certName);
+                
+                // Verify certificate is properly installed in store with timeout
+                await VerifyCertificateInStoreAsync(cert1, TimeSpan.FromSeconds(5));
+                
                 var description = new CredentialDescription
                 {
                     SourceType = CredentialSource.StoreWithDistinguishedName,
@@ -129,6 +134,9 @@ namespace Microsoft.Identity.Web.Test
                 // Change out the cert, so that if it reloads there will be a new one
                 RemoveCertificate(cert1);
                 cert2 = CreateAndInstallCertificate(certName);
+                
+                // Verify certificate is properly installed in store with timeout
+                await VerifyCertificateInStoreAsync(cert2, TimeSpan.FromSeconds(5));
 
                 // Rerun but it fails this time
                 mockHttpFactory.ValidCertificates.Clear();
@@ -190,6 +198,35 @@ namespace Microsoft.Identity.Web.Test
             x509Store.Close();
 
             return certWithPrivateKey;
+        }
+
+        /// <summary>
+        /// Verifies that a certificate is properly installed in the certificate store.
+        /// </summary>
+        /// <param name="certificate">The certificate to verify.</param>
+        /// <param name="timeout">Maximum time to wait for the certificate to appear in the store.</param>
+        private static async Task VerifyCertificateInStoreAsync(X509Certificate2 certificate, TimeSpan timeout)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var minWaitTime = TimeSpan.FromSeconds(2); // Minimum wait to ensure store operations complete
+            
+            do
+            {
+                using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                store.Open(OpenFlags.ReadOnly);
+                
+                var foundCerts = store.Certificates.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false);
+                
+                if (foundCerts.Count > 0 && stopwatch.Elapsed >= minWaitTime)
+                {
+                    return; // Certificate found and minimum wait time elapsed
+                }
+                
+                await Task.Delay(100); // Wait 100ms before checking again
+            }
+            while (stopwatch.Elapsed < timeout);
+            
+            throw new TimeoutException($"Certificate with thumbprint {certificate.Thumbprint} was not found in the certificate store within {timeout.TotalSeconds} seconds.");
         }
 
         private class TestCertificatesObserver : ICertificatesObserver
@@ -327,13 +364,13 @@ namespace Microsoft.Identity.Web.Test
                     if (uri.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         if (this.description.Certificate == null ||
-                            !this.ValidCertificates.Contains(this.description.Certificate))
+                            !this.ValidCertificates.Any(cert => cert.Thumbprint.Equals(this.description.Certificate.Thumbprint, StringComparison.OrdinalIgnoreCase)))
                         {
                             var errorResponse = new
                             {
                                 error = "invalid_client",
-                                error_description = $"Invalid certificate: {this.description.CachedValue}",
-                                error_codes = new[] { 50000 },
+                                error_description = $"AADSTS700027: Invalid certificate: {this.description.CachedValue}",
+                                error_codes = new[] { 700027 },
                                 timestamp = DateTime.UtcNow,
                             };
 

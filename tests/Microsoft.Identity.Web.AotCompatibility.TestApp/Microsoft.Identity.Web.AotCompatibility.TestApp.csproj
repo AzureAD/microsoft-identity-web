@@ -1,13 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); net10.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <PublishAot>true</PublishAot>
     <EventSourceSupport>true</EventSourceSupport>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Generates extra info for https://github.com/MichalStrehovsky/sizoscope to read. Useful for debugging warnings since it tells you where each item came from.-->
+  <PropertyGroup>
+    <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
+    <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,14 +29,16 @@
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClientBeta"/>
 
     <!--
-    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraph"/>    
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraph"/>
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraphBeta"/>
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.OWIN"/>-->
 
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenAcquisition"/>
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.TokenCache"/>
-    <TrimmerRootAssembly Include="Microsoft.Identity.Web.UI"/>
-    
+
+    <!-- This library references Razor + ASP.NET MVC, which are not AOT-compatible. -->
+    <!-- <TrimmerRootAssembly Include="Microsoft.Identity.Web.UI"/> -->
+
     <TrimmerRootAssembly Update="@(TrimmerRootAssembly)" Path="..\..\src\%(Identity)\%(Identity).csproj" />
     <ProjectReference Include="@(TrimmerRootAssembly->'%(Path)')" />
   </ItemGroup>

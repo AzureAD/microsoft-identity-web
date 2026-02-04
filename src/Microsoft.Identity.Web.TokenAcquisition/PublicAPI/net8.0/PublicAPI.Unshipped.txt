@@ -1,15 +1,7 @@
 #nullable enable
-Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions
-Microsoft.Identity.Web.MicrosoftIdentityAuthenticationException
-Microsoft.Identity.Web.MicrosoftIdentityAuthenticationException.MicrosoftIdentityAuthenticationException(string! message) -> void
-Microsoft.Identity.Web.MicrosoftIdentityAuthenticationException.MicrosoftIdentityAuthenticationException(string! message, System.Exception! innerException) -> void
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandler
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.MicrosoftIdentityMessageHandler(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! headerProvider, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions? defaultOptions = null, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.MicrosoftIdentityMessageHandler!>? logger = null) -> void
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityMessageHandlerOptions() -> void
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.get -> System.Collections.Generic.IList<string!>!
-Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.Scopes.set -> void
-override Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.SendAsync(System.Net.Http.HttpRequestMessage! request, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage!>!
-static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.GetAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request) -> Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions?
-static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions! options) -> System.Net.Http.HttpRequestMessage!
-static Microsoft.Identity.Web.HttpRequestMessageAuthenticationExtensions.WithAuthenticationOptions(this System.Net.Http.HttpRequestMessage! request, System.Action<Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions!>! configure) -> System.Net.Http.HttpRequestMessage!
+Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf
+Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOfAsync
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForOnBehalfOf -> Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForOnBehalfOfAsync -> Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOfAsync?
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOf.Invoke(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
+virtual Microsoft.Identity.Web.BeforeTokenAcquisitionForOnBehalfOfAsync.Invoke(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!

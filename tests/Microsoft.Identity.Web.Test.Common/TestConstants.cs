@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
-    
+
     public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
@@ -217,7 +217,7 @@ namespace Microsoft.Identity.Web.Test.Common
                             ""preferred_network"":""login.microsoftonline.com"",
                             ""preferred_cache"":""login.windows.net"",
                             ""aliases"":[
-                                ""login.microsoftonline.com"", 
+                                ""login.microsoftonline.com"",
                                 ""login.windows.net"",
                                 ""login.microsoft.com"",
                                 ""sts.windows.net""]},

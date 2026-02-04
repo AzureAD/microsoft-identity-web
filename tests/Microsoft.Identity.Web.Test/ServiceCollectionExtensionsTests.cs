@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Metrics.Configuration;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -34,7 +36,8 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(MicrosoftIdentityApplicationOptionsMerger), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
-                }, actual =>
+                },
+                actual =>
                 {
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(IPostConfigureOptions<ConfidentialClientApplicationOptions>), actual.ServiceType);
@@ -90,13 +93,13 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Null(actual.ImplementationFactory);
                 },
                 actual =>
-               {
-                   Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
-                   Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
-                   Assert.Equal(typeof(TokenAcquisitionAspNetCore), actual.ImplementationType);
-                   Assert.Null(actual.ImplementationInstance);
-                   Assert.Null(actual.ImplementationFactory);
-               },
+                {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(ITokenAcquisition), actual.ServiceType);
+                    Assert.Equal(typeof(TokenAcquisitionAspNetCore), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
                 actual =>
                 {
                     Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);

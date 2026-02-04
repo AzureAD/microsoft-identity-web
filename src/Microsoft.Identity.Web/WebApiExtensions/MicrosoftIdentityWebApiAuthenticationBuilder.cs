@@ -28,9 +28,8 @@ namespace Microsoft.Identity.Web
         /// the <see cref="MicrosoftIdentityOptions"/>Microsoft identity options.</param>
         /// <param name="configurationSection">Configuration section from which to
         /// get parameters.</param>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.MicrosoftIdentityBaseAuthenticationBuilder.MicrosoftIdentityBaseAuthenticationBuilder(IServiceCollection, IConfigurationSection).")]
         internal MicrosoftIdentityWebApiAuthenticationBuilder(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,
@@ -53,9 +52,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="configureConfidentialClientApplicationOptions">The action to configure <see cref="ConfidentialClientApplicationOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(IServiceCollection, string, Action<ConfidentialClientApplicationOptions>, IConfigurationSection).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(IServiceCollection, string, Action<ConfidentialClientApplicationOptions>, IConfigurationSection).")]
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisitionToCallDownstreamApi(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions)
         {
@@ -72,9 +70,8 @@ namespace Microsoft.Identity.Web
                 ConfigurationSection);
         }
 
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.Internal.WebApiBuilders.EnableTokenAcquisition(Action<ConfidentialClientApplicationOptions>, String, IServiceCollection, IConfigurationSection).")]
         internal static void CallsWebApiImplementation(
             IServiceCollection services,
             string jwtBearerAuthenticationScheme,

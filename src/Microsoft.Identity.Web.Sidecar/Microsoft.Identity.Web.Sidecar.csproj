@@ -10,17 +10,11 @@
     <EnablePackageValidation>false</EnablePackageValidation>
     <IsAotCompatible>true</IsAotCompatible>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
-    <NoWarn>
-      $(NoWarn);
-      <!--RS0016: Add public types and members to the declared API-->
-      RS0016;
-      <!--RS0036: Annotate nullability of public types and members in the declared API-->
-      RS0036;
-      <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
-      RS0037;
-      <!--RS0051: Add internal types and members to the declared API-->
-      RS0051
-    </NoWarn>
+    <!--RS0016: Add public types and members to the declared API-->
+    <!--RS0036: Annotate nullability of public types and members in the declared API-->
+    <!--RS0037: Enable tracking of nullability of reference types in the declared API-->
+    <!--RS0051: Add internal types and members to the declared API-->
+    <NoWarn>$(NoWarn);RS0016;RS0036;RS0037;RS0051</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -36,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" NoWarn="$(NoWarn);NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="$(MicrosoftAspNetCoreOpenApiVersion)" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="$(MicrosoftExtensionsApiDescriptionServerVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

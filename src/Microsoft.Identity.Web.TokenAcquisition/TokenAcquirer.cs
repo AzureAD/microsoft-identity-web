@@ -65,7 +65,10 @@ namespace Microsoft.Identity.Web
                 result.IdToken,
                 result.Scopes,
                 result.CorrelationId,
-                result.TokenType);
+                result.TokenType)
+            {
+                BindingCertificate = result.BindingCertificate
+            };
         }
 
         private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
