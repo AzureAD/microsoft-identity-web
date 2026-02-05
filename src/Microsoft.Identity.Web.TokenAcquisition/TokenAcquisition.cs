@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -212,16 +213,16 @@ namespace Microsoft.Identity.Web
             }
         }
 
-
         /// <summary>
         /// Allows creation of confidential client applications targeting regional and global authorities
         /// when supporting managed identities.
         /// </summary>
-        /// <param name="mergedOptions">Merged configuration options</param>
+        /// <param name="mergedOptions">Merged configuration options.</param>
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+
             return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
 
@@ -260,7 +261,6 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(scopes);
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
-
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
@@ -437,7 +437,9 @@ namespace Microsoft.Identity.Web
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -449,6 +451,11 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -568,6 +575,13 @@ namespace Microsoft.Identity.Web
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
+                    //TODO: Should client assertion claims be supported for managed identity?
+                    //var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                    //if (clientClaims != null)
+                    //{
+                    //    miBuilder.WithExtraClientAssertionClaims(clientClaims);
+                    //}
+
                     return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -632,7 +646,9 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -649,6 +665,13 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
+
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
                 {
                     builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
@@ -930,7 +953,18 @@ namespace Microsoft.Identity.Web
 #endif
         }
 
+        private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            string? clientClaims = null;
+            if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
+                tokenAcquisitionOptions.ExtraParameters.ContainsKey("IDWEB_CLIENT_ASSERTION_CLAIMS"))
+            {
+                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_ASSERTION_CLAIMS"] as string;
+            }
+            return clientClaims;
+        }
 
+#pragma warning disable RS0051 // Add internal types and members to the declared API
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions,
             bool isTokenBinding)
@@ -1156,10 +1190,13 @@ namespace Microsoft.Identity.Web
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+                TokenAcquisitionExtensionOptions? addInOptions = null;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
+                    addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
@@ -1216,6 +1253,11 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        if (addInOptions != null)
+                        {
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
+                        }
+
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
 
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
@@ -1246,7 +1288,10 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(assertionConstant);
                                 dict.Remove(subAssertionConstant);
                             }
+
+#pragma warning disable CS0618 // Type or member is obsolete
                             builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -1258,6 +1303,11 @@ namespace Microsoft.Identity.Web
                         }
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
+                        var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                        if (clientClaims != null)
+                        {
+                            builder.WithExtraClientAssertionClaims(clientClaims);
+                        }
                         if (tokenAcquisitionOptions.PoPConfiguration != null)
                         {
                             builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -1403,7 +1453,9 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -1415,6 +1467,11 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);

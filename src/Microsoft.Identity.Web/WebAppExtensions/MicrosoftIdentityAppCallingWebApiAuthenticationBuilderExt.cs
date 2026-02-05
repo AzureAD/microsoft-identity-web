@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="builder"></param>
         /// <returns>The service collection</returns>
+        [RequiresUnreferencedCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
+        [RequiresDynamicCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
         public static IServiceCollection AddSessionTokenCaches(this MicrosoftIdentityAppCallsWebApiAuthenticationBuilder builder)
         {
             _ = Throws.IfNull(builder);
