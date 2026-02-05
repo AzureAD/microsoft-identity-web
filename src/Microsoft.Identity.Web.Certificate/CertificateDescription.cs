@@ -161,12 +161,19 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// <inheritdoc/>.
         /// </summary>
+#if NET10_0_OR_GREATER
+        public X509Certificate2? Certificate
+        {
+            get { return base.GetCertificateInternal(); }
+            protected internal set { base.SetCertificateInternal(value); }
+        }
+#else
         public new X509Certificate2? Certificate
         {
             get { return base.Certificate; }
             protected internal set { base.Certificate = value; }
         }
-        
+#endif        
         /// <summary>
         /// <inheritdoc/>.
         /// </summary>

@@ -364,7 +364,7 @@ namespace Microsoft.Identity.Web.Test
                     if (uri.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         if (this.description.Certificate == null ||
-                            !this.ValidCertificates.Any(cert => cert.Thumbprint.Equals(this.description.Certificate.Thumbprint, StringComparison.OrdinalIgnoreCase)))
+                            !this.ValidCertificates.Any(cert => cert.Thumbprint.Equals(this.description.Certificate?.Thumbprint, StringComparison.OrdinalIgnoreCase)))
                         {
                             var errorResponse = new
                             {
