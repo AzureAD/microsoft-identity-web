@@ -1255,7 +1255,7 @@ namespace Microsoft.Identity.Web
                     {
                         if (addInOptions != null)
                         {
-                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, userHint!).ConfigureAwait(false);
                         }
 
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);

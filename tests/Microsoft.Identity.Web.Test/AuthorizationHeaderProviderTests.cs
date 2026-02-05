@@ -14,6 +14,7 @@ using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.Tokens;
+using NSubstitute.Extensions;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -25,7 +26,28 @@ namespace Microsoft.Identity.Web.Test
         public async Task LongRunningSessionForDefaultAuthProviderForUserDefaultKeyTest()
         {
             // Arrange
+            // Create a test ClaimsPrincipal
+            var claims = new List<Claim>
+                            {
+                                new Claim(ClaimTypes.Name, "testuser@contoso.com")
+                            };
+
+            var identity = new CaseSensitiveClaimsIdentity(claims, "TestAuth");
+            identity.BootstrapContext = CreateTestJwt();
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
             var tokenAcquirerFactory = InitTokenAcquirerFactoryForTest();
+
+            // Configure the extension option such that the event is subscribed to
+            // so the test can observe if the service provider is set in the extra parameters
+            tokenAcquirerFactory.Services.Configure<TokenAcquisitionExtensionOptions>(options =>
+            {
+                options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, user) =>
+                {
+                    //verify that the ClaimsPrincipal passed in the event is the same as the one passed to CreateAuthorizationHeaderForUserAsync and that the BootstrapContext is preserved
+                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, ((CaseSensitiveClaimsIdentity)user.Identity!).BootstrapContext);
+                };
+            });
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
 
             IAuthorizationHeaderProvider authorizationHeaderProvider =
@@ -34,15 +56,7 @@ namespace Microsoft.Identity.Web.Test
 
             using (mockHttpClient)
             {
-                // Create a test ClaimsPrincipal
-                var claims = new List<Claim>
-                            {
-                                new Claim(ClaimTypes.Name, "testuser@contoso.com")
-                            };
 
-                var identity = new CaseSensitiveClaimsIdentity(claims, "TestAuth");
-                identity.BootstrapContext = CreateTestJwt();
-                var claimsPrincipal = new ClaimsPrincipal(identity);
 
                 // Create options with LongRunningWebApiSessionKey
                 var options = new AuthorizationHeaderProviderOptions
