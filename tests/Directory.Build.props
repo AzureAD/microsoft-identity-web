@@ -34,7 +34,7 @@
     <!--CVE-2021-24112-->
     <SystemDrawingCommonVersion>5.0.3</SystemDrawingCommonVersion>
     <SystemManagementVersion>8.0.0</SystemManagementVersion>
-    <MicrosoftIdentityLabApiVersion>2.0.0-preview</MicrosoftIdentityLabApiVersion>
+    <MicrosoftIdentityLabApiVersion>2.0.0</MicrosoftIdentityLabApiVersion>
     <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>
     <SystemTextRegularExpressionsVersion>4.3.1</SystemTextRegularExpressionsVersion>
     <MoqVersion>4.18.4</MoqVersion>
