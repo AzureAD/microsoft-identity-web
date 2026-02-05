@@ -217,19 +217,10 @@ namespace Microsoft.Identity.Web.Test
                 {
                     return; // Certificate found and minimum wait time elapsed
                 }
-<<<<<<< HEAD
 
                 await Task.Delay(100); // Wait 100ms before checking again
             }
             while (stopwatch.Elapsed < timeout);
-
-=======
-                
-                await Task.Delay(100); // Wait 100ms before checking again
-            }
-            while (stopwatch.Elapsed < timeout);
-            
->>>>>>> origin/master
             throw new TimeoutException($"Certificate with thumbprint {certificate.Thumbprint} was not found in the certificate store within {timeout.TotalSeconds} seconds.");
         }
 
@@ -368,11 +359,7 @@ namespace Microsoft.Identity.Web.Test
                     if (uri.StartsWith(kvp.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         if (this.description.Certificate == null ||
-<<<<<<< HEAD
-                            !this.ValidCertificates.Any(cert => cert.Thumbprint.Equals(this.description.Certificate.Thumbprint, StringComparison.OrdinalIgnoreCase)))
-=======
                             !this.ValidCertificates.Any(cert => cert.Thumbprint.Equals(this.description.Certificate?.Thumbprint, StringComparison.OrdinalIgnoreCase)))
->>>>>>> origin/master
                         {
                             var errorResponse = new
                             {
