@@ -36,14 +36,16 @@ namespace Microsoft.Identity.Web.Internal
         {
             if (configuration != null)
             {
-                // TODO: This never was right. And the configureConfidentialClientApplicationOptions delegate is not used
-                // services.Configure<ConfidentialClientApplicationOptions>(authenticationScheme, configuration);
                 services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
                     =>
                 { configuration.Bind(options); });
                 services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
                     =>
-                { configuration.Bind(options); });
+#if NET10_0_OR_GREATER
+                { MicrosoftIdentityOptionsBinder.Bind(options, configuration); });
+#else
+                {  configuration.Bind(options); });
+#endif
             }
             services.AddTokenAcquisition();
 

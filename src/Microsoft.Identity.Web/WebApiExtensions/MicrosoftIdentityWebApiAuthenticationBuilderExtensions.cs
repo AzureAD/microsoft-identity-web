@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
+    public static partial class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
