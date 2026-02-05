@@ -114,7 +114,9 @@ namespace Microsoft.Identity.Web.Test.Common
         public static string[] s_oBOApiScope = new string[] { "api://8837cde9-4029-4bfc-9259-e9e70ce670f7/.default" };
         public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLAB4-IDLABS-APP-AzureADMyOrg-CC";
+        public const string ID4sKeyVaultName = "id4skeyvault";
+        public const string ID4sKeyVaultUri = "https://id4skeyvault.vault.azure.net/";
+        public const string AzureADIdentityDivisionTestAgentSecret = "MISE-App-FMICLIENT";
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
