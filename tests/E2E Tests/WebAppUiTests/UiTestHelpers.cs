@@ -71,14 +71,21 @@ namespace WebAppUiTests
         }
 
         /// <summary>
-        /// In the Microsoft Identity flow, the user is at certain stages presented with a list of accounts known in 
+        /// In the Microsoft Identity flow, the user is at certain stages presented with a list of accounts known in
         /// the current browsing session to choose from. This method selects the account using the user's email.
         /// </summary>
         /// <param name="page">page for the playwright browser</param>
         /// <param name="email">user email address to select</param>
         private static async Task SelectKnownAccountByEmail_MicrosoftIdFlowAsync(IPage page, string email)
         {
-            await page.Locator($"[data-test-id=\"{email}\"]").ClickAsync();
+            ILocator accountLocator = page.Locator($"[data-test-id=\"{email}\"]");
+            if (await accountLocator.CountAsync() == 0)
+            {
+                string normalizedEmail = email.ToLowerInvariant();
+                accountLocator = page.Locator($"[data-test-id=\"{normalizedEmail}\"]");
+            }
+
+            await accountLocator.ClickAsync();
         }
 
         /// <summary>
@@ -91,7 +98,7 @@ namespace WebAppUiTests
         public static async Task EnterPassword_MicrosoftIdFlow_ValidPasswordAsync(IPage page, string password, string staySignedInText, ITestOutputHelper? output = null)
         {
             // If using an account that has other non-password validation options, the below code should be uncommented
-            /* WriteLine(output, "Selecting \"Password\" as authentication method"); 
+            /* WriteLine(output, "Selecting \"Password\" as authentication method");
             await page.GetByRole(AriaRole.Button, new() { Name = TestConstants.PasswordText }).ClickAsync();*/
 
             WriteLine(output, "Logging in ... entering and submitting password.");
