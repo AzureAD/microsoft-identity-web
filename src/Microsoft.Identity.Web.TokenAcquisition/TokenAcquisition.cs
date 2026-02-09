@@ -437,9 +437,7 @@ namespace Microsoft.Identity.Web
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -646,9 +644,7 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -1289,9 +1285,7 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(subAssertionConstant);
                             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
                             builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -1453,9 +1447,7 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
