@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +13,10 @@ namespace Microsoft.Identity.Web.Sidecar;
 
 public class Program
 {
+
+    // Adding these the time to merge Andy's PR. Then will do the work to remove reflexion usage
+    [RequiresUnreferencedCode("EnableTokenAcquisitionToCallDownstreamApis uses reflection")]
+    [RequiresDynamicCode("EnableTokenAcquisitionToCallDownstreamApis uses reflection")]
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateSlimBuilder(args);

@@ -78,9 +78,8 @@ namespace Microsoft.Identity.Web
         ///  [!code-csharp[ConvertType](~/../tests/DevApps/aspnet-mvc/OwinWebApp/App_Start/Startup.Auth.cs?highlight=22)]
         /// ]]></format>
         /// </example>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         static public T GetDefaultInstance<T>(string configSection="AzureAd") where T : TokenAcquirerFactory, new()
         {
             T instance;
@@ -121,9 +120,8 @@ namespace Microsoft.Identity.Web
         ///  [!code-csharp[ConvertType](~/../tests/DevApps/daemon-app/daemon-console-calling-msgraph/Program.cs?highlight=5)]
         /// ]]></format>
         /// </example>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         static public TokenAcquirerFactory GetDefaultInstance(string configSection = "AzureAd")
         {
             TokenAcquirerFactory instance;
