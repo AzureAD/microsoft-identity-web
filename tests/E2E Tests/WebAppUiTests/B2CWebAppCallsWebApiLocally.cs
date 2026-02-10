@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Azure.Identity;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
