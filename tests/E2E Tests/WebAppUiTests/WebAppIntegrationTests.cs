@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 
@@ -29,14 +29,14 @@ public class WebAppIntegrationTests
         var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
         var page = await context.NewPageAsync();
         await page.GotoAsync(UrlString);
-        LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
+        var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
         try
         {
             // Act
             Trace.WriteLine("Starting Playwright automation: web app sign-in & call Graph");
-            string email = labResponse.User.Upn;
-            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword());
+            string email = userConfig.Upn;
+            await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName));
 
             // Assert
             await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync();

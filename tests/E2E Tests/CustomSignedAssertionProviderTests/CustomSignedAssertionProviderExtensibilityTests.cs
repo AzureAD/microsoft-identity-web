@@ -27,12 +27,12 @@ namespace CustomSignedAssertionProviderTests
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
-            /*            
+            /*
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "msidlab4.onmicrosoft.com";
-                options.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                    options.TenantId = "id4slab1.onmicrosoft.com";
+                options.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "MyCustomExtension"

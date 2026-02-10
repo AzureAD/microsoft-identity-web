@@ -27,8 +27,8 @@ namespace daemon_console
             /*
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(new MicrosoftIdentityApplicationOptions
             {
-                ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba",
-                Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
+                ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d",
+                    Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com",
                 ClientCredentials = new[]
                 {
                     new CredentialDescription()
@@ -42,8 +42,8 @@ namespace daemon_console
             */
             // Or
             var tokenAcquirer = tokenAcquirerFactory.GetTokenAcquirer(
-                authority: "https://login.microsoftonline.com/msidlab4.onmicrosoft.com",
-                clientId: "f6b698c0-140c-448f-8155-4aa9bf77ceba",
+                    authority: "https://login.microsoftonline.com/id4slab1.onmicrosoft.com",
+                clientId: "4ebc2cfc-14bf-4c88-9678-26543ec1c59d",
                 clientCredentials: new[]
                 {
                     new CredentialDescription()
