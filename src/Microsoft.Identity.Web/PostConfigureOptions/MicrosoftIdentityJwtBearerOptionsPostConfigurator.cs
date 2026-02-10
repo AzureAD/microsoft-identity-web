@@ -45,29 +45,14 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                 return;
             }
 
-            // =========================================================
             // 1. VALIDATE (fail-fast with complete configuration)
-            // =========================================================
             IdentityOptionsHelpers.ValidateRequiredOptions(appOptions);
 
-            // =========================================================
             // 2. CONFIGURE (respect customer overrides)
-            // =========================================================
-            
-            // Build and set authority if not already configured
-            if (string.IsNullOrEmpty(options.Authority))
-            {
-                // Handle CIAM authorities
-                if (!string.IsNullOrEmpty(appOptions.Authority))
-                {
-                    var authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(appOptions.Authority, out _);
-                    options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(authority ?? appOptions.Authority);
-                }
-                else
-                {
-                    options.Authority = AuthorityHelpers.EnsureAuthorityIsV2(IdentityOptionsHelpers.BuildAuthority(appOptions));
-                }
-            }
+
+            // Note: 'options.Authority' is set during the Configure phase in AddMicrosoftIdentityWebApiAot,
+            // before any PostConfigure runs to ensure ASP.NET's built-in JwtBearerPostConfigureOptions can
+            // create the ConfigurationManager from it.
 
             // Configure audience validation if not already set
             if (options.TokenValidationParameters.AudienceValidator == null &&
@@ -79,14 +64,14 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             }
 
             // Configure issuer validation if not already set
-            if (options.TokenValidationParameters.ValidateIssuer && 
+            if (options.TokenValidationParameters.ValidateIssuer &&
                 options.TokenValidationParameters.IssuerValidator == null)
             {
                 var microsoftIdentityIssuerValidatorFactory =
                     _serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
 
                 options.TokenValidationParameters.IssuerValidator =
-                    microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
+                    microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority!).Validate;
             }
 
             // Configure token decryption if credentials provided
@@ -96,7 +81,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                 var managedIdentityCredential = appOptions.TokenDecryptionCredentials
                     .OfType<CredentialDescription>()
                     .FirstOrDefault(c => !string.IsNullOrEmpty(c.ManagedIdentityClientId));
-                
+
                 if (managedIdentityCredential != null)
                 {
                     DefaultCertificateLoader.UserAssignedManagedIdentityClientId = managedIdentityCredential.ManagedIdentityClientId;
@@ -121,9 +106,9 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             var existingOnMessageReceived = options.Events.OnMessageReceived;
             options.Events.OnMessageReceived = async context =>
             {
-                context.Options.TokenValidationParameters.ConfigurationManager ??= 
+                context.Options.TokenValidationParameters.ConfigurationManager ??=
                     options.ConfigurationManager as BaseConfigurationManager;
-                
+
                 if (existingOnMessageReceived != null)
                 {
                     await existingOnMessageReceived(context).ConfigureAwait(false);
