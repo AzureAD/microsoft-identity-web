@@ -136,6 +136,8 @@ namespace Microsoft.Identity.Web
         internal const string CertificateIsOutsideValidityWindow = "AADSTS1000502";
         internal const string ClientAssertionContainsInvalidSignature = "AADSTS7000274";
         internal const string CertificateWasRevoked = "AADSTS7000277";
+        internal const string ApplicationNotFound = "AADSTS700016";
+        internal const string InvalidClientSecret = "AADSTS7000215";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
@@ -156,6 +158,15 @@ namespace Microsoft.Identity.Web
             CertificateIsOutsideValidityWindow, // AADSTS1000502 - Certificate is outside validity window
             ClientAssertionContainsInvalidSignature, // AADSTS7000274 - Client assertion contains an invalid signature
             CertificateWasRevoked,              // AADSTS7000277 - Certificate was revoked
+        };
+
+        /// <summary>
+        /// Error codes indicating permanent configuration errors that should not trigger retry.
+        /// </summary>
+        internal static readonly HashSet<string> s_nonRetryableConfigErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        {
+            InvalidClientSecret,  // AADSTS7000215 - Wrong client secret
+            ApplicationNotFound,  // AADSTS700016 - Application with identifier not found
         };
 
         /// <summary>
