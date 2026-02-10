@@ -42,10 +42,11 @@ namespace Microsoft.Identity.Web.Test
             // so the test can observe if the service provider is set in the extra parameters
             tokenAcquirerFactory.Services.Configure<TokenAcquisitionExtensionOptions>(options =>
             {
-                options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, user) =>
+                options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, args) =>
                 {
                     //verify that the ClaimsPrincipal passed in the event is the same as the one passed to CreateAuthorizationHeaderForUserAsync and that the BootstrapContext is preserved
-                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, ((CaseSensitiveClaimsIdentity)user.Identity!).BootstrapContext);
+                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, ((CaseSensitiveClaimsIdentity)args?.User?.Identity!).BootstrapContext);
+                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, args.UserAssertionToken);
                 };
             });
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();

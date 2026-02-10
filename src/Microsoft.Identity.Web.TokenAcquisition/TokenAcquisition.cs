@@ -1255,23 +1255,13 @@ namespace Microsoft.Identity.Web
                     {
                         if (addInOptions != null)
                         {
-                            ClaimsPrincipal? principalToUse;
-
-                            // Create ClaimsPrincipal from the token if available, otherwise pass null
-                            if (!string.IsNullOrEmpty(tokenUsedToCallTheWebApi))
+                            var eventArgs = new OnBehalfOfEventArgs
                             {
-                                var handler = new JwtSecurityTokenHandler();
-                                var jwtToken = handler.ReadJwtToken(tokenUsedToCallTheWebApi);
-                                var identity = new CaseSensitiveClaimsIdentity(jwtToken.Claims);
-                                identity.BootstrapContext = tokenUsedToCallTheWebApi;
-                                principalToUse = new ClaimsPrincipal(identity);
-                            }
-                            else
-                            {
-                                principalToUse = null;
-                            }
+                                User = userHint,
+                                UserAssertionToken = tokenUsedToCallTheWebApi
+                            };
 
-                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, principalToUse!).ConfigureAwait(false);
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
                         }
 
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);

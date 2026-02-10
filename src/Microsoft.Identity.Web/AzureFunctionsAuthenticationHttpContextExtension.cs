@@ -20,7 +20,7 @@ namespace Microsoft.Identity.Web
         /// Calling this method from your Azure function validates the token and exposes the identity of the user or app on behalf of which your function is called,
         /// in the HttpContext.User member, where your function can make use of it.
         /// </summary>
-        /// <param name="httpContext">The current HTTP Context, such as req.HttpContext.</param>
+        /// <param name="httpContext">The current HTTP UserAssertionToken, such as req.HttpContext.</param>
         /// <returns>A task indicating success or failure. In case of failure <see cref="Microsoft.AspNetCore.Mvc.UnauthorizedObjectResult"/>.</returns>
         public static async Task<(bool, IActionResult?)> AuthenticateAzureFunctionAsync(
             this HttpContext httpContext)

@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Handles the <see cref="MsalUiRequiredException"/>.
         /// </summary>
-        /// <param name="context">Context provided by ASP.NET Core.</param>
+        /// <param name="context">UserAssertionToken provided by ASP.NET Core.</param>
         public override void OnException(ExceptionContext context)
         {
             if (context != null)
