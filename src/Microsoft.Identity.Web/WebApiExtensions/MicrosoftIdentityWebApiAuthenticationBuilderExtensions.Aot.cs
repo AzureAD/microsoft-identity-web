@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Internal;
 using Microsoft.Identity.Web.PostConfigureOptions;
 using Microsoft.Identity.Web.Resource;
 
@@ -80,17 +81,42 @@ namespace Microsoft.Identity.Web
                 builder.AddJwtBearer(jwtBearerScheme);
             }
 
+            // Set Authority during Configure phase so that ASP.NET's built-in JwtBearerPostConfigureOptions can create the ConfigurationManager from it.
+            builder.Services.AddOptions<JwtBearerOptions>(jwtBearerScheme)
+                .Configure<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>((jwtOptions, appOptionsMonitor) =>
+                {
+                    if (!string.IsNullOrEmpty(jwtOptions.Authority))
+                    {
+                        return;
+                    }
+
+                    var appOptions = appOptionsMonitor.Get(jwtBearerScheme);
+                    if (string.IsNullOrEmpty(appOptions.ClientId))
+                    {
+                        // Skip if not configured via AOT path (no ClientId means not configured)
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(appOptions.Authority))
+                    {
+                        var authority = AuthorityHelpers.BuildCiamAuthorityIfNeeded(appOptions.Authority, out _);
+                        jwtOptions.Authority = AuthorityHelpers.EnsureAuthorityIsV2(authority ?? appOptions.Authority);
+                    }
+                    else
+                    {
+                        jwtOptions.Authority = AuthorityHelpers.EnsureAuthorityIsV2(
+                            IdentityOptionsHelpers.BuildAuthority(appOptions));
+                    }
+                });
+
             // Register core services
             builder.Services.AddSingleton<IMergedOptionsStore, MergedOptionsStore>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.TryAddSingleton<MicrosoftIdentityIssuerValidatorFactory>();
             builder.Services.AddRequiredScopeAuthorization();
-            
-            // Note: AddRequiredScopeOrAppPermissionAuthorization is not fully AOT-compatible
-            // It has RequiresUnreferencedCode/RequiresDynamicCode attributes due to ConfigurationBinder usage
-            // For full AOT scenarios, customers should use RequiredScopeAuthorization instead
-            
+            builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
+
             builder.Services.AddOptions<AadIssuerValidatorOptions>();
 
             // Register the post-configurator for AOT path
@@ -100,7 +126,7 @@ namespace Microsoft.Identity.Web
             // This ensures TokenAcquisition works without modification
             if (!HasImplementationType(builder.Services, typeof(MicrosoftIdentityApplicationOptionsMerger)))
             {
-                builder.Services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityApplicationOptions>, 
+                builder.Services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityApplicationOptions>,
                     MicrosoftIdentityApplicationOptionsMerger>();
             }
 
