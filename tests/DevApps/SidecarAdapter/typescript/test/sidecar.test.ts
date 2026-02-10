@@ -18,7 +18,7 @@ interface LoginRequest {
 }
 
 const loginRequest: LoginRequest = {
-    scopes: ["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/access_as_user"],
+    scopes: ["api://a021aff4-57ad-453a-bae8-e4192e5860f3/access_as_user"],
     openBrowser,
     successTemplate: "Successfully signed in! You can close this window now."
 };
@@ -26,8 +26,8 @@ const loginRequest: LoginRequest = {
 // Create msal application object
 const pca = new PublicClientApplication({
     auth: {
-        clientId: "f79f9db9-c582-4b7b-9d4c-0e8fd40623f0",
-        authority: "https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+        clientId: "9808c2f0-4555-4dc2-beea-b4dc3212d39e",
+        authority: "https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f",
     }
 });
 
