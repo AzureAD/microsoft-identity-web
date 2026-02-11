@@ -59,23 +59,23 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal async Task InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(AcquireTokenOnBehalfOfParameterBuilder builder,
                                                            AcquireTokenOptions? acquireTokenOptions,
-                                                           ClaimsPrincipal user)
+                                                           OnBehalfOfEventArgs eventArgs)
         {
             // Run the async event if it is not null
             if (OnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
             {
                 // (cannot directly await an async event because events are not tasks
-                // they are multicast delegates that invoke handlers, but don’t return values to the publisher,
+                // they are multicast delegates that invoke handlers, but don't return values to the publisher,
                 // nor do they support awaiting natively
                 var invocationList = OnBeforeTokenAcquisitionForOnBehalfOfAsync.GetInvocationList();
                 var tasks = invocationList
                     .Cast<BeforeTokenAcquisitionForOnBehalfOfAsync>()
-                    .Select(handler => handler(builder, acquireTokenOptions, user));
+                    .Select(handler => handler(builder, acquireTokenOptions, eventArgs));
                 await Task.WhenAll(tasks);
             }
 
             // Run the sync event if it is not null.
-            OnBeforeTokenAcquisitionForOnBehalfOf?.Invoke(builder, acquireTokenOptions, user);
+            OnBeforeTokenAcquisitionForOnBehalfOf?.Invoke(builder, acquireTokenOptions, eventArgs);
         }
 
         /// <summary>

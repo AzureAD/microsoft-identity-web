@@ -171,7 +171,7 @@ namespace Microsoft.Identity.Web.Tests
                 extension.OnBeforeTokenRequestHandler = (request) =>
                 {
                     eventInvoked = true;
-                    request.BodyParameters.Add("x-ms-user", user.FindFirst("user")?.Value);
+                    request.BodyParameters.Add("x-ms-user", user?.User?.FindFirst("user")?.Value);
                     return Task.CompletedTask;
                 };
 
@@ -186,7 +186,8 @@ namespace Microsoft.Identity.Web.Tests
                 }));
 
             // Act
-            await options.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, acquireTokenOptions, user);
+            var eventArgs = new OnBehalfOfEventArgs() { User = user };
+            await options.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, acquireTokenOptions, eventArgs);
 
             var result = await builder.ExecuteAsync();
 

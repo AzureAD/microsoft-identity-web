@@ -1271,12 +1271,12 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithSendX5C(mergedOptions.SendX5C);
 
-                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
+                    ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
                     var userTenant = string.Empty;
-                    if (user != null)
+                    if (userForCcsRouting != null)
                     {
-                        userTenant = user.GetTenantId();
-                        builder.WithCcsRoutingHint(user.GetObjectId(), userTenant);
+                        userTenant = userForCcsRouting.GetTenantId();
+                        builder.WithCcsRoutingHint(userForCcsRouting.GetObjectId(), userTenant);
                     }
                     if (!string.IsNullOrEmpty(tenantId))
                     {
@@ -1293,7 +1293,13 @@ namespace Microsoft.Identity.Web
                     {
                         if (addInOptions != null)
                         {
-                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, userHint!).ConfigureAwait(false);
+                            var eventArgs = new OnBehalfOfEventArgs
+                            {
+                                User = userHint,
+                                UserAssertionToken = tokenUsedToCallTheWebApi
+                            };
+
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
                         }
 
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
