@@ -1271,7 +1271,6 @@ namespace Microsoft.Identity.Web
 
                     ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
                     var userTenant = string.Empty;
-
                     if (userForCcsRouting != null)
                     {
                         userTenant = userForCcsRouting.GetTenantId();
