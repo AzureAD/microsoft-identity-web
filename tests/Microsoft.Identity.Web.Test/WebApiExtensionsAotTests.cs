@@ -20,6 +20,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.PostConfigureOptions;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using NSubstitute;
 using Xunit;
 
@@ -58,9 +59,9 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(jwtOptions);
 
             // Verify post-configurator is registered
-            var postConfigurators = services.Where(s => 
+            var postConfigurators = services.Where(s =>
                 s.ServiceType == typeof(IPostConfigureOptions<JwtBearerOptions>) &&
-                s.ImplementationFactory != null).ToList();
+                (s.ImplementationFactory != null || s.ImplementationType != null)).ToList();
             Assert.NotEmpty(postConfigurators);
         }
 
@@ -145,8 +146,8 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.NotNull(jwtOptions.Authority);
-            Assert.Contains(TestConstants.TenantIdAsGuid, jwtOptions.Authority);
-            Assert.EndsWith("/v2.0", jwtOptions.Authority);
+            Assert.Contains(TestConstants.TenantIdAsGuid, jwtOptions.Authority, StringComparison.Ordinal);
+            Assert.EndsWith("/v2.0", jwtOptions.Authority, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -201,7 +202,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             var customAuthority = "https://custom.authority.com/tenant-id/v2.0";
             var services = new ServiceCollection().AddLogging();
-            
+
             services.AddAuthentication()
                 .AddMicrosoftIdentityWebApiAot(options =>
                 {
@@ -230,7 +231,7 @@ namespace Microsoft.Identity.Web.Test
         {
             // Arrange
             var services = new ServiceCollection().AddLogging();
-            
+
             // Add JWT bearer without using our AOT method
             services.AddAuthentication()
                 .AddJwtBearer(JwtBearerScheme);
@@ -267,8 +268,8 @@ namespace Microsoft.Identity.Web.Test
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
-            
-            Assert.Contains("ClientId", exception.Message);
+
+            Assert.Contains("ClientId", exception.Message, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -279,13 +280,14 @@ namespace Microsoft.Identity.Web.Test
             {
                 ClientId = TestConstants.ClientId,
                 TenantId = TestConstants.TenantIdAsGuid,
+                Authority = "",
             };
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
-            
-            Assert.Contains("Instance", exception.Message);
+
+            Assert.Contains("Instance", exception.Message, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -296,13 +298,14 @@ namespace Microsoft.Identity.Web.Test
             {
                 ClientId = TestConstants.ClientId,
                 Instance = TestConstants.AadInstance,
+                Authority = "",
             };
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
-            
-            Assert.Contains("TenantId", exception.Message);
+
+            Assert.Contains("TenantId", exception.Message, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -314,13 +317,14 @@ namespace Microsoft.Identity.Web.Test
                 ClientId = TestConstants.ClientId,
                 Instance = TestConstants.B2CInstance,
                 SignUpSignInPolicyId = TestConstants.B2CSignUpSignInUserFlow,
+                Authority = "",
             };
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
-            
-            Assert.Contains("Domain", exception.Message);
+
+            Assert.Contains("Domain", exception.Message, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -352,9 +356,9 @@ namespace Microsoft.Identity.Web.Test
             var authority = Internal.IdentityOptionsHelpers.BuildAuthority(options);
 
             // Assert
-            Assert.Contains(TestConstants.AadInstance.TrimEnd('/'), authority);
-            Assert.Contains(TestConstants.TenantIdAsGuid, authority);
-            Assert.EndsWith("/v2.0", authority);
+            Assert.Contains(TestConstants.AadInstance.TrimEnd('/'), authority, StringComparison.Ordinal);
+            Assert.Contains(TestConstants.TenantIdAsGuid, authority, StringComparison.Ordinal);
+            Assert.EndsWith("/v2.0", authority, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -372,13 +376,13 @@ namespace Microsoft.Identity.Web.Test
             var authority = Internal.IdentityOptionsHelpers.BuildAuthority(options);
 
             // Assert
-            Assert.Contains(TestConstants.B2CTenant, authority);
-            Assert.Contains(TestConstants.B2CSignUpSignInUserFlow, authority);
-            Assert.EndsWith("/v2.0", authority);
+            Assert.Contains(TestConstants.B2CTenant, authority, StringComparison.Ordinal);
+            Assert.Contains(TestConstants.B2CSignUpSignInUserFlow, authority, StringComparison.Ordinal);
+            Assert.EndsWith("/v2.0", authority, StringComparison.Ordinal);
         }
 
         [Fact]
-        public void ChainTokenStorageHandler_ChainsExistingHandler()
+        public async Task ChainTokenStorageHandler_ChainsExistingHandler()
         {
             // Arrange
             bool existingHandlerCalled = false;
@@ -405,14 +409,14 @@ namespace Microsoft.Identity.Web.Test
             };
 
             // Execute the chained handler
-            chainedHandler(tokenValidatedContext).Wait();
+            await chainedHandler(tokenValidatedContext);
 
             // Verify existing handler was called
             Assert.True(existingHandlerCalled);
         }
 
         [Fact]
-        public void ChainTokenStorageHandler_WorksWithNullExistingHandler()
+        public async Task ChainTokenStorageHandler_WorksWithNullExistingHandler()
         {
             // Arrange & Act
             var chainedHandler = Internal.IdentityOptionsHelpers.ChainTokenStorageHandler(null);
@@ -431,7 +435,7 @@ namespace Microsoft.Identity.Web.Test
             };
 
             // Execute the handler - should not throw
-            chainedHandler(tokenValidatedContext).Wait();
+            await chainedHandler(tokenValidatedContext);
         }
 
         [Fact]
@@ -474,7 +478,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             var jwtOptions = provider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(JwtBearerScheme);
-            
+
             // Verify OnTokenValidated is set up for OBO
             Assert.NotNull(jwtOptions.Events);
             Assert.NotNull(jwtOptions.Events.OnTokenValidated);
