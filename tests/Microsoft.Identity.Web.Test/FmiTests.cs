@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web.Test
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+                options.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
                 options.ClientId = "urn:microsoft:identity:fmi";
                 options.ExtraQueryParameters = new Dictionary<string, string>
                         {

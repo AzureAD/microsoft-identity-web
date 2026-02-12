@@ -26,9 +26,8 @@ namespace Microsoft.Identity.Web.Internal
         /// <param name="services">The services being configured.</param>
         /// <param name="configuration">IConfigurationSection.</param>
         /// <returns>The authentication builder to chain.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
-        [RequiresUnreferencedCode("Calls Bind, Configure with Unspecified Configuration and ServiceCollection.")]
-#endif
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static MicrosoftIdentityAppCallsWebApiAuthenticationBuilder EnableTokenAcquisition(
             Action<ConfidentialClientApplicationOptions> configureConfidentialClientApplicationOptions,
             string authenticationScheme,

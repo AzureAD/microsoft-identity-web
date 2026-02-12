@@ -1,5 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web
 {
@@ -131,6 +134,10 @@ namespace Microsoft.Identity.Web
         internal const string SignedAssertionInvalidTimeRange = "AADSTS700024";
         internal const string CertificateHasBeenRevoked = "AADSTS7000214";
         internal const string CertificateIsOutsideValidityWindow = "AADSTS1000502";
+        internal const string ClientAssertionContainsInvalidSignature = "AADSTS7000274";
+        internal const string CertificateWasRevoked = "AADSTS7000277";
+        internal const string ApplicationNotFound = "AADSTS700016";
+        internal const string InvalidClientSecret = "AADSTS7000215";
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
@@ -139,6 +146,28 @@ namespace Microsoft.Identity.Web
         internal const string UserIdKey = "IDWEB_USER_ID";
         internal const string FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION";
         internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
+
+        /// <summary>
+        /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
+        /// </summary>
+        internal static readonly HashSet<string> s_certificateRelatedErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        {
+            InvalidKeyError,                    // AADSTS700027 - Client assertion contains an invalid signature
+            SignedAssertionInvalidTimeRange,    // AADSTS700024 - Signed assertion invalid time range
+            CertificateHasBeenRevoked,          // AADSTS7000214 - Certificate has been revoked
+            CertificateIsOutsideValidityWindow, // AADSTS1000502 - Certificate is outside validity window
+            ClientAssertionContainsInvalidSignature, // AADSTS7000274 - Client assertion contains an invalid signature
+            CertificateWasRevoked,              // AADSTS7000277 - Certificate was revoked
+        };
+
+        /// <summary>
+        /// Error codes indicating permanent configuration errors that should not trigger retry.
+        /// </summary>
+        internal static readonly HashSet<string> s_nonRetryableConfigErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        {
+            InvalidClientSecret,  // AADSTS7000215 - Wrong client secret
+            ApplicationNotFound,  // AADSTS700016 - Application with identifier not found
+        };
 
         /// <summary>
         /// Key for client assertion in token acquisition options.

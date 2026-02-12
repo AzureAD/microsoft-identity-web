@@ -21,3 +21,4 @@ static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.Config
 static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.ConfigurationSectionNull(Microsoft.Extensions.Logging.ILogger! logger) -> void
 static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.CustomSignedAssertionProviderDataNull(Microsoft.Extensions.Logging.ILogger! logger) -> void
 static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionLoader.Logger.SignedAssertionProviderFailed(Microsoft.Extensions.Logging.ILogger! logger, string! providerName, string! message) -> void
+static Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance(string? tokenEndpoint, string? configuredInstance) -> string?

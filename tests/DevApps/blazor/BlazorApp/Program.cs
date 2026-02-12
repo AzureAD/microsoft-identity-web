@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
-    .EnableTokenAcquisitionToCallDownstreamApi(["api://556d438d-2f4b-4add-9713-ede4e5f5d7da/.default"])
+    .EnableTokenAcquisitionToCallDownstreamApi(["api://a021aff4-57ad-453a-bae8-e4192e5860f3/.default"])
     .AddInMemoryTokenCaches();
 
 builder.Services.AddMicrosoftIdentityConsentHandler();
