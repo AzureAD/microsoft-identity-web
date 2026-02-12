@@ -1228,13 +1228,11 @@ namespace Microsoft.Identity.Web
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
-                TokenAcquisitionExtensionOptions? addInOptions = null;
+                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-                    addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
-
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application

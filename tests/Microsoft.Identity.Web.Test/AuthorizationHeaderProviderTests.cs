@@ -37,6 +37,7 @@ namespace Microsoft.Identity.Web.Test
             var claimsPrincipal = new ClaimsPrincipal(identity);
 
             var tokenAcquirerFactory = InitTokenAcquirerFactoryForTest();
+            bool argsNotNull = true;
 
             // Configure the extension option such that the event is subscribed to
             // so the test can observe if the service provider is set in the extra parameters
@@ -44,9 +45,12 @@ namespace Microsoft.Identity.Web.Test
             {
                 options.OnBeforeTokenAcquisitionForOnBehalfOf += (builder, options, args) =>
                 {
-                    //verify that the ClaimsPrincipal passed in the event is the same as the one passed to CreateAuthorizationHeaderForUserAsync and that the BootstrapContext is preserved
-                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, ((CaseSensitiveClaimsIdentity)args?.User?.Identity!).BootstrapContext);
-                    Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, args.UserAssertionToken);
+                    if (argsNotNull)
+                    {
+                        //verify that the ClaimsPrincipal passed in the event is the same as the one passed to CreateAuthorizationHeaderForUserAsync and that the BootstrapContext is preserved
+                        Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, ((CaseSensitiveClaimsIdentity)args?.User?.Identity!).BootstrapContext);
+                        Assert.Equal(((CaseSensitiveClaimsIdentity)claimsPrincipal.Identity!).BootstrapContext, args.UserAssertionToken);
+                    }
                 };
             });
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
@@ -57,8 +61,6 @@ namespace Microsoft.Identity.Web.Test
 
             using (mockHttpClient)
             {
-
-
                 // Create options with LongRunningWebApiSessionKey
                 var options = new AuthorizationHeaderProviderOptions
                 {
@@ -85,6 +87,7 @@ namespace Microsoft.Identity.Web.Test
                 string key1 = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
 
                 // Step 4: Second call without ClaimsPrincipal should return the token from cache
+                argsNotNull = false;
                 result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                                     scopes,
                                     options);
@@ -94,6 +97,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(key1, options.AcquireTokenOptions.LongRunningWebApiSessionKey);
 
                 // Step 5: First call with ClaimsPrincipal to initiate LR session for CreateAuthorizationHeaderAsync
+                argsNotNull = true;
                 scopes = new[] { "User.Write" };
                 mockHttpClient!.AddMockHandler(MockHttpCreator.CreateLrOboTokenHandler("User.Write"));
                 result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
@@ -105,6 +109,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.NotEqual(options.AcquireTokenOptions.LongRunningWebApiSessionKey, TokenAcquisitionOptions.LongRunningWebApiSessionKeyAuto);
                 key1 = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
 
+                argsNotNull = false;
                 // Step 6: Second call without ClaimsPrincipal should return the token from cache for CreateAuthorizationHeaderAsync
                 result = await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                                     scopes,

@@ -7,10 +7,8 @@
     <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.3.1</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
-
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>4.2.0</PackageValidationBaselineVersion>
-
     <BuildDirectory>$(MSBuildThisFileDirectory)/build</BuildDirectory>
     <AssemblyOriginatorKeyFile>$(BuildDirectory)/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <RepositoryType>git</RepositoryType>
