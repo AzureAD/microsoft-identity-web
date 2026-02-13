@@ -530,7 +530,7 @@ curl -H "Authorization: Bearer <TOKEN>" https://localhost:<PORT>/weatherforecast
 
 ## Part 2: Configure Blazor frontend for authentication
 
-> 📍 **Still in Phase 1** — This part completes the code implementation. You'll need the helper files from the skill folder.
+> 📍 **Still in Phase 1** — This part completes the code implementation. The Blazor helpers are included in Microsoft.Identity.Web (v3.3.0+).
 
 The Blazor Server app uses **Microsoft.Identity.Web** to:
 - Sign users in with OIDC
