@@ -298,13 +298,13 @@ app.MapGroup("/authentication").MapLoginAndLogout();
 | | `.csproj` | Add `Microsoft.Identity.Web` |
 | **Web** | `Program.cs` | OIDC auth, token acquisition, BlazorAuthenticationChallengeHandler |
 | | `appsettings.json` | Azure AD config, downstream API scopes |
-| | `.csproj` | Add `Microsoft.Identity.Web` |
-| | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout with incremental consent *(copy from skill)* |
-| | `BlazorAuthenticationChallengeHandler.cs` | Auth challenge handler *(copy from skill)* |
+| | `.csproj` | Add `Microsoft.Identity.Web` (v3.3.0+) |
 | | `Components/UserInfo.razor` | **Login button UI** *(new file)* |
 | | `Components/Layout/MainLayout.razor` | Include UserInfo component |
 | | `Components/Routes.razor` | AuthorizeRouteView for protected pages |
 | | Pages calling APIs | Try/catch with ChallengeHandler |
+
+> **Note:** The Blazor helpers (`BlazorAuthenticationChallengeHandler` and `LoginLogoutEndpointRouteBuilderExtensions`) are included in Microsoft.Identity.Web v3.3.0+ — no file copying required.
 
 ---
 
