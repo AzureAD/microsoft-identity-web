@@ -102,16 +102,14 @@ Get-ChildItem -Recurse -Filter "Program.cs" | ForEach-Object {
 - [ ] Step 1.4: Add RequireAuthorization() to protected endpoints
 
 ### Web/Blazor Project Steps
-- [ ] Step 2.1: Add Microsoft.Identity.Web package
+- [ ] Step 2.1: Add Microsoft.Identity.Web package (v3.3.0+ includes Blazor helpers)
 - [ ] Step 2.2: Update appsettings.json with AzureAd and scopes
 - [ ] Step 2.3: Update Program.cs with OIDC, token acquisition, and **BlazorAuthenticationChallengeHandler**
-- [ ] Step 2.4: Copy LoginLogoutEndpointRouteBuilderExtensions.cs from skill folder (adds incremental consent support)
-- [ ] Step 2.5: Copy BlazorAuthenticationChallengeHandler.cs from skill folder
-- [ ] Step 2.6: Create UserInfo.razor component (LOGIN BUTTON)
-- [ ] Step 2.7: Update MainLayout.razor to include UserInfo
-- [ ] Step 2.8: Update Routes.razor with AuthorizeRouteView
-- [ ] Step 2.9: Store client secret in user-secrets
-- [ ] Step 2.10: Add try/catch with ChallengeHandler on **every page calling APIs**
+- [ ] Step 2.4: Create UserInfo.razor component (LOGIN BUTTON)
+- [ ] Step 2.5: Update MainLayout.razor to include UserInfo
+- [ ] Step 2.6: Update Routes.razor with AuthorizeRouteView
+- [ ] Step 2.7: Store client secret in user-secrets
+- [ ] Step 2.8: Add try/catch with ChallengeHandler on **every page calling APIs**
 
 ---
 
@@ -241,19 +239,11 @@ app.MapGroup("/authentication").MapLoginAndLogout();
 app.Run();
 ```
 
-**2.4 Copy `LoginLogoutEndpointRouteBuilderExtensions.cs` from skill folder:**
+> 💡 **Important:** The Blazor helpers (`BlazorAuthenticationChallengeHandler` and `LoginLogoutEndpointRouteBuilderExtensions`) ship in the `Microsoft.Identity.Web` NuGet package (v3.3.0+). Simply add `using Microsoft.Identity.Web;` — no file copying required.
+>
+> **For older package versions**: If you're using Microsoft.Identity.Web < v3.3.0, you can copy the helper files from this skill folder as a workaround. See the files `BlazorAuthenticationChallengeHandler.cs` and `LoginLogoutEndpointRouteBuilderExtensions.cs` in this directory.
 
-Copy the `LoginLogoutEndpointRouteBuilderExtensions.cs` file from this skill's folder to the Web project root.
-
-> **AGENT:** The file is located at `./LoginLogoutEndpointRouteBuilderExtensions.cs`. The namespace is `Microsoft.Identity.Web` so no changes are needed — it provides the `MapLoginAndLogout()` extension method with support for incremental consent and Conditional Access.
-
-**2.5 Copy `BlazorAuthenticationChallengeHandler.cs` from skill folder:**
-
-Copy the `BlazorAuthenticationChallengeHandler.cs` file from this skill's folder to the Web project root.
-
-> **AGENT:** The file is located at `./BlazorAuthenticationChallengeHandler.cs`. The namespace is `Microsoft.Identity.Web` so no changes are needed — it will be available once Microsoft.Identity.Web is referenced.
-
-**2.6 Create UserInfo Component (`Components/UserInfo.razor`) — THE LOGIN BUTTON:**
+**2.4 Create UserInfo Component (`Components/UserInfo.razor`) — THE LOGIN BUTTON:**
 
 > **CRITICAL: This step is frequently forgotten. Without this, users have no way to log in!**
 
@@ -275,7 +265,7 @@ Copy the `BlazorAuthenticationChallengeHandler.cs` file from this skill's folder
 </AuthorizeView>
 ```
 
-**2.7 Update MainLayout.razor to include UserInfo:**
+**2.5 Update MainLayout.razor to include UserInfo:**
 
 Find the `<main>` or navigation section in `Components/Layout/MainLayout.razor` and add the UserInfo component:
 
@@ -299,7 +289,7 @@ Find the `<main>` or navigation section in `Components/Layout/MainLayout.razor` 
 </div>
 ```
 
-**2.8 Update Routes.razor for AuthorizeRouteView:**
+**2.6 Update Routes.razor for AuthorizeRouteView:**
 
 Replace `RouteView` with `AuthorizeRouteView` in `Components/Routes.razor`:
 
@@ -319,7 +309,7 @@ Replace `RouteView` with `AuthorizeRouteView` in `Components/Routes.razor`:
 </Router>
 ```
 
-**2.9 Store Client Secret in User Secrets:**
+**2.7 Store Client Secret in User Secrets:**
 
 > **Never commit secrets to source control!**
 
@@ -499,11 +489,11 @@ else
 | ApiService | `appsettings.json` | AzureAd config (ClientId, TenantId) |
 | Web | `Program.cs` | OIDC + token acquisition + challenge handler registration |
 | Web | `appsettings.json` | AzureAd config + downstream API scopes |
-| Web | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout with incremental consent support (**copy from skill**) |
-| Web | `BlazorAuthenticationChallengeHandler.cs` | Reusable auth challenge handler (**copy from skill**) |
 | Web | `Components/UserInfo.razor` | **Login/logout button UI** |
 | Web | `Components/Layout/MainLayout.razor` | Include UserInfo in layout |
 | Web | `Components/Routes.razor` | AuthorizeRouteView for protected pages |
+
+> **Note:** The Blazor helpers (`BlazorAuthenticationChallengeHandler` and `LoginLogoutEndpointRouteBuilderExtensions`) are now included in Microsoft.Identity.Web (v3.3.0+). No manual file copying is required.
 
 ---
 
@@ -522,8 +512,6 @@ else
    - [ ] Web `Program.cs` has `AddMicrosoftIdentityWebApp` and `AddMicrosoftIdentityMessageHandler`
    - [ ] Web `Program.cs` has `AddScoped<BlazorAuthenticationChallengeHandler>()`
    - [ ] Web `appsettings.json` has `AzureAd` and scope configuration
-   - [ ] Web has `LoginLogoutEndpointRouteBuilderExtensions.cs` (with incremental consent params)
-   - [ ] Web has `BlazorAuthenticationChallengeHandler.cs`
    - [ ] Web has `Components/UserInfo.razor` (**LOGIN BUTTON**)
    - [ ] Web `MainLayout.razor` includes `<UserInfo />`
    - [ ] Web `Routes.razor` uses `AuthorizeRouteView`
