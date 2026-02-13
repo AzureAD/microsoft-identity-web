@@ -40,6 +40,7 @@
     <Compile Remove="*.cs" />
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="AzureSdkSupport\**" />
+    <Compile Remove="Blazor\**" />
     <Compile Remove="DownstreamWebApiSupport\**" />
     <Compile Remove="Resource\**" />
     <Compile Remove="Policy\**" />
