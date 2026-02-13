@@ -1234,7 +1234,7 @@ namespace Microsoft.Identity.Web
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-                    if (addInOptions != null)
+                    if (addInOptions != null && addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync != null)
                     {
                         var oboInitEventArgs = new OnBehalfOfEventArgs
                         {
@@ -1242,6 +1242,7 @@ namespace Microsoft.Identity.Web
                             User = userHint
                         };
                         await addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(oboInitEventArgs).ConfigureAwait(false);
+
                         if (oboInitEventArgs.UserAssertionToken != null)
                         {
                             tokenUsedToCallTheWebApi = oboInitEventArgs.UserAssertionToken;
@@ -1304,7 +1305,7 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
-                        if (addInOptions != null)
+                        if (addInOptions != null && addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
                         {
                             var eventArgs = new OnBehalfOfEventArgs
                             {
