@@ -1,0 +1,72 @@
+@page "/weather"
+@using Microsoft.Identity.Web
+@attribute [Authorize]
+@inject WeatherApiClient WeatherApiClient
+@inject BlazorAuthenticationChallengeHandler ChallengeHandler
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates fetching data from a protected API using Microsoft.Identity.Web.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (error != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Error loading weather data</h4>
+        <p>@error</p>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            forecasts = await WeatherApiClient.GetWeatherAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle authentication challenges (incremental consent, Conditional Access)
+            if (await ChallengeHandler.HandleExceptionAsync(ex))
+            {
+                // User will be redirected to re-authenticate with additional scopes
+                return;
+            }
+
+            // Handle other errors
+            error = $"Failed to load weather data: {ex.Message}";
+        }
+    }
+}
