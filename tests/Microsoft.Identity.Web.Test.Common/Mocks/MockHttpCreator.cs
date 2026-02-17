@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.Util;
 
 namespace Microsoft.Identity.Web.Test.Common.Mocks
@@ -141,6 +142,46 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
             {
                 ExpectedMethod = HttpMethod.Get,
                 ResponseMessage = CreateSuccessResponseMessage(json)
+            };
+        }
+
+        /// <summary>
+        /// Creates a mock HTTP handler for IMDS probe failure scenarios.
+        /// This is used to test managed identity flows when IMDS is unavailable.
+        /// </summary>
+        /// <param name="imdsVersion">The IMDS API version to mock.</param>
+        /// <param name="userAssignedIdentityId">Optional user-assigned identity ID type.</param>
+        /// <param name="userAssignedId">Optional user-assigned identity ID value.</param>
+        /// <returns>A mock HTTP message handler configured to simulate IMDS probe failure.</returns>
+        public static MockHttpMessageHandler MockImdsProbeFailure(
+            ImdsVersion imdsVersion,
+            UserAssignedIdentityId? userAssignedIdentityId = null,
+            string? userAssignedId = null)
+        {
+            // IMDS probe failure returns 404 Not Found
+            const string ImdsBaseEndpoint = "http://169.254.169.254";
+            string endpoint;
+
+            switch (imdsVersion)
+            {
+                case ImdsVersion.V2:
+                    endpoint = "/metadata/instance/compute/attestedData/csr";
+                    break;
+
+                case ImdsVersion.V1:
+                default:
+                    endpoint = "/metadata/identity/oauth2/token";
+                    break;
+            }
+
+            return new MockHttpMessageHandler
+            {
+                ExpectedUrl = $"{ImdsBaseEndpoint}{endpoint}",
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent(string.Empty),
+                },
             };
         }
     }
