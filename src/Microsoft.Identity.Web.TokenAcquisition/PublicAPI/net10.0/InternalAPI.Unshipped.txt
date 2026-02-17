@@ -5,6 +5,7 @@ const Microsoft.Identity.Web.Constants.ClientAssertionContainsInvalidSignature =
 const Microsoft.Identity.Web.Constants.InvalidClientSecret = "AADSTS7000215" -> string!
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> System.Threading.Tasks.Task!
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingCertThumbprint(Microsoft.Extensions.Logging.ILogger! logger, string? certThumbprint) -> void
 static readonly Microsoft.Identity.Web.Constants.s_certificateRelatedErrorCodes -> System.Collections.Generic.HashSet<string!>!
 static readonly Microsoft.Identity.Web.Constants.s_nonRetryableConfigErrorCodes -> System.Collections.Generic.HashSet<string!>!
