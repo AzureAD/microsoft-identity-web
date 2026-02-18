@@ -216,6 +216,51 @@ namespace Microsoft.Identity.Web.Test
             Assert.Null(callerOptions.LongRunningWebApiSessionKey);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public async Task GetTokenForUserAsync_WhenEffectiveKeyIsNullOrEmpty_DoesNotOverwriteCallerKey(string? effectiveKeyValue)
+        {
+            // Arrange
+            const string originalKey = "test-key";
+            var authResult = CreateMockAuthenticationResult();
+            var callerOptions = new AcquireTokenOptions
+            {
+                LongRunningWebApiSessionKey = originalKey,
+            };
+
+            _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<ClaimsPrincipal>(),
+                Arg.Any<TokenAcquisitionOptions>())
+                .Returns(callInfo =>
+                {
+                    // simulate TokenAcquisition setting the key to a null or empty value
+                    var options = callInfo.ArgAt<TokenAcquisitionOptions>(5);
+                    if (options is not null)
+                    {
+                        options.LongRunningWebApiSessionKey = effectiveKeyValue;
+                    }
+
+                    return Task.FromResult(authResult);
+                });
+
+            var tokenAcquirer = new TokenAcquirer(_tokenAcquisition, _authenticationScheme);
+
+            // Act
+            await ((ITokenAcquirer)tokenAcquirer).GetTokenForUserAsync(
+                new[] { _scope },
+                callerOptions,
+                user: null,
+                CancellationToken.None);
+
+            // Assert
+            Assert.Equal(originalKey, callerOptions.LongRunningWebApiSessionKey);
+        }
+
         private AuthenticationResult CreateMockAuthenticationResult(X509Certificate2? bindingCertificate = null)
         {
             var authResult = new AuthenticationResult(

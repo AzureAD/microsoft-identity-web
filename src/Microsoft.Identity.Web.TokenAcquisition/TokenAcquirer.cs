@@ -39,7 +39,8 @@ namespace Microsoft.Identity.Web
                 ).ConfigureAwait(false);
 
             // Propagate LongRunningWebApiSessionKey (possibly auto-generated) back to the caller
-            if (tokenAcquisitionOptions is not null && effectiveOptions is not null)
+            if (tokenAcquisitionOptions is not null && effectiveOptions is not null
+                && !string.IsNullOrEmpty(effectiveOptions.LongRunningWebApiSessionKey))
             {
                 tokenAcquisitionOptions.LongRunningWebApiSessionKey = effectiveOptions.LongRunningWebApiSessionKey;
             }
