@@ -234,7 +234,7 @@ graph TD
 
 ### Session Keys
 
-Long-running OBO processes use a **session key** to associate a cached OBO token with a particular background workflow. there are two options:
+Long-running OBO processes use a **session key** to associate a cached OBO token with a particular background workflow. There are two options:
 
 | Approach | When to use |
 |---|---|
