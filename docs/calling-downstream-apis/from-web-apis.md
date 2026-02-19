@@ -232,7 +232,16 @@ graph TD
     style F fill:#d4edda
 ```
 
-### Long-Running Process Pattern
+### Session Keys
+
+Long-running OBO processes use a **session key** to associate a cached OBO token with a particular background workflow. there are two options:
+
+| Approach | When to use |
+|---|---|
+| **Explicit key** – you supply your own key (e.g. a `Guid`) | You already have a natural identifier for the work item (process ID, job ID, etc.) |
+| **`AllocateForMe`** – the token layer auto-generates a key | You don't have a natural identifier, or you want the identity platform to manage key uniqueness |
+
+### Long-Running Process Pattern with an Explicit Key
 
 ```csharp
 [Authorize]
@@ -306,11 +315,93 @@ public class ProcessingController : ControllerBase
 }
 ```
 
+### Long-Running Process Pattern with `AllocateForMe`
+
+Instead of managing your own key, set `LongRunningWebApiSessionKey` to the special sentinel value **`AcquireTokenOptions.LongRunningWebApiSessionKeyAuto`** (the string `"AllocateForMe"`). On the first call the token acquisition layer will auto-generate a unique session key and write it back to the same `AcquireTokenOptions` instance. You then read the generated key and pass it on all subsequent calls.
+
+```csharp
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class AutoKeyProcessingController : ControllerBase
+{
+    private readonly IDownstreamApi _downstreamApi;
+    private readonly IBackgroundTaskQueue _taskQueue;
+
+    public AutoKeyProcessingController(
+        IDownstreamApi downstreamApi,
+        IBackgroundTaskQueue taskQueue)
+    {
+        _downstreamApi = downstreamApi;
+        _taskQueue = taskQueue;
+    }
+
+    [HttpPost("start")]
+    public async Task<ActionResult<ProcessStatus>> StartLongProcess([FromBody] ProcessRequest request)
+    {
+        // ── First call: let the platform allocate a session key ──
+        var options = new DownstreamApiOptions
+        {
+            RelativePath = "api/process/data",
+            AcquireTokenOptions = new AcquireTokenOptions
+            {
+                // Sentinel value — the platform will replace this with a generated key
+                LongRunningWebApiSessionKey = AcquireTokenOptions.LongRunningWebApiSessionKeyAuto  // "AllocateForMe"
+            }
+        };
+
+        var data = await _downstreamApi.GetForUserAsync<ProcessData>(
+            "PartnerAPI",
+            optionsOverride => {
+                optionsOverride.RelativePath = options.RelativePath;
+                optionsOverride.AcquireTokenOptions.LongRunningWebApiSessionKey =
+                    options.AcquireTokenOptions.LongRunningWebApiSessionKey;
+            });
+
+        // After the call, the platform has replaced the sentinel with the generated key.
+        string generatedSessionKey = options.AcquireTokenOptions.LongRunningWebApiSessionKey;
+        // generatedSessionKey is now a unique string such as "a1b2c3d4..." — no longer "AllocateForMe".
+
+        // ── Queue background work using the generated key ──
+        _taskQueue.QueueBackgroundWorkItem(async (cancellationToken) =>
+        {
+            await ContinueProcessingAsync(generatedSessionKey, data, cancellationToken);
+        });
+
+        return Accepted(new ProcessStatus
+        {
+            SessionKey = generatedSessionKey,
+            Status = "Started"
+        });
+    }
+
+    private async Task ContinueProcessingAsync(
+        string sessionKey,
+        ProcessData data,
+        CancellationToken cancellationToken)
+    {
+        // Process data...
+        await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken);
+
+        // ── Subsequent calls: reuse the generated session key ──
+        await _downstreamApi.PostForUserAsync<ProcessData, ProcessResult>(
+            "PartnerAPI",
+            options => {
+                options.RelativePath = "api/process/complete";
+                options.AcquireTokenOptions.LongRunningWebApiSessionKey = sessionKey;
+            },
+            data,
+            cancellationToken: cancellationToken);
+    }
+}
+```
+
 ### Important Considerations
 
-2. **Token Cache**: Must use distributed cache for background processes
-3. **User Context**: `HttpContext.User` is available in the background worker
-4. **Error Handling**: Token may still expire if user revokes consent
+1. **Session Key Lifetime**: Store the generated session key alongside your work item (database, queue message, etc.) so background workers can retrieve it.
+2. **Token Cache**: Must use distributed cache for background processes.
+3. **User Context**: `HttpContext.User` is available in the background worker.
+4. **Error Handling**: Token may still expire if user revokes consent.
 
 ## Error Handling Specific to APIs
 
