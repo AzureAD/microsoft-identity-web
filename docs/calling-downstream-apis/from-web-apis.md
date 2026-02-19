@@ -239,7 +239,7 @@ Long-running OBO processes use a **session key** to associate a cached OBO token
 | Approach | When to use |
 |---|---|
 | **Explicit key** – you supply your own key (e.g. a `Guid`) | You already have a natural identifier for the work item (process ID, job ID, etc.) |
-| **`AllocateForMe`** – the token layer auto-generates a key | You don't have a natural identifier, or you want the identity platform to manage key uniqueness |
+| **`AllocateForMe`** – the token layer auto-generates a key | You don't have a natural identifier, or you want the identity platform to manage key uniqueness. The SDK will use `hash(client_token)` internally |
 
 ### Long-Running Process Pattern with an Explicit Key
 
