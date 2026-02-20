@@ -41,11 +41,7 @@ namespace Microsoft.Identity.Web.Internal
                 { configuration.Bind(options); });
                 services.Configure<MicrosoftIdentityOptions>(authenticationScheme, options
                     =>
-#if NET10_0_OR_GREATER
-                { MicrosoftIdentityOptionsBinder.Bind(options, configuration); });
-#else
-                {  configuration.Bind(options); });
-#endif
+                { configuration.Bind(options); });
             }
             services.AddTokenAcquisition();
 

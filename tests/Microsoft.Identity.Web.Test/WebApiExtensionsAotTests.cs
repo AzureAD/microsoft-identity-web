@@ -12,8 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -35,12 +33,19 @@ namespace Microsoft.Identity.Web.Test
         public void AddMicrosoftIdentityWebApiAot_WithConfigSection_RegistersServices()
         {
             // Arrange
-            var configSection = GetConfigSection();
             var services = new ServiceCollection().AddLogging();
 
             // Act
             services.AddAuthentication()
-                .AddMicrosoftIdentityWebApiAot(configSection, JwtBearerScheme, null);
+                .AddMicrosoftIdentityWebApiAot(
+                    options =>
+                    {
+                        options.Instance = TestConstants.AadInstance;
+                        options.TenantId = TestConstants.TenantIdAsGuid;
+                        options.ClientId = TestConstants.ClientId;
+                    },
+                    JwtBearerScheme,
+                    null);
 
             // Assert
             var provider = services.BuildServiceProvider();
@@ -488,21 +493,6 @@ namespace Microsoft.Identity.Web.Test
             var mergedOptions = mergedOptionsStore.Get(JwtBearerScheme);
             Assert.NotNull(mergedOptions);
             Assert.Equal(TestConstants.ClientId, mergedOptions.ClientId);
-        }
-
-        private IConfigurationSection GetConfigSection()
-        {
-            var configAsDictionary = new Dictionary<string, string?>()
-            {
-                { ConfigSectionName, null },
-                { $"{ConfigSectionName}:Instance", TestConstants.AadInstance },
-                { $"{ConfigSectionName}:TenantId", TestConstants.TenantIdAsGuid },
-                { $"{ConfigSectionName}:ClientId", TestConstants.ClientId },
-            };
-            var memoryConfigSource = new MemoryConfigurationSource { InitialData = configAsDictionary };
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.Add(memoryConfigSource);
-            return configBuilder.Build().GetSection(ConfigSectionName);
         }
     }
 }

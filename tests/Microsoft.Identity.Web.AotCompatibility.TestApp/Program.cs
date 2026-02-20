@@ -3,6 +3,7 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -14,9 +15,13 @@ internal sealed class Program
     {
         var builder = WebApplication.CreateSlimBuilder();
 
+        var azureAdSection = builder.Configuration.GetSection("AzureAd");
         builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApiAot(builder.Configuration.GetSection("AzureAd"), JwtBearerDefaults.AuthenticationScheme, null);
+            .AddMicrosoftIdentityWebApiAot(
+                options => azureAdSection.Bind(options),
+                JwtBearerDefaults.AuthenticationScheme,
+                null);
 
         builder.Services.AddTokenAcquisition()
             .AddInMemoryTokenCaches();
