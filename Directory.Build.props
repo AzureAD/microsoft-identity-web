@@ -179,6 +179,7 @@
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>2.1.1</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
   </PropertyGroup>
 
   <ItemGroup>
