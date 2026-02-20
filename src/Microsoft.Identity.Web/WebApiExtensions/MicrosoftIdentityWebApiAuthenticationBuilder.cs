@@ -93,14 +93,8 @@ namespace Microsoft.Identity.Web
                 {
                     options.Events ??= new JwtBearerEvents();
 
-                    var onTokenValidatedHandler = options.Events.OnTokenValidated;
-
-                    options.Events.OnTokenValidated = async context =>
-                    {
-                        // Only pass through a token if it is of an expected type
-                        context.HttpContext.StoreTokenUsedToCallWebAPI(context.SecurityToken is JwtSecurityToken or JsonWebToken ? context.SecurityToken : null);
-                        await onTokenValidatedHandler(context).ConfigureAwait(false);
-                    };
+                    // Chain token storage handler using shared helper
+                    options.Events.OnTokenValidated = Internal.IdentityOptionsHelpers.ChainTokenStorageHandler(options.Events.OnTokenValidated);
                 });
         }
     }
