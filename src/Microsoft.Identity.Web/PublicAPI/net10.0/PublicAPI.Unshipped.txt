@@ -1,4 +1,3 @@
 #nullable enable
-static Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApiAot(this Microsoft.AspNetCore.Authentication.AuthenticationBuilder! builder, Microsoft.Extensions.Configuration.IConfigurationSection! configurationSection, string! jwtBearerScheme, System.Action<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions!>? configureJwtBearerOptions) -> Microsoft.AspNetCore.Authentication.AuthenticationBuilder!
 static Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApiAot(this Microsoft.AspNetCore.Authentication.AuthenticationBuilder! builder, System.Action<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! configureOptions, string! jwtBearerScheme, System.Action<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions!>? configureJwtBearerOptions) -> Microsoft.AspNetCore.Authentication.AuthenticationBuilder!
 
