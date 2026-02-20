@@ -165,6 +165,7 @@
     <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
     <MicrosoftExtensionsConfigurationBinderVersion>6.0.0</MicrosoftExtensionsConfigurationBinderVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>6.0.1</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net472'">
