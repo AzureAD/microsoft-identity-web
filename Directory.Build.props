@@ -109,6 +109,7 @@
     <SystemSecurityCryptographyXmlVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
@@ -126,6 +127,7 @@
     <SystemSecurityCryptographyXmlVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
     <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
@@ -142,6 +144,7 @@
     <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>6.0.1</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
