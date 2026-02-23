@@ -1,3 +1,7 @@
+// NOTE: This file is included in Microsoft.Identity.Web package (v3.3.0+).
+// This copy is maintained for AI skill reference and documentation purposes.
+// For production use, reference the NuGet package directly.
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;

@@ -105,13 +105,12 @@ Get-ChildItem -Recurse -Filter "Program.cs" | ForEach-Object {
 - [ ] Step 2.1: Add Microsoft.Identity.Web package
 - [ ] Step 2.2: Update appsettings.json with AzureAd and scopes
 - [ ] Step 2.3: Update Program.cs with OIDC, token acquisition, and **BlazorAuthenticationChallengeHandler**
-- [ ] Step 2.4: Copy LoginLogoutEndpointRouteBuilderExtensions.cs from skill folder (adds incremental consent support)
-- [ ] Step 2.5: Copy BlazorAuthenticationChallengeHandler.cs from skill folder
-- [ ] Step 2.6: Create UserInfo.razor component (LOGIN BUTTON)
-- [ ] Step 2.7: Update MainLayout.razor to include UserInfo
-- [ ] Step 2.8: Update Routes.razor with AuthorizeRouteView
-- [ ] Step 2.9: Store client secret in user-secrets
-- [ ] Step 2.10: Add try/catch with ChallengeHandler on **every page calling APIs**
+- [ ] Step 2.4: Verify Microsoft.Identity.Web version includes Blazor helpers (v3.3.0+)
+- [ ] Step 2.5: Create UserInfo.razor component (LOGIN BUTTON)
+- [ ] Step 2.6: Update MainLayout.razor to include UserInfo
+- [ ] Step 2.7: Update Routes.razor with AuthorizeRouteView
+- [ ] Step 2.8: Store client secret in user-secrets
+- [ ] Step 2.9: Add try/catch with ChallengeHandler on **every page calling APIs**
 
 ---
 
@@ -241,17 +240,11 @@ app.MapGroup("/authentication").MapLoginAndLogout();
 app.Run();
 ```
 
-**2.4 Copy `LoginLogoutEndpointRouteBuilderExtensions.cs` from skill folder:**
+**2.4 Blazor authentication helpers:**
 
-Copy the `LoginLogoutEndpointRouteBuilderExtensions.cs` file from this skill's folder to the Web project root.
+These helpers ship in the `Microsoft.Identity.Web` NuGet package (version 3.3.0+). Simply add `using Microsoft.Identity.Web;` — no file copying required.
 
-> **AGENT:** The file is located at `./LoginLogoutEndpointRouteBuilderExtensions.cs`. The namespace is `Microsoft.Identity.Web` so no changes are needed — it provides the `MapLoginAndLogout()` extension method with support for incremental consent and Conditional Access.
-
-**2.5 Copy `BlazorAuthenticationChallengeHandler.cs` from skill folder:**
-
-Copy the `BlazorAuthenticationChallengeHandler.cs` file from this skill's folder to the Web project root.
-
-> **AGENT:** The file is located at `./BlazorAuthenticationChallengeHandler.cs`. The namespace is `Microsoft.Identity.Web` so no changes are needed — it will be available once Microsoft.Identity.Web is referenced.
+> **AGENT:** The `LoginLogoutEndpointRouteBuilderExtensions` class provides the `MapLoginAndLogout()` extension method with support for incremental consent and Conditional Access. The `BlazorAuthenticationChallengeHandler` class handles authentication challenges in Blazor Server components. Both are now included in Microsoft.Identity.Web and are automatically available once you reference the package.
 
 **2.6 Create UserInfo Component (`Components/UserInfo.razor`) — THE LOGIN BUTTON:**
 
@@ -499,11 +492,11 @@ else
 | ApiService | `appsettings.json` | AzureAd config (ClientId, TenantId) |
 | Web | `Program.cs` | OIDC + token acquisition + challenge handler registration |
 | Web | `appsettings.json` | AzureAd config + downstream API scopes |
-| Web | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout with incremental consent support (**copy from skill**) |
-| Web | `BlazorAuthenticationChallengeHandler.cs` | Reusable auth challenge handler (**copy from skill**) |
 | Web | `Components/UserInfo.razor` | **Login/logout button UI** |
 | Web | `Components/Layout/MainLayout.razor` | Include UserInfo in layout |
 | Web | `Components/Routes.razor` | AuthorizeRouteView for protected pages |
+
+> **Note:** `LoginLogoutEndpointRouteBuilderExtensions` and `BlazorAuthenticationChallengeHandler` are now included in the Microsoft.Identity.Web NuGet package (v3.3.0+). Simply reference the package and use `using Microsoft.Identity.Web;` — no file copying required.
 
 ---
 
@@ -522,12 +515,11 @@ else
    - [ ] Web `Program.cs` has `AddMicrosoftIdentityWebApp` and `AddMicrosoftIdentityMessageHandler`
    - [ ] Web `Program.cs` has `AddScoped<BlazorAuthenticationChallengeHandler>()`
    - [ ] Web `appsettings.json` has `AzureAd` and scope configuration
-   - [ ] Web has `LoginLogoutEndpointRouteBuilderExtensions.cs` (with incremental consent params)
-   - [ ] Web has `BlazorAuthenticationChallengeHandler.cs`
    - [ ] Web has `Components/UserInfo.razor` (**LOGIN BUTTON**)
    - [ ] Web `MainLayout.razor` includes `<UserInfo />`
    - [ ] Web `Routes.razor` uses `AuthorizeRouteView`
    - [ ] **Every page calling protected APIs** has try/catch with `ChallengeHandler.HandleExceptionAsync(ex)`
+   - [ ] Microsoft.Identity.Web package version is 3.3.0 or higher
 
 3. **AGENT: Inform user of next step:**
    > "✅ **Phase 1 complete!** Authentication code is in place. The app will **build** but **won't run** until app registrations are configured.

@@ -281,7 +281,9 @@ app.UseAuthorization();
 app.MapGroup("/authentication").MapLoginAndLogout();
 ```
 
-> ⚠️ **Don't forget:** Copy the helper files (`BlazorAuthenticationChallengeHandler.cs`, `LoginLogoutEndpointRouteBuilderExtensions.cs`) and create `UserInfo.razor`. See [Part 2](#part-2-configure-blazor-frontend-for-authentication) for details.
+> ⚠️ **Don't forget:** Create `UserInfo.razor` for the login button. See [Part 2](#part-2-configure-blazor-frontend-for-authentication) for details.
+> 
+> **Note:** `BlazorAuthenticationChallengeHandler` and `LoginLogoutEndpointRouteBuilderExtensions` ship in Microsoft.Identity.Web (v3.3.0+) — no file copying required.
 
 **That's it!** The `MicrosoftIdentityMessageHandler` automatically acquires and attaches tokens, and `BlazorAuthenticationChallengeHandler` handles consent/Conditional Access challenges.
 
@@ -298,13 +300,13 @@ app.MapGroup("/authentication").MapLoginAndLogout();
 | | `.csproj` | Add `Microsoft.Identity.Web` |
 | **Web** | `Program.cs` | OIDC auth, token acquisition, BlazorAuthenticationChallengeHandler |
 | | `appsettings.json` | Azure AD config, downstream API scopes |
-| | `.csproj` | Add `Microsoft.Identity.Web` |
-| | `LoginLogoutEndpointRouteBuilderExtensions.cs` | Login/logout with incremental consent *(copy from skill)* |
-| | `BlazorAuthenticationChallengeHandler.cs` | Auth challenge handler *(copy from skill)* |
+| | `.csproj` | Add `Microsoft.Identity.Web` (v3.3.0+) |
 | | `Components/UserInfo.razor` | **Login button UI** *(new file)* |
 | | `Components/Layout/MainLayout.razor` | Include UserInfo component |
 | | `Components/Routes.razor` | AuthorizeRouteView for protected pages |
 | | Pages calling APIs | Try/catch with ChallengeHandler |
+
+> **Note:** `LoginLogoutEndpointRouteBuilderExtensions` and `BlazorAuthenticationChallengeHandler` are included in Microsoft.Identity.Web (v3.3.0+) — no file copying required.
 
 ---
 
@@ -528,7 +530,7 @@ curl -H "Authorization: Bearer <TOKEN>" https://localhost:<PORT>/weatherforecast
 
 ## Part 2: Configure Blazor frontend for authentication
 
-> 📍 **Still in Phase 1** — This part completes the code implementation. You'll need the helper files from the skill folder.
+> 📍 **Still in Phase 1** — This part completes the code implementation. The Blazor helpers are included in Microsoft.Identity.Web (v3.3.0+).
 
 The Blazor Server app uses **Microsoft.Identity.Web** to:
 - Sign users in with OIDC
@@ -726,22 +728,16 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 
 </details>
 
-### 2.4: Copy helper files from skill folder
+### 2.4: Blazor authentication helpers
 
-The authentication implementation requires two helper files. **Copy these from the skill folder** rather than creating them manually:
+These helpers ship in the **Microsoft.Identity.Web** NuGet package (version **3.3.0+**). Simply add `using Microsoft.Identity.Web;` — no file copying required.
 
-```powershell
-# From your solution root, copy the helper files
-$skillPath = ".github/skills/entra-id-aspire-authentication"
-Copy-Item "$skillPath/LoginLogoutEndpointRouteBuilderExtensions.cs" "MyService.Web/"
-Copy-Item "$skillPath/BlazorAuthenticationChallengeHandler.cs" "MyService.Web/"
-```
-
-> 💡 **Tip:** These files are in the `Microsoft.Identity.Web` namespace, so they're available once you reference the package. Eventually they will
->    ship in the Microsoft.Identity.Web NuGet packge.
+> 💡 **Note:** `LoginLogoutEndpointRouteBuilderExtensions` provides the `MapLoginAndLogout()` extension method, and `BlazorAuthenticationChallengeHandler` handles authentication challenges. Both are now included in the package and are automatically available once you reference it.
 
 <details>
-<summary><strong>📄 View LoginLogoutEndpointRouteBuilderExtensions.cs</strong></summary>
+<summary><strong>📄 View LoginLogoutEndpointRouteBuilderExtensions.cs (Reference)</strong></summary>
+
+> **Note:** This implementation ships in **Microsoft.Identity.Web v3.3.0+**. The code below is shown for reference only — use the NuGet package in production.
 
 This enhanced version supports **incremental consent** and **Conditional Access** via query parameters:
 
@@ -844,7 +840,9 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
 </details>
 
 <details>
-<summary><strong>📄 View BlazorAuthenticationChallengeHandler.cs</strong></summary>
+<summary><strong>📄 View BlazorAuthenticationChallengeHandler.cs (Reference)</strong></summary>
+
+> **Note:** This implementation ships in **Microsoft.Identity.Web v3.3.0+**. The code below is shown for reference only — use the NuGet package in production.
 
 This handler manages authentication challenges in Blazor Server components:
 
@@ -1194,12 +1192,11 @@ Use this checklist to verify all steps are complete:
 - [ ] Added `.RequireAuthorization()` to protected endpoints
 
 ### Web/Blazor project
-- [ ] Added `Microsoft.Identity.Web` package
+- [ ] Added `Microsoft.Identity.Web` package (v3.3.0+)
 - [ ] Updated `appsettings.json` with `AzureAd` and `WeatherApi` sections
 - [ ] Updated `Program.cs` with OIDC, token acquisition
 - [ ] Added `AddScoped<BlazorAuthenticationChallengeHandler>()`
-- [ ] Copied `LoginLogoutEndpointRouteBuilderExtensions.cs` from skill folder
-- [ ] Copied `BlazorAuthenticationChallengeHandler.cs` from skill folder
+- [ ] Verified Blazor helpers are available (included in package v3.3.0+)
 - [ ] Created `Components/UserInfo.razor` (**THE LOGIN BUTTON**)
 - [ ] Updated `MainLayout.razor` to include `<UserInfo />`
 - [ ] Updated `Routes.razor` with `AuthorizeRouteView`
@@ -1574,9 +1571,11 @@ This guide has companion **AI Skills** for GitHub Copilot, Claude, and other AI 
 | **entra-id-aspire-authentication** | Phase 1: Add authentication code | [SKILL.md](../../.github/skills/entra-id-aspire-authentication/SKILL.md) |
 | **entra-id-aspire-provisioning** | Phase 2: Create app registrations | [SKILL.md](../../.github/skills/entra-id-aspire-provisioning/SKILL.md) |
 
-The authentication skill folder also contains **ready-to-copy helper files**:
+The authentication skill folder also contains **reference implementations of helper files**:
 - `BlazorAuthenticationChallengeHandler.cs` - Handles incremental consent and Conditional Access
 - `LoginLogoutEndpointRouteBuilderExtensions.cs` - Enhanced login/logout endpoints
+
+> **Note:** These helpers are included in Microsoft.Identity.Web (v3.3.0+). The skill folder copies are maintained for AI skill reference and documentation purposes.
 
 See the [Skills README](../../.github/skills/README.md) for installation instructions.
 
