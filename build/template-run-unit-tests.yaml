@@ -44,12 +44,14 @@ steps:
     minimumExpectedTests: '1'
     runSettingsFile: 'build\CodeCoverage.runsettings'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish traces after test'
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
-    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
-  condition: failed()
+# These do not run on OB
+
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish traces after test'
+#   inputs:
+#     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
+#     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+#   condition: failed()
 
 # # Copy all packages out to staging
 # - task: CopyFiles@2
