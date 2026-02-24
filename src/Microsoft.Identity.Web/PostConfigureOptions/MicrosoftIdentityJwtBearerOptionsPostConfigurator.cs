@@ -63,16 +63,8 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                     options.TokenValidationParameters, appOptions);
             }
 
-            // Configure issuer validation if not already set
-            if (options.TokenValidationParameters.ValidateIssuer &&
-                options.TokenValidationParameters.IssuerValidator == null)
-            {
-                var microsoftIdentityIssuerValidatorFactory =
-                    _serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
-
-                options.TokenValidationParameters.IssuerValidator =
-                    microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority!).Validate;
-            }
+            // Configure issuer validation
+            IdentityOptionsHelpers.ConfigureIssuerValidation(options, _serviceProvider);
 
             // Configure token decryption if credentials provided
             if (appOptions.TokenDecryptionCredentials != null && appOptions.TokenDecryptionCredentials.Any())
@@ -96,24 +88,8 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             // Enable AAD signing key issuer validation
             options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
 
-            // Ensure events object exists
-            if (options.Events == null)
-            {
-                options.Events = new JwtBearerEvents();
-            }
-
-            // Set up configuration manager on message received
-            var existingOnMessageReceived = options.Events.OnMessageReceived;
-            options.Events.OnMessageReceived = async context =>
-            {
-                context.Options.TokenValidationParameters.ConfigurationManager ??=
-                    options.ConfigurationManager as BaseConfigurationManager;
-
-                if (existingOnMessageReceived != null)
-                {
-                    await existingOnMessageReceived(context).ConfigureAwait(false);
-                }
-            };
+            // Ensure events and wire up ConfigurationManager on message received
+            IdentityOptionsHelpers.InitializeJwtBearerEvents(options);
 
             // Add claims validation if not allowing ACL authorization
             if (!appOptions.AllowWebApiToBeAuthorizedByACL)

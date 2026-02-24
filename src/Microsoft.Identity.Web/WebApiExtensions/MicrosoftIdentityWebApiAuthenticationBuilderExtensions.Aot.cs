@@ -23,12 +23,45 @@ namespace Microsoft.Identity.Web
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (AOT-compatible).
+        /// This is the AOT-safe alternative to <see cref="AddMicrosoftIdentityWebApi(AuthenticationBuilder, Microsoft.Extensions.Configuration.IConfiguration, string, string, bool)"/>
+        /// and does not rely on reflection-based configuration binding.
         /// </summary>
         /// <param name="builder">The <see cref="AuthenticationBuilder"/> to which to add this configuration.</param>
         /// <param name="configureOptions">The action to configure <see cref="MicrosoftIdentityApplicationOptions"/>.</param>
         /// <param name="jwtBearerScheme">The JWT bearer scheme name to be used. By default it uses "Bearer".</param>
         /// <param name="configureJwtBearerOptions">Optional action to configure <see cref="JwtBearerOptions"/>.</param>
         /// <returns>The authentication builder to chain.</returns>
+        /// <remarks>
+        /// <para>
+        /// This method takes an <see cref="Action{MicrosoftIdentityApplicationOptions}"/> delegate that
+        /// the caller uses to bind configuration values.
+        /// </para>
+        /// <para>
+        /// To get AOT-safe configuration binding, enable the configuration binding source generator
+        /// in your project file:
+        /// </para>
+        /// <code>
+        /// &lt;EnableConfigurationBindingGenerator&gt;true&lt;/EnableConfigurationBindingGenerator&gt;
+        /// </code>
+        /// <para>
+        /// The source generator produces compile-time binding code for
+        /// <see cref="Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Microsoft.Extensions.Configuration.IConfiguration, object)"/>
+        /// calls, eliminating the need for reflection at runtime.
+        /// </para>
+        /// </remarks>
+        /// <example>
+        /// <para>The following example shows how to protect a web API using AOT-compatible configuration binding:</para>
+        /// <code>
+        /// var azureAdSection = builder.Configuration.GetSection("AzureAd");
+        ///
+        /// builder.Services
+        ///     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        ///     .AddMicrosoftIdentityWebApiAot(
+        ///         options => azureAdSection.Bind(options),
+        ///         JwtBearerDefaults.AuthenticationScheme,
+        ///         configureJwtBearerOptions: null);
+        /// </code>
+        /// </example>
         public static AuthenticationBuilder AddMicrosoftIdentityWebApiAot(
             this AuthenticationBuilder builder,
             Action<MicrosoftIdentityApplicationOptions> configureOptions,

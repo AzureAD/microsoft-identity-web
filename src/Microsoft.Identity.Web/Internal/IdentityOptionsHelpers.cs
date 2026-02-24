@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 #if !NETSTANDARD2_0 && !NET462 && !NET472
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web.Resource;
 #endif
 
 namespace Microsoft.Identity.Web.Internal
@@ -54,12 +56,12 @@ namespace Microsoft.Identity.Web.Internal
             // options.Instance is guaranteed to be non-null because we check it at the start of the method
             var instance = options.Instance!.TrimEnd('/');
             bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
-            
+
             if (isB2C)
             {
                 return $"{instance}/{options.Domain}/{options.SignUpSignInPolicyId}/v2.0";
             }
-            
+
             return $"{instance}/{options.TenantId}/v2.0";
 #endif
         }
@@ -74,28 +76,28 @@ namespace Microsoft.Identity.Web.Internal
             if (string.IsNullOrEmpty(options.ClientId))
             {
                 throw new ArgumentNullException(
-                    options.ClientId, 
+                    options.ClientId,
                     string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
             }
+
+            // B2C is detected by presence of SignUpSignInPolicyId
+            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
 
             if (string.IsNullOrEmpty(options.Authority))
             {
                 if (string.IsNullOrEmpty(options.Instance))
                 {
                     throw new ArgumentNullException(
-                        options.Instance, 
+                        options.Instance,
                         string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
                 }
-
-                // B2C is detected by presence of SignUpSignInPolicyId
-                bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
 
                 if (isB2C)
                 {
                     if (string.IsNullOrEmpty(options.Domain))
                     {
                         throw new ArgumentNullException(
-                            options.Domain, 
+                            options.Domain,
                             string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
                     }
                 }
@@ -104,7 +106,7 @@ namespace Microsoft.Identity.Web.Internal
                     if (string.IsNullOrEmpty(options.TenantId))
                     {
                         throw new ArgumentNullException(
-                            options.TenantId, 
+                            options.TenantId,
                             string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
                     }
                 }
@@ -113,6 +115,53 @@ namespace Microsoft.Identity.Web.Internal
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
+        /// Configures issuer validation on the JWT bearer options.
+        /// Sets up multi-tenant issuer validation logic that accepts both v1.0 and v2.0 tokens.
+        /// If the developer has already registered an IssuerValidator, it will not be overwritten.
+        /// </summary>
+        /// <param name="options">The JWT bearer options containing token validation parameters and authority.</param>
+        /// <param name="serviceProvider">The service provider to resolve the issuer validator factory.</param>
+        internal static void ConfigureIssuerValidation(
+            JwtBearerOptions options,
+            IServiceProvider serviceProvider)
+        {
+            if (options.TokenValidationParameters.ValidateIssuer &&
+                options.TokenValidationParameters.IssuerValidator == null)
+            {
+                var microsoftIdentityIssuerValidatorFactory =
+                    serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
+
+                options.TokenValidationParameters.IssuerValidator =
+                    microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority!).Validate;
+            }
+        }
+
+        /// <summary>
+        /// Ensures the JwtBearerOptions.Events object exists and wires up the
+        /// ConfigurationManager on the OnMessageReceived event.
+        /// </summary>
+        /// <param name="options">The JWT bearer options to configure.</param>
+        internal static void InitializeJwtBearerEvents(JwtBearerOptions options)
+        {
+            if (options.Events == null)
+            {
+                options.Events = new JwtBearerEvents();
+            }
+
+            var existingOnMessageReceived = options.Events.OnMessageReceived;
+            options.Events.OnMessageReceived = async context =>
+            {
+                context.Options.TokenValidationParameters.ConfigurationManager ??=
+                    options.ConfigurationManager as BaseConfigurationManager;
+
+                if (existingOnMessageReceived != null)
+                {
+                    await existingOnMessageReceived(context).ConfigureAwait(false);
+                }
+            };
+        }
+
+        /// <summary>
         /// Configures audience validation on the token validation parameters.
         /// Sets up custom validator for handling v1.0/v2.0 and B2C tokens correctly.
         /// This is AOT-compatible as it directly sets up the validator without using reflection or MicrosoftIdentityOptions.
@@ -120,7 +169,7 @@ namespace Microsoft.Identity.Web.Internal
         /// <param name="validationParameters">The token validation parameters to configure.</param>
         /// <param name="options">The application options containing client ID and B2C flag.</param>
         internal static void ConfigureAudienceValidation(
-            TokenValidationParameters validationParameters, 
+            TokenValidationParameters validationParameters,
             MicrosoftIdentityApplicationOptions options)
         {
             string? clientId = options.ClientId;
@@ -170,9 +219,9 @@ namespace Microsoft.Identity.Web.Internal
             {
                 // Only pass through a token if it is of an expected type
                 context.HttpContext.StoreTokenUsedToCallWebAPI(
-                    context.SecurityToken is System.IdentityModel.Tokens.Jwt.JwtSecurityToken or 
+                    context.SecurityToken is System.IdentityModel.Tokens.Jwt.JwtSecurityToken or
                     Microsoft.IdentityModel.JsonWebTokens.JsonWebToken ? context.SecurityToken : null);
-                
+
                 if (existingHandler != null)
                 {
                     await existingHandler(context).ConfigureAwait(false);
