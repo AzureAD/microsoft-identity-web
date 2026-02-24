@@ -36,7 +36,12 @@ steps:
     testAssemblyVer2: |
         tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
         tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
-        tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
+        tests\E2E Tests\AgentApplicationTests\bin\**\AgentApplicationTests.dll
+        tests\E2E Tests\CustomSignedAssertionProviderTests\bin\**\CustomSignedAssertionProviderTests.dll
+        tests\E2E Tests\GraphServiceClientTests\bin\**\GraphServiceClientTests.dll
+        tests\E2E Tests\OidcIdpSignedAssertionProviderTests\bin\**\OidcIdpSignedAssertionProviderTests.dll
+        tests\E2E Tests\Sidecar.Tests\bin\**\Sidecar.Tests.dll
+        tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
