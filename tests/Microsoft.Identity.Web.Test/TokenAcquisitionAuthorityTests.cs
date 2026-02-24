@@ -141,7 +141,7 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(expectedAuthority, app.Authority);
         }
-
+      
         [Theory]
         [InlineData("https://localhost:1234")]
         [InlineData("")]
