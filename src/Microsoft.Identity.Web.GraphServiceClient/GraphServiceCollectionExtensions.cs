@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,8 @@ namespace Microsoft.Identity.Web
         /// <param name="services">Builder.</param>
         /// <param name="configurationSection">Configuration section containing the Microsoft graph config.</param>
         /// <returns>The service collection to chain.</returns>
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static IServiceCollection AddMicrosoftGraph(this IServiceCollection services, IConfiguration configurationSection)
         {
             return services.AddMicrosoftGraph(o => configurationSection.Bind(o));

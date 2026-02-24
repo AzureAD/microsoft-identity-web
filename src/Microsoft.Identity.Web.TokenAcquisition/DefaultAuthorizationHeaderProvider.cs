@@ -11,9 +11,14 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider
     {
+        private static readonly object s_boxedTrue = true;
+
         private readonly ITokenAcquisition _tokenAcquisition;
+
+        private const string TokenBindingProtocolScheme = "MTLS_POP";
+        private const string TokenBindingParameterName = "IsTokenBinding";
 
         public DefaultAuthorizationHeaderProvider(ITokenAcquisition tokenAcquisition)
         {
@@ -97,6 +102,55 @@ namespace Microsoft.Identity.Web
             return result.CreateAuthorizationHeader();
         }
 
+        /// <inheritdoc/>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateBoundAuthorizationHeaderAsync(
+            DownstreamApiOptions downstreamApiOptions,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (!string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+            {
+                var authorizationHeaderValue = await CreateAuthorizationHeaderAsync(
+                    downstreamApiOptions?.Scopes ?? Enumerable.Empty<string>(),
+                    downstreamApiOptions,
+                    claimsPrincipal,
+                    cancellationToken).ConfigureAwait(false);
+
+                var result = new AuthorizationHeaderInformation()
+                {
+                    AuthorizationHeaderValue = authorizationHeaderValue,
+                    BindingCertificate = null,
+                };
+
+                return new(result);
+            }
+
+            // Token binding flow currently supports only app tokens.
+            if (!(downstreamApiOptions?.RequestAppToken ?? false))
+            {
+                throw new ArgumentException(IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition, nameof(downstreamApiOptions.RequestAppToken));
+            }
+
+            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
+
+            var tokenAcquisitionResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                downstreamApiOptions?.Scopes?.FirstOrDefault()!,
+                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
+                downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                newTokenAcquisitionOptions).ConfigureAwait(false);
+
+            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
+
+            var authorizationHeader = tokenAcquisitionResult.CreateAuthorizationHeader();
+            var authorizationHeaderInformation = new AuthorizationHeaderInformation()
+            {
+                AuthorizationHeaderValue = authorizationHeader,
+                BindingCertificate = tokenAcquisitionResult.BindingCertificate
+            };
+
+            return new(authorizationHeaderInformation);
+        }
+
         private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(
             AuthorizationHeaderProviderOptions? downstreamApiOptions,
             CancellationToken cancellationToken)
@@ -109,7 +163,7 @@ namespace Microsoft.Identity.Web
                 CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
                 ExtraHeadersParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraHeadersParameters,
                 ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,
-                ExtraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters,
+                ExtraParameters = GetExtraParameters(downstreamApiOptions),
                 ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
                 LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
                 ManagedIdentity = downstreamApiOptions?.AcquireTokenOptions.ManagedIdentity,
@@ -130,6 +184,24 @@ namespace Microsoft.Identity.Web
             {
                 acquireTokenOptions.LongRunningWebApiSessionKey = newTokenAcquisitionOptions.LongRunningWebApiSessionKey;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the collection of extra parameters to be included when acquiring a token, optionally adding
+        /// protocol-specific parameters based on the provided options.
+        /// </summary>
+        /// <param name="downstreamApiOptions">The options used to configure token acquisition.</param>
+        /// <returns>A dictionary containing extra parameters to be sent during token acquisition or null.</returns>
+        private static IDictionary<string, object>? GetExtraParameters(AuthorizationHeaderProviderOptions? downstreamApiOptions)
+        {
+            var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
+            if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+            {
+                extraParameters ??= new Dictionary<string, object>();
+                extraParameters[TokenBindingParameterName] = s_boxedTrue;
+            }
+
+            return extraParameters;
         }
     }
 }

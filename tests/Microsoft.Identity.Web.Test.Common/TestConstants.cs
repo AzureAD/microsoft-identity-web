@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common
 {
-    
+
     public static class TestConstants
     {
         public const string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
@@ -27,7 +27,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string ClientId = "87f0ee88-8251-48b3-8825-e0c9563f5234";
         public const string GuestTenantId = "guest-tenant-id";
         public const string HomeTenantId = "home-tenant-id";
-        public const string TenantIdAsGuid = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+        public const string TenantIdAsGuid = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
         public const string ObjectIdAsGuid = "6364bb70-9521-3fa8-989d-c2c19ff90223";
         public const string Domain = "contoso.onmicrosoft.com";
         public const string Uid = "my-home-object-id";
@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string AadIssuer = AadInstance + "/" + TenantIdAsGuid + "/v2.0";
         public const string UsGovIssuer = "https://login.microsoftonline.us/" + UsGovTenantId + "/v2.0";
         public const string UsGovTenantId = "72f988bf-86f1-41af-91ab-2d7cd011db47";
-        public const string V1Issuer = "https://sts.windows.net/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/";
+        public const string V1Issuer = "https://sts.windows.net/10c419d4-4a50-45b2-aa4e-919fb84df24f/";
         public const string GraphBaseUrlBeta = "https://graph.microsoft.com/beta";
         public const string GraphBaseUrl = "https://graph.microsoft.com/v1.0";
 
@@ -106,16 +106,17 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
-        public const string OBOClientKeyVaultUri = "TodoListServiceV2-OBO";
         public const string ConfidentialClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/LabVaultAccessCert/";
-        public const string ConfidentialClientId = "88f91eac-c606-4c67-a0e2-a5e8a186854f";
-        public const string ConfidentialClientLabTenant = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
-        public const string OBOUser = "idlab1@msidlab4.onmicrosoft.com";
-        public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
-        public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
+        public const string ConfidentialClientId = "3bf56293-fbb5-42bd-a407-248ba7431a8c";
+        public const string ConfidentialClientLabTenant = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
+        public const string OBOUser = "MSAL-User-Default@id4slab1.onmicrosoft.com";
+        public const string OBOClientSideClientId = "9c0e534b-879c-4dce-b0e2-0e1be873ba14";
+        public static string[] s_oBOApiScope = new string[] { "api://8837cde9-4029-4bfc-9259-e9e70ce670f7/.default" };
         public const string LabClientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9";
         public const string MSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
-        public const string AzureADIdentityDivisionTestAgentSecret = "MSIDLAB4-IDLABS-APP-AzureADMyOrg-CC";
+        public const string ID4sKeyVaultName = "id4skeyvault";
+        public const string ID4sKeyVaultUri = "https://id4skeyvault.vault.azure.net/";
+        public const string AzureADIdentityDivisionTestAgentSecret = "MISE-App-FMICLIENT";
         public const string BuildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
 
         // This value is only for testing purposes. It is for a certificate that is not used for anything other than running tests
@@ -217,7 +218,7 @@ namespace Microsoft.Identity.Web.Test.Common
                             ""preferred_network"":""login.microsoftonline.com"",
                             ""preferred_cache"":""login.windows.net"",
                             ""aliases"":[
-                                ""login.microsoftonline.com"", 
+                                ""login.microsoftonline.com"",
                                 ""login.windows.net"",
                                 ""login.microsoft.com"",
                                 ""sts.windows.net""]},

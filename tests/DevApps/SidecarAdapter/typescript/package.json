@@ -26,6 +26,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.2.0"
   }
 }

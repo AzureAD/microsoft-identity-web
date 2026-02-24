@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,7 +53,8 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
-        private bool _retryClientCertificate;
+        private const string TokenBindingParameterName = "IsTokenBinding";
+        private const int MaxCertificateRetries = 1;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
@@ -104,7 +106,7 @@ namespace Microsoft.Identity.Web
             ICredentialsLoader credentialsLoader)
         {
             _tokenCacheProvider = tokenCacheProvider;
-            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalAspNetCoreHttpClientFactory(httpClientFactory);
+            _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
@@ -123,13 +125,20 @@ namespace Microsoft.Identity.Web
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
+            return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters,
+            int retryCount)
+        {
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
             IConfidentialClientApplication? application = null;
             try
             {
-                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 // Do not share the access token with ASP.NET Core otherwise ASP.NET will cache it and will not send the OAuth 2.0 request in
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
@@ -188,38 +197,38 @@ namespace Microsoft.Identity.Web
                     result.CorrelationId,
                     result.TokenType);
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                Logger.TokenAcquisitionError(
+                    _logger,
+                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
+                    exMsal);
+
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
-                return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters).ConfigureAwait(false);
+                // Retry with incremented counter
+                return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount + 1).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
                 Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, ex);
                 throw;
             }
-            finally
-            {
-                _retryClientCertificate = false;
-            }
         }
-
 
         /// <summary>
         /// Allows creation of confidential client applications targeting regional and global authorities
         /// when supporting managed identities.
         /// </summary>
-        /// <param name="mergedOptions">Merged configuration options</param>
+        /// <param name="mergedOptions">Merged configuration options.</param>
         /// <returns>Concatenated string of authority, cliend id and azure region</returns>
         private static string GetApplicationKey(MergedOptions mergedOptions)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+
             return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
         }
 
@@ -255,13 +264,31 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
+            return await GetAuthenticationResultForUserInternalAsync(
+                scopes,
+                authenticationScheme,
+                tenantId,
+                userFlow,
+                user,
+                tokenAcquisitionOptions,
+                retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> GetAuthenticationResultForUserInternalAsync(
+            IEnumerable<string> scopes,
+            string? authenticationScheme,
+            string? tenantId,
+            string? userFlow,
+            ClaimsPrincipal? user,
+            TokenAcquisitionOptions? tokenAcquisitionOptions,
+            int retryCount)
+        {
             _ = Throws.IfNull(scopes);
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
-
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
             if (tokenAcquisitionOptions is not null)
             {
@@ -316,22 +343,27 @@ namespace Microsoft.Identity.Web
                 LogAuthResult(authenticationResult);
                 return authenticationResult;
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                Logger.TokenAcquisitionError(
+                    _logger,
+                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
+                    exMsal);
+
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
-                return await GetAuthenticationResultForUserAsync(
+                // Retry with incremented counter
+                return await GetAuthenticationResultForUserInternalAsync(
                     scopes,
-                    authenticationScheme: authenticationScheme,
-                    tenantId: tenantId,
-                    userFlow: userFlow,
-                    user: user,
-                    tokenAcquisitionOptions: tokenAcquisitionOptions).ConfigureAwait(false);
+                    authenticationScheme,
+                    tenantId,
+                    userFlow,
+                    user,
+                    tokenAcquisitionOptions,
+                    retryCount + 1).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -341,10 +373,6 @@ namespace Microsoft.Identity.Web
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
-            }
-            finally
-            {
-                _retryClientCertificate = false;
             }
         }
 
@@ -427,6 +455,8 @@ namespace Microsoft.Identity.Web
                 await addInOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(builder, tokenAcquisitionOptions, user!).ConfigureAwait(false);
             }
 
+            builder.WithSendX5C(mergedOptions.SendX5C);
+
             // Pass the token acquisition options to the builder
             if (tokenAcquisitionOptions != null)
             {
@@ -445,6 +475,11 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -534,6 +569,21 @@ namespace Microsoft.Identity.Web
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
+            return await GetAuthenticationResultForAppInternalAsync(
+                scope,
+                authenticationScheme,
+                tenant,
+                tokenAcquisitionOptions,
+                retryCount: 0).ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> GetAuthenticationResultForAppInternalAsync(
+            string scope,
+            string? authenticationScheme,
+            string? tenant,
+            TokenAcquisitionOptions? tokenAcquisitionOptions,
+            int retryCount)
+        {
             _ = Throws.IfNull(scope);
 
             if (!scope.EndsWith("/.default", true, CultureInfo.InvariantCulture))
@@ -542,6 +592,10 @@ namespace Microsoft.Identity.Web
             }
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
+
+            bool isTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(TokenBindingParameterName, out var isTokenBindingObject) == true
+                && isTokenBindingObject is bool isTokenBindingValue
+                && isTokenBindingValue;
 
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
@@ -559,6 +613,13 @@ namespace Microsoft.Identity.Web
                     {
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
+
+                    //TODO: Should client assertion claims be supported for managed identity?
+                    //var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                    //if (clientClaims != null)
+                    //{
+                    //    miBuilder.WithExtraClientAssertionClaims(clientClaims);
+                    //}
 
                     return await miBuilder.ExecuteAsync().ConfigureAwait(false);
                 }
@@ -582,11 +643,16 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            if (isTokenBinding)
+            {
+                builder.WithMtlsProofOfPossession();
+            }
 
             if (addInOptions != null)
             {
@@ -594,7 +660,8 @@ namespace Microsoft.Identity.Web
             }
 
             // Apply tenant override only for AAD authorities and only if non-empty
-            if (!mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
+            if (!string.IsNullOrEmpty(mergedOptions.Instance) && 
+                !mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
 #endif
@@ -635,6 +702,13 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
+
                 if (!string.IsNullOrEmpty(tokenAcquisitionOptions.FmiPath))
                 {
                     builder.WithFmiPath(tokenAcquisitionOptions.FmiPath);
@@ -681,20 +755,25 @@ namespace Microsoft.Identity.Web
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
                 return result;
             }
-            catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
+                Logger.TokenAcquisitionError(
+                    _logger,
+                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
+                    exMsal);
+
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
                 DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
-                // Retry
-                _retryClientCertificate = true;
-                return await GetAuthenticationResultForAppAsync(
+                // Retry with incremented counter
+                return await GetAuthenticationResultForAppInternalAsync(
                     scope,
-                    authenticationScheme: authenticationScheme,
-                    tenant: tenant,
-                    tokenAcquisitionOptions: tokenAcquisitionOptions);
+                    authenticationScheme,
+                    tenant,
+                    tokenAcquisitionOptions,
+                    retryCount + 1);
             }
             catch (MsalException ex)
             {
@@ -702,10 +781,6 @@ namespace Microsoft.Identity.Web
                 // a web app or a web API
                 Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                 throw;
-            }
-            finally
-            {
-                _retryClientCertificate = false;
             }
         }
 
@@ -865,7 +940,7 @@ namespace Microsoft.Identity.Web
             {
                 MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
 
-                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+                IConfidentialClientApplication app = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
 
                 if (mergedOptions.IsB2C)
                 {
@@ -887,18 +962,50 @@ namespace Microsoft.Identity.Web
 
         private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
         {
-            return !_retryClientCertificate &&
-                string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase) &&
-                !exMsal.ResponseBody.Contains("AADSTS7000215" // No retry when wrong client secret.
+            // Only check invalid_client errors
+            if (!string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string responseBody = exMsal.ResponseBody;
+
 #if NET6_0_OR_GREATER
-                , StringComparison.OrdinalIgnoreCase
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+#else
+            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            {
+                if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
 #endif
-                );
         }
 
+        private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            string? clientClaims = null;
+            if (tokenAcquisitionOptions is not null && tokenAcquisitionOptions.ExtraParameters is not null &&
+                tokenAcquisitionOptions.ExtraParameters.ContainsKey("IDWEB_CLIENT_ASSERTION_CLAIMS"))
+            {
+                clientClaims = tokenAcquisitionOptions.ExtraParameters["IDWEB_CLIENT_ASSERTION_CLAIMS"] as string;
+            }
+            return clientClaims;
+        }
 
+#pragma warning disable RS0051 // Add internal types and members to the declared API
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
-            MergedOptions mergedOptions)
+            MergedOptions mergedOptions,
+            bool isTokenBinding)
         {
             string key = GetApplicationKey(mergedOptions);
 
@@ -918,7 +1025,7 @@ namespace Microsoft.Identity.Web
                     return app;
 
                 // Build and store the application
-                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions);
+                var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions);
@@ -934,9 +1041,21 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Creates an MSAL confidential client application.
         /// </summary>
-        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(MergedOptions mergedOptions)
+        private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(
+            MergedOptions mergedOptions,
+            bool isTokenBinding)
         {
             mergedOptions.PrepareAuthorityInstanceForMsal();
+
+            // Validate that we have enough configuration to build an authority
+            // When PreserveAuthority is true, we use Authority directly, so PreparedInstance is not required
+            // When IsB2C is true, we still need PreparedInstance
+            if (!mergedOptions.PreserveAuthority && 
+                string.IsNullOrEmpty(mergedOptions.PreparedInstance) && 
+                string.IsNullOrEmpty(mergedOptions.Authority))
+            {
+                throw new ArgumentException(IDWebErrorMessage.MissingIdentityConfiguration);
+            }
 
             try
             {
@@ -1025,7 +1144,8 @@ namespace Microsoft.Identity.Web
                         mergedOptions.ClientCredentials!,
                         _logger,
                         _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority));
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
                 {
@@ -1106,12 +1226,29 @@ namespace Microsoft.Identity.Web
 
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
+                string? originalTokenToCallWebApi = tokenUsedToCallTheWebApi;
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
+                    if (addInOptions != null && addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync != null)
+                    {
+                        var oboInitEventArgs = new OnBehalfOfEventArgs
+                        {
+                            UserAssertionToken = tokenUsedToCallTheWebApi,
+                            User = userHint
+                        };
+                        await addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(oboInitEventArgs).ConfigureAwait(false);
+
+                        if (oboInitEventArgs.UserAssertionToken != null)
+                        {
+                            tokenUsedToCallTheWebApi = oboInitEventArgs.UserAssertionToken;
+                        }
+                    }
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
@@ -1148,12 +1285,12 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithSendX5C(mergedOptions.SendX5C);
 
-                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
+                    ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
                     var userTenant = string.Empty;
-                    if (user != null)
+                    if (userForCcsRouting != null)
                     {
-                        userTenant = user.GetTenantId();
-                        builder.WithCcsRoutingHint(user.GetObjectId(), userTenant);
+                        userTenant = userForCcsRouting.GetTenantId();
+                        builder.WithCcsRoutingHint(userForCcsRouting.GetObjectId(), userTenant);
                     }
                     if (!string.IsNullOrEmpty(tenantId))
                     {
@@ -1168,6 +1305,17 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
+                        if (addInOptions != null && addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
+                        {
+                            var eventArgs = new OnBehalfOfEventArgs
+                            {
+                                User = userHint,
+                                UserAssertionToken = originalTokenToCallWebApi
+                            };
+
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
+                        }
+
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
 
                         var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
@@ -1198,6 +1346,7 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(assertionConstant);
                                 dict.Remove(subAssertionConstant);
                             }
+
                             builder.WithExtraQueryParameters(dict);
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -1210,6 +1359,11 @@ namespace Microsoft.Identity.Web
                         }
                         builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                         builder.WithClaims(tokenAcquisitionOptions.Claims);
+                        var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                        if (clientClaims != null)
+                        {
+                            builder.WithExtraClientAssertionClaims(clientClaims);
+                        }
                         if (tokenAcquisitionOptions.PoPConfiguration != null)
                         {
                             builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
@@ -1367,6 +1521,11 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                if (clientClaims != null)
+                {
+                    builder.WithExtraClientAssertionClaims(clientClaims);
+                }
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);

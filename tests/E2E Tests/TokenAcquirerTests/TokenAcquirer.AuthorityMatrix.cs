@@ -31,8 +31,8 @@ namespace TokenAcquirerTests
 
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
-                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com"; // No /v2.0 suffix
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com"; // No /v2.0 suffix
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -51,8 +51,8 @@ namespace TokenAcquirerTests
 
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
-                option.Authority = "https://login.microsoftonline.com/msidlab4.onmicrosoft.com/v2.0";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.Authority = "https://login.microsoftonline.com/id4slab1.onmicrosoft.com/v2.0";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -60,7 +60,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
- 
+
         [IgnoreOnAzureDevopsFact]
         public async Task AcquireToken_InstanceAndTenantId_AAD_Succeeds()
         {
@@ -73,8 +73,8 @@ namespace TokenAcquirerTests
             services.Configure<MicrosoftIdentityApplicationOptions>(s_optionName, option =>
             {
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 
@@ -95,8 +95,8 @@ namespace TokenAcquirerTests
             {
                 option.Authority = "https://login.microsoftonline.com/common/v2.0"; // Will be ignored
                 option.Instance = "https://login.microsoftonline.com/";
-                option.TenantId = "msidlab4.onmicrosoft.com";
-                option.ClientId = "f6b698c0-140c-448f-8155-4aa9bf77ceba";
+                option.TenantId = "id4slab1.onmicrosoft.com";
+                option.ClientId = "4ebc2cfc-14bf-4c88-9678-26543ec1c59d";
                 option.ClientCredentials = s_clientCredentials;
             });
 

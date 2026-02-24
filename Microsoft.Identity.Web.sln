@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11217.181 d18.0
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}"
 EndProject
@@ -174,6 +174,36 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Sidecar", "src\Microsoft.Identity.Web.Sidecar\Microsoft.Identity.Web.Sidecar.csproj", "{55C81F88-0FFA-491C-A1D7-0ACA7212B59C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sidecar.Tests", "tests\E2E Tests\Sidecar.Tests\Sidecar.Tests.csproj", "{946E6BED-2A06-4FF4-3E39-22ACEB44A984}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MtlsPop", "MtlsPop", "{06818CF6-16AD-4184-9264-B593B8F2AA25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MtlsPopClient", "tests\DevApps\MtlsPop\MtlsPopClient\MtlsPopClient.csproj", "{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MtlsPopWebApi", "tests\DevApps\MtlsPop\MtlsPopWebApi\MtlsPopWebApi.csproj", "{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FF3B93A1-B8A4-4120-AF3D-7B5C43C0735C}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.md = build\build.md
+		build\CodeCoverage.runsettings = build\CodeCoverage.runsettings
+		build\credscan-exclusion.json = build\credscan-exclusion.json
+		build\GenerateDocFx.ps1 = build\GenerateDocFx.ps1
+		build\Microsoft.Identity.Web-Source-Assemblies.dgml = build\Microsoft.Identity.Web-Source-Assemblies.dgml
+		build\MSAL.snk = build\MSAL.snk
+		build\pipeline-releasebuild.yaml = build\pipeline-releasebuild.yaml
+		build\policheck_exclusions.xml = build\policheck_exclusions.xml
+		build\policheck_filetypes.xml = build\policheck_filetypes.xml
+		build\release-provisioning-tool.yml = build\release-provisioning-tool.yml
+		build\template-install-dependencies.yaml = build\template-install-dependencies.yaml
+		build\template-onebranch-release-build.yaml = build\template-onebranch-release-build.yaml
+		build\template-pack-and-sign-all-nugets.yaml = build\template-pack-and-sign-all-nugets.yaml
+		build\template-pack-nuget.yaml = build\template-pack-nuget.yaml
+		build\template-postbuild-code-analysis.yaml = build\template-postbuild-code-analysis.yaml
+		build\template-prebuild-code-analysis.yaml = build\template-prebuild-code-analysis.yaml
+		build\template-publish-and-cleanup.yaml = build\template-publish-and-cleanup.yaml
+		build\template-restore-build-MSIdentityWeb.yaml = build\template-restore-build-MSIdentityWeb.yaml
+		build\template-run-unit-tests.yaml = build\template-run-unit-tests.yaml
+		build\tsaConfig.json = build\tsaConfig.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -418,6 +448,14 @@ Global
 		{946E6BED-2A06-4FF4-3E39-22ACEB44A984}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{946E6BED-2A06-4FF4-3E39-22ACEB44A984}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{946E6BED-2A06-4FF4-3E39-22ACEB44A984}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -497,6 +535,9 @@ Global
 		{A8181404-23E0-D38B-454C-D16ECDB18B9F} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 		{55C81F88-0FFA-491C-A1D7-0ACA7212B59C} = {1DDE1AAC-5AE6-4725-94B6-A26C58D3423F}
 		{946E6BED-2A06-4FF4-3E39-22ACEB44A984} = {45B20A78-91F8-4DD2-B9AD-F12D3A93536C}
+		{06818CF6-16AD-4184-9264-B593B8F2AA25} = {7786D2DD-9EE4-42E1-B587-740A2E15C41D}
+		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC} = {06818CF6-16AD-4184-9264-B593B8F2AA25}
+		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7} = {06818CF6-16AD-4184-9264-B593B8F2AA25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

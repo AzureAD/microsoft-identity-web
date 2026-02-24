@@ -78,16 +78,23 @@ namespace Microsoft.Identity.Web
             {
                 // No source loader(s)
                 _logger.CustomProviderSourceLoaderNullOrEmpty();
+                throw new InvalidOperationException(CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty);
             }
             else if (string.IsNullOrEmpty(credentialDescription.CustomSignedAssertionProviderName))
             {
                 // No provider name
                 _logger.CustomProviderNameNullOrEmpty();
+                throw new InvalidOperationException(CertificateErrorMessage.CustomProviderNameNullOrEmpty);
             }
             else if (!CustomSignedAssertionCredentialSourceLoaders!.TryGetValue(credentialDescription.CustomSignedAssertionProviderName!, out ICustomSignedAssertionProvider? sourceLoader))
             {
                 // No source loader for provider name
                 _logger.CustomProviderNotFound(credentialDescription.CustomSignedAssertionProviderName!);
+                string errorMessage = string.Format(
+                    CultureInfo.InvariantCulture,
+                    CertificateErrorMessage.CustomProviderNotFound,
+                    credentialDescription.CustomSignedAssertionProviderName!);
+                throw new InvalidOperationException(errorMessage);
             }
             else
             {

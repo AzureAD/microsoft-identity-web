@@ -555,3 +555,4 @@ Under the hood, the Microsoft.Identity.Web.AgentIdentities package:
 - [Microsoft Identity Web documentation](https://github.com/AzureAD/microsoft-identity-web/wiki)
 - [Workload Identity Federation](https://docs.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation)
 - [Microsoft Graph SDK documentation](https://docs.microsoft.com/en-us/graph/sdks/sdks-overview)
+See [Agent identities](../../docs/calling-downstream-apis/AgentIdentities-Readme.md)

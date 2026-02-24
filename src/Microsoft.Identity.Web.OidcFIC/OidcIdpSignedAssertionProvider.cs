@@ -55,9 +55,17 @@ namespace Microsoft.Identity.Web.OidcFic
 
             if (assertionRequestOptions != null && !string.IsNullOrEmpty(assertionRequestOptions.ClientAssertionFmiPath))
             {
+                // Extract tenant from TokenEndpoint if available and if it's from the same cloud instance.
+                // This enables tenant override propagation while preserving cross-cloud scenarios.
+                // TokenEndpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
+                string? tenant = ExtractTenantFromTokenEndpointIfSameInstance(
+                    assertionRequestOptions.TokenEndpoint,
+                    _options.Instance);
+
                 acquireTokenOptions = new AcquireTokenOptions()
                 {
-                    FmiPath = assertionRequestOptions.ClientAssertionFmiPath
+                    FmiPath = assertionRequestOptions.ClientAssertionFmiPath,
+                    Tenant = tenant
                 };
             }
 
@@ -82,6 +90,61 @@ namespace Microsoft.Identity.Web.OidcFic
                 clientAssertion = null!;
             }
             return clientAssertion;
+        }
+
+        /// <summary>
+        /// Extracts the tenant from a token endpoint URL if the endpoint is from the same cloud instance.
+        /// This enables tenant override propagation while preserving cross-cloud scenarios.
+        /// </summary>
+        /// <param name="tokenEndpoint">Token endpoint URL in the format https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</param>
+        /// <param name="configuredInstance">The configured instance URL (e.g., https://login.microsoftonline.com/)</param>
+        /// <returns>The tenant ID if the endpoint is from the same instance, otherwise null.</returns>
+        internal static string? ExtractTenantFromTokenEndpointIfSameInstance(string? tokenEndpoint, string? configuredInstance)
+        {
+            if (string.IsNullOrEmpty(tokenEndpoint) || string.IsNullOrEmpty(configuredInstance))
+            {
+                return null;
+            }
+
+            try
+            {
+                var endpointUri = new Uri(tokenEndpoint!);
+                
+                // Safely construct instance URI by trimming trailing slash
+                var normalizedInstance = configuredInstance!.TrimEnd('/');
+                var instanceUri = new Uri(normalizedInstance);
+
+                // Only extract tenant if the host matches (same cloud instance)
+                if (!string.Equals(endpointUri.Host, instanceUri.Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                // TokenEndpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
+                // Validate the path follows the expected pattern before extracting tenant.
+                var pathSegments = endpointUri.AbsolutePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // Expected pattern: [tenantId, oauth2, v2.0, token] or similar
+                // We need at least the tenant segment and some oauth2 path segments
+                if (pathSegments.Length >= 2)
+                {
+                    // Verify this looks like a token endpoint (contains "oauth2" somewhere after tenant)
+                    for (int i = 1; i < pathSegments.Length; i++)
+                    {
+                        if (string.Equals(pathSegments[i], "oauth2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Found oauth2 segment, the first segment is likely the tenant
+                            return pathSegments[0];
+                        }
+                    }
+                }
+            }
+            catch (UriFormatException)
+            {
+                // Invalid URI, return null
+            }
+
+            return null;
         }
     }
 }
