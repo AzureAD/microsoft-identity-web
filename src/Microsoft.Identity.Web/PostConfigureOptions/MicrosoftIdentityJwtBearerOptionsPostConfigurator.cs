@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             if (string.IsNullOrEmpty(options.ClientId))
             {
                 throw new ArgumentNullException(
-                    options.ClientId,
+                    nameof(options.ClientId),
                     string.Format(
                         System.Globalization.CultureInfo.InvariantCulture,
                         IDWebErrorMessage.ConfigurationOptionRequired,
@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                 if (string.IsNullOrEmpty(options.Instance))
                 {
                     throw new ArgumentNullException(
-                        options.Instance,
+                        nameof(options.Instance),
                         string.Format(
                             System.Globalization.CultureInfo.InvariantCulture,
                             IDWebErrorMessage.ConfigurationOptionRequired,
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                     if (string.IsNullOrEmpty(options.Domain))
                     {
                         throw new ArgumentNullException(
-                            options.Domain,
+                            nameof(options.Domain),
                             string.Format(
                                 System.Globalization.CultureInfo.InvariantCulture,
                                 IDWebErrorMessage.ConfigurationOptionRequired,
@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
                     if (string.IsNullOrEmpty(options.TenantId))
                     {
                         throw new ArgumentNullException(
-                            options.TenantId,
+                            nameof(options.TenantId),
                             string.Format(
                                 System.Globalization.CultureInfo.InvariantCulture,
                                 IDWebErrorMessage.ConfigurationOptionRequired,
