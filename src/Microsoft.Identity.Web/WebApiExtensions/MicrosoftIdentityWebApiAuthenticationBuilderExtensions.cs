@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Internal;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
@@ -23,7 +24,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
+    public static partial class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -203,20 +204,10 @@ namespace Microsoft.Identity.Web
                             mergedOptions);
                     }
 
-                    // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.ValidateIssuer && options.TokenValidationParameters.IssuerValidator == null)
-                    {
-                        // Instead of using the default validation (validating against a single tenant, as we do in line of business apps),
-                        // we inject our own multi-tenant validation logic (which even accepts both v1.0 and v2.0 tokens)
-                        MicrosoftIdentityIssuerValidatorFactory microsoftIdentityIssuerValidatorFactory =
-                        serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
-
-                        options.TokenValidationParameters.IssuerValidator =
-                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
-                    }
+                    // Configure issuer validation
+                    IdentityOptionsHelpers.ConfigureIssuerValidation(options, serviceProvider);
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
-                    // TODO use the credential loader
                     if (mergedOptions.TokenDecryptionCredentials != null)
                     {
                         DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
@@ -225,17 +216,8 @@ namespace Microsoft.Identity.Web
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }
 
-                    if (options.Events == null)
-                    {
-                        options.Events = new JwtBearerEvents();
-                    }
-
                     options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-                    options.Events.OnMessageReceived += async context =>
-                    {
-                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
-                        await Task.CompletedTask.ConfigureAwait(false);
-                    };
+                    IdentityOptionsHelpers.InitializeJwtBearerEvents(options);
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.
