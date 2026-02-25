@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             }
 
             // 1. VALIDATE (fail-fast with complete configuration)
-            IdentityOptionsHelpers.ValidateRequiredOptions(appOptions);
+            ValidateRequiredOptions(appOptions);
 
             // 2. CONFIGURE (respect customer overrides)
 
@@ -55,13 +55,10 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             // create the ConfigurationManager from it.
 
             // Configure audience validation if not already set
-            if (options.TokenValidationParameters.AudienceValidator == null &&
-                options.TokenValidationParameters.ValidAudience == null &&
-                options.TokenValidationParameters.ValidAudiences == null)
-            {
-                IdentityOptionsHelpers.ConfigureAudienceValidation(
-                    options.TokenValidationParameters, appOptions);
-            }
+            IdentityOptionsHelpers.ConfigureAudienceValidation(
+                options.TokenValidationParameters,
+                appOptions.ClientId,
+                !string.IsNullOrWhiteSpace(appOptions.SignUpSignInPolicyId));
 
             // Configure issuer validation
             IdentityOptionsHelpers.ConfigureIssuerValidation(options, _serviceProvider);
@@ -103,6 +100,65 @@ namespace Microsoft.Identity.Web.PostConfigureOptions
             // =========================================================
             options.Events.OnTokenValidated = IdentityOptionsHelpers.ChainTokenStorageHandler(
                 options.Events.OnTokenValidated);
+        }
+
+        /// <summary>
+        /// Validates that required options are present based on the configuration scenario.
+        /// </summary>
+        /// <param name="options">The application options to validate.</param>
+        /// <exception cref="ArgumentNullException">Thrown when required options are missing.</exception>
+        internal static void ValidateRequiredOptions(MicrosoftIdentityApplicationOptions options)
+        {
+            if (string.IsNullOrEmpty(options.ClientId))
+            {
+                throw new ArgumentNullException(
+                    options.ClientId,
+                    string.Format(
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        IDWebErrorMessage.ConfigurationOptionRequired,
+                        nameof(options.ClientId)));
+            }
+
+            // B2C is detected by presence of SignUpSignInPolicyId
+            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+
+            if (string.IsNullOrEmpty(options.Authority))
+            {
+                if (string.IsNullOrEmpty(options.Instance))
+                {
+                    throw new ArgumentNullException(
+                        options.Instance,
+                        string.Format(
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            IDWebErrorMessage.ConfigurationOptionRequired,
+                            nameof(options.Instance)));
+                }
+
+                if (isB2C)
+                {
+                    if (string.IsNullOrEmpty(options.Domain))
+                    {
+                        throw new ArgumentNullException(
+                            options.Domain,
+                            string.Format(
+                                System.Globalization.CultureInfo.InvariantCulture,
+                                IDWebErrorMessage.ConfigurationOptionRequired,
+                                nameof(options.Domain)));
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(options.TenantId))
+                    {
+                        throw new ArgumentNullException(
+                            options.TenantId,
+                            string.Format(
+                                System.Globalization.CultureInfo.InvariantCulture,
+                                IDWebErrorMessage.ConfigurationOptionRequired,
+                                nameof(options.TenantId)));
+                    }
+                }
+            }
         }
     }
 }

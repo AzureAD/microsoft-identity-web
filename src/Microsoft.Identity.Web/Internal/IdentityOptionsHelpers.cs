@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
@@ -66,52 +65,6 @@ namespace Microsoft.Identity.Web.Internal
 #endif
         }
 
-        /// <summary>
-        /// Validates that required options are present based on the configuration scenario.
-        /// </summary>
-        /// <param name="options">The application options to validate.</param>
-        /// <exception cref="ArgumentNullException">Thrown when required options are missing.</exception>
-        internal static void ValidateRequiredOptions(MicrosoftIdentityApplicationOptions options)
-        {
-            if (string.IsNullOrEmpty(options.ClientId))
-            {
-                throw new ArgumentNullException(
-                    options.ClientId,
-                    string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.ClientId)));
-            }
-
-            // B2C is detected by presence of SignUpSignInPolicyId
-            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
-
-            if (string.IsNullOrEmpty(options.Authority))
-            {
-                if (string.IsNullOrEmpty(options.Instance))
-                {
-                    throw new ArgumentNullException(
-                        options.Instance,
-                        string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Instance)));
-                }
-
-                if (isB2C)
-                {
-                    if (string.IsNullOrEmpty(options.Domain))
-                    {
-                        throw new ArgumentNullException(
-                            options.Domain,
-                            string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.Domain)));
-                    }
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(options.TenantId))
-                    {
-                        throw new ArgumentNullException(
-                            options.TenantId,
-                            string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.ConfigurationOptionRequired, nameof(options.TenantId)));
-                    }
-                }
-            }
-        }
 
 #if !NETSTANDARD2_0 && !NET462 && !NET472
         /// <summary>
@@ -162,18 +115,25 @@ namespace Microsoft.Identity.Web.Internal
         }
 
         /// <summary>
-        /// Configures audience validation on the token validation parameters.
+        /// Configures audience validation on the token validation parameters if not already configured.
         /// Sets up custom validator for handling v1.0/v2.0 and B2C tokens correctly.
         /// This is AOT-compatible as it directly sets up the validator without using reflection or MicrosoftIdentityOptions.
         /// </summary>
         /// <param name="validationParameters">The token validation parameters to configure.</param>
-        /// <param name="options">The application options containing client ID and B2C flag.</param>
+        /// <param name="clientId">The application (client) ID.</param>
+        /// <param name="isB2C">Whether the application targets Azure AD B2C.</param>
         internal static void ConfigureAudienceValidation(
             TokenValidationParameters validationParameters,
-            MicrosoftIdentityApplicationOptions options)
+            string? clientId,
+            bool isB2C)
         {
-            string? clientId = options.ClientId;
-            bool isB2C = !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId);
+            // Skip if audience validation is already configured by the caller
+            if (validationParameters.AudienceValidator != null ||
+                validationParameters.ValidAudience != null ||
+                validationParameters.ValidAudiences != null)
+            {
+                return;
+            }
 
             // Set up the audience validator directly without converting to MicrosoftIdentityOptions
             validationParameters.AudienceValidator = (audiences, securityToken, validationParams) =>

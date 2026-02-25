@@ -272,7 +272,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
+                MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(options));
 
             Assert.Contains("ClientId", exception.Message, StringComparison.Ordinal);
         }
@@ -290,7 +290,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
+                MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(options));
 
             Assert.Contains("Instance", exception.Message, StringComparison.Ordinal);
         }
@@ -308,7 +308,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
+                MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(options));
 
             Assert.Contains("TenantId", exception.Message, StringComparison.Ordinal);
         }
@@ -327,7 +327,7 @@ namespace Microsoft.Identity.Web.Test
 
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() =>
-                Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options));
+                MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(options));
 
             Assert.Contains("Domain", exception.Message, StringComparison.Ordinal);
         }
@@ -344,7 +344,7 @@ namespace Microsoft.Identity.Web.Test
             };
 
             // Act & Assert - should not throw
-            Internal.IdentityOptionsHelpers.ValidateRequiredOptions(options);
+            MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(options);
         }
 
         [Fact]
@@ -456,7 +456,10 @@ namespace Microsoft.Identity.Web.Test
             var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
 
             // Act
-            Internal.IdentityOptionsHelpers.ConfigureAudienceValidation(tokenValidationParameters, options);
+            Internal.IdentityOptionsHelpers.ConfigureAudienceValidation(
+                tokenValidationParameters,
+                options.ClientId,
+                !string.IsNullOrWhiteSpace(options.SignUpSignInPolicyId));
 
             // Assert
             Assert.NotNull(tokenValidationParameters.AudienceValidator);
