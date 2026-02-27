@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -55,6 +56,16 @@ namespace Microsoft.Identity.Web
         public event BeforeTokenAcquisitionForOnBehalfOfAsync? OnBeforeTokenAcquisitionForOnBehalfOfAsync;
 
         /// <summary>
+        /// Occurs before the On-Behalf-Of flow is initialized.
+        /// </summary>
+        public event BeforeOnBehalfOfInitialized? OnBeforeOnBehalfOfInitialized;
+
+        /// <summary>
+        /// Occurs before the On-Behalf-Of flow is initialized.
+        /// </summary>
+        public event BeforeOnBehalfOfInitializedAsync? OnBeforeOnBehalfOfInitializedAsync;
+
+        /// <summary>
         /// Invoke the OnBeforeTokenAcquisitionForApp event.
         /// </summary>
         internal async Task InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(AcquireTokenOnBehalfOfParameterBuilder builder,
@@ -76,6 +87,28 @@ namespace Microsoft.Identity.Web
 
             // Run the sync event if it is not null.
             OnBeforeTokenAcquisitionForOnBehalfOf?.Invoke(builder, acquireTokenOptions, eventArgs);
+        }
+
+        /// <summary>
+        /// Invoke the OnBeforeOnBehalfOfInitializedAsync event.
+        /// </summary>
+        internal async Task InvokeOnBeforeOnBehalfOfInitializedAsync(OnBehalfOfEventArgs eventArgs)
+        {
+            // Run the async event if it is not null
+            if (OnBeforeOnBehalfOfInitializedAsync != null)
+            {
+                // (cannot directly await an async event because events are not tasks
+                // they are multicast delegates that invoke handlers, but don't return values to the publisher,
+                // nor do they support awaiting natively
+                var invocationList = OnBeforeOnBehalfOfInitializedAsync.GetInvocationList();
+                var tasks = invocationList
+                    .Cast<BeforeOnBehalfOfInitializedAsync>()
+                    .Select(handler => handler(eventArgs));
+                await Task.WhenAll(tasks);
+            }
+
+            // Run the sync event if it is not null.
+            OnBeforeOnBehalfOfInitialized?.Invoke(eventArgs);
         }
 
         /// <summary>

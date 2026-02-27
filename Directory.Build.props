@@ -178,7 +178,7 @@
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>2.1.0</MicrosoftExtensionsConfigurationBinderVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -32,30 +32,35 @@ namespace Microsoft.Identity.Web.Test
             var loader = new DefaultCredentialsLoader(data.AssertionProviderList, loggerMock);
 
             // Act
-            try
+            if (data.ExpectedExceptionType != null)
             {
-                await loader.LoadCredentialsIfNeededAsync(data.CredentialDescription, null);
-            }
-            catch (Exception ex)
-            {
-                Assert.Equal(data.ExpectedExceptionMessage, ex.Message);
+                var ex = await Assert.ThrowsAsync(data.ExpectedExceptionType, async () => await loader.LoadCredentialsIfNeededAsync(data.CredentialDescription, null));
+
+                if (data.ExpectedExceptionMessage != null)
+                {
+                    Assert.Equal(data.ExpectedExceptionMessage, ex.Message);
+                }
 
                 // This is validating the logging behavior defined by DefaultCredentialsLoader.Logger.CustomSignedAssertionProviderLoadingFailure
                 if (data.ExpectedLogMessage is not null)
                 {
                     Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel && log.Message.Contains(data.ExpectedLogMessage, StringComparison.InvariantCulture));
                 }
-                return;
-            }
-
-            // Assert
-            if (data.ExpectedLogMessage is not null)
-            {
-                Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel && log.Message.Contains(data.ExpectedLogMessage, StringComparison.InvariantCulture));
             }
             else
             {
-                Assert.DoesNotContain(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel);
+                // No exception expected
+                await loader.LoadCredentialsIfNeededAsync(data.CredentialDescription, null);
+
+                // Assert
+                if (data.ExpectedLogMessage is not null)
+                {
+                    Assert.Contains(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel && log.Message.Contains(data.ExpectedLogMessage, StringComparison.InvariantCulture));
+                }
+                else
+                {
+                    Assert.DoesNotContain(loggerMock.LoggedMessages, log => log.LogLevel == data.ExpectedLogLevel);
+                }
             }
         }
 
@@ -74,7 +79,9 @@ namespace Microsoft.Identity.Web.Test
                         Skip = false
                     },
                     ExpectedLogLevel = LogLevel.Error,
-                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
+                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty,
+                    ExpectedExceptionType = typeof(InvalidOperationException),
+                    ExpectedExceptionMessage = CertificateErrorMessage.CustomProviderSourceLoaderNullOrEmpty
                 },
 
                 // No provider name given
@@ -87,7 +94,9 @@ namespace Microsoft.Identity.Web.Test
                         SourceType = CredentialSource.CustomSignedAssertion
                     },
                     ExpectedLogLevel = LogLevel.Error,
-                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderNameNullOrEmpty
+                    ExpectedLogMessage = CertificateErrorMessage.CustomProviderNameNullOrEmpty,
+                    ExpectedExceptionType = typeof(InvalidOperationException),
+                    ExpectedExceptionMessage = CertificateErrorMessage.CustomProviderNameNullOrEmpty
                 },
 
                 // Given provider name not found
@@ -100,7 +109,9 @@ namespace Microsoft.Identity.Web.Test
                         SourceType = CredentialSource.CustomSignedAssertion
                     },
                     ExpectedLogLevel = LogLevel.Error,
-                    ExpectedLogMessage = string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
+                    ExpectedLogMessage = string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3"),
+                    ExpectedExceptionType = typeof(InvalidOperationException),
+                    ExpectedExceptionMessage = string.Format(CultureInfo.InvariantCulture, CertificateErrorMessage.CustomProviderNotFound, "Provider3")
                 },
 
                 // Happy path (no logging expected)
@@ -134,6 +145,7 @@ namespace Microsoft.Identity.Web.Test
                             false.ToString()
                         )
                     ),
+                    ExpectedExceptionType = typeof(Exception),
                     ExpectedExceptionMessage = FailingCustomSignedAssertionProvider.ExceptionMessage
                 },
 
@@ -160,6 +172,7 @@ namespace Microsoft.Identity.Web.Test
         public CredentialDescription CredentialDescription { get; set; } = new CredentialDescription();
         public LogLevel ExpectedLogLevel { get; set; }
         public string? ExpectedLogMessage { get; set; }
+        public Type? ExpectedExceptionType { get; set; }
         public string? ExpectedExceptionMessage { get; set; }
     }
 

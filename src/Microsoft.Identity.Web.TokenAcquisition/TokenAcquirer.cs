@@ -28,14 +28,22 @@ namespace Microsoft.Identity.Web
         {
             string? authenticationScheme = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme;
 
+            var effectiveOptions = GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken);
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                 scopes,
                 authenticationScheme,
                 tokenAcquisitionOptions?.Tenant,
                 tokenAcquisitionOptions?.UserFlow,
                 user,
-                GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken)
+                effectiveOptions
                 ).ConfigureAwait(false);
+
+            // Propagate LongRunningWebApiSessionKey (possibly auto-generated) back to the caller
+            if (tokenAcquisitionOptions is not null && effectiveOptions is not null
+                && !string.IsNullOrEmpty(effectiveOptions.LongRunningWebApiSessionKey))
+            {
+                tokenAcquisitionOptions.LongRunningWebApiSessionKey = effectiveOptions.LongRunningWebApiSessionKey;
+            }
 
             return new AcquireTokenResult(
                 result.AccessToken,
