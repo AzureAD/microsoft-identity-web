@@ -1,1 +1,10 @@
 #nullable enable
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.BlazorAuthenticationChallengeHandler(Microsoft.AspNetCore.Components.NavigationManager! navigation, Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider! authenticationStateProvider, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> void
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.ChallengeUser(System.Security.Claims.ClaimsPrincipal! user, string![]? scopes = null, string? claims = null) -> void
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.ChallengeUserWithConfiguredScopesAsync(string! configurationSection) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.GetUserAsync() -> System.Threading.Tasks.Task<System.Security.Claims.ClaimsPrincipal!>!
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.HandleExceptionAsync(System.Exception! exception) -> System.Threading.Tasks.Task<bool>!
+Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.IsAuthenticatedAsync() -> System.Threading.Tasks.Task<bool>!
+Microsoft.Identity.Web.LoginLogoutEndpointRouteBuilderExtensions
+static Microsoft.Identity.Web.LoginLogoutEndpointRouteBuilderExtensions.MapLoginAndLogout(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints) -> Microsoft.AspNetCore.Builder.IEndpointConventionBuilder!

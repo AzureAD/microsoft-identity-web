@@ -1,0 +1,71 @@
+﻿@page "/weather"
+@attribute [Authorize]
+@attribute [StreamRendering(true)]
+
+@inject WeatherApiClient WeatherApi
+@inject BlazorAuthenticationChallengeHandler ChallengeHandler
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+else if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await ChallengeHandler.IsAuthenticatedAsync())
+        {
+            await ChallengeHandler.ChallengeUserWithConfiguredScopesAsync("WeatherApi:Scopes");
+            return;
+        }
+
+        try
+        {
+            forecasts = await WeatherApi.GetWeatherAsync();
+        }
+        catch (Exception ex)
+        {
+            if (!await ChallengeHandler.HandleExceptionAsync(ex))
+            {
+                errorMessage = $"Error loading data: {ex.Message}";
+            }
+        }
+    }
+}
