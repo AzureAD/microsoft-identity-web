@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspireBlazorCallsWebApi.ServiceDefaults\AspireBlazorCallsWebApi.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,9 @@
 ﻿@page "/weather"
+@attribute [Authorize]
 @attribute [StreamRendering(true)]
-@attribute [OutputCache(Duration = 5)]
 
 @inject WeatherApiClient WeatherApi
+@inject BlazorAuthenticationChallengeHandler ChallengeHandler
 
 <PageTitle>Weather</PageTitle>
 
@@ -10,7 +11,11 @@
 
 <p>This component demonstrates showing data loaded from a backend API service.</p>
 
-@if (forecasts == null)
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+else if (forecasts == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -41,9 +46,26 @@ else
 
 @code {
     private WeatherForecast[]? forecasts;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await WeatherApi.GetWeatherAsync();
+        if (!await ChallengeHandler.IsAuthenticatedAsync())
+        {
+            await ChallengeHandler.ChallengeUserWithConfiguredScopesAsync("WeatherApi:Scopes");
+            return;
+        }
+
+        try
+        {
+            forecasts = await WeatherApi.GetWeatherAsync();
+        }
+        catch (Exception ex)
+        {
+            if (!await ChallengeHandler.HandleExceptionAsync(ex))
+            {
+                errorMessage = $"Error loading data: {ex.Message}";
+            }
+        }
     }
 }
