@@ -1,3 +1,4 @@
+#nullable enable
 Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler
 Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.BlazorAuthenticationChallengeHandler(Microsoft.AspNetCore.Components.NavigationManager! navigation, Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider! authenticationStateProvider, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> void
 Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.ChallengeUser(System.Security.Claims.ClaimsPrincipal! user, string![]? scopes = null, string? claims = null) -> void
@@ -7,4 +8,3 @@ Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.HandleExceptionAsync
 Microsoft.Identity.Web.BlazorAuthenticationChallengeHandler.IsAuthenticatedAsync() -> System.Threading.Tasks.Task<bool>!
 Microsoft.Identity.Web.LoginLogoutEndpointRouteBuilderExtensions
 static Microsoft.Identity.Web.LoginLogoutEndpointRouteBuilderExtensions.MapLoginAndLogout(this Microsoft.AspNetCore.Routing.IEndpointRouteBuilder! endpoints) -> Microsoft.AspNetCore.Builder.IEndpointConventionBuilder!
-static Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilderExtensions.AddMicrosoftIdentityWebApiAot(this Microsoft.AspNetCore.Authentication.AuthenticationBuilder! builder, System.Action<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! configureOptions, string! jwtBearerScheme, System.Action<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions!>? configureJwtBearerOptions) -> Microsoft.AspNetCore.Authentication.AuthenticationBuilder!
