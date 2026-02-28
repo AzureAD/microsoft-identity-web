@@ -79,7 +79,8 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(credentialDescription);
 
-            if (credentialDescription.CachedValue == null)
+            if (credentialDescription.CachedValue == null
+                && (credentialDescription.SourceType == CredentialSource.CustomSignedAssertion || CredentialSourceLoaders.ContainsKey(credentialDescription.SourceType)))
             {
                 // Get or create a semaphore for this credentialDescription
                 var semaphore = _loadingSemaphores.GetOrAdd(credentialDescription.Id, (v) => new SemaphoreSlim(1));
@@ -140,11 +141,11 @@ namespace Microsoft.Identity.Web
         {
             foreach (var credentialDescription in credentialDescriptions)
             {
-                credentialDescription.CachedValue = null;
                 credentialDescription.Skip = false;
                 if (credentialDescription.SourceType != CredentialSource.Certificate)
                 {
                     credentialDescription.Certificate = null;
+                    credentialDescription.CachedValue = null;
                 }
             }
         }
