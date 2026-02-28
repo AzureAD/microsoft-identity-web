@@ -1,45 +1,29 @@
-<div class="nav-item px-3">
-    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-        <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
-    </NavLink>
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">AspireBlazorCallsWebApi</a>
+    </div>
 </div>
 
-<div class="nav-item px-3">
-    <NavLink class="nav-link" href="weather">
-        <span class="bi bi-cloud-sun-fill" aria-hidden="true"></span> Weather
-    </NavLink>
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+    </nav>
 </div>
-
-<style>
-    .nav-item {
-        font-size: 0.9rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .nav-link {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
-
-    .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .nav-link.active {
-        background-color: rgba(255, 255, 255, 0.25);
-        color: white;
-    }
-
-    .bi {
-        width: 2rem;
-        font-size: 1.1rem;
-        vertical-align: text-top;
-        top: -2px;
-        position: relative;
-    }
-</style>

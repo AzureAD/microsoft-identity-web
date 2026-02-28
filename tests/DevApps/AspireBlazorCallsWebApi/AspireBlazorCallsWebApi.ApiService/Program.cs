@@ -1,36 +1,29 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
-
 var builder = WebApplication.CreateBuilder(args);
 
+// Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
 
-// Add Microsoft Identity Web API authentication
-builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration, "AzureAd");
-
-builder.Services.AddAuthorization();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapDefaultEndpoints();
-
-var summaries = new[]
+if (app.Environment.IsDevelopment())
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    app.MapOpenApi();
+}
 
-app.MapGet("/weatherforecast", [Authorize] () =>
+string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
+
+app.MapGet("/", () => "API service is running. Navigate to /weatherforecast to see sample data.");
+
+app.MapGet("/weatherforecast", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
@@ -43,6 +36,8 @@ app.MapGet("/weatherforecast", [Authorize] () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapDefaultEndpoints();
 
 app.Run();
 

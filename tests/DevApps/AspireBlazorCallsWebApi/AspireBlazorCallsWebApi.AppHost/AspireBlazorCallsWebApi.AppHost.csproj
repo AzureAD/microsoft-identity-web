@@ -1,19 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.2">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>aff9ebf2-c0d0-4128-b3dd-5e0653a6471d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AspireBlazorCallsWebApi.ApiService\AspireBlazorCallsWebApi.ApiService.csproj" />
-    <ProjectReference Include="..\AspireBlazorCallsWebApi.ServiceDefaults\AspireBlazorCallsWebApi.ServiceDefaults.csproj" />
     <ProjectReference Include="..\AspireBlazorCallsWebApi.Web\AspireBlazorCallsWebApi.Web.csproj" />
   </ItemGroup>
 
