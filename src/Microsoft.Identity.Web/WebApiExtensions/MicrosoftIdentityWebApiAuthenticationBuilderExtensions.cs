@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Internal;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
@@ -23,7 +24,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extensions for <see cref="AuthenticationBuilder"/> for startup initialization of web APIs.
     /// </summary>
-    public static class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
+    public static partial class MicrosoftIdentityWebApiAuthenticationBuilderExtensions
     {
         /// <summary>
         /// Protects the web API with Microsoft identity platform (formerly Azure AD v2.0).
@@ -37,9 +38,8 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthneticationBuilderExtensions.AddMicrosoftIdentityWebApi(AuthenticationBuilder, IConfigurationSection, string, bool).")]
-#endif
+        [RequiresDynamicCode("Calls Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthneticationBuilderExtensions.AddMicrosoftIdentityWebApi(AuthenticationBuilder, IConfigurationSection, string, bool).")]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
         this AuthenticationBuilder builder,
         IConfiguration configuration,
@@ -69,9 +69,8 @@ namespace Microsoft.Identity.Web
         /// Set to true if you want to debug, or just understand the JWT bearer events.
         /// </param>
         /// <returns>The authentication builder to chain.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
-#endif
+        [RequiresDynamicCode("Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static MicrosoftIdentityWebApiAuthenticationBuilderWithConfiguration AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             IConfigurationSection configurationSection,
@@ -80,7 +79,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(configurationSection);
             _ = Throws.IfNull(builder);
-            
+
             AddMicrosoftIdentityWebApiImplementation(
                 builder,
                 options => configurationSection.Bind(options),
@@ -105,9 +104,8 @@ namespace Microsoft.Identity.Web
         /// <param name="subscribeToJwtBearerMiddlewareDiagnosticsEvents">
         /// Set to true if you want to debug, or just understand the JWT bearer events.</param>
         /// <returns>The authentication builder to chain.</returns>
-#if NET6_0_OR_GREATER && !NET8_0_OR_GREATER
         [RequiresUnreferencedCode("Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.MicrosoftIdentityWebApiAuthenticationBuilder(IServiceCollection, String, Action<JwtBearerOptions>, Action<MicrosoftIdentityOptions>, IConfigurationSection).")]
-#endif
+        [RequiresDynamicCode("Microsoft.Identity.Web.MicrosoftIdentityWebApiAuthenticationBuilder.MicrosoftIdentityWebApiAuthenticationBuilder(IServiceCollection, String, Action<JwtBearerOptions>, Action<MicrosoftIdentityOptions>, IConfigurationSection).")]
         public static MicrosoftIdentityWebApiAuthenticationBuilder AddMicrosoftIdentityWebApi(
             this AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -133,6 +131,8 @@ namespace Microsoft.Identity.Web
                 null);
         }
 
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
         private static void AddMicrosoftIdentityWebApiImplementation(
             AuthenticationBuilder builder,
             Action<JwtBearerOptions> configureJwtBearerOptions,
@@ -204,20 +204,10 @@ namespace Microsoft.Identity.Web
                             mergedOptions);
                     }
 
-                    // If the developer registered an IssuerValidator, do not overwrite it
-                    if (options.TokenValidationParameters.ValidateIssuer && options.TokenValidationParameters.IssuerValidator == null)
-                    {
-                        // Instead of using the default validation (validating against a single tenant, as we do in line of business apps),
-                        // we inject our own multi-tenant validation logic (which even accepts both v1.0 and v2.0 tokens)
-                        MicrosoftIdentityIssuerValidatorFactory microsoftIdentityIssuerValidatorFactory =
-                        serviceProvider.GetRequiredService<MicrosoftIdentityIssuerValidatorFactory>();
-
-                        options.TokenValidationParameters.IssuerValidator =
-                        microsoftIdentityIssuerValidatorFactory.GetAadIssuerValidator(options.Authority).Validate;
-                    }
+                    // Configure issuer validation
+                    IdentityOptionsHelpers.ConfigureIssuerValidation(options, serviceProvider);
 
                     // If you provide a token decryption certificate, it will be used to decrypt the token
-                    // TODO use the credential loader
                     if (mergedOptions.TokenDecryptionCredentials != null)
                     {
                         DefaultCertificateLoader.UserAssignedManagedIdentityClientId = mergedOptions.UserAssignedManagedIdentityClientId;
@@ -226,17 +216,8 @@ namespace Microsoft.Identity.Web
                         options.TokenValidationParameters.TokenDecryptionKeys = keys;
                     }
 
-                    if (options.Events == null)
-                    {
-                        options.Events = new JwtBearerEvents();
-                    }
-
                     options.TokenValidationParameters.EnableAadSigningKeyIssuerValidation();
-                    options.Events.OnMessageReceived += async context =>
-                    {
-                        context.Options.TokenValidationParameters.ConfigurationManager ??= options.ConfigurationManager as BaseConfigurationManager;
-                        await Task.CompletedTask.ConfigureAwait(false);
-                    };
+                    IdentityOptionsHelpers.InitializeJwtBearerEvents(options);
 
                     // When an access token for our own web API is validated, we add it to MSAL.NET's cache so that it can
                     // be used from the controllers.

@@ -24,9 +24,15 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
 
     const string TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
     const string AgentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
+    const string TestClientApplication = "825940df-c1fb-4604-8104-02965f55b1ee"; // Replace with the client application used for app-only calls
     const string AgentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
     const string UserUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
-    string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
+    const string UserOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
+    const string Instance = "https://login.microsoftonline.com/";     // Replace with the Entra ID authority instance
+    const string UserReadScope = "user.read";                         // Replace with the scope used for user calls
+    const string CertificateStorePath = "LocalMachine/My";            // Replace with the certificate store path
+    const string CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com"; // Replace with the certificate subject name
+    static readonly string AgentApplicationScope = $"api://{AgentApplication}/.default"; // Replace with the API scope for the agent application
 
     [Fact]
     public async Task Validate_WhenBadTokenAsync()
@@ -129,7 +135,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         var result = await client.GetAsync(
-            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.Tenant={TenantId}&OptionsOverride.Scopes=user.read");
+            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.Tenant={TenantId}&OptionsOverride.Scopes={UserReadScope}");
 
         Assert.True(result.IsSuccessStatusCode);
 
@@ -163,7 +169,7 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var client = _factory.CreateClient();
 
         var result = await client.GetAsync(
-            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.AcquireTokenOptions.Tenant=invalid-tenant&OptionsOverride.Scopes=user.read");
+            $"/AuthorizationHeaderUnauthenticated/AgentUserIdentityCallsGraph?AgentIdentity={AgentIdentity}&AgentUsername={UserUpn}&OptionsOverride.AcquireTokenOptions.Tenant=invalid-tenant&OptionsOverride.Scopes={UserReadScope}");
 
         Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
     }
@@ -174,20 +180,20 @@ public class SidecarEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         ServiceCollection services = new();
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
         services.AddSingleton<IConfiguration>(configuration);
-        configuration["Instance"] = "https://login.microsoftonline.com/";
-        configuration["TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
-        configuration["ClientId"] = "5cbcd9ff-c994-49ac-87e7-08a93a9c0794";
+        configuration["Instance"] = Instance;
+        configuration["TenantId"] = TenantId;
+        configuration["ClientId"] = TestClientApplication;
         configuration["SendX5C"] = "true";
         configuration["ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName";
-        configuration["ClientCredentials:0:CertificateStorePath"] = "LocalMachine/My";
-        configuration["ClientCredentials:0:CertificateDistinguishedName"] = "CN=LabAuth.MSIDLab.com";
+        configuration["ClientCredentials:0:CertificateStorePath"] = CertificateStorePath;
+        configuration["ClientCredentials:0:CertificateDistinguishedName"] = CertificateDistinguishedName;
 
         services.AddTokenAcquisition().AddHttpClient().AddInMemoryTokenCaches();
         services.Configure<MicrosoftIdentityApplicationOptions>(configuration);
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
         IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("api://aab5089d-e764-47e3-9f28-cc11c2513821/.default",
+        string authorizationHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(AgentApplicationScope,
             new AuthorizationHeaderProviderOptions()
             {
                 AcquireTokenOptions = new AcquireTokenOptions()

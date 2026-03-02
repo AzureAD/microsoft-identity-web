@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Azure.Identity;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
@@ -102,7 +102,6 @@ public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowse
                     if (InitialConnectionRetryCount == 0) { throw ex; }
                 }
             }
-            LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync();
 
             // Initial sign in
             _output.WriteLine("Starting web app sign-in flow.");

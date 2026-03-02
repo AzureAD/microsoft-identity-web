@@ -66,27 +66,6 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsFalseWhenRetryAlreadyInProgress()
-        {
-            // Arrange
-            var tokenAcquisition = CreateTokenAcquisition();
-            
-            // Set _retryClientCertificate to true to simulate retry in progress
-            var retryField = typeof(TokenAcquisition).GetField("_retryClientCertificate", 
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            retryField!.SetValue(tokenAcquisition, true);
-            
-            var responseBody = $"{{\"error\":\"invalid_client\",\"error_description\":\"Error {Constants.InvalidKeyError}: Test error\"}}";
-            var exception = CreateMsalServiceException(InvalidClientErrorCode, responseBody);
-
-            // Act
-            bool result = InvokeIsInvalidClientCertificateOrSignedAssertionError(tokenAcquisition, exception);
-
-            // Assert
-            Assert.False(result, "Should not trigger reload when retry is already in progress");
-        }
-
-        [Fact]
         public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsFalseForEmptyResponseBody()
         {
             // Arrange
@@ -144,7 +123,7 @@ namespace Microsoft.Identity.Web.Test
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+                options.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
                 options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
                 options.ClientCredentials = [new CredentialDescription()
                 {

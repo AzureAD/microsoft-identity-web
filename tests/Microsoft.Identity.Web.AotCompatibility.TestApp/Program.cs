@@ -1,11 +1,31 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+
 internal sealed class Program
 {
     // The code in this program is expected to be trim and AOT compatible
     private static int Main()
     {
-        return 100;
+        var builder = WebApplication.CreateSlimBuilder();
+
+        var azureAdSection = builder.Configuration.GetSection("AzureAd");
+        builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApiAot(
+                options => azureAdSection.Bind(options),
+                JwtBearerDefaults.AuthenticationScheme,
+                null);
+
+        builder.Services.AddTokenAcquisition()
+            .AddInMemoryTokenCaches();
+
+        return 0;
     }
 }

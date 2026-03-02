@@ -40,7 +40,10 @@ namespace Microsoft.Identity.Web
             public static void TokenAcquisitionError(
                 ILogger logger,
                 string msalErrorMessage,
-                Exception? ex) => s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+                Exception? ex)
+            {
+                s_tokenAcquisitionError(logger, msalErrorMessage, ex);
+            }
 
             /// <summary>
             /// Logger for handling information specific to MSAL in token acquisition.
@@ -61,7 +64,9 @@ namespace Microsoft.Identity.Web
                 string tokenSource,
                 string correlationId,
                 string cacheRefreshReason,
-                Exception? ex) => s_tokenAcquisitionMsalAuthenticationResultTime(
+                Exception? ex)
+            {
+                s_tokenAcquisitionMsalAuthenticationResultTime(
                     logger,
                     durationTotalInMs,
                     durationInHttpInMs,
@@ -70,6 +75,7 @@ namespace Microsoft.Identity.Web
                     correlationId,
                     cacheRefreshReason,
                     ex);
+            }
         }
     }
 }

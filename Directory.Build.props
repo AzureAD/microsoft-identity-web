@@ -4,13 +4,11 @@
     <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
     to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
     -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.3.1-preview</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.4.1</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
-
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>4.2.0</PackageValidationBaselineVersion>
-
     <BuildDirectory>$(MSBuildThisFileDirectory)/build</BuildDirectory>
     <AssemblyOriginatorKeyFile>$(BuildDirectory)/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <RepositoryType>git</RepositoryType>
@@ -37,7 +35,7 @@
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <LangVersion>13</LangVersion>
+    <LangVersion>14</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -77,13 +75,13 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net462' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <LangVersion>13</LangVersion>
+    <LangVersion>14</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.15.0</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.81.0</MicrosoftIdentityClientVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">10.0.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.82.0</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">11.0.0</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
@@ -180,7 +178,7 @@
     <MicrosoftExtensionsHttpVersion>3.1.3</MicrosoftExtensionsHttpVersion>
     <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>2.1.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>2.2.4</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>2.1.0</MicrosoftExtensionsConfigurationBinderVersion>
   </PropertyGroup>
 
   <ItemGroup>

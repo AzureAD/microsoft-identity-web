@@ -1,3 +1,46 @@
+## 4.4.0
+
+### New features
+- Add AOT-compatible web API authentication for .NET 10+. See [#3705](https://github.com/AzureAD/microsoft-identity-web/pull/3705) and [#3664](https://github.com/AzureAD/microsoft-identity-web/pull/3664).
+- Propagate long-running web API session key back to callers in user token acquisition. See [#3728](https://github.com/AzureAD/microsoft-identity-web/pull/3728).
+- Add OBO event initialization for OBO APIs. See [#3724](https://github.com/AzureAD/microsoft-identity-web/pull/3724).
+- Add support for calling `WithClientClaims` flow for token acquisition. See [#3623](https://github.com/AzureAD/microsoft-identity-web/pull/3623).
+- Add `OnBeforeTokenAcquisitionForOnBehalfOf` event. See [#3680](https://github.com/AzureAD/microsoft-identity-web/pull/3680).
+
+### Bug fixes
+- Throw `InvalidOperationException` with actionable message when a custom credential is not registered. See [#3626](https://github.com/AzureAD/microsoft-identity-web/pull/3626).
+- Fix event firing for `InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync`. See [#3717](https://github.com/AzureAD/microsoft-identity-web/pull/3717).
+- Update `OnBeforeTokenAcquisitionForOnBehalfOf` to construct `ClaimsPrincipal` from token. See [#3714](https://github.com/AzureAD/microsoft-identity-web/pull/3714).
+- Add a retry counter for acquire token and updated tests with a fake secret. See [#3682](https://github.com/AzureAD/microsoft-identity-web/pull/3682).
+- Fix OBO user error handling. See [#3712](https://github.com/AzureAD/microsoft-identity-web/pull/3712).
+- Fix override merging for app token (and others). See [#3644](https://github.com/AzureAD/microsoft-identity-web/pull/3644).
+- Fix certificate reload logic to only trigger on certificate-specific errors. See [#3653](https://github.com/AzureAD/microsoft-identity-web/pull/3653).
+- Update ROPC flow CCA to pass `SendX5C` to MSAL. See [#3671](https://github.com/AzureAD/microsoft-identity-web/pull/3671).
+
+### Dependencies updates
+- Bump `qs` in `/tests/DevApps/SidecarAdapter/typescript`. See [#3725](https://github.com/AzureAD/microsoft-identity-web/pull/3725).
+- Downgrade Microsoft.Extensions.Configuration.Binder to 2.1.0 on .NET Framework. See [#3730](https://github.com/AzureAD/microsoft-identity-web/pull/3730).
+- Update .NET SDK to 10.0.103 to address DOTNET-Security-10.0 vulnerability. See [#3726](https://github.com/AzureAD/microsoft-identity-web/pull/3726).
+- Upgrade to Microsoft.Identity.Abstractions 11 for AoT compatibility. See [#3699](https://github.com/AzureAD/microsoft-identity-web/pull/3699).
+- Update to MSAL 4.81.0. See [#3665](https://github.com/AzureAD/microsoft-identity-web/pull/3665).
+
+### Documentation
+- Add documentation for auto-generated session key for long-running OBO session. See [#3729](https://github.com/AzureAD/microsoft-identity-web/pull/3729).
+- Improve the Aspire doc article and skills. See [#3695](https://github.com/AzureAD/microsoft-identity-web/pull/3695).
+- Add an article and agent skill to add Entra ID to an Aspire app. See [#3689](https://github.com/AzureAD/microsoft-identity-web/pull/3689).
+- Fix misleading comment in `CertificatelessOptions.ManagedIdentityClientId`. See [#3667](https://github.com/AzureAD/microsoft-identity-web/pull/3667).
+- Add Copilot explore tool functionality. See [#3694](https://github.com/AzureAD/microsoft-identity-web/pull/3694).
+
+### Fundamentals
+- Remove unnecessary warning suppression. See [#3715](https://github.com/AzureAD/microsoft-identity-web/pull/3715).
+- Migrate labs to Lab.API 2.x (first pass). See [#3710](https://github.com/AzureAD/microsoft-identity-web/pull/3710).
+- Update Sidecar E2E test constants. See [#3693](https://github.com/AzureAD/microsoft-identity-web/pull/3693).
+- Fix intermittent failures in `CertificatesObserverTests`. See [#3687](https://github.com/AzureAD/microsoft-identity-web/pull/3687).
+- Add validation baseline exclusions. See [#3684](https://github.com/AzureAD/microsoft-identity-web/pull/3684).
+- Add dSTS integration tests. See [#3677](https://github.com/AzureAD/microsoft-identity-web/pull/3677).
+- Fix FIC test. See [#3663](https://github.com/AzureAD/microsoft-identity-web/pull/3663).
+- Update IdentityWeb version, build logic, and validation. See [#3659](https://github.com/AzureAD/microsoft-identity-web/pull/3659).
+
 ## 4.3.0
 
 ### New features

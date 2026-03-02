@@ -18,7 +18,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
 {
     public class DefaultCertificateLoaderTests
     {
-        // https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Credentials/appId/9a192b78-6580-4f8a-aace-f36ffea4f7be/isMSAApp/
+        // https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Credentials/appId/a599ce88-0a5f-4a6e-beca-e67d3fc427f4/isMSAApp/
         // [InlineData(CertificateSource.KeyVault, TestConstants.KeyVaultContainer, TestConstants.KeyVaultReference)]
         // [InlineData(CertificateSource.Path, @"c:\temp\WebAppCallingWebApiCert.pfx", "")]
         // [InlineData(CertificateSource.StoreWithDistinguishedName, "CurrentUser/My", "CN=WebAppCallingWebApiCert")]
@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             });
 
             Assert.Equal("e2e-mock", cd?.CachedValue?.ToString());
-            
+
         }
 
             [Fact]
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             Assert.NotNull(loader.CredentialSourceLoaders);
             Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Base64Encoded));
-            
+
             // Verify the custom loader overrode the built-in one
             var customLoader = loader.CredentialSourceLoaders[CredentialSource.Base64Encoded] as MockCredentialSourceLoader;
             Assert.NotNull(customLoader);
@@ -179,7 +179,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             Assert.NotNull(loader.CredentialSourceLoaders);
             Assert.True(loader.CredentialSourceLoaders.ContainsKey(CredentialSource.Path));
-            
+
             // Verify the custom loader overrode the built-in one
             var customLoader = loader.CredentialSourceLoaders[CredentialSource.Path] as MockCredentialSourceLoader;
             Assert.NotNull(customLoader);
@@ -287,7 +287,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             Assert.NotNull(credentialsLoader.CredentialSourceLoaders);
             Assert.NotNull(credentialsLoader.CustomSignedAssertionCredentialSourceLoaders);
-            
+
             // Verify custom credential source loader is present
             Assert.True(credentialsLoader.CredentialSourceLoaders.ContainsKey(CredentialSource.Path));
             var customLoader = credentialsLoader.CredentialSourceLoaders[CredentialSource.Path] as MockCredentialSourceLoader;

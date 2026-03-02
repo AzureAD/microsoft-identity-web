@@ -146,7 +146,7 @@ namespace Microsoft.Identity.Web
                     {
                         if (credential.Certificate != null)
                         {
-                            Logger.UsingCertThumbprint(logger, credential.Certificate.Thumbprint);
+                            Logger.UsingCertThumbprint(logger, credential.Certificate?.Thumbprint);
                             return credential;
                         }
                     }

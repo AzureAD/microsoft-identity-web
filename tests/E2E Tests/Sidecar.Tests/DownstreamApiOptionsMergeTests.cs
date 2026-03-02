@@ -3,7 +3,6 @@
 
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Sidecar;
-using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Xunit;
 
 namespace Sidecar.Tests;
@@ -552,5 +551,209 @@ public class DownstreamApiOptionsMergeTests
         Assert.NotNull(result.ExtraQueryParameters);
         Assert.Single(result.ExtraQueryParameters);
         Assert.Equal("value1", result.ExtraQueryParameters["param1"]);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRequestAppTokenTrue_OverridesRequestAppToken()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            RequestAppToken = false
+        };
+        var right = new DownstreamApiOptions
+        {
+            RequestAppToken = true
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.True(result.RequestAppToken);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithRequestAppTokenFalse_DoesNotOverride()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            RequestAppToken = true
+        };
+        var right = new DownstreamApiOptions
+        {
+            RequestAppToken = false
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert - left value preserved because right is false (default)
+        Assert.True(result.RequestAppToken);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithBaseUrlOverride_OverridesBaseUrl()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            BaseUrl = "https://original.api.com/"
+        };
+        var right = new DownstreamApiOptions
+        {
+            BaseUrl = "https://new.api.com/"
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.Equal("https://new.api.com/", result.BaseUrl);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithHttpMethodOverride_OverridesHttpMethod()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            HttpMethod = "GET"
+        };
+        var right = new DownstreamApiOptions
+        {
+            HttpMethod = "POST"
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.Equal("POST", result.HttpMethod);
+    }
+
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_WithManagedIdentityOverride_OverridesManagedIdentity()
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = null
+            }
+        };
+        var right = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = new ManagedIdentityOptions
+                {
+                    UserAssignedClientId = "test-client-id"
+                }
+            }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.NotNull(result.AcquireTokenOptions.ManagedIdentity);
+        Assert.Equal("test-client-id", result.AcquireTokenOptions.ManagedIdentity.UserAssignedClientId);
+    }
+
+    /// <summary>
+    /// This test uses reflection to ensure all properties of DownstreamApiOptions are handled by the merger.
+    /// If a new property is added to DownstreamApiOptions and not handled, this test will fail.
+    /// </summary>
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_AllPropertiesAreCopied()
+    {
+        // Arrange - Properties that are expected to be merged from DownstreamApiOptions
+        var handledProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            // Direct properties
+            "Scopes",
+            "RequestAppToken",
+            "BaseUrl",
+            "RelativePath",
+            "HttpMethod",
+            "ContentType",
+            "AcceptHeader",
+            "ExtraHeaderParameters",
+            "ExtraQueryParameters",
+            // AcquireTokenOptions is handled specially (nested object)
+            "AcquireTokenOptions",
+            // Properties intentionally not merged (they use CustomizeHttpRequestMessage pattern or are clone-only)
+            "Clone",
+            "CustomizeHttpRequestMessage",
+            "Serializer",
+            "Deserializer",
+            "ProtocolScheme",
+        };
+
+        // Act - Get all public instance properties of DownstreamApiOptions
+        var allProperties = typeof(DownstreamApiOptions)
+            .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+            .Where(p => p.CanRead && p.CanWrite)
+            .Select(p => p.Name)
+            .ToList();
+
+        // Assert - Every property should be in our handled list
+        var unhandledProperties = allProperties
+            .Where(p => !handledProperties.Contains(p))
+            .ToList();
+
+        Assert.True(
+            unhandledProperties.Count == 0,
+            $"The following properties of DownstreamApiOptions are not handled by the merger: {string.Join(", ", unhandledProperties)}. " +
+            "Please add handling for these properties in DownstreamApiOptionsMerger.MergeOptions() and add them to this test's handledProperties list.");
+    }
+
+    /// <summary>
+    /// This test uses reflection to ensure all properties of AcquireTokenOptions are handled by the merger.
+    /// </summary>
+    [Fact]
+    public void MergeDownstreamApiOptionsOverrides_AllAcquireTokenOptionsPropertiesAreCopied()
+    {
+        // Arrange - Properties that are expected to be merged from AcquireTokenOptions
+        var handledProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Tenant",
+            "Claims",
+            "AuthenticationOptionsName",
+            "FmiPath",
+            "LongRunningWebApiSessionKey",
+            "PopPublicKey",
+            "CorrelationId",
+            "ManagedIdentity",
+            "ForceRefresh",
+            "ExtraQueryParameters",
+            "ExtraParameters",
+            "ExtraHeadersParameters",
+            "PopClaim",
+            // Properties intentionally not merged
+            "UserFlow",
+            "PopCryptoProvider",
+            "PoPConfiguration",
+        };
+
+        // Act - Get all public instance properties of AcquireTokenOptions
+        var allProperties = typeof(AcquireTokenOptions)
+            .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+            .Where(p => p.CanRead && p.CanWrite)
+            .Select(p => p.Name)
+            .ToList();
+
+        // Assert - Every property should be in our handled list
+        var unhandledProperties = allProperties
+            .Where(p => !handledProperties.Contains(p))
+            .ToList();
+
+        Assert.True(
+            unhandledProperties.Count == 0,
+            $"The following properties of AcquireTokenOptions are not handled by the merger: {string.Join(", ", unhandledProperties)}. " +
+            "Please add handling for these properties in DownstreamApiOptionsMerger.MergeOptions() and add them to this test's handledProperties list.");
     }
 }

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -48,12 +48,12 @@ namespace CustomSignedAssertionProviderTests
 
             // this is how the authentication options can be configured in code rather than
             // in the appsettings file, though using the appsettings file is recommended
-            /*            
+            /*
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "msidlab4.onmicrosoft.com";
-                options.ClientId = "5e71875b-ae52-4a3c-8b82-f6fdc8e1dbe1";
+                    options.TenantId = "id4slab1.onmicrosoft.com";
+                options.ClientId = "af83f987-992d-4219-af18-d200268d3a89";
                 options.ClientCredentials = [ new CredentialDescription() {
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "MyCustomExtension"
