@@ -1,12 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.Internal.IdentityOptionsHelpers
-Microsoft.Identity.Web.PostConfigureOptions.MicrosoftIdentityJwtBearerOptionsPostConfigurator
-Microsoft.Identity.Web.PostConfigureOptions.MicrosoftIdentityJwtBearerOptionsPostConfigurator.MicrosoftIdentityJwtBearerOptionsPostConfigurator(Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! appOptionsMonitor, System.IServiceProvider! serviceProvider) -> void
-Microsoft.Identity.Web.PostConfigureOptions.MicrosoftIdentityJwtBearerOptionsPostConfigurator.PostConfigure(string? name, Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options) -> void
-static Microsoft.Identity.Web.Internal.IdentityOptionsHelpers.BuildAuthority(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> string!
-static Microsoft.Identity.Web.Internal.IdentityOptionsHelpers.ChainTokenStorageHandler(System.Func<Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext!, System.Threading.Tasks.Task!>? existingHandler) -> System.Func<Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext!, System.Threading.Tasks.Task!>!
-static Microsoft.Identity.Web.Internal.IdentityOptionsHelpers.ConfigureAudienceValidation(Microsoft.IdentityModel.Tokens.TokenValidationParameters! validationParameters, string? clientId, bool isB2C) -> void
-static Microsoft.Identity.Web.Internal.IdentityOptionsHelpers.ConfigureIssuerValidation(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options, System.IServiceProvider! serviceProvider) -> void
-static Microsoft.Identity.Web.Internal.IdentityOptionsHelpers.InitializeJwtBearerEvents(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions! options) -> void
-static Microsoft.Identity.Web.PostConfigureOptions.MicrosoftIdentityJwtBearerOptionsPostConfigurator.ValidateRequiredOptions(Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
-
