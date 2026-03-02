@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -36,6 +37,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
+        [RequiresUnreferencedCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
+        [RequiresDynamicCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
         public static IServiceCollection AddSessionAppTokenCache(this IServiceCollection services)
         {
             return CreateSessionTokenCache(services);
@@ -63,11 +66,15 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Session
         /// </remarks>
         /// <param name="services">The services collection to add to.</param>
         /// <returns>The service collection.</returns>
+        [RequiresUnreferencedCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
+        [RequiresDynamicCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
         public static IServiceCollection AddSessionPerUserTokenCache(this IServiceCollection services)
         {
             return CreateSessionTokenCache(services);
         }
 
+        [RequiresUnreferencedCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
+        [RequiresDynamicCode("Session State middleware does not currently support trimming or native AOT. https://aka.ms/aspnet/trimming")]
         private static IServiceCollection CreateSessionTokenCache(IServiceCollection services)
         {
             _ = Throws.IfNull(services);

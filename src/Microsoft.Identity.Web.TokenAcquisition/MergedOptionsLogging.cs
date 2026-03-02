@@ -14,7 +14,7 @@ namespace Microsoft.Identity.Web
         private static readonly Action<ILogger, string, string, string, Exception?> s_authorityIgnored =
             LoggerMessage.Define<string, string, string>(
                 LogLevel.Warning,
-                LoggingEventId.AuthorityConflict,
+                LoggingEventId.AuthorityIgnored,
                 "[MsIdWeb] Authority '{Authority}' is being ignored because Instance '{Instance}' and/or TenantId '{TenantId}' are already configured. To use Authority, remove Instance and TenantId from the configuration.");
 
         /// <summary>

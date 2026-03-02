@@ -8,10 +8,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
-  <!-- Reactivate when https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/pull/178 is fixed-->
-  <!--<PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
-  </PropertyGroup>-->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" />
@@ -35,7 +34,7 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="$(MicrosoftIdentityModelVersion)" />
@@ -52,6 +51,8 @@
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
     <Compile Remove="AspNetCore\*.cs" />
+    <!-- Include shared AOT polyfill for older TFMs -->
+    <Compile Include="..\Shared\CodeAnalysisAttributes.cs" Link="Polyfills\CodeAnalysisAttributes.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,5 +61,5 @@
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
   </ItemGroup>
-  
+
 </Project>

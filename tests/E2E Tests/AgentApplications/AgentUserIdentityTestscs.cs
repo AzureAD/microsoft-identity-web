@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,10 +20,10 @@ namespace AgentApplicationsTests
     public class AgentUserIdentityTests
     {
         string instance = "https://login.microsoftonline.com/";
-        string tenantId = "31a58c3b-ae9c-4448-9e8f-e9e143e800df";         // Replace with your tenant ID
-        string agentApplication = "c4b2d4d9-9257-4c1a-a5c0-0a4907c83411"; // Replace with the actual agent application client ID
-        string agentIdentity = "44250d7d-2362-4fba-9ba0-49c19ae270e0";    // Replace with the actual agent identity
-        string userUpn = "aui3@msidlabtoint.onmicrosoft.com";             // Replace with the actual user upn.
+        string tenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";         // Replace with your tenant ID
+        string agentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Replace with the actual agent application client ID
+        string agentIdentity = "ab18ca07-d139-4840-8b3b-4be9610c6ed5";    // Replace with the actual agent identity
+        string userUpn = "agentuser1@id4slab1.onmicrosoft.com";       // Replace with the actual user upn.
 
         [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphAsync()
@@ -252,9 +253,82 @@ namespace AgentApplicationsTests
         }
 
         [Fact]
+        public async Task AgentUserIdentityGetsTokenForGraphAsyncInvalidCertificate()
+        {
+            IServiceCollection services = new ServiceCollection();
+
+            // Configure the information about the agent application with an INVALID secret
+            services.Configure<MicrosoftIdentityApplicationOptions>(
+                options =>
+                {
+                    options.Instance = instance;
+                    options.TenantId = tenantId;
+                    options.ClientId = agentApplication;
+                    options.ClientCredentials = [
+                        new CredentialDescription
+                        {
+                            SourceType = CredentialSource.ClientSecret,
+                            ClientSecret = "invalid-secret-that-will-fail-authentication"
+                        }
+                    ];
+                });
+            IServiceProvider serviceProvider = services.ConfigureServicesForAgentIdentitiesTests();
+
+            // Get an authorization header provider
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetService<IAuthorizationHeaderProvider>()!;
+            AuthorizationHeaderProviderOptions options = new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(
+                agentApplicationId: agentIdentity,
+                username: userUpn
+                );
+
+            // Track start time to verify the request doesn't retry infinitely
+            var startTime = DateTime.UtcNow;
+
+            // Assert that authentication fails with invalid credentials
+            Exception? caughtException = null;
+            try
+            {
+                string authorizationHeaderWithUserToken = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    scopes: ["https://graph.microsoft.com/.default"],
+                    options);
+
+                // If we got here, no exception was thrown - this is unexpected
+                Assert.Fail($"Expected authentication to fail with invalid secret, but it generated token.");
+            }
+            catch (MsalServiceException msalEx)
+            {
+                caughtException = msalEx;
+
+                // Calculate duration to ensure it doesn't hang indefinitely
+                var duration = DateTime.UtcNow - startTime;
+
+                // Verify it failed within a reasonable timeframe (no infinite retry loop)
+                Assert.True(duration.TotalSeconds < 30,
+                    $"Authentication failure took too long ({duration.TotalSeconds} seconds), indicating possible retry loop issue");
+
+                // Verify the exception indicates authentication failure
+                string message = msalEx.Message;
+                Assert.Contains("AADSTS7000215", message, StringComparison.Ordinal);
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+
+                // Calculate duration
+                var duration = DateTime.UtcNow - startTime;
+
+                // Verify it failed within a reasonable timeframe
+                Assert.True(duration.TotalSeconds < 30,
+                    $"Authentication failure took too long ({duration.TotalSeconds} seconds), indicating possible retry loop issue");
+            }
+
+
+        }
+
+        [Fact]
         public async Task AgentUserIdentityGetsTokenForGraphByUserIdAsync()
         {
-            string userOid = "04ea4dcd-f314-476f-be31-a13707cdd11e";           // Replace with the actual user OID.
+            string userOid = "a02b9a5b-ea57-40c9-bf00-8aa631b549ad";           // Replace with the actual user OID.
 
             IServiceCollection services = new ServiceCollection();
 

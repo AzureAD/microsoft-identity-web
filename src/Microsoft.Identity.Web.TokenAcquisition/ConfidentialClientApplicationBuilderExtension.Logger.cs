@@ -67,13 +67,15 @@ namespace Microsoft.Identity.Web
             /// <param name="ex"></param>
             public static void AttemptToLoadCredentialsFailed(
                 ILogger logger,
-                CredentialDescription certificateDescription, 
-                Exception ex) =>
-                    s_credentialAttemptFailed(
+                CredentialDescription certificateDescription,
+                Exception ex)
+            {
+                s_credentialAttemptFailed(
                         logger,
                         certificateDescription.Id,
                         certificateDescription.Skip.ToString(),
                         ex);
+            }
 
             /// <summary>
             /// Logger for attempting to use a CredentialDescription with MSAL
@@ -82,12 +84,14 @@ namespace Microsoft.Identity.Web
             /// <param name="certificateDescription"></param>
             public static void AttemptToLoadCredentials(
                 ILogger logger,
-                CredentialDescription certificateDescription) => 
-                    s_credentialAttempt(
-                        logger, 
-                        certificateDescription.Id, 
-                        certificateDescription.Skip.ToString(), 
+                CredentialDescription certificateDescription)
+            {
+                s_credentialAttempt(
+                        logger,
+                        certificateDescription.Id,
+                        certificateDescription.Skip.ToString(),
                         default!);
+            }
 
             /// <summary>
             /// Logger for attempting to use a CredentialDescription with MSAL
@@ -96,12 +100,14 @@ namespace Microsoft.Identity.Web
             /// <param name="certificateDescription"></param>
             public static void FailedToLoadCredentials(
                 ILogger logger,
-                CredentialDescription certificateDescription) =>
-                    s_credentialAttemptFailed(
+                CredentialDescription certificateDescription)
+            {
+                s_credentialAttemptFailed(
                         logger,
                         certificateDescription.Id,
                         certificateDescription.Skip.ToString(),
                         default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
@@ -110,14 +116,20 @@ namespace Microsoft.Identity.Web
             /// <param name="message">Exception message.</param>
             public static void NotUsingManagedIdentity(
                 ILogger logger,
-                string message) => s_notManagedIdentity(logger, message, default!);
+                string message)
+            {
+                s_notManagedIdentity(logger, message, default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
             /// </summary>
             /// <param name="logger">ILogger.</param>
             public static void UsingManagedIdentity(
-                ILogger logger) => s_usingManagedIdentity(logger, default!);
+                ILogger logger)
+            {
+                s_usingManagedIdentity(logger, default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
@@ -126,7 +138,10 @@ namespace Microsoft.Identity.Web
             /// <param name="signedAssertionFileDiskPath"></param>
             public static void UsingPodIdentityFile(
                 ILogger logger,
-                string signedAssertionFileDiskPath) => s_usingPodIdentityFile(logger, signedAssertionFileDiskPath, default!);
+                string signedAssertionFileDiskPath)
+            {
+                s_usingPodIdentityFile(logger, signedAssertionFileDiskPath, default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
@@ -135,7 +150,10 @@ namespace Microsoft.Identity.Web
             /// <param name="signedAssertionUri"></param>
             public static void UsingSignedAssertionFromVault(
                 ILogger logger,
-                string signedAssertionUri) => s_usingSignedAssertionFromVault(logger, signedAssertionUri, default!);
+                string signedAssertionUri)
+            {
+                s_usingSignedAssertionFromVault(logger, signedAssertionUri, default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
@@ -144,7 +162,10 @@ namespace Microsoft.Identity.Web
             /// <param name="signedAssertionUri"></param>
             public static void UsingSignedAssertionFromCustomProvider(
                 ILogger logger,
-                string signedAssertionUri) => s_usingSignedAssertionFromCustomProvider(logger, signedAssertionUri, default!);
+                string signedAssertionUri)
+            {
+                s_usingSignedAssertionFromCustomProvider(logger, signedAssertionUri, default!);
+            }
 
             /// <summary>
             /// Logger for handling information specific to ConfidentialClientApplicationBuilderExtension.
@@ -153,7 +174,10 @@ namespace Microsoft.Identity.Web
             /// <param name="certThumbprint"></param>
             public static void UsingCertThumbprint(
                 ILogger logger,
-                string certThumbprint) => s_usingCertThumbprint(logger, certThumbprint, default!);
+                string? certThumbprint)
+            {
+                s_usingCertThumbprint(logger, certThumbprint ?? "null", default!);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Identity.Lab.Api" Version="2.0.0" />
 
   </ItemGroup>
 

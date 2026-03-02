@@ -74,6 +74,6 @@ To migrate your existing code using **IDownstreamWebApi** to Microsoft.Identity.
 
 ### Example code
 
-The following sample illustrates the usage of IDownstreamApi: [ASP.NET Core web app calling web API/TodoListController]([https://github.com/AzureAD/microsoft-identity-web/pull/2036/files](https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2/blob/jmprieur/relv2/4-WebApp-your-API/4-1-MyOrg/Client/Controllers/TodoListController.cs)).
+The following sample illustrates the usage of IDownstreamApi: [ASP.NET Core web app calling web API/TodoListController](https://github.com/AzureAD/microsoft-identity-web/pull/2036/files).
 
 ### Differences between IDownstreamWebApi and IDownstreamApi

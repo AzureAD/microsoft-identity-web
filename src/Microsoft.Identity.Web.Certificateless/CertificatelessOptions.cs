@@ -17,9 +17,8 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// The value is used to establish a connection between external workload identities
-        /// and Azure Active Directory. If Azure AD is the issuer, this value should be the object
-        /// ID of the managed identity service principal in the tenant that will be used to 
-        /// impersonate the app.
+        /// and Azure Active Directory. If Azure AD is the issuer, this value should be the client
+        /// ID of the managed identity.
         /// Can be null if you are using the machine assigned managed identity.
         /// Needs to be assigned if you are using a user assigned managed identity.
         /// </summary>

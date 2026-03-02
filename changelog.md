@@ -1,3 +1,92 @@
+## 4.4.0
+
+### New features
+- Add AOT-compatible web API authentication for .NET 10+. See [#3705](https://github.com/AzureAD/microsoft-identity-web/pull/3705) and [#3664](https://github.com/AzureAD/microsoft-identity-web/pull/3664).
+- Propagate long-running web API session key back to callers in user token acquisition. See [#3728](https://github.com/AzureAD/microsoft-identity-web/pull/3728).
+- Add OBO event initialization for OBO APIs. See [#3724](https://github.com/AzureAD/microsoft-identity-web/pull/3724).
+- Add support for calling `WithClientClaims` flow for token acquisition. See [#3623](https://github.com/AzureAD/microsoft-identity-web/pull/3623).
+- Add `OnBeforeTokenAcquisitionForOnBehalfOf` event. See [#3680](https://github.com/AzureAD/microsoft-identity-web/pull/3680).
+
+### Bug fixes
+- Throw `InvalidOperationException` with actionable message when a custom credential is not registered. See [#3626](https://github.com/AzureAD/microsoft-identity-web/pull/3626).
+- Fix event firing for `InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync`. See [#3717](https://github.com/AzureAD/microsoft-identity-web/pull/3717).
+- Update `OnBeforeTokenAcquisitionForOnBehalfOf` to construct `ClaimsPrincipal` from token. See [#3714](https://github.com/AzureAD/microsoft-identity-web/pull/3714).
+- Add a retry counter for acquire token and updated tests with a fake secret. See [#3682](https://github.com/AzureAD/microsoft-identity-web/pull/3682).
+- Fix OBO user error handling. See [#3712](https://github.com/AzureAD/microsoft-identity-web/pull/3712).
+- Fix override merging for app token (and others). See [#3644](https://github.com/AzureAD/microsoft-identity-web/pull/3644).
+- Fix certificate reload logic to only trigger on certificate-specific errors. See [#3653](https://github.com/AzureAD/microsoft-identity-web/pull/3653).
+- Update ROPC flow CCA to pass `SendX5C` to MSAL. See [#3671](https://github.com/AzureAD/microsoft-identity-web/pull/3671).
+
+### Dependencies updates
+- Bump `qs` in `/tests/DevApps/SidecarAdapter/typescript`. See [#3725](https://github.com/AzureAD/microsoft-identity-web/pull/3725).
+- Downgrade Microsoft.Extensions.Configuration.Binder to 2.1.0 on .NET Framework. See [#3730](https://github.com/AzureAD/microsoft-identity-web/pull/3730).
+- Update .NET SDK to 10.0.103 to address DOTNET-Security-10.0 vulnerability. See [#3726](https://github.com/AzureAD/microsoft-identity-web/pull/3726).
+- Upgrade to Microsoft.Identity.Abstractions 11 for AoT compatibility. See [#3699](https://github.com/AzureAD/microsoft-identity-web/pull/3699).
+- Update to MSAL 4.81.0. See [#3665](https://github.com/AzureAD/microsoft-identity-web/pull/3665).
+
+### Documentation
+- Added comprehensive authority configuration and precedence documentation, including guides for Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. See [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613).
+- Add documentation for auto-generated session key for long-running OBO session. See [#3729](https://github.com/AzureAD/microsoft-identity-web/pull/3729).
+- Improve the Aspire doc article and skills. See [#3695](https://github.com/AzureAD/microsoft-identity-web/pull/3695).
+- Add an article and agent skill to add Entra ID to an Aspire app. See [#3689](https://github.com/AzureAD/microsoft-identity-web/pull/3689).
+- Fix misleading comment in `CertificatelessOptions.ManagedIdentityClientId`. See [#3667](https://github.com/AzureAD/microsoft-identity-web/pull/3667).
+- Add Copilot explore tool functionality. See [#3694](https://github.com/AzureAD/microsoft-identity-web/pull/3694).
+
+### Fundamentals
+- Remove unnecessary warning suppression. See [#3715](https://github.com/AzureAD/microsoft-identity-web/pull/3715).
+- Migrate labs to Lab.API 2.x (first pass). See [#3710](https://github.com/AzureAD/microsoft-identity-web/pull/3710).
+- Update Sidecar E2E test constants. See [#3693](https://github.com/AzureAD/microsoft-identity-web/pull/3693).
+- Fix intermittent failures in `CertificatesObserverTests`. See [#3687](https://github.com/AzureAD/microsoft-identity-web/pull/3687).
+- Add validation baseline exclusions. See [#3684](https://github.com/AzureAD/microsoft-identity-web/pull/3684).
+- Add dSTS integration tests. See [#3677](https://github.com/AzureAD/microsoft-identity-web/pull/3677).
+- Fix FIC test. See [#3663](https://github.com/AzureAD/microsoft-identity-web/pull/3663).
+- Update IdentityWeb version, build logic, and validation. See [#3659](https://github.com/AzureAD/microsoft-identity-web/pull/3659).
+
+## 4.3.0
+
+### New features
+- Added token binding (mTLS PoP) scenario for confidential client (app-only) token acquisition and downstream API calls. See [#3622](https://github.com/AzureAD/microsoft-identity-web/pull/3622).
+
+### Dependencies updates
+- Bumped **qs** from 6.14.0 to 6.14.1 in /tests/DevApps/SidecarAdapter/typescript. See [#3660]( https://github.com/AzureAD/microsoft-identity-web/pull/3660).
+
+### Documentation
+- Modernized Identity Web documentation, which is now can be found in [docs](https://github.com/AzureAD/microsoft-identity-web/tree/master/docs). See [#3566](https://github.com/AzureAD/microsoft-identity-web/pull/3566).
+- Added token binding (mTLS PoP) documentation. See [#3661](https://github.com/AzureAD/microsoft-identity-web/pull/3661).
+
+## 4.2.0
+
+### New features
+- Added CAE claims support for FIC + Managed Identity. See [#3647](https://github.com/AzureAD/microsoft-identity-web/pull/3647) for details.
+- Added `AddMicrosoftIdentityMessageHandler` extension methods for `IHttpClientBuilder`. See [#3649](https://github.com/AzureAD/microsoft-identity-web/pull/3649) for details.
+
+### Bug fixes
+- Fixed tenant not being propagated in credential FIC acquisition. See [#3633](https://github.com/AzureAD/microsoft-identity-web/pull/3633) for details.
+- Fixed `ForAgentIdentity` hardcoded 'AzureAd' `ConfigurationSection` to respect `AuthenticationOptionsName`. See [#3635](https://github.com/AzureAD/microsoft-identity-web/pull/3635) for details.
+- Fixed `GetTokenAcquirer` to propagate `MicrosoftEntraApplicationOptions` properties. See [#3651](https://github.com/AzureAD/microsoft-identity-web/pull/3651) for details.
+- Added meaningful error message when identity configuration is missing. See [#3637](https://github.com/AzureAD/microsoft-identity-web/pull/3637) for details.
+
+### Dependencies updates
+- Update Microsoft.Identity.Abstractions to version 10.0.0.
+- Bump express from 5.1.0 to 5.2.0 in /tests/DevApps/SidecarAdapter/typescript. [#3636](https://github.com/AzureAD/microsoft-identity-web/pull/3636)
+- Bump jws from 3.2.2 to 3.2.3 in /tests/DevApps/SidecarAdapter/typescript. [#3641](https://github.com/AzureAD/microsoft-identity-web/pull/3641)
+
+### Fundamentals
+- Update support policy. [#3656](https://github.com/AzureAD/microsoft-identity-web/pull/3656)
+- Update agent identity coordinates in E2E tests after deauth. [#3640](https://github.com/AzureAD/microsoft-identity-web/pull/3640)
+- Update E2E agent identity configuration to new tenant. [#3646](https://github.com/AzureAD/microsoft-identity-web/pull/3646)
+
+## 4.1.1
+
+### Bug fixes
+- Authority-only configuration parsing improvements: Early parsing of Authority into Instance/TenantId and defensive fallback in PrepareAuthorityInstanceForMsal. Behavior is backward compatible; Authority is still ignored when Instance/TenantId explicitly provided—now surfaced via a warning. See [#3612](https://github.com/AzureAD/microsoft-identity-web/issues/3612).
+
+### New features
+- Added warning diagnostics for conflicting Authority vs Instance/TenantId: Emitting a single structured warning when both styles are provided. See [#3611](https://github.com/AzureAD/microsoft-identity-web/issues/3611).
+
+### Fundamentals
+- Expanded authority test matrix: Coverage for AAD (v1/v2), B2C (/tfp/ normalization, policy path), CIAM (PreserveAuthority), query parameters, scheme-less forms, and conflict scenarios. See [#3610](https://github.com/AzureAD/microsoft-identity-web/issues/3610).
+
 4.1.0
 =========
 ### New features
@@ -17,7 +106,6 @@
 
 ### Documentation
 - Update README to include Entra SDK container info. [#3578](https://github.com/AzureAD/microsoft-identity-web/pull/3578)
-- Added comprehensive authority configuration and precedence documentation, including guides for Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613)
 
 ### Fundamentals
 - Include NET 9.0 in template-install-dependencies. [#3593](https://github.com/AzureAD/microsoft-identity-web/pull/3593)

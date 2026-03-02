@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -75,7 +74,7 @@ namespace Microsoft.Identity.Web
 
             if (appPermissionConfigurationKey != null)
             {
-                appPermissions = _configuration.GetValue<string>(appPermissionConfigurationKey)?.Split(' ');
+                appPermissions = _configuration[appPermissionConfigurationKey]?.Split(' ');
             }
 
             if (appPermissions is null)
@@ -102,7 +101,7 @@ namespace Microsoft.Identity.Web
             {
                 return Task.CompletedTask;
             }
-            
+
             var hasScope = scopes != null && scopeClaims.SelectMany(s => s.Value.Split(' ')).Intersect(scopes).Any();
 
             var hasAppPermission = appPermissions != null && appPermissionClaims.SelectMany(s => s.Value.Split(' ')).Intersect(appPermissions).Any();
