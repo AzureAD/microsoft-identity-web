@@ -67,6 +67,17 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(certificateThumbprint, certificateDescription.CertificateThumbprint);
         }
 
+        [Theory]
+        [InlineData("TestCert", StoreLocation.LocalMachine, StoreName.Root)]
+        public void TestFromStoreWithSubjectName(string certificateSubjectName, StoreLocation storeLocation, StoreName storeName)
+        {
+            CertificateDescription certificateDescription =
+                CertificateDescription.FromStoreWithSubjectName(certificateSubjectName, storeLocation, storeName);
+            Assert.Equal(CertificateSource.StoreWithSubjectName, certificateDescription.SourceType);
+            Assert.Equal(certificateSubjectName, certificateDescription.CertificateSubjectName);
+            Assert.Equal($"{storeLocation}/{storeName}", certificateDescription.CertificateStorePath);
+        }
+
         [Fact]
         public void TestFromCertificate()
         {

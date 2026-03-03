@@ -152,6 +152,29 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Creates a certificate description from a certificate subject name (such as "MyCert")
+        /// and store location (Certificate Manager on Windows, for instance).
+        /// The provided subject name is matched as a substring against the Subject field of each
+        /// certificate in the store; the most recently issued matching certificate is selected.
+        /// </summary>
+        /// <param name="certificateSubjectName">Certificate subject name (or substring of the subject) to search for in the store.</param>
+        /// <param name="certificateStoreLocation">Store location where to find the certificate.</param>
+        /// <param name="certificateStoreName">Store name where to find the certificate.</param>
+        /// <returns>A certificate description.</returns>
+        public static CertificateDescription FromStoreWithSubjectName(
+            string certificateSubjectName,
+            StoreLocation certificateStoreLocation = StoreLocation.CurrentUser,
+            StoreName certificateStoreName = StoreName.My)
+        {
+            return new CertificateDescription
+            {
+                SourceType = CertificateSource.StoreWithSubjectName,
+                CertificateStorePath = $"{certificateStoreLocation}/{certificateStoreName}",
+                CertificateSubjectName = certificateSubjectName,
+            };
+        }
+
+        /// <summary>
         ///  Defines where and how to import the private key of an X.509 certificate.
         /// </summary>
         public X509KeyStorageFlags X509KeyStorageFlags { get; set; } = CertificateLoaderHelper.DetermineX509KeyStorageFlag();
