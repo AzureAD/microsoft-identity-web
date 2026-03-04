@@ -37,5 +37,11 @@ namespace Microsoft.Identity.Web
         /// From the certificate store, described by its distinguished name.
         /// </summary>
         StoreWithDistinguishedName = 5,
+
+        /// <summary>
+        /// From the certificate store, described by its subject name.
+        /// The provided value is matched as a substring against the certificate's Subject field.
+        /// </summary>
+        StoreWithSubjectName = 13,
     }
 }
