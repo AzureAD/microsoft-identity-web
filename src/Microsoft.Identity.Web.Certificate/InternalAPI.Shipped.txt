@@ -53,6 +53,10 @@ Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader
 Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
 Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.StoreWithDistinguishedNameCertificateLoader.StoreWithDistinguishedNameCertificateLoader() -> void
+Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader
+Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
+Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.StoreWithSubjectNameCertificateLoader() -> void
 Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader
 Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
 Microsoft.Identity.Web.StoreWithThumbprintCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!

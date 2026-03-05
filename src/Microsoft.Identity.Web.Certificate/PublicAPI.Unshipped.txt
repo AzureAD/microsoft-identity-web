@@ -1,3 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.CertificateSource.StoreWithSubjectName = 13 -> Microsoft.Identity.Web.CertificateSource
-static Microsoft.Identity.Web.CertificateDescription.FromStoreWithSubjectName(string! certificateSubjectName, System.Security.Cryptography.X509Certificates.StoreLocation certificateStoreLocation = System.Security.Cryptography.X509Certificates.StoreLocation.CurrentUser, System.Security.Cryptography.X509Certificates.StoreName certificateStoreName = System.Security.Cryptography.X509Certificates.StoreName.My) -> Microsoft.Identity.Web.CertificateDescription!
