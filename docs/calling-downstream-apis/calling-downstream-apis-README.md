@@ -206,6 +206,8 @@ public class ApiService
 
 [📖 Learn more about IDownstreamApi](custom-apis.md)
 
+**💡 Tip:** You can customize the underlying HttpClient used by IDownstreamApi (timeouts, handlers, etc.) by registering a named HttpClient with the same name as your API. [See HttpClient configuration guide](custom-apis.md#configuring-the-underlying-httpclient).
+
 ### Token Binding with mTLS PoP (Enhanced Security)
 
 Token binding provides enhanced security by cryptographically binding access tokens to X.509 certificates. Even if a token is intercepted, it cannot be used without the corresponding certificate.

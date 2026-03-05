@@ -837,6 +837,161 @@ catch (HttpRequestException ex)
 }
 ```
 
+## Configuring the Underlying HttpClient
+
+`IDownstreamApi` uses `IHttpClientFactory` internally to create `HttpClient` instances. By default, it creates a named client using the service name you specify (e.g., "MyApi"). You can customize this `HttpClient` by registering it with `IHttpClientFactory` using the same name.
+
+### Basic HttpClient Configuration
+
+The simplest way to configure the underlying `HttpClient` is to register a named `HttpClient` with the same name as your downstream API:
+
+```csharp
+// Configure your downstream API
+builder.Services.AddDownstreamApi("MyApi", options =>
+{
+    options.BaseUrl = "https://api.example.com";
+    options.Scopes = new[] { "api://my-api/read" };
+});
+
+// Configure the underlying HttpClient for "MyApi"
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("User-Agent", "MyApp/1.0");
+});
+```
+
+When you call `_api.GetForUserAsync<Product>("MyApi", "products")`, IDownstreamApi will use the configured "MyApi" HttpClient.
+
+### Advanced Scenarios
+
+#### 1. Adding Custom Message Handlers
+
+You can add custom message handlers to the HttpClient pipeline for logging, retry policies, or other cross-cutting concerns:
+
+```csharp
+// Custom logging handler
+public class LoggingHandler : DelegatingHandler
+{
+    private readonly ILogger<LoggingHandler> _logger;
+    
+    public LoggingHandler(ILogger<LoggingHandler> logger)
+    {
+        _logger = logger;
+    }
+    
+    protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, 
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Sending request to {Uri}", request.RequestUri);
+        var response = await base.SendAsync(request, cancellationToken);
+        _logger.LogInformation("Received response with status {StatusCode}", response.StatusCode);
+        return response;
+    }
+}
+
+// Register the handler and configure HttpClient
+builder.Services.AddTransient<LoggingHandler>();
+
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddHttpMessageHandler<LoggingHandler>();
+```
+
+#### 2. Using Polly for Resilience
+
+Add retry policies and circuit breakers using Polly:
+
+```csharp
+// Install: dotnet add package Microsoft.Extensions.Http.Polly
+
+using Polly;
+using Polly.Extensions.Http;
+
+// Configure HttpClient with Polly retry policy
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+```
+
+#### 3. Extended Timeouts for Debugging
+
+For debugging scenarios where you need extended timeouts to avoid connection timeouts:
+
+```csharp
+// Configure extended timeout for debugging
+#if DEBUG
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    // Extended timeout for debugging - allows you to step through code
+    // without the HTTP request timing out
+    client.Timeout = TimeSpan.FromMinutes(30);
+});
+#else
+builder.Services.AddHttpClient("MyApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+#endif
+```
+
+**💡 Tip**: Conditional compilation directives allow different timeout values for development and production environments.
+
+#### 4. Configuring Different HttpClients for Multiple APIs
+
+When calling multiple downstream APIs, configure each with its own named HttpClient:
+
+```csharp
+// Configure multiple downstream APIs
+builder.Services.AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
+
+// Configure individual HttpClients with different settings
+builder.Services.AddHttpClient("CustomersApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+})
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(2, _ => TimeSpan.FromMilliseconds(500)));
+
+builder.Services.AddHttpClient("OrdersApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(45);
+})
+.AddHttpMessageHandler<LoggingHandler>()
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(1)));
+
+builder.Services.AddHttpClient("InventoryApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+```
+
+### Best Practices for HttpClient Configuration
+
+✅ **Do:**
+- Use named HttpClients with the same name as your downstream API
+- Configure appropriate timeouts based on API response times
+- Add logging handlers for production troubleshooting
+- Use Polly for resilience (retries, circuit breakers, timeouts)
+- Test your configuration with realistic load patterns
+
+❌ **Don't:**
+- Use overly long timeouts in production (can cause resource exhaustion)
+- Add too many handlers (each adds overhead)
+- Forget to test timeout and retry configurations
+- Set both BaseUrl in DownstreamApiOptions and BaseAddress in HttpClient (can cause confusion)
+
 ## Best Practices
 
 ### 1. Configure Timeout Values
@@ -845,7 +1000,6 @@ catch (HttpRequestException ex)
 builder.Services.AddDownstreamApi("MyApi", options =>
 {
     options.BaseUrl = "https://api.example.com";
-    options.HttpClientName = "MyApi";
 });
 
 builder.Services.AddHttpClient("MyApi", client =>
