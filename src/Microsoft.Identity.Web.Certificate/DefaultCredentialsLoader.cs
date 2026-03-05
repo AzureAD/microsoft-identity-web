@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Web
                 { CredentialSource.Path, new FromPathCertificateLoader() },
                 { CredentialSource.StoreWithThumbprint, new StoreWithThumbprintCertificateLoader() },
                 { CredentialSource.StoreWithDistinguishedName, new StoreWithDistinguishedNameCertificateLoader() },
+                { CredentialSource.StoreWithSubjectName, new StoreWithSubjectNameCertificateLoader() },
                 { CredentialSource.Base64Encoded, new Base64EncodedCertificateLoader() },
                 { CredentialSource.SignedAssertionFromManagedIdentity, new SignedAssertionFromManagedIdentityCredentialLoader(_logger) },
                 { CredentialSource.SignedAssertionFilePath, new SignedAssertionFilePathCredentialsLoader(_logger) }

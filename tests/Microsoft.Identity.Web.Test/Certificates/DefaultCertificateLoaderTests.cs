@@ -16,6 +16,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         // [InlineData(CertificateSource.Path, @"c:\temp\WebAppCallingWebApiCert.pfx", "")]
         // [InlineData(CertificateSource.StoreWithDistinguishedName, "CurrentUser/My", "CN=WebAppCallingWebApiCert")]
         // [InlineData(CertificateSource.StoreWithThumbprint, "CurrentUser/My", "962D129A859174EE8B5596985BD18EFEB6961684")]
+        // [InlineData(CertificateSource.StoreWithSubjectName, "CurrentUser/My", "MyCertificate")]
 #pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [InlineData(CertificateSource.Base64Encoded, null, TestConstants.CertificateX5c)]
 #pragma warning restore xUnit1012 // Null should only be used for nullable parameters
@@ -42,6 +43,10 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 case CertificateSource.StoreWithDistinguishedName:
                     certificateDescription = new CertificateDescription() { SourceType = CertificateSource.StoreWithDistinguishedName };
                     certificateDescription.CertificateDistinguishedName = referenceOrValue;
+                    certificateDescription.CertificateStorePath = container;
+                    break;
+                case CertificateSource.StoreWithSubjectName:
+                    certificateDescription = CertificateDescription.FromStoreWithSubjectName(referenceOrValue);
                     certificateDescription.CertificateStorePath = container;
                     break;
                 default:
@@ -109,6 +114,43 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             Assert.NotNull(certificateDescription.Certificate);
             Assert.True(certificateDescription.Certificate.HasPrivateKey);
+        }
+
+        [Fact]
+        public void TestFromStoreWithSubjectNameCreatesCorrectDescription()
+        {
+            // Arrange & Act
+            var description = CertificateDescription.FromStoreWithSubjectName(
+                "MyCertificate",
+                StoreLocation.LocalMachine,
+                StoreName.My);
+
+            // Assert
+            Assert.Equal(CertificateSource.StoreWithSubjectName, description.SourceType);
+            Assert.Equal("MyCertificate", description.CertificateSubjectName);
+            Assert.Equal("LocalMachine/My", description.CertificateStorePath);
+        }
+
+        [Fact]
+        public void TestFromStoreWithSubjectNameDefaultStoreLocation()
+        {
+            // Arrange & Act
+            var description = CertificateDescription.FromStoreWithSubjectName("MyCertificate");
+
+            // Assert
+            Assert.Equal(CertificateSource.StoreWithSubjectName, description.SourceType);
+            Assert.Equal("MyCertificate", description.CertificateSubjectName);
+            Assert.Equal("CurrentUser/My", description.CertificateStorePath);
+        }
+
+        [Fact]
+        public void TestStoreWithSubjectNameLoaderIsRegistered()
+        {
+            // Act
+            var loader = new DefaultCredentialsLoader();
+
+            // Assert
+            Assert.True(loader.CredentialSourceLoaders.ContainsKey(Microsoft.Identity.Abstractions.CredentialSource.StoreWithSubjectName));
         }
     }
 }
