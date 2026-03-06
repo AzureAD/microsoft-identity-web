@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -41,7 +42,7 @@ namespace Microsoft.Identity.Web
     ///     options.Scopes.Add("https://api.example.com/.default");
     /// });
     /// </code>
-    /// 
+    ///
     /// <para><strong>Configuration from appsettings.json:</strong></para>
     /// <code>
     /// // In appsettings.json:
@@ -50,18 +51,18 @@ namespace Microsoft.Identity.Web
     /// //     "Scopes": ["https://graph.microsoft.com/.default"]
     /// //   }
     /// // }
-    /// 
+    ///
     /// services.AddHttpClient("GraphClient")
     ///     .AddMicrosoftIdentityMessageHandler(
     ///         configuration.GetSection("DownstreamApi"),
     ///         "DownstreamApi");
     /// </code>
-    /// 
+    ///
     /// <para><strong>Parameterless for per-request configuration:</strong></para>
     /// <code>
     /// services.AddHttpClient("FlexibleClient")
     ///     .AddMicrosoftIdentityMessageHandler();
-    /// 
+    ///
     /// // Later, in a service:
     /// var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
     ///     .WithAuthenticationOptions(options =>
@@ -99,17 +100,17 @@ namespace Microsoft.Identity.Web
         /// // Configure the HTTP client
         /// services.AddHttpClient("ApiClient")
         ///     .AddMicrosoftIdentityMessageHandler();
-        /// 
+        ///
         /// // Use the client with per-request configuration
         /// public class MyService
         /// {
         ///     private readonly HttpClient _httpClient;
-        ///     
+        ///
         ///     public MyService(IHttpClientFactory factory)
         ///     {
         ///         _httpClient = factory.CreateClient("ApiClient");
         ///     }
-        ///     
+        ///
         ///     public async Task&lt;string&gt; GetDataAsync()
         ///     {
         ///         var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
@@ -117,7 +118,7 @@ namespace Microsoft.Identity.Web
         ///             {
         ///                 options.Scopes.Add("https://api.example.com/.default");
         ///             });
-        ///         
+        ///
         ///         var response = await _httpClient.SendAsync(request);
         ///         response.EnsureSuccessStatusCode();
         ///         return await response.Content.ReadAsStringAsync();
@@ -136,7 +137,8 @@ namespace Microsoft.Identity.Web
             return builder.AddHttpMessageHandler(sp =>
             {
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                return new MicrosoftIdentityMessageHandler(headerProvider);
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                return new MicrosoftIdentityMessageHandler(headerProvider, defaultOptions: null, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
             });
         }
 
@@ -168,24 +170,24 @@ namespace Microsoft.Identity.Web
         ///     Scopes = { "https://graph.microsoft.com/.default" }
         /// };
         /// options.WithAgentIdentity("agent-application-id");
-        /// 
+        ///
         /// // Configure the HTTP client with the pre-built options
         /// services.AddHttpClient("GraphClient", client =>
         /// {
         ///     client.BaseAddress = new Uri("https://graph.microsoft.com");
         /// })
         /// .AddMicrosoftIdentityMessageHandler(options);
-        /// 
+        ///
         /// // Use the client - authentication is automatic
         /// public class GraphService
         /// {
         ///     private readonly HttpClient _httpClient;
-        ///     
+        ///
         ///     public GraphService(IHttpClientFactory factory)
         ///     {
         ///         _httpClient = factory.CreateClient("GraphClient");
         ///     }
-        ///     
+        ///
         ///     public async Task&lt;string&gt; GetUserProfileAsync()
         ///     {
         ///         var response = await _httpClient.GetAsync("/v1.0/me");
@@ -212,7 +214,8 @@ namespace Microsoft.Identity.Web
             return builder.AddHttpMessageHandler(sp =>
             {
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options);
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
             });
         }
 
@@ -248,17 +251,17 @@ namespace Microsoft.Identity.Web
         ///     options.Scopes.Add("https://api.example.com/.default");
         ///     options.RequestAppToken = true;
         /// });
-        /// 
+        ///
         /// // Use the client - authentication is automatic
         /// public class ApiService
         /// {
         ///     private readonly HttpClient _httpClient;
-        ///     
+        ///
         ///     public ApiService(IHttpClientFactory factory)
         ///     {
         ///         _httpClient = factory.CreateClient("MyApiClient");
         ///     }
-        ///     
+        ///
         ///     public async Task&lt;string&gt; GetDataAsync()
         ///     {
         ///         var response = await _httpClient.GetAsync("/api/data");
@@ -267,7 +270,7 @@ namespace Microsoft.Identity.Web
         ///     }
         /// }
         /// </code>
-        /// 
+        ///
         /// <para><strong>With agent identity:</strong></para>
         /// <code>
         /// services.AddHttpClient("AgentClient")
@@ -299,7 +302,8 @@ namespace Microsoft.Identity.Web
                 configureOptions(options);
 
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options);
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
             });
         }
 
@@ -316,7 +320,7 @@ namespace Microsoft.Identity.Web
         /// <remarks>
         /// <para>
         /// This overload is useful when you want to configure authentication options from appsettings.json
-        /// or other configuration sources. The configuration section is bound to a new 
+        /// or other configuration sources. The configuration section is bound to a new
         /// <see cref="MicrosoftIdentityMessageHandlerOptions"/> instance using standard configuration binding.
         /// Individual requests can still override these default options using the per-request extension methods.
         /// </para>
@@ -337,7 +341,7 @@ namespace Microsoft.Identity.Web
         ///   }
         /// }
         /// </code>
-        /// 
+        ///
         /// <para><strong>Configure the HTTP client:</strong></para>
         /// <code>
         /// // In Program.cs or Startup.cs
@@ -348,7 +352,7 @@ namespace Microsoft.Identity.Web
         /// .AddMicrosoftIdentityMessageHandler(
         ///     configuration.GetSection("DownstreamApi"),
         ///     "DownstreamApi");
-        /// 
+        ///
         /// services.AddHttpClient("GraphClient", client =>
         /// {
         ///     client.BaseAddress = new Uri("https://graph.microsoft.com");
@@ -357,27 +361,27 @@ namespace Microsoft.Identity.Web
         ///     configuration.GetSection("GraphApi"),
         ///     "GraphApi");
         /// </code>
-        /// 
+        ///
         /// <para><strong>Use the clients:</strong></para>
         /// <code>
         /// public class MyService
         /// {
         ///     private readonly HttpClient _apiClient;
         ///     private readonly HttpClient _graphClient;
-        ///     
+        ///
         ///     public MyService(IHttpClientFactory factory)
         ///     {
         ///         _apiClient = factory.CreateClient("DownstreamApiClient");
         ///         _graphClient = factory.CreateClient("GraphClient");
         ///     }
-        ///     
+        ///
         ///     public async Task&lt;string&gt; GetApiDataAsync()
         ///     {
         ///         var response = await _apiClient.GetAsync("/api/data");
         ///         response.EnsureSuccessStatusCode();
         ///         return await response.Content.ReadAsStringAsync();
         ///     }
-        ///     
+        ///
         ///     public async Task&lt;string&gt; GetUserProfileAsync()
         ///     {
         ///         var response = await _graphClient.GetAsync("/v1.0/me");
@@ -415,7 +419,8 @@ namespace Microsoft.Identity.Web
                 configuration.Bind(options);
 
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options);
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
             });
         }
     }
