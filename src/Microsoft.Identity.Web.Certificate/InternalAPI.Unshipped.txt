@@ -1,5 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader
-Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.CredentialSource.get -> Microsoft.Identity.Abstractions.CredentialSource
-Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.LoadIfNeededAsync(Microsoft.Identity.Abstractions.CredentialDescription! credentialDescription, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? _) -> System.Threading.Tasks.Task!
-Microsoft.Identity.Web.StoreWithSubjectNameCertificateLoader.StoreWithSubjectNameCertificateLoader() -> void
