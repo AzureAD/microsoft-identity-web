@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Web
                   httpClientFactory,
                   logger,
                   serviceProvider,
-                  CredentialsProvider.CreateShim(logger, credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost))
+                  new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost))
         {
         }
 
@@ -1729,6 +1729,16 @@ namespace Microsoft.Identity.Web
             }
 
             return hasClientAssertion;
+        }
+
+        // Used for backcomapt support.
+        private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
+        {
+            public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
+            public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+                innerLogger.Log(logLevel, eventId, state, exception, formatter);
+            IDisposable ILogger.BeginScope<TState>(TState state) =>
+                innerLogger.BeginScope(state)!;
         }
     }
 }

@@ -858,7 +858,7 @@ namespace Microsoft.Identity.Web.Tests
                 .Returns(Task.FromResult<CredentialDescription?>(credentialDescription));
 
             var downstreamApi = new DownstreamApi(
-                _authorizationHeaderProvider,
+                new ThrowingAuthorizationHeaderProvider(),
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
@@ -886,13 +886,6 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Null(headerInfo.AuthorizationHeaderValue); // No auth header value
             Assert.Equal(testCertificate, headerInfo.BindingCertificate); // But certificate is present
             Assert.Equal(credentialDescription, mtlsCred);
-
-            // Verify that CreateAuthorizationHeaderAsync was NOT called
-            await _authorizationHeaderProvider.DidNotReceive().CreateAuthorizationHeaderAsync(
-                Arg.Any<IEnumerable<string>>(),
-                Arg.Any<DownstreamApiOptions>(),
-                Arg.Any<ClaimsPrincipal>(),
-                Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -1008,7 +1001,7 @@ namespace Microsoft.Identity.Web.Tests
                 .Returns(mockMtlsHttpClient);
 
             var downstreamApi = new DownstreamApi(
-                _authorizationHeaderProvider,
+                new ThrowingAuthorizationHeaderProvider(),
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
@@ -1034,13 +1027,6 @@ namespace Microsoft.Identity.Web.Tests
 
             // Verify regular HTTP client factory was NOT used
             ((IHttpClientFactory)mockMtlsHttpClientFactory).DidNotReceive().CreateClient(Arg.Any<string>());
-
-            // Verify CreateAuthorizationHeaderAsync was NOT called (mTLS-only path)
-            await _authorizationHeaderProvider.DidNotReceive().CreateAuthorizationHeaderAsync(
-                Arg.Any<IEnumerable<string>>(),
-                Arg.Any<DownstreamApiOptions>(),
-                Arg.Any<ClaimsPrincipal>(),
-                Arg.Any<CancellationToken>());
         }
 
         private static X509Certificate2 CreateTestCertificate()
@@ -1126,6 +1112,13 @@ namespace Microsoft.Identity.Web.Tests
         {
             return Task.FromResult("http://schemas.microsoft.com/dsts/saml2-bearer ey");
         }
+    }
+
+    public class ThrowingAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    {
+        public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? options = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 }
 

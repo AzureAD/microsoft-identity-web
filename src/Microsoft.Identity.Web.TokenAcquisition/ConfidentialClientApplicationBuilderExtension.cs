@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Web
             return WithClientCredentialsAsync(
                 builder,
                 mergedOptions,
-                CredentialsProvider.CreateShim(logger, credentialsLoader),
+                new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, []),
                 credentialSourceLoaderParameters,
                 isTokenBinding,
                 CancellationToken.None);
@@ -97,6 +97,16 @@ namespace Microsoft.Identity.Web
                     throw new NotImplementedException();
 
             }
+        }
+
+        // Used for backcomapt support.
+        private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
+        {
+            public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
+            public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+                innerLogger.Log(logLevel, eventId, state, exception, formatter);
+            IDisposable ILogger.BeginScope<TState>(TState state) =>
+                innerLogger.BeginScope(state)!;
         }
     }
 }

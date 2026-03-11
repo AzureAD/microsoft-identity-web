@@ -23,35 +23,13 @@ namespace Microsoft.Identity.Web
         public CredentialsProvider(
             ILogger<CredentialsProvider> logger,
             ICredentialsLoader credentialsLoader,
-            IReadOnlyList<ICertificatesObserver> certificatesObservers,
+            IEnumerable<ICertificatesObserver> certificatesObservers,
             ITokenAcquisitionHost? tokenHost = null)
         {
             _logger = logger;
             _tokenHost = tokenHost;
             _credentialsLoader = credentialsLoader;
-            _certificatesObservers = certificatesObservers;
-        }
-
-        /// <summary>
-        /// Creates a CredentialsProvider with minimal options,
-        /// used for back-compat reasons.
-        /// </summary>
-        /// <param name="logger">The logger to use.</param>
-        /// <param name="credentialsLoader">The credentials loader.</param>
-        /// <param name="certificatesObservers">The observers to invoke on certificate events.</param>
-        /// <param name="tokenHost">The token hose to use to get credentials. If unset, a credential list must always be passed in.</param>
-        /// <returns>A credentials provider which can load lists of credentials.</returns>
-        public static CredentialsProvider CreateShim(
-            ILogger logger,
-            ICredentialsLoader credentialsLoader,
-            IReadOnlyList<ICertificatesObserver>? certificatesObservers = null,
-            ITokenAcquisitionHost? tokenHost = null)
-        {
-            return new CredentialsProvider(
-                    new LogAdapter<CredentialsProvider>(logger),
-                    credentialsLoader,
-                    certificatesObservers ?? [],
-                    tokenHost);
+            _certificatesObservers = [.. certificatesObservers];
         }
 
         public Task<CredentialDescription?> GetCredentialAsync(
@@ -74,7 +52,7 @@ namespace Microsoft.Identity.Web
             CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
             CancellationToken cancellationToken = default)
         {
-            IEnumerable<CredentialDescription> clientCredentials = options.ClientCertificates ?? [];
+            IEnumerable<CredentialDescription> clientCredentials = options.ClientCredentials ?? [];
 
             string errorMessage = "\n";
 
@@ -375,15 +353,6 @@ namespace Microsoft.Identity.Web
             {
                 s_usingCertThumbprint(logger, certThumbprint ?? "null", default!);
             }
-        }
-
-        private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
-        {
-            public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
-            public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
-                innerLogger.Log(logLevel, eventId, state, exception, formatter);
-            IDisposable ILogger.BeginScope<TState>(TState state) =>
-                innerLogger.BeginScope(state)!;
         }
     }
 }
