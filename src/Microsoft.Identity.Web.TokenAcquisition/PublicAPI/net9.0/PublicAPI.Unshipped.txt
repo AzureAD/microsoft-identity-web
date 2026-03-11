@@ -1,1 +1,4 @@
 #nullable enable
+Microsoft.Identity.Web.ICredentialsProvider
+Microsoft.Identity.Web.ICredentialsProvider.GetCredentialAsync(Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.CredentialDescription?>!
+Microsoft.Identity.Web.ICredentialsProvider.NotifyCertificateUsed(string! authenticationScheme, Microsoft.Identity.Abstractions.CredentialDescription! certificateDescription, System.Security.Cryptography.X509Certificates.X509Certificate2! certificate, bool successful, System.Exception? exception) -> void

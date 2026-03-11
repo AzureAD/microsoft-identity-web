@@ -46,9 +46,19 @@ namespace Microsoft.Identity.Web
             bool forceSdk = !services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Authentication.IAuthenticationService");
 #endif
 
+            if (!HasImplementationType(services, typeof(CredentialsProvider)))
+            {
+                services.TryAddSingleton<ICredentialsProvider, CredentialsProvider>();
+            }
+
             if (!HasImplementationType(services, typeof(DefaultCertificateLoader)))
             {
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
+            }
+
+            if (!HasImplementationType(services, typeof(MsalMtlsHttpClientFactory)))
+            {
+                services.TryAddSingleton<IMsalHttpClientFactory, MsalMtlsHttpClientFactory>();
             }
 
             if (!HasImplementationType(services, typeof(MicrosoftIdentityOptionsMerger)))
