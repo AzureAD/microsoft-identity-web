@@ -56,6 +56,11 @@ namespace Microsoft.Identity.Web
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
 
+            if (!HasImplementationType(services, typeof(MsalMtlsHttpClientFactory)))
+            {
+                services.TryAddSingleton<IMsalHttpClientFactory, MsalMtlsHttpClientFactory>();
+            }
+
             if (!HasImplementationType(services, typeof(MicrosoftIdentityOptionsMerger)))
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();

@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
+        private readonly ICredentialsProvider _provider;
         private readonly DownstreamApi _input;
         private readonly DownstreamApi _inputSaml;
 
@@ -43,7 +44,9 @@ namespace Microsoft.Identity.Web.Tests
             _authorizationHeaderProviderSaml = new MySamlAuthorizationHeaderProvider();
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
-            _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            var loggerFactory = new LoggerFactory();
+            _logger = loggerFactory.CreateLogger<DownstreamApi>();
+            _provider = new CredentialsProvider(loggerFactory.CreateLogger<CredentialsProvider>(), new DefaultCredentialsLoader(), [], null);
 
             _input = new DownstreamApi(
              _authorizationHeaderProvider,
@@ -51,7 +54,7 @@ namespace Microsoft.Identity.Web.Tests
              _httpClientFactory,
              _logger,
              msalHttpClientFactory: null,
-             credentialsProvider: null);
+             credentialsProvider: _provider);
 
             _inputSaml = new DownstreamApi(
              _authorizationHeaderProviderSaml,
@@ -59,7 +62,7 @@ namespace Microsoft.Identity.Web.Tests
              _httpClientFactory,
              _logger,
              msalHttpClientFactory: null,
-             credentialsProvider: null);
+             credentialsProvider: _provider);
         }
 
         [Fact]
@@ -494,7 +497,7 @@ namespace Microsoft.Identity.Web.Tests
                 mockMtlsHttpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null);
+                credentialsProvider: _provider);
 
             Assert.NotNull(downstreamApi);
         }
@@ -518,7 +521,7 @@ namespace Microsoft.Identity.Web.Tests
                 _httpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null);
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -648,7 +651,7 @@ namespace Microsoft.Identity.Web.Tests
                 mockHttpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null);
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -691,8 +694,8 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                (IMsalHttpClientFactory)mockMtlsHttpClientFactory,
-                credentialsProvider: null);
+                _provider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
             {
@@ -754,8 +757,8 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                (IMsalHttpClientFactory)mockMtlsHttpClientFactory,
-                credentialsProvider: null);
+                _provider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
             {
@@ -810,7 +813,7 @@ namespace Microsoft.Identity.Web.Tests
                 mockHttpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null);
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -862,8 +865,8 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                (IMsalHttpClientFactory)mockMtlsHttpClientFactory,
-                mockCredentialsProvider);
+                mockCredentialsProvider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
             var options = new DownstreamApiOptions
@@ -898,7 +901,7 @@ namespace Microsoft.Identity.Web.Tests
                 _httpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null); // No credentials provider
+                credentialsProvider: null!); // No credentials provider
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
             var options = new DownstreamApiOptions
@@ -943,8 +946,8 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
                 _logger,
-                msalHttpClientFactory: null,
-                mockCredentialsProvider);
+                mockCredentialsProvider,
+                msalHttpClientFactory: null);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
             var options = new DownstreamApiOptions
@@ -1005,8 +1008,8 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
-                (IMsalHttpClientFactory)mockMtlsHttpClientFactory,
-                mockCredentialsProvider);
+                mockCredentialsProvider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
             {

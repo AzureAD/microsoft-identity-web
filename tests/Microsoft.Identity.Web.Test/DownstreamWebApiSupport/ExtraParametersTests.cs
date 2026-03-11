@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -30,7 +31,9 @@ namespace Microsoft.Identity.Web.Tests
             _authorizationHeaderProvider = new MyAuthorizationHeaderProvider();
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
-            _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            var loggerFactory = new LoggerFactory();
+            _logger = loggerFactory.CreateLogger<DownstreamApi>();
+            var provider = new CredentialsProvider(loggerFactory.CreateLogger<CredentialsProvider>(), new DefaultCredentialsLoader(), [], null);
 
             _downstreamApi = new DownstreamApi(
                 _authorizationHeaderProvider,
@@ -38,7 +41,7 @@ namespace Microsoft.Identity.Web.Tests
                 _httpClientFactory,
                 _logger,
                 msalHttpClientFactory: null,
-                credentialsProvider: null);
+                credentialsProvider: provider);
         }
 
         [Fact]

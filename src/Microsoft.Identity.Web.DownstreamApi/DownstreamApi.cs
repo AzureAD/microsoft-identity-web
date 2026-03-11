@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -69,7 +70,7 @@ namespace Microsoft.Identity.Web
                   namedDownstreamApiOptions,
                   httpClientFactory,
                   logger,
-                  credentialsProvider: null,
+                  credentialsProvider: null!,
                   msalHttpClientFactory: null)
         {
         }
@@ -93,7 +94,7 @@ namespace Microsoft.Identity.Web
                   namedDownstreamApiOptions,
                   httpClientFactory,
                   logger,
-                  credentialsProvider: null,
+                  credentialsProvider: null!,
                   msalHttpClientFactory: msalHttpClientFactory)
         {
         }
@@ -105,15 +106,15 @@ namespace Microsoft.Identity.Web
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
-        /// <param name="msalHttpClientFactory">The MSAL HTTP client factory for mTLS PoP scenarios.</param>
         /// <param name="credentialsProvider">Certificate provider for mTLS auth scenarios.</param>
+        /// <param name="msalHttpClientFactory">The MSAL HTTP client factory for mTLS PoP scenarios.</param>
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<DownstreamApi> logger,
-            IMsalHttpClientFactory? msalHttpClientFactory,
-            ICredentialsProvider? credentialsProvider)
+            ICredentialsProvider credentialsProvider,
+            IMsalHttpClientFactory? msalHttpClientFactory)
         {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _namedDownstreamApiOptions = namedDownstreamApiOptions;
@@ -569,67 +570,84 @@ namespace Microsoft.Identity.Web
         {
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
+            HttpResponseMessage downstreamApiResult;
+            bool retry;
+            bool hasRetried = false;
 
-            // Create an HTTP request message
-            using HttpRequestMessage httpRequestMessage = new(
-                new HttpMethod(effectiveOptions.HttpMethod),
-                apiUrl);
-
-            // Request result will contain authorization header and potentially binding certificate for mTLS
-            (AuthorizationHeaderInformation? requestResult, CredentialDescription? mtlsCred) = await UpdateRequestWithCertificateAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
-
-            // If a binding certificate is specified (which means mTLS is required) and MSAL mTLS HTTP factory is present
-            // then create an HttpClient with the certificate by using IMsalMtlsHttpClientFactory.
-            // Otherwise use the default HttpClientFactory with optional named client.
-            HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
-                ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
-                : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
-
-            // Send the HTTP message
-            var downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
-
-            // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
-            if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            do
             {
-                effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
+                retry = false;
 
-                if (!string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
+                // Create an HTTP request message
+                using HttpRequestMessage httpRequestMessage = new(
+                    new HttpMethod(effectiveOptions.HttpMethod),
+                    apiUrl);
+
+                // Request result will contain authorization header and potentially binding certificate for mTLS
+                (AuthorizationHeaderInformation? requestResult, CredentialDescription? mtlsCred) = await UpdateRequestWithCertificateAsync(httpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+
+                // If a binding certificate is specified (which means mTLS is required) and MSAL mTLS HTTP factory is present
+                // then create an HttpClient with the certificate by using IMsalMtlsHttpClientFactory.
+                // Otherwise use the default HttpClientFactory with optional named client.
+                HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
+                    ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
+                    : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
+
+                // Send the HTTP message
+                downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+
+                // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
+                if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
-                    using HttpRequestMessage retryHttpRequestMessage = new(
-                        new HttpMethod(effectiveOptions.HttpMethod),
-                        apiUrl);
+                    effectiveOptions.AcquireTokenOptions.Claims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(downstreamApiResult.Headers);
 
-                    await UpdateRequestWithCertificateAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+                    if (!string.IsNullOrEmpty(effectiveOptions.AcquireTokenOptions.Claims))
+                    {
+                        using HttpRequestMessage retryHttpRequestMessage = new(
+                            new HttpMethod(effectiveOptions.HttpMethod),
+                            apiUrl);
 
-                    return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+                        await UpdateRequestWithCertificateAsync(retryHttpRequestMessage, content, effectiveOptions, appToken, user, cancellationToken);
+
+                        return await client.SendAsync(retryHttpRequestMessage, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                // Track mTLS certificate result, if applicable.
+                // This may also trigger a retry if a certificate failure occurred.
+                if (mtlsCred != null && requestResult?.BindingCertificate != null && _credentialsProvider != null)
+                {
+                    // Always fire on success.
+                    if (downstreamApiResult.IsSuccessStatusCode)
+                    {
+                        _credentialsProvider.NotifyCertificateUsed(
+                            effectiveOptions.ProtocolScheme,
+                            mtlsCred,
+                            requestResult.BindingCertificate,
+                            true,
+                            null);
+                    }
+                    else if (AuthFailureHttpStatusCodes.Contains(downstreamApiResult.StatusCode))
+                    {
+                        // Only alert if the failure is potentially due to the certificate.
+                        // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
+                        _credentialsProvider.NotifyCertificateUsed(
+                            effectiveOptions.ProtocolScheme,
+                            mtlsCred,
+                            requestResult.BindingCertificate,
+                            false,
+                            new UnauthorizedHttpRequestException($"Response has status {downstreamApiResult.StatusCode} - {downstreamApiResult.ReasonPhrase}"));
+
+                        // Retry certificate failures once
+                        if (!hasRetried)
+                        {
+                            retry = true;
+                            hasRetried = true;
+                        }
+                    }
                 }
             }
-
-            // Track mTLS certificate result, if applicable
-            if (mtlsCred != null && requestResult?.BindingCertificate != null && _credentialsProvider != null)
-            {
-                // Always fire on success.
-                if (downstreamApiResult.IsSuccessStatusCode)
-                {
-                    _credentialsProvider.NotifyCertificateUsed(
-                        effectiveOptions.ProtocolScheme,
-                        mtlsCred,
-                        requestResult.BindingCertificate,
-                        true,
-                        null);
-                }
-                else if (AuthFailureHttpStatusCodes.Contains(downstreamApiResult.StatusCode))
-                {
-                    // Only alert if the failure is potentially due to the certificate.
-                    // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
-                    _credentialsProvider.NotifyCertificateUsed(
-                        effectiveOptions.ProtocolScheme,
-                        mtlsCred,
-                        requestResult.BindingCertificate,
-                        false,
-                        new UnauthorizedHttpRequestException($"Response has status {downstreamApiResult.StatusCode} - {downstreamApiResult.ReasonPhrase}"));
-                }
-            }
+            while (retry);
 
             return downstreamApiResult;
         }
