@@ -36,7 +36,9 @@ namespace Microsoft.Identity.Web.Tests
                 _authorizationHeaderProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: null);
         }
 
         [Fact]
