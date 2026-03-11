@@ -495,9 +495,7 @@ namespace Microsoft.Identity.Web
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
@@ -719,9 +717,7 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
@@ -1264,14 +1260,28 @@ namespace Microsoft.Identity.Web
 
                 // In the case the token is a JWE (encrypted token), we use the decrypted token.
                 string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
+                string? originalTokenToCallWebApi = tokenUsedToCallTheWebApi;
 
                 AcquireTokenOnBehalfOfParameterBuilder? builder = null;
-                TokenAcquisitionExtensionOptions? addInOptions = null;
+                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
                 // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
                 if (tokenUsedToCallTheWebApi != null)
                 {
-                    addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+                    if (addInOptions != null && addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync != null)
+                    {
+                        var oboInitEventArgs = new OnBehalfOfEventArgs
+                        {
+                            UserAssertionToken = tokenUsedToCallTheWebApi,
+                            User = userHint
+                        };
+                        await addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(oboInitEventArgs).ConfigureAwait(false);
+
+                        if (oboInitEventArgs.UserAssertionToken != null)
+                        {
+                            tokenUsedToCallTheWebApi = oboInitEventArgs.UserAssertionToken;
+                        }
+                    }
 
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
@@ -1309,12 +1319,12 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithSendX5C(mergedOptions.SendX5C);
 
-                    ClaimsPrincipal? user = _tokenAcquisitionHost.GetUserFromRequest();
+                    ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
                     var userTenant = string.Empty;
-                    if (user != null)
+                    if (userForCcsRouting != null)
                     {
-                        userTenant = user.GetTenantId();
-                        builder.WithCcsRoutingHint(user.GetObjectId(), userTenant);
+                        userTenant = userForCcsRouting.GetTenantId();
+                        builder.WithCcsRoutingHint(userForCcsRouting.GetObjectId(), userTenant);
                     }
                     if (!string.IsNullOrEmpty(tenantId))
                     {
@@ -1329,9 +1339,15 @@ namespace Microsoft.Identity.Web
                     }
                     if (tokenAcquisitionOptions != null)
                     {
-                        if (addInOptions != null)
+                        if (addInOptions != null && addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
                         {
-                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, userHint!).ConfigureAwait(false);
+                            var eventArgs = new OnBehalfOfEventArgs
+                            {
+                                User = userHint,
+                                UserAssertionToken = originalTokenToCallWebApi
+                            };
+
+                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
                         }
 
                         AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
@@ -1365,9 +1381,7 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(subAssertionConstant);
                             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
                             builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
@@ -1529,9 +1543,7 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
-#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {

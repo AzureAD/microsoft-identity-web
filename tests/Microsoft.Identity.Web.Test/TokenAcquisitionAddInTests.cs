@@ -171,7 +171,7 @@ namespace Microsoft.Identity.Web.Tests
                 extension.OnBeforeTokenRequestHandler = (request) =>
                 {
                     eventInvoked = true;
-                    request.BodyParameters.Add("x-ms-user", user.FindFirst("user")?.Value);
+                    request.BodyParameters.Add("x-ms-user", user?.User?.FindFirst("user")?.Value);
                     return Task.CompletedTask;
                 };
 
@@ -186,7 +186,8 @@ namespace Microsoft.Identity.Web.Tests
                 }));
 
             // Act
-            await options.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, acquireTokenOptions, user);
+            var eventArgs = new OnBehalfOfEventArgs() { User = user };
+            await options.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, acquireTokenOptions, eventArgs);
 
             var result = await builder.ExecuteAsync();
 
@@ -195,6 +196,65 @@ namespace Microsoft.Identity.Web.Tests
             Assert.True(formatResultInvoked);
             Assert.NotNull(result);
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        }
+
+        [Fact]
+        public async Task InvokeOnBeforeOnBehalfOfInitializedAsync_SyncHandler_CanChangeUserAssertionToken()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            string originalAssertion = "original-assertion";
+            string modifiedAssertion = "modified-assertion";
+
+            bool eventInvoked = false;
+            options.OnBeforeOnBehalfOfInitialized += (eventArgs) =>
+            {
+                eventInvoked = true;
+                Assert.Equal(originalAssertion, eventArgs.UserAssertionToken);
+                eventArgs.UserAssertionToken = modifiedAssertion;
+            };
+
+            var eventArgsObj = new OnBehalfOfEventArgs
+            {
+                UserAssertionToken = originalAssertion
+            };
+
+            // Act
+            await options.InvokeOnBeforeOnBehalfOfInitializedAsync(eventArgsObj);
+
+            // Assert
+            Assert.True(eventInvoked);
+            Assert.Equal(modifiedAssertion, eventArgsObj.UserAssertionToken);
+        }
+
+        [Fact]
+        public async Task InvokeOnBeforeOnBehalfOfInitializedAsync_AsyncHandler_CanChangeUserAssertionToken()
+        {
+            // Arrange
+            var options = new TokenAcquisitionExtensionOptions();
+            string originalAssertion = "original-assertion";
+            string modifiedAssertion = "modified-assertion-async";
+
+            bool eventInvoked = false;
+            options.OnBeforeOnBehalfOfInitializedAsync += (eventArgs) =>
+            {
+                eventInvoked = true;
+                Assert.Equal(originalAssertion, eventArgs.UserAssertionToken);
+                eventArgs.UserAssertionToken = modifiedAssertion;
+                return Task.CompletedTask;
+            };
+
+            var eventArgsObj = new OnBehalfOfEventArgs
+            {
+                UserAssertionToken = originalAssertion
+            };
+
+            // Act
+            await options.InvokeOnBeforeOnBehalfOfInitializedAsync(eventArgsObj);
+
+            // Assert
+            Assert.True(eventInvoked);
+            Assert.Equal(modifiedAssertion, eventArgsObj.UserAssertionToken);
         }
 
         // Helper class for testing IAuthenticationOperation2

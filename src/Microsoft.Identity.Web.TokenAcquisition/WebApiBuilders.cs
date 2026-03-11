@@ -36,8 +36,6 @@ namespace Microsoft.Identity.Web.Internal
         {
             if (configuration != null)
             {
-                // TODO: This never was right. And the configureConfidentialClientApplicationOptions delegate is not used
-                // services.Configure<ConfidentialClientApplicationOptions>(authenticationScheme, configuration);
                 services.Configure<MicrosoftIdentityApplicationOptions>(authenticationScheme, options
                     =>
                 { configuration.Bind(options); });
