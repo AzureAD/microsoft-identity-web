@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.True(httpRequestMessage.Headers.Contains("OData-Version"));
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions(); // No extra parameters
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
