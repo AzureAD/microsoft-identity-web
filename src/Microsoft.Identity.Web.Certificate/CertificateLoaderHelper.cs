@@ -6,15 +6,11 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.Diagnostics;
 
 namespace Microsoft.Identity.Web
 {
     internal sealed class CertificateLoaderHelper
     {
-        private static Lazy<X509KeyStorageFlags> s_x509KeyStorageFlagsLazy = 
-            new Lazy<X509KeyStorageFlags>(DetermineX509KeyStorageFlagLazy);
-
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag(CredentialDescription credentialDescription)
         {
             if (credentialDescription is CertificateDescription credDescription)
@@ -29,20 +25,17 @@ namespace Microsoft.Identity.Web
         
         internal static X509KeyStorageFlags DetermineX509KeyStorageFlag()
         {
-            return s_x509KeyStorageFlagsLazy.Value;
-        }
-
-        private static X509KeyStorageFlags DetermineX509KeyStorageFlagLazy()
-        {
 #if NET462 || NETSTANDARD2_0
             return X509KeyStorageFlags.MachineKeySet;
 #else
+#if NET
             // This is for app developers using a Mac. MacOS does not support the EphemeralKeySet flag.
             // See https://learn.microsoft.com/dotnet/standard/security/cross-platform-cryptography#write-a-pkcs12pfx
-            if (OsHelper.IsMacPlatform())
+            if (OperatingSystem.IsMacOS())
             {
                 return X509KeyStorageFlags.DefaultKeySet;
             }
+#endif
 
             return X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet;
 #endif
