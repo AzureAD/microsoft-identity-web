@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         private const string CaeClaims = @"{""access_token"":{""xms_cc"":{""values"":[""claims1""]}}}";
         private const string UamiClientId = "04ca4d6a-c720-4ba1-aa06-f6634b73fe7a";
 
-        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        [Fact]
         public async Task ManagedIdentityWithFic_WithClaims_BypassesCache()
         {
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
