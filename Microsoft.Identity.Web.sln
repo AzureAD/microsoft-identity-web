@@ -205,6 +205,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FF3B93A1
 		build\tsaConfig.json = build\tsaConfig.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "daemon-app-msi-v2", "tests\DevApps\daemon-app\daemon-app-msi-v2\daemon-app-msi-v2.csproj", "{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -456,6 +458,10 @@ Global
 		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -538,6 +544,7 @@ Global
 		{06818CF6-16AD-4184-9264-B593B8F2AA25} = {7786D2DD-9EE4-42E1-B587-740A2E15C41D}
 		{3ECC1B78-A458-726F-D7B8-AB74733CCCDC} = {06818CF6-16AD-4184-9264-B593B8F2AA25}
 		{A61CEEDE-6F2C-0710-E008-B5F6F25D87D7} = {06818CF6-16AD-4184-9264-B593B8F2AA25}
+		{9B1DD6D6-E2F2-3142-6A9E-2BB612BA030E} = {E37CDBC1-18F6-4C06-A3EE-532C9106721F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {104367F1-CE75-4F40-B32F-F14853973187}

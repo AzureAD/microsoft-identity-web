@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders;
@@ -612,6 +613,12 @@ namespace Microsoft.Identity.Web
                     if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
                     {
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
+                    }
+
+                    if (isTokenBinding)
+                    {
+                        miBuilder.WithMtlsProofOfPossession()
+                            .WithAttestationSupport();
                     }
 
                     //TODO: Should client assertion claims be supported for managed identity?
