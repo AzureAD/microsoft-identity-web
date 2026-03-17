@@ -329,7 +329,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(scopes);
 
-            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out _);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
@@ -639,7 +639,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out string effectiveAuthenticationScheme);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
 
             bool isTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(TokenBindingParameterName, out var isTokenBindingObject) == true
                 && isTokenBindingObject is bool isTokenBindingValue
@@ -863,7 +863,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private MergedOptions GetMergedOptions(string? authenticationScheme, TokenAcquisitionOptions? tokenAcquisitionOptions, out string effectiveAuthenticationScheme)
+        private MergedOptions GetMergedOptions(string? authenticationScheme, TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             MergedOptions mergedOptions;
 
@@ -872,7 +872,7 @@ namespace Microsoft.Identity.Web
                 && tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.MicrosoftIdentityOptionsParameter, out object? identityOptions)
                 && identityOptions is MicrosoftEntraApplicationOptions microsoftEntraApplicationOptions)
             {
-                MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out effectiveAuthenticationScheme);
+                MergedOptions parentMergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
                 mergedOptions = new MergedOptions()
                 {
                     ClientId = microsoftEntraApplicationOptions.ClientId ?? parentMergedOptions.ClientId,
@@ -886,7 +886,7 @@ namespace Microsoft.Identity.Web
             }
             else
             {
-                mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out effectiveAuthenticationScheme);
+                mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName, out _);
             }
 
             return mergedOptions;
