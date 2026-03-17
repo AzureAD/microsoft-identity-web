@@ -43,13 +43,13 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Notifies that a certificate was used.
         /// </summary>
-        /// <param name="authenticationScheme">The authentication scheme.</param>
+        /// <param name="sourceLoaderParameters">The source loader parameters.</param>
         /// <param name="certificateDescription">The description of the certificate.</param>
         /// <param name="certificate">The certificate, distinct from the description in case the certificate value has changed.</param>
         /// <param name="successful">Whether he usage was successful or a failure.</param>
         /// <param name="exception">The exception, if applicable.</param>
         public void NotifyCertificateUsed(
-            string authenticationScheme,
+            CredentialSourceLoaderParameters? sourceLoaderParameters,
             CredentialDescription certificateDescription,
             X509Certificate2 certificate,
             bool successful,

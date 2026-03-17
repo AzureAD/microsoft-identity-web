@@ -617,11 +617,17 @@ namespace Microsoft.Identity.Web
                 // This may also trigger a retry if a certificate failure occurred.
                 if (mtlsCred != null && requestResult?.BindingCertificate != null && _credentialsProvider != null)
                 {
+                    CredentialSourceLoaderParameters loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                    {
+                        Protocol = MtlsProtocolScheme,
+                        ApiUrl = effectiveOptions.GetApiUrl(),
+                    };
+
                     // Always fire on success.
                     if (downstreamApiResult.IsSuccessStatusCode)
                     {
                         _credentialsProvider.NotifyCertificateUsed(
-                            effectiveOptions.ProtocolScheme,
+                            loaderParameters,
                             mtlsCred,
                             requestResult.BindingCertificate,
                             true,
@@ -632,7 +638,7 @@ namespace Microsoft.Identity.Web
                         // Only alert if the failure is potentially due to the certificate.
                         // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
                         _credentialsProvider.NotifyCertificateUsed(
-                            effectiveOptions.ProtocolScheme,
+                            loaderParameters,
                             mtlsCred,
                             requestResult.BindingCertificate,
                             false,
@@ -694,7 +700,11 @@ namespace Microsoft.Identity.Web
                 }
 
                 credential = await _credentialsProvider.GetCredentialAsync(
-                    null, /* Note: In the future, once the loader parameters is updated, this should contain data about the API being hit */
+                    new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                    {
+                        ApiUrl = effectiveOptions.GetApiUrl(),
+                        Protocol = MtlsProtocolScheme,
+                    },
                     cancellationToken);
 
                 if (credential == null || credential.Certificate == null)

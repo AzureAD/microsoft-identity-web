@@ -169,6 +169,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
+            CredentialSourceLoaderParameters? loaderParameters = null;
             IConfidentialClientApplication? application = null;
             try
             {
@@ -195,6 +196,11 @@ namespace Microsoft.Identity.Web
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
+                loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
+                {
+                    Protocol = ProtocolNames.Bearer,
+                };
+
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
                     builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
@@ -220,7 +226,12 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
-                NotifyCertificateSelection(authCodeRedemptionParameters.AuthenticationScheme, mergedOptions, application, true, null);
+                NotifyCertificateSelection(
+                    loaderParameters,
+                    mergedOptions,
+                    application,
+                    true,
+                    null);
 
                 return new AcquireTokenResult(
                     result.AccessToken,
@@ -239,7 +250,7 @@ namespace Microsoft.Identity.Web
                     exMsal);
 
                 string applicationKey = GetApplicationKey(mergedOptions);
-                NotifyCertificateSelection(authCodeRedemptionParameters.AuthenticationScheme, mergedOptions, application!, false, exMsal);
+                NotifyCertificateSelection(loaderParameters, mergedOptions, application!, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -318,7 +329,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(scopes);
 
-            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out string effectiveAuthenticationScheme);
+            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out _);
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
@@ -328,6 +339,11 @@ namespace Microsoft.Identity.Web
                 tokenAcquisitionOptions.ExtraParameters ??= new Dictionary<string, object>();
                 tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
             }
+
+            CredentialSourceLoaderParameters loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
+            {
+                Protocol = ProtocolNames.Bearer,
+            };
 
             try
             {
@@ -384,7 +400,7 @@ namespace Microsoft.Identity.Web
                     exMsal);
 
                 string applicationKey = GetApplicationKey(mergedOptions);
-                NotifyCertificateSelection(effectiveAuthenticationScheme, mergedOptions, application, false, exMsal);
+                NotifyCertificateSelection(loaderParameters, mergedOptions, application, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -785,7 +801,12 @@ namespace Microsoft.Identity.Web
             {
                 var result = await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
                 NotifyCertificateSelection(
-                    effectiveAuthenticationScheme,
+                    new CredentialSourceLoaderParameters(
+                        mergedOptions.ClientId ?? string.Empty,
+                        mergedOptions.Authority ?? string.Empty)
+                    {
+                        Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,  
+                    },
                     mergedOptions,
                     application,
                     true,
@@ -801,7 +822,12 @@ namespace Microsoft.Identity.Web
 
                 string applicationKey = GetApplicationKey(mergedOptions);
                 NotifyCertificateSelection(
-                    effectiveAuthenticationScheme,
+                    new CredentialSourceLoaderParameters(
+                        mergedOptions.ClientId ?? string.Empty,
+                        mergedOptions.Authority ?? string.Empty)
+                    {
+                        Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                    },
                     mergedOptions,
                     application,
                     false,
@@ -1184,7 +1210,10 @@ namespace Microsoft.Identity.Web
                     await builder.WithClientCredentialsAsync(
                         mergedOptions,
                         _credentialsProvider,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority)
+                        {
+                            Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                        },
                         isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
@@ -1220,13 +1249,13 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Find the certificate used by the app and fire the event to notify the client app that a certificate was selected/unselected.
         /// </summary>
-        /// <param name="authenticationScheme">The authentication scheme used.</param>
+        /// <param name="sourceLoaderParameters">The source loader parameters.</param>
         /// <param name="mergedOptions">The merged options object.</param>
         /// <param name="app">The confidential app.</param>
         /// <param name="successful">Whether this was successful or not.</param>
         /// <param name="exception">The thrown exception, if any.</param>
         private void NotifyCertificateSelection(
-            string authenticationScheme,
+            CredentialSourceLoaderParameters? sourceLoaderParameters,
             MergedOptions mergedOptions,
             IConfidentialClientApplication app,
             bool successful,
@@ -1237,7 +1266,7 @@ namespace Microsoft.Identity.Web
             if (selectedCertificate != null && description != null)
             {
                 _credentialsProvider.NotifyCertificateUsed(
-                    authenticationScheme,
+                    sourceLoaderParameters,
                     description,
                     selectedCertificate,
                     successful,

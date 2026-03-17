@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Web.Test
                 var clientId = Guid.NewGuid();
                 var tenantId = Guid.NewGuid();
                 var instance = "https://login.microsoftonline.com/";
-                var authority = instance + tenantId;
+                var authority = instance + tenantId + "/";
 
                 string certName = $"CN=TestCert-{Guid.NewGuid():N}";
                 cert1 = CreateAndInstallCertificate(certName);
@@ -109,6 +109,10 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(CerticateObserverAction.Selected, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
                 Assert.Equal(description, eventArg.CredentialDescription);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Bearer, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(new Uri(authority), new Uri(eventArg.CredentialSourceLoaderParameters.Authority));
+                Assert.Equal(clientId.ToString(), eventArg.CredentialSourceLoaderParameters.ClientId);
 
                 // Second event was successful usage.
                 observer1.Events.TryDequeue(out eventArg);
@@ -116,6 +120,10 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
                 Assert.Equal(description, eventArg.CredentialDescription);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Bearer, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(new Uri(authority), new Uri(eventArg.CredentialSourceLoaderParameters.Authority));
+                Assert.Equal(clientId.ToString(), eventArg.CredentialSourceLoaderParameters.ClientId);
 
                 // No further events
                 Assert.Empty(observer1.Events);
@@ -154,6 +162,10 @@ namespace Microsoft.Identity.Web.Test
                 Assert.NotNull(eventArg);
                 Assert.Equal(CerticateObserverAction.Deselected, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Bearer, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(new Uri(authority), new Uri(eventArg.CredentialSourceLoaderParameters.Authority));
+                Assert.Equal(clientId.ToString(), eventArg.CredentialSourceLoaderParameters.ClientId);
 
                 // Then, it uses a new cert successfully.
                 observer1.Events.TryDequeue(out eventArg);
@@ -246,6 +258,8 @@ namespace Microsoft.Identity.Web.Test
                     RelativePath = "/oauth2/v2.0/token"
                 };
 
+                string apiUrl = authority + options.RelativePath;
+
                 HttpResponseMessage result = await downstreamApi.CallApiAsync(options);
 
                 // Assert
@@ -261,6 +275,9 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(CerticateObserverAction.Selected, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
                 Assert.Equal(description, eventArg.CredentialDescription);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Mtls, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(apiUrl, eventArg.CredentialSourceLoaderParameters.ApiUrl);
 
                 // Second event was successful usage.
                 observer1.Events.TryDequeue(out eventArg);
@@ -268,6 +285,9 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal(CerticateObserverAction.SuccessfullyUsed, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
                 Assert.Equal(description, eventArg.CredentialDescription);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Mtls, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(apiUrl, eventArg.CredentialSourceLoaderParameters.ApiUrl);
 
                 // No further events
                 Assert.Empty(observer1.Events);
@@ -307,6 +327,9 @@ namespace Microsoft.Identity.Web.Test
                 Assert.NotNull(eventArg);
                 Assert.Equal(CerticateObserverAction.Deselected, eventArg.Action);
                 Assert.Equal(cert1, eventArg.Certificate);
+                Assert.NotNull(eventArg.CredentialSourceLoaderParameters);
+                Assert.Equal(ProtocolNames.Mtls, eventArg.CredentialSourceLoaderParameters.Protocol);
+                Assert.Equal(apiUrl, eventArg.CredentialSourceLoaderParameters.ApiUrl);
 
                 // Then, it uses a new cert successfully.
                 observer1.Events.TryDequeue(out eventArg);

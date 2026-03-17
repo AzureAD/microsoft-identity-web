@@ -121,7 +121,12 @@ namespace Microsoft.Identity.Web
                         if (certificate != null)
                         {
                             LogMessages.UsingCertThumbprint(_logger, certificate.Thumbprint);
-                            NotifyCertificateAction(string.Empty, credential, certificate, CerticateObserverAction.Selected, null);
+                            NotifyCertificateAction(
+                                credentialSourceLoaderParameters,
+                                credential,
+                                certificate,
+                                CerticateObserverAction.Selected,
+                                null);
                             return credential;
                         }
                     }
@@ -147,18 +152,18 @@ namespace Microsoft.Identity.Web
         }
 
         public void NotifyCertificateUsed(
-            string authenticationScheme,
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
             CredentialDescription certificateDescription,
             X509Certificate2 certificate,
             bool successful,
             Exception? exception)
         {
             CerticateObserverAction action = successful ? CerticateObserverAction.SuccessfullyUsed : CerticateObserverAction.Deselected;
-            NotifyCertificateAction(authenticationScheme, certificateDescription, certificate, action, exception);
+            NotifyCertificateAction(credentialSourceLoaderParameters, certificateDescription, certificate, action, exception);
         }
 
         private void NotifyCertificateAction(
-            string authenticationScheme,
+            CredentialSourceLoaderParameters? sourceLoaderParameters,
             CredentialDescription certificateDescription,
             X509Certificate2 certificate,
             CerticateObserverAction action,
@@ -172,6 +177,7 @@ namespace Microsoft.Identity.Web
                         Action = action,
                         Certificate = certificate,
                         CredentialDescription = certificateDescription,
+                        CredentialSourceLoaderParameters = sourceLoaderParameters,
                         ThrownException = exception,
                     });
             }
