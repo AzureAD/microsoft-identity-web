@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        // Used for backcomapt support.
+        // Used for backcompat support.
         private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
         {
             public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
