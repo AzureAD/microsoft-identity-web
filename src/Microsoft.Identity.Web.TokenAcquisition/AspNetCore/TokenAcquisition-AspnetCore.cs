@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web
             ILogger<TokenAcquisition> logger,
             ITokenAcquisitionHost tokenAcquisitionHost,
             IServiceProvider serviceProvider,
-            ICredentialsLoader credentialsLoader) :
+            ICredentialsProvider credentialsLoader) :
             base(tokenCacheProvider, tokenAcquisitionHost, httpClientFactory, logger, serviceProvider, credentialsLoader)
         {
         }
