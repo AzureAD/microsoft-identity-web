@@ -75,7 +75,6 @@ namespace Microsoft.Identity.Web
         /// <param name="namedDownstreamApiOptions">Named options provider.</param>
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
-        [Obsolete("Use the overload which takes msalHttpClientFactory and credentialsProvider for mTLS support")]
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
@@ -98,7 +97,6 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="msalHttpClientFactory">The MSAL HTTP client factory for mTLS PoP scenarios.</param>
-        [Obsolete("Use the overload which takes credentialsProvider for mTLS support")]
         public DownstreamApi(
             IAuthorizationHeaderProvider authorizationHeaderProvider,
             IOptionsMonitor<DownstreamApiOptions> namedDownstreamApiOptions,
