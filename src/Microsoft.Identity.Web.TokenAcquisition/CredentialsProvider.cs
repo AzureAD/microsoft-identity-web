@@ -74,7 +74,6 @@ namespace Microsoft.Identity.Web
                         errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
                     }
 
-
                     if (credential.CredentialType == CredentialType.SignedAssertion)
                     {
                         if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)

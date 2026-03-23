@@ -39,9 +39,24 @@ namespace Microsoft.Identity.Web
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
 
         private const string Authorization = "Authorization";
-        private const string MtlsProtocolScheme = "MTLS";
-        private const string TokenBindingProtocolScheme = "MTLS_POP";
         private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
+
+        /// <summary>
+        /// The name of the MTLS_PoP Protocol (Token, along with certificate proof-of-possession).
+        /// </summary>
+        private const string TokenBindingProtocolScheme = "MTLS_POP";
+
+        /// <summary>
+        /// The name of the MTLS-only protocol (no tokens)
+        /// </summary>
+        private const string MtlsProtocolScheme = "MTLS";
+
+        /// <summary>
+        /// HTTP Status Codes which indicate an issue with the certificate.
+        /// This should be carefully curated to be accurate and balance false positives with false negatives.
+        /// If a non-certificate failure is captured here, then the certificate may needlessly change and a pointless retry will occur. This can impact the ability for certificate rotations to occur.
+        /// If a certificate failure is not captured here, then the certificate will not be refreshed when it should be, which may lead to prolonged outages until a manual refresh occurs.
+        /// </summary>
         private static readonly HashSet<HttpStatusCode> AuthFailureHttpStatusCodes =
             [
                 HttpStatusCode.BadRequest,
