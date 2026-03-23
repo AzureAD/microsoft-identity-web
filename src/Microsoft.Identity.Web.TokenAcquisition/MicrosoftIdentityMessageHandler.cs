@@ -253,21 +253,23 @@ namespace Microsoft.Identity.Web
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="headerProvider"/> is <see langword="null"/>.
         /// </exception>
-        /// <example>
-        /// <para>Usage with mTLS PoP token binding:</para>
-        /// <code>
-        /// var handler = new MicrosoftIdentityMessageHandler(
-        ///     headerProvider,
-        ///     new MicrosoftIdentityMessageHandlerOptions
-        ///     {
-        ///         Scopes = { "api://my-api/.default" },
-        ///         ProtocolScheme = "MTLS_POP",
-        ///         RequestAppToken = true
-        ///     },
-        ///     mtlsHttpClientFactory,
-        ///     logger);
-        /// </code>
-        /// </example>
+        /// <remarks>
+        /// <para>
+        /// mTLS PoP (Mutual TLS Proof-of-Possession) token binding, as described in
+        /// <see href="https://datatracker.ietf.org/doc/html/rfc8705">RFC 8705</see>,
+        /// cryptographically binds access tokens to a specific X.509 certificate. When enabled,
+        /// the handler acquires a bound token with the certificate thumbprint in the <c>cnf</c> claim,
+        /// creates an mTLS HTTP client with the binding certificate, and sends requests through the mTLS channel.
+        /// </para>
+        /// <para>
+        /// Token binding currently supports only application (app-only) tokens. Set
+        /// <see cref="AuthorizationHeaderProviderOptions.RequestAppToken"/> to <see langword="true"/>.
+        /// </para>
+        /// <para>
+        /// Prefer using the <see cref="MicrosoftIdentityHttpClientBuilderExtensions"/> extension methods
+        /// to configure this handler through dependency injection rather than instantiating it directly.
+        /// </para>
+        /// </remarks>
         public MicrosoftIdentityMessageHandler(
             IAuthorizationHeaderProvider headerProvider,
             MicrosoftIdentityMessageHandlerOptions? defaultOptions,
@@ -365,9 +367,6 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Sends an HTTP request with authentication header injection.
-        /// When token binding (mTLS PoP) is configured via <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>,
-        /// uses <see cref="IBoundAuthorizationHeaderProvider"/> to acquire a bound token and sends the request
-        /// through an mTLS-configured HTTP client with the binding certificate.
         /// </summary>
         /// <param name="request">The HTTP request message.</param>
         /// <param name="options">The authentication options to use.</param>
@@ -375,6 +374,11 @@ namespace Microsoft.Identity.Web
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>The HTTP response message.</returns>
         /// <exception cref="MicrosoftIdentityAuthenticationException">Thrown when token acquisition fails.</exception>
+        /// <remarks>
+        /// When token binding (mTLS PoP) is configured via <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>,
+        /// uses <see cref="IBoundAuthorizationHeaderProvider"/> to acquire a bound token and sends the request
+        /// through an mTLS-configured HTTP client with the binding certificate.
+        /// </remarks>
         private async Task<HttpResponseMessage> SendWithAuthenticationAsync(
             HttpRequestMessage request,
             MicrosoftIdentityMessageHandlerOptions options,
@@ -424,11 +428,7 @@ namespace Microsoft.Identity.Web
                     "Added Authorization header for scopes: {Scopes}",
                     string.Join(", ", scopes));
             }
-            catch (MicrosoftIdentityAuthenticationException)
-            {
-                throw;
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not MicrosoftIdentityAuthenticationException)
             {
                 var message = "Failed to acquire authorization header.";
                 _logger?.LogError(ex, message);
@@ -470,28 +470,13 @@ namespace Microsoft.Identity.Web
             MicrosoftIdentityMessageHandlerOptions originalOptions,
             string challengeClaims)
         {
-            var challengeOptions = new MicrosoftIdentityMessageHandlerOptions
-            {
-                Scopes = originalOptions.Scopes
-            };
+            var challengeOptions = new MicrosoftIdentityMessageHandlerOptions(originalOptions);
 
-            // Copy properties from the base AuthorizationHeaderProviderOptions
-            if (originalOptions.AcquireTokenOptions != null)
+            // Set challenge claims and force refresh
+            if (challengeOptions.AcquireTokenOptions != null)
             {
-                challengeOptions.AcquireTokenOptions = new AcquireTokenOptions
-                {
-                    AuthenticationOptionsName = originalOptions.AcquireTokenOptions.AuthenticationOptionsName,
-                    Claims = challengeClaims, // Set the challenge claims
-                    CorrelationId = originalOptions.AcquireTokenOptions.CorrelationId,
-                    ExtraHeadersParameters = originalOptions.AcquireTokenOptions.ExtraHeadersParameters,
-                    ExtraQueryParameters = originalOptions.AcquireTokenOptions.ExtraQueryParameters,
-                    ExtraParameters = originalOptions.AcquireTokenOptions.ExtraParameters,
-                    ForceRefresh = true, // Force refresh when handling challenges
-                    ManagedIdentity = originalOptions.AcquireTokenOptions.ManagedIdentity,
-                    PopPublicKey = originalOptions.AcquireTokenOptions.PopPublicKey,
-                    Tenant = originalOptions.AcquireTokenOptions.Tenant,
-                    UserFlow = originalOptions.AcquireTokenOptions.UserFlow
-                };
+                challengeOptions.AcquireTokenOptions.Claims = challengeClaims;
+                challengeOptions.AcquireTokenOptions.ForceRefresh = true;
             }
             else
             {
@@ -501,13 +486,6 @@ namespace Microsoft.Identity.Web
                     ForceRefresh = true
                 };
             }
-
-            // Copy other inherited properties
-            challengeOptions.RequestAppToken = originalOptions.RequestAppToken;
-            challengeOptions.ProtocolScheme = originalOptions.ProtocolScheme;
-            challengeOptions.BaseUrl = originalOptions.BaseUrl;
-            challengeOptions.HttpMethod = originalOptions.HttpMethod;
-            challengeOptions.RelativePath = originalOptions.RelativePath;
 
             return challengeOptions;
         }

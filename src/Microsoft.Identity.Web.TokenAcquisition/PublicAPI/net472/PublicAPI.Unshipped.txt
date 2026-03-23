@@ -1,2 +1,3 @@
 #nullable enable
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.MicrosoftIdentityMessageHandler(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! headerProvider, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions? defaultOptions, Microsoft.Identity.Client.IMsalMtlsHttpClientFactory? mtlsHttpClientFactory, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.MicrosoftIdentityMessageHandler!>? logger = null) -> void
+Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions.MicrosoftIdentityMessageHandlerOptions(Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions! other) -> void

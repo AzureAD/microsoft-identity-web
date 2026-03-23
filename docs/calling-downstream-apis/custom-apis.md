@@ -597,10 +597,12 @@ services.AddHttpClient("ApiClient")
     ],
     "SendX5c": true
   },
-  "SecureApi": {
-    "Scopes": ["api://secure-api/.default"],
-    "ProtocolScheme": "MTLS_POP",
-    "RequestAppToken": true
+  "DownstreamApis": {
+    "SecureApi": {
+      "Scopes": ["api://secure-api/.default"],
+      "ProtocolScheme": "MTLS_POP",
+      "RequestAppToken": true
+    }
   }
 }
 ```
@@ -612,7 +614,7 @@ services.AddHttpClient("SecureApiClient", client =>
     client.BaseAddress = new Uri("https://secure-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("SecureApi"),
+    configuration.GetSection("DownstreamApis:SecureApi"),
     "SecureApi");
 ```
 

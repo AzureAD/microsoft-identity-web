@@ -47,14 +47,22 @@ namespace MtlsPopSample
 
             Console.WriteLine();
             Console.WriteLine("Scenario 2: Calling Microsoft Graph with Bearer (non mTLS PoP) token...");
-            var graphServiceClient = sp.GetRequiredService<GraphServiceClient>();
-            var users = await graphServiceClient.Users
-                .Request()
-                .WithAppOnly()
-                .GetAsync();
+            try
+            {
+                var graphServiceClient = sp.GetRequiredService<GraphServiceClient>();
+                var users = await graphServiceClient.Users
+                    .Request()
+                    .WithAppOnly()
+                    .GetAsync();
 
-            Console.WriteLine("Microsoft Graph result:");
-            Console.WriteLine($"{users.Count} users");
+                Console.WriteLine("Microsoft Graph result:");
+                Console.WriteLine($"{users.Count} users");
+            }
+            catch (ServiceException ex) when (ex.Message.Contains("Insufficient privileges to complete the operation"))
+            {
+                Console.WriteLine($"Microsoft Graph call failed: {ex.Message}");
+                Console.WriteLine($"Please check if the application has the necessary permissions.");
+            }
 
             Console.WriteLine();
             Console.WriteLine("Scenario 3: calling web API with mTLS PoP token via MicrosoftIdentityMessageHandler...");
@@ -64,6 +72,8 @@ namespace MtlsPopSample
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             Console.WriteLine($"HttpClient result: {content}");
+
+            Console.WriteLine("Done");
         }
     }
 }

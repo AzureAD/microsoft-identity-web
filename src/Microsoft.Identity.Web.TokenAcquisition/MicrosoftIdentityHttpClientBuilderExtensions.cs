@@ -137,8 +137,9 @@ namespace Microsoft.Identity.Web
             return builder.AddHttpMessageHandler(sp =>
             {
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, defaultOptions: null, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
+                var httpClientFactory = sp.GetService<IHttpClientFactory>();
+                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
+                return new MicrosoftIdentityMessageHandler(headerProvider, defaultOptions: null, mtlsHttpClientFactory, logger: null);
             });
         }
 
@@ -214,8 +215,9 @@ namespace Microsoft.Identity.Web
             return builder.AddHttpMessageHandler(sp =>
             {
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
+                var httpClientFactory = sp.GetService<IHttpClientFactory>();
+                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
             });
         }
 
@@ -302,8 +304,9 @@ namespace Microsoft.Identity.Web
                 configureOptions(options);
 
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
+                var httpClientFactory = sp.GetService<IHttpClientFactory>();
+                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
             });
         }
 
@@ -419,8 +422,9 @@ namespace Microsoft.Identity.Web
                 configuration.Bind(options);
 
                 var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, new MsalMtlsHttpClientFactory(httpClientFactory), logger: null);
+                var httpClientFactory = sp.GetService<IHttpClientFactory>();
+                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
+                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
             });
         }
     }

@@ -250,7 +250,7 @@ public class Program
 
         tokenAcquirerFactory.Services.AddDownstreamApi(
             "SecureApi",
-            tokenAcquirerFactory.Configuration.GetSection("SecureApi"));
+            tokenAcquirerFactory.Configuration.GetSection("DownstreamApis:SecureApi"));
 
         var serviceProvider = tokenAcquirerFactory.Build();
 
@@ -392,10 +392,12 @@ public class SecureApiService
 **appsettings.json:**
 ```json
 {
-  "SecureApi": {
-    "Scopes": ["api://secure-api/.default"],
-    "ProtocolScheme": "MTLS_POP",
-    "RequestAppToken": true
+  "DownstreamApis": {
+    "SecureApi": {
+      "Scopes": ["api://secure-api/.default"],
+      "ProtocolScheme": "MTLS_POP",
+      "RequestAppToken": true
+    }
   }
 }
 ```
@@ -407,7 +409,7 @@ services.AddHttpClient("SecureApiClient", client =>
     client.BaseAddress = new Uri("https://secure-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("SecureApi"),
+    configuration.GetSection("DownstreamApis:SecureApi"),
     "SecureApi");
 ```
 
