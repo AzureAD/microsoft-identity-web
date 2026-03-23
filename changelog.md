@@ -1,5 +1,6 @@
 ## 4.6.0
 
+### New features
 Aspire / Blazor helpers and documentation [#3723](https://github.com/AzureAD/microsoft-identity-web/pull/3723)
 AI Skills and Aspire DevApp demonstrating Blazor authentication components [#3721](https://github.com/AzureAD/microsoft-identity-web/pull/3721)
 
