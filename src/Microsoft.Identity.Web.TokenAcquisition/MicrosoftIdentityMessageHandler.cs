@@ -396,7 +396,7 @@ namespace Microsoft.Identity.Web
                 if (string.Equals(options.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
                     && _headerProvider is IBoundAuthorizationHeaderProvider boundProvider)
                 {
-                    var downstreamApiOptions = CreateDownstreamApiOptionsFromMessageHandlerOptions(options, scopes);
+                    var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
                     var boundResult = await boundProvider.CreateBoundAuthorizationHeaderAsync(
                         downstreamApiOptions, claimsPrincipal: null, cancellationToken).ConfigureAwait(false);
 
@@ -491,24 +491,29 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Creates a <see cref="DownstreamApiOptions"/> from the message handler options
-        /// for use with <see cref="IBoundAuthorizationHeaderProvider.CreateBoundAuthorizationHeaderAsync"/>.
+        /// Creates a <see cref="DownstreamApiOptions"/> from <see cref="AuthorizationHeaderProviderOptions"/>
+        /// (the common base class shared by both <see cref="DownstreamApiOptions"/> and
+        /// <see cref="MicrosoftIdentityMessageHandlerOptions"/>) for use with
+        /// <see cref="IBoundAuthorizationHeaderProvider.CreateBoundAuthorizationHeaderAsync"/>.
         /// </summary>
-        /// <param name="options">The message handler options.</param>
+        /// <param name="options">The authorization header provider options (common base class).</param>
         /// <param name="scopes">The scopes for token acquisition.</param>
         /// <returns>A <see cref="DownstreamApiOptions"/> instance.</returns>
-        private static DownstreamApiOptions CreateDownstreamApiOptionsFromMessageHandlerOptions(
-            MicrosoftIdentityMessageHandlerOptions options, IList<string> scopes)
+        private static DownstreamApiOptions CreateDownstreamApiOptions(
+            AuthorizationHeaderProviderOptions options, IEnumerable<string> scopes)
         {
             return new DownstreamApiOptions
             {
+                // AuthorizationHeaderProviderOptions base properties
                 BaseUrl = options.BaseUrl,
                 RelativePath = options.RelativePath,
                 HttpMethod = options.HttpMethod,
-                Scopes = scopes,
+                CustomizeHttpRequestMessage = options.CustomizeHttpRequestMessage,
                 AcquireTokenOptions = options.AcquireTokenOptions,
                 ProtocolScheme = options.ProtocolScheme,
                 RequestAppToken = options.RequestAppToken,
+                // DownstreamApiOptions-specific property
+                Scopes = scopes,
             };
         }
 
