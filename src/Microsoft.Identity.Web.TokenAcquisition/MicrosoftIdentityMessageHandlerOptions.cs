@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     ///     Scopes = { "https://graph.microsoft.com/.default" }
     /// };
     /// </code>
-    /// 
+    ///
     /// <para>Usage with extension methods:</para>
     /// <code>
     /// var options = new MicrosoftIdentityMessageHandlerOptions
@@ -34,12 +34,30 @@ namespace Microsoft.Identity.Web
     public class MicrosoftIdentityMessageHandlerOptions : AuthorizationHeaderProviderOptions
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandlerOptions"/> class.
+        /// </summary>
+        public MicrosoftIdentityMessageHandlerOptions()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandlerOptions"/> class
+        /// by copying values from an existing instance.
+        /// </summary>
+        /// <param name="other">The options instance to copy from.</param>
+        public MicrosoftIdentityMessageHandlerOptions(MicrosoftIdentityMessageHandlerOptions other)
+            : base(other)
+        {
+            Scopes = new List<string>(other.Scopes);
+        }
+
+        /// <summary>
         /// Gets or sets the scopes to request for the token.
         /// </summary>
         /// <value>
-        /// A list of scopes required to access the target API. 
+        /// A list of scopes required to access the target API.
         /// For instance, "user.read mail.read" for Microsoft Graph user permissions.
-        /// For Microsoft Identity, in the case of application tokens (requested by the app on behalf of itself), 
+        /// For Microsoft Identity, in the case of application tokens (requested by the app on behalf of itself),
         /// there should be only one scope, and it should end with ".default" (e.g., "https://graph.microsoft.com/.default").
         /// </value>
         /// <example>
