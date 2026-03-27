@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Xunit;
 
@@ -312,6 +314,40 @@ namespace Microsoft.Identity.Web.Test
             Assert.Null(options.TenantId);
             Assert.Null(options.Authority);
             Assert.Null(options.PreparedInstance);
+        }
+
+        [Fact]
+        public async Task ConfidentialClientApplicationOptions_IsThreadSafe()
+        {
+            // Arrange
+            var mergedOptions = new MergedOptions
+            {
+                ClientId = "test-client-id",
+                ClientSecret = "test-client-secret",
+                Instance = "https://login.microsoftonline.com/",
+                TenantId = "test-tenant-id",
+            };
+
+            const int threadCount = 50;
+            var barrier = new Barrier(threadCount);
+            var results = new Microsoft.Identity.Client.ConfidentialClientApplicationOptions[threadCount];
+
+            // Act
+            var tasks = Enumerable.Range(0, threadCount).Select(i => Task.Run(() =>
+            {
+                barrier.SignalAndWait();
+                results[i] = mergedOptions.ConfidentialClientApplicationOptions;
+            })).ToArray();
+            await Task.WhenAll(tasks);
+
+            // Assert
+            for (int i = 0; i < threadCount; i++)
+            {
+                Assert.NotNull(results[i]);
+                Assert.Equal("test-client-id", results[i].ClientId);
+                Assert.Equal("test-client-secret", results[i].ClientSecret);
+                Assert.Equal("test-tenant-id", results[i].TenantId);
+            }
         }
     }
 }
