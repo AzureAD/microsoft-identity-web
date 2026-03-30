@@ -62,13 +62,6 @@ namespace Microsoft.Identity.Web
         protected readonly ICredentialsProvider _credentialsProvider;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
 
-        [Obsolete("Use _credentialsProvider instead.")]
-        protected readonly ICertificatesObserver? _certificatesObserver;
-        [Obsolete("Use _credentialsProvider instead.")]
-        protected readonly ICredentialsLoader _credentialsLoader;
-        [Obsolete("Use _credentialsProvider instead.")]
-        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
-
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
         /// </summary>
@@ -144,13 +137,6 @@ namespace Microsoft.Identity.Web
             _credentialsProvider = credentialsProvider;
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
-
-            // Obsolete members
-#pragma warning disable CS0618 // Type or member is obsolete. Setup for backward compatibility.
-            _credentialsLoader = serviceProvider.GetRequiredService<ICredentialsLoader>();
-            _certificatesObservers = [.. serviceProvider.GetServices<ICertificatesObserver>()];
-            _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
 #if NET6_0_OR_GREATER

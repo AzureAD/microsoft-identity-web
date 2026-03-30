@@ -15,47 +15,6 @@ namespace Microsoft.Identity.Web
 {
     internal static partial class ConfidentialClientApplicationBuilderExtension
     {
-        [Obsolete(IDWebErrorMessage.WithClientCredentialsIsObsolete, true)]
-        public static ConfidentialClientApplicationBuilder WithClientCredentials(
-            this ConfidentialClientApplicationBuilder builder,
-            IEnumerable<CredentialDescription> clientCredentials,
-            ILogger logger,
-            ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters credentialSourceLoaderParameters)
-        {
-            return WithClientCredentialsAsync(
-                builder,
-                clientCredentials,
-                logger,
-                credentialsLoader,
-                credentialSourceLoaderParameters,
-                isTokenBinding: false).GetAwaiter().GetResult();
-        }
-
-        [Obsolete(IDWebErrorMessage.WithClientCredentialsIsObsolete, true)]
-        public static Task<ConfidentialClientApplicationBuilder> WithClientCredentialsAsync(
-            this ConfidentialClientApplicationBuilder builder,
-            IEnumerable<CredentialDescription> clientCredentials,
-            ILogger logger,
-            ICredentialsLoader credentialsLoader,
-            CredentialSourceLoaderParameters? credentialSourceLoaderParameters,
-            bool isTokenBinding)
-        {
-            MergedOptions mergedOptions = new MergedOptions
-            {
-                ClientCredentials = clientCredentials,
-            };
-
-            return WithClientCredentialsAsync(
-                builder,
-                mergedOptions,
-                new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, []),
-                credentialSourceLoaderParameters,
-                isTokenBinding,
-                CancellationToken.None);
-
-        }
-
         public static async Task<ConfidentialClientApplicationBuilder> WithClientCredentialsAsync(
             this ConfidentialClientApplicationBuilder builder,
             MergedOptions mergedOptions,
@@ -97,16 +56,6 @@ namespace Microsoft.Identity.Web
                     throw new NotImplementedException();
 
             }
-        }
-
-        // Used for backcompat support.
-        private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
-        {
-            public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
-            public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
-                innerLogger.Log(logLevel, eventId, state, exception, formatter);
-            IDisposable ILogger.BeginScope<TState>(TState state) =>
-                innerLogger.BeginScope(state)!;
         }
     }
 }
