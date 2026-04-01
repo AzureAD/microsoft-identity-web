@@ -20,7 +20,7 @@ This guide helps you diagnose and resolve common token caching issues in Microso
 
 ### Symptoms
 
-- Distributed cache (Redis, SQL, Cosmos DB) appears empty
+- Distributed cache (Redis, SQL, Cosmos DB, PostgreSQL) appears empty
 - No entries visible in cache monitoring tools
 - Application works but cache doesn't persist across restarts
 

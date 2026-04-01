@@ -1007,6 +1007,20 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddDistributedTokenCaches();
+
+// PostgreSQL (requires Microsoft.Extensions.Caching.Postgres)
+builder.Services.AddDistributedPostgresCache(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("PostgresCache");
+    options.SchemaName = builder.Configuration["PostgresCache:SchemaName"];
+    options.TableName = builder.Configuration["PostgresCache:TableName"];
+    options.CreateIfNotExists = builder.Configuration.GetValue<bool>("PostgresCache:CreateIfNotExists");
+});
+
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddDistributedTokenCaches();
 ```
 
 **Use for:**
@@ -1223,7 +1237,7 @@ catch (MsalUiRequiredException)
 
 **Cause:** Using in-memory cache.
 
-**Solution:** Switch to distributed cache (Redis, SQL Server, or Cosmos DB).
+**Solution:** Switch to distributed cache (Redis, SQL Server, Cosmos DB, or PostgreSQL).
 
 ### Problem: 401 Unauthorized from downstream API
 

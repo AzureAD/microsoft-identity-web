@@ -24,7 +24,7 @@ Microsoft.Identity.Web provides:
 ✅ **Simplified Authentication** - Minimal configuration for signing in users and validating tokens
 ✅ **Downstream API Calls** - Call Microsoft Graph, Azure SDKs, or your own protected APIs with automatic token management
    - **Token Acquisition** - Acquire tokens on behalf of users or your application
-   - **Token Cache Management** - Distributed cache support with Redis, SQL Server, Cosmos DB
+   - **Token Cache Management** - Distributed cache support with Redis, SQL Server, Cosmos DB, PostgreSQL
 ✅ **Multiple Credential Types** - Support for certificates, managed identities, and certificateless authentication
 ✅ **Automatic Authorization Headers** - Authentication is handled transparently when calling APIs
 ✅ **Production-Ready** - Used by thousands of Microsoft and customer applications
