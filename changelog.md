@@ -1,7 +1,7 @@
 ## 4.7.0
 
 ### Bug fixes
-- Updates to Microsoft.Identity.Abstractions 12.0.0 to revert breaking changes introduced in Abstractions 11.0.0. (On .NET 10 target, `Certificate` extension method in `CredentialDescription was reverted to normal property.) See [#3767](https://github.com/AzureAD/microsoft-identity-web/pull/3767).
+- Updates to Microsoft.Identity.Abstractions 12.0.0 to revert breaking changes introduced in Abstractions 11.0.0. (On .NET 10 target, `Certificate` extension method in `CredentialDescription` was reverted to normal property.) See [#3767](https://github.com/AzureAD/microsoft-identity-web/pull/3767).
 
 ## 4.6.0
 
