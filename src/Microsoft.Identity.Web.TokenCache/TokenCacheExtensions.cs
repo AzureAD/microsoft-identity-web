@@ -187,7 +187,7 @@ namespace Microsoft.Identity.Web
         ///  });
         /// </code>
         ///
-        /// The following code adds a token cache based on PostgreSQL and initializes
+        /// Alternatively the following code adds a token cache based on PostgreSQL and initializes
         /// its configuration.
         ///
         /// <code>
