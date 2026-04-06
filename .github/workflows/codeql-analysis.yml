@@ -13,6 +13,11 @@ on:
     branches:
       - master
 
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
 env:
   TargetNetNext: 'False'
 
@@ -31,7 +36,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       # Override language selection by uncommenting this and choosing your languages
       with:
          languages: csharp
@@ -39,7 +44,7 @@ jobs:
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
     # - name: Autobuild
-    #   uses: github/codeql-action/autobuild@v2
+    #   uses: github/codeql-action/autobuild@v4
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 https://git.io/JvXDl
@@ -51,7 +56,7 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.x
-        
+
     - name: Setup .NET 9.0.x
       uses: actions/setup-dotnet@v5
       with:
@@ -76,4 +81,4 @@ jobs:
       run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
