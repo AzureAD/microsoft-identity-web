@@ -10,8 +10,6 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
-    <!-- Suppress warnings from the configuration binding source generator for complex crypto types it cannot handle -->
-    <NoWarn>$(NoWarn);SYSLIB1100;SYSLIB1101;SYSLIB0026;SYSLIB0027;SYSLIB0028</NoWarn>
   </PropertyGroup>
 
   <!-- Generates extra info for https://github.com/MichalStrehovsky/sizoscope to read. Useful for debugging warnings since it tells you where each item came from.-->
