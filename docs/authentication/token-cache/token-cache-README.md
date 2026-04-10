@@ -125,7 +125,7 @@ flowchart TD
     DistChoice --> Q4{Cache<br/>Implementation?}
 
     Q4 -->|High Performance| Redis[Redis Cache<br/>StackExchange.Redis<br/>⭐ Recommended]
-    Q4 -->|Azure Native| Azure[Azure Cache for Redis<br/>or Azure Cosmos DB]
+    Q4 -->|Azure Native| Azure[Azure Cache for Redis,<br/>Azure Cosmos DB,<br/>or Azure Database for PostgreSQL]
     Q4 -->|On-Premises| SQL[SQL Server Cache<br/>AddDistributedSqlServerCache]
     Q4 -->|Testing| DistMem[Distributed Memory<br/>❌ Not for production]
 
@@ -291,6 +291,36 @@ builder.Services.AddCosmosCache((CosmosCacheOptions options) =>
     options.ClientBuilder = new CosmosClientBuilder(
         builder.Configuration["CosmosCache:ConnectionString"]);
     options.CreateIfNotExists = true;
+});
+```
+
+#### PostgreSQL Cache
+
+Requires the `Microsoft.Extensions.Caching.Postgres` NuGet package.
+
+**appsettings.json:**
+```json
+{
+  "ConnectionStrings": {
+    "PostgresCache": "Host=localhost;Database=mydb;Username=myuser;Password=mypassword"
+  },
+  "PostgresCache": {
+    "SchemaName": "public",
+    "TableName": "token_cache",
+    "CreateIfNotExists": true
+  }
+}
+```
+
+**Program.cs:**
+```csharp
+builder.Services.AddDistributedPostgresCache(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("PostgresCache");
+    options.SchemaName = builder.Configuration["PostgresCache:SchemaName"];
+    options.TableName = builder.Configuration["PostgresCache:TableName"];
+    options.CreateIfNotExists = builder.Configuration.GetValue<bool>("PostgresCache:CreateIfNotExists");
+    options.DefaultSlidingExpiration = TimeSpan.FromMinutes(90);
 });
 ```
 
