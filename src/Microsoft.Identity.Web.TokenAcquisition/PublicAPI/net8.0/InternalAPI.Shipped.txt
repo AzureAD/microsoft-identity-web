@@ -111,7 +111,6 @@ const Microsoft.Identity.Web.IDWebErrorMessage.TenantIdClaimNotPresentInToken = 
 const Microsoft.Identity.Web.IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.TokenIsNotJwtToken = "IDW10403: Token is not a JWT token. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.UnauthenticatedUser = "IDW10204: The user is unauthenticated. The HttpContext does not contain any claims. " -> string!
-const Microsoft.Identity.Web.IDWebErrorMessage.WithClientCredentialsIsObsolete = "Use WithClientCredentialsAsync instead." -> string!
 const Microsoft.Identity.Web.LogMessages.ErrorAcquiringTokenForDownstreamWebApi = "Error acquiring a token for a downstream web API - MsalUiRequiredException message is: " -> string!
 const Microsoft.Identity.Web.LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode = "Exception occurred while adding an account to the cache from the auth code. " -> string!
 const Microsoft.Identity.Web.LogMessages.MethodBegin = "Begin {0}. " -> string!
@@ -258,6 +257,9 @@ Microsoft.Identity.Web.MicrosoftIdentityAppCallsWebApiAuthenticationBuilder.Micr
 Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger
 Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.MicrosoftIdentityApplicationOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptions) -> void
 Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger(Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsStore) -> void
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsToMergedOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.HasClientCredentials.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptions.IsB2C.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger
@@ -303,13 +305,12 @@ Microsoft.Identity.Web.TokenAcquisitionAspnetCoreHost.TokenAcquisitionAspnetCore
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForApp(Microsoft.Identity.Client.AcquireTokenForClientParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> void
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOf(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, Microsoft.Identity.Web.OnBehalfOfEventArgs! eventArgs) -> System.Threading.Tasks.Task!
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(Microsoft.Identity.Client.AcquireTokenOnBehalfOfParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUser(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.InvokeOnBeforeTokenAcquisitionForTestUserAsync(Microsoft.Identity.Client.AcquireTokenByUsernameAndPasswordConfidentialParameterBuilder! builder, Microsoft.Identity.Abstractions.AcquireTokenOptions? acquireTokenOptions, System.Security.Claims.ClaimsPrincipal! user) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.Util.Base64UrlHelpers
-readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObserver -> Microsoft.Identity.Web.Experimental.ICertificatesObserver?
-readonly Microsoft.Identity.Web.TokenAcquisition._certificatesObservers -> System.Collections.Generic.IReadOnlyList<Microsoft.Identity.Web.Experimental.ICertificatesObserver!>!
-readonly Microsoft.Identity.Web.TokenAcquisition._credentialsLoader -> Microsoft.Identity.Abstractions.ICredentialsLoader!
 readonly Microsoft.Identity.Web.TokenAcquisition._httpClientFactory -> Microsoft.Identity.Client.IMsalHttpClientFactory!
 readonly Microsoft.Identity.Web.TokenAcquisition._logger -> Microsoft.Extensions.Logging.ILogger!
 readonly Microsoft.Identity.Web.TokenAcquisition._serviceProvider -> System.IServiceProvider!
@@ -330,8 +331,6 @@ static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logg
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingPodIdentityFile(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionFileDiskPath) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingSignedAssertionFromCustomProvider(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionUri) -> void
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logger.UsingSignedAssertionFromVault(Microsoft.Extensions.Logging.ILogger! logger, string! signedAssertionUri) -> void
-static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentials(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters! credentialSourceLoaderParameters) -> Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!
-static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters, bool isTokenBinding) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!>!
 static Microsoft.Identity.Web.DefaultTokenAcquirerFactoryImplementation.GetKey(string? authority, string? clientId, string? region) -> string!
 static Microsoft.Identity.Web.HttpContextExtensions.GetTokenUsedToCallWebAPI(this Microsoft.AspNetCore.Http.HttpContext! httpContext) -> Microsoft.IdentityModel.Tokens.SecurityToken?
 static Microsoft.Identity.Web.HttpContextExtensions.StoreTokenUsedToCallWebAPI(this Microsoft.AspNetCore.Http.HttpContext! httpContext, Microsoft.IdentityModel.Tokens.SecurityToken? token) -> void

@@ -51,7 +51,11 @@ namespace Microsoft.Identity.Web.Test
                 _provider.GetService<ILogger<TokenAcquisition>>()!,
                 _tokenAcquisitionAspnetCoreHost,
                 _provider,
-                _credentialsLoader);
+                new CredentialsProvider(
+                    _provider.GetService<ILogger<CredentialsProvider>>()!,
+                    _credentialsLoader,
+                    [],
+                    _tokenAcquisitionAspnetCoreHost));
         }
 
         private void BuildTheRequiredServices()
