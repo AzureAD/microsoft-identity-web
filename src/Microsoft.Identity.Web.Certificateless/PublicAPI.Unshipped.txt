@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.IsTokenBinding.get -> bool
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.IsTokenBinding.set -> void
