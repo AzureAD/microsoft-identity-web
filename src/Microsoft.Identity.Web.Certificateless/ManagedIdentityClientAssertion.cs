@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 
@@ -21,6 +22,12 @@ namespace Microsoft.Identity.Web
         private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
         private readonly ILogger? _logger;
+
+        /// <summary>
+        /// When set to <c>true</c>, the managed identity token request will use
+        /// mTLS Proof-of-Possession with attestation support (V2 credential API).
+        /// </summary>
+        public bool IsTokenBinding { get; set; }
 
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
@@ -124,6 +131,12 @@ namespace Microsoft.Identity.Web
                 {
                     miBuilder.WithClaims(assertionRequestOptions.Claims);
                 }
+            }
+
+            if (IsTokenBinding)
+            {
+                miBuilder.WithMtlsProofOfPossession()
+                    .WithAttestationSupport();
             }
 
             var result = await miBuilder
