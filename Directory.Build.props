@@ -98,15 +98,17 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <NetNineRuntimeVersion>9.0.15</NetNineRuntimeVersion>
-    <AspNetCoreNineRuntimeVersion>9.0.15</AspNetCoreNineRuntimeVersion>
+    <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
+    <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
+    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf-->
+    <SystemSecurityCryptographyServicingVersion>9.0.15</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>$(NetNineRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
@@ -115,15 +117,17 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <NetTenRuntimeVersion>10.0.6</NetTenRuntimeVersion>
-    <AspNetCoreTenRuntimeVersion>10.0.6</AspNetCoreTenRuntimeVersion>
+    <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
+    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf-->
+    <SystemSecurityCryptographyServicingVersion>10.0.6</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>$(NetTenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
     <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
