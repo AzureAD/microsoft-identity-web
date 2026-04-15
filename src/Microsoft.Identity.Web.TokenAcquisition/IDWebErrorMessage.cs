@@ -55,6 +55,7 @@ namespace Microsoft.Identity.Web
         public const string MicrosoftIdentityWebChallengeUserException = "IDW10502: An MsalUiRequiredException was thrown due to a challenge for the user. " +
            "See https://aka.ms/ms-id-web/ca_incremental-consent. ";
         public const string ProvidedAuthenticationSchemeIsIncorrect = "IDW10503: Cannot determine the cloud Instance. The provided authentication scheme was '{0}'. Microsoft.Identity.Web inferred '{1}' as the authentication scheme. Available authentication schemes are '{2}'. See https://aka.ms/id-web/authSchemes. ";
+        public const string MicrosoftIdentityApplicationOptionsNotConfigured = "IDW10503: Cannot determine the cloud Instance because MicrosoftIdentityApplicationOptions are not configured for the authentication scheme '{0}'. Please ensure the MicrosoftIdentityApplicationOptions are properly configured in your application setup. See https://aka.ms/ms-id-web/configuration for details. ";
         public const string InvalidAssertion = "IDW10504: Invalid assertion: contains unsupported character(s).";
         public const string InvalidSubAssertion = "IDW10505: Invalid sub_assertion: contains unsupported character(s).";
 
