@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using IdWebLogger = Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 
@@ -32,10 +33,11 @@ namespace Microsoft.Identity.Web
         {
             get
             {
-                if (_confidentialClientApplicationOptions == null)
+                if (_confidentialClientApplicationOptions is null)
                 {
-                    _confidentialClientApplicationOptions = new ConfidentialClientApplicationOptions();
-                    UpdateConfidentialClientApplicationOptionsFromMergedOptions(this, _confidentialClientApplicationOptions);
+                    var options = new ConfidentialClientApplicationOptions();
+                    UpdateConfidentialClientApplicationOptionsFromMergedOptions(this, options);
+                    Interlocked.CompareExchange(ref _confidentialClientApplicationOptions, options, null);
                 }
 
                 return _confidentialClientApplicationOptions;
