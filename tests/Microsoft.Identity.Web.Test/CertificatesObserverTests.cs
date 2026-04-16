@@ -207,7 +207,7 @@ namespace Microsoft.Identity.Web.Test
                 cert1 = CreateAndInstallCertificate(certName);
 
                 // Verify certificate is properly installed in store with timeout
-                await VerifyCertificateInStoreAsync(cert1, TimeSpan.FromSeconds(5));
+                VerifyCertificateInStore(cert1);
                 var description = new CredentialDescription
                 {
                     SourceType = CredentialSource.StoreWithDistinguishedName,
@@ -301,7 +301,7 @@ namespace Microsoft.Identity.Web.Test
                 cert2 = CreateAndInstallCertificate(certName);
 
                 // Verify certificate is properly installed in store with timeout
-                await VerifyCertificateInStoreAsync(cert2, TimeSpan.FromSeconds(5));
+                VerifyCertificateInStore(cert2);
 
                 // Rerun but it fails this time
                 mockHttpFactory.ValidCertificates.Clear();

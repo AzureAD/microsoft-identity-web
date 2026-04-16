@@ -29,10 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="PublicAPI\net9.0\InternalAPI.Unshipped.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -64,7 +60,6 @@
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
-    <AdditionalFiles Include="PublicAPI\net9.0\InternalAPI.Unshipped.txt" />
   </ItemGroup>
 
 </Project>
