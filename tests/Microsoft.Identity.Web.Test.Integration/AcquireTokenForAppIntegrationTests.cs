@@ -322,8 +322,7 @@ namespace Microsoft.Identity.Web.Test.Integration
                  Provider.GetService<IHttpClientFactory>()!,
                  Provider.GetService<ILogger<TokenAcquisition>>()!,
                  tokenAcquisitionAspnetCoreHost,
-                 Provider,
-                 _credentialsProvider);
+                 Provider);
 
             tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _);
         }

@@ -86,6 +86,13 @@ namespace Microsoft.Identity.Web.Test
                 },
                 actual =>
                 {
+                    Assert.Equal(typeof(IMsalHttpClientFactory), actual.ServiceType);
+                    Assert.Equal(typeof(MsalMtlsHttpClientFactory), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
                     Assert.Equal(typeof(ICredentialsProvider), actual.ServiceType);
                     Assert.Equal(typeof(CredentialsProvider), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
@@ -136,7 +143,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
-            Assert.Equal(12, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
+            Assert.Equal(13, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
         }
 #endif
 
@@ -230,6 +237,13 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
                     Assert.Equal(typeof(ITokenAcquirerFactory), actual.ServiceType);
                     Assert.Equal(typeof(DefaultTokenAcquirerFactoryImplementation), actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(typeof(IMsalHttpClientFactory), actual.ServiceType);
+                    Assert.Equal(typeof(MsalMtlsHttpClientFactory), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
                 },

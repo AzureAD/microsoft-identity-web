@@ -92,51 +92,29 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
-        /// <param name="credentialsLoader">Credential loader used to provide the credentials.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             ITokenAcquisitionHost tokenAcquisitionHost,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
-            IServiceProvider serviceProvider,
-            ICredentialsLoader credentialsLoader)
-            : this(
-                  tokenCacheProvider,
-                  tokenAcquisitionHost,
-                  httpClientFactory,
-                  logger,
-                  serviceProvider,
-                  new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost))
-        {
-        }
-
-        /// <summary>
-        /// Constructor of the TokenAcquisition service. This requires the Azure AD Options to
-        /// configure the confidential client application and a token cache provider.
-        /// This constructor is called by ASP.NET Core dependency injection.
-        /// </summary>
-        /// <param name="tokenCacheProvider">The App token cache provider.</param>
-        /// <param name="tokenAcquisitionHost">Host of the token acquisition.</param>
-        /// <param name="httpClientFactory">HTTP client factory.</param>
-        /// <param name="logger">Logger.</param>
-        /// <param name="serviceProvider">Service provider.</param>
-        /// <param name="credentialsProvider">Credential provider used to provide the credentials.</param>
-        public TokenAcquisition(
-            IMsalTokenCacheProvider tokenCacheProvider,
-            ITokenAcquisitionHost tokenAcquisitionHost,
-            IHttpClientFactory httpClientFactory,
-            ILogger<TokenAcquisition> logger,
-            IServiceProvider serviceProvider,
-            ICredentialsProvider credentialsProvider)
+            IServiceProvider serviceProvider)
         {
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
-            _credentialsProvider = credentialsProvider;
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
+
+            var credentialsProvider = serviceProvider.GetService<ICredentialsProvider>();
+            if (credentialsProvider == null)
+            {
+                var credentialsLoader = serviceProvider.GetService<ICredentialsLoader>() ?? throw new InvalidOperationException("Either ICredentialsProvider or ICredentialsLoader must be registered and neither were.");
+                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost);
+            }
+
+            _credentialsProvider = credentialsProvider;
         }
 
 #if NET6_0_OR_GREATER
