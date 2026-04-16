@@ -52,7 +52,21 @@ namespace Microsoft.Identity.Web
                     return builder.WithCertificate(credential.Certificate);
                 }
 
-                logger.LogError("A certificate, which is required for token binding, is missing in loaded credentials.");
+                // For FIC (signed assertion from managed identity), the mTLS certificate
+                // will be provisioned by MSAL through the V2 credential API.
+                if (credential?.CredentialType == CredentialType.SignedAssertion
+                    && credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
+                {
+                    if (credential.CachedValue is ManagedIdentityClientAssertion miAssertion)
+                    {
+                        miAssertion.IsTokenBinding = true;
+                    }
+
+                    return builder.WithClientAssertion(
+                        (credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
+                }
+
+                logger.LogError("A certificate or signed assertion credential is required for token binding.");
                 throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
             }
 
