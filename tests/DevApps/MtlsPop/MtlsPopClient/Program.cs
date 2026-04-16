@@ -58,7 +58,7 @@ namespace MtlsPopSample
                 Console.WriteLine("Microsoft Graph result:");
                 Console.WriteLine($"{users.Count} users");
             }
-            catch (ServiceException ex) when (ex.Message.Contains("Insufficient privileges to complete the operation"))
+            catch (ServiceException ex) when (ex.Message.Contains("Insufficient privileges to complete the operation", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine($"Microsoft Graph call failed: {ex.Message}");
                 Console.WriteLine($"Please check if the application has the necessary permissions.");

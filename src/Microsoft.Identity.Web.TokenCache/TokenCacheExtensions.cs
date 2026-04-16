@@ -187,6 +187,24 @@ namespace Microsoft.Identity.Web
         ///  });
         /// </code>
         ///
+        /// Alternatively the following code adds a token cache based on PostgreSQL and initializes
+        /// its configuration.
+        ///
+        /// <code>
+        ///  app.AddDistributedTokenCache(services =>
+        ///  {
+        ///       // PostgreSQL token cache
+        ///       // Requires to reference Microsoft.Extensions.Caching.Postgres
+        ///       services.AddDistributedPostgresCache(options =>
+        ///       {
+        ///           options.ConnectionString = "Host=localhost;Database=mydb;Username=myuser;Password=mypassword";
+        ///           options.SchemaName = "public";
+        ///           options.TableName = "token_cache";
+        ///           options.CreateIfNotExists = true;
+        ///       });
+        ///  });
+        /// </code>
+        ///
         /// </example>
         /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
         /// instead.</remarks>

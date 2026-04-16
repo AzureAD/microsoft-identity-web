@@ -853,6 +853,21 @@ services.AddCosmosDbTokenCaches(options =>
 });
 ```
 
+#### PostgreSQL
+
+Requires the `Microsoft.Extensions.Caching.Postgres` NuGet package.
+
+```csharp
+services.AddDistributedPostgresCache(options =>
+{
+    options.ConnectionString = configuration.GetConnectionString("PostgresCache");
+    options.SchemaName = configuration["PostgresCache:SchemaName"];
+    options.TableName = configuration["PostgresCache:TableName"];
+    options.CreateIfNotExists = configuration.GetValue<bool>("PostgresCache:CreateIfNotExists");
+});
+services.AddDistributedTokenCaches();
+```
+
 **Learn more:** [Token Cache Configuration](../authentication/token-cache/token-cache-README.md)
 
 ---

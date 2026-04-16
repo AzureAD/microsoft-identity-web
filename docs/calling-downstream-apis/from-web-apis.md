@@ -212,6 +212,15 @@ builder.Services.AddCosmosDbTokenCaches(options =>
     options.DatabaseId = "TokenCache";
     options.ContainerId = "Tokens";
 });
+
+// PostgreSQL (requires Microsoft.Extensions.Caching.Postgres)
+builder.Services.AddDistributedPostgresCache(options =>
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("PostgresCache");
+    options.SchemaName = builder.Configuration["PostgresCache:SchemaName"];
+    options.TableName = builder.Configuration["PostgresCache:TableName"];
+    options.CreateIfNotExists = builder.Configuration.GetValue<bool>("PostgresCache:CreateIfNotExists");
+});
 ```
 
 ## Long-Running Processes with OBO
@@ -668,7 +677,7 @@ builder.Services.AddMicrosoftIdentityWebApi(options =>
 
 **Cause**: Using in-memory cache instead of distributed cache.
 
-**Solution**: Switch to distributed cache (Redis, SQL Server, Cosmos DB).
+**Solution**: Switch to distributed cache (Redis, SQL Server, Cosmos DB, PostgreSQL).
 
 **For detailed diagnostics:** See [Logging & Diagnostics Guide](../advanced/logging.md) for correlation IDs, token cache debugging, PII logging configuration, and comprehensive troubleshooting workflows.
 
