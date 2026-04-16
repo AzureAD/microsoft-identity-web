@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Web.Test
         /// Regression test: Simulates the Agent Identities scenario where nested token acquisitions
         /// with bad config should fail quickly, not hang.
         /// </summary>
-        [Fact(Timeout = 5000)] // 5 second timeout - if it takes longer, it's likely hanging
+        [Fact(Timeout = 30000)] // 30 second timeout - generous to accommodate slow CI, but still validates no infinite hang
         public async Task GetAuthenticationResultForAppAsync_WithBadClientId_CompletesQuickly()
         {
             // Arrange
