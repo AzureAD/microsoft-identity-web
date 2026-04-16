@@ -597,7 +597,7 @@ namespace Microsoft.Identity.Web
                 && isTokenBindingObject is bool isTokenBindingValue
                 && isTokenBindingValue;
 
-            // If using managed identity 
+            // If using managed identity
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
                 try
@@ -660,7 +660,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Apply tenant override only for AAD authorities and only if non-empty
-            if (!string.IsNullOrEmpty(mergedOptions.Instance) && 
+            if (!string.IsNullOrEmpty(mergedOptions.Instance) &&
                 !mergedOptions.Instance.Contains(Constants.CiamAuthoritySuffix
 #if NET6_0_OR_GREATER
                 , StringComparison.OrdinalIgnoreCase
@@ -1050,8 +1050,8 @@ namespace Microsoft.Identity.Web
             // Validate that we have enough configuration to build an authority
             // When PreserveAuthority is true, we use Authority directly, so PreparedInstance is not required
             // When IsB2C is true, we still need PreparedInstance
-            if (!mergedOptions.PreserveAuthority && 
-                string.IsNullOrEmpty(mergedOptions.PreparedInstance) && 
+            if (!mergedOptions.PreserveAuthority &&
+                string.IsNullOrEmpty(mergedOptions.PreparedInstance) &&
                 string.IsNullOrEmpty(mergedOptions.Authority))
             {
                 throw new ArgumentException(IDWebErrorMessage.MissingIdentityConfiguration);
@@ -1249,6 +1249,8 @@ namespace Microsoft.Identity.Web
                         }
                     }
 
+                    ThrowIfCdtMissingFromExtraParameters(tokenUsedToCallTheWebApi, tokenAcquisitionOptions);
+
                     if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                     {
                         builder = application
@@ -1426,6 +1428,44 @@ namespace Microsoft.Identity.Web
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Checks if the token is a Constrained Delegation Token (CDT).
+        /// A CDT is a JWT with "t" and "c" claims.
+        /// </summary>
+        /// <param name="token">The token string to check.</param>
+        /// <returns>True if the token is a CDT, false otherwise.</returns>
+        internal static bool IsCdt(string token)
+        {
+            try
+            {
+                var jwt = new JsonWebToken(token);
+                return jwt.TryGetPayloadValue<object>("t", out _) && jwt.TryGetPayloadValue<object>("c", out _);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Validates that when a CDT is used as the token to call the web API,
+        /// the ExtraParameters dictionary contains a "Cdt" entry for proper caching.
+        /// </summary>
+        /// <param name="token">The token used to call the web API.</param>
+        /// <param name="tokenAcquisitionOptions">The token acquisition options.</param>
+        /// <exception cref="ArgumentException">Thrown when the token is a CDT but ExtraParameters does not contain a "Cdt" entry.</exception>
+        internal static void ThrowIfCdtMissingFromExtraParameters(string token, TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            if (IsCdt(token))
+            {
+                if (tokenAcquisitionOptions?.ExtraParameters is null ||
+                    !tokenAcquisitionOptions.ExtraParameters.ContainsKey("Cdt"))
+                {
+                    throw new ArgumentException(IDWebErrorMessage.CdtMustBeCachedInExtraParameters);
+                }
+            }
         }
 
         /// <summary>

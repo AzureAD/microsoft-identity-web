@@ -57,6 +57,9 @@ namespace Microsoft.Identity.Web
         public const string ProvidedAuthenticationSchemeIsIncorrect = "IDW10503: Cannot determine the cloud Instance. The provided authentication scheme was '{0}'. Microsoft.Identity.Web inferred '{1}' as the authentication scheme. Available authentication schemes are '{2}'. See https://aka.ms/id-web/authSchemes. ";
         public const string InvalidAssertion = "IDW10504: Invalid assertion: contains unsupported character(s).";
         public const string InvalidSubAssertion = "IDW10505: Invalid sub_assertion: contains unsupported character(s).";
+        public const string CdtMustBeCachedInExtraParameters = "IDW10506: The token used to call the web API is a Constrained Delegation Token (CDT). " +
+            "When using a CDT, the 'Cdt' entry must be present in TokenAcquisitionOptions.ExtraParameters to ensure the CDT is properly cached. " +
+            "Add the CDT to the ExtraParameters dictionary with the key 'Cdt'.";
 
         // Encoding IDW10600 = "IDW10600:"
         public const string InvalidBase64UrlString = "IDW10601: Invalid Base64URL string. ";

@@ -1,1 +1,4 @@
 #nullable enable
+const Microsoft.Identity.Web.IDWebErrorMessage.CdtMustBeCachedInExtraParameters = "IDW10506: The token used to call the web API is a Constrained Delegation Token (CDT). When using a CDT, the 'Cdt' entry must be present in TokenAcquisitionOptions.ExtraParameters to ensure the CDT is properly cached. Add the CDT to the ExtraParameters dictionary with the key 'Cdt'." -> string!
+static Microsoft.Identity.Web.TokenAcquisition.IsCdt(string! token) -> bool
+static Microsoft.Identity.Web.TokenAcquisition.ThrowIfCdtMissingFromExtraParameters(string! token, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions) -> void
