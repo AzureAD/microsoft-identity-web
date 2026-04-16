@@ -4,11 +4,9 @@
     <TargetFrameworks>net9.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
-    <AspDependencyVersion>9.0.9</AspDependencyVersion>
-    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspDependencyVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
-    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspDependencyVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftAspNetCoreOpenApiVersion>$(AspDependencyVersion)</MicrosoftAspNetCoreOpenApiVersion>
-    <MicrosoftExtensionsApiDescriptionServerVersion>$(AspDependencyVersion)</MicrosoftExtensionsApiDescriptionServerVersion>
+    <SidecarAspDependencyVersion>9.0.9</SidecarAspDependencyVersion>
+    <MicrosoftAspNetCoreOpenApiVersion>$(SidecarAspDependencyVersion)</MicrosoftAspNetCoreOpenApiVersion>
+    <MicrosoftExtensionsApiDescriptionServerVersion>$(SidecarAspDependencyVersion)</MicrosoftExtensionsApiDescriptionServerVersion>
     <MicrosoftVisualStudioAzureContainersToolsTargetsVersion>1.22.1</MicrosoftVisualStudioAzureContainersToolsTargetsVersion>
   </PropertyGroup>
 </Project>
