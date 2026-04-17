@@ -41,14 +41,14 @@ namespace Microsoft.Identity.Web.Test
             _credentialsLoader = new DefaultCredentialsLoader();
             _tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
-                _provider.GetService<IMergedOptionsStore>()!,
+                _provider.GetRequiredService<IMergedOptionsStore>(),
                 _provider);
             _tokenAcquisition = new TokenAcquisitionAspNetCore(
                 new MsalTestTokenCacheProvider(
-                _provider.GetService<IMemoryCache>()!,
-                _provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()!),
-                _provider.GetService<IHttpClientFactory>()!,
-                _provider.GetService<ILogger<TokenAcquisition>>()!,
+                _provider.GetRequiredService<IMemoryCache>(),
+                _provider.GetRequiredService<IOptions<MsalMemoryTokenCacheOptions>>()),
+                _provider.GetRequiredService<IHttpClientFactory>(),
+                _provider.GetRequiredService<ILogger<TokenAcquisition>>(),
                 _tokenAcquisitionAspnetCoreHost,
                 _provider);
         }
@@ -61,6 +61,8 @@ namespace Microsoft.Identity.Web.Test
             services.AddTransient(
                 provider => _applicationOptionsMonitor);
             services.Configure<MergedOptions>(options => { });
+            services.AddHttpClient();
+            services.AddInMemoryTokenCaches();
             services.AddTokenAcquisition();
             services.AddLogging();
             services.AddAuthentication();
