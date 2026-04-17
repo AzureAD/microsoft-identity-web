@@ -46,11 +46,6 @@ namespace Microsoft.Identity.Web
             bool forceSdk = !services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Authentication.IAuthenticationService");
 #endif
 
-            if (!HasImplementationType(services, typeof(CredentialsProvider)))
-            {
-                services.TryAddSingleton<ICredentialsProvider, CredentialsProvider>();
-            }
-
             if (!HasImplementationType(services, typeof(DefaultCertificateLoader)))
             {
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
@@ -139,6 +134,10 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                if (!HasImplementationType(services, typeof(CredentialsProvider)))
+                {
+                    services.TryAddSingleton<ICredentialsProvider, CredentialsProvider>();
+                }
             }
             else
             {
@@ -169,6 +168,10 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                if (!HasImplementationType(services, typeof(CredentialsProvider)))
+                {
+                    services.TryAddScoped<ICredentialsProvider, CredentialsProvider>();
+                }
             }
 
             services.TryAddSingleton<IMergedOptionsStore, MergedOptionsStore>();
