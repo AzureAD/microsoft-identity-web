@@ -22,7 +22,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task FicFails_CertificateFallbackAsync()
         {
             // Arrange
-            ILogger logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             ICredentialsLoader credLoader = Substitute.For<ICredentialsLoader>();
 
             CredentialDescription[] credentialDescriptions = new[]
@@ -60,14 +60,19 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     }
                 });
 
-            // Act
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            CredentialDescription cd = await ConfidentialClientApplicationBuilderExtension.LoadCredentialForMsalOrFailAsync(
-                credentialDescriptions,
+            CredentialsProvider provider = new CredentialsProvider(
                 logger,
                 credLoader,
+                [],
                 null);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            // Act
+            CredentialDescription? cd = await provider.GetCredentialAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = credentialDescriptions,
+                },
+                null);
 
             Assert.Equal(credentialDescriptions[1], cd);
         }
@@ -166,7 +171,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         private static async Task RunFailToLoadLogicAsync(IEnumerable<CredentialDescription> credentialDescriptions)
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             ICredentialsLoader credLoader = Substitute.For<ICredentialsLoader>();
 
             // Mock the credential loader to fail to load any certificate
@@ -180,12 +185,18 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     return Task.FromException(new Exception($"Failed to load credential with ID {cd.Id}"));
                 });
 
-
-            // Act
-            var ex = await Assert.ThrowsAsync<ArgumentException>(() => ConfidentialClientApplicationBuilderExtension.LoadCredentialForMsalOrFailAsync(
-                credentialDescriptions,
+            CredentialsProvider provider = new CredentialsProvider(
                 logger,
                 credLoader,
+                [],
+                null);
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = credentialDescriptions,
+                },
                 null));
 
             // Assert
@@ -202,7 +213,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_ValidCertificate_ReturnsOriginalBuilderWithCertificate()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
@@ -230,9 +241,11 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
             // Act
             var result = await builder.WithClientCredentialsAsync(
-                new[] { credentialDescription },
-                logger,
-                credLoader,
+                new MergedOptions()
+                {
+                    ClientCredentials = new[] { credentialDescription },
+                },
+                new CredentialsProvider(logger, credLoader, [], null),
                 credentialSourceLoaderParameters: null,
                 isTokenBinding: true);
 
@@ -246,7 +259,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_NoValidCredentials_ThrowsException()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
@@ -267,13 +280,21 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     return Task.CompletedTask;
                 });
 
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
             // Act & Assert
             // This should throw because LoadCredentialForMsalOrFailAsync throws when no credentials can be loaded
             await Assert.ThrowsAsync<ArgumentException>(
                 () => builder.WithClientCredentialsAsync(
-                    new[] { credentialDescription },
-                    logger,
-                    credLoader,
+                    new MergedOptions()
+                    {
+                        ClientCredentials = [ credentialDescription ],
+                    },
+                    provider,
                     credentialSourceLoaderParameters: null,
                     isTokenBinding: true));
         }
@@ -282,7 +303,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_CredentialWithoutCertificate_ThrowsException()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
@@ -302,12 +323,20 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     return Task.CompletedTask;
                 });
 
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => builder.WithClientCredentialsAsync(
-                    new[] { credentialDescription },
-                    logger,
-                    credLoader,
+                    new MergedOptions()
+                    {
+                        ClientCredentials = [credentialDescription],
+                    },
+                    provider,
                     credentialSourceLoaderParameters: null,
                     isTokenBinding: true));
         }
@@ -316,7 +345,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_CredentialLoadingFails_PropagatesException()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
@@ -334,12 +363,20 @@ namespace Microsoft.Identity.Web.Test.Certificates
             credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
                 .ThrowsAsync(expectedException);
 
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
             // Act & Assert
             var actualException = await Assert.ThrowsAsync<ArgumentException>(
                 () => builder.WithClientCredentialsAsync(
-                    new[] { credentialDescription },
-                    logger,
-                    credLoader,
+                    new MergedOptions()
+                    {
+                        ClientCredentials = [credentialDescription],
+                    },
+                    provider,
                     credentialSourceLoaderParameters: null,
                     isTokenBinding: true));
 
@@ -351,17 +388,22 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_EmptyCredentialsList_ThrowsException()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
 
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => builder.WithClientCredentialsAsync(
-                    new CredentialDescription[0],
-                    logger,
-                    credLoader,
+                    new MergedOptions(),
+                    provider,
                     credentialSourceLoaderParameters: null,
                     isTokenBinding: true));
         }
@@ -370,7 +412,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
         public async Task WithBindingCertificateAsync_WithCredentialSourceLoaderParameters_PassesParametersCorrectly()
         {
             // Arrange
-            var logger = Substitute.For<ILogger>();
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
             var credLoader = Substitute.For<ICredentialsLoader>();
             var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
                 .WithAuthority(TestConstants.AuthorityCommonTenant);
@@ -398,11 +440,19 @@ namespace Microsoft.Identity.Web.Test.Certificates
                     return Task.CompletedTask;
                 });
 
-            // Act
-            var result = await builder.WithClientCredentialsAsync(
-                new[] { credentialDescription },
+            CredentialsProvider provider = new CredentialsProvider(
                 logger,
                 credLoader,
+                [],
+                null);
+
+            // Act
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = [credentialDescription],
+                },
+                provider,
                 credentialSourceLoaderParameters,
                 isTokenBinding: true);
 

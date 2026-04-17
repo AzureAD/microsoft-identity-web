@@ -7,9 +7,9 @@ using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
 {
-    internal partial class ConfidentialClientApplicationBuilderExtension
+    internal partial class CredentialsProvider
     {
-        internal static class Logger
+        private class LogMessages
         {
             private static readonly Action<ILogger, string, Exception?> s_notManagedIdentity =
                 LoggerMessage.Define<string>(

@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Web.Tests
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IOptionsMonitor<DownstreamApiOptions> _namedDownstreamApiOptions;
         private readonly ILogger<DownstreamApi> _logger;
+        private readonly ICredentialsProvider _provider;
         private readonly DownstreamApi _input;
         private readonly DownstreamApi _inputSaml;
 
@@ -43,19 +44,25 @@ namespace Microsoft.Identity.Web.Tests
             _authorizationHeaderProviderSaml = new MySamlAuthorizationHeaderProvider();
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
-            _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            var loggerFactory = new LoggerFactory();
+            _logger = loggerFactory.CreateLogger<DownstreamApi>();
+            _provider = new CredentialsProvider(loggerFactory.CreateLogger<CredentialsProvider>(), new DefaultCredentialsLoader(), [], null);
 
             _input = new DownstreamApi(
              _authorizationHeaderProvider,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger);
+             _logger,
+             msalHttpClientFactory: null,
+             credentialsProvider: _provider);
 
             _inputSaml = new DownstreamApi(
              _authorizationHeaderProviderSaml,
              _namedDownstreamApiOptions,
              _httpClientFactory,
-             _logger);
+             _logger,
+             msalHttpClientFactory: null,
+             credentialsProvider: _provider);
         }
 
         [Fact]
@@ -67,7 +74,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions();
 
             // Act
-            await _input.UpdateRequestAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(content, httpRequestMessage.Content);
@@ -94,7 +101,7 @@ namespace Microsoft.Identity.Web.Tests
                 } };
 
             // Act
-            await _input.UpdateRequestAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(content, httpRequestMessage.Content);
@@ -128,7 +135,7 @@ namespace Microsoft.Identity.Web.Tests
             var user = new ClaimsPrincipal();
 
             // Act
-            await _input.UpdateRequestAsync(httpRequestMessage, content, options, appToken, user, CancellationToken.None);
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, appToken, user, CancellationToken.None);
 
             // Assert
             Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
@@ -155,7 +162,7 @@ namespace Microsoft.Identity.Web.Tests
             var user = new ClaimsPrincipal();
 
             // Act
-            await _inputSaml.UpdateRequestAsync(httpRequestMessage, content, options, appToken, user, CancellationToken.None);
+            await _inputSaml.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, appToken, user, CancellationToken.None);
 
             // Assert
             Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
@@ -488,7 +495,9 @@ namespace Microsoft.Identity.Web.Tests
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
 
             Assert.NotNull(downstreamApi);
         }
@@ -510,7 +519,9 @@ namespace Microsoft.Identity.Web.Tests
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -548,7 +559,7 @@ namespace Microsoft.Identity.Web.Tests
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
 
             // Act
-            var result = await downstreamApi.UpdateRequestAsync(
+            var result = await downstreamApi.UpdateRequestWithCertificateAsync(
                 httpRequestMessage,
                 null,
                 options,
@@ -570,9 +581,9 @@ namespace Microsoft.Identity.Web.Tests
                     Arg.Any<ClaimsPrincipal>(),
                     Arg.Any<CancellationToken>());
 
-                Assert.NotNull(result);
-                Assert.Equal("MTLS_POP test-token", result.AuthorizationHeaderValue);
-                Assert.Equal(testCertificate, result.BindingCertificate);
+                Assert.NotNull(result.HeaderInfo);
+                Assert.Equal("MTLS_POP test-token", result.HeaderInfo.AuthorizationHeaderValue);
+                Assert.Equal(testCertificate, result.HeaderInfo.BindingCertificate);
                 Assert.Equal("MTLS_POP test-token", httpRequestMessage.Headers.Authorization?.ToString());
             }
             else
@@ -588,7 +599,7 @@ namespace Microsoft.Identity.Web.Tests
                     Arg.Any<ClaimsPrincipal>(),
                     Arg.Any<CancellationToken>());
 
-                Assert.Null(result);
+                Assert.Null(result.HeaderInfo);
                 Assert.Equal("Bearer test-token", httpRequestMessage.Headers.Authorization?.ToString());
             }
         }
@@ -604,7 +615,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            var result = await _input.UpdateRequestAsync(
+            var result = await _input.UpdateRequestWithCertificateAsync(
                 httpRequestMessage,
                 null,
                 options,
@@ -613,7 +624,7 @@ namespace Microsoft.Identity.Web.Tests
                 CancellationToken.None);
 
             // Assert
-            Assert.Null(result); // Regular provider doesn't return AuthorizationHeaderInformation
+            Assert.Null(result.HeaderInfo); // Regular provider doesn't return AuthorizationHeaderInformation
             Assert.Equal("Bearer ey", httpRequestMessage.Headers.Authorization?.ToString());
         }
 
@@ -638,7 +649,9 @@ namespace Microsoft.Identity.Web.Tests
                 _authorizationHeaderProvider, // Regular provider
                 _namedDownstreamApiOptions,
                 mockHttpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -681,6 +694,7 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
+                _provider,
                 (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
@@ -743,6 +757,7 @@ namespace Microsoft.Identity.Web.Tests
                 _namedDownstreamApiOptions,
                 mockMtlsHttpClientFactory,
                 _logger,
+                _provider,
                 (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
 
             var options = new DownstreamApiOptions
@@ -796,7 +811,9 @@ namespace Microsoft.Identity.Web.Tests
                 mockBoundProvider,
                 _namedDownstreamApiOptions,
                 mockHttpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
 
             var options = new DownstreamApiOptions
             {
@@ -821,6 +838,198 @@ namespace Microsoft.Identity.Web.Tests
                 downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None));
 
             Assert.Equal("Cannot acquire bound authorization header.", exception.Message);
+        }
+
+        [Fact]
+        public async Task UpdateRequestWithCertificateAsync_WithMtlsProtocolScheme_DoesNotAddAuthorizationHeader()
+        {
+            // Arrange
+            var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
+            var testCertificate = CreateTestCertificate();
+            var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalMtlsHttpClientFactory>();
+
+            var credentialDescription = new CertificateDescription
+            {
+                Certificate = testCertificate,
+                SourceType = CertificateSource.Certificate
+            };
+
+            mockCredentialsProvider
+                .GetCredentialAsync(
+                    Arg.Any<CredentialSourceLoaderParameters?>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<CredentialDescription?>(credentialDescription));
+
+            var downstreamApi = new DownstreamApi(
+                new ThrowingAuthorizationHeaderProvider(),
+                _namedDownstreamApiOptions,
+                mockMtlsHttpClientFactory,
+                _logger,
+                mockCredentialsProvider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
+            var options = new DownstreamApiOptions
+            {
+                ProtocolScheme = "MTLS" // mTLS-only path
+            };
+
+            // Act
+            var (headerInfo, mtlsCred) = await downstreamApi.UpdateRequestWithCertificateAsync(
+                httpRequestMessage,
+                null,
+                options,
+                false,
+                null,
+                CancellationToken.None);
+
+            // Assert - No authorization header should be added
+            Assert.False(httpRequestMessage.Headers.Contains("Authorization"));
+            Assert.NotNull(headerInfo);
+            Assert.Null(headerInfo.AuthorizationHeaderValue); // No auth header value
+            Assert.Equal(testCertificate, headerInfo.BindingCertificate); // But certificate is present
+            Assert.Equal(credentialDescription, mtlsCred);
+        }
+
+        [Fact]
+        public async Task UpdateRequestWithCertificateAsync_WithMtlsProtocolScheme_ThrowsWhenNoCredentialsProvider()
+        {
+            // Arrange
+            var downstreamApi = new DownstreamApi(
+                _authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: null!); // No credentials provider
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
+            var options = new DownstreamApiOptions
+            {
+                ProtocolScheme = "MTLS"
+            };
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                downstreamApi.UpdateRequestWithCertificateAsync(
+                    httpRequestMessage,
+                    null,
+                    options,
+                    false,
+                    null,
+                    CancellationToken.None));
+
+            Assert.Contains("mTLS authentication requires a Credentials Provider", exception.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task UpdateRequestWithCertificateAsync_WithMtlsProtocolScheme_ThrowsWhenNoCertificate()
+        {
+            // Arrange
+            var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
+
+            // Return a credential description without a certificate
+            var credentialDescription = new CertificateDescription
+            {
+                Certificate = null, // No certificate
+                SourceType = CertificateSource.Certificate
+            };
+
+            mockCredentialsProvider
+                .GetCredentialAsync(
+                    Arg.Any<CredentialSourceLoaderParameters?>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<CredentialDescription?>(credentialDescription));
+
+            var downstreamApi = new DownstreamApi(
+                _authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                mockCredentialsProvider,
+                msalHttpClientFactory: null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com");
+            var options = new DownstreamApiOptions
+            {
+                ProtocolScheme = "MTLS"
+            };
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                downstreamApi.UpdateRequestWithCertificateAsync(
+                    httpRequestMessage,
+                    null,
+                    options,
+                    false,
+                    null,
+                    CancellationToken.None));
+
+            Assert.Contains("mTLS authentication requires a certificate", exception.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_WithMtlsProtocolScheme_UsesMtlsHttpClientFactory()
+        {
+            // Arrange
+            var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
+            var mockMtlsHttpClientFactory = Substitute.For<IHttpClientFactory, IMsalMtlsHttpClientFactory>();
+            var testCertificate = CreateTestCertificate();
+
+            var credentialDescription = new CertificateDescription
+            {
+                Certificate = testCertificate,
+                SourceType = CertificateSource.Certificate
+            };
+
+            mockCredentialsProvider
+                .GetCredentialAsync(
+                    Arg.Any<CredentialSourceLoaderParameters?>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult<CredentialDescription?>(credentialDescription));
+
+            var mockHandler = new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"result\": \"success\"}")
+                }
+            };
+
+            var mockMtlsHttpClient = new HttpClient(mockHandler);
+
+            ((IMsalMtlsHttpClientFactory)mockMtlsHttpClientFactory)
+                .GetHttpClient(testCertificate)
+                .Returns(mockMtlsHttpClient);
+
+            var downstreamApi = new DownstreamApi(
+                new ThrowingAuthorizationHeaderProvider(),
+                _namedDownstreamApiOptions,
+                mockMtlsHttpClientFactory,
+                _logger,
+                mockCredentialsProvider,
+                (IMsalHttpClientFactory)mockMtlsHttpClientFactory);
+
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com",
+                HttpMethod = "GET",
+                ProtocolScheme = "MTLS" // mTLS-only path, no scopes
+            };
+
+            // Act
+            var response = await downstreamApi.CallApiInternalAsync(null, options, false, null, null, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.True(response.IsSuccessStatusCode);
+
+            // Verify mTLS HTTP client factory was used
+            var _ = ((IMsalMtlsHttpClientFactory)mockMtlsHttpClientFactory).Received(1).GetHttpClient(testCertificate);
+
+            // Verify regular HTTP client factory was NOT used
+            ((IHttpClientFactory)mockMtlsHttpClientFactory).DidNotReceive().CreateClient(Arg.Any<string>());
         }
 
         private static X509Certificate2 CreateTestCertificate()
@@ -906,6 +1115,13 @@ namespace Microsoft.Identity.Web.Tests
         {
             return Task.FromResult("http://schemas.microsoft.com/dsts/saml2-bearer ey");
         }
+    }
+
+    public class ThrowingAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    {
+        public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? options = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+        public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 }
 

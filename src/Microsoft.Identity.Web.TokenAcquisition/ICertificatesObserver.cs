@@ -54,6 +54,11 @@ namespace Microsoft.Identity.Web.Experimental
         public CredentialDescription? CredentialDescription { get; set; }
 
         /// <summary>
+        /// If provided, the <see cref="CredentialSourceLoaderParameters"/> used to load the certificate.
+        /// </summary>
+        public CredentialSourceLoaderParameters? CredentialSourceLoaderParameters { get; set; }
+
+        /// <summary>
         /// Gets the exception thrown during the certificate selection or deselection.
         /// </summary>
         public Exception? ThrownException { get; set; } 
