@@ -17,6 +17,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Portion of the TokenAcquisition class that handles logic unique to managed identity.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal partial class TokenAcquisition
     {
         private readonly ConcurrentDictionary<string, IManagedIdentityApplication> _managedIdentityApplicationsByClientId = new();

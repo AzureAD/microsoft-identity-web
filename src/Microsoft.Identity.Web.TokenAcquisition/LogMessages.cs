@@ -6,6 +6,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Constants related to the log messages.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal static class LogMessages
     {
         public const string MissingRoles = "The 'roles' or 'role' claim does not contain roles '{0}' or was not found";

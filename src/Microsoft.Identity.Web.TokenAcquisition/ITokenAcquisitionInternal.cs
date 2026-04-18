@@ -16,6 +16,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Interface for the internal operations of token acquisition service (encapsulating MSAL.NET).
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal interface ITokenAcquisitionInternal : ITokenAcquisition
     {
 #if !NETSTANDARD2_0 && !NET462 && !NET472

@@ -98,8 +98,23 @@ namespace Microsoft.Identity.Web
         internal const string OidcEndpoint = "/.well-known/openid-configuration";
 
         // RegisterValidAudience
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string Version = "ver";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string V1 = "1.0";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string V2 = "2.0";
 
         // ClaimsPrincipalExtension
@@ -109,7 +124,17 @@ namespace Microsoft.Identity.Web
         internal const string Common = "common";
 
         // ClientInfo
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string ClientInfo = "client_info";
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string One = "1";
 
         // Certificates
@@ -117,17 +142,47 @@ namespace Microsoft.Identity.Web
         internal const string PersonalUserCertificateStorePath = "CurrentUser/My";
 
         // Miscellaneous
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string UserAgent = "User-Agent";
         internal const string JwtSecurityTokenUsedToCallWebApi = "JwtSecurityTokenUsedToCallWebAPI";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string PreferredUserName = "preferred_username";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string NameClaim = "name";
         internal const string Consent = "consent";
         internal const string ConsentUrl = "consentUri";
         internal const string Scopes = "scopes";
         internal const string ProposedAction = "proposedAction";
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.MicrosoftGraph
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string Authorization = "Authorization";
         internal const string ApplicationJson = "application/json";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string ISessionStore = "ISessionStore";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string True = "True";
         internal const string InvalidClient = "invalid_client";
         internal const string InvalidKeyError = "AADSTS700027";
@@ -138,13 +193,48 @@ namespace Microsoft.Identity.Web
         internal const string CertificateWasRevoked = "AADSTS7000277";
         internal const string ApplicationNotFound = "AADSTS700016";
         internal const string InvalidClientSecret = "AADSTS7000215";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string CiamAuthoritySuffix = ".ciamlogin.com";
         internal const string TestSlice = "dc";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string ExtensionOptionsServiceProviderKey = "ID_WEB_INTERNAL_SERVICE_PROVIDER";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string UsernameKey = "IDWEB_USERNAME";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string UserIdKey = "IDWEB_USER_ID";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION";
+        /*
+         * Used by Microsoft.Identity.Web.AgentIdentities
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
 
         /// <summary>
@@ -175,28 +265,83 @@ namespace Microsoft.Identity.Web
         internal const string ClientAssertion = "IDWEB_CLIENT_ASSERTION";
 
         // Blazor challenge URI
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string BlazorChallengeUri = "MicrosoftIdentity/Account/Challenge?redirectUri=";
 
         // Microsoft Graph
+        /*
+         * Used by Microsoft.Identity.Web.GraphServiceClient, Microsoft.Identity.Web.MicrosoftGraph
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string UserReadScope = "user.read";
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.GraphServiceClient, Microsoft.Identity.Web.MicrosoftGraph
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0";
         internal const string DefaultGraphScope = "https://graph.microsoft.com/.default";
 
         // Telemetry headers
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string TelemetryHeaderKey = "x-client-brkrver";
 
         // Authorize for scopes attributes
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string XReturnUrl = "x-ReturnUrl";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string XRequestedWith = "X-Requested-With";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string XmlHttpRequest = "XMLHttpRequest";
         internal const string RequiredScopesSetting = "@setting";
 
         // AccountController.Challenge parameters
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string LoginHintParameter = "loginHint";
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string DomainHintParameter = "domainHint";
 
         // Backup authentication system
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string XAnchorMailbox = "x-anchormailbox";
+        /*
+         * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal const string Upn = "upn";
     }
 }

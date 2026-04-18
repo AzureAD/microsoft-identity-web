@@ -9,6 +9,11 @@ using Microsoft.Identity.Web.Util;
 
 namespace Microsoft.Identity.Web
 {
+    /*
+     * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal class ClientInfo
     {
         [JsonPropertyName(ClaimConstants.UniqueObjectIdentifier)]
