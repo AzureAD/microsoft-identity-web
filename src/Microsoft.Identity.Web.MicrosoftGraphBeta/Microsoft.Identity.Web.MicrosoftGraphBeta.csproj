@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 
     <Title>Microsoft Identity Web, Microsoft Graph helper</Title>
@@ -41,9 +41,19 @@
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
 </Project>

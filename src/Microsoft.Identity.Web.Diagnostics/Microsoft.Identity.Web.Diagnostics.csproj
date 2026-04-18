@@ -15,12 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI/PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/PublicAPI.Unshipped.txt" />
 
     <!-- All members of this package are internal, so tracking them as if they are public makes the most sense. -->
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI/InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI/InternalAPI.Unshipped.txt" />
   </ItemGroup>
   
 </Project>
