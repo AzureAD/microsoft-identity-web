@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <Title>Microsoft Identity Web.Azure</Title>
     <Product>Microsoft Identity Web.Azure</Product>
@@ -8,13 +9,21 @@
     </Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  
   <ItemGroup>
     <None Include="..\..\README-Azure.md">
       <Pack>True</Pack>
       <PackagePath>\README.md</PackagePath>
     </None>
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+  
 </Project>
