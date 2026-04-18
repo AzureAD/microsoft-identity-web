@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <Choose>
-    <When Condition="$(TargetFramework) == 'net6.0' or $(TargetFramework) == 'net7.0'">
+    <When Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">
       <ItemGroup>
         <AdditionalFiles Include="PublicAPI/NetCore_Pre10/PublicAPI.Shipped.txt" />
         <AdditionalFiles Include="PublicAPI/NetCore_Pre10/PublicAPI.Unshipped.txt" />

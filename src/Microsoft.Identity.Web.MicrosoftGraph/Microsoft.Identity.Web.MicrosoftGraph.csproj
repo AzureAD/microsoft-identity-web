@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <Choose>
-    <When Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <When Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0'">
       <ItemGroup>
         <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Shipped.txt" />
         <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Unshipped.txt" />
