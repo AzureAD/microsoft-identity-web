@@ -34,9 +34,7 @@ steps:
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
-        tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
-        tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
-        tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
+        tests\E2E Tests\*Tests\bin\**\*Tests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
@@ -45,27 +43,29 @@ steps:
     failOnMinTestsNotRun: false
     minimumExpectedTests: '1'
     runSettingsFile: 'build\CodeCoverage.runsettings'
-    
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish traces after test'
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
-    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
-  condition: failed()
 
-# Copy all packages out to staging
-- task: CopyFiles@2
-  displayName: 'Copy screenshots to staging directory'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/tests/E2E Tests/'
-    Contents: '**/*screenshotFail.png'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)\screenshots'
-    flattenFolders: true
-  condition: failed()
+# These do not run on OB
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Screenshot after test'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
-    ArtifactName: 'ScreenshotFail'
-  condition: failed()
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish traces after test'
+#   inputs:
+#     PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
+#     ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+#   condition: failed()
+
+# # Copy all packages out to staging
+# - task: CopyFiles@2
+#   displayName: 'Copy screenshots to staging directory'
+#   inputs:
+#     SourceFolder: '$(Build.SourcesDirectory)/tests/E2E Tests/'
+#     Contents: '**/*screenshotFail.png'
+#     TargetFolder: '$(Build.ArtifactStagingDirectory)\screenshots'
+#     flattenFolders: true
+#   condition: failed()
+
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish Screenshot after test'
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
+#     ArtifactName: 'ScreenshotFail'
+#   condition: failed()
