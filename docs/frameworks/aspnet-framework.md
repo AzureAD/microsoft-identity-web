@@ -13,7 +13,7 @@ Microsoft.Identity.Web provides different packages and integration patterns depe
 **For console apps, daemon services, and non-web .NET Framework applications**
 
 Use Microsoft.Identity.Web.TokenCache and Microsoft.Identity.Web.Certificate packages with MSAL.NET for:
-- Token cache serialization (SQL Server, Redis, Cosmos DB)
+- Token cache serialization (SQL Server, Redis, Cosmos DB, PostgreSQL)
 - Certificate loading from KeyVault, certificate store, or file system
 - Console applications and daemon services
 - .NET Standard 2.0 libraries
@@ -44,7 +44,7 @@ Use Microsoft.Identity.Web.OWIN package for full-featured web authentication wit
 | **Target** | Console apps, daemons, worker services | ASP.NET MVC, ASP.NET Web API |
 | **Authentication** | Manual MSAL.NET configuration | Automatic OWIN middleware |
 | **Token Acquisition** | Manual with `IConfidentialClientApplication` | Automatic with controller extensions |
-| **Token Cache** | ✅ All providers (SQL, Redis, Cosmos) | ✅ All providers (SQL, Redis, Cosmos) |
+| **Token Cache** | ✅ All providers (SQL, Redis, Cosmos, PostgreSQL) | ✅ All providers (SQL, Redis, Cosmos, PostgreSQL) |
 | **Certificate Loading** | ✅ KeyVault, store, file, Base64 | ✅ Via MSAL.NET configuration |
 | **Microsoft Graph** | Manual `GraphServiceClient` setup | ✅ `this.GetGraphServiceClient()` |
 | **Downstream APIs** | Manual HTTP calls with tokens | ✅ `this.GetDownstreamApi()` |
@@ -68,7 +68,7 @@ Starting with **Microsoft.Identity.Web 1.17+**, you have flexible options for us
 
 | Feature | Benefit |
 |---------|---------|
-| **Token Cache Serialization** | Reusable cache adapters for in-memory, SQL Server, Redis, Cosmos DB |
+| **Token Cache Serialization** | Reusable cache adapters for in-memory, SQL Server, Redis, Cosmos DB, PostgreSQL |
 | **Certificate Helpers** | Simplified certificate loading from KeyVault, file system, or cert stores |
 | **OWIN Integration** | Seamless authentication for ASP.NET MVC/Web API |
 | **.NET Standard 2.0** | Compatible with .NET Framework 4.7.2+, .NET Core, and .NET 5+ |

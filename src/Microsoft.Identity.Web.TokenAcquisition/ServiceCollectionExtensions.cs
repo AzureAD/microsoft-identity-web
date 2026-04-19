@@ -51,6 +51,11 @@ namespace Microsoft.Identity.Web
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
 
+            if (!HasImplementationType(services, typeof(MsalMtlsHttpClientFactory)))
+            {
+                services.TryAddSingleton<IMsalHttpClientFactory, MsalMtlsHttpClientFactory>();
+            }
+
             if (!HasImplementationType(services, typeof(MicrosoftIdentityOptionsMerger)))
             {
                 services.TryAddSingleton<IPostConfigureOptions<MicrosoftIdentityOptions>, MicrosoftIdentityOptionsMerger>();
@@ -70,6 +75,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
             ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
+            ServiceDescriptor? credentialsProviderService = services.FirstOrDefault(s => s.ServiceType == typeof(ICredentialsProvider));
 
             if (tokenAcquisitionService != null && tokenAcquisitionInternalService != null &&
                 tokenAcquisitionhost != null && authenticationHeaderCreator != null && authSchemeInfoProvider != null)
@@ -82,6 +88,11 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
                     services.Remove(authSchemeInfoProvider);
+
+                    if (credentialsProviderService != null)
+                    {
+                        services.Remove(credentialsProviderService);
+                    }
 
                     // To support ASP.NET Core 2.x on .NET FW. It won't use the TokenAcquirerFactory.GetDefaultInstance()
                     if (tokenAcquirerFactory != null)
@@ -129,6 +140,10 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                if (!HasImplementationType(services, typeof(CredentialsProvider)))
+                {
+                    services.TryAddSingleton<ICredentialsProvider, CredentialsProvider>();
+                }
             }
             else
             {
@@ -159,6 +174,10 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                if (!HasImplementationType(services, typeof(CredentialsProvider)))
+                {
+                    services.TryAddScoped<ICredentialsProvider, CredentialsProvider>();
+                }
             }
 
             services.TryAddSingleton<IMergedOptionsStore, MergedOptionsStore>();

@@ -59,12 +59,8 @@ namespace Microsoft.Identity.Web
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
-        protected readonly ICredentialsLoader _credentialsLoader;
-        protected readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
+        protected readonly ICredentialsProvider _credentialsProvider;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
-
-        [Obsolete("Use _certificatesObservers instead.")]
-        protected readonly ICertificatesObserver? _certificatesObserver;
 
         /// <summary>
         /// Scopes which are already requested by MSAL.NET. They should not be re-requested;.
@@ -96,27 +92,29 @@ namespace Microsoft.Identity.Web
         /// <param name="httpClientFactory">HTTP client factory.</param>
         /// <param name="logger">Logger.</param>
         /// <param name="serviceProvider">Service provider.</param>
-        /// <param name="credentialsLoader">Credential loader used to provide the credentials.</param>
         public TokenAcquisition(
             IMsalTokenCacheProvider tokenCacheProvider,
             ITokenAcquisitionHost tokenAcquisitionHost,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenAcquisition> logger,
-            IServiceProvider serviceProvider,
-            ICredentialsLoader credentialsLoader)
+            IServiceProvider serviceProvider)
         {
             _tokenCacheProvider = tokenCacheProvider;
             _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
-            _credentialsLoader = credentialsLoader;
-            _certificatesObservers = [.. serviceProvider.GetServices<ICertificatesObserver>()];
-#pragma warning disable CS0618 // Type or member is obsolete. Setup for backward compatibility.
-            _certificatesObserver = serviceProvider.GetService<ICertificatesObserver>();
-#pragma warning restore CS0618 // Type or member is obsolete
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
+
+            var credentialsProvider = serviceProvider.GetService<ICredentialsProvider>();
+            if (credentialsProvider == null)
+            {
+                var credentialsLoader = serviceProvider.GetService<ICredentialsLoader>() ?? throw new InvalidOperationException("Either ICredentialsProvider or ICredentialsLoader must be registered and neither were.");
+                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost);
+            }
+
+            _credentialsProvider = credentialsProvider;
         }
 
 #if NET6_0_OR_GREATER
@@ -135,6 +133,7 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
+            CredentialSourceLoaderParameters? loaderParameters = null;
             IConfidentialClientApplication? application = null;
             try
             {
@@ -161,6 +160,11 @@ namespace Microsoft.Identity.Web
                     .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
+                loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
+                {
+                    Protocol = ProtocolNames.Bearer,
+                };
+
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
                     builder.WithExtraQueryParameters(MergeExtraQueryParameters(mergedOptions, null));
@@ -186,7 +190,12 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+                NotifyCertificateSelection(
+                    loaderParameters,
+                    mergedOptions,
+                    application,
+                    true,
+                    null);
 
                 return new AcquireTokenResult(
                     result.AccessToken,
@@ -205,8 +214,7 @@ namespace Microsoft.Identity.Web
                     exMsal);
 
                 string applicationKey = GetApplicationKey(mergedOptions);
-                NotifyCertificateSelection(mergedOptions, application!, CerticateObserverAction.Deselected, exMsal);
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
+                NotifyCertificateSelection(loaderParameters, mergedOptions, application!, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -296,6 +304,11 @@ namespace Microsoft.Identity.Web
                 tokenAcquisitionOptions.ExtraParameters[Constants.ExtensionOptionsServiceProviderKey] = _serviceProvider;
             }
 
+            CredentialSourceLoaderParameters loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
+            {
+                Protocol = ProtocolNames.Bearer,
+            };
+
             try
             {
                 AuthenticationResult? authenticationResult;
@@ -351,8 +364,7 @@ namespace Microsoft.Identity.Web
                     exMsal);
 
                 string applicationKey = GetApplicationKey(mergedOptions);
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
+                NotifyCertificateSelection(loaderParameters, mergedOptions, application, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -752,7 +764,17 @@ namespace Microsoft.Identity.Web
             try
             {
                 var result = await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None);
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.SuccessfullyUsed, null);
+                NotifyCertificateSelection(
+                    new CredentialSourceLoaderParameters(
+                        mergedOptions.ClientId ?? string.Empty,
+                        mergedOptions.Authority ?? string.Empty)
+                    {
+                        Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,  
+                    },
+                    mergedOptions,
+                    application,
+                    true,
+                    null);
                 return result;
             }
             catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
@@ -763,8 +785,17 @@ namespace Microsoft.Identity.Web
                     exMsal);
 
                 string applicationKey = GetApplicationKey(mergedOptions);
-                NotifyCertificateSelection(mergedOptions, application, CerticateObserverAction.Deselected, exMsal);
-                DefaultCertificateLoader.ResetCertificates(mergedOptions.ClientCredentials);
+                NotifyCertificateSelection(
+                    new CredentialSourceLoaderParameters(
+                        mergedOptions.ClientId ?? string.Empty,
+                        mergedOptions.Authority ?? string.Empty)
+                    {
+                        Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                    },
+                    mergedOptions,
+                    application,
+                    false,
+                    exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -1141,10 +1172,12 @@ namespace Microsoft.Identity.Web
                 try
                 {
                     await builder.WithClientCredentialsAsync(
-                        mergedOptions.ClientCredentials!,
-                        _logger,
-                        _credentialsLoader,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority),
+                        mergedOptions,
+                        _credentialsProvider,
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority)
+                        {
+                            Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                        },
                         isTokenBinding);
                 }
                 catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
@@ -1157,10 +1190,6 @@ namespace Microsoft.Identity.Web
                 }
 
                 IConfidentialClientApplication app = builder.Build();
-
-                // If the client application has set certificate observer,
-                // fire the event to notify the client app that a certificate was selected.
-                NotifyCertificateSelection(mergedOptions, app, CerticateObserverAction.Selected, null);
 
                 // Initialize token cache providers
                 if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
@@ -1184,30 +1213,28 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Find the certificate used by the app and fire the event to notify the client app that a certificate was selected/unselected.
         /// </summary>
-        /// <param name="mergedOptions"></param>
-        /// <param name="app"></param>
-        /// <param name="action"></param>
+        /// <param name="sourceLoaderParameters">The source loader parameters.</param>
+        /// <param name="mergedOptions">The merged options object.</param>
+        /// <param name="app">The confidential app.</param>
+        /// <param name="successful">Whether this was successful or not.</param>
         /// <param name="exception">The thrown exception, if any.</param>
         private void NotifyCertificateSelection(
+            CredentialSourceLoaderParameters? sourceLoaderParameters,
             MergedOptions mergedOptions,
             IConfidentialClientApplication app,
-            CerticateObserverAction action,
+            bool successful,
             Exception? exception)
         {
             X509Certificate2 selectedCertificate = app.AppConfig.ClientCredentialCertificate;
-            if (selectedCertificate != null)
+            CredentialDescription? description = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate);
+            if (selectedCertificate != null && description != null)
             {
-                for (int i = 0; i < _certificatesObservers.Count; i++)
-                {
-                    _certificatesObservers[i].OnClientCertificateChanged(
-                        new CertificateChangeEventArg()
-                        {
-                            Action = action,
-                            Certificate = app.AppConfig.ClientCredentialCertificate,
-                            CredentialDescription = mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate),
-                            ThrownException = exception,
-                        });
-                }
+                _credentialsProvider.NotifyCertificateUsed(
+                    sourceLoaderParameters,
+                    description,
+                    selectedCertificate,
+                    successful,
+                    exception);
             }
         }
 
@@ -1695,6 +1722,16 @@ namespace Microsoft.Identity.Web
             }
 
             return hasClientAssertion;
+        }
+
+        // Used for backcompat support.
+        private class LogAdapter<TCategory>(ILogger innerLogger) : ILogger<TCategory>
+        {
+            public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => innerLogger.IsEnabled(logLevel);
+            public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+                innerLogger.Log(logLevel, eventId, state, exception, formatter);
+            IDisposable ILogger.BeginScope<TState>(TState state) =>
+                innerLogger.BeginScope(state)!;
         }
     }
 }

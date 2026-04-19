@@ -11,6 +11,7 @@ Use this decision tree to select the best method for your scenario:
 | Microsoft Graph                      | You need to call Microsoft Graph APIS | GraphServiceClient                                      |
 | Azure SDK (Storage, KeyVault, etc.)  | You need to call Azure APIs (Azure SDK) | MicrosoftIdentityTokenCredential with Azure SDK clients  |
 | Custom API with Token Binding        | Enhanced security with certificate binding (mTLS PoP) | IDownstreamApi with `ProtocolScheme: "MTLS_POP"`        |
+| Custom API with Token Binding        | Enhanced security with HttpClient integration (mTLS PoP) | MicrosoftIdentityMessageHandler with `ProtocolScheme: "MTLS_POP"` |
 | Custom API                           | simple, configurable                  | IDownstreamApi                                          |
 | Custom API                           | using HttpClient + delegating handler | MicrosoftIdentityMessageHandler                         |
 | Custom API                           | using your HttpClient                 | IAuthorizationHeaderProvider                            |
@@ -313,6 +314,8 @@ public class ApiService
 ```
 
 [📖 Learn more about MicrosoftIdentityMessageHandler](custom-apis.md#microsoftidentitymessagehandler)
+
+> **Token Binding Support**: `MicrosoftIdentityMessageHandler` also supports mTLS PoP token binding. Set `ProtocolScheme = "MTLS_POP"` and `RequestAppToken = true` in the options. See [Token Binding with mTLS PoP](token-binding.md#using-microsoftidentitymessagehandler-with-token-binding) for details.
 
 ### IAuthorizationHeaderProvider (Maximum Flexibility)
 

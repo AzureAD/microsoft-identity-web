@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
         private sealed record VaultSecret(string Value);
 
-        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        [Fact]
         public async Task ManagedIdentity_ReturnsBearerHeader()
         {
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.Equal($"Bearer {MockToken}", header);
         }
 
-        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        [Fact]
         public async Task ManagedIdentity_WithClaims_HeaderBypassesCache()
         {
             // Arrange
@@ -120,7 +120,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.Equal("Bearer token2", header2);
         }
 
-        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        [Fact]
         public async Task UserAssigned_MI_Caching_and_Claims()
         {
             // Arrange
@@ -172,7 +172,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.Equal("token-3", r4.AccessToken);
         }
 
-        [Fact(Skip = "See https://github.com/AzureAD/microsoft-identity-web/issues/3669")]
+        [Fact]
         public async Task SystemAssigned_MSI_Forwards_ClientCapabilities_InQuery()
         {
             // Arrange

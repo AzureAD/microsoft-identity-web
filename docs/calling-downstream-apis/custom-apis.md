@@ -92,32 +92,32 @@ using Microsoft.AspNetCore.Mvc;
 public class ProductsController : Controller
 {
     private readonly IDownstreamApi _api;
-    
+
     public ProductsController(IDownstreamApi api)
     {
         _api = api;
     }
-    
+
     // GET request
     public async Task<IActionResult> Index()
     {
         var products = await _api.GetForUserAsync<List<Product>>(
             "MyApi",
             "products");
-        
+
         return View(products);
     }
-    
+
     // Call downstream API with GET request with query parameters
     public async Task<IActionResult> Details(int id)
     {
         var product = await _api.GetForUserAsync<Product>(
             "MyApi",
             $"products/{id}");
-        
+
         return View(product);
     }
-    
+
     // Call downstream API with POST request
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Product product)
@@ -126,10 +126,10 @@ public class ProductsController : Controller
             "MyApi",
             "products",
             product);
-        
+
         return CreatedAtAction(nameof(Details), new { id = created.Id }, created);
     }
-    
+
     // Call downstream API with PUT request
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Product product)
@@ -138,10 +138,10 @@ public class ProductsController : Controller
             "MyApi",
             $"products/{id}",
             product);
-        
+
         return Ok(updated);
     }
-    
+
     // Call downstream API with DELETE request
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
@@ -149,7 +149,7 @@ public class ProductsController : Controller
         await _api.DeleteForUserAsync<Product>(
             "MyApi",
             $"products/{id}");
-        
+
         return NoContent();
     }
 }
@@ -171,12 +171,12 @@ public async Task<IActionResult> GetDataWithHeaders()
             message.Headers.Add("X-Correlation-Id", HttpContext.TraceIdentifier);
         }
     };
-    
+
     var data = await _api.CallApiForUserAsync<MyData>(
         "MyApi",
         options,
         content: null);
-    
+
     return Ok(data);
 }
 ```
@@ -193,11 +193,11 @@ public async Task<IActionResult> CallDifferentEndpoint()
         Scopes = new[] { "api://alternative/.default" },
         RequestAppToken = true
     };
-    
+
     var data = await _api.CallApiForAppAsync<MyData>(
         "MyApi",
         options);
-    
+
     return Ok(data);
 }
 ```
@@ -211,11 +211,11 @@ public async Task<IActionResult> Search(string query, int page, int pageSize)
     {
         RelativePath = $"search?q={Uri.EscapeDataString(query)}&page={page}&pageSize={pageSize}"
     };
-    
+
     var results = await _api.GetForUserAsync<SearchResults>(
         "MyApi",
         options);
-    
+
     return Ok(results);
 }
 ```
@@ -233,14 +233,14 @@ public async Task<IActionResult> GetWithHeaders()
         {
             options.RelativePath = "data";
         });
-    
+
     // Access response headers
     if (response.Headers.TryGetValues("X-RateLimit-Remaining", out var values))
     {
         var remaining = values.FirstOrDefault();
         _logger.LogInformation("Rate limit remaining: {Remaining}", remaining);
     }
-    
+
     return Ok(response.Content);
 }
 ```
@@ -253,12 +253,12 @@ public async Task<IActionResult> GetWithHeaders()
 public class DataController : ControllerBase
 {
     private readonly IDownstreamApi _api;
-    
+
     public DataController(IDownstreamApi api)
     {
         _api = api;
     }
-    
+
     [HttpGet("batch")]
     public async Task<ActionResult> GetBatchData()
     {
@@ -266,7 +266,7 @@ public class DataController : ControllerBase
         var data = await _api.GetForAppAsync<BatchData>(
             "MyApi",
             "batch/process");
-        
+
         return Ok(data);
     }
 }
@@ -398,12 +398,12 @@ services.AddHttpClient("WeatherApiClient", client =>
 public class WeatherService
 {
     private readonly HttpClient _httpClient;
-    
+
     public WeatherService(IHttpClientFactory factory)
     {
         _httpClient = factory.CreateClient("WeatherApiClient");
     }
-    
+
     public async Task<WeatherForecast> GetForecastAsync(string city)
     {
         var response = await _httpClient.GetAsync($"/forecast/{city}");
@@ -435,13 +435,13 @@ public class MultiApiService
 {
     private readonly HttpClient _client1;
     private readonly HttpClient _client2;
-    
+
     public MultiApiService(IHttpClientFactory factory)
     {
         _client1 = factory.CreateClient("ApiClient1");
         _client2 = factory.CreateClient("ApiClient2");
     }
-    
+
     public async Task<string> GetFromBothApisAsync()
     {
         var data1 = await _client1.GetStringAsync("/data");
@@ -515,12 +515,12 @@ services.AddHttpClient("ApiClient")
 public class MyService
 {
     private readonly HttpClient _httpClient;
-    
+
     public MyService(IHttpClientFactory factory)
     {
         _httpClient = factory.CreateClient("ApiClient");
     }
-    
+
     public async Task<string> GetSensitiveDataAsync()
     {
         // Override scopes for this specific request
@@ -531,7 +531,7 @@ public class MyService
                 options.Scopes.Add("https://api.example.com/sensitive.read");
                 options.RequestAppToken = true;
             });
-        
+
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
@@ -569,6 +569,90 @@ services.AddHttpClient("ApiClient")
     .AddHttpMessageHandler<RetryHandler>();
 ```
 
+#### Token Binding (mTLS PoP)
+
+`MicrosoftIdentityMessageHandler` supports [mTLS Proof-of-Possession (mTLS PoP)](token-binding.md) token binding, which cryptographically binds access tokens to X.509 certificates. When `ProtocolScheme` is set to `"MTLS_POP"`, the handler automatically:
+
+1. Acquires a bound token with the certificate thumbprint in the `cnf` claim
+2. Creates an mTLS HTTP client with the binding certificate
+3. Sends the request through the mTLS channel
+
+> **Note**: Token binding currently supports only application (app-only) tokens. Set `RequestAppToken = true`.
+
+##### Configuration from appsettings.json
+
+**appsettings.json:**
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "your-tenant-id",
+    "ClientId": "your-client-id",
+    "ClientCredentials": [
+      {
+        "SourceType": "StoreWithDistinguishedName",
+        "CertificateStorePath": "CurrentUser/My",
+        "CertificateDistinguishedName": "CN=YourCertificate"
+      }
+    ],
+    "SendX5c": true
+  },
+  "DownstreamApis": {
+    "SecureApi": {
+      "Scopes": ["api://secure-api/.default"],
+      "ProtocolScheme": "MTLS_POP",
+      "RequestAppToken": true
+    }
+  }
+}
+```
+
+**Program.cs:**
+```csharp
+services.AddHttpClient("SecureApiClient", client =>
+{
+    client.BaseAddress = new Uri("https://secure-api.example.com");
+})
+.AddMicrosoftIdentityMessageHandler(
+    configuration.GetSection("DownstreamApis:SecureApi"),
+    "SecureApi");
+```
+
+##### Inline Configuration
+
+```csharp
+services.AddHttpClient("MtlsPopClient", client =>
+{
+    client.BaseAddress = new Uri("https://api.contoso.com");
+})
+.AddMicrosoftIdentityMessageHandler(options =>
+{
+    options.Scopes.Add("api://contoso/.default");
+    options.ProtocolScheme = "MTLS_POP";
+    options.RequestAppToken = true;
+});
+```
+
+##### Per-Request Token Binding
+
+```csharp
+services.AddHttpClient("FlexibleClient")
+    .AddMicrosoftIdentityMessageHandler();
+
+// Later, in a service:
+var request = new HttpRequestMessage(HttpMethod.Get, "/api/secure-data")
+    .WithAuthenticationOptions(options =>
+    {
+        options.Scopes.Add("api://secure-api/.default");
+        options.ProtocolScheme = "MTLS_POP";
+        options.RequestAppToken = true;
+    });
+
+var response = await httpClient.SendAsync(request);
+```
+
+[📖 Learn more about Token Binding with mTLS PoP](token-binding.md)
+
 #### WWW-Authenticate Challenge Handling
 
 `MicrosoftIdentityMessageHandler` automatically handles WWW-Authenticate challenges for Conditional Access scenarios:
@@ -595,13 +679,13 @@ public class MyService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<MyService> _logger;
-    
+
     public MyService(IHttpClientFactory factory, ILogger<MyService> logger)
     {
         _httpClient = factory.CreateClient("ApiClient");
         _logger = logger;
     }
-    
+
     public async Task<string> GetDataWithErrorHandlingAsync()
     {
         try
@@ -645,7 +729,7 @@ public class CustomApiController : Controller
 {
     private readonly IAuthorizationHeaderProvider _headerProvider;
     private readonly ILogger<CustomApiController> _logger;
-    
+
     public CustomApiController(
         IAuthorizationHeaderProvider headerProvider,
         ILogger<CustomApiController> logger)
@@ -653,20 +737,20 @@ public class CustomApiController : Controller
         _headerProvider = headerProvider;
         _logger = logger;
     }
-    
+
     public async Task<IActionResult> GetData()
     {
         // Get authorization header (includes "Bearer " prefix)
         var authHeader = await _headerProvider.CreateAuthorizationHeaderForUserAsync(
             scopes: new[] { "api://my-api/read" });
-        
+
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Add("Authorization", authHeader);
         client.DefaultRequestHeaders.Add("X-Custom-Header", "MyValue");
-        
+
         var response = await client.GetAsync("https://api.example.com/data");
         response.EnsureSuccessStatusCode();
-        
+
         var content = await response.Content.ReadAsStringAsync();
         return Content(content, "application/json");
     }
@@ -681,13 +765,13 @@ public async Task<IActionResult> GetBackgroundData()
     // Get app-only authorization header
     var authHeader = await _headerProvider.CreateAuthorizationHeaderForAppAsync(
         scopes: new[] { "api://my-api/.default" });
-    
+
     using var client = new HttpClient();
     client.DefaultRequestHeaders.Add("Authorization", authHeader);
-    
+
     var response = await client.GetAsync("https://api.example.com/background");
     var data = await response.Content.ReadFromJsonAsync<BackgroundData>();
-    
+
     return Ok(data);
 }
 ```
@@ -699,14 +783,14 @@ public async Task<IActionResult> CallWithRestSharp()
 {
     var authHeader = await _headerProvider.CreateAuthorizationHeaderForUserAsync(
         scopes: new[] { "api://my-api/read" });
-    
+
     // Example with RestSharp
     var client = new RestClient("https://api.example.com");
     var request = new RestRequest("data", Method.Get);
     request.AddHeader("Authorization", authHeader);
-    
+
     var response = await client.ExecuteAsync<MyData>(request);
-    
+
     return Ok(response.Data);
 }
 ```
@@ -727,15 +811,15 @@ public async Task<IActionResult> GetDataWithOptions()
             Claims = null
         }
     };
-    
+
     var authHeader = await _headerProvider.CreateAuthorizationHeaderAsync(options);
-    
+
     using var client = new HttpClient();
     client.DefaultRequestHeaders.Add("Authorization", authHeader);
-    
+
     var response = await client.GetAsync("https://api.example.com/data");
     var data = await response.Content.ReadFromJsonAsync<MyData>();
-    
+
     return Ok(data);
 }
 ```
@@ -744,11 +828,11 @@ public async Task<IActionResult> GetDataWithOptions()
 
 ### Use IDownstreamApi When:
 
-✅ Calling standard REST APIs  
-✅ Want configuration-driven approach  
-✅ Need automatic serialization/deserialization  
-✅ Want minimal code  
-✅ Following Microsoft.Identity.Web patterns  
+✅ Calling standard REST APIs
+✅ Want configuration-driven approach
+✅ Need automatic serialization/deserialization
+✅ Want minimal code
+✅ Following Microsoft.Identity.Web patterns
 
 **Example:**
 ```csharp
@@ -757,11 +841,11 @@ var product = await _api.GetForUserAsync<Product>("MyApi", "products/123");
 
 ### Use MicrosoftIdentityMessageHandler When:
 
-✅ Need full HttpClient capabilities  
-✅ Want to compose multiple handlers  
-✅ Using HttpClientFactory patterns  
-✅ Need access to HttpResponseMessage  
-✅ Integrating with existing HttpClient code  
+✅ Need full HttpClient capabilities
+✅ Want to compose multiple handlers
+✅ Using HttpClientFactory patterns
+✅ Need access to HttpResponseMessage
+✅ Integrating with existing HttpClient code
 
 **Example:**
 ```csharp
@@ -771,11 +855,11 @@ var product = await response.Content.ReadFromJsonAsync<Product>();
 
 ### Use IAuthorizationHeaderProvider When:
 
-✅ Need complete control over HTTP requests  
-✅ Using custom HTTP libraries  
-✅ Building custom abstractions  
-✅ Can't use HttpClientFactory  
-✅ Need to manually construct requests  
+✅ Need complete control over HTTP requests
+✅ Using custom HTTP libraries
+✅ Building custom abstractions
+✅ Can't use HttpClientFactory
+✅ Need to manually construct requests
 
 **Example:**
 ```csharp
@@ -819,14 +903,14 @@ catch (Exception ex)
 try
 {
     var response = await _httpClient.GetAsync("api/data");
-    
+
     if (!response.IsSuccessStatusCode)
     {
         var error = await response.Content.ReadAsStringAsync();
         _logger.LogError("API returned {StatusCode}: {Error}", response.StatusCode, error);
         return StatusCode((int)response.StatusCode, error);
     }
-    
+
     var data = await response.Content.ReadFromJsonAsync<MyData>();
     return Ok(data);
 }
@@ -867,18 +951,18 @@ public interface IProductApiClient
 public class ProductApiClient : IProductApiClient
 {
     private readonly IDownstreamApi _api;
-    
+
     public ProductApiClient(IDownstreamApi api)
     {
         _api = api;
     }
-    
+
     public Task<List<Product>> GetProductsAsync() =>
         _api.GetForUserAsync<List<Product>>("MyApi", "products");
-    
+
     public Task<Product> GetProductAsync(int id) =>
         _api.GetForUserAsync<Product>("MyApi", $"products/{id}");
-    
+
     public Task<Product> CreateProductAsync(Product product) =>
         _api.PostForUserAsync<Product, Product>("MyApi", "products", product);
 }
@@ -893,16 +977,16 @@ builder.Services.AddScoped<IProductApiClient, ProductApiClient>();
 public async Task<IActionResult> GetDataWithLogging()
 {
     _logger.LogInformation("Calling MyApi for data");
-    
+
     var stopwatch = Stopwatch.StartNew();
-    
+
     try
     {
         var data = await _api.GetForUserAsync<MyData>("MyApi", "data");
-        
+
         stopwatch.Stop();
         _logger.LogInformation("API call succeeded in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
-        
+
         return Ok(data);
     }
     catch (Exception ex)

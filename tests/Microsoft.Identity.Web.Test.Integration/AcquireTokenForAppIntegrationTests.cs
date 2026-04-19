@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,16 +17,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
-using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
-using System.Threading;
-using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Identity.Web.Test.Integration
 {
@@ -36,7 +37,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         private MsalTestTokenCacheProvider _msalTestTokenCacheProvider;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
-        private ICredentialsLoader _credentialsLoader;
+        private ICredentialsProvider _credentialsProvider;
 
         private readonly string _ccaSecret;
         private readonly ITestOutputHelper _output;
@@ -297,8 +298,8 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void InitializeTokenAcquisitionObjects()
         {
-            _credentialsLoader = new DefaultCredentialsLoader();
             MergedOptions mergedOptions = Provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
@@ -311,13 +312,18 @@ namespace Microsoft.Identity.Web.Test.Integration
                 MockHttpContextAccessor.CreateMockHttpContextAccessor(),
                 Provider.GetService<IMergedOptionsStore>()!,
                 Provider);
+            _credentialsProvider = new CredentialsProvider(
+                Provider.GetRequiredService<ILogger<CredentialsProvider>>(),
+                new DefaultCredentialsLoader(),
+                [],
+                tokenAcquisitionAspnetCoreHost);
             _tokenAcquisition = new TokenAcquisitionAspNetCore(
                  _msalTestTokenCacheProvider,
                  Provider.GetService<IHttpClientFactory>()!,
                  Provider.GetService<ILogger<TokenAcquisition>>()!,
                  tokenAcquisitionAspnetCoreHost,
-                 Provider,
-                 _credentialsLoader);
+                 Provider);
+
             tokenAcquisitionAspnetCoreHost.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _);
         }
 
