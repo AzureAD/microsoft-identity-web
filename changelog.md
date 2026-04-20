@@ -1,3 +1,21 @@
+## 4.8.0
+
+### New features
+- Add support for mTLS authentication-only mode for `DownstreamApi`. When protocol is set to MTLS, the configured certificate is attached to the request without an authorization header. See [#3747](https://github.com/AzureAD/microsoft-identity-web/pull/3747).
+- Add token binding support to `MicrosoftIdentityMessageHandler`. See [#3743](https://github.com/AzureAD/microsoft-identity-web/pull/3743).
+
+### Bug fixes
+- Fix race condition in `MergedOptions` causing sporadic "No ClientId was specified" errors under concurrent `GraphServiceClient` usage. See [#3760](https://github.com/AzureAD/microsoft-identity-web/pull/3760).
+- Fix `CredentialsProvider` DI lifetime mismatch causing startup crash in Development mode when using `AddMicrosoftIdentityWebApi()`. See [#3783](https://github.com/AzureAD/microsoft-identity-web/pull/3783).
+
+### Dependencies updates
+- Upgrade Microsoft Application Insights packages. See [#3763](https://github.com/AzureAD/microsoft-identity-web/pull/3763).
+- Bump net8/net9/net10 runtime package baselines to patched crypto servicing versions. See [#3779](https://github.com/AzureAD/microsoft-identity-web/pull/3779).
+
+### Documentation
+- Clarify managed identity credential types for containerized vs. VM/App Service deployments. See [#3585](https://github.com/AzureAD/microsoft-identity-web/pull/3585).
+- Add examples for using PostgreSQL as a distributed token cache. See [#3766](https://github.com/AzureAD/microsoft-identity-web/pull/3766).
+
 ## 4.7.0
 
 ### Bug fixes
