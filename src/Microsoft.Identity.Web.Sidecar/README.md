@@ -47,7 +47,6 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 
 - **AzureAd**: Standard Microsoft.Identity.Web web API registration; client credentials are optional if only delegated flows are required.
 - **DownstreamApis**: Named profiles for endpoints resolved via `{apiName}`.
-- **Data protection**: In production the app persists keys to `DATA_PROTECTION_KEYS_PATH` (default `/app/keys`) and optionally protects them with a certificate referenced via `DATA_PROTECTION_CERT_PATH` and `DATA_PROTECTION_CERT_PASSWORD`.
 
 ## Running the sidecar
 

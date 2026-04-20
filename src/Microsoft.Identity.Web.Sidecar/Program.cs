@@ -3,9 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -48,8 +46,6 @@ public class Program
                 options.AllowedHosts = ["localhost"];
             });
         }
-
-        ConfigureDataProtection(builder);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
@@ -102,41 +98,5 @@ public class Program
                 options.TokenValidationParameters.RoleClaimType = "roles";
                 options.TokenValidationParameters.NameClaimType = "sub";
             });
-    }
-
-    private static void ConfigureDataProtection(WebApplicationBuilder builder)
-    {
-        var dataProtectionBuilder = builder.Services.AddDataProtection()
-            .SetApplicationName("Microsoft.Identity.Web.Sidecar");
-
-        // Configure based on environment
-        if (builder.Environment.IsProduction())
-        {
-            // Production configuration for Linux containers
-            var keysPath = Environment.GetEnvironmentVariable("DATA_PROTECTION_KEYS_PATH") ?? "/app/keys";
-
-            // Ensure the directory exists
-            Directory.CreateDirectory(keysPath);
-
-            dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
-
-            // Optional: Configure key encryption if certificate is available
-            var certPath = Environment.GetEnvironmentVariable("DATA_PROTECTION_CERT_PATH");
-            if (!string.IsNullOrEmpty(certPath) && File.Exists(certPath))
-            {
-                var certPassword = Environment.GetEnvironmentVariable("DATA_PROTECTION_CERT_PASSWORD");
-#pragma warning disable SYSLIB0057 // Type or member is obsolete, No overload for new API accepts a password.
-                var cert = new X509Certificate2(certPath, certPassword);
-#pragma warning restore SYSLIB0057 // Type or member is obsolete
-                dataProtectionBuilder.ProtectKeysWithCertificate(cert);
-            }
-        }
-        else
-        {
-            // Development configuration
-            var keysPath = Path.Combine(builder.Environment.ContentRootPath, "keys");
-            Directory.CreateDirectory(keysPath);
-            dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
-        }
     }
 }
