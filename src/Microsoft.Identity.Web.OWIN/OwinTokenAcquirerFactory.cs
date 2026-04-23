@@ -25,15 +25,15 @@ namespace Microsoft.Identity.Web.OWIN
         /// <returns></returns>
         protected override string DefineConfiguration(IConfigurationBuilder builder)
         {
-            _ = builder.AddInMemoryCollection(new Dictionary<string, string>()
+            _ = builder.AddInMemoryCollection(new Dictionary<string, string?>()
             {
-                ["AzureAd:Instance"] = EnsureTrailingSlash(ConfigurationManager.AppSettings["ida:Instance"] ?? ConfigurationManager.AppSettings["ida:AADInstance"] ?? "https://login.microsoftonline.com/"),
-                ["AzureAd:ClientId"] = ConfigurationManager.AppSettings["ida:ClientId"],
-                ["AzureAd:TenantId"] = ConfigurationManager.AppSettings["ida:Tenant"] ?? ConfigurationManager.AppSettings["ida:TenantId"],
-                ["AzureAd:Audience"] = ConfigurationManager.AppSettings["ida:Audience"],
-                ["AzureAd:ClientSecret"] = ConfigurationManager.AppSettings["ida:ClientSecret"],
-                ["AzureAd:SignedOutCallbackPath"] = ConfigurationManager.AppSettings["ida:PostLogoutRedirectUri"],
-                ["AzureAd:RedirectUri"] = ConfigurationManager.AppSettings["ida:RedirectUri"],
+                ["AzureAd:Instance"] = EnsureTrailingSlash(System.Configuration.ConfigurationManager.AppSettings["ida:Instance"] ?? System.Configuration.ConfigurationManager.AppSettings["ida:AADInstance"] ?? "https://login.microsoftonline.com/"),
+                ["AzureAd:ClientId"] = System.Configuration.ConfigurationManager.AppSettings["ida:ClientId"],
+                ["AzureAd:TenantId"] = System.Configuration.ConfigurationManager.AppSettings["ida:Tenant"] ?? System.Configuration.ConfigurationManager.AppSettings["ida:TenantId"],
+                ["AzureAd:Audience"] = System.Configuration.ConfigurationManager.AppSettings["ida:Audience"],
+                ["AzureAd:ClientSecret"] = System.Configuration.ConfigurationManager.AppSettings["ida:ClientSecret"],
+                ["AzureAd:SignedOutCallbackPath"] = System.Configuration.ConfigurationManager.AppSettings["ida:PostLogoutRedirectUri"],
+                ["AzureAd:RedirectUri"] = System.Configuration.ConfigurationManager.AppSettings["ida:RedirectUri"],
             });
 
             return HostingEnvironment.MapPath("~/");
