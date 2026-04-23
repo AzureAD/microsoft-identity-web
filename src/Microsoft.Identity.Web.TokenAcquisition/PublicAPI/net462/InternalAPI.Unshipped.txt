@@ -13,3 +13,9 @@ Microsoft.Identity.Web.ProtocolNames
 const Microsoft.Identity.Web.ProtocolNames.Bearer = "Bearer" -> string!
 const Microsoft.Identity.Web.ProtocolNames.MtlsPop = "MTLS_POP" -> string!
 const Microsoft.Identity.Web.ProtocolNames.Mtls = "MTLS" -> string!
+*REMOVED*Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options) -> void
+*REMOVED*Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
+*REMOVED*Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger.PostConfigure(string! name, Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> void
+Microsoft.Identity.Web.ConfidentialClientApplicationOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Client.ConfidentialClientApplicationOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityApplicationOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions! options) -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptionsMerger.PostConfigure(string? name, Microsoft.Identity.Web.MicrosoftIdentityOptions! options) -> void
