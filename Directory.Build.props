@@ -125,7 +125,8 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <!--CVE: GHSA-9mv3-2cwr-p262-->
+    <MicrosoftAspNetCoreDataProtectionVersion>10.0.7</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
