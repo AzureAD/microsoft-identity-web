@@ -138,6 +138,11 @@ namespace Microsoft.Identity.Web
           string message,
           bool containsPii)
         {
+            if (_logger is null)
+            {
+                return;
+            }
+
             switch (level)
             {
                 case Client.LogLevel.Always:
