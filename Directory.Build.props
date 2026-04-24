@@ -120,7 +120,7 @@
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
     <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf-->
-    <SystemSecurityCryptographyServicingVersion>10.0.6</SystemSecurityCryptographyServicingVersion>
+    <SystemSecurityCryptographyServicingVersion>10.0.7</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
