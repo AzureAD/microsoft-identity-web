@@ -96,7 +96,7 @@
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
     <PublicApiAnalyzersVersion>4.14.0</PublicApiAnalyzersVersion>
     <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.83.1-preview</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityLabApiVersion>2.0.1-preview2</MicrosoftIdentityLabApiVersion>
+    <MicrosoftIdentityLabApiVersion>2.0.1</MicrosoftIdentityLabApiVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
