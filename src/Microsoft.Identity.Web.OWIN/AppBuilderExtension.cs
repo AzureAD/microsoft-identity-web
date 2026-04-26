@@ -62,10 +62,10 @@ namespace Microsoft.Identity.Web
                     configuration?.GetSection(configurationSection).Bind(option);
                 }));
 
-            string instance = configuration.GetValue<string>($"{configurationSection}:Instance");
-            string tenantId = configuration.GetValue<string>($"{configurationSection}:TenantId");
-            string clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
-            string audience = configuration.GetValue<string>($"{configurationSection}:Audience");
+            string? instance = configuration.GetValue<string>($"{configurationSection}:Instance");
+            string? tenantId = configuration.GetValue<string>($"{configurationSection}:TenantId");
+            string? clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
+            string? audience = configuration.GetValue<string>($"{configurationSection}:Audience");
             string authority = instance + tenantId + "/v2.0";
             TokenValidationParameters tokenValidationParameters = new()
             {
@@ -121,10 +121,10 @@ namespace Microsoft.Identity.Web
                     configuration?.GetSection(configurationSection).Bind(option);
                 }));
 
-            string instance = configuration.GetValue<string>($"{configurationSection}:Instance");
-            string tenantId = configuration.GetValue<string>($"{configurationSection}:TenantId");
-            string clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
-            string postLogoutRedirectUri = configuration.GetValue<string>($"{configurationSection}:SignedOutCallbackPath");
+            string? instance = configuration.GetValue<string>($"{configurationSection}:Instance");
+            string? tenantId = configuration.GetValue<string>($"{configurationSection}:TenantId");
+            string? clientId = configuration.GetValue<string>($"{configurationSection}:ClientId");
+            string? postLogoutRedirectUri = configuration.GetValue<string>($"{configurationSection}:SignedOutCallbackPath");
             string authority = instance + tenantId + "/v2.0";
 
             OpenIdConnectAuthenticationOptions options = new()
