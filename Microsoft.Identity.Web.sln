@@ -186,6 +186,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{FF3B93A1
 		build\build.md = build\build.md
 		build\CodeCoverage.runsettings = build\CodeCoverage.runsettings
 		build\credscan-exclusion.json = build\credscan-exclusion.json
+		Directory.Build.props = Directory.Build.props
 		build\GenerateDocFx.ps1 = build\GenerateDocFx.ps1
 		build\Microsoft.Identity.Web-Source-Assemblies.dgml = build\Microsoft.Identity.Web-Source-Assemblies.dgml
 		build\MSAL.snk = build\MSAL.snk
