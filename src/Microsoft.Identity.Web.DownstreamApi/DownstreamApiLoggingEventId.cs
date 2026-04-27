@@ -11,6 +11,8 @@ namespace Microsoft.Identity.Web
         // DownstreamApi EventIds 100+
         public static readonly EventId HttpRequestError = new(100, "HttpRequestError");
         public static readonly EventId UnauthenticatedApiCall = new(101, "UnauthenticatedApiCall");
+        public static readonly EventId ReservedHeaderIgnored = new(102, "ReservedHeaderIgnored");
+        public static readonly EventId DuplicateHeaderIgnored = new(103, "DuplicateHeaderIgnored");
 #pragma warning restore IDE1006 // Naming styles
     }
 }
