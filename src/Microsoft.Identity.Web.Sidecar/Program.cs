@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -50,6 +51,8 @@ public class Program
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
                .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
+
+        builder.Services.Configure<SidecarOptions>(builder.Configuration.GetSection("Sidecar"));
 
         builder.Services.AddHealthChecks();
 

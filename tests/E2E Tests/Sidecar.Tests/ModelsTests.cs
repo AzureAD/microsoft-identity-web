@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Xunit;
 
@@ -352,5 +357,89 @@ public class ModelsTests
         // Assert
         Assert.Equal(statusCode, result.StatusCode);
         Assert.Equal(specialContent, result.Content);
+    }
+
+    private static ParameterInfo GetOptionsOverrideParameter()
+    {
+        // Re-use any method whose first parameter is named "optionsOverride".
+        // We just need a ParameterInfo with the right Name for BindAsync.
+        var method = typeof(BindableDownstreamApiOptionsTestHelper)
+            .GetMethod(nameof(BindableDownstreamApiOptionsTestHelper.Sample), BindingFlags.Static | BindingFlags.NonPublic)!;
+        return method.GetParameters()[0];
+    }
+
+    private static HttpContext CreateHttpContext(string queryString)
+    {
+        var ctx = new DefaultHttpContext();
+        ctx.Request.QueryString = new QueryString(queryString);
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        ctx.RequestServices = services.BuildServiceProvider();
+        return ctx;
+    }
+
+    [Fact]
+    public async Task BindableDownstreamApiOptions_HasAny_True_WhenNonBaseUrlOverridePresent()
+    {
+        // Arrange
+        var ctx = CreateHttpContext("?optionsOverride.Scopes=User.Read");
+
+        // Act
+        var result = await BindableDownstreamApiOptions.BindAsync(ctx, GetOptionsOverrideParameter());
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result!.HasAny);
+    }
+
+    [Fact]
+    public async Task BindableDownstreamApiOptions_HasAny_False_WhenOnlyBaseUrlOverridePresent()
+    {
+        // Arrange
+        var ctx = CreateHttpContext("?optionsOverride.BaseUrl=https://other.example.com");
+
+        // Act
+        var result = await BindableDownstreamApiOptions.BindAsync(ctx, GetOptionsOverrideParameter());
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result!.HasAny);
+        Assert.Null(result.BaseUrl);
+    }
+
+    [Fact]
+    public async Task BindableDownstreamApiOptions_HasAny_True_WhenBaseUrlAndScopesOverridesPresent()
+    {
+        // Arrange
+        var ctx = CreateHttpContext("?optionsOverride.BaseUrl=https://other.example.com&optionsOverride.Scopes=User.Read");
+
+        // Act
+        var result = await BindableDownstreamApiOptions.BindAsync(ctx, GetOptionsOverrideParameter());
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result!.HasAny);
+        Assert.Null(result.BaseUrl);
+        Assert.NotNull(result.Scopes);
+        Assert.Contains("User.Read", result.Scopes!);
+    }
+
+    [Fact]
+    public async Task BindableDownstreamApiOptions_HasAny_False_WhenNoOverridesPresent()
+    {
+        // Arrange
+        var ctx = CreateHttpContext("?unrelated=value");
+
+        // Act
+        var result = await BindableDownstreamApiOptions.BindAsync(ctx, GetOptionsOverrideParameter());
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result!.HasAny);
+    }
+
+    private static class BindableDownstreamApiOptionsTestHelper
+    {
+        internal static void Sample(BindableDownstreamApiOptions optionsOverride) { _ = optionsOverride; }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
 
@@ -14,10 +15,24 @@ namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
 public static class AuthorizationHeaderEndpoint
 {
+    internal const string AuthenticatedRouteName = "AuthorizationHeader";
+    internal const string UnauthenticatedRouteName = "AuthorizationHeaderUnauthenticated";
+
     public static void AddAuthorizationHeaderRequestEndpoints(this WebApplication app)
     {
-        app.MapGet("/AuthorizationHeader/{apiName}", AuthorizationHeaderAsync).
-            WithName("AuthorizationHeader").
+        app.MapGet("/AuthorizationHeader/{apiName}",
+                (HttpContext httpContext, [Description("The downstream API to acquire an authorization header for.")][FromRoute] string apiName,
+                    [AsParameters] AuthorizationHeaderRequest requestParameters,
+                    BindableDownstreamApiOptions optionsOverride,
+                    [FromServices] IAuthorizationHeaderProvider headerProvider,
+                    [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+                    [FromServices] IOptions<SidecarOptions> sidecarOptions,
+                    [FromServices] ILogger<Program> logger,
+                    CancellationToken cancellationToken) =>
+                AuthorizationHeaderAsync(
+                    httpContext, apiName, requestParameters, optionsOverride, headerProvider, optionsMonitor,
+                    sidecarOptions.Value.AllowOverrides.GetAuthorizationHeader, AuthenticatedRouteName, logger, cancellationToken)).
+            WithName(AuthenticatedRouteName).
             RequireAuthorization().
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized).
@@ -25,14 +40,27 @@ public static class AuthorizationHeaderEndpoint
             WithDescription(
                 "This endpoint will use the identity of the authenticated request to acquire an authorization header." +
                 "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
+                "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeader' (default: true). " +
+                "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "Repeat parameters like 'optionsOverride.Scopes' to add multiple scopes.");
 
-        app.MapGet("/AuthorizationHeaderUnauthenticated/{apiName}", AuthorizationHeaderAsync).
-            WithName("AuthorizationHeaderUnauthenticated").
+        app.MapGet("/AuthorizationHeaderUnauthenticated/{apiName}",
+                (HttpContext httpContext, [Description("The downstream API to acquire an authorization header for.")][FromRoute] string apiName,
+                    [AsParameters] AuthorizationHeaderRequest requestParameters,
+                    BindableDownstreamApiOptions optionsOverride,
+                    [FromServices] IAuthorizationHeaderProvider headerProvider,
+                    [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+                    [FromServices] IOptions<SidecarOptions> sidecarOptions,
+                    [FromServices] ILogger<Program> logger,
+                    CancellationToken cancellationToken) =>
+                AuthorizationHeaderAsync(
+                    httpContext, apiName, requestParameters, optionsOverride, headerProvider, optionsMonitor,
+                    sidecarOptions.Value.AllowOverrides.GetAuthorizationHeaderUnauthenticated, UnauthenticatedRouteName, logger, cancellationToken)).
+            WithName(UnauthenticatedRouteName).
             AllowAnonymous().
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized).
@@ -40,6 +68,8 @@ public static class AuthorizationHeaderEndpoint
             WithDescription(
                 "This endpoint will use the configured client credentials to acquire an authorization header." +
                 "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
+                "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeaderUnauthenticated' (default: false). " +
+                "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n" +
@@ -49,14 +79,14 @@ public static class AuthorizationHeaderEndpoint
 
     private static async Task<Results<Ok<Models.AuthorizationHeaderResult>, ProblemHttpResult>> AuthorizationHeaderAsync(
         HttpContext httpContext,
-        [Description("The downstream API to acquire an authorization header for.")]
-        [FromRoute]
         string apiName,
-        [AsParameters] AuthorizationHeaderRequest requestParameters,
+        AuthorizationHeaderRequest requestParameters,
         BindableDownstreamApiOptions optionsOverride,
-        [FromServices] IAuthorizationHeaderProvider headerProvider,
-        [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
-        [FromServices] ILogger<Program> logger,
+        IAuthorizationHeaderProvider headerProvider,
+        IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+        bool allowOverrides,
+        string routeName,
+        ILogger<Program> logger,
         CancellationToken cancellationToken)
     {
         DownstreamApiOptions? options = optionsMonitor.Get(apiName);
@@ -70,7 +100,14 @@ public static class AuthorizationHeaderEndpoint
 
         if (optionsOverride.HasAny)
         {
-            options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
+            if (allowOverrides)
+            {
+                options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
+            }
+            else
+            {
+                logger.OverridesIgnored(routeName);
+            }
         }
 
         if (options.Scopes is null)

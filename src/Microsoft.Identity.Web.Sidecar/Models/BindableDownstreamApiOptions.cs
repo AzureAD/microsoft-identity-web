@@ -4,7 +4,10 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Sidecar.Logging;
 
 namespace Microsoft.Identity.Web.Sidecar.Models;
 
@@ -28,8 +31,25 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
     public static ValueTask<BindableDownstreamApiOptions?> BindAsync(HttpContext ctx, ParameterInfo parameter)
     {
         var paramName = parameter.Name ?? "optionsOverride";
-        bool hasAny = ctx.Request.Query.Keys.Any(k =>
-            k.StartsWith(paramName + ".", StringComparison.OrdinalIgnoreCase));
+        var prefix = paramName + ".";
+        var baseUrlKey = paramName + ".BaseUrl";
+
+        bool hasAny = false;
+        bool hasNonBaseUrlOverride = false;
+        foreach (var k in ctx.Request.Query.Keys)
+        {
+            if (!k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            hasAny = true;
+            if (!k.Equals(baseUrlKey, StringComparison.OrdinalIgnoreCase))
+            {
+                hasNonBaseUrlOverride = true;
+                break;
+            }
+        }
 
         var result = new BindableDownstreamApiOptions();
 
@@ -38,7 +58,10 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
             return ValueTask.FromResult<BindableDownstreamApiOptions?>(result);
         }
 
-        result.HasAny = true;
+        // HasAny only reflects non-BaseUrl overrides because BaseUrl is always
+        // ignored. This avoids a misleading "OverridesIgnored" warning at the
+        // route layer when the caller only supplied an (already-rejected) BaseUrl.
+        result.HasAny = hasNonBaseUrlOverride;
 
         var query = ctx.Request.Query;
 
@@ -103,7 +126,12 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
             }
             else if (path.Equals("BaseUrl", StringComparison.OrdinalIgnoreCase))
             {
-                result.BaseUrl = values.LastOrDefault();
+                // Caller-supplied BaseUrl is unconditionally rejected: the downstream
+                // BaseUrl is fixed by the host configuration and cannot be overridden
+                // through optionsOverride. Log a warning and ignore the value.
+                var loggerFactory = ctx.RequestServices.GetService<ILoggerFactory>();
+                loggerFactory?.CreateLogger(typeof(BindableDownstreamApiOptions).FullName!)
+                    .BaseUrlOverrideIgnored();
             }
             else if (path.Equals("RelativePath", StringComparison.OrdinalIgnoreCase))
             {
