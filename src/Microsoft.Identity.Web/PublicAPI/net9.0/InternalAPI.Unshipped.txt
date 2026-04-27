@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.LoginLogoutEndpointRouteBuilderExtensions.GetAuthProperties(string? returnUrl) -> Microsoft.AspNetCore.Authentication.AuthenticationProperties!
