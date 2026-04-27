@@ -604,7 +604,7 @@ namespace Microsoft.Identity.Web
                 // Otherwise use the default HttpClientFactory with optional named client.
                 HttpClient client = requestResult?.BindingCertificate != null && _msalHttpClientFactory is IMsalMtlsHttpClientFactory msalMtlsHttpClientFactory
                     ? msalMtlsHttpClientFactory.GetHttpClient(requestResult.BindingCertificate)
-                    : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName));
+                    : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName!));
 
                 // Send the HTTP message
                 downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
