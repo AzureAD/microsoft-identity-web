@@ -1,3 +1,40 @@
+## 4.8.0
+
+### New features
+- Add support for mTLS authentication-only mode for `DownstreamApi`. When protocol is set to MTLS, the configured certificate is attached to the request without an authorization header. See [#3747](https://github.com/AzureAD/microsoft-identity-web/pull/3747).
+- Add token binding support to `MicrosoftIdentityMessageHandler`. See [#3743](https://github.com/AzureAD/microsoft-identity-web/pull/3743).
+
+### Bug fixes
+- Fix race condition in `MergedOptions` causing sporadic "No ClientId was specified" errors under concurrent `GraphServiceClient` usage. See [#3760](https://github.com/AzureAD/microsoft-identity-web/pull/3760).
+- Fix `CredentialsProvider` DI lifetime mismatch causing startup crash in Development mode when using `AddMicrosoftIdentityWebApi()`. See [#3783](https://github.com/AzureAD/microsoft-identity-web/pull/3783).
+
+### Behavior changes
+- **`/MicrosoftIdentity/Account/Challenge` — redirect URI validation.** The `redirectUri` query-string parameter is now validated. Accepted values:
+  - Local paths (e.g. `/home`, `/counter?tab=1`) — unchanged behavior.
+  - Same-origin absolute URLs (matching scheme, host, and effective port of the current request). These are coerced to their path-and-query before being stored in `AuthenticationProperties.RedirectUri`. This preserves the canonical `[AuthorizeForScopes]` / `MsalUiRequiredException` step-up consent flow, which goes through `MicrosoftIdentityConsentAndConditionalAccessHandler.ChallengeUser()` and passes `NavigationManager.Uri` (always absolute) for Blazor Server, or an absolute request URL for Razor Pages / MVC.
+  - Any other value (external host, different scheme, different port, protocol-relative `//host`, empty, or `null`) falls back to `~/`.
+  - **UX note:** URL fragments (`#section`) are dropped when a same-origin absolute URL is coerced. If a Blazor Server page depends on a fragment being preserved across step-up consent, pass a relative path explicitly rather than relying on `NavigationManager.Uri`.
+  - **Reverse-proxy deployments:** apps behind a reverse proxy (Azure App Service, Container Apps, AKS ingress, nginx, etc.) should configure `app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost })` before `UseAuthentication()`. Without it, `Request.Scheme` / `Request.Host` reflect the internal container/pod hostname, the same-origin check fails for the external `NavigationManager.Uri`, and step-up lands the user on `/` rather than the original page.
+
+- **Blazor `MapGroup(...).MapLoginAndLogout()` — `/logout` endpoint.** The generated `POST /logout` endpoint now (a) requires authentication (`RequireAuthorization()`) and (b) requires an antiforgery token (the previous `DisableAntiforgery()` opt-out has been removed). UX and integration implications:
+  - Forms rendered by `SignOutLink` / `LogInOrOut` already include the antiforgery token and continue to work without code changes.
+  - Custom clients that `fetch`/`XMLHttpRequest` to `/logout` must now include the antiforgery token. Obtain it via `IAntiforgery.GetAndStoreTokens(context).RequestToken` and send it in the request header configured by `AddAntiforgery(options => options.HeaderName = "...")` (default `RequestVerificationToken`) or as the configured form field.
+  - The `ReturnUrl` form value is now treated as strictly local: any non-local value (absolute URL, protocol-relative, `/\host`, etc.) is coerced to `/`. Apps that previously passed an absolute URL should switch to a relative path.
+  - **Edge case:** a user whose authentication cookie has already expired and who then clicks the logout button will be redirected to the login page (because of `RequireAuthorization()`) rather than seeing a silent no-op. This is a minor change from previous behavior; the happy path (authenticated user clicking logout) is unchanged.
+  - **Blazor WebAssembly clients are unaffected.** WASM apps sign out through `Microsoft.Authentication.WebAssembly.Msal` / the `/authentication/logout` JS interop path, not by POSTing to the server-side `/logout` endpoint, so no client code changes are needed.
+  - **Server-side Blazor using `AuthenticationStateProvider` / `SignOutAsync` is unaffected.** The new gate only applies to direct HTTP POSTs to `/logout`. Components that call `AuthenticationStateProvider.GetAuthenticationStateAsync()` or sign out through the scheme handler continue to work unchanged.
+  - **Graceful degradation when antiforgery is not configured.** The check is performed inside the endpoint handler by explicitly resolving `IAntiforgery` from request services (not via endpoint metadata / middleware coupling). This means the `/logout` endpoint works correctly on every pipeline shape: (a) minimal API with both `AddAntiforgery()` and `UseAntiforgery()` wired — token is validated by middleware and re-checked by the handler (idempotent); (b) MVC / Razor Pages hosts that call `AddControllersWithViews()` or `AddRazorPages()` (which transitively register `IAntiforgery`) but do not call `UseAntiforgery()` — the handler validates the token directly; (c) hosts that reuse `MapLoginAndLogout` without any antiforgery configuration — the handler skips validation and `RequireAuthorization()` + cookie `SameSite=Lax` remain the CSRF gate, matching pre-4.8.0 behavior. For scenario (c), a single warning is logged at endpoint map time recommending that `AddAntiforgery()` be configured.
+
+- **`/MicrosoftIdentity/Account/Challenge` — `%2f` / `%5c` defense-in-depth.** In addition to the path-and-query re-check for protocol-relative shapes (`//host`, `/\host`), `redirectUri` values whose path begins with `/%2f`, `/%5c`, `/%2F`, or `/%5C` are now rejected and coerced to `~/`. Browsers per RFC 3986 treat these as literal path characters (a direct hit yields a 404), so this change does not affect legitimate deep-links. It guards against misconfigured reverse proxies (NGINX, IIS ARR, F5) that can decode `%2f` → `/` while rewriting `Location` headers, which would otherwise reopen the protocol-relative bypass after the proxy pass.
+
+### Dependencies updates
+- Upgrade Microsoft Application Insights packages. See [#3763](https://github.com/AzureAD/microsoft-identity-web/pull/3763).
+- Bump net8/net9/net10 runtime package baselines to patched crypto servicing versions. See [#3779](https://github.com/AzureAD/microsoft-identity-web/pull/3779).
+
+### Documentation
+- Clarify managed identity credential types for containerized vs. VM/App Service deployments. See [#3585](https://github.com/AzureAD/microsoft-identity-web/pull/3585).
+- Add examples for using PostgreSQL as a distributed token cache. See [#3766](https://github.com/AzureAD/microsoft-identity-web/pull/3766).
+
 ## 4.7.0
 
 ### Bug fixes

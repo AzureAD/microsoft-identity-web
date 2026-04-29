@@ -4,7 +4,7 @@
     <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
     to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
     -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.7.1</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.8.1</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
     <EnablePackageValidation>true</EnablePackageValidation>
@@ -119,13 +119,13 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
-    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf-->
-    <SystemSecurityCryptographyServicingVersion>10.0.6</SystemSecurityCryptographyServicingVersion>
+    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, DataProtection requires 10.0.7 min instead of 10.0.6-->
+    <SystemSecurityCryptographyServicingVersion>10.0.7</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>10.0.7</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
