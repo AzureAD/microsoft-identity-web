@@ -47,7 +47,6 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 
 - **AzureAd**: Standard Microsoft.Identity.Web web API registration; client credentials are optional if only delegated flows are required.
 - **DownstreamApis**: Named profiles for endpoints resolved via `{apiName}`.
-- **Data protection**: In production the app persists keys to `DATA_PROTECTION_KEYS_PATH` (default `/app/keys`) and optionally protects them with a certificate referenced via `DATA_PROTECTION_CERT_PATH` and `DATA_PROTECTION_CERT_PASSWORD`.
 
 ## Running the sidecar
 
@@ -65,9 +64,42 @@ dotnet run -f net9.0
 
 ### Containers
 
+The sidecar is designed to run in containerized environments. Choose the appropriate Dockerfile for your target platform:
+
 - [Dockerfile](./Dockerfile) is used for building images within Visual Studio
 - [DockerFile.NanoServer](./DockerFile.NanoServer) is used for building a nanoserver image from previously build binaries
 - [DockerFile.AzureLinux](./Dockerfile.AzureLinux) is used for building an azure linux 3.0 image from previously build binaries
+
+**Configuring Client Credentials for Containers:**
+
+When deploying the sidecar in containerized environments (Kubernetes, AKS, Docker) with **Azure AD Workload Identity**, configure client credentials using environment variables:
+
+```yaml
+# Example Kubernetes deployment configuration
+env:
+  - name: AzureAd__Instance
+    value: "https://login.microsoftonline.com/"
+  - name: AzureAd__TenantId
+    value: "<tenant-guid>"
+  - name: AzureAd__ClientId
+    value: "<sidecar-client-id>"
+  - name: AzureAd__ClientCredentials__0__SourceType
+    value: "SignedAssertionFilePath"
+  - name: AzureAd__ClientCredentials__0__SignedAssertionFilePath
+    value: "/var/run/secrets/azure/tokens/azure-identity-token"
+```
+
+For **classic managed identity scenarios** (VMs, App Services), use:
+
+```yaml
+env:
+  - name: AzureAd__ClientCredentials__0__SourceType
+    value: "SignedAssertionFromManagedIdentity"
+  - name: AzureAd__ClientCredentials__0__ManagedIdentityClientId
+    value: "<managed-identity-client-id>"  # Omit for system-assigned
+```
+
+For all credential configuration options, see the [CredentialDescription documentation](https://aka.ms/ms-id-web/credential-description).
 
 ## HTTP surface
 

@@ -23,7 +23,7 @@ Starting with **Microsoft.Identity.Web 1.17+**, you can use Microsoft.Identity.W
 
 | Feature | Benefit |
 |---------|---------|
-| **Token Cache Serialization** | Reusable cache adapters for in-memory, SQL Server, Redis, Cosmos DB |
+| **Token Cache Serialization** | Reusable cache adapters for in-memory, SQL Server, Redis, Cosmos DB, PostgreSQL |
 | **Certificate Helpers** | Simplified certificate loading from KeyVault, file system, or cert stores |
 | **Claims Extensions** | Utility methods for `ClaimsPrincipal` manipulation |
 | **.NET Standard 2.0** | Compatible with .NET Framework 4.7.2+, .NET Core, and .NET 5+ |
@@ -296,6 +296,38 @@ _app.AddDistributedTokenCaches(services =>
 - ⚠️ Higher cost
 
 **Use case:** Global daemon services, geo-distributed applications
+
+---
+
+#### Option 6: PostgreSQL Token Cache
+
+**For relational distributed caching with PostgreSQL:**
+```csharp
+_app.AddDistributedTokenCaches(services =>
+{
+    // Requires: Microsoft.Extensions.Caching.Postgres (NuGet)
+    services.AddDistributedPostgresCache(options =>
+    {
+        options.ConnectionString = ConfigurationManager.ConnectionStrings["PostgresCache"].ConnectionString;
+        options.SchemaName = ConfigurationManager.AppSettings["PostgresCache:SchemaName"];
+        options.TableName = ConfigurationManager.AppSettings["PostgresCache:TableName"];
+        options.CreateIfNotExists = bool.Parse(ConfigurationManager.AppSettings["PostgresCache:CreateIfNotExists"] ?? "true");
+
+        // IMPORTANT: Set expiration above token lifetime
+        // Access tokens typically expire after 1 hour
+        options.DefaultSlidingExpiration = TimeSpan.FromMinutes(90);
+    });
+});
+```
+
+**Characteristics:**
+- ✅ Persistent across restarts
+- ✅ Shared across multiple instances
+- ✅ Familiar SQL semantics
+- ✅ Works with Azure Database for PostgreSQL
+- ⚠️ Requires PostgreSQL server
+
+**Use case:** Applications already using PostgreSQL as their primary database, Azure-hosted services using Azure Database for PostgreSQL
 
 ---
 

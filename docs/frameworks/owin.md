@@ -28,7 +28,7 @@ The **Microsoft.Identity.Web.OWIN** package brings the power of Microsoft.Identi
 |---------|---------|
 | **TokenAcquirerFactory** | Automatic token acquisition with caching |
 | **Controller Extensions** | Easy access to `GraphServiceClient` and `IDownstreamApi` |
-| **Distributed Token Cache** | Built-in support for SQL Server, Redis, Cosmos DB |
+| **Distributed Token Cache** | Built-in support for SQL Server, Redis, Cosmos DB, PostgreSQL |
 | **Automatic Token Refresh** | Handles token refresh transparently |
 | **Incremental Consent** | Seamless consent flow integration |
 

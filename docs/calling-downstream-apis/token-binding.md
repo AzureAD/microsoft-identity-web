@@ -250,7 +250,7 @@ public class Program
 
         tokenAcquirerFactory.Services.AddDownstreamApi(
             "SecureApi",
-            tokenAcquirerFactory.Configuration.GetSection("SecureApi"));
+            tokenAcquirerFactory.Configuration.GetSection("DownstreamApis:SecureApi"));
 
         var serviceProvider = tokenAcquirerFactory.Build();
 
@@ -347,6 +347,98 @@ public class SecureApiService
     }
 }
 ```
+
+### Using MicrosoftIdentityMessageHandler with Token Binding
+
+`MicrosoftIdentityMessageHandler` supports mTLS PoP token binding through the `AddMicrosoftIdentityMessageHandler` extension methods. When `ProtocolScheme` is set to `"MTLS_POP"`, the handler automatically acquires a bound token and sends requests through an mTLS-configured HTTP client.
+
+#### Inline Configuration
+
+```csharp
+// Program.cs
+services.AddHttpClient("MtlsPopClient", client =>
+{
+    client.BaseAddress = new Uri("https://api.contoso.com");
+})
+.AddMicrosoftIdentityMessageHandler(options =>
+{
+    options.Scopes.Add("api://contoso/.default");
+    options.ProtocolScheme = "MTLS_POP";
+    options.RequestAppToken = true;
+});
+
+// Usage in a service
+public class SecureApiService
+{
+    private readonly HttpClient _httpClient;
+
+    public SecureApiService(IHttpClientFactory factory)
+    {
+        _httpClient = factory.CreateClient("MtlsPopClient");
+    }
+
+    public async Task<string> GetSecureDataAsync()
+    {
+        // Authentication and mTLS certificate binding are automatic
+        var response = await _httpClient.GetAsync("/api/secure-data");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+}
+```
+
+#### Configuration from appsettings.json
+
+**appsettings.json:**
+```json
+{
+  "DownstreamApis": {
+    "SecureApi": {
+      "Scopes": ["api://secure-api/.default"],
+      "ProtocolScheme": "MTLS_POP",
+      "RequestAppToken": true
+    }
+  }
+}
+```
+
+**Program.cs:**
+```csharp
+services.AddHttpClient("SecureApiClient", client =>
+{
+    client.BaseAddress = new Uri("https://secure-api.example.com");
+})
+.AddMicrosoftIdentityMessageHandler(
+    configuration.GetSection("DownstreamApis:SecureApi"),
+    "SecureApi");
+```
+
+#### Per-Request Token Binding
+
+Use per-request options when some requests need token binding and others do not:
+
+```csharp
+services.AddHttpClient("FlexibleClient")
+    .AddMicrosoftIdentityMessageHandler();
+
+// In a service:
+public async Task<string> CallWithTokenBindingAsync()
+{
+    var request = new HttpRequestMessage(HttpMethod.Get, "https://api.contoso.com/secure")
+        .WithAuthenticationOptions(options =>
+        {
+            options.Scopes.Add("api://contoso/.default");
+            options.ProtocolScheme = "MTLS_POP";
+            options.RequestAppToken = true;
+        });
+
+    var response = await _httpClient.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    return await response.Content.ReadAsStringAsync();
+}
+```
+
+For more information about `MicrosoftIdentityMessageHandler`, see [Custom APIs Documentation](custom-apis.md#microsoftidentitymessagehandler---for-httpclient-integration).
 
 ### Custom HttpClient with Authorization Header Provider
 

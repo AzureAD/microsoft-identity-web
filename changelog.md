@@ -1,3 +1,75 @@
+## 4.8.0
+
+### New features
+- Add support for mTLS authentication-only mode for `DownstreamApi`. When protocol is set to MTLS, the configured certificate is attached to the request without an authorization header. See [#3747](https://github.com/AzureAD/microsoft-identity-web/pull/3747).
+- Add token binding support to `MicrosoftIdentityMessageHandler`. See [#3743](https://github.com/AzureAD/microsoft-identity-web/pull/3743).
+
+### Bug fixes
+- Fix race condition in `MergedOptions` causing sporadic "No ClientId was specified" errors under concurrent `GraphServiceClient` usage. See [#3760](https://github.com/AzureAD/microsoft-identity-web/pull/3760).
+- Fix `CredentialsProvider` DI lifetime mismatch causing startup crash in Development mode when using `AddMicrosoftIdentityWebApi()`. See [#3783](https://github.com/AzureAD/microsoft-identity-web/pull/3783).
+
+### Behavior changes
+- **`/MicrosoftIdentity/Account/Challenge` — redirect URI validation.** The `redirectUri` query-string parameter is now validated. Accepted values:
+  - Local paths (e.g. `/home`, `/counter?tab=1`) — unchanged behavior.
+  - Same-origin absolute URLs (matching scheme, host, and effective port of the current request). These are coerced to their path-and-query before being stored in `AuthenticationProperties.RedirectUri`. This preserves the canonical `[AuthorizeForScopes]` / `MsalUiRequiredException` step-up consent flow, which goes through `MicrosoftIdentityConsentAndConditionalAccessHandler.ChallengeUser()` and passes `NavigationManager.Uri` (always absolute) for Blazor Server, or an absolute request URL for Razor Pages / MVC.
+  - Any other value (external host, different scheme, different port, protocol-relative `//host`, empty, or `null`) falls back to `~/`.
+  - **UX note:** URL fragments (`#section`) are dropped when a same-origin absolute URL is coerced. If a Blazor Server page depends on a fragment being preserved across step-up consent, pass a relative path explicitly rather than relying on `NavigationManager.Uri`.
+  - **Reverse-proxy deployments:** apps behind a reverse proxy (Azure App Service, Container Apps, AKS ingress, nginx, etc.) should configure `app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost })` before `UseAuthentication()`. Without it, `Request.Scheme` / `Request.Host` reflect the internal container/pod hostname, the same-origin check fails for the external `NavigationManager.Uri`, and step-up lands the user on `/` rather than the original page.
+
+- **Blazor `MapGroup(...).MapLoginAndLogout()` — `/logout` endpoint.** The generated `POST /logout` endpoint now (a) requires authentication (`RequireAuthorization()`) and (b) requires an antiforgery token (the previous `DisableAntiforgery()` opt-out has been removed). UX and integration implications:
+  - Forms rendered by `SignOutLink` / `LogInOrOut` already include the antiforgery token and continue to work without code changes.
+  - Custom clients that `fetch`/`XMLHttpRequest` to `/logout` must now include the antiforgery token. Obtain it via `IAntiforgery.GetAndStoreTokens(context).RequestToken` and send it in the request header configured by `AddAntiforgery(options => options.HeaderName = "...")` (default `RequestVerificationToken`) or as the configured form field.
+  - The `ReturnUrl` form value is now treated as strictly local: any non-local value (absolute URL, protocol-relative, `/\host`, etc.) is coerced to `/`. Apps that previously passed an absolute URL should switch to a relative path.
+  - **Edge case:** a user whose authentication cookie has already expired and who then clicks the logout button will be redirected to the login page (because of `RequireAuthorization()`) rather than seeing a silent no-op. This is a minor change from previous behavior; the happy path (authenticated user clicking logout) is unchanged.
+  - **Blazor WebAssembly clients are unaffected.** WASM apps sign out through `Microsoft.Authentication.WebAssembly.Msal` / the `/authentication/logout` JS interop path, not by POSTing to the server-side `/logout` endpoint, so no client code changes are needed.
+  - **Server-side Blazor using `AuthenticationStateProvider` / `SignOutAsync` is unaffected.** The new gate only applies to direct HTTP POSTs to `/logout`. Components that call `AuthenticationStateProvider.GetAuthenticationStateAsync()` or sign out through the scheme handler continue to work unchanged.
+  - **Graceful degradation when antiforgery is not configured.** The check is performed inside the endpoint handler by explicitly resolving `IAntiforgery` from request services (not via endpoint metadata / middleware coupling). This means the `/logout` endpoint works correctly on every pipeline shape: (a) minimal API with both `AddAntiforgery()` and `UseAntiforgery()` wired — token is validated by middleware and re-checked by the handler (idempotent); (b) MVC / Razor Pages hosts that call `AddControllersWithViews()` or `AddRazorPages()` (which transitively register `IAntiforgery`) but do not call `UseAntiforgery()` — the handler validates the token directly; (c) hosts that reuse `MapLoginAndLogout` without any antiforgery configuration — the handler skips validation and `RequireAuthorization()` + cookie `SameSite=Lax` remain the CSRF gate, matching pre-4.8.0 behavior. For scenario (c), a single warning is logged at endpoint map time recommending that `AddAntiforgery()` be configured.
+
+- **`/MicrosoftIdentity/Account/Challenge` — `%2f` / `%5c` defense-in-depth.** In addition to the path-and-query re-check for protocol-relative shapes (`//host`, `/\host`), `redirectUri` values whose path begins with `/%2f`, `/%5c`, `/%2F`, or `/%5C` are now rejected and coerced to `~/`. Browsers per RFC 3986 treat these as literal path characters (a direct hit yields a 404), so this change does not affect legitimate deep-links. It guards against misconfigured reverse proxies (NGINX, IIS ARR, F5) that can decode `%2f` → `/` while rewriting `Location` headers, which would otherwise reopen the protocol-relative bypass after the proxy pass.
+
+### Dependencies updates
+- Upgrade Microsoft Application Insights packages. See [#3763](https://github.com/AzureAD/microsoft-identity-web/pull/3763).
+- Bump net8/net9/net10 runtime package baselines to patched crypto servicing versions. See [#3779](https://github.com/AzureAD/microsoft-identity-web/pull/3779).
+
+### Documentation
+- Added comprehensive authority configuration and precedence documentation, including guides for Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. See [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613).
+- Clarify managed identity credential types for containerized vs. VM/App Service deployments. See [#3585](https://github.com/AzureAD/microsoft-identity-web/pull/3585).
+- Add examples for using PostgreSQL as a distributed token cache. See [#3766](https://github.com/AzureAD/microsoft-identity-web/pull/3766).
+
+## 4.7.0
+
+### Bug fixes
+- Updates to Microsoft.Identity.Abstractions 12.0.0 to revert breaking changes introduced in Abstractions 11.0.0. (On .NET 10 target, `Certificate` extension method in `CredentialDescription` was reverted to normal property.) See [#3767](https://github.com/AzureAD/microsoft-identity-web/pull/3767).
+
+## 4.6.0
+
+### New features
+- Aspire / Blazor helpers and documentation [#3723](https://github.com/AzureAD/microsoft-identity-web/pull/3723)
+- AI Skills and Aspire DevApp demonstrating Blazor authentication components [#3721](https://github.com/AzureAD/microsoft-identity-web/pull/3721)
+
+### Dependencies updates
+- Bump MSAL to 4.83.1 
+- Bump Abstractions to 11.2 
+
+## 4.6.0
+
+### New features
+Aspire / Blazor helpers and documentation [#3723](https://github.com/AzureAD/microsoft-identity-web/pull/3723)
+AI Skills and Aspire DevApp demonstrating Blazor authentication components [#3721](https://github.com/AzureAD/microsoft-identity-web/pull/3721)
+
+### Dependencies updates
+Bump MSAL to 4.83.1 
+Bump Abstractions to 11.2 
+
+## 4.5.0
+
+### New features
+- Add support for certificate store lookup by subject name. See [#3742](https://github.com/AzureAD/microsoft-identity-web/pull/3742).
+
+### Dependencies updates
+- Bump minimatch in /tests/DevApps/SidecarAdapter/typescript. See [#3739](https://github.com/AzureAD/microsoft-identity-web/pull/3739).
+- Bump rollup from 4.52.3 to 4.59.0 in /tests/DevApps/SidecarAdapter/typescript. See [#3740](https://github.com/AzureAD/microsoft-identity-web/pull/3740).
+
 ## 4.4.0
 
 ### New features
@@ -25,7 +97,49 @@
 - Update to MSAL 4.81.0. See [#3665](https://github.com/AzureAD/microsoft-identity-web/pull/3665).
 
 ### Documentation
-- Added comprehensive authority configuration and precedence documentation, including guides for Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. See [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613).
+- Add documentation for auto-generated session key for long-running OBO session. See [#3729](https://github.com/AzureAD/microsoft-identity-web/pull/3729).
+- Improve the Aspire doc article and skills. See [#3695](https://github.com/AzureAD/microsoft-identity-web/pull/3695).
+- Add an article and agent skill to add Entra ID to an Aspire app. See [#3689](https://github.com/AzureAD/microsoft-identity-web/pull/3689).
+- Fix misleading comment in `CertificatelessOptions.ManagedIdentityClientId`. See [#3667](https://github.com/AzureAD/microsoft-identity-web/pull/3667).
+- Add Copilot explore tool functionality. See [#3694](https://github.com/AzureAD/microsoft-identity-web/pull/3694).
+
+### Fundamentals
+- Remove unnecessary warning suppression. See [#3715](https://github.com/AzureAD/microsoft-identity-web/pull/3715).
+- Migrate labs to Lab.API 2.x (first pass). See [#3710](https://github.com/AzureAD/microsoft-identity-web/pull/3710).
+- Update Sidecar E2E test constants. See [#3693](https://github.com/AzureAD/microsoft-identity-web/pull/3693).
+- Fix intermittent failures in `CertificatesObserverTests`. See [#3687](https://github.com/AzureAD/microsoft-identity-web/pull/3687).
+- Add validation baseline exclusions. See [#3684](https://github.com/AzureAD/microsoft-identity-web/pull/3684).
+- Add dSTS integration tests. See [#3677](https://github.com/AzureAD/microsoft-identity-web/pull/3677).
+- Fix FIC test. See [#3663](https://github.com/AzureAD/microsoft-identity-web/pull/3663).
+- Update IdentityWeb version, build logic, and validation. See [#3659](https://github.com/AzureAD/microsoft-identity-web/pull/3659).
+
+## 4.4.0-preview.1
+
+### New features
+- Add AOT-compatible web API authentication for .NET 10+. See [#3705](https://github.com/AzureAD/microsoft-identity-web/pull/3705) and [#3664](https://github.com/AzureAD/microsoft-identity-web/pull/3664).
+- Propagate long-running web API session key back to callers in user token acquisition. See [#3728](https://github.com/AzureAD/microsoft-identity-web/pull/3728).
+- Add OBO event initialization for OBO APIs. See [#3724](https://github.com/AzureAD/microsoft-identity-web/pull/3724).
+- Add support for calling `WithClientClaims` flow for token acquisition. See [#3623](https://github.com/AzureAD/microsoft-identity-web/pull/3623).
+- Add `OnBeforeTokenAcquisitionForOnBehalfOf` event. See [#3680](https://github.com/AzureAD/microsoft-identity-web/pull/3680).
+
+### Bug fixes
+- Throw `InvalidOperationException` with actionable message when a custom credential is not registered. See [#3626](https://github.com/AzureAD/microsoft-identity-web/pull/3626).
+- Fix event firing for `InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync`. See [#3717](https://github.com/AzureAD/microsoft-identity-web/pull/3717).
+- Update `OnBeforeTokenAcquisitionForOnBehalfOf` to construct `ClaimsPrincipal` from token. See [#3714](https://github.com/AzureAD/microsoft-identity-web/pull/3714).
+- Add a retry counter for acquire token and updated tests with a fake secret. See [#3682](https://github.com/AzureAD/microsoft-identity-web/pull/3682).
+- Fix OBO user error handling. See [#3712](https://github.com/AzureAD/microsoft-identity-web/pull/3712).
+- Fix override merging for app token (and others). See [#3644](https://github.com/AzureAD/microsoft-identity-web/pull/3644).
+- Fix certificate reload logic to only trigger on certificate-specific errors. See [#3653](https://github.com/AzureAD/microsoft-identity-web/pull/3653).
+- Update ROPC flow CCA to pass `SendX5C` to MSAL. See [#3671](https://github.com/AzureAD/microsoft-identity-web/pull/3671).
+
+### Dependencies updates
+- Bump `qs` in `/tests/DevApps/SidecarAdapter/typescript`. See [#3725](https://github.com/AzureAD/microsoft-identity-web/pull/3725).
+- Downgrade Microsoft.Extensions.Configuration.Binder to 2.1.0 on .NET Framework. See [#3730](https://github.com/AzureAD/microsoft-identity-web/pull/3730).
+- Update .NET SDK to 10.0.103 to address DOTNET-Security-10.0 vulnerability. See [#3726](https://github.com/AzureAD/microsoft-identity-web/pull/3726).
+- Upgrade to Microsoft.Identity.Abstractions 11 for AoT compatibility. See [#3699](https://github.com/AzureAD/microsoft-identity-web/pull/3699).
+- Update to MSAL 4.81.0. See [#3665](https://github.com/AzureAD/microsoft-identity-web/pull/3665).
+
+### Documentation
 - Add documentation for auto-generated session key for long-running OBO session. See [#3729](https://github.com/AzureAD/microsoft-identity-web/pull/3729).
 - Improve the Aspire doc article and skills. See [#3695](https://github.com/AzureAD/microsoft-identity-web/pull/3695).
 - Add an article and agent skill to add Entra ID to an Aspire app. See [#3689](https://github.com/AzureAD/microsoft-identity-web/pull/3689).

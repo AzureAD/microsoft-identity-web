@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
@@ -30,13 +31,17 @@ namespace Microsoft.Identity.Web.Tests
             _authorizationHeaderProvider = new MyAuthorizationHeaderProvider();
             _httpClientFactory = new HttpClientFactoryTest();
             _namedDownstreamApiOptions = new MyMonitor();
-            _logger = new LoggerFactory().CreateLogger<DownstreamApi>();
+            var loggerFactory = new LoggerFactory();
+            _logger = loggerFactory.CreateLogger<DownstreamApi>();
+            var provider = new CredentialsProvider(loggerFactory.CreateLogger<CredentialsProvider>(), new DefaultCredentialsLoader(), [], null);
 
             _downstreamApi = new DownstreamApi(
                 _authorizationHeaderProvider,
                 _namedDownstreamApiOptions,
                 _httpClientFactory,
-                _logger);
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: provider);
         }
 
         [Fact]
@@ -54,7 +59,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.True(httpRequestMessage.Headers.Contains("OData-Version"));
@@ -78,7 +83,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
@@ -100,7 +105,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();
@@ -117,7 +122,7 @@ namespace Microsoft.Identity.Web.Tests
             var options = new DownstreamApiOptions(); // No extra parameters
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
@@ -137,7 +142,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             Assert.Equal(originalUri, httpRequestMessage.RequestUri!.ToString());
@@ -157,7 +162,7 @@ namespace Microsoft.Identity.Web.Tests
             };
 
             // Act
-            await _downstreamApi.UpdateRequestAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
+            await _downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, null, options, false, null, CancellationToken.None);
 
             // Assert
             var requestUri = httpRequestMessage.RequestUri!.ToString();

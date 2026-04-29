@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -112,7 +114,42 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             {
                 oAuthChallengeProperties.Scope = scope.Split(" ");
             }
-            oAuthChallengeProperties.RedirectUri = redirectUri;
+
+            // Validate the redirect URI. Accept:
+            //   * Local URLs (e.g. "/path") — the common MVC pattern.
+            //   * Same-origin absolute URLs (coerced to PathAndQuery) — required because
+            //     Microsoft.Identity.Web's own MicrosoftIdentityConsentAndConditionalAccessHandler
+            //     passes NavigationManager.Uri (always absolute) for Blazor Server step-up
+            //     consent and for Razor Pages / MVC step-up. Rejecting those would break the
+            //     canonical [AuthorizeForScopes] / MsalUiRequiredException flow.
+            // Reject everything else. The post-sign-in 302 honors AuthenticationProperties.RedirectUri
+            // as-is (CookieAuthenticationHandler does not enforce IsLocalUrl), so the check must
+            // happen here. This closes the open-redirect class of bug matching the SignIn action's
+            // own IsLocalUrl gate added in PR #1219.
+            string? safeRedirect = null;
+            if (!string.IsNullOrEmpty(redirectUri))
+            {
+                if (Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri))
+                {
+                    safeRedirect = redirectUri;
+                }
+                else if (Uri.TryCreate(redirectUri, UriKind.Absolute, out var absolute)
+                         && IsSameOrigin(absolute, HttpContext.Request))
+                {
+                    // PathAndQuery of a same-origin absolute URL can still begin with "//" or "/\"
+                    // for inputs like "http://victim.app//evil.com/x" (Uri.Host="victim.app",
+                    // PathAndQuery="//evil.com/x") — a protocol-relative URL that CookieAuthenticationHandler
+                    // would emit verbatim in its Location header. Re-run IsLocalUrl on the coerced value
+                    // to reject those shapes.
+                    var candidate = absolute.PathAndQuery;
+                    if (Url.IsLocalUrl(candidate) && !IsPercentEncodedSlashBypass(candidate))
+                    {
+                        safeRedirect = candidate;
+                    }
+                }
+            }
+
+            oAuthChallengeProperties.RedirectUri = safeRedirect ?? Url.Content("~/")!;
 
             return Challenge(
                 oAuthChallengeProperties,
@@ -186,5 +223,39 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             properties.Items[Constants.Policy] = _optionsMonitor.Get(scheme).EditProfilePolicyId;
             return Challenge(properties, scheme);
         }
+
+        /// <summary>
+        /// Returns <c>true</c> when <paramref name="absolute"/> has the same origin (scheme + host + port)
+        /// as <paramref name="request"/>. Used by <c>Challenge</c> to accept same-origin absolute redirect URIs
+        /// without opening an open-redirect sink.
+        /// </summary>
+        private static bool IsSameOrigin(Uri absolute, HttpRequest request)
+        {
+            if (!string.Equals(absolute.Scheme, request.Scheme, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!string.Equals(absolute.Host, request.Host.Host, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            int requestPort = request.Host.Port ?? (request.IsHttps ? 443 : 80);
+            return absolute.Port == requestPort;
+        }
+
+        /// <summary>
+        /// Defense-in-depth: reject paths whose first segment starts with a percent-encoded
+        /// forward or backward slash (<c>%2f</c>/<c>%5c</c>). Browsers per RFC 3986 treat these
+        /// as literal path characters, but misconfigured reverse proxies (NGINX, IIS ARR, F5)
+        /// can decode them into <c>//</c> or <c>/\</c> when rewriting the <c>Location</c>
+        /// header, reopening the protocol-relative bypass that this controller otherwise
+        /// closes. Comparison is case-insensitive because the RFC 3986 encoding is
+        /// hex-case-insensitive.
+        /// </summary>
+        private static bool IsPercentEncodedSlashBypass(string path) =>
+            path.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase);
     }
 }

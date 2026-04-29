@@ -39,7 +39,7 @@ public class B2CWebAppCallsWebApiLocally : IClassFixture<InstallPlaywrightBrowse
         _output = output;
     }
 
-    [Fact]
+    [Fact(Skip = "Legacy B2C test infrastructure (webappsapistests Key Vault / fabrikamb2c tenant) is no longer valid.")]
     [SupportedOSPlatform("windows")]
     public async Task Susi_B2C_LocalAccount_TodoAppFunctionsCorrectlyAsync()
     {
