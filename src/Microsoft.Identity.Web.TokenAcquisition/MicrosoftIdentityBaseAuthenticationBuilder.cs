@@ -37,6 +37,11 @@ namespace Microsoft.Identity.Web
             IdentityModelEventSource.ShowPII = logOptions.EnablePiiLogging;
         }
 
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
         [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.GetValue")]
         internal static void SetIdentityModelLogger(IServiceProvider serviceProvider)

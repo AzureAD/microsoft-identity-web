@@ -8,6 +8,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// EventIds for Logging.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal static class LoggingEventId
     {
 #pragma warning disable IDE1006 // Naming Styles

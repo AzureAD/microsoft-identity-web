@@ -9,6 +9,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// LoggingMessage class for TokenAcquisition.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal partial class TokenAcquisition
     {
         internal static class Logger

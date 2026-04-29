@@ -36,6 +36,28 @@
     <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetCore_Pre10/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetCore_Pre10/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
     <Compile Remove="*.cs" />
     <Compile Remove="AppServicesAuth\**" />
@@ -47,25 +69,14 @@
     <Compile Remove="WebApiExtensions\**" />
     <Compile Remove="WebAppExtensions\**" />
     <Compile Remove="TokenCacheProviders\Session\**" />
+
+    <AdditionalFiles Remove="PublicAPI/**/*.*" />
+    
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="$(MicrosoftExtensionsCachingMemoryVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="$(MicrosoftAspNetCoreDataProtectionVersion)" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="$(SystemSecurityCryptographyXmlVersion)" />
     <PackageReference Include="System.Formats.Asn1" Version="$(SystemFormatsAsn1Version)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Web.Certificate\Microsoft.Identity.Web.Certificate.csproj" />
-    <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
-    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
-    <ProjectReference Include="..\Microsoft.Identity.Web.TokenCache\Microsoft.Identity.Web.TokenCache.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
   </ItemGroup>
 
 </Project>

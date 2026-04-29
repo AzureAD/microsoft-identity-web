@@ -1,2 +1,0 @@
-#nullable enable
-Microsoft.Identity.Web.MicrosoftIdentityTokenCredential.MicrosoftIdentityTokenCredential(Microsoft.Identity.Abstractions.ITokenAcquirerFactory! tokenAcquirerFactory, Microsoft.Identity.Web.ITokenAcquisitionHost! tokenAcquisitionHost) -> void

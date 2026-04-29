@@ -167,13 +167,6 @@ dotnet_code_quality.CA2208.api_surface = public
 dotnet_diagnostic.RS0030.severity = error
 
 # https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/Microsoft.CodeAnalysis.PublicApiAnalyzers.md
-dotnet_diagnostic.RS0051.severity = error
-dotnet_diagnostic.RS0052.severity = error
-dotnet_diagnostic.RS0053.severity = error
-dotnet_diagnostic.RS0054.severity = error
-dotnet_diagnostic.RS0055.severity = error
-dotnet_diagnostic.RS0057.severity = error
-dotnet_diagnostic.RS0058.severity = error
 dotnet_diagnostic.RS0061.severity = error
 
 # CA1000: Do not declare static members on generic types

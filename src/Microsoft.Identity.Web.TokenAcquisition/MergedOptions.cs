@@ -20,6 +20,11 @@ namespace Microsoft.Identity.Web
     /// Options for configuring authentication using Azure Active Directory. It has both AAD and B2C configuration attributes.
     /// Merges the MicrosoftIdentityWebOptions and the ConfidentialClientApplicationOptions.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.OWIN
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal sealed class MergedOptions : MicrosoftIdentityOptions
     {
         private ConfidentialClientApplicationOptions? _confidentialClientApplicationOptions;
@@ -58,8 +63,18 @@ namespace Microsoft.Identity.Web
         public LogLevel LogLevel { get; set; }
         public string? RedirectUri { get; set; }
         public bool EnableCacheSynchronization { get; set; }
+        /*
+         * Used by Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal bool MergedWithCca { get; set; }
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal bool PreserveAuthority { get; set; }
 
         /// <summary>
@@ -338,6 +353,11 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal static void UpdateMergedOptionsFromConfidentialClientApplicationOptions(ConfidentialClientApplicationOptions confidentialClientApplicationOptions, MergedOptions mergedOptions)
         {
             mergedOptions.MergedWithCca = true;
@@ -446,6 +466,11 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /*
+         * Used by Microsoft.Identity.Web.OWIN
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
             // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
