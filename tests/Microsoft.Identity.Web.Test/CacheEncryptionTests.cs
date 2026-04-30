@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Test
         private byte[] GetFirstCacheValue(MemoryCache memoryCache)
         {
             IDictionary memoryCacheContent;
-# if NET6_0 || NET462
+# if NET6_0
             memoryCacheContent = (memoryCache
                 .GetType()
                 .GetProperty("StringKeyEntriesCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
@@ -85,10 +85,15 @@ namespace Microsoft.Identity.Web.Test
                 .GetField("_stringEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(content1) as IDictionary)!;
 #else
-            memoryCacheContent = (memoryCache
+            // MemoryCache 8.0.x on .NET Framework uses the same internal structure as net8.0
+            dynamic content1 = memoryCache
                 .GetType()
-                .GetField("_entries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(_testCacheAdapter!._memoryCache) as IDictionary)!;
+                .GetField("_coherentState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(memoryCache)!;
+            memoryCacheContent = (content1?
+                .GetType()
+                .GetField("_stringEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetValue(content1) as IDictionary)!;
 #endif // NET472
             var firstEntry = memoryCacheContent.Values.OfType<object>().First();
             var firstEntryValue = firstEntry.GetType()

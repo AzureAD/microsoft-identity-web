@@ -101,6 +101,19 @@
     <MicrosoftExtensionsLoggingAbstractionsVersion>8.0.3</MicrosoftExtensionsLoggingAbstractionsVersion>
   </PropertyGroup>
 
+  <PropertyGroup Label="Microsoft.Extensions base versions">
+    <!-- Base M.E.* version for all TFMs; TFM-specific blocks override as needed.
+         On net8.0, most match the base with specific hotfix overrides.
+         On net9.0/net10.0, everything is overridden to match the runtime version. -->
+    <CommonMicrosoftExtensionsVersion>8.0.0</CommonMicrosoftExtensionsVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsHostingVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHostingVersion>
+    <MicrosoftExtensionsHttpVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHttpVersion>
+    <MicrosoftExtensionsLoggingVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsLoggingVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
@@ -145,37 +158,19 @@
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>8.0.0</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>8.0.3</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftExtensionsLoggingAbstractionsVersion>8.0.3</MicrosoftExtensionsLoggingAbstractionsVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>6.0.0-*</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>6.0.0-*</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>6.0.2</MicrosoftExtensionsCachingMemoryVersion>
-    <!-- Microsoft.Extensions.* 5.* are obsoleted -->
-    <MicrosoftExtensionsHostingVersion>6.0.0</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHttpVersion>8.0.0</MicrosoftExtensionsHttpVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>6.0.0</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>6.0.1</SystemSecurityCryptographyXmlVersion>
-
-    <!-- CVE-2022-34716 due to DataProtection 5.0.8 -->
     <SystemTextEncodingsWebVersion>6.0.0</SystemTextEncodingsWebVersion>
-
-    <!-- 6.0.0 as 5.x are deprecated -->
-    <MicrosoftExtensionsLoggingVersion>6.0.0</MicrosoftExtensionsLoggingVersion>
-
-    <!-- Microsoft.Extensions.Configuration.Binder 6.* are obsoleted -->
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net472'">
@@ -183,12 +178,6 @@
     <!-- CVE-2022-34716 due to DataProtection 2.1.0 -->
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>4.7.1</SystemSecurityCryptographyXmlVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>2.1.0</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsHostingVersion>2.1.1</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHttpVersion>8.0.0</MicrosoftExtensionsHttpVersion>
-    <MicrosoftExtensionsLoggingVersion>2.1.0</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
   </PropertyGroup>
 
   <ItemGroup>

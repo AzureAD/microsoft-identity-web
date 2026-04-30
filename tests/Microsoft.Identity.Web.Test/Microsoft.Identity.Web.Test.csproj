@@ -40,8 +40,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <!-- Special need for Microsoft.Extensions.Hosting.Host which is only available from 3.1-->
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsHostingVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
