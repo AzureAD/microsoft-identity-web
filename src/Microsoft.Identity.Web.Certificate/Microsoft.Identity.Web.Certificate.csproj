@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="InternalAPI.Unshipped.txt" />
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
   </ItemGroup>
 </Project>

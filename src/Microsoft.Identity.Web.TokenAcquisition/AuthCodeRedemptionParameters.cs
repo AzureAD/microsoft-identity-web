@@ -5,6 +5,11 @@ using System.Collections.Generic;
 
 namespace Microsoft.Identity.Web
 {
+    /*
+     * Used by Microsoft.Identity.Web.OWIN
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal class AuthCodeRedemptionParameters
     {
         public AuthCodeRedemptionParameters(

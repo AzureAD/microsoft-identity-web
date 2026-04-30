@@ -6,6 +6,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Constants related to the error messages.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.GraphServiceClient, Microsoft.Identity.Web.GraphServiceClientBeta, Microsoft.Identity.Web.MicrosoftGraph, Microsoft.Identity.Web.OWIN
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal static class IDWebErrorMessage
     {
         // General IDW10000 = "IDW10000:"

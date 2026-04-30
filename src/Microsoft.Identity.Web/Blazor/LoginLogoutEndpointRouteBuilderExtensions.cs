@@ -4,12 +4,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web;
@@ -39,6 +42,8 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     public static IEndpointConventionBuilder MapLoginAndLogout(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("");
+
+        WarnIfAntiforgeryMissing(endpoints.ServiceProvider);
 
         // Enhanced login endpoint that supports incremental consent and Conditional Access
         group.MapGet("/login", (
@@ -81,6 +86,26 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
 
         group.MapPost("/logout", async (HttpContext context) =>
         {
+            // Defense-in-depth CSRF validation (MSRC hardening). When the host has registered
+            // IAntiforgery via AddAntiforgery() (or indirectly via AddControllersWithViews,
+            // AddRazorPages, AddMvc, etc.), we explicitly validate the request token here —
+            // independently of whether UseAntiforgery() middleware is in the pipeline. This
+            // avoids coupling our endpoint to pipeline shape: MVC hosts that rely on filter-
+            // time validation, minimal-API hosts that wire UseAntiforgery(), and Blazor hosts
+            // that wire both all receive equivalent protection at this endpoint. Hosts that
+            // do not register IAntiforgery at all fall back to RequireAuthorization() +
+            // SameSite=Lax cookie semantics as the primary CSRF gate — matching pre-MSRC
+            // behavior and logged once at map time (see WarnIfAntiforgeryMissing).
+            // IsRequestValidAsync is safe to call after UseAntiforgery() middleware has already
+            // validated: the form is buffered (ReadFormAsync is cached on HttpRequest), tokens
+            // are not single-use in the default flow, and re-validation is a cheap hash verify —
+            // not a no-op, but inexpensive.
+            var antiforgery = context.RequestServices.GetService<IAntiforgery>();
+            if (antiforgery is not null && !await antiforgery.IsRequestValidAsync(context))
+            {
+                return Results.BadRequest();
+            }
+
             string? returnUrl = null;
             if (context.Request.HasFormContentType)
             {
@@ -88,21 +113,63 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
                 returnUrl = form["ReturnUrl"];
             }
 
-            return TypedResults.SignOut(GetAuthProperties(returnUrl),
+            return (IResult)TypedResults.SignOut(GetAuthProperties(returnUrl),
                 [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme]);
         })
-        .DisableAntiforgery();
+        .RequireAuthorization();
 
         return group;
     }
 
-    private static AuthenticationProperties GetAuthProperties(string? returnUrl)
+    // Emits a single warning at endpoint-build time when IAntiforgery isn't registered in DI.
+    // This surfaces the graceful-degradation state to operators so it's not silently invisible
+    // that CSRF protection at /logout relies solely on RequireAuthorization + SameSite=Lax
+    // (rather than token validation). Called once per MapLoginAndLogout invocation.
+    private static void WarnIfAntiforgeryMissing(IServiceProvider? serviceProvider)
+    {
+        var isService = serviceProvider?.GetService<IServiceProviderIsService>();
+        var antiforgeryRegistered = isService?.IsService(typeof(IAntiforgery)) ?? false;
+        if (antiforgeryRegistered)
+        {
+            return;
+        }
+
+        var loggerFactory = serviceProvider?.GetService<ILoggerFactory>();
+        var logger = loggerFactory?.CreateLogger(typeof(LoginLogoutEndpointRouteBuilderExtensions).FullName!);
+        logger?.LogWarning(
+            new EventId(1, "AntiforgeryNotRegistered"),
+            "MapLoginAndLogout was called but IAntiforgery is not registered in DI. The /logout " +
+            "endpoint will rely on RequireAuthorization and SameSite=Lax cookies as its CSRF gate. " +
+            "To enable antiforgery token validation, call services.AddAntiforgery() (and, for " +
+            "minimal APIs, app.UseAntiforgery()).");
+    }
+
+    /// <summary>
+    /// Builds <see cref="AuthenticationProperties"/> with a strictly-local <c>RedirectUri</c>.
+    /// Any non-local input (absolute URL, protocol-relative "//host", slash-backslash "/\host",
+    /// or anything not starting with a single '/') is coerced to "/". This matches the
+    /// semantics of <see cref="Microsoft.AspNetCore.Mvc.IUrlHelper.IsLocalUrl"/> and prevents
+    /// open-redirect attacks via the ReturnUrl query/form parameter.
+    /// </summary>
+    internal static AuthenticationProperties GetAuthProperties(string? returnUrl)
     {
         const string pathBase = "/";
-        if (string.IsNullOrEmpty(returnUrl)) returnUrl = pathBase;
-        else if (returnUrl.StartsWith("//", StringComparison.Ordinal)) returnUrl = pathBase; // Prevent protocol-relative redirects
-        else if (!Uri.IsWellFormedUriString(returnUrl, UriKind.Relative)) returnUrl = new Uri(returnUrl, UriKind.Absolute).PathAndQuery;
-        else if (returnUrl[0] != '/') returnUrl = $"{pathBase}{returnUrl}";
-        return new AuthenticationProperties { RedirectUri = returnUrl };
+        return new AuthenticationProperties { RedirectUri = IsLocalUrl(returnUrl) ? returnUrl! : pathBase };
+    }
+
+    private static bool IsLocalUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return false;
+        }
+
+        // "/foo" is local, but not "//foo" (protocol-relative) and not "/\foo" (slash-backslash).
+        if (url[0] == '/')
+        {
+            return url.Length == 1 || (url[1] != '/' && url[1] != '\\');
+        }
+
+        return false;
     }
 }
