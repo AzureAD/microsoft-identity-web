@@ -6,6 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
 {
+    /*
+     * Used by Microsoft.Identity.Web, Microsoft.Identity.Web.SideCar
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal static class HttpContextExtensions
     {
         /// <summary>
@@ -14,6 +19,11 @@ namespace Microsoft.Identity.Web
         /// <param name="httpContext">HTTP context.</param>
         /// <param name="token">Token to preserve after the token is validated so that
         /// it can be used in the actions.</param>
+        /*
+         * Used by Microsoft.Identity.Web
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal static void StoreTokenUsedToCallWebAPI(this HttpContext httpContext, SecurityToken? token)
         {
             // lock due to https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads
@@ -28,6 +38,11 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="httpContext">HTTP context associated with the current request.</param>
         /// <returns><see cref="SecurityToken"/> used to call the web API.</returns>
+        /*
+         * Used by Microsoft.Identity.Web.SideCar
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
         internal static SecurityToken? GetTokenUsedToCallWebAPI(this HttpContext httpContext)
         {
             // lock due to https://learn.microsoft.com/aspnet/core/performance/performance-best-practices?#do-not-access-httpcontext-from-multiple-threads

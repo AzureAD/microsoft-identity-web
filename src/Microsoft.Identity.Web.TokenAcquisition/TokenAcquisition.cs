@@ -32,6 +32,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Token acquisition service.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
 #if NETSTANDARD2_0 || NET462 || NET472
     internal partial class TokenAcquisition : ITokenAcquisitionInternal
 #else

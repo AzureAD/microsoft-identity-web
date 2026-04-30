@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Microsoft Identity Web downstream API</Title>
     <Product>Microsoft Identity Web downstream API</Product>
@@ -36,13 +36,21 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   
-  <ItemGroup>
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
-  </ItemGroup>
-  
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0'">
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetFramework/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI/NetCore/PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
   <ItemGroup>
     <Compile Update="DownstreamApi.HttpMethods.cs">
       <DesignTime>True</DesignTime>

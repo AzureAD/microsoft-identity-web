@@ -1,3 +1,0 @@
-#nullable enable
-Microsoft.Extensions.DependencyInjection.OidcFicSignedAssertionProviderExtensions
-static Microsoft.Extensions.DependencyInjection.OidcFicSignedAssertionProviderExtensions.AddOidcFic(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

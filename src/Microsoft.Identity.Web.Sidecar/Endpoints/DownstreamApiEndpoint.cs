@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
 
@@ -16,30 +17,59 @@ namespace Microsoft.Identity.Web.Sidecar.Endpoints;
 
 public static class DownstreamApiEndpoint
 {
+    internal const string AuthenticatedRouteName = "DownstreamApi";
+    internal const string UnauthenticatedRouteName = "DownstreamApiUnauthenticated";
+
     public static void AddDownstreamApiRequestEndpoints(this WebApplication app)
     {
-        app.MapPost("/DownstreamApi/{apiName}", DownstreamApiAsync).
-            WithName("DownstreamApi").
+        app.MapPost("/DownstreamApi/{apiName}",
+                (HttpContext httpContext, [Description("The downstream API to call")][FromRoute] string apiName,
+                    [AsParameters] DownstreamApiRequest requestParameters,
+                    BindableDownstreamApiOptions optionsOverride,
+                    [FromServices] IDownstreamApi downstreamApi,
+                    [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+                    [FromServices] IOptions<SidecarOptions> sidecarOptions,
+                    [FromServices] ILogger<Program> logger,
+                    CancellationToken cancellationToken) =>
+                DownstreamApiAsync(
+                    httpContext, apiName, requestParameters, optionsOverride, downstreamApi, optionsMonitor,
+                    sidecarOptions.Value.AllowOverrides.CallDownstreamApi, AuthenticatedRouteName, logger, cancellationToken)).
+            WithName(AuthenticatedRouteName).
             RequireAuthorization().
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized).
             WithSummary("Invoke a configured downstream API through the sidecar using the authenticated identity.").
             WithDescription(
                 "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. " +
+                "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApi' (default: true). " +
+                "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
                 "  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n" +
                 "  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default");
 
-        app.MapPost("/DownstreamApiUnauthenticated/{apiName}", DownstreamApiAsync).
-            WithName("DownstreamApiUnauthenticated").
+        app.MapPost("/DownstreamApiUnauthenticated/{apiName}",
+                (HttpContext httpContext, [Description("The downstream API to call")][FromRoute] string apiName,
+                    [AsParameters] DownstreamApiRequest requestParameters,
+                    BindableDownstreamApiOptions optionsOverride,
+                    [FromServices] IDownstreamApi downstreamApi,
+                    [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+                    [FromServices] IOptions<SidecarOptions> sidecarOptions,
+                    [FromServices] ILogger<Program> logger,
+                    CancellationToken cancellationToken) =>
+                DownstreamApiAsync(
+                    httpContext, apiName, requestParameters, optionsOverride, downstreamApi, optionsMonitor,
+                    sidecarOptions.Value.AllowOverrides.CallDownstreamApiUnauthenticated, UnauthenticatedRouteName, logger, cancellationToken)).
+            WithName(UnauthenticatedRouteName).
             AllowAnonymous().
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized).
             WithSummary("Invoke a configured downstream API through the sidecar using the configured client credentials.").
             WithDescription(
                 "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. " +
+                "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApiUnauthenticated' (default: false). " +
+                "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
@@ -49,14 +79,14 @@ public static class DownstreamApiEndpoint
 
     private static async Task<Results<Ok<DownstreamApiResult>, ProblemHttpResult>> DownstreamApiAsync(
         HttpContext httpContext,
-        [Description("The downstream API to call")]
-        [FromRoute]
         string apiName,
-        [AsParameters] DownstreamApiRequest requestParameters,
+        DownstreamApiRequest requestParameters,
         BindableDownstreamApiOptions optionsOverride,
-        [FromServices] IDownstreamApi downstreamApi,
-        [FromServices] IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
-        [FromServices] ILogger<Program> logger,
+        IDownstreamApi downstreamApi,
+        IOptionsMonitor<DownstreamApiOptions> optionsMonitor,
+        bool allowOverrides,
+        string routeName,
+        ILogger<Program> logger,
         CancellationToken cancellationToken)
     {
         DownstreamApiOptions? options = optionsMonitor.Get(apiName);
@@ -70,7 +100,14 @@ public static class DownstreamApiEndpoint
 
         if (optionsOverride.HasAny)
         {
-            options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
+            if (allowOverrides)
+            {
+                options = DownstreamApiOptionsMerger.MergeOptions(options, optionsOverride);
+            }
+            else
+            {
+                logger.OverridesIgnored(routeName);
+            }
         }
 
         if (options.Scopes is null || !options.Scopes.Any())
