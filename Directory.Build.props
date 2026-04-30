@@ -107,7 +107,9 @@
          On net9.0/net10.0, everything is overridden to match the runtime version. -->
     <CommonMicrosoftExtensionsVersion>8.0.0</CommonMicrosoftExtensionsVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsHostingVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHostingVersion>
     <MicrosoftExtensionsHttpVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHttpVersion>
