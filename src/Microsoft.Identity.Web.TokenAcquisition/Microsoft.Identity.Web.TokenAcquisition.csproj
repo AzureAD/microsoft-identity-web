@@ -25,7 +25,7 @@
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationBinderVersion)" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="$(MicrosoftExtensionsHttpVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,11 +55,19 @@
     <Compile Include="..\Shared\CodeAnalysisAttributes.cs" Link="Polyfills\CodeAnalysisAttributes.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI/$(TargetFramework)/InternalAPI.Unshipped.txt" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'netstandard2.0'">
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI\NetFramework\PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI\NetFramework\PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <AdditionalFiles Include="PublicAPI\NetCore\PublicAPI.Shipped.txt" />
+        <AdditionalFiles Include="PublicAPI\NetCore\PublicAPI.Unshipped.txt" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
 </Project>

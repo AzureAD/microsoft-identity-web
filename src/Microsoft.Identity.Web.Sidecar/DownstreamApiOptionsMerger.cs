@@ -27,10 +27,9 @@ public static class DownstreamApiOptionsMerger
             res.RequestAppToken = right.RequestAppToken;
         }
 
-        if (!string.IsNullOrEmpty(right.BaseUrl))
-        {
-            res.BaseUrl = right.BaseUrl;
-        }
+        // BaseUrl from the override is intentionally not merged. The downstream
+        // BaseUrl is fixed by host configuration and cannot be overridden through
+        // the optionsOverride channel.
 
         if (!string.IsNullOrEmpty(right.RelativePath))
         {

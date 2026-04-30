@@ -108,6 +108,7 @@
     <CommonMicrosoftExtensionsVersion>8.0.0</CommonMicrosoftExtensionsVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsConfigurationJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsHostingVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHostingVersion>
     <MicrosoftExtensionsHttpVersion>$(CommonMicrosoftExtensionsVersion)</MicrosoftExtensionsHttpVersion>

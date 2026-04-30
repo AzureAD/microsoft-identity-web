@@ -6,6 +6,11 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web
 {
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal sealed class MsalAspNetCoreHttpClientFactory : IMsalHttpClientFactory
     {
         private readonly IHttpClientFactory _httpClientFactory;

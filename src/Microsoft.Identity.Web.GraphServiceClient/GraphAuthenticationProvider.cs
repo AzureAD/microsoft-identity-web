@@ -18,6 +18,11 @@ namespace Microsoft.Identity.Web
     /// Authentication provider for Microsoft Graph, based on IAuthorizationHeaderProvider. This is richer
     /// than <see cref="BaseBearerTokenAuthenticationProvider"/> which only supports the bearer protocol.
     /// </summary>
+    /*
+     * Used by Microsoft.Identity.Web.GraphServiceClientBeta
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal class GraphAuthenticationProvider : IAuthenticationProvider
     {
         private const string AuthorizationHeaderKey = "Authorization";

@@ -8,6 +8,11 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Identity.Web
 {
+    /*
+     * Used by Microsoft.Identity.Web
+     * Any changes to this member (including removal) can cause runtime failures.
+     * Treat as a public member.
+     */
     internal class JwtBearerOptionsMerger : IPostConfigureOptions<JwtBearerOptions>
     {
         public JwtBearerOptionsMerger(IMergedOptionsStore mergedOptions)

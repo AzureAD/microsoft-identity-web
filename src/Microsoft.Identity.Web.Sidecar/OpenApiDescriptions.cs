@@ -25,7 +25,15 @@ internal static class OpenApiDescriptions
         AddSimple(op, "optionsOverride.RequestAppToken", "boolean", "true = acquire an app (client credentials) token instead of user token.");
 
         // Base request shaping
-        AddSimple(op, "optionsOverride.BaseUrl", "string", "Override downstream API base URL.");
+        op.Parameters.Add(new OpenApiParameter
+        {
+            Name = "optionsOverride.BaseUrl",
+            In = ParameterLocation.Query,
+            Description = "Ignored. The downstream BaseUrl is fixed by host configuration and cannot be overridden via optionsOverride.",
+            Required = false,
+            Deprecated = true,
+            Schema = new OpenApiSchema { Type = "string" }
+        });
         AddSimple(op, "optionsOverride.RelativePath", "string", "Override relative path appended to BaseUrl.");
         AddSimple(op, "optionsOverride.HttpMethod", "string", "Override HTTP method (GET, POST, PATCH, etc.).");
         AddSimple(op, "optionsOverride.AcceptHeader", "string", "Sets Accept header (e.g. application/json).");

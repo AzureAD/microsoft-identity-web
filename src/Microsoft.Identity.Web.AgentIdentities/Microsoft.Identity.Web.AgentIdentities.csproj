@@ -19,8 +19,6 @@
   <ItemGroup>
     <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
-    <AdditionalFiles Include="PublicAPI\InternalAPI.Shipped.txt" />
-    <AdditionalFiles Include="PublicAPI\InternalAPI.Unshipped.txt" />
   </ItemGroup>
 
   <ItemGroup>
