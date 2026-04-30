@@ -149,7 +149,9 @@ namespace Microsoft.Identity.Web
 
                 if (mergedOptions.ExtraQueryParameters != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters((Dictionary<string, string>)mergedOptions.ExtraQueryParameters);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (!string.IsNullOrEmpty(authCodeRedemptionParameters.Tenant))
@@ -417,12 +419,14 @@ namespace Microsoft.Identity.Web
                 var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
-                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                    Microsoft.Identity.Client.Extensibility.AcquireTokenParameterBuilderExtensions.WithExtraHttpHeaders(builder, tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
                 if (tokenAcquisitionOptions.CorrelationId != null)
                 {
@@ -602,11 +606,13 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
-                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                    Microsoft.Identity.Client.Extensibility.AcquireTokenParameterBuilderExtensions.WithExtraHttpHeaders(builder, tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
 
                 AddExtraBodyParametersIfNeeded(tokenAcquisitionOptions, builder);
@@ -1143,11 +1149,13 @@ namespace Microsoft.Identity.Web
                                 dict.Remove(subAssertionConstant);
                             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
                             builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                         }
                         if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                         {
-                            builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                            Microsoft.Identity.Client.Extensibility.AcquireTokenParameterBuilderExtensions.WithExtraHttpHeaders(builder, tokenAcquisitionOptions.ExtraHeadersParameters);
                         }
                         if (tokenAcquisitionOptions.CorrelationId != null)
                         {
@@ -1300,11 +1308,13 @@ namespace Microsoft.Identity.Web
 
                 if (dict != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder.WithExtraQueryParameters(dict);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
                 {
-                    builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                    Microsoft.Identity.Client.Extensibility.AcquireTokenParameterBuilderExtensions.WithExtraHttpHeaders(builder, tokenAcquisitionOptions.ExtraHeadersParameters);
                 }
                 if (tokenAcquisitionOptions.CorrelationId != null)
                 {
