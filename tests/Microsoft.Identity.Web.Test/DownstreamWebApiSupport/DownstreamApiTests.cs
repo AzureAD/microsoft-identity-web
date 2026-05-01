@@ -172,6 +172,134 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
+        public async Task UpdateRequestAsync_ExtraHeaderParameters_CallerProvidedAuthorization_IsIgnored()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+                BaseUrl = "https://localhost:44321/WeatherForecast",
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { "Authorization", "Bearer caller-supplied" }
+                }
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert
+            Assert.Single(httpRequestMessage.Headers.GetValues("Authorization"));
+            Assert.Equal("ey", httpRequestMessage.Headers.Authorization?.Parameter);
+            Assert.Equal("Bearer", httpRequestMessage.Headers.Authorization?.Scheme);
+        }
+
+        [Theory]
+        [InlineData("Authorization")]
+        [InlineData("authorization")]
+        [InlineData("Cookie")]
+        [InlineData("Host")]
+        [InlineData("X-Original-URL")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL-ID")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL-NAME")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL-IDP")]
+        public async Task UpdateRequestAsync_ExtraHeaderParameters_ReservedNames_AreIgnored(string headerName)
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { headerName, "caller-supplied-value" }
+                }
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.False(httpRequestMessage.Headers.Contains(headerName));
+        }
+
+        [Theory]
+        [InlineData("X-Forwarded-For")]
+        [InlineData("X-Forwarded-Host")]
+        [InlineData("X-Forwarded-Proto")]
+        [InlineData("x-forwarded-for")]
+        [InlineData("X-MS-TOKEN-AAD-ID-TOKEN")]
+        [InlineData("X-MS-TOKEN-AAD-ACCESS-TOKEN")]
+        [InlineData("x-ms-token-aad-refresh-token")]
+        public async Task UpdateRequestAsync_ExtraHeaderParameters_ReservedPrefixes_AreIgnored(string headerName)
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { headerName, "caller-supplied-value" }
+                }
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.False(httpRequestMessage.Headers.Contains(headerName));
+        }
+
+        [Fact]
+        public async Task UpdateRequestAsync_ExtraHeaderParameters_DuplicateOfLibrarySetHeader_IsIgnored()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                AcceptHeader = "application/json",
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { "Accept", "text/xml" }
+                }
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.Single(httpRequestMessage.Headers.Accept);
+            Assert.Equal("application/json", httpRequestMessage.Headers.Accept.Single().MediaType);
+        }
+
+        [Fact]
+        public async Task UpdateRequestAsync_ExtraHeaderParameters_AllowedHeader_IsForwarded()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { "X-Custom-Tracking", "trace-id-123" }
+                }
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, null, CancellationToken.None);
+
+            // Assert
+            Assert.True(httpRequestMessage.Headers.Contains("X-Custom-Tracking"));
+            Assert.Equal("trace-id-123", httpRequestMessage.Headers.GetValues("X-Custom-Tracking").Single());
+        }
+
+        [Fact]
         public void SerializeInput_ReturnsCorrectHttpContent()
         {
             // Arrange
