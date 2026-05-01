@@ -30,6 +30,18 @@ namespace Microsoft.Identity.Web
                     DownstreamApiLoggingEventId.UnauthenticatedApiCall,
                     "[MsIdWeb] An unauthenticated call was made to the Api with null Scopes");
 
+            private static readonly Action<ILogger, string, Exception?> s_reservedHeaderIgnored =
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DownstreamApiLoggingEventId.ReservedHeaderIgnored,
+                    "[MsIdWeb] Header '{HeaderName}' supplied through ExtraHeaderParameters was ignored because the name is reserved for the library.");
+
+            private static readonly Action<ILogger, string, Exception?> s_duplicateHeaderIgnored =
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    DownstreamApiLoggingEventId.DuplicateHeaderIgnored,
+                    "[MsIdWeb] Header '{HeaderName}' supplied through ExtraHeaderParameters was ignored because the request already carries a value for it.");
+
             /// <summary>
             /// Logger for handling options exceptions in DownstreamApi.
             /// </summary>
@@ -57,6 +69,25 @@ namespace Microsoft.Identity.Web
             public static void UnauthenticatedApiCall(
                 ILogger logger,
                 Exception? ex) => s_unauthenticatedApiCall(logger, ex);
+
+            /// <summary>
+            /// Logs that an ExtraHeaderParameters entry was skipped because its name is reserved.
+            /// </summary>
+            /// <param name="logger">Logger.</param>
+            /// <param name="headerName">Header name that was ignored.</param>
+            public static void ReservedHeaderIgnored(
+                ILogger logger,
+                string headerName) => s_reservedHeaderIgnored(logger, headerName, null);
+
+            /// <summary>
+            /// Logs that an ExtraHeaderParameters entry was skipped because the request already
+            /// carries a value for the same header name.
+            /// </summary>
+            /// <param name="logger">Logger.</param>
+            /// <param name="headerName">Header name that was ignored.</param>
+            public static void DuplicateHeaderIgnored(
+                ILogger logger,
+                string headerName) => s_duplicateHeaderIgnored(logger, headerName, null);
         }
     }
 }
