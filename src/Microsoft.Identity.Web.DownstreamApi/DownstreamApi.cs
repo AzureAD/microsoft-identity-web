@@ -582,16 +582,31 @@ namespace Microsoft.Identity.Web
             {
                 Logger.UnauthenticatedApiCall(_logger, null);
             }
+
             if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
             {
                 httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
             }
 
-            // Add extra headers if specified directly on DownstreamApiOptions
+            // Add extra headers if specified directly on DownstreamApiOptions.
+            // Skip names that are reserved for the library or already present on
+            // the outgoing request to keep the library-set values authoritative.
             if (effectiveOptions.ExtraHeaderParameters != null)
             {
                 foreach (var header in effectiveOptions.ExtraHeaderParameters)
                 {
+                    if (ReservedHeaderNames.IsReserved(header.Key))
+                    {
+                        Logger.ReservedHeaderIgnored(_logger, header.Key);
+                        continue;
+                    }
+
+                    if (httpRequestMessage.Headers.Contains(header.Key))
+                    {
+                        Logger.DuplicateHeaderIgnored(_logger, header.Key);
+                        continue;
+                    }
+
                     httpRequestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }
             }
@@ -602,7 +617,7 @@ namespace Microsoft.Identity.Web
                 var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri!);
                 var existingQuery = uriBuilder.Query;
                 var queryString = new StringBuilder(existingQuery);
-                
+
                 foreach (var queryParam in effectiveOptions.ExtraQueryParameters)
                 {
                     if (queryString.Length > 1) // if there are existing query parameters
@@ -613,12 +628,12 @@ namespace Microsoft.Identity.Web
                     {
                         queryString.Append('?');
                     }
-                    
+
                     queryString.Append(Uri.EscapeDataString(queryParam.Key));
                     queryString.Append('=');
                     queryString.Append(Uri.EscapeDataString(queryParam.Value));
                 }
-                
+
                 uriBuilder.Query = queryString.ToString().TrimStart('?');
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
