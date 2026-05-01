@@ -66,7 +66,6 @@ namespace Microsoft.Identity.Web
                     ExcludeAzureDeveloperCliCredential = true,
                     ExcludeAzurePowerShellCredential = true,
                     ExcludeInteractiveBrowserCredential = true,
-                    ExcludeSharedTokenCacheCredential = true,
                     ExcludeVisualStudioCodeCredential = true,
                     ExcludeVisualStudioCredential = true
                 };

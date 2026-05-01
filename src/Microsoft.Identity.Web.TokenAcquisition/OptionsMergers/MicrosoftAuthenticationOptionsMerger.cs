@@ -21,11 +21,7 @@ namespace Microsoft.Identity.Web
         private readonly IMergedOptionsStore _mergedOptionsMonitor;
 
         public void PostConfigure(
-#if NET7_0_OR_GREATER
             string? name,
-#else
-            string name,
-#endif            
             MicrosoftIdentityApplicationOptions options)
         {
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(options, _mergedOptionsMonitor.Get(name ?? string.Empty));
