@@ -1,3 +1,20 @@
+## 4.9.0
+
+### New features
+- **Sidecar: per-route override gating.** New `Sidecar:AllowOverrides` configuration section provides explicit, per-route control over whether `optionsOverride.*` query-string parameters are honored. Authenticated routes default to allowing overrides (preserving existing behavior); unauthenticated routes default to rejecting them. `optionsOverride.BaseUrl` is unconditionally rejected on all routes as a hardening measure. See [#3794](https://github.com/AzureAD/microsoft-identity-web/pull/3794).
+
+### Bug fixes
+- Fix `AccountController.Challenge` redirect URI validation to reject percent-encoded protocol-relative bypasses (`%2F%2F`, `%5C%2F`, etc.) that could be decoded by misconfigured reverse proxies. See [#3792](https://github.com/AzureAD/microsoft-identity-web/pull/3792).
+
+### Behavior changes
+- **DownstreamApi: reserved header filtering.** Headers supplied via `DownstreamApiOptions.ExtraHeaderParameters` whose names match reserved HTTP headers (`Authorization`, `Host`, `Content-Length`, `Proxy-Authorization`, `Sec-*`, `Proxy-*`, etc.) or duplicate a header the library already set are now silently skipped. A warning-level log entry (`ReservedHeaderIgnored` / `DuplicateHeaderIgnored`) is emitted so operators can spot misconfigurations. No exception is thrown. See [#3793](https://github.com/AzureAD/microsoft-identity-web/pull/3793).
+
+### Dependencies updates
+- **Update Azure.Identity 1.11.4 → 1.17.2 and establish Microsoft.Extensions.\* 8.0.x minimum on older TFMs.** Azure.Identity 1.17.2 (sovereign-cloud fixes) pulls in Azure.Core 1.50.0, which introduces a transitive dependency on `Microsoft.Extensions.DependencyInjection.Abstractions` 8.0.2 on non-framework-coupled TFMs (net462, net472, netstandard2.0). This caused a `CS0433` type collision with the previously-pinned `Microsoft.Extensions.DependencyInjection` 2.1.0. Rather than patch individual packages, the entire `Microsoft.Extensions.*` stack on these older TFMs has been bumped to 8.0.x, closing several 5-year version gaps and aligning with the net8.0 baseline. **If your application targets net462, net472, or netstandard2.0**, your resolved `Microsoft.Extensions.*` versions will increase (e.g., `Extensions.Http` 3.1.3 → 8.0.0, `Extensions.DependencyInjection` 2.1.0 → 8.0.0, `Extensions.Caching.Memory` 2.1.0/6.0.2 → 8.0.1). Applications already targeting net8.0+ are unaffected. See [#3787](https://github.com/AzureAD/microsoft-identity-web/pull/3787).
+- Bump `System.Text.Json` 8.0.5 → 8.0.6 (CVE-2024-43485). See [#3787](https://github.com/AzureAD/microsoft-identity-web/pull/3787).
+- Bump `Microsoft.AspNetCore.DataProtection` to 10.0.7 for CVE fix on net10.0. See [#3796](https://github.com/AzureAD/microsoft-identity-web/pull/3796).
+- Bump `OpenTelemetry.Exporter.OpenTelemetryProtocol` 1.14.0 → 1.15.3. See [#3788](https://github.com/AzureAD/microsoft-identity-web/pull/3788).
+
 ## 4.8.0
 
 ### New features
