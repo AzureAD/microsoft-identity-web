@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_AuthorityOnly_NoWarning()
+        public void ParseAuthorityIfNecessary_AuthorityOnly_LogsAuthorityUsedHint()
         {
             // Arrange
             var mergedOptions = new MergedOptions
@@ -94,8 +94,18 @@ namespace Microsoft.Identity.Web.Test
             // Act
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
 
-            // Assert - No warning should be logged, authority should be parsed
-            Assert.Empty(_testLogger.LogMessages);
+            // Assert
+            // Per PR review feedback, whenever the single-string 'Authority' option is being used
+            // to derive Instance/TenantId, Id.Web emits a warning hinting that first-party (1P) callers
+            // (e.g. MISE) should configure Instance + TenantId separately instead. Third-party (3P)
+            // callers using CIAM / ADFS / generic OIDC can ignore the warning.
+            // The Authority must still be parsed into Instance + TenantId for the legitimate 3P case.
+            Assert.Single(_testLogger.LogMessages);
+            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("Instance", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("TenantId", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("1P", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
             Assert.Equal("https://login.microsoftonline.com", mergedOptions.Instance);
             Assert.Equal("common", mergedOptions.TenantId);
         }

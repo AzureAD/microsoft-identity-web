@@ -492,6 +492,18 @@ namespace Microsoft.Identity.Web
 
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
+                // Per PR review feedback: emit a warning whenever the single-string 'Authority' option
+                // is being used to derive Instance/TenantId. The 'Authority' option targets vanilla OIDC /
+                // CIAM scenarios and routes through MSAL.WithOidcAuthority(); first-party (1P) callers
+                // (e.g. MISE) should configure 'Instance' + 'TenantId' separately so the request flows
+                // through MSAL.WithAuthority(). Third-party (3P) callers using CIAM / ADFS / generic OIDC
+                // can safely ignore this warning. Id.Web is a 3P-targeted library and cannot reliably tell
+                // whether the caller is 1P or 3P at runtime, so we emit a hint rather than throwing.
+                if (logger != null)
+                {
+                    MergedOptionsLogging.AuthorityUsedConsiderInstanceTenantId(logger, mergedOptions.Authority!);
+                }
+
                 ReadOnlySpan<char> doubleSlash = "//".AsSpan();
                 ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
                 int doubleSlashIndex = authoritySpan.IndexOf(doubleSlash);
