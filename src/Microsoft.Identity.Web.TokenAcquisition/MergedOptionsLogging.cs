@@ -32,5 +32,30 @@ namespace Microsoft.Identity.Web
         {
             s_authorityIgnored(logger, authority, instance, tenantId, null);
         }
+
+        private static readonly Action<ILogger, string, Exception?> s_authorityUsedConsiderInstanceTenantId =
+            LoggerMessage.Define<string>(
+                LogLevel.Warning,
+                LoggingEventId.AuthorityUsedConsiderInstanceTenantId,
+                "[MsIdWeb] The 'Authority' option ('{Authority}') is configured. " +
+                "'Authority' is intended for vanilla OIDC / CIAM scenarios (3P) and routes through MSAL.WithOidcAuthority(). " +
+                "First-party (1P) callers — e.g. services using Microsoft Identity Service Essentials (MISE) — should NOT use 'Authority'; " +
+                "configure 'Instance' (e.g. \"https://login.microsoftonline.com\" or \"https://{{host}}/dstsv2\") and 'TenantId' separately, " +
+                "which routes through MSAL.WithAuthority() and works correctly with eSTS, dSTS, and B2C. " +
+                "Third-party (3P) callers using CIAM, ADFS, or generic OIDC issuers can safely ignore this warning.");
+
+        /// <summary>
+        /// Logs a warning when an application configures the single-string <c>Authority</c> option,
+        /// hinting that first-party (1P) callers (e.g. MISE) should use <c>Instance</c> + <c>TenantId</c> instead.
+        /// Third-party (3P) callers using CIAM / ADFS / generic OIDC can safely ignore the warning.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="authority">The Authority value being parsed.</param>
+        public static void AuthorityUsedConsiderInstanceTenantId(
+            ILogger logger,
+            string authority)
+        {
+            s_authorityUsedConsiderInstanceTenantId(logger, authority, null);
+        }
     }
 }
