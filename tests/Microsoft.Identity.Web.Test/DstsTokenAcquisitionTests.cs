@@ -28,7 +28,7 @@ namespace Microsoft.Identity.Web.Test
     ///   3. Send <c>x5c</c> in the client_assertion JWT header when <c>SendX5C=true</c>
     ///      (required for dSTS certificate-based authentication).
     ///
-    /// Configuration model (per PR review feedback):
+    /// Configuration model:
     ///   - dSTS users MUST configure <see cref="MicrosoftIdentityApplicationOptions.Instance"/>
     ///     and <see cref="MicrosoftIdentityApplicationOptions.TenantId"/> separately. This routes
     ///     the request through MSAL's <c>WithAuthority()</c> API, which is dSTS-compatible.

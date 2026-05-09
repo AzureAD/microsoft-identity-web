@@ -95,8 +95,8 @@ namespace Microsoft.Identity.Web.Test
             MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
 
             // Assert
-            // Per PR review feedback, whenever the single-string 'Authority' option is being used
-            // to derive Instance/TenantId, Id.Web emits a warning hinting that first-party (1P) callers
+            // Whenever the single-string 'Authority' option is being used to derive Instance/TenantId,
+            // Id.Web emits a warning hinting that first-party (1P) callers
             // (e.g. MISE) should configure Instance + TenantId separately instead. Third-party (3P)
             // callers using CIAM / ADFS / generic OIDC can ignore the warning.
             // The Authority must still be parsed into Instance + TenantId for the legitimate 3P case.
