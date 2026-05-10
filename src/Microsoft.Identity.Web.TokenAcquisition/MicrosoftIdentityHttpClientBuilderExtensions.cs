@@ -6,7 +6,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Experimental;
 
 namespace Microsoft.Identity.Web
 {
@@ -136,10 +140,12 @@ namespace Microsoft.Identity.Web
 
             return builder.AddHttpMessageHandler(sp =>
             {
-                var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetService<IHttpClientFactory>();
-                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
-                return new MicrosoftIdentityMessageHandler(headerProvider, defaultOptions: null, mtlsHttpClientFactory, logger: null);
+                return new MicrosoftIdentityMessageHandler(
+                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+                    defaultOptions: null,
+                    GetMsalMtlsHttpClientFactory(sp),
+                    GetCredentialsProvider(sp),
+                    logger: null);
             });
         }
 
@@ -214,10 +220,12 @@ namespace Microsoft.Identity.Web
 
             return builder.AddHttpMessageHandler(sp =>
             {
-                var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetService<IHttpClientFactory>();
-                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
+                return new MicrosoftIdentityMessageHandler(
+                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+                    options,
+                    GetMsalMtlsHttpClientFactory(sp),
+                    GetCredentialsProvider(sp),
+                    logger: null);
             });
         }
 
@@ -303,10 +311,12 @@ namespace Microsoft.Identity.Web
                 var options = new MicrosoftIdentityMessageHandlerOptions();
                 configureOptions(options);
 
-                var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetService<IHttpClientFactory>();
-                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
+                return new MicrosoftIdentityMessageHandler(
+                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+                    options,
+                    GetMsalMtlsHttpClientFactory(sp),
+                    GetCredentialsProvider(sp),
+                    logger: null);
             });
         }
 
@@ -421,11 +431,51 @@ namespace Microsoft.Identity.Web
                 var options = new MicrosoftIdentityMessageHandlerOptions();
                 configuration.Bind(options);
 
-                var headerProvider = sp.GetRequiredService<IAuthorizationHeaderProvider>();
-                var httpClientFactory = sp.GetService<IHttpClientFactory>();
-                var mtlsHttpClientFactory = httpClientFactory != null ? new MsalMtlsHttpClientFactory(httpClientFactory) : null;
-                return new MicrosoftIdentityMessageHandler(headerProvider, options, mtlsHttpClientFactory, logger: null);
+                return new MicrosoftIdentityMessageHandler(
+                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+                    options,
+                    GetMsalMtlsHttpClientFactory(sp),
+                    GetCredentialsProvider(sp),
+                    logger: null);
             });
+        }
+
+        private static IMsalMtlsHttpClientFactory? GetMsalMtlsHttpClientFactory(IServiceProvider services)
+        {
+            var msalMtlsHttpClientFactory = services.GetService<IMsalMtlsHttpClientFactory>();
+            if (msalMtlsHttpClientFactory is not null)
+            {
+                return msalMtlsHttpClientFactory;
+            }
+
+            var httpClientFactory = services.GetService<IHttpClientFactory>();
+            if (httpClientFactory is not null)
+            {
+                return new MsalMtlsHttpClientFactory(httpClientFactory);
+            }
+
+            return null;
+        }
+
+        private static ICredentialsProvider? GetCredentialsProvider(IServiceProvider services)
+        {
+            var credentialsProvider = services.GetService<ICredentialsProvider>();
+            if (credentialsProvider is not null)
+            {
+                return credentialsProvider;
+            }
+
+            var loader = services.GetService<ICredentialsLoader>();
+            if (loader is not null)
+            {
+                return new CredentialsProvider(
+                    services.GetService<ILogger<CredentialsProvider>>() ?? NullLogger<CredentialsProvider>.Instance,
+                    loader,
+                    services.GetService<ICertificatesObserver[]>() ?? [],
+                    services.GetService<ITokenAcquisitionHost>());
+            }
+
+            return null;
         }
     }
 }

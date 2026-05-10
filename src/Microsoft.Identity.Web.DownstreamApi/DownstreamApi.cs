@@ -41,31 +41,6 @@ namespace Microsoft.Identity.Web
         private const string Authorization = "Authorization";
         private const string AuthSchemeDstsSamlBearer = "http://schemas.microsoft.com/dsts/saml2-bearer";
 
-        /// <summary>
-        /// The name of the MTLS_PoP Protocol (Token, along with certificate proof-of-possession).
-        /// </summary>
-        private const string TokenBindingProtocolScheme = "MTLS_POP";
-
-        /// <summary>
-        /// The name of the MTLS-only protocol (no tokens)
-        /// </summary>
-        private const string MtlsProtocolScheme = "MTLS";
-
-        /// <summary>
-        /// HTTP Status Codes which indicate an issue with the certificate.
-        /// This should be carefully curated to be accurate and balance false positives with false negatives.
-        /// If a non-certificate failure is captured here, then the certificate may needlessly change and a pointless retry will occur. This can impact the ability for certificate rotations to occur.
-        /// If a certificate failure is not captured here, then the certificate will not be refreshed when it should be, which may lead to prolonged outages until a manual refresh occurs.
-        /// </summary>
-        private static readonly HashSet<HttpStatusCode> AuthFailureHttpStatusCodes =
-            [
-                HttpStatusCode.BadRequest,
-                HttpStatusCode.Unauthorized,
-                HttpStatusCode.Forbidden,
-                (HttpStatusCode)495, // nginx "SSL Certificate Error"
-                (HttpStatusCode)496, // nginx "SSL Certificate Required"
-            ];
-
         protected readonly ILogger<DownstreamApi> _logger;
 
         /// <summary>
@@ -632,7 +607,7 @@ namespace Microsoft.Identity.Web
                 {
                     CredentialSourceLoaderParameters loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
                     {
-                        Protocol = MtlsProtocolScheme,
+                        Protocol = Constants.MtlsProtocolScheme,
                         ApiUrl = effectiveOptions.GetApiUrl(),
                     };
 
@@ -646,7 +621,7 @@ namespace Microsoft.Identity.Web
                             true,
                             null);
                     }
-                    else if (AuthFailureHttpStatusCodes.Contains(downstreamApiResult.StatusCode))
+                    else if (Constants.AuthFailureHttpStatusCodes.Contains(downstreamApiResult.StatusCode))
                     {
                         // Only alert if the failure is potentially due to the certificate.
                         // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
@@ -705,7 +680,7 @@ namespace Microsoft.Identity.Web
 
             // Obtention of the authorization header (except when calling an anonymous endpoint)
             // which is done by not specifying any scopes or mTLS scheme.
-            if (string.Equals(effectiveOptions.ProtocolScheme, MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(effectiveOptions.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
                 if (_credentialsProvider == null)
                 {
@@ -716,7 +691,7 @@ namespace Microsoft.Identity.Web
                     new CredentialSourceLoaderParameters(string.Empty, string.Empty)
                     {
                         ApiUrl = effectiveOptions.GetApiUrl(),
-                        Protocol = MtlsProtocolScheme,
+                        Protocol = Constants.MtlsProtocolScheme,
                     },
                     cancellationToken);
 
@@ -738,7 +713,7 @@ namespace Microsoft.Identity.Web
                 // Firstly check if it's token binding scenario so authorization header provider returns
                 // a binding certificate along with acquired authorization header.
                 if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
-                    && string.Equals(effectiveOptions.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                    && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
                     var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
                         effectiveOptions,
@@ -899,26 +874,5 @@ namespace Microsoft.Identity.Web
 
             return errorResponseContent;
         }
-
-        /// <summary>
-        /// Exception for a failed HTTP call. This is exclusively used by reporting and never thrown.
-        /// </summary>
-        private class UnauthorizedHttpRequestException : Exception
-        {
-            public UnauthorizedHttpRequestException()
-            {
-            }
-
-            public UnauthorizedHttpRequestException(string message)
-                : base(message)
-            {
-            }
-
-            public UnauthorizedHttpRequestException(string message, Exception innerException)
-                : base(message, innerException)
-            {
-            }
-        }
-
     }
 }
