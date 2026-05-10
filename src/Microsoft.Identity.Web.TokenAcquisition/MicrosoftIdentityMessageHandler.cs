@@ -160,16 +160,6 @@ namespace Microsoft.Identity.Web
         private readonly ILogger<MicrosoftIdentityMessageHandler>? _logger;
 
         /// <summary>
-        /// The name of the MTLS_PoP Protocol (Token, along with certificate proof-of-possession).
-        /// </summary>
-        private const string TokenBindingProtocolScheme = "MTLS_POP";
-
-        /// <summary>
-        /// The name of the MTLS-only protocol (no tokens)
-        /// </summary>
-        private const string MtlsProtocolScheme = "MTLS";
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class.
         /// </summary>
         /// <param name="headerProvider">
@@ -463,7 +453,7 @@ namespace Microsoft.Identity.Web
             try
             {
                 // Check if mTLS PoP token binding is requested
-                if (string.Equals(options.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                if (string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
                     && _headerProvider is IBoundAuthorizationHeaderProvider boundProvider)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
@@ -481,7 +471,7 @@ namespace Microsoft.Identity.Web
                     loaderParameters = null;
                     credentialDescription = null;
                 }
-                else if (string.Equals(options.ProtocolScheme, MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
                     if (_credentialsProvider == null)
                     {
@@ -491,7 +481,7 @@ namespace Microsoft.Identity.Web
                     loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
                     {
                         ApiUrl = options.GetApiUrl(),
-                        Protocol = MtlsProtocolScheme,
+                        Protocol = Constants.MtlsProtocolScheme,
                     };
 
                     credentialDescription = await _credentialsProvider.GetCredentialAsync(
