@@ -377,8 +377,7 @@ namespace Microsoft.Identity.Web
             // Get scopes from options
             var scopes = options.Scopes ?? [];
 
-            if (
-                !scopes.Any() &&
+            if (!scopes.Any() &&
                 !string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
                 throw new MicrosoftIdentityAuthenticationException(

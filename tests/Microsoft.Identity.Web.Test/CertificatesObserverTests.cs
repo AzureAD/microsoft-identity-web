@@ -234,7 +234,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     BaseUrl = authority,
                     ProtocolScheme = "mTLS",
-                    RelativePath = "/oauth2/v2.0/token",
+                    RelativePath = relativeUrl,
                 });
 
                 // Add two observers so that we can check if multiple observers works as intended.
@@ -645,7 +645,6 @@ namespace Microsoft.Identity.Web.Test
 
             return services
                 .AddSingleton(new CertificatesObserverTests.MockHttpClientFactory(description))
-                //.AddSingleton<IHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>())
                 .AddSingleton<IMsalMtlsHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>())
                 .AddSingleton<IMsalHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>());
         }

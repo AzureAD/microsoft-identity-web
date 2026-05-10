@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test
             var serviceProvider = services.BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
             var client = httpClientFactory.CreateClient("TestClient");
-            
+
             Assert.NotNull(client);
         }
 

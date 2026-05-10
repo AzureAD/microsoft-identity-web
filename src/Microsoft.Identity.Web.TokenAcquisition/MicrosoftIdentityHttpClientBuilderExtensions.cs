@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Web
                     defaultOptions: null,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
-                    logger: null);
+                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
 
@@ -225,7 +225,7 @@ namespace Microsoft.Identity.Web
                     options,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
-                    logger: null);
+                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
 
@@ -316,7 +316,7 @@ namespace Microsoft.Identity.Web
                     options,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
-                    logger: null);
+                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.Identity.Web
                     options,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
-                    logger: null);
+                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
 
@@ -469,13 +469,24 @@ namespace Microsoft.Identity.Web
             if (loader is not null)
             {
                 return new CredentialsProvider(
-                    services.GetService<ILogger<CredentialsProvider>>() ?? NullLogger<CredentialsProvider>.Instance,
+                    GetLogger<CredentialsProvider>(services),
                     loader,
                     services.GetService<ICertificatesObserver[]>() ?? [],
                     services.GetService<ITokenAcquisitionHost>());
             }
 
             return null;
+        }
+
+        private static ILogger<T> GetLogger<T>(IServiceProvider services)
+        {
+            var loggerFactory = services.GetService<ILoggerFactory>();
+            if (loggerFactory is not null)
+            {
+                return loggerFactory.CreateLogger<T>();
+            }
+
+            return NullLogger<T>.Instance;
         }
     }
 }
