@@ -119,5 +119,18 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(expectedResult, actualResult);
         }
+
+        [Fact]
+        public void DisallowsSameSiteNone_NotValidUserAgent_ReturnsFailure()
+        {
+            var notValidUserAgent = "(iPhone; CPU iPhone OS " + new string('0', 8000);
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var result = CookiePolicyOptionsExtensions.DisallowsSameSiteNone(notValidUserAgent);
+            stopwatch.Stop();
+
+            Assert.False(result);
+            Assert.True(stopwatch.ElapsedMilliseconds < 200);
+        }
     }
 }
