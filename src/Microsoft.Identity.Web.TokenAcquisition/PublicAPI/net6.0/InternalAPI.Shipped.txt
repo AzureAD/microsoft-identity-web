@@ -73,8 +73,8 @@ const Microsoft.Identity.Web.IDWebErrorMessage.ClientCredentialTenantShouldBeTen
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientInfoReturnedFromServerIsNull = "IDW10402: Client info returned from the server is null. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret." -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ConfigurationOptionRequired = "IDW10106: The '{0}' option must be provided. " -> string!
-const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client: " -> string!
+const Microsoft.Identity.Web.IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient = "IDW10501: Exception acquiring token for a confidential client. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.FromStoreWithThumprintIsObsolete = "IDW10803: Use FromStoreWithThumbprint instead, due to spelling error. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. " -> string!
 const Microsoft.Identity.Web.IDWebErrorMessage.HttpContextIsNull = "IDW10001: HttpContext is null. " -> string!

@@ -261,8 +261,24 @@ namespace WebAppUiTests
                 // Do not call "await currentProcess.WaitForExitAsync();"
                 // as the web APIs never terminate by themselves (they are a loop
                 // that serves requests until the process is killed).
-                currentProcess.StandardOutput.Close();
-                currentProcess.StandardError.Close();
+                // Only close redirected streams for processes we started with redirection.
+                // Child processes discovered via WMI won't have redirected streams.
+                try
+                {
+                    if (currentProcess.StartInfo.RedirectStandardOutput)
+                    {
+                        currentProcess.StandardOutput.Close();
+                    }
+
+                    if (currentProcess.StartInfo.RedirectStandardError)
+                    {
+                        currentProcess.StandardError.Close();
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // Process may have already exited or streams may not be available.
+                }
 
                 currentProcess.Kill();
                 currentProcess.Close();
