@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -100,13 +98,16 @@ namespace Microsoft.Identity.Web
         public static X509Certificate2? LoadFirstCertificate(IEnumerable<CertificateDescription> certificateDescriptions)
         {
             DefaultCertificateLoader defaultCertificateLoader = new(null);
-            CertificateDescription? certDescription = certificateDescriptions.FirstOrDefault(c =>
+            foreach (var c in certificateDescriptions)
             {
                 defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).GetAwaiter().GetResult();
-                return c.Certificate != null;
-            });
+                if (c.Certificate != null)
+                {
+                    return c.Certificate;
+                }
+            }
 
-            return certDescription?.Certificate;
+            return null;
         }
         
         /// <summary>
@@ -117,18 +118,16 @@ namespace Microsoft.Identity.Web
         public static async Task<X509Certificate2?> LoadFirstCertificateAsync(IEnumerable<CertificateDescription> certificateDescriptions)
         {
             DefaultCertificateLoader defaultCertificateLoader = new(null);
-            CertificateDescription? certDescription = null;
             foreach (var c in certificateDescriptions)
             {
                 await defaultCertificateLoader.LoadCredentialsIfNeededAsync(c).ConfigureAwait(false);
                 if (c.Certificate != null)
                 {
-                    certDescription = c;
-                    break;
+                    return c.Certificate;
                 }
-            };
+            }
 
-            return certDescription?.Certificate;
+            return null;
         }
 
 
@@ -169,16 +168,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="certificateDescriptions">Description of the certificates.</param>
         public static void ResetCertificates(IEnumerable<CertificateDescription>? certificateDescriptions)
-        {
-            if (certificateDescriptions != null)
-            {
-                foreach (var cert in certificateDescriptions)
-                {
-                    cert.Certificate = null;
-                    cert.CachedValue = null;
-                }
-            }
-        }
+            => ResetCertificates((IEnumerable<CredentialDescription>?)certificateDescriptions);
 
         /// <summary>
         /// Resets all the certificates in the certificate description list.
@@ -189,10 +179,13 @@ namespace Microsoft.Identity.Web
         {
             if (credentialDescription != null)
             {
-                foreach (var cert in credentialDescription.Where(c => c.Certificate != null))
+                foreach (var cert in credentialDescription)
                 {
-                    cert.Certificate = null;
-                    cert.CachedValue = null;
+                    if (cert.Certificate != null && cert.SourceType != CredentialSource.Certificate)
+                    {
+                        cert.Certificate = null;
+                        cert.CachedValue = null;
+                    }
                 }
             }
         }
@@ -210,9 +203,9 @@ namespace Microsoft.Identity.Web
         /// Load the certificate from the description, if needed.
         /// </summary>
         /// <param name="certificateDescription">Description of the certificate.</param>
-        public async Task LoadIfNeededAsync(CertificateDescription certificateDescription)
+        public Task LoadIfNeededAsync(CertificateDescription certificateDescription)
         {
-            await LoadCredentialsIfNeededAsync(certificateDescription);
+            return LoadCredentialsIfNeededAsync(certificateDescription);
         }
     }
 }
