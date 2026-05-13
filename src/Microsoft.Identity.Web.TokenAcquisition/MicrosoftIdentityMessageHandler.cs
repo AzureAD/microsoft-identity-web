@@ -584,14 +584,16 @@ namespace Microsoft.Identity.Web
                         new UnauthorizedHttpRequestException($"Response has status {result.StatusCode} - {result.ReasonPhrase}"));
 
                     // Retry again in case notifying that the certificate failed notification caused a rotation which will now succeed.
+                    // The original HttpRequestMessage has been sent and cannot be re-used, so clone it for the retry.
                     if (!isRetry)
                     {
+                        using var retryRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
                         return await SendWithAuthenticationAsync(
-                            request,
+                            retryRequest,
                             options,
                             scopes,
                             true,
-                            cancellationToken);
+                            cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
