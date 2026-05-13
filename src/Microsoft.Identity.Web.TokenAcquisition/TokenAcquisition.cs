@@ -827,7 +827,7 @@ namespace Microsoft.Identity.Web
             {
                 if (parameters is Dictionary<string, Func<CancellationToken, Task<string>>> keyValuePairs)
                 {
-                    builder.WithExtraBodyParameters(keyValuePairs);
+                    AbstractConfidentialClientAcquireTokenParameterBuilderExtension.WithExtraBodyParameters(builder, keyValuePairs);
                 }
             }
         }
