@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Microsoft.Identity.Web
 {
@@ -251,6 +252,23 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
+        /// HTTP status codes which may indicate that a certificate based authnetication failure occurred.
+        /// </summary>
+        /*
+         * Used by Microsoft.Identity.Web.DownstreamApi
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
+        internal static readonly HashSet<HttpStatusCode> AuthFailureHttpStatusCodes =
+            [
+                HttpStatusCode.BadRequest,
+                HttpStatusCode.Unauthorized,
+                HttpStatusCode.Forbidden,
+                (HttpStatusCode)495, // nginx "SSL Certificate Error"
+                (HttpStatusCode)496, // nginx "SSL Certificate Required"
+            ];
+
+        /// <summary>
         /// Error codes indicating permanent configuration errors that should not trigger retry.
         /// </summary>
         internal static readonly HashSet<string> s_nonRetryableConfigErrorCodes = new (StringComparer.OrdinalIgnoreCase)
@@ -343,5 +361,15 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string Upn = "upn";
+
+        /// <summary>
+        /// The name of the MTLS_PoP Protocol (Token, along with certificate proof-of-possession).
+        /// </summary>
+        internal const string TokenBindingProtocolScheme = "MTLS_POP";
+
+        /// <summary>
+        /// The name of the MTLS-only protocol (no tokens)
+        /// </summary>
+        internal const string MtlsProtocolScheme = "MTLS";
     }
 }

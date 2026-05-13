@@ -713,6 +713,99 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(client);
         }
 
+        /// <summary>
+        /// Ensures that the http request is not resent on retry, but rather cloned.
+        /// </summary>
+        /// <returns>Task for tracking.</returns>
+        [Fact]
+        public async Task SendAsync_CertificateFailureRetry_ClonesRequest()
+        {
+            // Arrange
+            var mockHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
+
+            using var cert = CreateTestCertificate();
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.Certificate,
+                Certificate = cert,
+            };
+
+            mockCredentialsProvider
+                .GetCredentialAsync(Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>())
+                .Returns(credentialDescription);
+
+            var capturedRequests = new List<HttpRequestMessage>();
+            var innerHandler = new CapturingTestHandler(req =>
+            {
+                capturedRequests.Add(req);
+                // First send: auth failure that should trigger the retry path.
+                // Retry send: success.
+                return capturedRequests.Count == 1
+                    ? new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                    : new HttpResponseMessage(HttpStatusCode.OK);
+            });
+
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                ProtocolScheme = "MTLS",
+                BaseUrl = "https://test.example",
+                RelativePath = "/api",
+            };
+
+            var handler = new MicrosoftIdentityMessageHandler(
+                mockHeaderProvider,
+                options,
+                mtlsHttpClientFactory: null,
+                credentialsProvider: mockCredentialsProvider,
+                _mockLogger)
+            {
+                InnerHandler = innerHandler,
+            };
+
+            using var client = new HttpClient(handler);
+
+            // Act
+            var response = await client.GetAsync("https://test.example/api");
+
+            // Assert: retry happened and the recovered response is returned.
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(2, capturedRequests.Count);
+
+            // The retry must use a freshly-cloned HttpRequestMessage, not the original
+            // (which has already been sent through the pipeline).
+            Assert.NotSame(capturedRequests[0], capturedRequests[1]);
+
+            // Both successful and failed certificate usage notifications must fire.
+            mockCredentialsProvider.Received().NotifyCertificateUsed(
+                Arg.Any<CredentialSourceLoaderParameters?>(),
+                credentialDescription,
+                cert,
+                false,
+                Arg.Any<Exception?>());
+            mockCredentialsProvider.Received().NotifyCertificateUsed(
+                Arg.Any<CredentialSourceLoaderParameters?>(),
+                credentialDescription,
+                cert,
+                true,
+                null);
+        }
+
+        private sealed class CapturingTestHandler : HttpMessageHandler
+        {
+            private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;
+
+            public CapturingTestHandler(Func<HttpRequestMessage, HttpResponseMessage> responder)
+            {
+                _responder = responder;
+            }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(_responder(request));
+            }
+        }
+
         private static X509Certificate2 CreateTestCertificate()
         {
             var bytes = Convert.FromBase64String(TestConstants.CertificateX5c);

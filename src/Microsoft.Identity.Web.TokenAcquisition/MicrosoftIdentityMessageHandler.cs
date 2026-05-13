@@ -155,10 +155,9 @@ namespace Microsoft.Identity.Web
     {
         private readonly IAuthorizationHeaderProvider _headerProvider;
         private readonly MicrosoftIdentityMessageHandlerOptions? _defaultOptions;
+        private readonly ICredentialsProvider? _credentialsProvider;
         private readonly IMsalMtlsHttpClientFactory? _mtlsHttpClientFactory;
         private readonly ILogger<MicrosoftIdentityMessageHandler>? _logger;
-
-        private const string TokenBindingProtocolScheme = "MTLS_POP";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class.
@@ -283,6 +282,63 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class with mTLS PoP token binding support.
+        /// </summary>
+        /// <param name="headerProvider">
+        /// The <see cref="IAuthorizationHeaderProvider"/> used to acquire authorization headers for outgoing requests.
+        /// This is typically obtained from the dependency injection container.
+        /// </param>
+        /// <param name="defaultOptions">
+        /// Default authentication options that will be used for all requests unless overridden per-request.
+        /// If <see langword="null"/>, each request must specify its own authentication options or an exception will be thrown.
+        /// </param>
+        /// <param name="mtlsHttpClientFactory">
+        /// Optional factory for creating HTTP clients configured with mTLS client certificates for token binding
+        /// (mTLS PoP) scenarios. When provided and the <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>
+        /// is set to <c>"MTLS_POP"</c>, the handler will use this factory to create an HTTP client with the binding
+        /// certificate and send requests through it.
+        /// </param>
+        /// <param name="credentialsProvider">
+        /// Optional provider for certificates. This is required for mTLS-only authentication purposes.
+        /// </param>
+        /// <param name="logger">
+        /// Optional logger for debugging and monitoring authentication operations.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="headerProvider"/> is <see langword="null"/>.
+        /// </exception>
+        /// <remarks>
+        /// <para>
+        /// mTLS PoP (Mutual TLS Proof-of-Possession) token binding, as described in
+        /// <see href="https://datatracker.ietf.org/doc/html/rfc8705">RFC 8705</see>,
+        /// cryptographically binds access tokens to a specific X.509 certificate. When enabled,
+        /// the handler acquires a bound token with the certificate thumbprint in the <c>cnf</c> claim,
+        /// creates an mTLS HTTP client with the binding certificate, and sends requests through the mTLS channel.
+        /// </para>
+        /// <para>
+        /// Token binding currently supports only application (app-only) tokens. Set
+        /// <see cref="AuthorizationHeaderProviderOptions.RequestAppToken"/> to <see langword="true"/>.
+        /// </para>
+        /// <para>
+        /// Prefer using the <see cref="MicrosoftIdentityHttpClientBuilderExtensions"/> extension methods
+        /// to configure this handler through dependency injection rather than instantiating it directly.
+        /// </para>
+        /// </remarks>
+        public MicrosoftIdentityMessageHandler(
+            IAuthorizationHeaderProvider headerProvider,
+            MicrosoftIdentityMessageHandlerOptions? defaultOptions,
+            IMsalMtlsHttpClientFactory? mtlsHttpClientFactory,
+            ICredentialsProvider? credentialsProvider,
+            ILogger<MicrosoftIdentityMessageHandler>? logger = null)
+        {
+            _headerProvider = headerProvider ?? throw new ArgumentNullException(nameof(headerProvider));
+            _defaultOptions = defaultOptions;
+            _mtlsHttpClientFactory = mtlsHttpClientFactory;
+            _credentialsProvider = credentialsProvider;
+            _logger = logger;
+        }
+
+        /// <summary>
         /// Sends an HTTP request with automatic authentication header injection.
         /// Handles WWW-Authenticate challenges by attempting token refresh with additional claims if needed.
         /// </summary>
@@ -309,16 +365,17 @@ namespace Microsoft.Identity.Web
             }
 
             // Get scopes from options
-            var scopes = options.Scopes;
+            var scopes = options.Scopes ?? [];
 
-            if (scopes == null || !scopes.Any())
+            if (!scopes.Any() &&
+                !string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
                 throw new MicrosoftIdentityAuthenticationException(
                     "Authentication scopes must be configured in the options.Scopes property.");
             }
 
             // Send the request with authentication
-            var response = await SendWithAuthenticationAsync(request, options, scopes, cancellationToken).ConfigureAwait(false);
+            var response = await SendWithAuthenticationAsync(request, options, scopes, false, cancellationToken).ConfigureAwait(false);
 
             // Handle WWW-Authenticate challenge if present
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -338,7 +395,7 @@ namespace Microsoft.Identity.Web
                     using var retryRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
 
                     // Attempt to get a new token with the challenge claims
-                    var retryResponse = await SendWithAuthenticationAsync(retryRequest, challengeOptions, scopes, cancellationToken).ConfigureAwait(false);
+                    var retryResponse = await SendWithAuthenticationAsync(retryRequest, challengeOptions, scopes, true, cancellationToken).ConfigureAwait(false);
 
                     // Log information about the retry response
                     if (retryResponse.StatusCode == HttpStatusCode.Unauthorized)
@@ -371,6 +428,7 @@ namespace Microsoft.Identity.Web
         /// <param name="request">The HTTP request message.</param>
         /// <param name="options">The authentication options to use.</param>
         /// <param name="scopes">The scopes for token acquisition.</param>
+        /// <param name="isRetry">True if this is a retry (and thus should not retry again), false if this is the first call.</param>
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>The HTTP response message.</returns>
         /// <exception cref="MicrosoftIdentityAuthenticationException">Thrown when token acquisition fails.</exception>
@@ -383,17 +441,19 @@ namespace Microsoft.Identity.Web
             HttpRequestMessage request,
             MicrosoftIdentityMessageHandlerOptions options,
             IList<string> scopes,
+            bool isRetry,
             CancellationToken cancellationToken)
         {
-            X509Certificate2? bindingCertificate = null;
+            string? authHeader;
+            X509Certificate2? bindingCertificate;
+            CredentialSourceLoaderParameters? loaderParameters;
+            CredentialDescription? credentialDescription;
 
             // Acquire authorization header
             try
             {
-                string authHeader;
-
                 // Check if mTLS PoP token binding is requested
-                if (string.Equals(options.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                if (string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
                     && _headerProvider is IBoundAuthorizationHeaderProvider boundProvider)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
@@ -408,25 +468,60 @@ namespace Microsoft.Identity.Web
 
                     authHeader = boundResult.Result?.AuthorizationHeaderValue!;
                     bindingCertificate = boundResult.Result?.BindingCertificate;
+                    loaderParameters = null;
+                    credentialDescription = null;
+                }
+                else if (string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (_credentialsProvider == null)
+                    {
+                        throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
+                    }
+
+                    loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                    {
+                        ApiUrl = options.GetApiUrl(),
+                        Protocol = Constants.MtlsProtocolScheme,
+                    };
+
+                    credentialDescription = await _credentialsProvider.GetCredentialAsync(
+                        loaderParameters,
+                        cancellationToken);
+
+                    if (credentialDescription == null || credentialDescription.Certificate == null)
+                    {
+                        throw new InvalidOperationException("mTLS authentication requires a certificate, but no certificate was found.");
+                    }
+
+                    authHeader = null;
+                    bindingCertificate = credentialDescription.Certificate;
                 }
                 else
                 {
                     authHeader = await _headerProvider.CreateAuthorizationHeaderAsync(
                         scopes, options, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    bindingCertificate = null;
+                    loaderParameters = null;
+                    credentialDescription = null;
                 }
 
                 // Remove existing authorization header if present
+                // This will not be replaced if running in mTLS mode,
+                // however in mTLS the auth header should never be set.
                 if (request.Headers.Contains("Authorization"))
                 {
                     request.Headers.Remove("Authorization");
                 }
 
-                // Add the authorization header
-                request.Headers.Add("Authorization", authHeader);
+                // Add the authorization header if needed
+                if (authHeader != null)
+                {
+                    request.Headers.Add("Authorization", authHeader);
 
-                _logger?.LogDebug(
-                    "Added Authorization header for scopes: {Scopes}",
-                    string.Join(", ", scopes));
+                    _logger?.LogDebug(
+                        "Added Authorization header for scopes: {Scopes}",
+                        string.Join(", ", scopes));
+                }
             }
             catch (Exception ex) when (ex is not MicrosoftIdentityAuthenticationException)
             {
@@ -435,12 +530,13 @@ namespace Microsoft.Identity.Web
                 throw new MicrosoftIdentityAuthenticationException(message, ex);
             }
 
-            // If a binding certificate is present (mTLS PoP), send through the mTLS HTTP client.
+            // If a binding certificate is present (mTLS PoP / mTLS), send through the mTLS HTTP client.
             // This bypasses the normal handler pipeline because the underlying HttpClientHandler
             // must be configured with the client certificate for mutual TLS authentication.
             // We must clone the request because the original HttpRequestMessage has already been
             // marked as "sent" by the outer HttpClient pipeline, and HttpRequestMessage cannot
             // be sent twice.
+            HttpResponseMessage result;
             if (bindingCertificate is not null && _mtlsHttpClientFactory is not null)
             {
                 var mtlsClient = _mtlsHttpClientFactory.GetHttpClient(bindingCertificate);
@@ -453,11 +549,56 @@ namespace Microsoft.Identity.Web
                     mtlsRequest.Headers.TryAddWithoutValidation("Authorization", request.Headers.GetValues("Authorization"));
                 }
 
-                return await mtlsClient.SendAsync(mtlsRequest, cancellationToken).ConfigureAwait(false);
+                result = await mtlsClient.SendAsync(mtlsRequest, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                // Send the request through the normal handler pipeline
+                result = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
-            // Send the request through the normal handler pipeline
-            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            // Track certificate usage if applicable
+            if (credentialDescription is not null &&
+                _credentialsProvider is not null &&
+                bindingCertificate is not null)
+            {
+                // Always fire on success.
+                if (result.IsSuccessStatusCode)
+                {
+                    _credentialsProvider.NotifyCertificateUsed(
+                        loaderParameters,
+                        credentialDescription,
+                        bindingCertificate,
+                        true,
+                        null);
+                }
+                else if (Constants.AuthFailureHttpStatusCodes.Contains(result.StatusCode))
+                {
+                    // Only alert if the failure is potentially due to the certificate.
+                    // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
+                    _credentialsProvider.NotifyCertificateUsed(
+                        loaderParameters,
+                        credentialDescription,
+                        bindingCertificate,
+                        false,
+                        new UnauthorizedHttpRequestException($"Response has status {result.StatusCode} - {result.ReasonPhrase}"));
+
+                    // Retry again in case notifying that the certificate failed notification caused a rotation which will now succeed.
+                    // The original HttpRequestMessage has been sent and cannot be re-used, so clone it for the retry.
+                    if (!isRetry)
+                    {
+                        using var retryRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
+                        return await SendWithAuthenticationAsync(
+                            retryRequest,
+                            options,
+                            scopes,
+                            true,
+                            cancellationToken).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
