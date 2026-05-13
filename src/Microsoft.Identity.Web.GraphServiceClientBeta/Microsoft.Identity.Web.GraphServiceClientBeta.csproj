@@ -23,8 +23,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
-    <!-- Pin Graph.Core to 4.0.1 to resolve CVE in transitive Microsoft.Kiota.Abstractions (GHSA-7j59-v9qr-6fq9) -->
-    <PackageReference Include="Microsoft.Graph.Core" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
