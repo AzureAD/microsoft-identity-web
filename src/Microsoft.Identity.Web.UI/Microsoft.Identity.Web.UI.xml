@@ -60,6 +60,24 @@
             <param name="scheme">Authentication scheme.</param>
             <returns>Challenge generating a redirect to Azure AD B2C.</returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.IsSameOrigin(System.Uri,Microsoft.AspNetCore.Http.HttpRequest)">
+            <summary>
+            Returns <c>true</c> when <paramref name="absolute"/> has the same origin (scheme + host + port)
+            as <paramref name="request"/>. Used by <c>Challenge</c> to accept same-origin absolute redirect URIs
+            without opening an open-redirect sink.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers.AccountController.IsPercentEncodedSlashBypass(System.String)">
+            <summary>
+            Defense-in-depth: reject paths whose first segment starts with a percent-encoded
+            forward or backward slash (<c>%2f</c>/<c>%5c</c>). Browsers per RFC 3986 treat these
+            as literal path characters, but misconfigured reverse proxies (NGINX, IIS ARR, F5)
+            can decode them into <c>//</c> or <c>/\</c> when rewriting the <c>Location</c>
+            header, reopening the protocol-relative bypass that this controller otherwise
+            closes. Comparison is case-insensitive because the RFC 3986 encoding is
+            hex-case-insensitive.
+            </summary>
+        </member>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel">
             <summary>
             Page presenting the Access denied error.

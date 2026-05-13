@@ -1,3 +1,15 @@
+3.15.0
+=======
+## Bug fixes
+- Fix `AccountController.Challenge` redirect URI validation to reject percent-encoded protocol-relative bypasses (`%2F%2F`, `%5C%2F`, etc.) that could be decoded by misconfigured reverse proxies. See [#3785](https://github.com/AzureAD/microsoft-identity-web/issues/3785) for details.
+
+## Behavior changes
+- **DownstreamApi: reserved header filtering.** Headers supplied via `DownstreamApiOptions.ExtraHeaderParameters` whose names match reserved HTTP headers (`Authorization`, `Host`, `Content-Length`, `Proxy-Authorization`, `Sec-*`, `Proxy-*`, etc.) or duplicate a header the library already set are now silently skipped. A warning-level log entry (`ReservedHeaderIgnored` / `DuplicateHeaderIgnored`) is emitted so operators can spot misconfigurations. No exception is thrown. See PR [#3793](https://github.com/AzureAD/microsoft-identity-web/pull/3793) for details.
+
+### Dependencies updates
+- Updated MSAL.NET to version [4.83.1](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/releases/tag/4.83.1).
+- Bump `System.Security.Cryptography.Pkcs` and `System.Security.Cryptography.Xml` to latest patched versions. See PR [#3799](https://github.com/AzureAD/microsoft-identity-web/pull/3799) for details.
+
 3.14.1
 =======
 ##  Bug fix
