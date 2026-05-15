@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Explicitly target net8.0+ (aligned with other E2E test projects) to avoid
+         CS0433: Microsoft.Graph 6.x pulls in DependencyInjection.Abstractions 8.x
+         which defines ServiceCollection, conflicting with the older
+         DependencyInjection package on net472/net462. -->
+    <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)'== 'True'">$(TargetFrameworks); </TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyOriginatorKeyFile>..\..\..\build\MSAL.snk</AssemblyOriginatorKeyFile>
