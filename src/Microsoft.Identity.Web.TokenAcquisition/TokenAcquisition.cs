@@ -38,9 +38,9 @@ namespace Microsoft.Identity.Web
      * Treat as a public member.
      */
 #if NETSTANDARD2_0 || NET462 || NET472
-    internal partial class TokenAcquisition : ITokenAcquisitionInternal
+    internal partial class TokenAcquisition : ITokenAcquisitionInternal, IConfidentialClientApplicationProvider
 #else
-    internal partial class TokenAcquisition
+    internal partial class TokenAcquisition : IConfidentialClientApplicationProvider
 #endif
     {
 #if NETSTANDARD2_0 || NET462 || NET472
@@ -1039,6 +1039,16 @@ namespace Microsoft.Identity.Web
         }
 
 #pragma warning disable RS0051 // Add internal types and members to the declared API
+
+        /// <inheritdoc/>
+        public async Task<IConfidentialClientApplication> GetConfidentialClientApplicationAsync(
+            string? authenticationScheme = null)
+        {
+            MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authenticationScheme, out _);
+            return await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false)
+                .ConfigureAwait(false);
+        }
+
         internal /* for testing */ async Task<IConfidentialClientApplication> GetOrBuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions,
             bool isTokenBinding)
@@ -1561,6 +1571,13 @@ namespace Microsoft.Identity.Web
                 if (tokenAcquisitionOptions.PoPConfiguration != null)
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                }
+                if (tokenAcquisitionOptions.CachePartitionKey != null)
+                {
+                    foreach (var kvp in tokenAcquisitionOptions.CachePartitionKey)
+                    {
+                        builder.WithCachePartitionKey(kvp.Key, kvp.Value);
+                    }
                 }
             }
 

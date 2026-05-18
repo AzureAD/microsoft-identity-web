@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client.AppConfig;
@@ -26,6 +27,13 @@ namespace Microsoft.Identity.Web
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
         /// <summary>
+        /// Optional cache partition key-value pairs. When set, the token cache lookup
+        /// and storage will include these components, isolating cached tokens from
+        /// entries that have different (or no) partition keys.
+        /// </summary>
+        public IDictionary<string, string>? CachePartitionKey { get; set; }
+
+        /// <summary>
         /// Clone the options (to be able to override them).
         /// </summary>
         /// <returns>A clone of the options.</returns>
@@ -46,7 +54,10 @@ namespace Microsoft.Identity.Web
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
-                FmiPath = FmiPath
+                FmiPath = FmiPath,
+                CachePartitionKey = CachePartitionKey != null
+                    ? new Dictionary<string, string>(CachePartitionKey)
+                    : null
             };
         }
     }

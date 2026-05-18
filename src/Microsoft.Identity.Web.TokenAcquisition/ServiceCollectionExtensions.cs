@@ -137,6 +137,7 @@ namespace Microsoft.Identity.Web
                 }
 #endif
                 services.AddSingleton(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+                services.AddSingleton(s => (IConfidentialClientApplicationProvider)s.GetRequiredService<ITokenAcquisition>());
                 services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
@@ -171,6 +172,7 @@ namespace Microsoft.Identity.Web
                 }
 #endif
                 services.AddScoped(s => (ITokenAcquisitionInternal)s.GetRequiredService<ITokenAcquisition>());
+                services.AddScoped(s => (IConfidentialClientApplicationProvider)s.GetRequiredService<ITokenAcquisition>());
                 services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();

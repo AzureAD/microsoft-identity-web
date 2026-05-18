@@ -24,6 +24,41 @@ namespace Microsoft.Identity.Web.Test
         private const string TenantId = "tenant-id";
         private const string AppHomeTenantId = "app-home-tenant-id";
 
+        [Fact]
+        public void CachePartitionKey_DefaultsToNull()
+        {
+            // Arrange
+            var options = new TokenAcquisitionOptions();
+
+            // Act
+            IDictionary<string, string>? cachePartitionKey = options.CachePartitionKey;
+
+            // Assert
+            Assert.Null(cachePartitionKey);
+        }
+
+        [Fact]
+        public void CachePartitionKey_CanBeSet()
+        {
+            // Arrange
+            IDictionary<string, string> cachePartitionKey = new Dictionary<string, string>
+            {
+                ["tenant"] = "contoso",
+                ["user"] = "alice"
+            };
+
+            // Act
+            var options = new TokenAcquisitionOptions
+            {
+                CachePartitionKey = cachePartitionKey
+            };
+
+            // Assert
+            Assert.Same(cachePartitionKey, options.CachePartitionKey);
+            Assert.Equal("contoso", options.CachePartitionKey!["tenant"]);
+            Assert.Equal("alice", options.CachePartitionKey["user"]);
+        }
+
         [Theory]
         [InlineData(null, null, null, null)]
         [InlineData(null, null, AppHomeTenantId, null)]
