@@ -8,7 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(FROM_GITHUB_ACTION)' != ''">
     <DefineConstants>$(DefineConstants);FROM_GITHUB_ACTION</DefineConstants>
   </PropertyGroup>
