@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.TokenAcquirerExtensions.WithExtraBodyParameters(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, System.Collections.Generic.IDictionary<string!, string!>! extraBodyParameters) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!
