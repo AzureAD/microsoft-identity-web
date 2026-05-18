@@ -59,6 +59,7 @@
   </Choose>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.84.0" />
     <Compile Remove="*.cs" />
     <Compile Remove="AppServicesAuth\**" />
     <Compile Remove="AzureSdkSupport\**" />
