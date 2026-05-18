@@ -264,6 +264,8 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal const string ClientAssertion = "IDWEB_CLIENT_ASSERTION";
 
+        internal const string ExtraBodyParametersKey = "EXTRA_BODY_PARAMETERS";
+
         // Blazor challenge URI
         /*
          * Used by Microsoft.Identity.Web
