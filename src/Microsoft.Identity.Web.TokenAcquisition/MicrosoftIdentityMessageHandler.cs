@@ -580,7 +580,7 @@ namespace Microsoft.Identity.Web
                 else if (Constants.AuthFailureHttpStatusCodes.Contains(result.StatusCode))
                 {
                     // Only alert if the failure is potentially due to the certificate.
-                    // This to to avoid needlessly refreshing the certificate on non-certificate related failures.
+                    // This is to avoid needlessly refreshing the certificate on non-certificate related failures.
                     _credentialsProvider.NotifyCertificateUsed(
                         loaderParameters,
                         credentialDescription,
