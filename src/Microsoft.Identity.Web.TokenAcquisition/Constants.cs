@@ -241,7 +241,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
         /// </summary>
-        internal static readonly HashSet<string> s_certificateRelatedErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        internal static readonly IReadOnlyCollection<string> s_certificateRelatedErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             InvalidKeyError,                    // AADSTS700027 - Client assertion contains an invalid signature
             SignedAssertionInvalidTimeRange,    // AADSTS700024 - Signed assertion invalid time range
@@ -259,19 +259,19 @@ namespace Microsoft.Identity.Web
          * Any changes to this member (including removal) can cause runtime failures.
          * Treat as a public member.
          */
-        internal static readonly HashSet<HttpStatusCode> AuthFailureHttpStatusCodes =
-            [
-                HttpStatusCode.BadRequest,
-                HttpStatusCode.Unauthorized,
-                HttpStatusCode.Forbidden,
-                (HttpStatusCode)495, // nginx "SSL Certificate Error"
-                (HttpStatusCode)496, // nginx "SSL Certificate Required"
-            ];
+        internal static readonly IReadOnlyCollection<HttpStatusCode> AuthFailureHttpStatusCodes = new HashSet<HttpStatusCode>()
+        {
+            HttpStatusCode.BadRequest,
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden,
+            (HttpStatusCode)495, // nginx "SSL Certificate Error"
+            (HttpStatusCode)496, // nginx "SSL Certificate Required"
+        };
 
         /// <summary>
         /// Error codes indicating permanent configuration errors that should not trigger retry.
         /// </summary>
-        internal static readonly HashSet<string> s_nonRetryableConfigErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        internal static readonly IReadOnlyCollection<string> s_nonRetryableConfigErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             InvalidClientSecret,  // AADSTS7000215 - Wrong client secret
             ApplicationNotFound,  // AADSTS700016 - Application with identifier not found

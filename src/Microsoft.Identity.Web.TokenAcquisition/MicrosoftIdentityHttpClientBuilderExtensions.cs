@@ -471,7 +471,7 @@ namespace Microsoft.Identity.Web
                 return new CredentialsProvider(
                     GetLogger<CredentialsProvider>(services),
                     loader,
-                    services.GetService<ICertificatesObserver[]>() ?? [],
+                    services.GetServices<ICertificatesObserver>() ?? [],
                     services.GetService<ITokenAcquisitionHost>());
             }
 

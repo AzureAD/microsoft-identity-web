@@ -473,7 +473,7 @@ namespace Microsoft.Identity.Web
                 }
                 else if (string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (_credentialsProvider == null)
+                    if (_credentialsProvider is null)
                     {
                         throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
                     }
@@ -537,8 +537,13 @@ namespace Microsoft.Identity.Web
             // marked as "sent" by the outer HttpClient pipeline, and HttpRequestMessage cannot
             // be sent twice.
             HttpResponseMessage result;
-            if (bindingCertificate is not null && _mtlsHttpClientFactory is not null)
+            if (bindingCertificate is not null)
             {
+                if (_mtlsHttpClientFactory is null)
+                {
+                    throw new InvalidOperationException("Authentication using mTLS requires a MtlsHttpClientFactory object to be registered, but no such service was found.");
+                }
+
                 var mtlsClient = _mtlsHttpClientFactory.GetHttpClient(bindingCertificate);
                 using var mtlsRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
 
