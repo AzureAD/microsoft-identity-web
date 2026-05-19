@@ -13,7 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Extension class containing cookie policies (work around for same site).
     /// </summary>
-    public static class CookiePolicyOptionsExtensions
+    public static partial class CookiePolicyOptionsExtensions
     {
         private const int Two = 2;
         private const int SixtySeven = 67;
@@ -22,6 +22,12 @@ namespace Microsoft.Identity.Web
         private const int Twelve = 12;
         private const int Ten = 10;
         private const int Fourteen = 14;
+        private const int MaxUserAgentLength = 512;
+
+#if !NET7_0_OR_GREATER
+        private static readonly TimeSpan UserAgentRegexTimeout = TimeSpan.FromMilliseconds(100);
+        private const RegexOptions UserAgentRegexOptions = RegexOptions.None;
+#endif
 
         /// <summary>
         /// Handles SameSite cookies according to the ASP.NET Core documentation at https://learn.microsoft.com/aspnet/core/security/samesite.
@@ -62,12 +68,44 @@ namespace Microsoft.Identity.Web
             if (options.SameSite == SameSiteMode.None)
             {
                 var userAgent = httpContext.Request.Headers[Constants.UserAgent].ToString();
+
+                if (userAgent.Length > MaxUserAgentLength)
+                {
+                    return;
+                }
+
                 if (disallowsSameSiteNone(userAgent))
                 {
                     options.SameSite = SameSiteMode.Unspecified;
                 }
             }
         }
+
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(@"\(iP.+; CPU .*OS (\d+)(?:_\d+)*[^)]*\) AppleWebKit\/", RegexOptions.NonBacktracking)]
+        private static partial Regex IosVersionRegex();
+
+        [GeneratedRegex(@"\(Macintosh;.*Mac OS X (\d+)_(\d+)(?:_\d+)*[^)]*\) AppleWebKit\/", RegexOptions.NonBacktracking)]
+        private static partial Regex MacosxVersionRegex();
+
+        [GeneratedRegex(@"Version\/.* Safari\/", RegexOptions.NonBacktracking)]
+        private static partial Regex SafariRegex();
+
+        [GeneratedRegex(@"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$", RegexOptions.NonBacktracking)]
+        private static partial Regex MacEmbeddedBrowserRegex();
+
+        [GeneratedRegex("Chrom(e|ium)", RegexOptions.NonBacktracking)]
+        private static partial Regex ChromiumBasedRegex();
+
+        [GeneratedRegex(@"Chrom[^ \/]+\/(\d+)[\.\d]*", RegexOptions.NonBacktracking)]
+        private static partial Regex ChromiumVersionRegex();
+
+        [GeneratedRegex(@"UCBrowser\/", RegexOptions.NonBacktracking)]
+        private static partial Regex UcBrowserRegex();
+
+        [GeneratedRegex(@"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ", RegexOptions.NonBacktracking)]
+        private static partial Regex UcBrowserVersionRegex();
+#endif
 
         /// <summary>
         /// Checks if the specified user agent supports "SameSite=None" cookies.
@@ -85,8 +123,15 @@ namespace Microsoft.Identity.Web
         /// <returns>True, if the user agent does not allow "SameSite=None" cookie; otherwise, false.</returns>
         public static bool DisallowsSameSiteNone(string userAgent)
         {
-            return HasWebKitSameSiteBug() ||
-                DropsUnrecognizedSameSiteCookies();
+            try
+            {
+                return HasWebKitSameSiteBug() ||
+                    DropsUnrecognizedSameSiteCookies();
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
 
             bool HasWebKitSameSiteBug() =>
                 IsIosVersion(Twelve) ||
@@ -107,51 +152,60 @@ namespace Microsoft.Identity.Web
 
             bool IsIosVersion(int major)
             {
-                const string regex = @"\(iP.+; CPU .*OS (\d+)[_\d]*.*\) AppleWebKit\/";
-
-                // Extract digits from first capturing group.
-                Match match = Regex.Match(userAgent, regex);
+#if NET7_0_OR_GREATER
+                Match match = IosVersionRegex().Match(userAgent);
+#else
+                Match match = Regex.Match(userAgent, @"\(iP.+; CPU .*OS (\d+)(?:_\d+)*[^)]*\) AppleWebKit\/", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
                 return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture);
             }
 
             bool IsMacosxVersion(int major, int minor)
             {
-                const string regex = @"\(Macintosh;.*Mac OS X (\d+)_(\d+)[_\d]*.*\) AppleWebKit\/";
-
-                // Extract digits from first and second capturing groups.
-                Match match = Regex.Match(userAgent, regex);
+#if NET7_0_OR_GREATER
+                Match match = MacosxVersionRegex().Match(userAgent);
+#else
+                Match match = Regex.Match(userAgent, @"\(Macintosh;.*Mac OS X (\d+)_(\d+)(?:_\d+)*[^)]*\) AppleWebKit\/", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
                 return match.Groups[1].Value == major.ToString(CultureInfo.CurrentCulture) &&
                     match.Groups[Two].Value == minor.ToString(CultureInfo.CurrentCulture);
             }
 
             bool IsSafari()
             {
-                const string regex = @"Version\/.* Safari\/";
-
-                return Regex.IsMatch(userAgent, regex) &&
+#if NET7_0_OR_GREATER
+                return SafariRegex().IsMatch(userAgent) && !IsChromiumBased();
+#else
+                return Regex.IsMatch(userAgent, @"Version\/.* Safari\/", UserAgentRegexOptions, UserAgentRegexTimeout) &&
                        !IsChromiumBased();
+#endif
             }
 
             bool IsMacEmbeddedBrowser()
             {
-                const string regex = @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$";
-
-                return Regex.IsMatch(userAgent, regex);
+#if NET7_0_OR_GREATER
+                return MacEmbeddedBrowserRegex().IsMatch(userAgent);
+#else
+                return Regex.IsMatch(userAgent, @"^Mozilla\/[\.\d]+ \(Macintosh;.*Mac OS X [_\d]+\) AppleWebKit\/[\.\d]+ \(KHTML, like Gecko\)$", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
             }
 
             bool IsChromiumBased()
             {
-                const string regex = "Chrom(e|ium)";
-
-                return Regex.IsMatch(userAgent, regex);
+#if NET7_0_OR_GREATER
+                return ChromiumBasedRegex().IsMatch(userAgent);
+#else
+                return Regex.IsMatch(userAgent, "Chrom(e|ium)", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
             }
 
             bool IsChromiumVersionAtLeast(int major)
             {
-                const string regex = @"Chrom[^ \/]+\/(\d+)[\.\d]*";
-
-                // Extract digits from first capturing group.
-                Match match = Regex.Match(userAgent, regex);
+#if NET7_0_OR_GREATER
+                Match match = ChromiumVersionRegex().Match(userAgent);
+#else
+                Match match = Regex.Match(userAgent, @"Chrom[^ \/]+\/(\d+)[\.\d]*", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
                 if (!match.Success)
                     return false;
 
@@ -163,17 +217,20 @@ namespace Microsoft.Identity.Web
 
             bool IsUcBrowser()
             {
-                const string regex = @"UCBrowser\/";
-
-                return Regex.IsMatch(userAgent, regex);
+#if NET7_0_OR_GREATER
+                return UcBrowserRegex().IsMatch(userAgent);
+#else
+                return Regex.IsMatch(userAgent, @"UCBrowser\/", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
             }
 
             bool IsUcBrowserVersionAtLeast(int major, int minor, int build)
             {
-                const string regex = @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ";
-
-                // Extract digits from three capturing groups.
-                Match match = Regex.Match(userAgent, regex);
+#if NET7_0_OR_GREATER
+                Match match = UcBrowserVersionRegex().Match(userAgent);
+#else
+                Match match = Regex.Match(userAgent, @"UCBrowser\/(\d+)\.(\d+)\.(\d+)[\.\d]* ", UserAgentRegexOptions, UserAgentRegexTimeout);
+#endif
                 int major_version = Convert.ToInt32(match.Groups[1].Value, CultureInfo.CurrentCulture);
                 int minor_version = Convert.ToInt32(match.Groups[2].Value, CultureInfo.CurrentCulture);
                 int build_version = Convert.ToInt32(match.Groups[3].Value, CultureInfo.CurrentCulture);
