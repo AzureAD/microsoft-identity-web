@@ -6,14 +6,20 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
-
+using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
 namespace Microsoft.Identity.Web.Test
 {
@@ -124,6 +130,71 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Bearer header.payload.signature", result);
+        }
+
+        // https://github.com/AzureAD/microsoft-identity-web/issues/3237
+        [Fact]
+        public async Task TokenAcquisitionUsesMemoryCacheWhenConfigured()
+        {
+            // Arrange
+            var microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            var applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                RedirectUri = "https://localhost:1234",
+                ClientSecret = TC.ClientSecret,
+            });
+
+            var services = new ServiceCollection();
+            services.AddTransient(
+                provider => microsoftIdentityOptionsMonitor);
+            services.AddTransient(
+                provider => applicationOptionsMonitor);
+            services.Configure<MergedOptions>(options => { });
+            services.AddTokenAcquisition();
+            services.AddLogging();
+            services.AddAuthentication();
+            services.AddSingleton<IMsalHttpClientFactory, MockHttpClientFactory>();
+            services.AddMemoryCache();
+            var provider = services.BuildServiceProvider();
+
+
+            MergedOptions mergedOptions = provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            var credentialsLoader = new DefaultCredentialsLoader();
+            var tokenAcquisitionAspnetCoreHost = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                provider.GetService<IMergedOptionsStore>()!,
+                provider);
+            var tokenAcquisition = new TokenAcquisitionAspNetCore(
+                new MsalTestTokenCacheProvider(
+                    provider.GetService<IMemoryCache>()!,
+                    provider.GetService<IOptions<MsalMemoryTokenCacheOptions>>()!),
+                provider.GetService<IHttpClientFactory>()!,
+                provider.GetService<ILogger<TokenAcquisition>>()!,
+                tokenAcquisitionAspnetCoreHost,
+                provider,
+                credentialsLoader);
+            var mockHttpClient = provider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;         
+
+            IConfidentialClientApplication app = await tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions);
+            mockHttpClient!.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+
+            // Act
+            var result = await app.AcquireTokenForClient(new[] { "r" }).ExecuteAsync();
+
+            // Assert
+            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+            IMemoryCache memoryCache = provider.GetService<IMemoryCache>()!;
+            Assert.Equal(1, (memoryCache as MemoryCache)!.Count);             // this proves that MemoryCache is used
         }
 
         private TokenAcquirerFactory InitTokenAcquirerFactory()
