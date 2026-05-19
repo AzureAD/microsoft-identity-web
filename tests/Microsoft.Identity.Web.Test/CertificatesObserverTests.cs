@@ -253,7 +253,7 @@ namespace Microsoft.Identity.Web.Test
 
                 string apiUrl = authority + relativeUrl;
 
-                Func<Task<HttpResponseMessage>> Invoke = async () =>
+                Func<Task<HttpResponseMessage>> invoke = async () =>
                 {
                     if (useDownstreamApi)
                     {
