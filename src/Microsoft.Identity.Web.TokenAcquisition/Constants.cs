@@ -252,7 +252,7 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
-        /// HTTP status codes which may indicate that a certificate based authnetication failure occurred.
+        /// HTTP status codes which may indicate that a certificate based authentication failure occurred.
         /// </summary>
         /*
          * Used by Microsoft.Identity.Web.DownstreamApi
