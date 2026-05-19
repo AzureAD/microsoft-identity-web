@@ -80,7 +80,7 @@
 
   <PropertyGroup Label="Common dependency versions">
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.18.0</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.83.3</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.84.0</MicrosoftIdentityClientVersion>
     <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.0.0</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
@@ -180,6 +180,9 @@
     <!-- CVE-2022-34716 due to DataProtection 2.1.0 -->
     <SystemSecurityCryptographyPkcsVersion>7.0.2</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>4.7.1</SystemSecurityCryptographyXmlVersion>
+    <!-- Microsoft.Identity.Client 4.84.0 → System.Text.Json 6.0.10 → System.Text.Encodings.Web >= 6.0.0;
+         pin to 6.0.0 here to avoid NU1605 downgrade error (matches net462 version). -->
+    <SystemTextEncodingsWebVersion>6.0.0</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
   <ItemGroup>
