@@ -443,6 +443,8 @@ namespace Microsoft.Identity.Web
                     var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
 
                     // Silent flow
+                    // Note: CachePartitionKey from TokenAcquisitionOptions is not applied here.
+                    // This path is used by ROPC, which does not support TokenAcquisitionOptions.
                     return await application.AcquireTokenSilent(
                         scopes.Except(_scopesRequestedByMsal),
                         account)
