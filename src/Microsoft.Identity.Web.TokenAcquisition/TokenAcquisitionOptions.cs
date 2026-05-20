@@ -56,7 +56,9 @@ namespace Microsoft.Identity.Web
                 ManagedIdentity = ManagedIdentity,
                 FmiPath = FmiPath,
                 CachePartitionKey = CachePartitionKey != null
-                    ? new Dictionary<string, string>(CachePartitionKey)
+                    ? (CachePartitionKey is Dictionary<string, string> dict
+                        ? new Dictionary<string, string>(dict, dict.Comparer)
+                        : new Dictionary<string, string>(CachePartitionKey))
                     : null
             };
         }

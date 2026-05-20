@@ -71,6 +71,7 @@ namespace Microsoft.Identity.Web
 
             ServiceDescriptor? tokenAcquisitionService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisition));
             ServiceDescriptor? tokenAcquisitionInternalService = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionInternal));
+            ServiceDescriptor? ccaProviderService = services.FirstOrDefault(s => s.ServiceType == typeof(IConfidentialClientApplicationProvider));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
@@ -88,6 +89,11 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
                     services.Remove(authSchemeInfoProvider);
+
+                    if (ccaProviderService != null)
+                    {
+                        services.Remove(ccaProviderService);
+                    }
 
                     if (credentialsProviderService != null)
                     {
