@@ -26,12 +26,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
-        /// <summary>
-        /// Optional cache partition key-value pairs. When set, the token cache lookup
-        /// and storage will include these components, isolating cached tokens from
-        /// entries that have different (or no) partition keys.
-        /// </summary>
-        public IDictionary<string, string>? CachePartitionKey { get; set; }
+        internal IDictionary<string, string>? CachePartitionKeys { get; set; }
 
         /// <summary>
         /// Clone the options (to be able to override them).
@@ -55,10 +50,8 @@ namespace Microsoft.Identity.Web
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
                 FmiPath = FmiPath,
-                CachePartitionKey = CachePartitionKey != null
-                    ? (CachePartitionKey is Dictionary<string, string> dict
-                        ? new Dictionary<string, string>(dict, dict.Comparer)
-                        : new Dictionary<string, string>(CachePartitionKey))
+                CachePartitionKeys = CachePartitionKeys != null
+                    ? new Dictionary<string, string>(CachePartitionKeys)
                     : null
             };
         }

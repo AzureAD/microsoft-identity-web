@@ -11,6 +11,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;

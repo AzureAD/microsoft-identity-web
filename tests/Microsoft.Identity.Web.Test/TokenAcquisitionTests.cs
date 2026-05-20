@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
@@ -25,38 +26,36 @@ namespace Microsoft.Identity.Web.Test
         private const string AppHomeTenantId = "app-home-tenant-id";
 
         [Fact]
-        public void CachePartitionKey_DefaultsToNull()
+        public void CachePartitionKeys_DefaultsToNull()
         {
             // Arrange
             var options = new TokenAcquisitionOptions();
 
             // Act
-            IDictionary<string, string>? cachePartitionKey = options.CachePartitionKey;
+            IDictionary<string, string>? cachePartitionKeys = options.CachePartitionKeys;
 
             // Assert
-            Assert.Null(cachePartitionKey);
+            Assert.Null(cachePartitionKeys);
         }
 
         [Fact]
-        public void CachePartitionKey_CanBeSet()
+        public void CachePartitionKeys_CanBeSet()
         {
             // Arrange
-            IDictionary<string, string> cachePartitionKey = new Dictionary<string, string>
+            IDictionary<string, string> cachePartitionKeys = new Dictionary<string, string>
             {
                 ["tenant"] = "contoso",
                 ["user"] = "alice"
             };
 
             // Act
-            var options = new TokenAcquisitionOptions
-            {
-                CachePartitionKey = cachePartitionKey
-            };
+            var options = new TokenAcquisitionOptions()
+                .WithCachePartitionKeys(cachePartitionKeys);
 
             // Assert
-            Assert.Same(cachePartitionKey, options.CachePartitionKey);
-            Assert.Equal("contoso", options.CachePartitionKey!["tenant"]);
-            Assert.Equal("alice", options.CachePartitionKey["user"]);
+            Assert.Same(cachePartitionKeys, options.CachePartitionKeys);
+            Assert.Equal("contoso", options.CachePartitionKeys!["tenant"]);
+            Assert.Equal("alice", options.CachePartitionKeys["user"]);
         }
 
         [Theory]

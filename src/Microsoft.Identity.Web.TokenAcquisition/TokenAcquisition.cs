@@ -21,6 +21,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Experimental;
+using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -443,7 +444,7 @@ namespace Microsoft.Identity.Web
                     var account = await application.GetAccountAsync(user.GetMsalAccountId()).ConfigureAwait(false);
 
                     // Silent flow
-                    // Note: CachePartitionKey from TokenAcquisitionOptions is not applied here.
+                    // Note: CachePartitionKeys from TokenAcquisitionOptions is not applied here.
                     // This path is used by ROPC, which does not support TokenAcquisitionOptions.
                     return await application.AcquireTokenSilent(
                         scopes.Except(_scopesRequestedByMsal),
@@ -1040,8 +1041,6 @@ namespace Microsoft.Identity.Web
             return clientClaims;
         }
 
-#pragma warning disable RS0051 // Add internal types and members to the declared API
-
         /// <inheritdoc/>
         public async Task<IConfidentialClientApplication> GetConfidentialClientApplicationAsync(
             string? authenticationScheme = null)
@@ -1574,9 +1573,9 @@ namespace Microsoft.Identity.Web
                 {
                     builder.WithProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
                 }
-                if (tokenAcquisitionOptions.CachePartitionKey != null)
+                if (tokenAcquisitionOptions.CachePartitionKeys != null)
                 {
-                    foreach (var kvp in tokenAcquisitionOptions.CachePartitionKey)
+                    foreach (var kvp in tokenAcquisitionOptions.CachePartitionKeys)
                     {
                         builder.WithCachePartitionKey(kvp.Key, kvp.Value);
                     }

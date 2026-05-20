@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.Extensibility
 {
     /// <summary>
     /// Provides access to the <see cref="IConfidentialClientApplication"/> managed by
