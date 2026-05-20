@@ -27,7 +27,6 @@ namespace Microsoft.Identity.Web.Test
 
             services.AddTokenAcquisition();
             ServiceDescriptor[] orderedServices = services
-                .Where(s => s.ServiceType != typeof(IConfidentialClientApplicationProvider))
                 .OrderBy(s => s.ServiceType.FullName)
                 .ToArray();
 
@@ -94,6 +93,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(MsalMtlsHttpClientFactory), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(IConfidentialClientApplicationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
                 },
                 actual =>
                 {
@@ -223,7 +230,6 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             var orderedServices = services
-                .Where(s => s.ServiceType != typeof(IConfidentialClientApplicationProvider))
                 .OrderBy(s => s.ServiceType.FullName)
                 .ToList();
 
@@ -290,6 +296,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(MsalMtlsHttpClientFactory), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IConfidentialClientApplicationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
                 },
                 actual =>
                 {
