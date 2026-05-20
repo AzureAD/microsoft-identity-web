@@ -1,1 +1,5 @@
 #nullable enable
+Microsoft.Identity.Web.TokenAcquisitionOptions.CachePartitionKey.get -> System.Collections.Generic.IDictionary<string!, string!>?
+Microsoft.Identity.Web.TokenAcquisitionOptions.CachePartitionKey.set -> void
+Microsoft.Identity.Web.IConfidentialClientApplicationProvider
+Microsoft.Identity.Web.IConfidentialClientApplicationProvider.GetConfidentialClientApplicationAsync(string? authenticationScheme = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.IConfidentialClientApplication!>!
