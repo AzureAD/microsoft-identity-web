@@ -1,1 +1,2 @@
 #nullable enable
+const Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.MaxCacheEntries = 100 -> int
