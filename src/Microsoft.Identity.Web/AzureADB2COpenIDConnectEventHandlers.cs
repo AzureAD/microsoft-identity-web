@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Microsoft.Identity.Web
@@ -14,8 +14,16 @@ namespace Microsoft.Identity.Web
     {
         private readonly ILoginErrorAccessor _errorAccessor;
 
-        private readonly Dictionary<string, string> _userFlowToIssuerAddress =
-            new(StringComparer.OrdinalIgnoreCase);
+        internal const int MaxCacheEntries = 100;
+
+        private static readonly TimeSpan CacheSlidingExpiration = TimeSpan.FromHours(1);
+
+        private readonly MemoryCache _issuerAddressCache = new(new MemoryCacheOptions
+        {
+            SizeLimit = MaxCacheEntries,
+        });
+
+        private static readonly char[] _invalidPolicyCharacters = { '/', '?', '#', '%' };
 
         public AzureADB2COpenIDConnectEventHandlers(
             string schemeName,
@@ -38,6 +46,12 @@ namespace Microsoft.Identity.Web
                 !string.IsNullOrEmpty(userFlow) &&
                 !string.Equals(userFlow, defaultUserFlow, StringComparison.OrdinalIgnoreCase))
             {
+                if (userFlow.IndexOfAny(_invalidPolicyCharacters) >= 0)
+                {
+                    context.Properties.Items.Remove(OidcConstants.PolicyKey);
+                    return Task.CompletedTask;
+                }
+
                 context.ProtocolMessage.IssuerAddress = BuildIssuerAddress(context, defaultUserFlow, userFlow);
                 context.Properties.Items.Remove(OidcConstants.PolicyKey);
 
@@ -100,16 +114,20 @@ namespace Microsoft.Identity.Web
 
         private string BuildIssuerAddress(RedirectContext context, string? defaultUserFlow, string userFlow)
         {
-            if (!_userFlowToIssuerAddress.TryGetValue(userFlow, out var issuerAddress))
+            if (!_issuerAddressCache.TryGetValue(userFlow, out string? issuerAddress))
             {
                 issuerAddress = context.ProtocolMessage.IssuerAddress
                     .Replace($"/{defaultUserFlow}/", $"/{userFlow}/", StringComparison.OrdinalIgnoreCase);
                 issuerAddress = issuerAddress.ToLowerInvariant();
 
-                _userFlowToIssuerAddress[userFlow] = issuerAddress;
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSize(1)
+                    .SetSlidingExpiration(CacheSlidingExpiration);
+
+                _issuerAddressCache.Set(userFlow, issuerAddress, cacheEntryOptions);
             }
 
-            return issuerAddress;
+            return issuerAddress!;
         }
     }
 }
