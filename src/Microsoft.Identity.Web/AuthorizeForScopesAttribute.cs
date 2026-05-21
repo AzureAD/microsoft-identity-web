@@ -135,8 +135,7 @@ namespace Microsoft.Identity.Web
 
                         UrlHelper urlHelper = new UrlHelper(context);
                         if (urlHelper.IsLocalUrl(redirectUri)
-                            && !redirectUri!.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
-                            && !redirectUri!.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase))
+                            && !RedirectUriHelper.HasPercentEncodedSlashPrefix(redirectUri!))
                         {
                             properties.RedirectUri = redirectUri;
                         }
