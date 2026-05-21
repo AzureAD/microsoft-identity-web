@@ -164,6 +164,12 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
             return false;
         }
 
+        if (url.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
+            || url.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         // "/foo" is local, but not "//foo" (protocol-relative) and not "/\foo" (slash-backslash).
         if (url[0] == '/')
         {

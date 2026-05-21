@@ -134,7 +134,9 @@ namespace Microsoft.Identity.Web
                             : httpRequest.Query[Constants.XReturnUrl];
 
                         UrlHelper urlHelper = new UrlHelper(context);
-                        if (urlHelper.IsLocalUrl(redirectUri))
+                        if (urlHelper.IsLocalUrl(redirectUri)
+                            && !redirectUri!.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
+                            && !redirectUri!.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase))
                         {
                             properties.RedirectUri = redirectUri;
                         }
