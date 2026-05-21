@@ -492,6 +492,19 @@ namespace Microsoft.Identity.Web
 
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
+                // Emit a warning whenever the single-string 'Authority' option is being used to derive
+                // Instance/TenantId. The 'Authority' option targets vanilla OIDC / CIAM scenarios and
+                // routes through MSAL.WithOidcAuthority(); first-party (1P) callers (e.g. services
+                // using Microsoft Identity Service Essentials / MISE) should configure 'Instance' +
+                // 'TenantId' separately so the request flows through MSAL.WithAuthority(). Third-party
+                // (3P) callers using CIAM / ADFS / generic OIDC can safely ignore this warning.
+                // Microsoft.Identity.Web is a 3P-targeted library and cannot reliably tell whether the
+                // caller is 1P or 3P at runtime, so we emit a hint rather than throwing.
+                if (logger != null)
+                {
+                    MergedOptionsLogging.AuthorityUsedConsiderInstanceTenantId(logger, mergedOptions.Authority!);
+                }
+
                 ReadOnlySpan<char> doubleSlash = "//".AsSpan();
                 ReadOnlySpan<char> authoritySpan = mergedOptions.Authority.AsSpan().TrimEnd('/');
                 int doubleSlashIndex = authoritySpan.IndexOf(doubleSlash);
@@ -503,6 +516,28 @@ namespace Microsoft.Identity.Web
                 {
                     int indexVersion = authoritySpan.Slice(indexTenant + 1).IndexOf('/');
                     int indexEndOfTenant = indexVersion == -1 ? authoritySpan.Length : indexVersion + indexTenant + 1;
+
+                    // dSTS authorities have the shape https://{host}/dstsv2/{tenantGuid}, i.e. TWO path
+                    // segments instead of the AAD-style single segment. The single 'Authority' string
+                    // is reserved for vanilla OIDC / CIAM scenarios, which route through
+                    // MSAL.WithOidcAuthority() — a path that is incompatible with dSTS. dSTS users MUST
+                    // configure 'Instance' and 'TenantId' separately so that the request flows through
+                    // MSAL.WithAuthority() instead.
+                    //
+                    // Detecting the "dstsv2" path segment here lets us bail with a clear, actionable
+                    // error message instead of letting the generic AAD parser silently drop the
+                    // tenant GUID, which would surface later as MSAL's opaque
+                    //   "The DSTS authority URI should have at least 2 segments..."
+                    ReadOnlySpan<char> firstPathSegment = authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1);
+                    if (firstPathSegment.Equals("dstsv2".AsSpan(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException(
+                            "Configuring a dSTS authority via the single 'Authority' option is not supported. " +
+                            "The 'Authority' option targets vanilla OIDC / CIAM scenarios and routes through " +
+                            "MSAL.WithOidcAuthority(), which is incompatible with dSTS. " +
+                            "For dSTS, configure 'Instance' (e.g. \"https://{host}/dstsv2\") and 'TenantId' " +
+                            "(the dSTS tenant GUID) separately so the request flows through MSAL.WithAuthority().");
+                    }
 
                     // In CIAM and B2C, customers will use "authority", not Instance and TenantId
                     mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority! : authoritySpan.Slice(0, indexTenant).ToString();

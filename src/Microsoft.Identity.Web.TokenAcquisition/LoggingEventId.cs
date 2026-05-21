@@ -36,6 +36,7 @@ namespace Microsoft.Identity.Web
 
         // MergedOptions EventIds 500+
         public static readonly EventId AuthorityIgnored = new EventId(500, "AuthorityIgnored");
+        public static readonly EventId AuthorityUsedConsiderInstanceTenantId = new EventId(501, "AuthorityUsedConsiderInstanceTenantId");
 
 #pragma warning restore IDE1006 // Naming Styles
     }
