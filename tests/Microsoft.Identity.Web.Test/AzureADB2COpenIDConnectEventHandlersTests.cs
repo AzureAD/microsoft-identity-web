@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -148,6 +149,101 @@ namespace Microsoft.Identity.Web.Test
 
             errorAccessor.Received(1).SetMessage(httpContext, otherException);
             httpContext.Response.Received().Redirect($"{httpContext.Request.PathBase}/MicrosoftIdentity/Account/Error");
+        }
+
+        [Theory]
+        [InlineData("../../some-path")]
+        [InlineData("policy?test=123")]
+        [InlineData("policy#fragment")]
+        [InlineData("policy%2F%2Fabc")]
+        [InlineData("/absolute/path")]
+        public async Task OnRedirectToIdentityProvider_PolicyWithInvalidChars_FallsBackToDefault(string invalidPolicy)
+        {
+            // Arrange
+            var errorAccessor = Substitute.For<ILoginErrorAccessor>();
+            var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
+            var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, options, errorAccessor);
+            var httpContext = HttpContextUtilities.CreateHttpContext();
+            var authProperties = new AuthenticationProperties();
+            authProperties.Items.Add(OidcConstants.PolicyKey, invalidPolicy);
+            var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties)
+            {
+                ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer },
+            };
+
+            // Act
+            await handler.OnRedirectToIdentityProvider(context);
+
+            // Assert
+            Assert.Equal(_defaultIssuer, context.ProtocolMessage.IssuerAddress);
+            Assert.False(context.Properties.Items.ContainsKey(OidcConstants.PolicyKey));
+            Assert.Null(context.ProtocolMessage.ResponseType);
+        }
+
+        [Fact]
+        public async Task OnRedirectToIdentityProvider_CacheBoundedAt100Entries()
+        {
+            // Arrange
+            var errorAccessor = Substitute.For<ILoginErrorAccessor>();
+            var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
+            var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, options, errorAccessor);
+
+            // Act — send 200 unique policy values (exceeds the 100 limit)
+            for (int i = 0; i < 200; i++)
+            {
+                var httpContext = HttpContextUtilities.CreateHttpContext();
+                var authProperties = new AuthenticationProperties();
+                authProperties.Items.Add(OidcConstants.PolicyKey, $"policy_{i}");
+                var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties)
+                {
+                    ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer },
+                };
+                await handler.OnRedirectToIdentityProvider(context);
+            }
+
+            // Assert
+            var cacheField = typeof(AzureADB2COpenIDConnectEventHandlers)
+                .GetField("_issuerAddressCache", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var cache = cacheField!.GetValue(handler) as Microsoft.Extensions.Caching.Memory.MemoryCache;
+            Assert.NotNull(cache);
+
+            Assert.True(cache!.Count <= AzureADB2COpenIDConnectEventHandlers.MaxCacheEntries,
+                $"Cache count {cache.Count} should not exceed {AzureADB2COpenIDConnectEventHandlers.MaxCacheEntries}");
+        }
+
+        [Fact]
+        public async Task OnRedirectToIdentityProvider_BeyondCacheLimit_StillComputesAddress()
+        {
+            // Arrange
+            var errorAccessor = Substitute.For<ILoginErrorAccessor>();
+            var options = new MicrosoftIdentityOptions() { SignUpSignInPolicyId = DefaultUserFlow };
+            var handler = new AzureADB2COpenIDConnectEventHandlers(OpenIdConnectDefaults.AuthenticationScheme, options, errorAccessor);
+
+            for (int i = 0; i < 100; i++)
+            {
+                var httpContext = HttpContextUtilities.CreateHttpContext();
+                var authProperties = new AuthenticationProperties();
+                authProperties.Items.Add(OidcConstants.PolicyKey, $"policy_{i}");
+                var context = new RedirectContext(httpContext, _authScheme, new OpenIdConnectOptions(), authProperties)
+                {
+                    ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer },
+                };
+                await handler.OnRedirectToIdentityProvider(context);
+            }
+
+            // Act - address computed, LRU eviction occurs
+            var httpContext101 = HttpContextUtilities.CreateHttpContext();
+            var authProperties101 = new AuthenticationProperties();
+            authProperties101.Items.Add(OidcConstants.PolicyKey, "policy_beyond_limit");
+            var context101 = new RedirectContext(httpContext101, _authScheme, new OpenIdConnectOptions(), authProperties101)
+            {
+                ProtocolMessage = new OpenIdConnectMessage() { IssuerAddress = _defaultIssuer },
+            };
+            await handler.OnRedirectToIdentityProvider(context101);
+
+            // Assert — address was computed correctly
+            Assert.Contains("policy_beyond_limit", context101.ProtocolMessage.IssuerAddress, StringComparison.OrdinalIgnoreCase);
+            Assert.False(context101.Properties.Items.ContainsKey(OidcConstants.PolicyKey));
         }
     }
 }
