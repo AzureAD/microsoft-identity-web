@@ -154,22 +154,6 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     internal static AuthenticationProperties GetAuthProperties(string? returnUrl)
     {
         const string pathBase = "/";
-        return new AuthenticationProperties { RedirectUri = IsLocalUrl(returnUrl) ? returnUrl! : pathBase };
-    }
-
-    private static bool IsLocalUrl(string? url)
-    {
-        if (string.IsNullOrEmpty(url))
-        {
-            return false;
-        }
-
-        // "/foo" is local, but not "//foo" (protocol-relative) and not "/\foo" (slash-backslash).
-        if (url[0] == '/')
-        {
-            return url.Length == 1 || (url[1] != '/' && url[1] != '\\');
-        }
-
-        return false;
+        return new AuthenticationProperties { RedirectUri = RedirectUriHelper.IsLocalUrl(returnUrl) ? returnUrl! : pathBase };
     }
 }
