@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph.Beta" Version="5.56.0-preview" />
+    <PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.22.0" />
   </ItemGroup>
 
   <ItemGroup>
