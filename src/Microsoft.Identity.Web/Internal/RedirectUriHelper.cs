@@ -6,8 +6,8 @@ using System;
 namespace Microsoft.Identity.Web;
 
 /// <summary>
-/// Shared redirect-URI sanitization helpers used by <see cref="LoginLogoutEndpointRouteBuilderExtensions"/>
-/// and <see cref="AuthorizeForScopesAttribute"/> to enforce consistent local-URL validation.
+/// Shared redirect-URI sanitization helpers for consistent local-URL validation
+/// across login/logout endpoints and authorization attributes.
 /// </summary>
 internal static class RedirectUriHelper
 {
@@ -23,13 +23,13 @@ internal static class RedirectUriHelper
             return false;
         }
 
-        if (HasPercentEncodedSlashPrefix(url))
+        if (HasPercentEncodedSlashPrefix(url!))
         {
             return false;
         }
 
         // "/foo" is local, but not "//foo" (protocol-relative) and not "/\foo" (slash-backslash).
-        if (url[0] == '/')
+        if (url![0] == '/')
         {
             return url.Length == 1 || (url[1] != '/' && url[1] != '\\');
         }
