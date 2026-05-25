@@ -11,7 +11,9 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -25,7 +27,9 @@ namespace Microsoft.Identity.Web.Test
             var services = new ServiceCollection();
 
             services.AddTokenAcquisition();
-            ServiceDescriptor[] orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToArray();
+            ServiceDescriptor[] orderedServices = services
+                .OrderBy(s => s.ServiceType.FullName)
+                .ToArray();
 
             Assert.Collection(
                 orderedServices,
@@ -93,6 +97,14 @@ namespace Microsoft.Identity.Web.Test
                 },
                 actual =>
                 {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(IConfidentialClientApplicationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
                     Assert.Equal(typeof(ICredentialsProvider), actual.ServiceType);
                     Assert.Equal(typeof(CredentialsProvider), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
@@ -143,7 +155,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
-            Assert.Equal(13, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
+            Assert.Equal(14, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
         }
 #endif
 
@@ -159,6 +171,43 @@ namespace Microsoft.Identity.Web.Test
             ServiceDescriptor[] orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToArray();
 
             Assert.Single(orderedServices, s => s.ServiceType == typeof(ICredentialsLoader));
+        }
+
+        [Fact]
+        public void AddTokenAcquisition_RegistersIConfidentialClientApplicationProvider()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+
+            // Act
+            services.AddTokenAcquisition();
+
+            // Assert
+            ServiceDescriptor serviceDescriptor = Assert.Single(services, s => s.ServiceType == typeof(IConfidentialClientApplicationProvider));
+            Assert.Equal(ServiceLifetime.Scoped, serviceDescriptor.Lifetime);
+            Assert.Null(serviceDescriptor.ImplementationType);
+            Assert.Null(serviceDescriptor.ImplementationInstance);
+            Assert.NotNull(serviceDescriptor.ImplementationFactory);
+        }
+
+        [Fact]
+        public void AddTokenAcquisition_ResolvesIConfidentialClientApplicationProviderToTokenAcquisition()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddTokenAcquisition();
+            services.AddInMemoryTokenCaches();
+            services.AddHttpClient();
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            using IServiceScope serviceScope = serviceProvider.CreateScope();
+
+            // Act
+            var tokenAcquisition = serviceScope.ServiceProvider.GetRequiredService<ITokenAcquisition>();
+            var confidentialClientApplicationProvider = serviceScope.ServiceProvider.GetRequiredService<IConfidentialClientApplicationProvider>();
+
+            // Assert
+            Assert.Same(tokenAcquisition, confidentialClientApplicationProvider);
+            Assert.IsAssignableFrom<TokenAcquisition>(confidentialClientApplicationProvider);
         }
 
         [Fact]
@@ -181,7 +230,9 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition(isTokenAcquisitionSingleton: true);
 
             // Assert
-            var orderedServices = services.OrderBy(s => s.ServiceType.FullName).ToList();
+            var orderedServices = services
+                .OrderBy(s => s.ServiceType.FullName)
+                .ToList();
 
             // Check that the first service is registered as singleton
             Assert.Collection(
@@ -246,6 +297,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(MsalMtlsHttpClientFactory), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IConfidentialClientApplicationProvider), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
                 },
                 actual =>
                 {

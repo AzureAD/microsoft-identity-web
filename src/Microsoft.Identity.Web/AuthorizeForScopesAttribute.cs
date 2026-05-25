@@ -134,7 +134,8 @@ namespace Microsoft.Identity.Web
                             : httpRequest.Query[Constants.XReturnUrl];
 
                         UrlHelper urlHelper = new UrlHelper(context);
-                        if (urlHelper.IsLocalUrl(redirectUri))
+                        if (urlHelper.IsLocalUrl(redirectUri)
+                            && !RedirectUriHelper.HasPercentEncodedSlashPrefix(redirectUri!))
                         {
                             properties.RedirectUri = redirectUri;
                         }
