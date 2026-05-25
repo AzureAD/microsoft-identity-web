@@ -3,16 +3,11 @@
 
 using System;
 
-namespace Microsoft.Identity.Web
+namespace Microsoft.Identity.Web.Diagnostics
 {
     /// <summary>
     /// Exception for a failed HTTP call. This is exclusively used by reporting and never thrown.
     /// </summary>
-    /*
-     * Used by Microsoft.Identity.Web.DownstreamApi
-     * Any changes to this member (including removal) can cause runtime failures.
-     * Treat as a public member.
-     */
     internal class UnauthorizedHttpRequestException : Exception
     {
         public UnauthorizedHttpRequestException()
