@@ -1,3 +1,23 @@
+## 4.10.0
+
+### New features
+- Add `WithExtraBodyParameters` fluent API for attaching extra body parameters to token acquisition requests. See [#3819](https://github.com/AzureAD/microsoft-identity-web/pull/3819).
+- Add `IConfidentialClientApplicationProvider` extensibility interface and `CachePartitionKey` support for silent token acquisition. See [#3822](https://github.com/AzureAD/microsoft-identity-web/pull/3822).
+
+### Bug fixes
+- Redirect URI sanitization in authorization scenarios; centralize redirect URI validation in a shared helper. See [#3825](https://github.com/AzureAD/microsoft-identity-web/pull/3825).
+- Reject dSTS-shaped `Authority` values with a clearer exception, steering users to use `Instance` + `TenantId` instead. See [#3805](https://github.com/AzureAD/microsoft-identity-web/pull/3805).
+- Improve regex handling and adding length/timeout safeguards for SameSite User Agent. See [#3811](https://github.com/AzureAD/microsoft-identity-web/pull/3811).
+
+### Behavior changes
+- **B2C OpenID Connect event handler: LRU cache for issuer address.** Issuer address lookups in the B2C OIDC event handler are now cached with an LRU cache, improving performance for repeated lookups. See [#3821](https://github.com/AzureAD/microsoft-identity-web/pull/3821).
+
+### Dependencies updates
+- Update MSAL.NET to 4.84.1. See [#3822](https://github.com/AzureAD/microsoft-identity-web/pull/3822).
+- Pin `Microsoft.Kiota.Abstractions` to 1.22.0 for GraphServiceClient. See [#3817](https://github.com/AzureAD/microsoft-identity-web/pull/3817).
+- Bump `uuid` and `@azure/msal-node` in SidecarAdapter TypeScript test app. See [#3826](https://github.com/AzureAD/microsoft-identity-web/pull/3826).
+- Bump `qs` in SidecarAdapter TypeScript test app. See [#3829](https://github.com/AzureAD/microsoft-identity-web/pull/3829).
+
 ## 4.9.0
 
 ### New features
@@ -64,8 +84,8 @@
 - AI Skills and Aspire DevApp demonstrating Blazor authentication components [#3721](https://github.com/AzureAD/microsoft-identity-web/pull/3721)
 
 ### Dependencies updates
-- Bump MSAL to 4.83.1 
-- Bump Abstractions to 11.2 
+- Bump MSAL to 4.83.1
+- Bump Abstractions to 11.2
 
 ## 4.6.0
 
@@ -74,8 +94,8 @@ Aspire / Blazor helpers and documentation [#3723](https://github.com/AzureAD/mic
 AI Skills and Aspire DevApp demonstrating Blazor authentication components [#3721](https://github.com/AzureAD/microsoft-identity-web/pull/3721)
 
 ### Dependencies updates
-Bump MSAL to 4.83.1 
-Bump Abstractions to 11.2 
+Bump MSAL to 4.83.1
+Bump Abstractions to 11.2
 
 ## 4.5.0
 
