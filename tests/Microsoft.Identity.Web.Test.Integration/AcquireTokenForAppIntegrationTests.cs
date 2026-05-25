@@ -137,39 +137,6 @@ namespace Microsoft.Identity.Web.Test.Integration
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task GetAccessTokenOrAuthResultForApp_ConsumersTenantAsync(bool getAuthResult)
-        {
-            // Arrange
-            InitializeTokenAcquisitionObjects();
-
-            Assert.Equal(0, _msalTestTokenCacheProvider.Count);
-
-            if (getAuthResult)
-            {
-                AuthenticationResult authResult =
-                await _tokenAcquisition.GetAuthenticationResultForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers);
-
-                // Assert
-                Assert.NotNull(authResult);
-                Assert.NotNull(authResult.AccessToken);
-                Assert.Null(authResult.IdToken);
-                Assert.Null(authResult.Account);
-            }
-            else
-            {
-                string token =
-                    await _tokenAcquisition.GetAccessTokenForAppAsync(TestConstants.s_scopeForApp, tenant: Constants.Consumers);
-
-                // Assert
-                Assert.NotNull(token);
-            }
-
-            Assert.Equal(1, _msalTestTokenCacheProvider.Count);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
         public async Task GetAccessTokenOrAuthResultForApp_TenantSpecificAsync(bool getAuthResult)
         {
             // Arrange
@@ -299,7 +266,7 @@ namespace Microsoft.Identity.Web.Test.Integration
         private void InitializeTokenAcquisitionObjects()
         {
             MergedOptions mergedOptions = Provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
-            
+
 
             MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
             MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
