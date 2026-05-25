@@ -826,7 +826,7 @@ namespace Microsoft.Identity.Web
         private void AddExtraBodyParametersIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
         {
             if (tokenAcquisitionOptions.ExtraParameters != null
-                && tokenAcquisitionOptions.ExtraParameters.TryGetValue("EXTRA_BODY_PARAMETERS", out object? parameters))
+                && tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.ExtraBodyParametersKey, out object? parameters))
             {
                 if (parameters is Dictionary<string, Func<CancellationToken, Task<string>>> keyValuePairs)
                 {

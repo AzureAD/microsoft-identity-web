@@ -80,5 +80,50 @@ namespace Microsoft.Identity.Web
 
             return tokenAcquisitionOptions;
         }
+
+        /// <summary>
+        /// Adds extra body parameters to the token acquisition request.
+        /// Parameters are merged into any existing extra body parameters dictionary,
+        /// so this can be composed with other extensions that also add body parameters.
+        /// </summary>
+        /// <param name="options">The acquire token options.</param>
+        /// <param name="extraBodyParameters">The extra body parameters to include in the token request.</param>
+        /// <returns>The modified options for fluent chaining.</returns>
+        public static AcquireTokenOptions WithExtraBodyParameters(
+            this AcquireTokenOptions options,
+            IDictionary<string, string> extraBodyParameters)
+        {
+            if (options is null)
+            {
+                throw new System.ArgumentNullException(nameof(options));
+            }
+
+            if (extraBodyParameters is null || extraBodyParameters.Count == 0)
+            {
+                return options;
+            }
+
+            options.ExtraParameters ??= new Dictionary<string, object>();
+
+            Dictionary<string, System.Func<CancellationToken, Task<string>>> asyncParams;
+            if (options.ExtraParameters.TryGetValue(Constants.ExtraBodyParametersKey, out var existing) &&
+                existing is Dictionary<string, System.Func<CancellationToken, Task<string>>> existingDict)
+            {
+                asyncParams = existingDict;
+            }
+            else
+            {
+                asyncParams = new Dictionary<string, System.Func<CancellationToken, Task<string>>>();
+                options.ExtraParameters[Constants.ExtraBodyParametersKey] = asyncParams;
+            }
+
+            foreach (var kvp in extraBodyParameters)
+            {
+                string value = kvp.Value;
+                asyncParams[kvp.Key] = _ => Task.FromResult(value);
+            }
+
+            return options;
+        }
     }
 }
