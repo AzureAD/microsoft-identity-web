@@ -508,7 +508,7 @@ namespace Microsoft.Identity.Web
                 {
                     if (_credentialsProvider is null)
                     {
-                        throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
+                        throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found. See aka.ms/idweb/mtls for details.");
                     }
 
                     // Authority and Client ID are not used in mTLS authententication, so set them to empty strings.
@@ -526,7 +526,7 @@ namespace Microsoft.Identity.Web
 
                     if (credentialDescription == null || credentialDescription.Certificate == null)
                     {
-                        throw new InvalidOperationException("mTLS authentication requires a certificate, but no certificate was found.");
+                        throw new InvalidOperationException("mTLS authentication requires a certificate, but no certificate was found. See aka.ms/idweb/mtls for details.");
                     }
 
                     return new AuthArtifacts(
@@ -547,7 +547,7 @@ namespace Microsoft.Identity.Web
             }
             catch (Exception ex) when (ex is not MicrosoftIdentityAuthenticationException)
             {
-                var message = "Failed to acquire authorization header.";
+                var message = "Failed to acquire authorization artifacts (header and/or mTLS certificate).";
                 _logger?.LogError(ex, message);
                 throw new MicrosoftIdentityAuthenticationException(message, ex);
             }
