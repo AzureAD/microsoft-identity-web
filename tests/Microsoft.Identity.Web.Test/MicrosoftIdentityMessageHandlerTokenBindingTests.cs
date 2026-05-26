@@ -794,6 +794,77 @@ namespace Microsoft.Identity.Web.Test
                 null);
         }
 
+        /// <summary>
+        /// On a persistent 401 in pure-mTLS mode, the WWW-Authenticate claims-challenge retry in
+        /// <c>SendAsync</c> must NOT compose with the internal cert-failure retry. There is no token
+        /// to refresh with the challenge claims, and the internal retry has already re-acquired the
+        /// credential, so a third send would just burn another <c>GetCredentialAsync</c> call.
+        /// </summary>
+        [Fact]
+        public async Task SendAsync_MtlsOnly_PersistentUnauthorizedWithClaims_DoesNotComposeRetries()
+        {
+            // Arrange
+            var mockHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
+
+            using var cert = CreateTestCertificate();
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.Certificate,
+                Certificate = cert,
+            };
+
+            mockCredentialsProvider
+                .GetCredentialAsync(Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>())
+                .Returns(credentialDescription);
+
+            var capturedRequests = new List<HttpRequestMessage>();
+            var mtlsHandler = new CapturingTestHandler(req =>
+            {
+                capturedRequests.Add(req);
+                // Always return 401 with a WWW-Authenticate claims challenge. If the outer retry
+                // were not gated, this would trigger a third send.
+                var resp = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                resp.Headers.TryAddWithoutValidation(
+                    "WWW-Authenticate",
+                    "Bearer error=\"insufficient_claims\", claims=\"eyJhY2Nlc3NfdG9rZW4iOnt9fQ==\"");
+                return resp;
+            });
+            var mtlsClient = new HttpClient(mtlsHandler);
+
+            var mockMtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mockMtlsFactory.GetHttpClient(cert).Returns(mtlsClient);
+
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                ProtocolScheme = "MTLS",
+                BaseUrl = "https://test.example",
+                RelativePath = "/api",
+            };
+
+            var handler = new MicrosoftIdentityMessageHandler(
+                mockHeaderProvider,
+                options,
+                mtlsHttpClientFactory: mockMtlsFactory,
+                credentialsProvider: mockCredentialsProvider,
+                _mockLogger);
+
+            using var client = new HttpClient(handler);
+
+            // Act
+            var response = await client.GetAsync("https://test.example/api");
+
+            // Assert: exactly two sends fire (initial + internal cert-failure retry).
+            // The outer claims-challenge retry must be skipped for pure mTLS.
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(2, capturedRequests.Count);
+
+            // GetCredentialAsync must be invoked exactly twice (once per send), not three times.
+            await mockCredentialsProvider.Received(2).GetCredentialAsync(
+                Arg.Any<CredentialSourceLoaderParameters?>(),
+                Arg.Any<CancellationToken>());
+        }
+
         private sealed class CapturingTestHandler : HttpMessageHandler
         {
             private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;

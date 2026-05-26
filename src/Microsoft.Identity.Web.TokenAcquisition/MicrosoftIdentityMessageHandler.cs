@@ -384,7 +384,15 @@ namespace Microsoft.Identity.Web
                 // Use MSAL's WWW-Authenticate parser to extract claims from challenge headers
                 string? challengeClaims = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(response.Headers);
 
-                if (!string.IsNullOrEmpty(challengeClaims))
+                // Claims-challenge retry is only meaningful for token-bearing protocols
+                // (Bearer, MTLS_POP). For pure mTLS there is no token to refresh with the
+                // claims, and SendWithCertRetryAsync already retried credential acquisition
+                // on this 401, so a second outer retry would just re-invoke GetCredentialAsync
+                // (potentially hitting disk or Key Vault) for no benefit.
+                bool canRetryWithClaims = !string.IsNullOrEmpty(challengeClaims)
+                    && !string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase);
+
+                if (canRetryWithClaims)
                 {
                     _logger?.LogInformation(
                         "Received WWW-Authenticate challenge with claims. Attempting token refresh.");
@@ -413,6 +421,11 @@ namespace Microsoft.Identity.Web
                     // Dispose the original response and return the retry response
                     response.Dispose();
                     return retryResponse;
+                }
+                else if (!string.IsNullOrEmpty(challengeClaims))
+                {
+                    _logger?.LogInformation(
+                        "Received 401 with WWW-Authenticate claims challenge on an mTLS-only request; skipping outer claims-challenge retry because there is no token to refresh.");
                 }
                 else
                 {
