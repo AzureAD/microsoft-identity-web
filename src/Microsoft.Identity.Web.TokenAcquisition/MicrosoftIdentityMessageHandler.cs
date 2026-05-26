@@ -511,9 +511,9 @@ namespace Microsoft.Identity.Web
                         throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found. See aka.ms/idweb/mtls for details.");
                     }
 
-                    // Authority and Client ID are not used in mTLS authententication, so set them to empty strings.
-                    // In the future, setting them to the correct valeus would be useful in case the loader wants to log these values for diagnostic purposes.
-                    // However they are very tricky to obtain correctly in this layer of code.
+                    // Authority and Client ID are not used in mTLS authentication, so set them to empty strings.
+                    // In the future, setting them to the correct values would be useful in case the loader wants to log these values for diagnostic purposes.
+                    // However, they are very tricky to obtain correctly in this layer of code.
                     var loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
                     {
                         ApiUrl = options.GetApiUrl(),
