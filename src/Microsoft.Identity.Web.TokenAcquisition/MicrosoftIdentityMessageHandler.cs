@@ -511,6 +511,9 @@ namespace Microsoft.Identity.Web
                         throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
                     }
 
+                    // Authority and Client ID are not used in mTLS authententication, so set them to empty strings.
+                    // In the future, setting them to the correct valeus would be useful in case the loader wants to log these values for diagnostic purposes.
+                    // However they are very tricky to obtain correctly in this layer of code.
                     var loaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
                     {
                         ApiUrl = options.GetApiUrl(),
@@ -591,7 +594,7 @@ namespace Microsoft.Identity.Web
             {
                 if (_mtlsHttpClientFactory is null)
                 {
-                    throw new InvalidOperationException("Authentication using mTLS requires a MtlsHttpClientFactory object to be registered, but no such service was found.");
+                    throw new InvalidOperationException("Authentication using mTLS requires a MtlsHttpClientFactory object to be registered, but no such service was found. See aka.ms/idweb/mtls for details.");
                 }
 
                 var mtlsClient = _mtlsHttpClientFactory.GetHttpClient(artifacts.BindingCertificate);

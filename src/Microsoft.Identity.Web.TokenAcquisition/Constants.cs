@@ -241,7 +241,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
         /// </summary>
-        internal static readonly IReadOnlyCollection<string> s_certificateRelatedErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        internal static readonly IReadOnlyCollection<string> CertificateAuthFailureStsErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             InvalidKeyError,                    // AADSTS700027 - Client assertion contains an invalid signature
             SignedAssertionInvalidTimeRange,    // AADSTS700024 - Signed assertion invalid time range
