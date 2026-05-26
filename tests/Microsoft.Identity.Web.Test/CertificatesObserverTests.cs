@@ -275,7 +275,7 @@ namespace Microsoft.Identity.Web.Test
                     }
                 };
 
-                HttpResponseMessage result = await Invoke();
+                HttpResponseMessage result = await invoke();
 
                 // Assert
                 Assert.NotNull(result);
@@ -308,7 +308,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Empty(observer1.Events);
 
                 // Rerun, should only get success event.
-                result = await Invoke();
+                result = await invoke();
 
                 // We get selected events each time we use mTLS for now.
                 observer1.Events.TryDequeue(out eventArg);
@@ -330,7 +330,7 @@ namespace Microsoft.Identity.Web.Test
                 // Rerun but it fails this time
                 mockHttpFactory.ValidCertificates.Clear();
                 mockHttpFactory.ValidCertificates.Add(cert2);
-                result = await Invoke();
+                result = await invoke();
 
                 // We get selected events each time we use mTLS for now.
                 observer1.Events.TryDequeue(out eventArg);

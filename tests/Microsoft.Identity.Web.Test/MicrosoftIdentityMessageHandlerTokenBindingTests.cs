@@ -360,7 +360,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task SendAsync_WithMtlsPop_NullMtlsFactory_UsesBaseSendAsync()
+        public async Task SendAsync_WithMtlsPop_NullMtlsFactory_Throws()
         {
             // Arrange
             var testCertificate = CreateTestCertificate();
@@ -394,7 +394,8 @@ namespace Microsoft.Identity.Web.Test
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
             };
 
-            // mtlsHttpClientFactory is null
+            // mtlsHttpClientFactory is null but the bound provider returned a binding certificate,
+            // so the handler must surface a clear error rather than silently falling back.
             var handler = new MicrosoftIdentityMessageHandler(
                 mockBoundProvider, options, mtlsHttpClientFactory: null, _mockLogger);
             handler.InnerHandler = innerHandler;
@@ -402,11 +403,10 @@ namespace Microsoft.Identity.Web.Test
             using var invoker = new HttpMessageInvoker(handler);
             var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
 
-            // Act
-            var response = await invoker.SendAsync(request, CancellationToken.None);
-
-            // Assert - Sends through base handler pipeline since no mTLS factory is available
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            // Act & Assert - A binding certificate without an mTLS factory is a misconfiguration.
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => invoker.SendAsync(request, CancellationToken.None));
+            Assert.Contains("MtlsHttpClientFactory", ex.Message, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -736,7 +736,7 @@ namespace Microsoft.Identity.Web.Test
                 .Returns(credentialDescription);
 
             var capturedRequests = new List<HttpRequestMessage>();
-            var innerHandler = new CapturingTestHandler(req =>
+            var mtlsHandler = new CapturingTestHandler(req =>
             {
                 capturedRequests.Add(req);
                 // First send: auth failure that should trigger the retry path.
@@ -745,6 +745,12 @@ namespace Microsoft.Identity.Web.Test
                     ? new HttpResponseMessage(HttpStatusCode.Unauthorized)
                     : new HttpResponseMessage(HttpStatusCode.OK);
             });
+            var mtlsClient = new HttpClient(mtlsHandler);
+
+            // The dispatch path for ProtocolScheme = "MTLS" requires an mTLS factory; the captured
+            // requests therefore flow through this factory's client rather than the base pipeline.
+            var mockMtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mockMtlsFactory.GetHttpClient(cert).Returns(mtlsClient);
 
             var options = new MicrosoftIdentityMessageHandlerOptions
             {
@@ -756,12 +762,9 @@ namespace Microsoft.Identity.Web.Test
             var handler = new MicrosoftIdentityMessageHandler(
                 mockHeaderProvider,
                 options,
-                mtlsHttpClientFactory: null,
+                mtlsHttpClientFactory: mockMtlsFactory,
                 credentialsProvider: mockCredentialsProvider,
-                _mockLogger)
-            {
-                InnerHandler = innerHandler,
-            };
+                _mockLogger);
 
             using var client = new HttpClient(handler);
 
