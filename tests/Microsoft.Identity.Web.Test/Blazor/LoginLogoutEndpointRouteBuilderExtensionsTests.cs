@@ -43,6 +43,13 @@ namespace Microsoft.Identity.Web.Test.Blazor
         // Bare hostnames / non-slash-prefixed — blocked.
         [InlineData("evil.example", "/")]
         [InlineData("home", "/")]
+        // Percent-encoded slash/backslash — blocked (reverse proxies may decode these).
+        [InlineData("/%2Fsome.example", "/")]
+        [InlineData("/%2fsome.example", "/")]
+        [InlineData("/%5Csome.example", "/")]
+        [InlineData("/%5csome.example", "/")]
+        [InlineData("/%2f%2fsome.example/x", "/")]
+        [InlineData("/%2F%5Csome.example", "/")]
         public void GetAuthProperties_CoercesNonLocalReturnUrls(string? input, string expected)
         {
             var props = LoginLogoutEndpointRouteBuilderExtensions.GetAuthProperties(input);

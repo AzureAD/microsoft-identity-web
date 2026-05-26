@@ -12,7 +12,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@azure/msal-node": "^3.8.0",
+    "@azure/msal-node": "^5.2.2",
     "@eslint/js": "^9.36.0",
     "@types/express": "^5.0.3",
     "@types/node": "^20.12.7",

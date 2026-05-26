@@ -1,2 +1,7 @@
 #nullable enable
 Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.MicrosoftIdentityMessageHandler(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! headerProvider, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions? defaultOptions, Microsoft.Identity.Client.IMsalMtlsHttpClientFactory? mtlsHttpClientFactory, Microsoft.Identity.Web.ICredentialsProvider? credentialsProvider, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.MicrosoftIdentityMessageHandler!>? logger = null) -> void
+static Microsoft.Identity.Web.TokenAcquirerExtensions.WithExtraBodyParameters(this Microsoft.Identity.Abstractions.AcquireTokenOptions! options, System.Collections.Generic.IDictionary<string!, string!>! extraBodyParameters) -> Microsoft.Identity.Abstractions.AcquireTokenOptions!
+Microsoft.Identity.Web.Extensibility.IConfidentialClientApplicationProvider
+Microsoft.Identity.Web.Extensibility.IConfidentialClientApplicationProvider.GetConfidentialClientApplicationAsync(string? authenticationScheme = null) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.IConfidentialClientApplication!>!
+Microsoft.Identity.Web.Extensibility.TokenAcquisitionOptionsExtensions
+static Microsoft.Identity.Web.Extensibility.TokenAcquisitionOptionsExtensions.WithCachePartitionKeys(this Microsoft.Identity.Web.TokenAcquisitionOptions! options, System.Collections.Generic.IDictionary<string!, string!>! partitionKeys) -> Microsoft.Identity.Web.TokenAcquisitionOptions!
