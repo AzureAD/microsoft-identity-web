@@ -239,7 +239,7 @@ each `CredentialDescription` and forwards it to MSAL:
    `ManagedIdentityClientAssertion` calls the V2 MI credential endpoint to
    obtain a bound credential bundle (signed assertion + binding certificate),
    and IdWeb passes the bundle to MSAL via
-   `WithClientAssertion(Func<AssertionRequestOptions, Task<ClientSignedAssertion>>)`.
+   `WithClientAssertion(Func<AssertionRequestOptions, CancellationToken, Task<ClientSignedAssertion>>)`.
    MSAL uses the binding certificate to talk to Entra over mTLS.
 3. **Other source types, or `UseBoundCredential == false`** — current
    behavior is preserved. No change.
