@@ -102,7 +102,7 @@ namespace WebAppUiTests
                         if (InitialConnectionRetryCount == 0) { throw ex; }
                     }
                 }
-                LabResponse labResponse = await LabUserHelper.GetB2CLocalAccountAsync();
+                var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-B2C-Local-JSON");
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");

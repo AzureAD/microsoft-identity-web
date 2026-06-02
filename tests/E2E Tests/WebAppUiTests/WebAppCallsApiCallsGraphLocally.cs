@@ -96,12 +96,12 @@ namespace WebAppUiTests
                 }
 
                 page = await NavigateToWebAppAsync(context, TodoListClientPort);
-                LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync();
+                var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
 
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
-                string email = labResponse.User.Upn;
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                string email = userConfig.Upn;
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName), _output);
                 await Assertions.Expect(page.GetByText("TodoList")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -115,7 +115,7 @@ namespace WebAppUiTests
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using Todo List button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "TodoList" }).ClickAsync();
-                await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, labResponse.User.GetOrFetchPassword(), _output);
+                await UiTestHelpers.SuccessiveLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword(userConfig.LabName), _output);
                 var todoLink = page.GetByRole(AriaRole.Link, new() { Name = "Create New" });
                 await Assertions.Expect(todoLink).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Todo List button after sign out.");
@@ -237,7 +237,7 @@ namespace WebAppUiTests
                 // Initial sign in
                 _output.WriteLine("Starting web app sign-in flow.");
                 string email = "idlab@msidlabciam6.onmicrosoft.com";
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful.");
@@ -251,7 +251,7 @@ namespace WebAppUiTests
                 // Sign in again using Todo List button
                 _output.WriteLine("Starting web app sign-in flow using sign in button after sign out.");
                 await page.GetByRole(AriaRole.Link, new() { Name = "Sign in" }).ClickAsync();
-                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabUserHelper.FetchUserPassword("msidlabciam6"), _output);
+                await UiTestHelpers.FirstLogin_MicrosoftIdFlow_ValidEmailPasswordAsync(page, email, LabResponseHelper.FetchUserPassword("msidlabciam6"), _output);
                 await Assertions.Expect(page.GetByText("Welcome")).ToBeVisibleAsync(_assertVisibleOptions);
                 await Assertions.Expect(page.GetByText(email)).ToBeVisibleAsync(_assertVisibleOptions);
                 _output.WriteLine("Web app sign-in flow successful using Sign in button after sign out.");
