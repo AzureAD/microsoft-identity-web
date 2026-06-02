@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 
@@ -131,6 +133,54 @@ namespace Microsoft.Identity.Web
                 .ConfigureAwait(false);
 
             return new ClientAssertion(result.AccessToken, result.ExpiresOn);
+        }
+
+        /// <summary>
+        /// Acquires a managed identity token bound to a binding certificate via mTLS PoP,
+        /// returning both the assertion and the binding certificate so MSAL can pin the outer
+        /// confidential client request to the same certificate (FIC + mTLS PoP, two-leg flow).
+        /// </summary>
+        /// <remarks>
+        /// Used when the consuming confidential client has token-binding enabled (e.g.,
+        /// <c>AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP"</c>). Requires
+        /// MSAL.NET key-attestation support and Azure VM/Arc-hosted managed identity capable
+        /// of returning a <see cref="AuthenticationResult.BindingCertificate"/>.
+        /// </remarks>
+        internal async Task<ClientSignedAssertion> GetSignedAssertionWithBindingAsync(
+            AssertionRequestOptions? assertionRequestOptions,
+            CancellationToken cancellationToken)
+        {
+            var miBuilder = _managedIdentityApplication
+                .AcquireTokenForManagedIdentity(_tokenExchangeUrl)
+                .WithMtlsProofOfPossession()
+                .WithAttestationSupport();
+
+            if (!string.IsNullOrEmpty(assertionRequestOptions?.Claims))
+            {
+                miBuilder.WithClaims(assertionRequestOptions!.Claims);
+            }
+
+            CancellationToken effectiveToken = cancellationToken != default
+                ? cancellationToken
+                : assertionRequestOptions?.CancellationToken ?? CancellationToken.None;
+
+            var result = await miBuilder
+                .ExecuteAsync(effectiveToken)
+                .ConfigureAwait(false);
+
+            X509Certificate2? bindingCertificate = result.BindingCertificate;
+            if (bindingCertificate is null)
+            {
+                throw new InvalidOperationException(
+                    "Managed identity did not return a binding certificate. " +
+                    "mTLS PoP requires a host (Azure VM/Arc) that supports the V2 managed identity credential endpoint.");
+            }
+
+            return new ClientSignedAssertion
+            {
+                Assertion = result.AccessToken,
+                TokenBindingCertificate = bindingCertificate,
+            };
         }
 
         private void Log(

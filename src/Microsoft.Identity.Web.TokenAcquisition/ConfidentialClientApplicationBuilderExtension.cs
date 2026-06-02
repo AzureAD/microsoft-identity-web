@@ -36,6 +36,13 @@ namespace Microsoft.Identity.Web
                     return builder.WithCertificate(credential.Certificate);
                 }
 
+                if (credential?.CredentialType == CredentialType.SignedAssertion
+                    && credential.CachedValue is ManagedIdentityClientAssertion miAssertion)
+                {
+                    return builder.WithClientAssertion(
+                        (options, ct) => miAssertion.GetSignedAssertionWithBindingAsync(options, ct));
+                }
+
                 throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
             }
 
