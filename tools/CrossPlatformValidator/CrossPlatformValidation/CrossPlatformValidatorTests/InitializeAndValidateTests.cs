@@ -3,16 +3,16 @@
 
 using System.Runtime.InteropServices;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 
 namespace CrossPlatformValidatorTests
 {
     public class InitializeAndValidateTests
     {
         public const string Organizations = "organizations";
-        public const string OBOUser = "idlab1@msidlab4.onmicrosoft.com";
-        public const string OBOClientSideClientId = "c0485386-1e9a-4663-bc96-7ab30656de7f";
-        public static string[] s_oBOApiScope = new string[] { "api://f4aa5217-e87c-42b2-82af-5624dd14ee72/.default" };
+        public const string OBOUser = "MSAL-User-Default@id4slab1.onmicrosoft.com";
+        public const string OBOClientSideClientId = "9c0e534b-879c-4dce-b0e2-0e1be873ba14";
+        public static string[] s_oBOApiScope = new string[] { "api://8837cde9-4029-4bfc-9259-e9e70ce670f7/.default" };
         public int numberValidations = 1000000;
 
         [DllImport("CrossPlatformValidation.dll")]
@@ -31,29 +31,29 @@ namespace CrossPlatformValidatorTests
         [Fact]
         public void ValidateTestSucceeds()
         {
-            Initialize("https://login.microsoftonline.com/organizations", "f4aa5217-e87c-42b2-82af-5624dd14ee72");
+            Initialize("https://login.microsoftonline.com/organizations", "8837cde9-4029-4bfc-9259-e9e70ce670f7");
             string authorizationHeader = AcquireTokenForLabUserAsync().Result.CreateAuthorizationHeader();
             for (int i = 0; i < numberValidations; i++)
             {
                 var result = Validate(authorizationHeader);
                 Assert.NotNull(result);
             }
-            
+
         }
 
         private static async Task<AuthenticationResult> AcquireTokenForLabUserAsync()
         {
-            var labResponse = await LabUserHelper.GetSpecificUserAsync(OBOUser).ConfigureAwait(false);
+            var userConfig = await LabResponseHelper.GetUserConfigAsync("MSAL-User-Default-JSON");
             var msalPublicClient = PublicClientApplicationBuilder
                .Create(OBOClientSideClientId)
-               .WithAuthority(labResponse.Lab.Authority, Organizations)
+               .WithAuthority($"{userConfig.Authority}{userConfig.TenantId}", Organizations)
                .Build();
 
             AuthenticationResult authResult = await msalPublicClient
                 .AcquireTokenByUsernamePassword(
                 s_oBOApiScope,
                 OBOUser,
-                labResponse.User.GetOrFetchPassword())
+                LabResponseHelper.FetchUserPassword(userConfig.LabName))
                 .ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
 

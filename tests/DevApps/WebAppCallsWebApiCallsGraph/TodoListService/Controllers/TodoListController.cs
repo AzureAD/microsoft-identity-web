@@ -16,7 +16,7 @@ using TodoListService.Models;
 
 namespace TodoListService.Controllers
 {
-    /* equivalent 
+    /* equivalent
     [Authorize(Policy = "RequiredScope(|AzureAd:Scope")]
     [Authorize(Policy = "RequiredScope(User.Read")]
     */
@@ -61,7 +61,7 @@ namespace TodoListService.Controllers
 
             await RegisterPeriodicCallbackForLongProcessing(null);
 
-            // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "f645ad92-e38d-4d1a-b510-d1b09a74a8ca").ConfigureAwait(false);
+            // string token1 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "10c419d4-4a50-45b2-aa4e-919fb84df24f").ConfigureAwait(false);
             // string token2 = await _tokenAcquisition.GetAccessTokenForUserAsync(new string[] { "user.read" }, "3ebb7dbb-24a5-4083-b60c-5a5977aabf3d").ConfigureAwait(false);
 
             await Task.FromResult(0); // fix CS1998 while the lines about the 2 tokens are commented out.
@@ -92,7 +92,7 @@ namespace TodoListService.Controllers
             Timer timer = new Timer(async (state) =>
             {
                 HttpClient httpClient = new HttpClient();
-                
+
                 var message = await httpClient.GetAsync(url); // CodeQL [SM03781] Requests are made to a sample controller on localhost
             }, null, 1000, 1000 * 60 * 1);  // Callback every minute
         }

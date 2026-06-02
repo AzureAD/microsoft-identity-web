@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Lab.Api;
+using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.Playwright;
 using Xunit;
 using Xunit.Abstractions;
