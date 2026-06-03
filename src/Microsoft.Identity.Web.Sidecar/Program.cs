@@ -14,9 +14,13 @@ public class Program
 {
 
     // Adding these the time to merge Andy's PR. Then will do the work to remove reflexion usage
+#pragma warning disable IL2123 // RequiresUnreferencedCodeAttribute cannot be placed on entry point
+#pragma warning disable IL3057 // RequiresDynamicCodeAttribute cannot be placed on entry point
     [RequiresUnreferencedCode("EnableTokenAcquisitionToCallDownstreamApis uses reflection")]
     [RequiresDynamicCode("EnableTokenAcquisitionToCallDownstreamApis uses reflection")]
     public static void Main(string[] args)
+#pragma warning restore IL3057
+#pragma warning restore IL2123
     {
         var builder = WebApplication.CreateSlimBuilder(args);
 
