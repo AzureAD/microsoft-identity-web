@@ -59,6 +59,13 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
+        /// <summary>
+        /// Maps agent identity cache keys to MSAL account identifiers.
+        /// Used by the agentic (User FIC) flow to look up cached accounts when
+        /// ClaimsPrincipal is null. Key format: "{agentIdentity}:{username}:{tenantId}".
+        /// </summary>
+        private readonly ConcurrentDictionary<string, string> _agentAccountIdentifiers = new();
+
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
@@ -437,7 +444,7 @@ namespace Microsoft.Identity.Web
 
             bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
-            if (!forceRefresh && user != null && user.GetMsalAccountId() != null)
+            if (!forceRefresh && user is not null && user.GetMsalAccountId() is not null)
             {
                 try
                 {
@@ -452,12 +459,43 @@ namespace Microsoft.Identity.Web
                         .ExecuteAsync()
                         .ConfigureAwait(false);
                 }
-                catch (MsalException ex)
+                catch (MsalUiRequiredException ex)
                 {
                     // Log a message when the silent flow fails and try acquisition through ROPC.
                     Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                 }
+            }
 
+            // For agentic flows where user is null (e.g., bot/service scenarios with no HTTP context),
+            // attempt to find a cached account using a stored account identifier from a prior ROPC call.
+            // This avoids unnecessary network round-trips when a valid cached token exists.
+            // Only applies to the UPN-based flow (UsernameKey), not the OID-based flow (UserIdKey),
+            // because IAccount.Username cannot be reliably matched to an OID.
+            if (!forceRefresh && user is null && !string.IsNullOrEmpty(agentIdentity)
+                && extraParameters is not null && extraParameters.ContainsKey(Constants.UsernameKey))
+            {
+                string agentCacheKey = $"{agentIdentity}:{username}:{tenantId}";
+                if (_agentAccountIdentifiers.TryGetValue(agentCacheKey, out string? cachedAccountId)
+                    && !string.IsNullOrEmpty(cachedAccountId))
+                {
+                    try
+                    {
+                        var account = await application.GetAccountAsync(cachedAccountId).ConfigureAwait(false);
+                        if (account is not null)
+                        {
+                            return await application.AcquireTokenSilent(
+                                scopes.Except(_scopesRequestedByMsal),
+                                account)
+                                .ExecuteAsync()
+                                .ConfigureAwait(false);
+                        }
+                    }
+                    catch (MsalUiRequiredException ex)
+                    {
+                        // Cache miss or expired token — fall through to acquire fresh.
+                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                    }
+                }
             }
 
             // Check for extension options for the ROPC flow
@@ -521,6 +559,17 @@ namespace Microsoft.Identity.Web
                         new Claim(ClaimConstants.UniqueObjectIdentifier, authenticationResult.Account.HomeAccountId.ObjectId),
                         new Claim(ClaimConstants.UniqueTenantIdentifier, authenticationResult.Account.HomeAccountId.TenantId),
                     }));
+            }
+
+            // For agentic flows where user is null, store the account identifier so that
+            // subsequent calls can use GetAccountAsync + AcquireTokenSilent instead of
+            // making another network round-trip.
+            if (user is null && !string.IsNullOrEmpty(agentIdentity)
+                && extraParameters is not null && extraParameters.ContainsKey(Constants.UsernameKey)
+                && authenticationResult.Account?.HomeAccountId != null)
+            {
+                string agentCacheKey = $"{agentIdentity}:{username}:{tenantId}";
+                _agentAccountIdentifiers[agentCacheKey] = authenticationResult.Account.HomeAccountId.Identifier;
             }
 
             return authenticationResult;

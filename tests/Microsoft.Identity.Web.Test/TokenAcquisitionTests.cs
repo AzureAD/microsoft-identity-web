@@ -417,5 +417,183 @@ namespace Microsoft.Identity.Web.Test
 
             return certificate;
         }
+
+        #region Agent User Identity Cache Tests (Issue #3840)
+
+        private const string AgentTestAppId = "agent-app-id-12345";
+        private const string AgentTestUsername = "testuser@contoso.com";
+
+        /// <summary>
+        /// Verifies the fix for GitHub issue #3840: with null ClaimsPrincipal and agent identity
+        /// parameters, the second call should use the MSAL token cache instead of hitting
+        /// the network again. Only one mock handler is registered — if the second call
+        /// tried to reach the network, the test would fail with "no mock handler available".
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_WithNullClaimsPrincipal_UsesCacheOnSecondCall()
+        {
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+
+            // Only one handler: the second call must come from cache or the test will fail.
+            mockHttpClient!.AddMockHandler(CreateAgentRopcTokenHandler(accessToken: "token-from-network-1"));
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = CreateAgentIdentityOptions();
+
+            // First call: goes to the network (no cached token yet)
+            string result1 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: null);
+
+            // Second call: should use the cache (no second mock handler)
+            string result2 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: null);
+
+            // Both calls return the same token (second from cache)
+            Assert.Equal("Bearer token-from-network-1", result1);
+            Assert.Equal("Bearer token-from-network-1", result2);
+        }
+
+        /// <summary>
+        /// With a non-null ClaimsPrincipal, the ROPC path writes back the account ID to the
+        /// ClaimsPrincipal after the first call, enabling subsequent AcquireTokenSilent lookups.
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_WithNonNullClaimsPrincipal_WritesBackAccountId()
+        {
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateAgentRopcTokenHandler(accessToken: "token-from-network-1"));
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var claimsPrincipal = new System.Security.Claims.ClaimsPrincipal(
+                new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity());
+            var options = CreateAgentIdentityOptions();
+
+            string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: claimsPrincipal);
+
+            Assert.Equal("Bearer token-from-network-1", result);
+            Assert.NotNull(claimsPrincipal.GetMsalAccountId());
+        }
+
+        /// <summary>
+        /// When a NEW ClaimsPrincipal is created per call (common in request-scoped scenarios),
+        /// the account ID written to the first principal is lost. This test documents that the
+        /// cache is still bypassed in this scenario (the fix targets the null-user path only).
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_WithNewClaimsPrincipalPerCall_BypassesCache()
+        {
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateAgentRopcTokenHandler(accessToken: "token-from-network-1"));
+            mockHttpClient!.AddMockHandler(CreateAgentRopcTokenHandler(accessToken: "token-from-network-2"));
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = CreateAgentIdentityOptions();
+
+            string result1 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: new System.Security.Claims.ClaimsPrincipal(
+                    new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity()));
+
+            string result2 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: new System.Security.Claims.ClaimsPrincipal(
+                    new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity()));
+
+            // Both consumed handlers (cache bypass via lost account ID)
+            Assert.Equal("Bearer token-from-network-1", result1);
+            Assert.Equal("Bearer token-from-network-2", result2);
+        }
+
+        private static AuthorizationHeaderProviderOptions CreateAgentIdentityOptions()
+        {
+            return new AuthorizationHeaderProviderOptions
+            {
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = new Dictionary<string, object>
+                    {
+                        [Constants.AgentIdentityKey] = AgentTestAppId,
+                        [Constants.UsernameKey] = AgentTestUsername,
+                    }
+                }
+            };
+        }
+
+        private TokenAcquirerFactory InitTokenAcquirerFactoryForAgent()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+
+            var mockHttpFactory = new MockHttpClientFactory();
+
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
+                options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
+                options.ClientCredentials = [new CredentialDescription()
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "someSecret"
+                }];
+            });
+
+            tokenAcquirerFactory.Services.AddSingleton<IMsalHttpClientFactory>(mockHttpFactory);
+
+            return tokenAcquirerFactory;
+        }
+
+        /// <summary>
+        /// Creates a mock HTTP handler returning a ROPC-compatible response with id_token,
+        /// refresh_token, and client_info so MSAL creates a proper account in the cache.
+        /// </summary>
+        private static MockHttpMessageHandler CreateAgentRopcTokenHandler(string accessToken = "header.payload.signature")
+        {
+            return new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ResponseMessage = MockHttpCreator.CreateSuccessResponseMessage(
+                    "{\"token_type\":\"Bearer\"," +
+                    "\"expires_in\":3599," +
+                    "\"scope\":\"https://graph.microsoft.com/.default\"," +
+                    "\"access_token\":\"" + accessToken + "\"," +
+                    "\"refresh_token\":\"mock-refresh-token\"," +
+                    "\"client_info\":\"" + EncodeBase64Url(
+                        "{\"uid\":\"" + TestConstants.Uid + "\",\"utid\":\"" + TestConstants.Utid + "\"}") + "\"," +
+                    "\"id_token\":\"" + MockHttpCreator.CreateIdToken(TestConstants.Uid, AgentTestUsername) + "\"}"),
+            };
+        }
+
+        private static string EncodeBase64Url(string input)
+        {
+            return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input))
+                .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        }
+
+        #endregion
     }
 }
