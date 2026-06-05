@@ -63,6 +63,9 @@ namespace Microsoft.Identity.Web
         /// Caches agent CCAs for the native User FIC flow. Each agent CCA uses an assertion
         /// callback that chains to the blueprint CCA for Leg 1 (FMI token acquisition).
         /// Key format: "{agentAppId}:{authenticationScheme}".
+        /// The authenticationScheme is included because different schemes may resolve to
+        /// different blueprint credentials (e.g. certificates), and the agent CCA's assertion
+        /// callback captures the scheme to chain to the correct blueprint CCA.
         /// </summary>
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication> _agentUserFicCcas = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _agentCcaSemaphores = new();
@@ -80,7 +83,18 @@ namespace Microsoft.Identity.Web
         /// Entries are cleaned up when MSAL evicts the corresponding account from its cache.
         /// </summary>
         private readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
-        private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
+
+        /// <summary>
+        /// Default FIC token exchange URL for the public cloud. For other clouds, callers can
+        /// override via ExtraParameters[Constants.TokenExchangeUrlKey]:
+        /// <list type="bullet">
+        /// <item><term>api://AzureADTokenExchange</term><description>public cloud (default)</description></item>
+        /// <item><term>api://AzureADTokenExchangeChina</term><description>China cloud</description></item>
+        /// <item><term>api://AzureADTokenExchangeFrance</term><description>Bleu</description></item>
+        /// <item><term>api://AzureADTokenExchangeGermany</term><description>German cloud</description></item>
+        /// </list>
+        /// </summary>
+        private const string DefaultTokenExchangeUrl = "api://AzureADTokenExchange";
 
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
@@ -608,8 +622,12 @@ namespace Microsoft.Identity.Web
             }
 
             string? authScheme = tokenAcquisitionOptions?.AuthenticationOptionsName;
+
+            // Resolve the FIC token exchange scope, allowing national cloud overrides.
+            string[] ficScopes = ResolveFicScopes(extraParameters);
+
             var agentCca = await GetOrBuildAgentUserFicCcaAsync(
-                agentAppId!, application.Authority, authScheme).ConfigureAwait(false);
+                agentAppId!, application.Authority, authScheme, ficScopes).ConfigureAwait(false);
 
             bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
@@ -650,7 +668,7 @@ namespace Microsoft.Identity.Web
 
             // Leg 2: Get the agent's instance token (T2).
             // The assertion callback handles Leg 1 (blueprint → T1) transparently.
-            var leg2Builder = agentCca.AcquireTokenForClient(s_ficScopes);
+            var leg2Builder = agentCca.AcquireTokenForClient(ficScopes);
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -705,7 +723,8 @@ namespace Microsoft.Identity.Web
         private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
             string agentAppId,
             string authority,
-            string? authenticationScheme)
+            string? authenticationScheme,
+            string[] ficScopes)
         {
             // Include authenticationScheme in the CCA cache key so different schemes
             // (pointing to different blueprint credentials) get separate CCAs.
@@ -725,8 +744,9 @@ namespace Microsoft.Identity.Web
                     return app;
                 }
 
-                // Capture authenticationScheme for the assertion callback closure.
+                // Capture authenticationScheme and ficScopes for the assertion callback closure.
                 string? capturedAuthScheme = authenticationScheme;
+                string[] capturedFicScopes = ficScopes;
 
                 var newApp = ConfidentialClientApplicationBuilder
                     .Create(agentAppId)
@@ -740,7 +760,7 @@ namespace Microsoft.Identity.Web
                             blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
 
                         var leg1 = await blueprintCca
-                            .AcquireTokenForClient(s_ficScopes)
+                            .AcquireTokenForClient(capturedFicScopes)
                             .WithFmiPath(agentAppId)
                             .WithSendX5C(blueprintOptions.SendX5C)
                             .ExecuteAsync(options.CancellationToken)
@@ -750,7 +770,6 @@ namespace Microsoft.Identity.Web
                     })
                     .WithAuthority(authority)
                     .WithHttpClientFactory(_httpClientFactory)
-                    .WithInstanceDiscovery(false) // Blueprint already validated the authority.
                     .WithExperimentalFeatures()
                     .Build();
 
@@ -761,6 +780,29 @@ namespace Microsoft.Identity.Web
             {
                 semaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// Resolves the FIC token exchange scope from ExtraParameters, falling back to the
+        /// public cloud default. Matches the override pattern used by
+        /// <see cref="TokenAcquirerExtensions.GetFicTokenAsync"/> and OidcIdpSignedAssertionProvider.
+        /// </summary>
+        private static string[] ResolveFicScopes(IDictionary<string, object>? extraParameters)
+        {
+            string tokenExchangeUrl = DefaultTokenExchangeUrl;
+            if (extraParameters is not null
+                && extraParameters.TryGetValue(Constants.TokenExchangeUrlKey, out object? urlObj)
+                && urlObj is string customUrl
+                && !string.IsNullOrEmpty(customUrl))
+            {
+                tokenExchangeUrl = customUrl;
+            }
+
+            string scope = tokenExchangeUrl.EndsWith("/.default", StringComparison.OrdinalIgnoreCase)
+                ? tokenExchangeUrl
+                : tokenExchangeUrl + "/.default";
+
+            return new[] { scope };
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
