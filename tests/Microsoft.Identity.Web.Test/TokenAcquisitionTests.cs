@@ -543,6 +543,11 @@ namespace Microsoft.Identity.Web.Test
 
         private static AuthorizationHeaderProviderOptions CreateAgentIdentityOptions(string agentAppId)
         {
+            return CreateAgentIdentityOptionsWithUpn(agentAppId, AgentTestUsername);
+        }
+
+        private static AuthorizationHeaderProviderOptions CreateAgentIdentityOptionsWithUpn(string agentAppId, string username)
+        {
             return new AuthorizationHeaderProviderOptions
             {
                 AcquireTokenOptions = new AcquireTokenOptions
@@ -550,7 +555,22 @@ namespace Microsoft.Identity.Web.Test
                     ExtraParameters = new Dictionary<string, object>
                     {
                         [Constants.AgentIdentityKey] = agentAppId,
-                        [Constants.UsernameKey] = AgentTestUsername,
+                        [Constants.UsernameKey] = username,
+                    }
+                }
+            };
+        }
+
+        private static AuthorizationHeaderProviderOptions CreateAgentIdentityOptionsWithOid(string agentAppId, Guid userObjectId)
+        {
+            return new AuthorizationHeaderProviderOptions
+            {
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = new Dictionary<string, object>
+                    {
+                        [Constants.AgentIdentityKey] = agentAppId,
+                        [Constants.UserIdKey] = userObjectId.ToString("D"),
                     }
                 }
             };
@@ -643,6 +663,129 @@ namespace Microsoft.Identity.Web.Test
         {
             return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input))
                 .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        }
+
+        // --- OID-based User FIC tests ---
+
+        private static readonly Guid AgentTestUserOid = new Guid("00000000-1111-2222-3333-444444444444");
+
+        /// <summary>
+        /// Verifies that OID-based agentic User FIC flow uses the native path and caches properly.
+        /// Same pattern as UPN but uses Guid userObjectId overload.
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_NativeUserFic_OidUsesCacheOnSecondCall()
+        {
+            // Arrange
+            string agentAppId = Guid.NewGuid().ToString("N");
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "user-token-oid-1");
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = CreateAgentIdentityOptionsWithOid(agentAppId, AgentTestUserOid);
+
+            // Act — first call: full 3-leg flow
+            string result1 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: null);
+
+            // Act — second call: should use AcquireTokenSilent (no mock handlers left)
+            string result2 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: null);
+
+            // Assert — both return the same cached token
+            Assert.Equal("Bearer user-token-oid-1", result1);
+            Assert.Equal("Bearer user-token-oid-1", result2);
+        }
+
+        /// <summary>
+        /// Verifies that OID-based flow works with fresh ClaimsPrincipal instances per call.
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_NativeUserFic_OidCacheWorksWithNewClaimsPrincipalPerCall()
+        {
+            // Arrange
+            string agentAppId = Guid.NewGuid().ToString("N");
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "user-token-oid-2");
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = CreateAgentIdentityOptionsWithOid(agentAppId, AgentTestUserOid);
+
+            // Act — each call gets a fresh ClaimsPrincipal (simulates request-scoped DI)
+            string result1 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: new System.Security.Claims.ClaimsPrincipal(
+                    new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity()));
+
+            string result2 = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: options,
+                claimsPrincipal: new System.Security.Claims.ClaimsPrincipal(
+                    new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity()));
+
+            // Assert
+            Assert.Equal("Bearer user-token-oid-2", result1);
+            Assert.Equal("Bearer user-token-oid-2", result2);
+        }
+
+        /// <summary>
+        /// Verifies that UPN and OID flows for the same agent produce separate cached tokens,
+        /// ensuring cache isolation between the two identifier types.
+        /// </summary>
+        [Fact]
+        public async Task AgentUserIdentity_NativeUserFic_UpnAndOidCachesAreIsolated()
+        {
+            // Arrange — same agent app ID for both flows
+            string agentAppId = Guid.NewGuid().ToString("N");
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+
+            // UPN flow handlers (3 legs)
+            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "upn-user-token");
+            // OID flow handlers (3 legs — Leg 1 may be cached from UPN flow, but Leg 2 + Leg 3 are needed)
+            // Note: Leg 1 (blueprint FMI) is cached in the blueprint CCA, but Leg 2 uses the agent CCA
+            // which also caches T2. Since OID and UPN go to the same agent CCA, Leg 2 may be cached.
+            // We still need a Leg 3 handler for the OID grant type.
+            mockHttpClient!.AddMockHandler(CreateUserFicTokenHandler(accessToken: "oid-user-token"));
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var upnOptions = CreateAgentIdentityOptionsWithUpn(agentAppId, AgentTestUsername);
+            var oidOptions = CreateAgentIdentityOptionsWithOid(agentAppId, AgentTestUserOid);
+
+            // Act — UPN flow first
+            string upnResult = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: upnOptions,
+                claimsPrincipal: null);
+
+            // Act — OID flow for same agent
+            string oidResult = await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: oidOptions,
+                claimsPrincipal: null);
+
+            // Assert — different tokens, not sharing cache entries
+            Assert.Equal("Bearer upn-user-token", upnResult);
+            Assert.Equal("Bearer oid-user-token", oidResult);
         }
 
         #endregion

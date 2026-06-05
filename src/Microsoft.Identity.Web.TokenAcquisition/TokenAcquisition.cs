@@ -68,14 +68,15 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _agentCcaSemaphores = new();
 
         /// <summary>
-        /// Maps (agentAppId, username, tenantId) tuples to MSAL account identifiers for the
+        /// Maps (agentAppId, user identifier, tenantId) tuples to MSAL account identifiers for the
         /// native User FIC flow. This is needed because AcquireTokenSilent requires an IAccount,
         /// which can only be obtained from GetAccountAsync(identifier) using an identifier that
         /// comes back from a prior token acquisition. In all other ID Web flows, this identifier
         /// is stored in the ClaimsPrincipal (via GetMsalAccountId / oid+tid claims). In the
         /// agentic scenario, however, ClaimsPrincipal is typically null or freshly created per
         /// request (bot/service pattern), so there is no persistent object to write back to.
-        /// This dictionary fills that role, keyed by "{agentAppId}:{USERNAME}:{TENANTID}".
+        /// This dictionary fills that role, keyed by "{agentAppId}:{USER_IDENTIFIER}:{TENANTID}"
+        /// where USER_IDENTIFIER is either the normalized UPN or OID.
         /// Entries are cleaned up when MSAL evicts the corresponding account from its cache.
         /// </summary>
         private readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
@@ -425,9 +426,8 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
-            // Handle UPN-based agentic User FIC flow using MSAL's native UserFIC API.
+            // Handle agentic User FIC flow (both UPN and OID) using MSAL's native UserFIC API.
             // This bypasses the ROPC piggybacking approach and provides proper cache behavior.
-            // OID-based agentic flows continue through the existing ROPC + add-in path below.
             var agentUserFicResult = await TryGetAuthenticationResultForAgentUserFicAsync(
                 application, tenantId, scopes, mergedOptions, tokenAcquisitionOptions).ConfigureAwait(false);
             if (agentUserFicResult is not null)
@@ -437,29 +437,12 @@ namespace Microsoft.Identity.Web
 
             string? username = null;
             string? password = null;
-            string? agentIdentity = string.Empty;
 
             // Case where the user is passed through the Claims identity
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
             {
                 username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
-            }
-
-            // Case of the Agent User identities
-            var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
-            if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UsernameKey))
-            {
-                // If the agentId is present, we can use it
-                username = extraParameters[Constants.UsernameKey] as string;
-                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
-                password = "password";
-            }
-            else if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UserIdKey))
-            {
-                username = extraParameters[Constants.UserIdKey]?.ToString();
-                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
-                password = "password"; // placeholder removed by add-in
             }
 
             if (username == null)
@@ -559,16 +542,17 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Handles UPN-based agentic User FIC flow using MSAL's native
-        /// <see cref="IByUserFederatedIdentityCredential.AcquireTokenByUserFederatedIdentityCredential"/>
-        /// API. This replaces the ROPC piggybacking approach for UPN scenarios, providing proper
-        /// token cache behavior via MSAL's built-in cache.
+        /// Handles agentic User FIC flow using MSAL's native
+        /// AcquireTokenByUserFederatedIdentityCredential
+        /// API (UPN overload for username-based flows, OID overload for user object ID flows).
+        /// This replaces the ROPC piggybacking approach, providing proper token cache behavior
+        /// via MSAL's built-in cache.
         ///
         /// The flow follows the multi-CCA pattern:
         ///   Leg 1: Blueprint CCA acquires FMI token (T1) for the agent — handled transparently
         ///          by the agent CCA's assertion callback (see <see cref="GetOrBuildAgentUserFicCcaAsync"/>).
         ///   Leg 2: Agent CCA acquires instance token (T2) via AcquireTokenForClient.
-        ///   Leg 3: Agent CCA exchanges T2 + username for a user-scoped token via native UserFIC.
+        ///   Leg 3: Agent CCA exchanges T2 + user identifier for a user-scoped token via native UserFIC.
         ///
         /// On subsequent calls, AcquireTokenSilent returns the cached token without network calls.
         /// Unlike other ID Web flows where the MSAL account identifier is stored in the
@@ -576,8 +560,8 @@ namespace Microsoft.Identity.Web
         /// request-scoped ClaimsPrincipal — so account identifiers are tracked in
         /// <see cref="_agentUserFicAccountIds"/> instead.
         /// </summary>
-        /// <returns>An <see cref="AuthenticationResult"/> if this is a UPN-based agentic flow;
-        /// <c>null</c> if the request is not an agentic UPN flow (OID or regular ROPC).</returns>
+        /// <returns>An <see cref="AuthenticationResult"/> if this is an agentic User FIC flow
+        /// (UPN or OID); <c>null</c> if not an agentic flow (regular ROPC).</returns>
         private async Task<AuthenticationResult?> TryGetAuthenticationResultForAgentUserFicAsync(
             IConfidentialClientApplication application,
             string? tenantId,
@@ -587,19 +571,39 @@ namespace Microsoft.Identity.Web
         {
             var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
 
-            // Only handle UPN-based agentic flows (AgentIdentityKey + UsernameKey).
-            // OID-based flows (UserIdKey) continue through the existing ROPC + add-in path.
+            // Detect agentic flow: requires AgentIdentityKey plus either UsernameKey (UPN) or UserIdKey (OID).
             if (extraParameters is null
-                || !extraParameters.TryGetValue(Constants.AgentIdentityKey, out object? agentObj)
-                || !extraParameters.ContainsKey(Constants.UsernameKey))
+                || !extraParameters.TryGetValue(Constants.AgentIdentityKey, out object? agentObj))
             {
                 return null;
             }
 
             string? agentAppId = agentObj as string;
-            string? username = extraParameters[Constants.UsernameKey] as string;
-            if (string.IsNullOrEmpty(agentAppId) || string.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(agentAppId))
             {
+                return null;
+            }
+
+            // Determine user identifier: UPN takes precedence over OID (matching WithAgentUserIdentity behavior).
+            string? username = null;
+            Guid? userObjectId = null;
+            string? userIdentifierForCacheKey = null;
+
+            if (extraParameters.TryGetValue(Constants.UsernameKey, out object? usernameObj)
+                && usernameObj is string upn && !string.IsNullOrEmpty(upn))
+            {
+                username = upn;
+                userIdentifierForCacheKey = upn.ToUpperInvariant();
+            }
+            else if (extraParameters.TryGetValue(Constants.UserIdKey, out object? userIdObj)
+                     && userIdObj is string oidStr && Guid.TryParse(oidStr, out Guid parsedOid))
+            {
+                userObjectId = parsedOid;
+                userIdentifierForCacheKey = parsedOid.ToString("D").ToUpperInvariant();
+            }
+            else
+            {
+                // Neither UPN nor valid OID — not a user FIC flow we can handle.
                 return null;
             }
 
@@ -612,7 +616,7 @@ namespace Microsoft.Identity.Web
             // Try silent retrieval first using a stored account identifier from a prior call.
             // Include tenantId in the key so cross-tenant calls don't collide.
             string normalizedTenant = tenantId?.ToUpperInvariant() ?? string.Empty;
-            string accountLookupKey = $"{agentAppId}:{username!.ToUpperInvariant()}:{normalizedTenant}";
+            string accountLookupKey = $"{agentAppId}:{userIdentifierForCacheKey}:{normalizedTenant}";
             if (!forceRefresh
                 && _agentUserFicAccountIds.TryGetValue(accountLookupKey, out string? cachedAccountId)
                 && !string.IsNullOrEmpty(cachedAccountId))
@@ -654,12 +658,25 @@ namespace Microsoft.Identity.Web
 
             var leg2 = await leg2Builder.ExecuteAsync().ConfigureAwait(false);
 
-            // Leg 3: Exchange T2 + username for a user-scoped token via native UserFIC.
-            var leg3Builder = ((IByUserFederatedIdentityCredential)agentCca)
-                .AcquireTokenByUserFederatedIdentityCredential(
-                    scopes.Except(_scopesRequestedByMsal),
-                    username,
-                    leg2.AccessToken);
+            // Leg 3: Exchange T2 + user identifier for a user-scoped token via native UserFIC.
+            // Uses the UPN overload when username is available, OID overload otherwise.
+            AcquireTokenByUserFederatedIdentityCredentialParameterBuilder leg3Builder;
+            if (username is not null)
+            {
+                leg3Builder = ((IByUserFederatedIdentityCredential)agentCca)
+                    .AcquireTokenByUserFederatedIdentityCredential(
+                        scopes.Except(_scopesRequestedByMsal),
+                        username,
+                        leg2.AccessToken);
+            }
+            else
+            {
+                leg3Builder = ((IByUserFederatedIdentityCredential)agentCca)
+                    .AcquireTokenByUserFederatedIdentityCredential(
+                        scopes.Except(_scopesRequestedByMsal),
+                        userObjectId!.Value,
+                        leg2.AccessToken);
+            }
 
             if (!string.IsNullOrEmpty(tenantId))
             {

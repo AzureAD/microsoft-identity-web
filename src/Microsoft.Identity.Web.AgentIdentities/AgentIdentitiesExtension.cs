@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web.AgentIdentities;
 
 namespace Microsoft.Identity.Web
 {
@@ -25,12 +24,6 @@ namespace Microsoft.Identity.Web
 
             // Register the OidcFic services for agent applications to work.
             services.AddOidcFic();
-
-            // Register a callback to process the agent user identity before acquiring a token.
-            services.Configure<TokenAcquisitionExtensionOptions>(options =>
-            {
-                options.OnBeforeTokenAcquisitionForTestUserAsync += AgentUserIdentityMsalAddIn.OnBeforeUserFicForAgentUserIdentityAsync;
-            });
 
             return services;
         }
