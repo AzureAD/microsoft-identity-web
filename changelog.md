@@ -1,3 +1,17 @@
+3.15.1
+=======
+## Bug fixes
+- Improve User Agent processing in cookie policy extensions. See PR [#3824](https://github.com/AzureAD/microsoft-identity-web/pull/3824) for details.
+- Use LRU cache for issuer address in B2C OpenID Connect event handler to improve performance. See PR [#3823](https://github.com/AzureAD/microsoft-identity-web/pull/3823) for details.
+
+### Dependencies updates
+- Pin `Microsoft.Kiota.Abstractions` to 1.22.0 for GraphServiceClient, fixing NU1903 build break caused by the GHSA-7j59-v9qr-6fq9 advisory. See PR [#3818](https://github.com/AzureAD/microsoft-identity-web/pull/3818) for details.
+- Pin `Microsoft.Kiota.Abstractions` to 1.22.0 for GraphServiceClientBeta, fixing the same advisory. See PR [#3827](https://github.com/AzureAD/microsoft-identity-web/pull/3827) for details.
+
+### Fundamentals
+- Migrate tests to Lab.API 2.x. See PR [#3837](https://github.com/AzureAD/microsoft-identity-web/pull/3837) for details.
+- Fix web UI tests. See PR [#3838](https://github.com/AzureAD/microsoft-identity-web/pull/3838) for details.
+
 3.15.0
 =======
 ## Bug fixes
