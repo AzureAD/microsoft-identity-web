@@ -42,16 +42,16 @@ internal static class OpenApiDescriptions
         AddSimple(op, "optionsOverride.ContentType", JsonSchemaType.String, "Sets Content-Type used for serialized body (if body provided).");
 
         // AcquireTokenOptions.* (token acquisition tuning)
-        AddAcquireTokenOption(op, "Tenant", "Override tenant (GUID or 'common').");
-        AddAcquireTokenOption(op, "ForceRefresh", "true = bypass token cache.", JsonSchemaType.Boolean);
-        AddAcquireTokenOption(op, "Claims", "JSON claims challenge or extra claims.");
-        AddAcquireTokenOption(op, "CorrelationId", "GUID correlation id for token acquisition.");
-        AddAcquireTokenOption(op, "LongRunningWebApiSessionKey", "Session key for long running OBO flows.");
-        AddAcquireTokenOption(op, "FmiPath", "Federated Managed Identity path (if using FMI).");
-        AddAcquireTokenOption(op, "PopPublicKey", "Public key or JWK for PoP / AT-POP requests.");
+        AddAcquireTokenOption(op, "Tenant", JsonSchemaType.String, "Override tenant (GUID or 'common').");
+        AddAcquireTokenOption(op, "ForceRefresh", JsonSchemaType.Boolean, "true = bypass token cache.");
+        AddAcquireTokenOption(op, "Claims", JsonSchemaType.String, "JSON claims challenge or extra claims.");
+        AddAcquireTokenOption(op, "CorrelationId", JsonSchemaType.String, "GUID correlation id for token acquisition.");
+        AddAcquireTokenOption(op, "LongRunningWebApiSessionKey", JsonSchemaType.String, "Session key for long running OBO flows.");
+        AddAcquireTokenOption(op, "FmiPath", JsonSchemaType.String, "Federated Managed Identity path (if using FMI).");
+        AddAcquireTokenOption(op, "PopPublicKey", JsonSchemaType.String, "Public key or JWK for PoP / AT-POP requests.");
 
         // Managed Identity (if enabled)
-        AddAcquireTokenOption(op, "ManagedIdentity.UserAssignedClientId", "Managed Identity client id (user-assigned).");
+        AddAcquireTokenOption(op, "ManagedIdentity.UserAssignedClientId", JsonSchemaType.String, "Managed Identity client id (user-assigned).");
     }
 
     private static void AddSimple(OpenApiOperation op, string name, JsonSchemaType type, string desc)
@@ -67,14 +67,14 @@ internal static class OpenApiDescriptions
         });
     }
 
-    private static void AddAcquireTokenOption(OpenApiOperation op, string name, string description, JsonSchemaType type = JsonSchemaType.String)
+    private static void AddAcquireTokenOption(OpenApiOperation op, string name, JsonSchemaType type, string desc)
     {
         op.Parameters ??= [];
         op.Parameters.Add(new OpenApiParameter
         {
             Name = $"optionsOverride.AcquireTokenOptions.{name}",
             In = ParameterLocation.Query,
-            Description = description,
+            Description = desc,
             Required = false,
             Schema = new OpenApiSchema { Type = type }
         });
