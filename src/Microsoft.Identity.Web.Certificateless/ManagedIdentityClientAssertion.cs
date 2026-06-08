@@ -160,12 +160,12 @@ namespace Microsoft.Identity.Web
                 miBuilder.WithClaims(assertionRequestOptions!.Claims);
             }
 
-            CancellationToken effectiveToken = cancellationToken != default
+            CancellationToken effectiveCancellationToken = cancellationToken != default
                 ? cancellationToken
                 : assertionRequestOptions?.CancellationToken ?? CancellationToken.None;
 
             var result = await miBuilder
-                .ExecuteAsync(effectiveToken)
+                .ExecuteAsync(effectiveCancellationToken)
                 .ConfigureAwait(false);
 
             X509Certificate2? bindingCertificate = result.BindingCertificate;
