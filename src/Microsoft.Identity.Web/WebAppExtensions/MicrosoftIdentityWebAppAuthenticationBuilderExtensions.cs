@@ -274,6 +274,8 @@ namespace Microsoft.Identity.Web
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
                 builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
+                builder.Services.TryAddEnumerable(
+                    ServiceDescriptor.Singleton<IHostedService, OpenIdConnectMiddlewareDiagnosticsEnvironmentValidator>());
             }
 
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)

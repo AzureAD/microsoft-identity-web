@@ -182,6 +182,81 @@ namespace Microsoft.Identity.Web.Test
             AddMicrosoftIdentityWebApp_TestSubscribesToDiagnostics(services, diagnosticsMock, subscribeToDiagnostics);
         }
 
+        [Theory]
+        [InlineData("Development", false)]
+        [InlineData("Staging", true)]
+        [InlineData("Production", true)]
+        [InlineData("", true)]
+        public async Task AddMicrosoftIdentityWebApp_SubscribeToDiagnostics_ThrowsOutsideDevelopmentAsync(string environmentName, bool expectThrow)
+        {
+            // Arrange
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var env = new HostingEnvironment { EnvironmentName = environmentName };
+
+            var services = new ServiceCollection();
+            services.AddSingleton(configMock);
+            services.AddDataProtection();
+            services.AddSingleton<IHostEnvironment>(env);
+
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(
+                    configMock,
+                    ConfigSectionName,
+                    OidcScheme,
+                    CookieScheme,
+                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
+
+            using var provider = services.BuildServiceProvider();
+            var hostedServices = provider.GetServices<IHostedService>()
+                .OfType<OpenIdConnectMiddlewareDiagnosticsEnvironmentValidator>()
+                .ToList();
+
+            // Act
+            Assert.Single(hostedServices);
+
+            // Assert
+            if (expectThrow)
+            {
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => hostedServices[0].StartAsync(default));
+                Assert.Contains("IDW10117", ex.Message, StringComparison.Ordinal);
+            }
+            else
+            {
+                await hostedServices[0].StartAsync(default);
+            }
+        }
+
+        [Fact]
+        public void AddMicrosoftIdentityWebApp_SubscribeFalse_DoesNotRegisterValidator()
+        {
+            // Arrange
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            services.AddSingleton(configMock);
+            services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
+
+            // Act
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(
+                    configMock,
+                    ConfigSectionName,
+                    OidcScheme,
+                    CookieScheme,
+                    subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
+
+            using var provider = services.BuildServiceProvider();
+
+            // Assert
+            Assert.Empty(provider.GetServices<IHostedService>()
+                .OfType<OpenIdConnectMiddlewareDiagnosticsEnvironmentValidator>());
+        }
+
         [Fact]
         public Task AddMicrosoftIdentityWebApp_WithConfigAuthority_TestCorrectMetadataAddressAsync()
         {
