@@ -53,8 +53,19 @@ app developer at the credential level.
 |----------------------------------------------------------------|---------------------------------------------|
 | Certificate (`Certificate`, `KeyVault`, `Path`, `Base64Encoded`, `StoreWith*`, `ManagedCertificate`) | ✅                                          |
 | `SignedAssertionFromManagedIdentity` (FIC with MI)             | ✅                                          |
+| `SignedAssertion` from OIDC IdP (`Microsoft.Identity.Web.OidcFIC`) | Planned — tracked in [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851) |
 | `ClientSecret`                                                 | n/a                                         |
 | `SignedAssertion*` (non-MI)                                    | Ignored                                     |
+
+### OIDC FIC as a first-class binding-capable source
+ 
+ `OidcIdpSignedAssertionProvider` (in `Microsoft.Identity.Web.OidcFIC`) currently
+ produces bearer-only JWT assertions from an external OIDC IdP. The same
+ `SupportsTokenBinding` / `GetSignedAssertionWithBindingAsync` extension point
+ that `ManagedIdentityClientAssertion` opts into can be extended to OIDC FIC
+ once the cert-sourcing model is settled. That work is tracked in
+ [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851); this
+ spec will be revised alongside that issue.
 
 ## How developers wire things up today (non-bound Bearer)
 
@@ -118,7 +129,6 @@ already adds the property:
 ```csharp
 public bool UseBoundCredential { get; set; }
 ```
-
 (Final name and type subject to review on that PR.)
 
 No new types or extension methods on the IdWeb surface itself. IdWeb reads
@@ -297,7 +307,10 @@ the configuration example above.
    "host default" through to MSAL when the value is `null`. Worth deciding
    whether IdWeb opts apps in by default in a future release, or stays
    off-by-default and requires explicit opt-in.
-
+ 3. **OIDC FIC cert source** – when the assertion is issued by an external OIDC
+    IdP, where does the binding certificate come from? Tracked in
+    [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851).
+    
 ### reference
 
 * [microsoft-authentication-library-for-dotnet issue #5791](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5791)
