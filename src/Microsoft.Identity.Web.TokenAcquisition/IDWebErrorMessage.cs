@@ -28,6 +28,7 @@ namespace Microsoft.Identity.Web
         public const string ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret.";
         public const string MissingTokenBindingCertificate = "IDW10115: A signing certificate, which is required for token binding, is missing in loaded credentials.";
         public const string TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition.";
+        public const string OpenIdConnectMiddlewareDiagnosticsRequiresDevelopmentEnvironment = "IDW10117: OpenIdConnectMiddlewareDiagnostics logs full protocol messages, including bearer tokens and PII, and must only be enabled when running the code locally.";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope nor roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";

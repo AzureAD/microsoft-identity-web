@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -273,7 +274,21 @@ namespace Microsoft.Identity.Web
 
             if (subscribeToOpenIdConnectMiddlewareDiagnosticsEvents)
             {
-                builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics, OpenIdConnectMiddlewareDiagnostics>();
+                // OpenIdConnectMiddlewareDiagnostics logs full protocol messages, including
+                // bearer tokens and PII, at Debug level. Register a factory so that any caller
+                // resolving the diagnostic (see line 437 below, fired during OIDC option
+                // configuration at host startup) fails fast outside the Development environment.
+                builder.Services.AddSingleton<IOpenIdConnectMiddlewareDiagnostics>(serviceProvider =>
+                {
+                    IHostEnvironment? environment = serviceProvider.GetService<IHostEnvironment>();
+                    if (environment is null || !environment.IsDevelopment())
+                    {
+                        throw new InvalidOperationException(IDWebErrorMessage.OpenIdConnectMiddlewareDiagnosticsRequiresDevelopmentEnvironment);
+                    }
+
+                    return new OpenIdConnectMiddlewareDiagnostics(
+                        serviceProvider.GetRequiredService<ILogger<OpenIdConnectMiddlewareDiagnostics>>());
+                });
             }
 
             if (AppServicesAuthenticationInformation.IsAppServicesAadAuthenticationEnabled)
