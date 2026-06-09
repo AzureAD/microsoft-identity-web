@@ -26,7 +26,7 @@ namespace Microsoft.Identity.Web
         public const string MissingRequiredScopesForAuthorizationFilter = "IDW10108: RequiredScope Attribute does not contain a value. The scopes need to be set on the controller, the page or action. See https://aka.ms/ms-id-web/required-scope-attribute. ";
         public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: No credential could be loaded. This can happen when certificates passed to the configuration have expired or can't be loaded and the code isn't running on Azure to be able to use Managed Identity, Pod Identity etc. Details: ";
         public const string ClientSecretAndCredentialsCannotBeCombined = "IDW10110: ClientSecret top level configuration cannot be combined with ClientCredentials. Instead, add a new entry in the ClientCredentials array describing the secret.";
-        public const string MissingTokenBindingCertificate = "IDW10115: A signing certificate, which is required for token binding, is missing in loaded credentials.";
+        public const string MissingTokenBindingCertificate = "IDW10115: Token binding requires either a signing certificate or a binding-aware signed assertion (e.g., from a managed identity supporting mTLS PoP). The loaded credential provides neither.";
         public const string TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition.";
 
         // Authorization IDW10200 = "IDW10200:"
