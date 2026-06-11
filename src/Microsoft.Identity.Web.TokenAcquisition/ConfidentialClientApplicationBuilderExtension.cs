@@ -36,6 +36,23 @@ namespace Microsoft.Identity.Web
                     return builder.WithCertificate(credential.Certificate);
                 }
 
+                // CachedValue holds the concrete provider instance that the credential loader
+                // created and cached on the CredentialDescription. Providers opt into mTLS PoP
+                // by overriding ClientAssertionProviderBase.SupportsTokenBinding and returning
+                // a ClientSignedAssertion (assertion + binding certificate) from
+                // GetSignedAssertionWithBindingAsync. Today only ManagedIdentityClientAssertion
+                // ships with that capability; OIDC IdP / Kubernetes federation providers do not.
+                if (credential?.CredentialType == CredentialType.SignedAssertion
+                    && credential.CachedValue is ClientAssertionProviderBase bindingProvider
+                    && bindingProvider.SupportsTokenBinding)
+                {
+                    return builder.WithClientAssertion(
+                        async (options, ct) =>
+                            (await bindingProvider
+                                .GetSignedAssertionWithBindingAsync(options, ct)
+                                .ConfigureAwait(false))!);
+                }
+
                 throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
             }
 
