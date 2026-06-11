@@ -275,11 +275,8 @@ namespace Microsoft.Identity.Web
             MicrosoftIdentityMessageHandlerOptions? defaultOptions,
             IMsalMtlsHttpClientFactory? mtlsHttpClientFactory,
             ILogger<MicrosoftIdentityMessageHandler>? logger = null)
+            : this(headerProvider, defaultOptions, mtlsHttpClientFactory, null, logger)
         {
-            _headerProvider = headerProvider ?? throw new ArgumentNullException(nameof(headerProvider));
-            _defaultOptions = defaultOptions;
-            _mtlsHttpClientFactory = mtlsHttpClientFactory;
-            _logger = logger;
         }
 
         /// <summary>
@@ -334,9 +331,13 @@ namespace Microsoft.Identity.Web
         {
             _headerProvider = headerProvider ?? throw new ArgumentNullException(nameof(headerProvider));
             _defaultOptions = defaultOptions;
-            _mtlsHttpClientFactory = mtlsHttpClientFactory;
             _credentialsProvider = credentialsProvider;
             _logger = logger;
+
+            // If no factory is provided, create a default that can only handle mTLS.
+            // This instance should never need non-mTLS calls as it is attached to an HttpClient instance that is expected to be used for non-mTLS scenarios.
+            _mtlsHttpClientFactory = mtlsHttpClientFactory ?? MsalMtlsHttpClientFactory.CreateMtlsOnly(); 
+
         }
 
         /// <summary>

@@ -360,7 +360,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task SendAsync_WithMtlsPop_NullMtlsFactory_Throws()
+        public async Task SendAsync_WithMtlsPop_NullMtlsFactory_UsesDefault()
         {
             // Arrange
             var testCertificate = CreateTestCertificate();
@@ -400,15 +400,15 @@ namespace Microsoft.Identity.Web.Test
                 mockBoundProvider, options, mtlsHttpClientFactory: null, _mockLogger);
             handler.InnerHandler = innerHandler;
 
+            // As this is intentionally not using a mock, this needs to hit a real website.
             using var invoker = new HttpMessageInvoker(handler);
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
 
-            // Act & Assert - A binding certificate without an mTLS factory is a misconfiguration.
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => invoker.SendAsync(request, CancellationToken.None));
-            Assert.Contains("MtlsHttpClientFactory", ex.Message, StringComparison.Ordinal);
+            // Act & Assert
+            var response = await invoker.SendAsync(request, CancellationToken.None);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
-
+        
         [Fact]
         public async Task SendAsync_WithMtlsPop_BoundProviderFailure_ThrowsAuthenticationException()
         {
