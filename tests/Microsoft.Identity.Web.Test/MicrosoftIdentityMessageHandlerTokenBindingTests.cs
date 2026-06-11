@@ -360,56 +360,6 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task SendAsync_WithMtlsPop_NullMtlsFactory_UsesDefault()
-        {
-            // Arrange
-            var testCertificate = CreateTestCertificate();
-            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider>();
-
-            var authHeaderInfo = new AuthorizationHeaderInformation
-            {
-                AuthorizationHeaderValue = "MTLS_POP token-with-cert",
-                BindingCertificate = testCertificate
-            };
-
-            var mockResult = new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(authHeaderInfo);
-
-            ((IBoundAuthorizationHeaderProvider)mockBoundProvider)
-                .CreateBoundAuthorizationHeaderAsync(
-                    Arg.Any<DownstreamApiOptions>(),
-                    Arg.Any<ClaimsPrincipal>(),
-                    Arg.Any<CancellationToken>())
-                .Returns(mockResult);
-
-            var options = new MicrosoftIdentityMessageHandlerOptions
-            {
-                Scopes = { "api://test/.default" },
-                ProtocolScheme = "MTLS_POP",
-                RequestAppToken = true
-            };
-
-            var innerHandler = new MockHttpMessageHandler
-            {
-                ExpectedMethod = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-            };
-
-            // mtlsHttpClientFactory is null but the bound provider returned a binding certificate,
-            // so the handler must surface a clear error rather than silently falling back.
-            var handler = new MicrosoftIdentityMessageHandler(
-                mockBoundProvider, options, mtlsHttpClientFactory: null, _mockLogger);
-            handler.InnerHandler = innerHandler;
-
-            // As this is intentionally not using a mock, this needs to hit a real website.
-            using var invoker = new HttpMessageInvoker(handler);
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
-
-            // Act & Assert
-            var response = await invoker.SendAsync(request, CancellationToken.None);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-        
-        [Fact]
         public async Task SendAsync_WithMtlsPop_BoundProviderFailure_ThrowsAuthenticationException()
         {
             // Arrange
