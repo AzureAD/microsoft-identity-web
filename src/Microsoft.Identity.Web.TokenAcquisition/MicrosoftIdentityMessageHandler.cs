@@ -283,7 +283,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class with mTLS PoP token binding support.
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class with mTLS and mTLS_Pop support.
         /// </summary>
         /// <param name="headerProvider">
         /// The <see cref="IAuthorizationHeaderProvider"/> used to acquire authorization headers for outgoing requests.
