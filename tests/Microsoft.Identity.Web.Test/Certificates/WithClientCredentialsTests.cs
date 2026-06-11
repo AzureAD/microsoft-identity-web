@@ -461,6 +461,97 @@ namespace Microsoft.Identity.Web.Test.Certificates
             await credLoader.Received(1).LoadCredentialsIfNeededAsync(credentialDescription, credentialSourceLoaderParameters);
         }
 
+        [Fact]
+        public async Task WithBindingCertificateAsync_FicWithManagedIdentityAssertion_ReturnsBuilder()
+        {
+            // Arrange — FIC backed by a Managed Identity-signed assertion (the new mTLS PoP path).
+            // The MI assertion will mint a binding certificate at request time; we only need to verify
+            // that WithClientCredentialsAsync wires the bound delegate instead of throwing.
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                ManagedIdentityClientId = "a599ce88-0a5f-4a6e-beca-e67d3fc427f4"
+            };
+
+            // Mimic CredentialsLoader behaviour: hydrate CachedValue with a ManagedIdentityClientAssertion.
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.CachedValue = new ManagedIdentityClientAssertion(cd.ManagedIdentityClientId);
+                    return Task.CompletedTask;
+                });
+
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
+            // Act
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = [credentialDescription],
+                },
+                provider,
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: true);
+
+            // Assert — FIC + MI path should now succeed (bound assertion delegate registered, no throw).
+            Assert.NotNull(result);
+            Assert.Same(builder, result);
+        }
+
+        [Fact]
+        public async Task WithBindingCertificateAsync_FicWithFileBasedAssertion_StillThrows()
+        {
+            // Arrange — non-MI signed assertion (file/K8s-style) must remain unsupported for mTLS PoP
+            // because it cannot produce a binding certificate. Regression guard for IDW10115.
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFilePath,
+                SignedAssertionFileDiskPath = "/var/run/secrets/azure/tokens/azure-identity-token"
+            };
+
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.CachedValue = new AzureIdentityForKubernetesClientAssertion(cd.SignedAssertionFileDiskPath);
+                    return Task.CompletedTask;
+                });
+
+            CredentialsProvider provider = new CredentialsProvider(
+                logger,
+                credLoader,
+                [],
+                null);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithClientCredentialsAsync(
+                    new MergedOptions()
+                    {
+                        ClientCredentials = [credentialDescription],
+                    },
+                    provider,
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: true));
+
+            Assert.Contains("IDW10115", ex.Message, StringComparison.Ordinal);
+        }
+
         #endregion
 
     }
