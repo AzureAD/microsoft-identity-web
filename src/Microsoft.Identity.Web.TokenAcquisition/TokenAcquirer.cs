@@ -45,14 +45,7 @@ namespace Microsoft.Identity.Web
                 tokenAcquisitionOptions.LongRunningWebApiSessionKey = effectiveOptions.LongRunningWebApiSessionKey;
             }
 
-            return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId,
-                result.TokenType);
+            return AcquireTokenResultFactory.FromMsal(result);
         }
 
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
@@ -66,17 +59,7 @@ namespace Microsoft.Identity.Web
                 GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken)
                 ).ConfigureAwait(false);
 
-            return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId,
-                result.TokenType)
-            {
-                BindingCertificate = result.BindingCertificate
-            };
+            return AcquireTokenResultFactory.FromMsal(result);
         }
 
         private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
