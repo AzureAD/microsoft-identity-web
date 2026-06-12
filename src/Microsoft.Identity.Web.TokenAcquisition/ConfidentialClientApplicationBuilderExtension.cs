@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 using static Microsoft.Identity.Web.TokenAcquisition;
 
 namespace Microsoft.Identity.Web
@@ -66,6 +67,13 @@ namespace Microsoft.Identity.Web
                 case CredentialType.SignedAssertion:
                     return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
                 case CredentialType.Certificate:
+                    if (credential.UseBoundCredential && credential.Certificate is not null)
+                    {
+                        return builder.WithCertificate(
+                            credential.Certificate,
+                            new CertificateOptions { SendCertificateOverMtls = true });
+                    }
+
                     return builder.WithCertificate(credential.Certificate);
                 case CredentialType.Secret:
                     return builder.WithClientSecret(credential.ClientSecret);
