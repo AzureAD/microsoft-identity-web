@@ -48,6 +48,16 @@ The Microsoft Identity Web roadmap is available from [Roadmap](https://github.co
 - Code samples are available for [web app samples](https://github.com/AzureAD/microsoft-identity-web/wiki/web-app-samples)
   and [web API samples](https://github.com/AzureAD/microsoft-identity-web/wiki#web-api-samples)
 
+### Authority Configuration
+
+Understanding how to properly configure authentication authorities is crucial for Azure AD, B2C, and CIAM applications:
+
+- **[Authority Configuration & Precedence Guide](docs/authority-configuration.md)** - Comprehensive guide explaining how Authority, Instance, TenantId, and PreserveAuthority work together
+- **[B2C Authority Examples](docs/b2c-authority-examples.md)** - Azure AD B2C-specific configuration patterns and best practices
+- **[CIAM Authority Examples](docs/ciam-authority-examples.md)** - Customer Identity Access Management (CIAM) scenarios with custom domains
+- **[Migration Guide](docs/migration-authority-vs-instance.md)** - Upgrade path for existing applications and resolving configuration conflicts
+- **[Authority FAQ](docs/faq-authority-precedence.md)** - Common questions and troubleshooting tips
+
 ## Where do I file issues
 
 
