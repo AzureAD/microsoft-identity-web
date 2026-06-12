@@ -26,12 +26,12 @@ namespace Microsoft.Identity.Web
 
         private static readonly ReaderWriterLockSlim s_cacheLock = new ReaderWriterLockSlim();
 
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory? _httpClientFactory;
 
         /// <summary>
         /// Initializes a new instance of the MsalMtlsHttpClientFactory class using the specified HTTP client factory.
         /// </summary>
-        /// <param name="httpClientFactory">The factory used to create HttpClient instances for mutual TLS (mTLS) operations. Cannot be null.</param>
+        /// <param name="httpClientFactory">The factory used to create HttpClient instances. This factory is only used for non-mTLS instances.</param>
         public MsalMtlsHttpClientFactory(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
@@ -48,6 +48,11 @@ namespace Microsoft.Identity.Web
         /// <returns>A new <see cref="HttpClient"/> instance with telemetry information included in the default request headers.</returns>
         public HttpClient GetHttpClient()
         {
+            if (_httpClientFactory is null)
+            {
+                throw new InvalidOperationException("This instance was nat initialized with an HttpClientFactory and can not be used to create standard HttpClient instances.");
+            }
+
             HttpClient httpClient = _httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Add(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
             return httpClient;
@@ -125,6 +130,19 @@ namespace Microsoft.Identity.Web
             }
 
             // Note: s_cacheLock is static and shared across all instances, so it should not be disposed here
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="MsalMtlsHttpClientFactory"/> configured for mTLS-only operations.
+        /// </summary>
+        /// <remarks>
+        /// Intended for use where the HttpClientFactory is not available or not desired, and all HTTP operations require mTLS authentication.
+        /// This factory will manage a pool of mTLS-configured HttpClient instances based on certificate thumbprints.
+        /// </remarks>
+        /// <returns>A new instance of <see cref="MsalMtlsHttpClientFactory"/> for mTLS-only operations.</returns>
+        internal static MsalMtlsHttpClientFactory CreateMtlsOnly()
+        {
+            return new MsalMtlsHttpClientFactory(null!);
         }
 
         private HttpClient CreateMtlsHttpClient(X509Certificate2 bindingCertificate)
