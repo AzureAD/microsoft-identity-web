@@ -554,5 +554,104 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
         #endregion
 
+        #region UseBoundCredential dispatch tests
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_CertificateWithUseBoundCredentialTrue_ReturnsBuilderAsync()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "test-thumbprint",
+                CertificateStorePath = "CurrentUser/My",
+                UseBoundCredential = true,
+            };
+
+            var testCertificate = Base64EncodedCertificateLoader.LoadFromBase64Encoded(
+                TestConstants.CertificateX5cWithPrivateKey,
+                TestConstants.CertificateX5cWithPrivateKeyPassword,
+                X509KeyStorageFlags.DefaultKeySet);
+
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Certificate = testCertificate;
+                    return Task.CompletedTask;
+                });
+
+            // Act — the bound-credential path should call
+            // WithCertificate(cert, new CertificateOptions { SendCertificateOverMtls = true });
+            // we verify the dispatch does not throw and a builder comes back.
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = new[] { credentialDescription },
+                },
+                new CredentialsProvider(logger, credLoader, [], null),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Same(builder, result);
+            await credLoader.Received(1).LoadCredentialsIfNeededAsync(credentialDescription, null);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_CertificateWithUseBoundCredentialFalse_ReturnsBuilderAsync()
+        {
+            // Arrange — same setup as the bound-credential test, but with
+            // UseBoundCredential explicitly false. Guards against regression
+            // in the legacy (non-mTLS) cert dispatch.
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithThumbprint,
+                CertificateThumbprint = "test-thumbprint",
+                CertificateStorePath = "CurrentUser/My",
+                UseBoundCredential = false,
+            };
+
+            var testCertificate = Base64EncodedCertificateLoader.LoadFromBase64Encoded(
+                TestConstants.CertificateX5cWithPrivateKey,
+                TestConstants.CertificateX5cWithPrivateKeyPassword,
+                X509KeyStorageFlags.DefaultKeySet);
+
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Certificate = testCertificate;
+                    return Task.CompletedTask;
+                });
+
+            // Act
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions()
+                {
+                    ClientCredentials = new[] { credentialDescription },
+                },
+                new CredentialsProvider(logger, credLoader, [], null),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Same(builder, result);
+        }
+
+        #endregion
+
     }
 }
