@@ -181,6 +181,9 @@ namespace Microsoft.Identity.Web.Test
             // Verify mTLS factory was used
             mockMtlsFactory.Received(1).GetHttpClient(testCertificate);
 
+            // Verify that the overload that doesn't use IHttpClientFactory was used.
+            mockMtlsFactory.DidNotReceive().GetHttpClient();
+
             // Verify authorization header was set on the request
             Assert.Equal("MTLS_POP test-bound-token", mockMtlsHandler.ActualRequestMessage.Headers.GetValues("Authorization").First());
         }
@@ -742,6 +745,9 @@ namespace Microsoft.Identity.Web.Test
                 cert,
                 true,
                 null);
+
+            // Verify that the overload that uses IHttpClientFactory was not used.
+            mockMtlsFactory.DidNotReceive().GetHttpClient();
         }
 
         /// <summary>
