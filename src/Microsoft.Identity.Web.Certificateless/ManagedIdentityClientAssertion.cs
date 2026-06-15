@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 
@@ -112,25 +114,85 @@ namespace Microsoft.Identity.Web
         protected override async Task<ClientAssertion> GetClientAssertionAsync(
             AssertionRequestOptions? assertionRequestOptions)
         {
-            // Start the MI token request for the token-exchange audience
-            var miBuilder = _managedIdentityApplication
-                .AcquireTokenForManagedIdentity(_tokenExchangeUrl);
-
-            if (assertionRequestOptions is not null)
-            {
-                // Propagate claims into the MI token request.
-                // This also forces MSAL to bypass the MI token cache when claims are present.
-                if (!string.IsNullOrEmpty(assertionRequestOptions.Claims))
-                {
-                    miBuilder.WithClaims(assertionRequestOptions.Claims);
-                }
-            }
-
-            var result = await miBuilder
-                .ExecuteAsync(assertionRequestOptions?.CancellationToken ?? CancellationToken.None)
+            var result = await AcquireManagedIdentityTokenAsync(
+                    assertionRequestOptions,
+                    bindToCertificate: false,
+                    cancellationToken: default)
                 .ConfigureAwait(false);
 
             return new ClientAssertion(result.AccessToken, result.ExpiresOn);
+        }
+
+        /// <summary>
+        /// Returns <c>true</c>: managed identity provides a binding certificate alongside the
+        /// federated assertion via MSAL's IMDS V2 mTLS PoP flow.
+        /// </summary>
+        public override bool SupportsTokenBinding => true;
+
+        /// <summary>
+        /// Acquires a managed identity token bound to a binding certificate via mTLS PoP,
+        /// returning both the assertion and the binding certificate so MSAL can pin the outer
+        /// confidential client request to the same certificate (FIC + mTLS PoP, two-leg flow).
+        /// </summary>
+        /// <remarks>
+        /// Used when the consuming confidential client has token binding enabled (e.g.,
+        /// <c>AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP"</c>). Requires
+        /// MSAL.NET key-attestation support and an Azure VM / Arc-hosted managed identity
+        /// capable of returning a <see cref="AuthenticationResult.BindingCertificate"/>.
+        /// </remarks>
+        public override async Task<ClientSignedAssertion?> GetSignedAssertionWithBindingAsync(
+            AssertionRequestOptions? assertionRequestOptions,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await AcquireManagedIdentityTokenAsync(
+                    assertionRequestOptions,
+                    bindToCertificate: true,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            // MSAL guarantees BindingCertificate is non-null when WithMtlsProofOfPossession()
+            // succeeds; failure to bind surfaces as an MsalServiceException from ExecuteAsync.
+            return new ClientSignedAssertion
+            {
+                Assertion = result.AccessToken,
+                TokenBindingCertificate = result.BindingCertificate!,
+            };
+        }
+
+        /// <summary>
+        /// Builds and executes the underlying managed-identity token request shared by both the
+        /// bearer (<see cref="GetClientAssertionAsync"/>) and mTLS PoP
+        /// (<see cref="GetSignedAssertionWithBindingAsync"/>) code paths.
+        /// </summary>
+        private async Task<AuthenticationResult> AcquireManagedIdentityTokenAsync(
+            AssertionRequestOptions? assertionRequestOptions,
+            bool bindToCertificate,
+            CancellationToken cancellationToken)
+        {
+            var miBuilder = _managedIdentityApplication
+                .AcquireTokenForManagedIdentity(_tokenExchangeUrl);
+
+            if (bindToCertificate)
+            {
+                miBuilder = miBuilder
+                    .WithMtlsProofOfPossession()
+                    .WithAttestationSupport();
+            }
+
+            // Propagate claims into the MI token request.
+            // This also forces MSAL to bypass the MI token cache when claims are present.
+            if (!string.IsNullOrEmpty(assertionRequestOptions?.Claims))
+            {
+                miBuilder.WithClaims(assertionRequestOptions!.Claims);
+            }
+
+            CancellationToken effectiveCancellationToken = cancellationToken != default
+                ? cancellationToken
+                : assertionRequestOptions?.CancellationToken ?? CancellationToken.None;
+
+            return await miBuilder
+                .ExecuteAsync(effectiveCancellationToken)
+                .ConfigureAwait(false);
         }
 
         private void Log(
