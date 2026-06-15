@@ -49,7 +49,6 @@ namespace Microsoft.Identity.Web
                 DurationInCacheInMs = source.DurationInCacheInMs,
                 RefreshOn = source.RefreshOn,
                 RegionDetails = MapRegionDetails(source.RegionDetails),
-                AdditionalResponseParameters = result.AdditionalResponseParameters,
             };
         }
 
