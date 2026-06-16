@@ -218,20 +218,20 @@ namespace Microsoft.Identity.Web.Test
         }
 
         /// <summary>
-        /// Proves that the CCA cache key does NOT include isTokenBinding today.
-        /// A bearer call (isTokenBinding=false) caches a CCA built with a string-assertion
-        /// credential, and a subsequent PoP call (isTokenBinding=true) incorrectly reuses
-        /// that same CCA instance. This test is expected to FAIL until the cache key is fixed.
+        /// Proves that the CCA cache key includes isTokenBinding, ensuring a bearer-cached
+        /// CCA is never reused for an mTLS PoP request.
         ///
-        /// When fixed, isTokenBinding=true should produce a DIFFERENT CCA instance because
-        /// the credential wiring is fundamentally different: bearer uses
-        /// WithClientAssertion(Func&lt;string&gt;) while PoP uses
-        /// WithClientAssertion(Func&lt;ClientSignedAssertion&gt;) or WithCertificate().
-        /// Reusing the bearer CCA for PoP causes MSAL to throw:
+        /// When isTokenBinding=true with a secret credential, BuildConfidentialClientApplication
+        /// correctly throws IDW10115 (secret can't do mTLS binding). The important thing this
+        /// test verifies is that the PoP call does NOT silently return the cached bearer CCA —
+        /// it attempts a fresh build (and fails for a valid reason: wrong credential type).
+        ///
+        /// Before the cache-key fix, the second call would return the bearer CCA unchanged
+        /// (no throw), and MSAL would later throw at request time with the confusing error:
         /// "A string-returning client assertion callback cannot be used over mTLS."
         /// </summary>
         [Fact]
-        public async Task GetOrBuildCca_BearerThenTokenBinding_ShouldReturnDifferentInstances()
+        public async Task GetOrBuildCca_BearerThenTokenBinding_DoesNotReturnCachedBearerApp()
         {
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
@@ -254,17 +254,18 @@ namespace Microsoft.Identity.Web.Test
 
             InitializeTokenAcquisitionObjects();
 
-            // First call: bearer (isTokenBinding=false) — caches a CCA with string-assertion credential.
+            // First call: bearer (isTokenBinding=false) — caches a CCA with secret credential.
             IConfidentialClientApplication bearerApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+            Assert.NotNull(bearerApp);
 
-            // Second call: PoP (isTokenBinding=true) — SHOULD build a different CCA with
-            // bundle-assertion or certificate credential, but today incorrectly reuses the
-            // bearer CCA because GetApplicationKey does not include isTokenBinding.
-            IConfidentialClientApplication popApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: true);
+            // Second call: PoP (isTokenBinding=true) — with the fix, uses a different cache key,
+            // so it attempts a fresh build. A secret credential can't do token binding, so
+            // BuildConfidentialClientApplication correctly throws IDW10115.
+            // Before the fix, this would silently return bearerApp (wrong behavior).
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: true));
 
-            // This assertion will FAIL today (both are the same instance).
-            // Once the cache key includes isTokenBinding, they will be different instances.
-            Assert.NotSame(bearerApp, popApp);
+            Assert.Contains("IDW10115", ex.Message, StringComparison.Ordinal);
         }
 
         [Theory]

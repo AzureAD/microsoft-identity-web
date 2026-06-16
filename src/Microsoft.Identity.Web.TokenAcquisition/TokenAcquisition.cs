@@ -239,12 +239,14 @@ namespace Microsoft.Identity.Web
         /// when supporting managed identities.
         /// </summary>
         /// <param name="mergedOptions">Merged configuration options.</param>
-        /// <returns>Concatenated string of authority, cliend id and azure region</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions)
+        /// <param name="isTokenBinding">Whether mTLS token binding is requested.</param>
+        /// <returns>Concatenated string of authority, client id, azure region, and token-binding flag.</returns>
+        private static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding = false)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
 
-            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
+            string baseKey = DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
+            return isTokenBinding ? baseKey + "-tokenBinding" : baseKey;
         }
 
         /// <summary>
@@ -1062,7 +1064,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             bool isTokenBinding)
         {
-            string key = GetApplicationKey(mergedOptions);
+            string key = GetApplicationKey(mergedOptions, isTokenBinding);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -1083,7 +1085,7 @@ namespace Microsoft.Identity.Web
                 var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
-                key = GetApplicationKey(mergedOptions);
+                key = GetApplicationKey(mergedOptions, isTokenBinding);
                 _applicationsByAuthorityClientId[key] = newApp;
                 return newApp;
             }
