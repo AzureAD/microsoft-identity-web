@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
@@ -1107,6 +1108,13 @@ namespace Microsoft.Identity.Web
 
                     var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
 
+                    if (isTokenBinding)
+                    {
+                        miBuilder = miBuilder
+                            .WithMtlsProofOfPossession()
+                            .WithAttestationSupport();
+                    }
+
                     if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
                     {
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
@@ -1488,7 +1496,7 @@ namespace Microsoft.Identity.Web
             string responseBody = exMsal.ResponseBody;
 
 #if NET6_0_OR_GREATER
-            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            foreach (var errorCode in Constants.CertificateAuthFailureStsErrorCodes)
             {
                 if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
                 {
@@ -1497,7 +1505,7 @@ namespace Microsoft.Identity.Web
             }
             return false;
 #else
-            foreach (var errorCode in Constants.s_certificateRelatedErrorCodes)
+            foreach (var errorCode in Constants.CertificateAuthFailureStsErrorCodes)
             {
                 if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
                 {

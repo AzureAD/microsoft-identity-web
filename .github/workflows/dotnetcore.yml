@@ -60,7 +60,7 @@ jobs:
 
 
     - name: Test with .NET 10.0.x
-      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net10.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)"
+      run: dotnet test --no-restore --no-build Microsoft.Identity.Web.sln -f net10.0 -v m -p:FROM_GITHUB_ACTION=true --configuration Release --collect "Xplat Code Coverage" --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName!~IntegrationTests)&(FullyQualifiedName!~TokenAcquirerTests)&(FullyQualifiedName!~SidecarEndpointsE2ETests)"
 
     - name: Create code coverage report
       run: |
