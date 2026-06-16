@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal readonly ConcurrentDictionary<string, AgentCcaEntry> _agentUserFicCcas = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _agentCcaSemaphores = new();
-        private Timer? _agentCcaSweepTimer;
+        private Timer? _agentCcaSweepTimer; // Not explicitly disposed — TokenAcquisition is a DI singleton with process lifetime.
 
         /// <summary>
         /// Maps (agentAppId, user identifier, tenantId) tuples to MSAL account identifiers for the
@@ -676,6 +676,10 @@ namespace Microsoft.Identity.Web
 
             // Try silent retrieval first using a stored account identifier from a prior call.
             // Include tenantId in the key so cross-tenant calls don't collide.
+            // authenticationScheme is intentionally excluded: a given (agent, user, tenant)
+            // tuple maps to a single MSAL account identity regardless of which auth scheme
+            // was used. The CCA selected above is already scheme-specific, and GetAccountAsync
+            // returns the same account from any CCA that shares the user's cache partition.
             string normalizedTenant = tenantId?.ToUpperInvariant() ?? string.Empty;
             string accountLookupKey = $"{agentAppId}:{userIdentifierForCacheKey}:{normalizedTenant}";
             if (!forceRefresh
@@ -697,8 +701,11 @@ namespace Microsoft.Identity.Web
 
                         return await silentBuilder.ExecuteAsync().ConfigureAwait(false);
                     }
-                    catch (MsalUiRequiredException ex)
+                    catch (MsalException ex)
                     {
+                        // Catch all MSAL exceptions (not just MsalUiRequiredException) so that
+                        // any silent failure (cache errors, client errors, etc.) falls back to
+                        // the full 3-leg acquisition rather than propagating up as a hard failure.
                         Logger.TokenAcquisitionError(_logger, ex.Message, ex);
                     }
                 }
@@ -772,6 +779,9 @@ namespace Microsoft.Identity.Web
         {
             // Include authenticationScheme in the CCA cache key so different schemes
             // (pointing to different blueprint credentials) get separate CCAs.
+            // Authority is intentionally excluded: within a single TokenAcquisition instance,
+            // the authority is derived from the one configured MergedOptions and does not vary
+            // per call. Multi-authority scenarios would require separate TokenAcquisition instances.
             string ccaCacheKey = $"{agentAppId}:{authenticationScheme ?? string.Empty}";
 
             if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var existing))
@@ -805,10 +815,24 @@ namespace Microsoft.Identity.Web
                         var blueprintCca = await GetOrBuildConfidentialClientApplicationAsync(
                             blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
 
-                        var leg1 = await blueprintCca
+                        var leg1Builder = blueprintCca
                             .AcquireTokenForClient(capturedFicScopes)
                             .WithFmiPath(agentAppId)
-                            .WithSendX5C(blueprintOptions.SendX5C)
+                            .WithSendX5C(blueprintOptions.SendX5C);
+
+                        // Propagate tenant override to Leg 1 when the caller specifies a tenant
+                        // (e.g., via WithTenantId on Leg 2/3). Extract tenant from the token
+                        // endpoint provided by MSAL, matching the pattern used by
+                        // OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance.
+                        string? leg1Tenant = ExtractTenantFromTokenEndpointIfSameInstance(
+                                options.TokenEndpoint,
+                                blueprintOptions.Instance);
+                        if (!string.IsNullOrEmpty(leg1Tenant))
+                        {
+                            leg1Builder.WithTenantId(leg1Tenant);
+                        }
+
+                        var leg1 = await leg1Builder
                             .ExecuteAsync(options.CancellationToken)
                             .ConfigureAwait(false);
 
@@ -877,7 +901,10 @@ namespace Microsoft.Identity.Web
                 {
                     if (_agentUserFicCcas.TryRemove(kvp.Key, out _))
                     {
-                        _agentCcaSemaphores.TryRemove(kvp.Key, out _);
+                        if (_agentCcaSemaphores.TryRemove(kvp.Key, out var semaphore))
+                        {
+                            semaphore.Dispose();
+                        }
 
                         // Clean up companion account ID entries for this agent CCA.
                         // Account IDs are keyed as "{agentAppId}:{USER_IDENTIFIER}:{TENANTID}",
@@ -921,6 +948,56 @@ namespace Microsoft.Identity.Web
                 : tokenExchangeUrl + "/.default";
 
             return new[] { scope };
+        }
+
+        /// <summary>
+        /// Extracts the tenant ID from an OAuth2 token endpoint URL when the endpoint belongs
+        /// to the same cloud instance as the configured authority. Returns null if the hosts
+        /// don't match (cross-cloud) or the URL format is unrecognized.
+        /// Token endpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
+        /// </summary>
+        /// <remarks>
+        /// This is the same logic as OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance,
+        /// duplicated here because that method is internal to the OidcFIC project.
+        /// </remarks>
+        internal static string? ExtractTenantFromTokenEndpointIfSameInstance(
+            string? tokenEndpoint, string? configuredInstance)
+        {
+            if (string.IsNullOrEmpty(tokenEndpoint) || string.IsNullOrEmpty(configuredInstance))
+            {
+                return null;
+            }
+
+            try
+            {
+                var endpointUri = new Uri(tokenEndpoint!);
+                var instanceUri = new Uri(configuredInstance!.TrimEnd('/'));
+
+                if (!string.Equals(endpointUri.Host, instanceUri.Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var pathSegments = endpointUri.AbsolutePath.Split(
+                    new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (pathSegments.Length >= 2)
+                {
+                    for (int i = 1; i < pathSegments.Length; i++)
+                    {
+                        if (string.Equals(pathSegments[i], "oauth2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return pathSegments[0];
+                        }
+                    }
+                }
+            }
+            catch (UriFormatException)
+            {
+                // Invalid URI — fall through to return null.
+            }
+
+            return null;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)

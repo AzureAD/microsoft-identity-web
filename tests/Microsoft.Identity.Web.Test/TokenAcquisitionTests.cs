@@ -948,7 +948,10 @@ namespace Microsoft.Identity.Web.Test
             IServiceProvider serviceProvider = factory.Build();
 
             var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 150;
+            // Use a generous idle threshold so the new agent stays well within bounds
+            // even under CI CPU contention. The old agent will be force-expired by
+            // reducing the threshold right before the sweep.
+            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 5000;
 
             var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
 
@@ -962,8 +965,8 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: optionsOld,
                 claimsPrincipal: null);
 
-            // Wait, then create new agent (so old agent is stale, new is fresh)
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            // Wait long enough to create a clear gap between old and new agent timestamps.
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
 
             AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "new-agent-token");
             var optionsNew = CreateAgentIdentityOptions(agentAppIdNew);
@@ -974,8 +977,9 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.True(tokenAcquisition._agentUserFicCcas.Count == 2);
 
-            // Wait for old agent to expire (but not the new one)
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            // Now set a threshold that the old agent (200ms+ idle) exceeds
+            // but the new agent (just created) does not.
+            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 100;
 
             // Act
             int evicted = tokenAcquisition.SweepExpiredAgentCcas();
@@ -1030,6 +1034,54 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.Equal(0, evicted);
             Assert.True(tokenAcquisition._agentUserFicCcas.Count == 1);
+        }
+
+        #endregion
+
+        #region ExtractTenantFromTokenEndpointIfSameInstance Tests
+
+        [Fact]
+        public void ExtractTenant_SameInstance_ReturnsTenant()
+        {
+            // Arrange
+            string tokenEndpoint = "https://login.microsoftonline.com/my-tenant-id/oauth2/v2.0/token";
+            string instance = "https://login.microsoftonline.com/";
+
+            // Act
+            string? tenant = TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance);
+
+            // Assert
+            Assert.Equal("my-tenant-id", tenant);
+        }
+
+        [Fact]
+        public void ExtractTenant_DifferentInstance_ReturnsNull()
+        {
+            // Arrange — China cloud endpoint with public cloud instance
+            string tokenEndpoint = "https://login.chinacloudapi.cn/my-tenant/oauth2/v2.0/token";
+            string instance = "https://login.microsoftonline.com/";
+
+            // Act
+            string? tenant = TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance);
+
+            // Assert
+            Assert.Null(tenant);
+        }
+
+        [Theory]
+        [InlineData(null, "https://login.microsoftonline.com/")]
+        [InlineData("https://login.microsoftonline.com/tenant/oauth2/v2.0/token", null)]
+        [InlineData(null, null)]
+        [InlineData("", "https://login.microsoftonline.com/")]
+        public void ExtractTenant_NullOrEmptyInputs_ReturnsNull(string? tokenEndpoint, string? instance)
+        {
+            Assert.Null(TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance));
+        }
+
+        [Fact]
+        public void ExtractTenant_InvalidUri_ReturnsNull()
+        {
+            Assert.Null(TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance("not-a-uri", "also-not-a-uri"));
         }
 
         #endregion
