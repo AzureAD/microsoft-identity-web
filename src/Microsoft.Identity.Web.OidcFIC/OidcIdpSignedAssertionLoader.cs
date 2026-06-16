@@ -8,12 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
     internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
+        // Centralized to avoid drift with TokenAcquisition.ProtocolNames.MtlsPop (which is internal to
+        // that assembly). Value matches what TokenAcquisition writes into CredentialSourceLoaderParameters.Protocol
+        // when AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP" is set.
+        private const string MtlsPopProtocol = "MTLS_POP";
+
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
         private readonly IServiceProvider _serviceProvider;
@@ -75,6 +79,15 @@ namespace Microsoft.Identity.Web.OidcFic
             /// <param name="message">Exception message.</param>
             [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.")]
             public static partial void SignedAssertionProviderFailed(ILogger logger, string providerName, string message);
+
+            /// <summary>
+            /// Logger for when more than one bound credential is configured for OIDC FIC mTLS PoP.
+            /// First-valid wins (matches IdWeb's standard fallback pattern); this is informational only.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="count">Number of bound credentials detected.</param>
+            [LoggerMessageAttribute(EventId = 505, Level = LogLevel.Debug, Message = "[MsIdWeb] OIDC FIC mTLS PoP: {Count} bound credentials configured. First valid binding cert wins (KeyVault-fallback semantics). To pin a specific binding cert, leave only one UseBoundCredential = true entry in the inner ClientCredentials collection.")]
+            public static partial void MultipleBoundCredentialsConfigured(ILogger logger, int count);
 #else
             // Fallback implementation for older target frameworks
             private static readonly Action<ILogger, string, Exception?> s_configurationNotRegistered =
@@ -106,6 +119,12 @@ namespace Microsoft.Identity.Web.OidcFic
                     LogLevel.Error,
                     new EventId(504, "OidcIdpSignedAssertionProviderFailed"),
                     "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.");
+
+            private static readonly Action<ILogger, int, Exception?> s_multipleBoundCredentialsConfigured =
+                LoggerMessage.Define<int>(
+                    LogLevel.Debug,
+                    new EventId(505, "OidcIdpMultipleBoundCredentialsConfigured"),
+                    "[MsIdWeb] OIDC FIC mTLS PoP: {Count} bound credentials configured. First valid binding cert wins (KeyVault-fallback semantics). To pin a specific binding cert, leave only one UseBoundCredential = true entry in the inner ClientCredentials collection.");
 
             /// <summary>
             /// Logger for when IConfiguration is not registered in the service collection.
@@ -149,6 +168,15 @@ namespace Microsoft.Identity.Web.OidcFic
                 ILogger logger,
                 string providerName,
                 string message) => s_signedAssertionProviderFailed(logger, providerName, message, default!);
+
+            /// <summary>
+            /// Logger for when more than one bound credential is configured for OIDC FIC mTLS PoP.
+            /// </summary>
+            /// <param name="logger">ILogger.</param>
+            /// <param name="count">Number of bound credentials detected.</param>
+            public static void MultipleBoundCredentialsConfigured(
+                ILogger logger,
+                int count) => s_multipleBoundCredentialsConfigured(logger, count, default!);
 #endif
         }
 
@@ -156,8 +184,17 @@ namespace Microsoft.Identity.Web.OidcFic
 
         public async Task LoadIfNeededAsync(CredentialDescription credentialDescription, CredentialSourceLoaderParameters? parameters = null)
         {
+            bool isMtlsPop = string.Equals(parameters?.Protocol, MtlsPopProtocol, StringComparison.OrdinalIgnoreCase);
             OidcIdpSignedAssertionProvider? signedAssertion = credentialDescription.CachedValue as OidcIdpSignedAssertionProvider;
-            if (credentialDescription.CachedValue == null)
+
+            // Reconstruct the provider when:
+            //   * first load (CachedValue is null), or
+            //   * cached provider has no bound cred but the caller now needs MTLS_POP — this lets a customer
+            //     who first hit the bearer path later use MTLS_POP without having to ResetCredentials manually.
+            bool needsReconstruction = signedAssertion is null
+                || (isMtlsPop && !signedAssertion.SupportsTokenBinding);
+
+            if (needsReconstruction)
             {
                 if (credentialDescription.CustomSignedAssertionProviderData == null)
                 {
@@ -190,9 +227,37 @@ namespace Microsoft.Identity.Web.OidcFic
                     configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
                 }
 
-                // Special case for Signed assertions with an FmiPath.
-                // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
-                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl, _logger);
+                // Resolve the bound inner-leg credential only when the caller actually needs MTLS_POP.
+                // Bearer flows never even touch ICredentialsLoader for binding-cert resolution, so a
+                // missing or misconfigured bound entry cannot take down a perfectly-good bearer OIDC FIC flow.
+                CredentialDescription? boundCredentialDescription = null;
+                if (isMtlsPop)
+                {
+                    try
+                    {
+                        boundCredentialDescription = await TryLoadBoundCredentialAsync(microsoftIdentityApplicationOptions).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.SignedAssertionProviderFailed(_logger, "OidcIdpSignedAssertion (binding cert resolution)", ex.Message);
+                        credentialDescription.Skip = true;
+                        throw;
+                    }
+
+                    if (boundCredentialDescription is null)
+                    {
+                        // MTLS_POP was explicitly requested but no usable binding cert was found in the
+                        // inner ClientCredentials. Skip this credential so the consumer falls through to
+                        // the next candidate (or surfaces a clear MissingTokenBindingCertificate downstream).
+                        credentialDescription.Skip = true;
+                        throw new InvalidOperationException(
+                            "MTLS_POP was requested but no usable binding certificate was found in the inner " +
+                            "ClientCredentials collection. Add a CredentialDescription with UseBoundCredential = true " +
+                            "alongside the inner-leg authentication credential.");
+                    }
+                }
+
+                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl, _logger, boundCredentialDescription);
                 if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
                 {
                     signedAssertion.RequiresSignedAssertionFmiPath = true;
@@ -202,7 +267,7 @@ namespace Microsoft.Identity.Web.OidcFic
             try
             {
                 // Try to get a signed assertion, and if it fails, move to the next credentials
-                _ = await signedAssertion!.GetSignedAssertionAsync(null);
+                _ = await signedAssertion!.GetSignedAssertionAsync(null).ConfigureAwait(false);
                 credentialDescription.CachedValue = signedAssertion;
             }
             catch (Exception ex)
@@ -211,6 +276,81 @@ namespace Microsoft.Identity.Web.OidcFic
                 credentialDescription.Skip = true;
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Scans <paramref name="microsoftIdentityApplicationOptions"/>.<c>ClientCredentials</c>
+        /// for entries with <see cref="CredentialDescription.UseBoundCredential"/> set to <c>true</c>, resolves the
+        /// first one whose materialised <see cref="CredentialDescription.Certificate"/> is non-null via the
+        /// registered <see cref="ICredentialsLoader"/>, and returns the entry itself so the provider can read the
+        /// cert per call (picking up rotation/reset if the underlying <c>Certificate</c> is updated in place).
+        /// </summary>
+        /// <remarks>
+        /// Once a bound credential is selected for binding it is also marked <see cref="CredentialDescription.Skip"/>
+        /// = <c>true</c> so that the inner-leg <c>ITokenAcquirer.GetTokenForAppAsync</c> call cannot accidentally
+        /// pick the binding cert as the inner-leg authentication credential. This means the customer MUST configure
+        /// at least one additional, non-bound credential in the inner section that is suitable for authenticating to
+        /// the external OIDC IdP (typically a <c>ClientSecret</c> or non-bound certificate).
+        /// </remarks>
+        private async Task<CredentialDescription?> TryLoadBoundCredentialAsync(MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions)
+        {
+            if (microsoftIdentityApplicationOptions.ClientCredentials is null)
+            {
+                return null;
+            }
+
+            // First-valid-wins for fallback (matches IdWeb's standard credential-collection semantics; e.g. two
+            // KeyVault refs so a transient KeyVault hiccup doesn't take you down). Log if the customer configured
+            // more than one bound credential so the chosen pair is traceable in telemetry without changing behavior.
+            int boundCount = 0;
+            foreach (CredentialDescription credential in microsoftIdentityApplicationOptions.ClientCredentials)
+            {
+                if (credential.UseBoundCredential)
+                {
+                    boundCount++;
+                }
+            }
+
+            if (boundCount > 1)
+            {
+                Logger.MultipleBoundCredentialsConfigured(_logger, boundCount);
+            }
+
+            ICredentialsLoader? credentialsLoader = null;
+
+            foreach (CredentialDescription credential in microsoftIdentityApplicationOptions.ClientCredentials)
+            {
+                if (!credential.UseBoundCredential)
+                {
+                    continue;
+                }
+
+                // Resolve ICredentialsLoader lazily so DI cycle (DefaultCredentialsLoader -> IEnumerable<ICustomSignedAssertionProvider>
+                // -> this loader) doesn't bite at construction time, and so bearer-only configs that ship no bound creds at all
+                // never have to provide one. GetRequiredService throws a clear DI error if the loader truly isn't registered.
+                credentialsLoader ??= _serviceProvider.GetService(typeof(ICredentialsLoader)) as ICredentialsLoader
+                    ?? throw new InvalidOperationException(
+                        "Cannot resolve ICredentialsLoader from the service provider. To use OIDC FIC with mTLS Proof-of-Possession, " +
+                        "register a credentials loader by calling AddTokenAcquisition() (or equivalent) on the service collection.");
+
+                await credentialsLoader.LoadCredentialsIfNeededAsync(credential).ConfigureAwait(false);
+
+                if (credential.Certificate is null)
+                {
+                    // The credential was flagged bound but materialised to null (e.g. unsupported source type,
+                    // missing thumbprint, KeyVault returned no cert). Don't pin to a null cert — fall through
+                    // and try the next bound entry, if any.
+                    continue;
+                }
+
+                // Take this cred off the inner-leg auth menu so GetTokenForAppAsync below doesn't pick it.
+                // The cert itself is read live from credential.Certificate by the provider, so the outer leg
+                // doesn't need the CredentialDescription entry to remain selectable as an auth credential.
+                credential.Skip = true;
+                return credential;
+            }
+
+            return null;
         }
     }
 }

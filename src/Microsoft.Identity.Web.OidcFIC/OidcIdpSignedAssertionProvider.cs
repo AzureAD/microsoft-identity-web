@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
@@ -21,17 +19,130 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
 
+        // The bound credential is captured by reference (not the cert directly) so that in-place updates
+        // to credential.Certificate — e.g. a future ResetCredentials hook that re-reads KeyVault on rotation —
+        // are picked up automatically without the provider holding a stale cert reference.
+        private readonly CredentialDescription? _boundCredentialDescription;
+
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
         public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
+            : this(tokenAcquirerFactory, options, tokenExchangeUrl, logger, boundCredentialDescription: null)
+        {
+        }
+
+        public OidcIdpSignedAssertionProvider(
+            ITokenAcquirerFactory tokenAcquirerFactory,
+            MicrosoftIdentityApplicationOptions options,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            CredentialDescription? boundCredentialDescription)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
+            _boundCredentialDescription = boundCredentialDescription;
         }
 
-        protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
+        /// <summary>
+        /// Returns <c>true</c> when a binding certificate is currently available on the configured bound
+        /// inner-leg <see cref="CredentialDescription"/> (its <see cref="CredentialDescription.Certificate"/>
+        /// is non-null). The cert is read live, so if the underlying credential is later reset/cleared this
+        /// property flips back to <c>false</c> and the dispatch in
+        /// <c>ConfidentialClientApplicationBuilderExtension</c> will throw a clear
+        /// <c>MissingTokenBindingCertificate</c> rather than silently use a stale cert.
+        /// </summary>
+        public override bool SupportsTokenBinding => _boundCredentialDescription?.Certificate is not null;
+
+        /// <summary>
+        /// Returns the OIDC-issued federated assertion paired with the configured binding certificate so
+        /// MSAL can issue an mTLS PoP token from Entra.
+        /// </summary>
+        /// <remarks>
+        /// The dispatch in <c>ConfidentialClientApplicationBuilderExtension</c> only calls this method when
+        /// <see cref="SupportsTokenBinding"/> already returned <c>true</c>, and the returned
+        /// <see cref="ClientSignedAssertion"/> is fed straight into MSAL with a null-forgiving operator —
+        /// so returning <c>null</c> here would surface as a <see cref="NullReferenceException"/> downstream
+        /// rather than a graceful fallback. The null-check below is therefore a defensive belt-and-braces
+        /// for the race where the cert is cleared between the <see cref="SupportsTokenBinding"/> check and this call.
+        /// <para>
+        /// IMPORTANT: when the outer Entra leg requests mTLS PoP, the inner OIDC-IdP exchange must ALSO be
+        /// requested as mTLS PoP. ESTS rejects "bearer inner JWT + mtls_pop outer" with
+        /// <c>AADSTS392199 ("mtls_pop token type is not supported for bearer token in Entra ID federated
+        /// identity flow")</c>. We propagate this via <c>AcquireTokenOptions.ExtraParameters["IsTokenBinding"] = true</c>
+        /// which is the same magic-string IdWeb's <c>TokenAcquisition</c> / <c>DefaultAuthorizationHeaderProvider</c>
+        /// already use internally to flip the inner CCA onto MSAL's <c>WithMtlsProofOfPossession()</c> path.
+        /// </para>
+        /// </remarks>
+        public override async Task<ClientSignedAssertion?> GetSignedAssertionWithBindingAsync(
+            AssertionRequestOptions? assertionRequestOptions,
+            CancellationToken cancellationToken = default)
+        {
+            // Read once per call so rotation/reset is visible and we don't race against ourselves
+            // between the cert read and the assertion request.
+            X509Certificate2? bindingCertificate = _boundCredentialDescription?.Certificate;
+            if (bindingCertificate is null)
+            {
+                // SupportsTokenBinding returned true at dispatch time (otherwise this method would not
+                // have been called), but the cert was cleared between then and now. The dispatch in
+                // ConfidentialClientApplicationBuilderExtension feeds the returned ClientSignedAssertion
+                // into MSAL with a null-forgiving operator, so a null return would surface as an opaque
+                // NullReferenceException downstream. Fail loudly here instead.
+                throw new InvalidOperationException(
+                    "OIDC FIC mTLS token binding was requested, but the configured binding certificate " +
+                    "is no longer available. Ensure the bound credential is still loaded and has not been " +
+                    "reset or cleared between the SupportsTokenBinding check and this call.");
+            }
+
+            ClientAssertion assertion = await AcquireOidcAssertionAsync(
+                assertionRequestOptions,
+                useMtlsPopForInnerExchange: true,
+                cancellationToken).ConfigureAwait(false);
+
+            // GetClientAssertionAsync / AcquireOidcAssertionAsync may return:
+            //   * a sentinel ClientAssertion(null!, Now) for the RequiresSignedAssertionFmiPath postpone case
+            //     (only when assertionRequestOptions == null — unreachable from MSAL's dispatch but still
+            //     possible from internal callers that pre-warm the provider), or
+            //   * null! when the inner-leg ITokenAcquirer.GetTokenForAppAsync returned no result.
+            // Neither shape is a valid MSAL assertion for the MTLS_POP path, so fail loudly here.
+            if (assertion is null || string.IsNullOrEmpty(assertion.SignedAssertion))
+            {
+                throw new InvalidOperationException(
+                    "OIDC FIC signed assertion was not available for mTLS token binding. " +
+                    "Ensure the external OIDC IdP credential is correctly configured and the IdP returned a token.");
+            }
+
+            return new ClientSignedAssertion
+            {
+                Assertion = assertion.SignedAssertion,
+                TokenBindingCertificate = bindingCertificate,
+            };
+        }
+
+        protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
+            => AcquireOidcAssertionAsync(
+                assertionRequestOptions,
+                useMtlsPopForInnerExchange: false,
+                assertionRequestOptions?.CancellationToken ?? CancellationToken.None);
+
+        // Magic-string mirror of TokenAcquisition.TokenBindingParameterName /
+        // DefaultAuthorizationHeaderProvider.TokenBindingParameterName. Both are private constants in their
+        // declaring classes, so we duplicate the value here. KEEP IN SYNC if the canonical value ever changes.
+        private const string InnerExchangeTokenBindingParameterName = "IsTokenBinding";
+
+        /// <summary>
+        /// Shared inner-leg implementation called by both the bearer
+        /// (<see cref="GetClientAssertionAsync"/>) and bound (<see cref="GetSignedAssertionWithBindingAsync"/>)
+        /// paths. Centralizing here lets the bound path thread the explicit
+        /// <see cref="CancellationToken"/> argument all the way down to
+        /// <see cref="ITokenAcquirer.GetTokenForAppAsync(string, AcquireTokenOptions?, CancellationToken)"/>
+        /// and flip the inner CCA into mTLS PoP mode when the outer leg is PoP.
+        /// </summary>
+        private async Task<ClientAssertion> AcquireOidcAssertionAsync(
+            AssertionRequestOptions? assertionRequestOptions,
+            bool useMtlsPopForInnerExchange,
+            CancellationToken cancellationToken)
         {
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
@@ -53,20 +164,37 @@ namespace Microsoft.Identity.Web.OidcFic
                 return new ClientAssertion(null!, DateTimeOffset.Now);
             }
 
-            if (assertionRequestOptions != null && !string.IsNullOrEmpty(assertionRequestOptions.ClientAssertionFmiPath))
+            if (assertionRequestOptions != null)
             {
-                // Extract tenant from TokenEndpoint if available and if it's from the same cloud instance.
-                // This enables tenant override propagation while preserving cross-cloud scenarios.
-                // TokenEndpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
+                // Reviewer feedback: tenant override propagation must not be tied to ClientAssertionFmiPath.
+                // MSAL can hand us a TokenEndpoint with a tenant override without an FMI path
+                // (e.g. WithTenant() on the outer builder). We extract the tenant whenever the endpoint
+                // is from the same cloud instance — the cross-cloud guard in
+                // ExtractTenantFromTokenEndpointIfSameInstance still preserves cross-cloud scenarios.
+                string? fmiPath = assertionRequestOptions.ClientAssertionFmiPath;
                 string? tenant = ExtractTenantFromTokenEndpointIfSameInstance(
                     assertionRequestOptions.TokenEndpoint,
                     _options.Instance);
 
-                acquireTokenOptions = new AcquireTokenOptions()
+                if (!string.IsNullOrEmpty(fmiPath) || !string.IsNullOrEmpty(tenant))
                 {
-                    FmiPath = assertionRequestOptions.ClientAssertionFmiPath,
-                    Tenant = tenant
-                };
+                    acquireTokenOptions = new AcquireTokenOptions()
+                    {
+                        FmiPath = fmiPath,
+                        Tenant = tenant
+                    };
+                }
+            }
+
+            // When the outer Entra leg requests mTLS PoP, propagate that requirement to the inner-leg
+            // ITokenAcquirer so IdWeb routes the inner CCA through MSAL's WithMtlsProofOfPossession().
+            // Otherwise ESTS rejects with AADSTS392199 ("mtls_pop token type is not supported for bearer
+            // token in Entra ID federated identity flow").
+            if (useMtlsPopForInnerExchange)
+            {
+                acquireTokenOptions ??= new AcquireTokenOptions();
+                acquireTokenOptions.ExtraParameters ??= new System.Collections.Generic.Dictionary<string, object>();
+                acquireTokenOptions.ExtraParameters[InnerExchangeTokenBindingParameterName] = true;
             }
 
             if (_logger != null)
@@ -75,7 +203,7 @@ namespace Microsoft.Identity.Web.OidcFic
             }
             string effectiveTokenExchangeUrl = (tokenExchangeUrl.EndsWith("/.default", StringComparison.OrdinalIgnoreCase)
                 ? tokenExchangeUrl : tokenExchangeUrl + "/.default");
-            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(effectiveTokenExchangeUrl, acquireTokenOptions);
+            AcquireTokenResult result = await _tokenAcquirer.GetTokenForAppAsync(effectiveTokenExchangeUrl, acquireTokenOptions, cancellationToken).ConfigureAwait(false);
             if (_logger != null)
             {
                 _logger.AcquiredToken(acquireTokenOptions?.FmiPath);
