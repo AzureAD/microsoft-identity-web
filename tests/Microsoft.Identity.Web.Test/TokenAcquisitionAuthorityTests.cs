@@ -217,6 +217,56 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotSame(appEast, appWest);
         }
 
+        /// <summary>
+        /// Proves that the CCA cache key does NOT include isTokenBinding today.
+        /// A bearer call (isTokenBinding=false) caches a CCA built with a string-assertion
+        /// credential, and a subsequent PoP call (isTokenBinding=true) incorrectly reuses
+        /// that same CCA instance. This test is expected to FAIL until the cache key is fixed.
+        ///
+        /// When fixed, isTokenBinding=true should produce a DIFFERENT CCA instance because
+        /// the credential wiring is fundamentally different: bearer uses
+        /// WithClientAssertion(Func&lt;string&gt;) while PoP uses
+        /// WithClientAssertion(Func&lt;ClientSignedAssertion&gt;) or WithCertificate().
+        /// Reusing the bearer CCA for PoP causes MSAL to throw:
+        /// "A string-returning client assertion callback cannot be used over mTLS."
+        /// </summary>
+        [Fact]
+        public async Task GetOrBuildCca_BearerThenTokenBinding_ShouldReturnDifferentInstances()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                RedirectUri = "http://localhost:1729/",
+                ClientSecret = TC.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            // First call: bearer (isTokenBinding=false) — caches a CCA with string-assertion credential.
+            IConfidentialClientApplication bearerApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+
+            // Second call: PoP (isTokenBinding=true) — SHOULD build a different CCA with
+            // bundle-assertion or certificate credential, but today incorrectly reuses the
+            // bearer CCA because GetApplicationKey does not include isTokenBinding.
+            IConfidentialClientApplication popApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: true);
+
+            // This assertion will FAIL today (both are the same instance).
+            // Once the cache key includes isTokenBinding, they will be different instances.
+            Assert.NotSame(bearerApp, popApp);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
