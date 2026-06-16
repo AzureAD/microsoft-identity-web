@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -66,22 +67,25 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal sealed class AgentCcaEntry
         {
+            private static readonly double s_ticksPerMs = Stopwatch.Frequency / 1000.0;
+
             public IConfidentialClientApplication Cca { get; }
             private long _lastAccessedTicks;
 
             public AgentCcaEntry(IConfidentialClientApplication cca)
             {
                 Cca = cca;
-                _lastAccessedTicks = Environment.TickCount64;
+                _lastAccessedTicks = Stopwatch.GetTimestamp();
             }
 
             public long LastAccessedTicks => Volatile.Read(ref _lastAccessedTicks);
 
-            public void Touch() => Volatile.Write(ref _lastAccessedTicks, Environment.TickCount64);
+            public void Touch() => Volatile.Write(ref _lastAccessedTicks, Stopwatch.GetTimestamp());
 
             public bool IsExpired(long maxIdleMs)
             {
-                return (Environment.TickCount64 - LastAccessedTicks) > maxIdleMs;
+                long elapsedTicks = Stopwatch.GetTimestamp() - LastAccessedTicks;
+                return (elapsedTicks / s_ticksPerMs) > maxIdleMs;
             }
         }
 
