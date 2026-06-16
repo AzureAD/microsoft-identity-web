@@ -60,15 +60,58 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
         /// <summary>
+        /// Wraps an agent CCA with a last-access timestamp for idle-based eviction.
+        /// The sweep timer removes entries that haven't been accessed within
+        /// <see cref="AgentCcaMaxIdleMilliseconds"/>.
+        /// </summary>
+        internal sealed class AgentCcaEntry
+        {
+            public IConfidentialClientApplication Cca { get; }
+            private long _lastAccessedTicks;
+
+            public AgentCcaEntry(IConfidentialClientApplication cca)
+            {
+                Cca = cca;
+                _lastAccessedTicks = Environment.TickCount64;
+            }
+
+            public long LastAccessedTicks => Volatile.Read(ref _lastAccessedTicks);
+
+            public void Touch() => Volatile.Write(ref _lastAccessedTicks, Environment.TickCount64);
+
+            public bool IsExpired(long maxIdleMs)
+            {
+                return (Environment.TickCount64 - LastAccessedTicks) > maxIdleMs;
+            }
+        }
+
+        /// <summary>
+        /// Maximum time (in milliseconds) an agent CCA can remain idle before being
+        /// eligible for eviction by the sweep timer. Default: 8 hours.
+        /// Aligns with typical token lifetimes — a CCA idle for this long likely has
+        /// mostly-expired tokens, making eviction nearly free.
+        /// Internal for testing — production code uses the default.
+        /// </summary>
+        internal long AgentCcaMaxIdleMilliseconds { get; set; } = (long)TimeSpan.FromHours(8).TotalMilliseconds;
+
+        /// <summary>
+        /// Interval between background sweep runs. Default: 30 minutes.
+        /// Internal for testing — production code uses the default.
+        /// </summary>
+        internal TimeSpan AgentCcaSweepInterval { get; set; } = TimeSpan.FromMinutes(30);
+
+        /// <summary>
         /// Caches agent CCAs for the native User FIC flow. Each agent CCA uses an assertion
         /// callback that chains to the blueprint CCA for Leg 1 (FMI token acquisition).
         /// Key format: "{agentAppId}:{authenticationScheme}".
         /// The authenticationScheme is included because different schemes may resolve to
         /// different blueprint credentials (e.g. certificates), and the agent CCA's assertion
         /// callback captures the scheme to chain to the correct blueprint CCA.
+        /// Entries are wrapped in <see cref="AgentCcaEntry"/> for idle-based eviction.
         /// </summary>
-        private readonly ConcurrentDictionary<string, IConfidentialClientApplication> _agentUserFicCcas = new();
+        internal readonly ConcurrentDictionary<string, AgentCcaEntry> _agentUserFicCcas = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _agentCcaSemaphores = new();
+        private Timer? _agentCcaSweepTimer;
 
         /// <summary>
         /// Maps (agentAppId, user identifier, tenantId) tuples to MSAL account identifiers for the
@@ -82,7 +125,7 @@ namespace Microsoft.Identity.Web
         /// where USER_IDENTIFIER is either the normalized UPN or OID.
         /// Entries are cleaned up when MSAL evicts the corresponding account from its cache.
         /// </summary>
-        private readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
+        internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
         /// <summary>
         /// Default FIC token exchange URL for the public cloud. For other clouds, callers can
@@ -719,6 +762,7 @@ namespace Microsoft.Identity.Web
         /// Gets or builds an agent CCA for the native User FIC flow. Each agent CCA uses an
         /// assertion callback that chains back to the blueprint CCA for Leg 1 (FMI token).
         /// The agent CCA's in-memory cache provides natural token isolation per agent.
+        /// Entries are tracked with last-access timestamps for idle-based eviction.
         /// </summary>
         private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
             string agentAppId,
@@ -732,16 +776,18 @@ namespace Microsoft.Identity.Web
 
             if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var existing))
             {
-                return existing;
+                existing.Touch();
+                return existing.Cca;
             }
 
             var semaphore = _agentCcaSemaphores.GetOrAdd(ccaCacheKey, _ => new SemaphoreSlim(1, 1));
             await semaphore.WaitAsync().ConfigureAwait(false);
             try
             {
-                if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var app))
+                if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var entry))
                 {
-                    return app;
+                    entry.Touch();
+                    return entry.Cca;
                 }
 
                 // Capture authenticationScheme and ficScopes for the assertion callback closure.
@@ -773,13 +819,85 @@ namespace Microsoft.Identity.Web
                     .WithExperimentalFeatures()
                     .Build();
 
-                _agentUserFicCcas[ccaCacheKey] = newApp;
+                _agentUserFicCcas[ccaCacheKey] = new AgentCcaEntry(newApp);
+
+                // Start the sweep timer on first agent CCA creation (lazy initialization).
+                EnsureAgentCcaSweepTimerStarted();
+
                 return newApp;
             }
             finally
             {
                 semaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// Lazily starts the background sweep timer on first agent CCA creation.
+        /// Thread-safe via Interlocked.CompareExchange.
+        /// </summary>
+        private void EnsureAgentCcaSweepTimerStarted()
+        {
+            if (_agentCcaSweepTimer is not null)
+            {
+                return;
+            }
+
+            var newTimer = new Timer(
+                _ => SweepExpiredAgentCcas(),
+                null,
+                Timeout.InfiniteTimeSpan, // Don't start immediately
+                Timeout.InfiniteTimeSpan);
+
+            if (Interlocked.CompareExchange(ref _agentCcaSweepTimer, newTimer, null) is not null)
+            {
+                // Another thread already created the timer — dispose ours.
+                newTimer.Dispose();
+            }
+            else
+            {
+                // We won the race — start the timer.
+                _agentCcaSweepTimer!.Change(AgentCcaSweepInterval, AgentCcaSweepInterval);
+            }
+        }
+
+        /// <summary>
+        /// Removes agent CCA entries that have been idle for longer than
+        /// <see cref="AgentCcaMaxIdleMilliseconds"/>. Also cleans up companion
+        /// <see cref="_agentUserFicAccountIds"/> entries for evicted agents.
+        /// Called by the background sweep timer and can be invoked manually in tests.
+        /// </summary>
+        internal int SweepExpiredAgentCcas()
+        {
+            int evictedCount = 0;
+
+            foreach (var kvp in _agentUserFicCcas)
+            {
+                if (kvp.Value.IsExpired(AgentCcaMaxIdleMilliseconds))
+                {
+                    if (_agentUserFicCcas.TryRemove(kvp.Key, out _))
+                    {
+                        _agentCcaSemaphores.TryRemove(kvp.Key, out _);
+
+                        // Clean up companion account ID entries for this agent CCA.
+                        // Account IDs are keyed as "{agentAppId}:{USER_IDENTIFIER}:{TENANTID}",
+                        // and the CCA key is "{agentAppId}:{authenticationScheme}".
+                        // Extract the agentAppId prefix to match related account entries.
+                        string agentAppIdPrefix = kvp.Key.Split(':')[0] + ":";
+                        foreach (var accountKvp in _agentUserFicAccountIds)
+                        {
+                            if (accountKvp.Key.StartsWith(agentAppIdPrefix, StringComparison.Ordinal))
+                            {
+                                _agentUserFicAccountIds.TryRemove(accountKvp.Key, out _);
+                            }
+                        }
+
+                        evictedCount++;
+                    }
+                }
+            }
+
+            return evictedCount;
         }
 
         /// <summary>
