@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 using static Microsoft.Identity.Web.TokenAcquisition;
 
 namespace Microsoft.Identity.Web
@@ -36,6 +37,23 @@ namespace Microsoft.Identity.Web
                     return builder.WithCertificate(credential.Certificate);
                 }
 
+                // CachedValue holds the concrete provider instance that the credential loader
+                // created and cached on the CredentialDescription. Providers opt into mTLS PoP
+                // by overriding ClientAssertionProviderBase.SupportsTokenBinding and returning
+                // a ClientSignedAssertion (assertion + binding certificate) from
+                // GetSignedAssertionWithBindingAsync. Today only ManagedIdentityClientAssertion
+                // ships with that capability; OIDC IdP / Kubernetes federation providers do not.
+                if (credential?.CredentialType == CredentialType.SignedAssertion
+                    && credential.CachedValue is ClientAssertionProviderBase bindingProvider
+                    && bindingProvider.SupportsTokenBinding)
+                {
+                    return builder.WithClientAssertion(
+                        async (options, ct) =>
+                            (await bindingProvider
+                                .GetSignedAssertionWithBindingAsync(options, ct)
+                                .ConfigureAwait(false))!);
+                }
+
                 throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
             }
 
@@ -49,6 +67,13 @@ namespace Microsoft.Identity.Web
                 case CredentialType.SignedAssertion:
                     return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
                 case CredentialType.Certificate:
+                    if (credential.UseBoundCredential && credential.Certificate is not null)
+                    {
+                        return builder.WithCertificate(
+                            credential.Certificate,
+                            new CertificateOptions { SendCertificateOverMtls = true });
+                    }
+
                     return builder.WithCertificate(credential.Certificate);
                 case CredentialType.Secret:
                     return builder.WithClientSecret(credential.ClientSecret);

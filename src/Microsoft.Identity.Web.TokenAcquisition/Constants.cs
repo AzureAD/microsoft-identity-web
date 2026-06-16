@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Microsoft.Identity.Web
 {
@@ -246,7 +247,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
         /// </summary>
-        internal static readonly HashSet<string> s_certificateRelatedErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        internal static readonly IReadOnlyCollection<string> CertificateAuthFailureStsErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             InvalidKeyError,                    // AADSTS700027 - Client assertion contains an invalid signature
             SignedAssertionInvalidTimeRange,    // AADSTS700024 - Signed assertion invalid time range
@@ -257,9 +258,26 @@ namespace Microsoft.Identity.Web
         };
 
         /// <summary>
+        /// HTTP status codes which may indicate that a certificate based authentication failure occurred.
+        /// </summary>
+        /*
+         * Used by Microsoft.Identity.Web.DownstreamApi
+         * Any changes to this member (including removal) can cause runtime failures.
+         * Treat as a public member.
+         */
+        internal static readonly IReadOnlyCollection<HttpStatusCode> AuthFailureHttpStatusCodes = new HashSet<HttpStatusCode>()
+        {
+            HttpStatusCode.BadRequest,
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden,
+            (HttpStatusCode)495, // nginx "SSL Certificate Error"
+            (HttpStatusCode)496, // nginx "SSL Certificate Required"
+        };
+
+        /// <summary>
         /// Error codes indicating permanent configuration errors that should not trigger retry.
         /// </summary>
-        internal static readonly HashSet<string> s_nonRetryableConfigErrorCodes = new (StringComparer.OrdinalIgnoreCase)
+        internal static readonly IReadOnlyCollection<string> s_nonRetryableConfigErrorCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             InvalidClientSecret,  // AADSTS7000215 - Wrong client secret
             ApplicationNotFound,  // AADSTS700016 - Application with identifier not found
@@ -351,5 +369,15 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string Upn = "upn";
+
+        /// <summary>
+        /// The name of the MTLS_PoP Protocol (Token, along with certificate proof-of-possession).
+        /// </summary>
+        internal const string TokenBindingProtocolScheme = "MTLS_POP";
+
+        /// <summary>
+        /// The name of the MTLS-only protocol (no tokens)
+        /// </summary>
+        internal const string MtlsProtocolScheme = "MTLS";
     }
 }

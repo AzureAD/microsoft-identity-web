@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Experimental;
@@ -178,8 +177,10 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
-        [Fact]
-        public async Task ObserverSendsCorrectEvents_mTLS()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ObserverSendsCorrectEvents_mTLS(bool useDownstreamApi)
         {
             static void RemoveCertificate(X509Certificate2? certificate)
             {
@@ -202,6 +203,7 @@ namespace Microsoft.Identity.Web.Test
                 var tenantId = Guid.NewGuid();
                 var instance = "https://login.microsoftonline.com/";
                 var authority = instance + tenantId;
+                var relativeUrl = "/oauth2/v2.0/token";
 
                 string certName = $"CN=TestCert-{Guid.NewGuid():N}";
                 cert1 = CreateAndInstallCertificate(certName);
@@ -226,6 +228,13 @@ namespace Microsoft.Identity.Web.Test
                 });
                 taf.Services.AddMockClientFactory(description);
 
+                taf.Services.AddHttpClient("Test").AddMicrosoftIdentityMessageHandler(new MicrosoftIdentityMessageHandlerOptions()
+                {
+                    BaseUrl = authority,
+                    ProtocolScheme = "mTLS",
+                    RelativePath = relativeUrl,
+                });
+
                 // Add two observers so that we can check if multiple observers works as intended.
                 TestCertificatesObserver observer1 = new TestCertificatesObserver();
                 taf.Services.AddSingleton<ICertificatesObserver>(observer1);
@@ -240,18 +249,31 @@ namespace Microsoft.Identity.Web.Test
                 mockHttpFactory.ConfigureSuccessfulTokenResponse(authority);
                 mockHttpFactory.ValidCertificates.Add(cert1);
 
-                IDownstreamApi downstreamApi = provider.GetRequiredService<IDownstreamApi>();
+                string apiUrl = authority + relativeUrl;
 
-                DownstreamApiOptions options = new DownstreamApiOptions()
+                Func<Task<HttpResponseMessage>> invoke = async () =>
                 {
-                    BaseUrl = authority,
-                    ProtocolScheme = "mTLS",
-                    RelativePath = "/oauth2/v2.0/token"
+                    if (useDownstreamApi)
+                    {
+                        IDownstreamApi downstreamApi = provider.GetRequiredService<IDownstreamApi>();
+
+                        DownstreamApiOptions options = new DownstreamApiOptions()
+                        {
+                            BaseUrl = authority,
+                            ProtocolScheme = "mTLS",
+                            RelativePath = relativeUrl
+                        };
+
+                        return await downstreamApi.CallApiAsync(options);
+                    }
+                    else
+                    {
+                        var httpClient = provider.GetRequiredService<IHttpClientFactory>().CreateClient("Test");
+                        return await httpClient.GetAsync(apiUrl);
+                    }
                 };
 
-                string apiUrl = authority + options.RelativePath;
-
-                HttpResponseMessage result = await downstreamApi.CallApiAsync(options);
+                HttpResponseMessage result = await invoke();
 
                 // Assert
                 Assert.NotNull(result);
@@ -284,7 +306,7 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Empty(observer1.Events);
 
                 // Rerun, should only get success event.
-                result = await downstreamApi.CallApiAsync(options);
+                result = await invoke();
 
                 // We get selected events each time we use mTLS for now.
                 observer1.Events.TryDequeue(out eventArg);
@@ -306,7 +328,7 @@ namespace Microsoft.Identity.Web.Test
                 // Rerun but it fails this time
                 mockHttpFactory.ValidCertificates.Clear();
                 mockHttpFactory.ValidCertificates.Add(cert2);
-                result = await downstreamApi.CallApiAsync(options);
+                result = await invoke();
 
                 // We get selected events each time we use mTLS for now.
                 observer1.Events.TryDequeue(out eventArg);
@@ -621,7 +643,7 @@ namespace Microsoft.Identity.Web.Test
 
             return services
                 .AddSingleton(new CertificatesObserverTests.MockHttpClientFactory(description))
-                .AddSingleton<IHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>())
+                .AddSingleton<IMsalMtlsHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>())
                 .AddSingleton<IMsalHttpClientFactory>(s => s.GetRequiredService<CertificatesObserverTests.MockHttpClientFactory>());
         }
     }
