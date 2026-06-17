@@ -119,13 +119,17 @@ Complete documentation is provided [here](./OpenAPI/Microsoft.Identity.Web.Sidec
 
 All token-acquisition endpoints accept dotted query parameters prefixed with `optionsOverride.`; they merge into a `DownstreamApis` profile through [`BindableDownstreamApiOptions`](Models/BindableDownstreamApiOptions.cs).
 
+Whether overrides are honoured is controlled by the per-route `Sidecar:AllowOverrides` configuration flags. Authenticated routes allow overrides by default; unauthenticated routes ignore them unless the operator explicitly opts in. See [`SidecarOptions`](Configuration/SidecarOptions.cs) for details.
+
+`optionsOverride.BaseUrl` is always ignored regardless of the override flag.
+
 Examples:
 - `?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read`
 - `?optionsOverride.RequestAppToken=true`
 - `?optionsOverride.AcquireTokenOptions.Tenant=<tenant-guid>`
 - `?optionsOverride.RelativePath=me/messages`
 
-Agent impersonation hints:
+Agent identity parameters are also subject to the per-route override flag:
 - `AgentIdentity=<client-id>`
 - `AgentUsername=upn@contoso.com`
 - `AgentUserId=<oid>`
@@ -148,5 +152,5 @@ Agent impersonation hints:
 | Authentication & authorization | [`Program`](Program.cs) wires `AddMicrosoftIdentityWebApi`, optional scope enforcement, and agent identity overrides.                                                                                              |
 | Endpoints                      | [`ValidateRequestEndpoints`](Endpoints/ValidateRequestEndpoints.cs), [`AuthorizationHeaderEndpoint`](Endpoints/AuthorizationHeaderEndpoint.cs), and [`DownstreamApiEndpoint`](Endpoints/DownstreamApiEndpoint.cs). |
 | Downstream API                 | [`BindableDownstreamApiOptions`](Models/BindableDownstreamApiOptions.cs) merges per-request overrides into per call `DownstreamApis` configuration.                                                                |
-| Agent Identities               | [`AgentOverrides`](AgentOverrides.cs) binds agent identity, userPrincipalName, or user object ID when present.                                                                                                     |
+| Agent Identities               | [`AgentOverrides`](AgentOverrides.cs) binds agent identity, userPrincipalName, or user object ID when present and allowed by the per-route override flag.                                                          |
 

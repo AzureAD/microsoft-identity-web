@@ -38,9 +38,10 @@ public static class AuthorizationHeaderEndpoint
             ProducesProblem(StatusCodes.Status401Unauthorized).
             WithSummary("Get an authorization header for a configured downstream API.").
             WithDescription(
-                "This endpoint will use the identity of the authenticated request to acquire an authorization header." +
+                "This endpoint will use the identity of the authenticated request to acquire an authorization header. " +
                 "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
                 "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeader' (default: true). " +
+                "Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. " +
                 "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +
@@ -66,9 +67,10 @@ public static class AuthorizationHeaderEndpoint
             ProducesProblem(StatusCodes.Status401Unauthorized).
             WithSummary("Get an authorization header for a configured downstream API using this configured client credentials.").
             WithDescription(
-                "This endpoint will use the configured client credentials to acquire an authorization header." +
+                "This endpoint will use the configured client credentials to acquire an authorization header. " +
                 "Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. " +
                 "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeaderUnauthenticated' (default: false). " +
+                "Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. " +
                 "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n" +

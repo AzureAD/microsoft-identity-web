@@ -42,6 +42,7 @@ public static class DownstreamApiEndpoint
             WithDescription(
                 "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. " +
                 "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApi' (default: true). " +
+                "Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. " +
                 "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
@@ -69,6 +70,7 @@ public static class DownstreamApiEndpoint
             WithDescription(
                 "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. " +
                 "Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApiUnauthenticated' (default: false). " +
+                "Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. " +
                 "'optionsOverride.BaseUrl' is always ignored. " +
                 "Examples:\n" +
                 "  ?optionsOverride.Scopes=User.Read\n" +
