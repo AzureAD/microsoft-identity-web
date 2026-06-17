@@ -18,49 +18,45 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_AuthorityAndInstance_LogsWarning()
+        public void ParseAuthorityIfNecessary_AuthorityAndInstance_ThrowsOnConflict()
         {
             // Arrange
             var mergedOptions = new MergedOptions
             {
                 Authority = "https://login.microsoftonline.com/common",
                 Instance = "https://login.microsoftonline.com/",
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_AuthorityAndTenantId_LogsWarning()
+        public void ParseAuthorityIfNecessary_AuthorityAndTenantId_ThrowsOnConflict()
         {
             // Arrange
             var mergedOptions = new MergedOptions
             {
                 Authority = "https://login.microsoftonline.com/common",
                 TenantId = "organizations",
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_AuthorityAndInstanceAndTenantId_LogsWarning()
+        public void ParseAuthorityIfNecessary_AuthorityAndInstanceAndTenantId_ThrowsOnConflict()
         {
             // Arrange
             var mergedOptions = new MergedOptions
@@ -68,17 +64,15 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://login.microsoftonline.com/common",
                 Instance = "https://login.microsoftonline.com/",
                 TenantId = "organizations",
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -131,49 +125,45 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_B2CAuthorityAndInstance_LogsWarning()
+        public void ParseAuthorityIfNecessary_B2CAuthorityAndInstance_ThrowsOnConflict()
         {
             // Arrange - B2C scenario
             var mergedOptions = new MergedOptions
             {
                 Authority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
                 Instance = "https://fabrikamb2c.b2clogin.com/",
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_CiamAuthorityAndInstance_LogsWarning()
+        public void ParseAuthorityIfNecessary_CiamAuthorityAndInstance_ThrowsOnConflict()
         {
             // Arrange - CIAM scenario
             var mergedOptions = new MergedOptions
             {
                 Authority = "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
                 Instance = "https://contoso.ciamlogin.com/",
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_CiamPreservedAuthorityWithInstance_LogsWarning()
+        public void ParseAuthorityIfNecessary_CiamPreservedAuthorityWithInstance_ThrowsOnConflict()
         {
             // Arrange - CIAM with PreserveAuthority flag
             var mergedOptions = new MergedOptions
@@ -181,31 +171,49 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://custom.contoso.com/contoso.onmicrosoft.com",
                 Instance = "https://custom.contoso.com/",
                 PreserveAuthority = true,
+                AuthorityExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
-            // Act
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger);
-
-            // Assert - Warning should still be logged even with PreserveAuthority
-            Assert.Single(_testLogger.LogMessages);
-            Assert.Contains("Authority", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("ignored", _testLogger.LogMessages[0], StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+            // Act & Assert
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void ParseAuthorityIfNecessary_NoLogger_NoException()
+        public void ParseAuthorityIfNecessary_NoLogger_StillThrowsOnConflict()
         {
             // Arrange
             var mergedOptions = new MergedOptions
             {
                 Authority = "https://login.microsoftonline.com/common",
                 Instance = "https://login.microsoftonline.com/",
+                AuthorityExplicitlyConfigured = true,
             };
 
-            // Act & Assert - Should not throw when logger is null
-            MergedOptions.ParseAuthorityIfNecessary(mergedOptions, logger: null);
+            // Act & Assert - Throws regardless of logger presence
+            Assert.Throws<InvalidOperationException>(
+                () => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, logger: null));
+        }
+
+        [Fact]
+        public void ParseAuthorityIfNecessary_SyntheticAuthority_NoThrow()
+        {
+            // When Authority was backfilled by the computed getter (latch not set),
+            // there is no real conflict -- should not throw.
+            var mergedOptions = new MergedOptions
+            {
+                Authority = "https://login.microsoftonline.com/common",
+                Instance = "https://login.microsoftonline.com/",
+                // AuthorityExplicitlyConfigured intentionally NOT set
+                Logger = _testLogger
+            };
+
+            // Act & Assert - no exception
+            var ex = Record.Exception(() => MergedOptions.ParseAuthorityIfNecessary(mergedOptions, _testLogger));
+            Assert.Null(ex);
         }
 
         // Test helper class to capture log messages

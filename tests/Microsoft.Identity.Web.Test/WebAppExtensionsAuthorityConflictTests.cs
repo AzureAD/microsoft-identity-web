@@ -46,40 +46,42 @@ namespace Microsoft.Identity.Web.Test
         // ----- AAD: precedence (behavior pinning) -----
 
         [Fact]
-        public void OidcSignIn_AuthorityAndInstance_PinsAuthorityWins()
+        public void OidcSignIn_AuthorityAndInstance_ThrowsOnConflict()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstance_LogsWarning. Divergence: MSAL ignores Authority + logs EventId 500; OIDC honors Authority.
-            var options = BuildAndGetOidcOptions(
+            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstance_LogsWarning. Now both paths throw.
+            var ex = Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusAadAuthority,
                 instance: TestConstants.AadInstance,
-                tenantId: null);
+                tenantId: null));
 
-            Assert.Contains(BogusTenantGuid, options.Authority, StringComparison.Ordinal);
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void OidcSignIn_AuthorityAndTenantId_PinsAuthorityWins()
+        public void OidcSignIn_AuthorityAndTenantId_ThrowsOnConflict()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndTenantId_LogsWarning. Divergence: MSAL ignores Authority + logs EventId 500; OIDC honors Authority.
-            var options = BuildAndGetOidcOptions(
+            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndTenantId_LogsWarning. Now both paths throw.
+            var ex = Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusAadAuthority,
                 instance: null,
-                tenantId: TestConstants.TenantIdAsGuid);
+                tenantId: TestConstants.TenantIdAsGuid));
 
-            Assert.Contains(BogusTenantGuid, options.Authority, StringComparison.Ordinal);
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
-        public void OidcSignIn_AuthorityAndInstanceAndTenantId_PinsAuthorityWins()
+        public void OidcSignIn_AuthorityAndInstanceAndTenantId_ThrowsOnConflict()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstanceAndTenantId_LogsWarning. Divergence: MSAL ignores Authority + logs EventId 500; OIDC honors Authority.
-            var options = BuildAndGetOidcOptions(
+            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstanceAndTenantId_LogsWarning. Now both paths throw.
+            var ex = Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusAadAuthority,
                 instance: TestConstants.AadInstance,
-                tenantId: TestConstants.TenantIdAsGuid);
+                tenantId: TestConstants.TenantIdAsGuid));
 
-            Assert.Contains(BogusTenantGuid, options.Authority, StringComparison.Ordinal);
-            Assert.DoesNotContain(TestConstants.TenantIdAsGuid, options.Authority, StringComparison.Ordinal);
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -110,18 +112,18 @@ namespace Microsoft.Identity.Web.Test
         // ----- B2C: precedence (behavior pinning) -----
 
         [Fact]
-        public void OidcSignIn_B2CAuthorityAndInstance_PinsAuthorityWins()
+        public void OidcSignIn_B2CAuthorityAndInstance_ThrowsOnConflict()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_B2CAuthorityAndInstance_LogsWarning. Divergence: MSAL ignores Authority + logs EventId 500; OIDC honors Authority.
-            var options = BuildAndGetOidcOptions(
+            // MSAL parity: ParseAuthorityIfNecessary_B2CAuthorityAndInstance_LogsWarning. Now both paths throw.
+            var ex = Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusB2CAuthority,
                 instance: TestConstants.B2CInstance,
                 tenantId: null,
                 domain: TestConstants.B2CTenant,
-                signUpSignInPolicyId: TestConstants.B2CSignUpSignInUserFlow);
+                signUpSignInPolicyId: TestConstants.B2CSignUpSignInUserFlow));
 
-            Assert.Contains(BogusTenantGuid, options.Authority, StringComparison.Ordinal);
-            Assert.DoesNotContain(TestConstants.B2CTenant, options.Authority, StringComparison.Ordinal);
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -143,16 +145,16 @@ namespace Microsoft.Identity.Web.Test
         // ----- CIAM: precedence (behavior pinning) -----
 
         [Fact]
-        public void OidcSignIn_CiamAuthorityAndInstance_PinsAuthorityWins()
+        public void OidcSignIn_CiamAuthorityAndInstance_ThrowsOnConflict()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_CiamAuthorityAndInstance_LogsWarning. Divergence: MSAL ignores Authority + logs EventId 500; OIDC honors Authority (BuildCiamAuthorityIfNeeded preserves it).
-            var options = BuildAndGetOidcOptions(
+            // MSAL parity: ParseAuthorityIfNecessary_CiamAuthorityAndInstance_LogsWarning. Now both paths throw.
+            var ex = Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusCiamAuthority,
                 instance: TestConstants.CIAMInstance,
-                tenantId: null);
+                tenantId: null));
 
-            Assert.Contains("fakeciam", options.Authority, StringComparison.Ordinal);
-            Assert.DoesNotContain("catsareawesome", options.Authority, StringComparison.Ordinal);
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("conflict", ex.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -168,58 +170,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains(TestConstants.CIAMTenant, options.Authority, StringComparison.Ordinal);
         }
 
-        // ----- Log assertions (the bug evidence) -----
-
-        [Fact]
-        public void OidcSignIn_AuthorityAndInstance_DoesNotLogAuthorityIgnoredWarning()
-        {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstance_LogsWarning (EventId 500). Divergence: OIDC never emits this event.
-            var loggerProvider = new TestLoggerProvider();
-
-            _ = BuildAndGetOidcOptions(
-                authority: BogusAadAuthority,
-                instance: TestConstants.AadInstance,
-                tenantId: null,
-                loggerProvider: loggerProvider);
-
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500);
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.Message.Contains("is being ignored", StringComparison.Ordinal));
-        }
-
-        [Fact]
-        public void OidcSignIn_AuthorityAndTenantId_DoesNotLogAuthorityIgnoredWarning()
-        {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndTenantId_LogsWarning (EventId 500). Divergence: OIDC never emits this event.
-            var loggerProvider = new TestLoggerProvider();
-
-            _ = BuildAndGetOidcOptions(
-                authority: BogusAadAuthority,
-                instance: null,
-                tenantId: TestConstants.TenantIdAsGuid,
-                loggerProvider: loggerProvider);
-
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500);
-        }
-
-        [Fact]
-        public void OidcSignIn_AuthorityAndInstanceAndTenantId_DoesNotLogAuthorityIgnoredWarning()
-        {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityAndInstanceAndTenantId_LogsWarning (EventId 500). Divergence: OIDC never emits this event.
-            var loggerProvider = new TestLoggerProvider();
-
-            _ = BuildAndGetOidcOptions(
-                authority: BogusAadAuthority,
-                instance: TestConstants.AadInstance,
-                tenantId: TestConstants.TenantIdAsGuid,
-                loggerProvider: loggerProvider);
-
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500);
-        }
+        // ----- Log assertions (non-conflict scenarios still produce no warnings) -----
 
         [Fact]
         public void OidcSignIn_AuthorityOnly_DoesNotLogAuthorityUsedHint()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_AuthorityOnly_LogsAuthorityUsedHint (EventId 501, 1P hint). Divergence: OIDC never surfaces this hint.
+            // MSAL parity: ParseAuthorityIfNecessary_AuthorityOnly_LogsAuthorityUsedHint (EventId 501, 1P hint). OIDC never surfaces this hint.
             var loggerProvider = new TestLoggerProvider();
 
             _ = BuildAndGetOidcOptions(
@@ -246,51 +202,17 @@ namespace Microsoft.Identity.Web.Test
             Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500 || e.EventId.Id == 501);
         }
 
-        [Fact]
-        public void OidcSignIn_B2CAuthorityAndInstance_DoesNotLogAuthorityIgnoredWarning()
-        {
-            // MSAL parity: ParseAuthorityIfNecessary_B2CAuthorityAndInstance_LogsWarning (EventId 500). Divergence: OIDC never emits this event.
-            var loggerProvider = new TestLoggerProvider();
-
-            _ = BuildAndGetOidcOptions(
-                authority: BogusB2CAuthority,
-                instance: TestConstants.B2CInstance,
-                tenantId: null,
-                domain: TestConstants.B2CTenant,
-                signUpSignInPolicyId: TestConstants.B2CSignUpSignInUserFlow,
-                loggerProvider: loggerProvider);
-
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500);
-        }
-
-        [Fact]
-        public void OidcSignIn_CiamAuthorityAndInstance_DoesNotLogAuthorityIgnoredWarning()
-        {
-            // MSAL parity: ParseAuthorityIfNecessary_CiamAuthorityAndInstance_LogsWarning (EventId 500). Divergence: OIDC never emits this event.
-            var loggerProvider = new TestLoggerProvider();
-
-            _ = BuildAndGetOidcOptions(
-                authority: BogusCiamAuthority,
-                instance: TestConstants.CIAMInstance,
-                tenantId: null,
-                loggerProvider: loggerProvider);
-
-            Assert.DoesNotContain(loggerProvider.Logger.Entries, e => e.EventId.Id == 500);
-        }
-
         // ----- Robustness -----
 
         [Fact]
-        public void OidcSignIn_AuthorityAndInstance_DoesNotThrowWhenNoLoggerRegistered()
+        public void OidcSignIn_AuthorityAndInstance_ThrowsEvenWhenNoLoggerRegistered()
         {
-            // MSAL parity: ParseAuthorityIfNecessary_NoLogger_NoException. Same intent: no exception when no logger is registered.
-            var ex = Record.Exception(() => BuildAndGetOidcOptions(
+            // Conflict throw does not depend on logger registration.
+            Assert.Throws<InvalidOperationException>(() => BuildAndGetOidcOptions(
                 authority: BogusAadAuthority,
                 instance: TestConstants.AadInstance,
                 tenantId: null,
                 loggerProvider: null));
-
-            Assert.Null(ex);
         }
 
         // ----- Helpers -----
