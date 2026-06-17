@@ -123,6 +123,10 @@ public static class DownstreamApiEndpoint
         {
             AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
         }
+        else if (requestParameters.AgentIdentity is not null || requestParameters.AgentUsername is not null || requestParameters.AgentUserId is not null)
+        {
+            logger.AgentIdentityOverridesIgnored(routeName);
+        }
 
         HttpContent? content = null;
 
