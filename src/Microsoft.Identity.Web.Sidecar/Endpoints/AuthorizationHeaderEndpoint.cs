@@ -117,7 +117,10 @@ public static class AuthorizationHeaderEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
+        if (allowOverrides)
+        {
+            AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
+        }
 
         string authorizationHeader;
 
