@@ -132,17 +132,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
-        /// <summary>
-        /// Default FIC token exchange URL for the public cloud. For other clouds, callers can
-        /// override via ExtraParameters[Constants.TokenExchangeUrlKey]:
-        /// <list type="bullet">
-        /// <item><term>api://AzureADTokenExchange</term><description>public cloud (default)</description></item>
-        /// <item><term>api://AzureADTokenExchangeChina</term><description>China cloud</description></item>
-        /// <item><term>api://AzureADTokenExchangeFrance</term><description>Bleu</description></item>
-        /// <item><term>api://AzureADTokenExchangeGermany</term><description>German cloud</description></item>
-        /// </list>
-        /// </summary>
-        private const string DefaultTokenExchangeUrl = "api://AzureADTokenExchange";
+        private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
 
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
@@ -670,12 +660,11 @@ namespace Microsoft.Identity.Web
             }
 
             string? authScheme = tokenAcquisitionOptions?.AuthenticationOptionsName;
-
-            // Resolve the FIC token exchange scope, allowing national cloud overrides.
-            string[] ficScopes = ResolveFicScopes(extraParameters);
+            string identifierType = username is not null ? "UPN" : "OID";
+            Logger.AgentUserFicFlowDetected(_logger, agentAppId!, identifierType);
 
             var agentCca = await GetOrBuildAgentUserFicCcaAsync(
-                agentAppId!, application.Authority, authScheme, ficScopes).ConfigureAwait(false);
+                agentAppId!, application.Authority, authScheme).ConfigureAwait(false);
 
             bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
@@ -704,14 +693,16 @@ namespace Microsoft.Identity.Web
                             silentBuilder.WithTenantId(tenantId);
                         }
 
-                        return await silentBuilder.ExecuteAsync().ConfigureAwait(false);
+                        var silentResult = await silentBuilder.ExecuteAsync().ConfigureAwait(false);
+                        Logger.AgentUserFicSilentSuccess(_logger, accountLookupKey);
+                        return silentResult;
                     }
                     catch (MsalException ex)
                     {
                         // Catch all MSAL exceptions (not just MsalUiRequiredException) so that
                         // any silent failure (cache errors, client errors, etc.) falls back to
                         // the full 3-leg acquisition rather than propagating up as a hard failure.
-                        Logger.TokenAcquisitionError(_logger, ex.Message, ex);
+                        Logger.AgentUserFicSilentFailure(_logger, accountLookupKey, ex.ErrorCode ?? ex.GetType().Name, ex);
                     }
                 }
                 else
@@ -723,7 +714,7 @@ namespace Microsoft.Identity.Web
 
             // Leg 2: Get the agent's instance token (T2).
             // The assertion callback handles Leg 1 (blueprint → T1) transparently.
-            var leg2Builder = agentCca.AcquireTokenForClient(ficScopes);
+            var leg2Builder = agentCca.AcquireTokenForClient(s_ficScopes);
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -758,6 +749,7 @@ namespace Microsoft.Identity.Web
 
             var result = await leg3Builder.ExecuteAsync().ConfigureAwait(false);
 
+            Logger.AgentUserFicAcquisitionComplete(_logger, agentAppId!, result.AuthenticationResultMetadata.TokenSource.ToString());
             // Store the account identifier for subsequent silent lookups.
             // This parallels how other ID Web flows write oid/tid claims back into the
             // ClaimsPrincipal after acquisition (see line ~541 in the ROPC path). Here,
@@ -779,8 +771,7 @@ namespace Microsoft.Identity.Web
         private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
             string agentAppId,
             string authority,
-            string? authenticationScheme,
-            string[] ficScopes)
+            string? authenticationScheme)
         {
             // Include authenticationScheme in the CCA cache key so different schemes
             // (pointing to different blueprint credentials) get separate CCAs.
@@ -805,9 +796,8 @@ namespace Microsoft.Identity.Web
                     return entry.Cca;
                 }
 
-                // Capture authenticationScheme and ficScopes for the assertion callback closure.
+                // Capture authenticationScheme for the assertion callback closure.
                 string? capturedAuthScheme = authenticationScheme;
-                string[] capturedFicScopes = ficScopes;
 
                 var newApp = ConfidentialClientApplicationBuilder
                     .Create(agentAppId)
@@ -821,7 +811,7 @@ namespace Microsoft.Identity.Web
                             blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
 
                         var leg1Builder = blueprintCca
-                            .AcquireTokenForClient(capturedFicScopes)
+                            .AcquireTokenForClient(s_ficScopes)
                             .WithFmiPath(agentAppId)
                             .WithSendX5C(blueprintOptions.SendX5C);
 
@@ -849,6 +839,7 @@ namespace Microsoft.Identity.Web
                     .Build();
 
                 _agentUserFicCcas[ccaCacheKey] = new AgentCcaEntry(newApp);
+                Logger.AgentCcaCreated(_logger, ccaCacheKey);
 
                 // Start the sweep timer on first agent CCA creation (lazy initialization).
                 EnsureAgentCcaSweepTimerStarted();
@@ -929,30 +920,12 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            return evictedCount;
-        }
-
-        /// <summary>
-        /// Resolves the FIC token exchange scope from ExtraParameters, falling back to the
-        /// public cloud default. Matches the override pattern used by
-        /// <see cref="TokenAcquirerExtensions.GetFicTokenAsync"/> and OidcIdpSignedAssertionProvider.
-        /// </summary>
-        private static string[] ResolveFicScopes(IDictionary<string, object>? extraParameters)
-        {
-            string tokenExchangeUrl = DefaultTokenExchangeUrl;
-            if (extraParameters is not null
-                && extraParameters.TryGetValue(Constants.TokenExchangeUrlKey, out object? urlObj)
-                && urlObj is string customUrl
-                && !string.IsNullOrEmpty(customUrl))
+            if (evictedCount > 0)
             {
-                tokenExchangeUrl = customUrl;
+                Logger.AgentCcaEviction(_logger, evictedCount, _agentUserFicCcas.Count);
             }
 
-            string scope = tokenExchangeUrl.EndsWith("/.default", StringComparison.OrdinalIgnoreCase)
-                ? tokenExchangeUrl
-                : tokenExchangeUrl + "/.default";
-
-            return new[] { scope };
+            return evictedCount;
         }
 
         /// <summary>

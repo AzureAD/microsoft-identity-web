@@ -38,6 +38,14 @@ namespace Microsoft.Identity.Web
         public static readonly EventId AuthorityIgnored = new EventId(500, "AuthorityIgnored");
         public static readonly EventId AuthorityUsedConsiderInstanceTenantId = new EventId(501, "AuthorityUsedConsiderInstanceTenantId");
 
+        // Agent User FIC EventIds 600+
+        public static readonly EventId AgentUserFicFlowDetected = new EventId(600, "AgentUserFicFlowDetected");
+        public static readonly EventId AgentUserFicSilentSuccess = new EventId(601, "AgentUserFicSilentSuccess");
+        public static readonly EventId AgentUserFicSilentFailure = new EventId(602, "AgentUserFicSilentFailure");
+        public static readonly EventId AgentUserFicAcquisitionComplete = new EventId(603, "AgentUserFicAcquisitionComplete");
+        public static readonly EventId AgentCcaCreated = new EventId(604, "AgentCcaCreated");
+        public static readonly EventId AgentCcaEviction = new EventId(605, "AgentCcaEviction");
+
 #pragma warning restore IDE1006 // Naming Styles
     }
 }

@@ -81,6 +81,62 @@ namespace Microsoft.Identity.Web
                     cacheRefreshReason,
                     ex);
             }
+
+            // --- Agent User FIC logging ---
+
+            private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicFlowDetected =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    LoggingEventId.AgentUserFicFlowDetected,
+                    "[MsIdWeb] Agent User FIC flow detected for agent '{AgentAppId}' with user identifier type '{IdentifierType}'.");
+
+            private static readonly Action<ILogger, string, Exception?> s_agentUserFicSilentSuccess =
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    LoggingEventId.AgentUserFicSilentSuccess,
+                    "[MsIdWeb] Agent User FIC silent token acquisition succeeded for key '{AccountLookupKey}'.");
+
+            private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicSilentFailure =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    LoggingEventId.AgentUserFicSilentFailure,
+                    "[MsIdWeb] Agent User FIC silent token acquisition failed for key '{AccountLookupKey}': {Reason}. Falling back to 3-leg acquisition.");
+
+            private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicAcquisitionComplete =
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    LoggingEventId.AgentUserFicAcquisitionComplete,
+                    "[MsIdWeb] Agent User FIC 3-leg acquisition complete for agent '{AgentAppId}', token source: {TokenSource}.");
+
+            private static readonly Action<ILogger, string, Exception?> s_agentCcaCreated =
+                LoggerMessage.Define<string>(
+                    LogLevel.Information,
+                    LoggingEventId.AgentCcaCreated,
+                    "[MsIdWeb] Created new agent CCA for cache key '{CcaCacheKey}'.");
+
+            private static readonly Action<ILogger, int, int, Exception?> s_agentCcaEviction =
+                LoggerMessage.Define<int, int>(
+                    LogLevel.Information,
+                    LoggingEventId.AgentCcaEviction,
+                    "[MsIdWeb] Agent CCA sweep evicted {EvictedCount} entries. Remaining: {RemainingCount}.");
+
+            public static void AgentUserFicFlowDetected(ILogger logger, string agentAppId, string identifierType)
+                => s_agentUserFicFlowDetected(logger, agentAppId, identifierType, null);
+
+            public static void AgentUserFicSilentSuccess(ILogger logger, string accountLookupKey)
+                => s_agentUserFicSilentSuccess(logger, accountLookupKey, null);
+
+            public static void AgentUserFicSilentFailure(ILogger logger, string accountLookupKey, string reason, Exception? ex)
+                => s_agentUserFicSilentFailure(logger, accountLookupKey, reason, ex);
+
+            public static void AgentUserFicAcquisitionComplete(ILogger logger, string agentAppId, string tokenSource)
+                => s_agentUserFicAcquisitionComplete(logger, agentAppId, tokenSource, null);
+
+            public static void AgentCcaCreated(ILogger logger, string ccaCacheKey)
+                => s_agentCcaCreated(logger, ccaCacheKey, null);
+
+            public static void AgentCcaEviction(ILogger logger, int evictedCount, int remainingCount)
+                => s_agentCcaEviction(logger, evictedCount, remainingCount, null);
         }
     }
 }

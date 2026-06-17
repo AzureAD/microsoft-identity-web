@@ -237,12 +237,6 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
-        /*
-         * Used by Microsoft.Identity.Web.AgentIdentities
-         * Any changes to this member (including removal) can cause runtime failures.
-         * Treat as a public member.
-         */
-        internal const string TokenExchangeUrlKey = "IDWEB_TOKEN_EXCHANGE_URL";
 
         /// <summary>
         /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
