@@ -323,15 +323,7 @@ namespace Microsoft.Identity.Web
                     MergedOptionsValidation.Validate(mergedOptions);
 
                     // Throw early if Authority conflicts with Instance/TenantId (same check as MSAL path).
-                    if (mergedOptions.AuthorityExplicitlyConfigured &&
-                        !string.IsNullOrEmpty(mergedOptions.Authority) &&
-                        (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
-                    {
-                        throw new InvalidOperationException(
-                            $"[MsIdWeb] Both 'Authority' ('{mergedOptions.Authority}') and 'Instance'/TenantId' " +
-                            $"('{mergedOptions.Instance ?? string.Empty}', '{mergedOptions.TenantId ?? string.Empty}') are configured. " +
-                            "These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.");
-                    }
+                    mergedOptions.ThrowIfAuthorityConflict();
 
                     if (mergedOptions.Authority != null)
                     {

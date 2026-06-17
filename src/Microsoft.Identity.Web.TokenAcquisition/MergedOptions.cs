@@ -89,6 +89,20 @@ namespace Microsoft.Identity.Web
         // Set after ParseAuthorityIfNecessary runs; makes subsequent calls no-op.
         private bool _authorityParsed;
 
+        // Throws if the user explicitly configured Authority AND Instance/TenantId.
+        internal void ThrowIfAuthorityConflict()
+        {
+            if (AuthorityExplicitlyConfigured &&
+                !string.IsNullOrEmpty(Authority) &&
+                (!string.IsNullOrEmpty(Instance) || !string.IsNullOrEmpty(TenantId)))
+            {
+                throw new InvalidOperationException(
+                    $"[MsIdWeb] Both 'Authority' ('{Authority}') and 'Instance'/'TenantId' " +
+                    $"('{Instance ?? string.Empty}', '{TenantId ?? string.Empty}') are configured. " +
+                    "These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.");
+            }
+        }
+
         /// <summary>
         /// Id Web will modify the instance so that it can be used by MSAL.
         /// This modifies this property so that the original value is not changed.
@@ -494,13 +508,7 @@ namespace Microsoft.Identity.Web
            if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
                (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
            {
-               if (mergedOptions.AuthorityExplicitlyConfigured)
-               {
-                   throw new InvalidOperationException(
-                       $"[MsIdWeb] Both 'Authority' ('{mergedOptions.Authority}') and 'Instance'/TenantId' " +
-                       $"('{mergedOptions.Instance ?? string.Empty}', '{mergedOptions.TenantId ?? string.Empty}') are configured. " +
-                       "These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.");
-               }
+               mergedOptions.ThrowIfAuthorityConflict();
 
                // Authority was synthesized (e.g. by MicrosoftEntraApplicationOptions computed getter) -- not a real conflict.
                mergedOptions._authorityParsed = true;
