@@ -220,7 +220,7 @@ namespace Microsoft.Identity.Web
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
-                string applicationKey = GetApplicationKey(mergedOptions);
+                string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
                 NotifyCertificateSelection(loaderParameters, mergedOptions, application!, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
@@ -235,16 +235,22 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Allows creation of confidential client applications targeting regional and global authorities
-        /// when supporting managed identities.
+        /// Builds a cache key for <see cref="IConfidentialClientApplication"/> instances.
+        /// The key must include <paramref name="isTokenBinding"/> because bearer and mTLS PoP
+        /// flows wire fundamentally different MSAL credential types (string-assertion delegate
+        /// vs. certificate/bundle delegate). Reusing a CCA built for one flow in the other
+        /// causes silent token-acquisition failures or 307 redirects from the STS.
         /// </summary>
         /// <param name="mergedOptions">Merged configuration options.</param>
-        /// <returns>Concatenated string of authority, cliend id and azure region</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions)
+        /// <param name="isTokenBinding">Whether mTLS token binding (PoP) is requested.
+        /// Callers must pass this explicitly to avoid accidental cache collisions.</param>
+        /// <returns>Concatenated string of authority, client id, azure region, credential id, and token-binding flag.</returns>
+        private static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
 
-            return DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
+            string baseKey = DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
+            return isTokenBinding ? baseKey + "-tokenBinding" : baseKey;
         }
 
         /// <summary>
@@ -370,7 +376,7 @@ namespace Microsoft.Identity.Web
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
-                string applicationKey = GetApplicationKey(mergedOptions);
+                string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
                 NotifyCertificateSelection(loaderParameters, mergedOptions, application, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
@@ -800,7 +806,7 @@ namespace Microsoft.Identity.Web
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
-                string applicationKey = GetApplicationKey(mergedOptions);
+                string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
                 NotifyCertificateSelection(
                     new CredentialSourceLoaderParameters(
                         mergedOptions.ClientId ?? string.Empty,
@@ -1062,7 +1068,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             bool isTokenBinding)
         {
-            string key = GetApplicationKey(mergedOptions);
+            string key = GetApplicationKey(mergedOptions, isTokenBinding);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -1083,7 +1089,7 @@ namespace Microsoft.Identity.Web
                 var newApp = await BuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
-                key = GetApplicationKey(mergedOptions);
+                key = GetApplicationKey(mergedOptions, isTokenBinding);
                 _applicationsByAuthorityClientId[key] = newApp;
                 return newApp;
             }
