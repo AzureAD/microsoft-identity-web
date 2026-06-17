@@ -1,5 +1,5 @@
 ---
-name: mtls-pop
+name: boundcredentials
 description: |
   Guide for configuring mTLS Proof-of-Possession (PoP) using Microsoft.Identity.Web.
   Covers all credential types: certificate, pure managed identity, and federated identity credentials (FIC).
