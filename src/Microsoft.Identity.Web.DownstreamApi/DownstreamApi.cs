@@ -755,6 +755,16 @@ namespace Microsoft.Identity.Web
                     authorizationHeaderInformation = authorizationHeaderResult.Result;
                     authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
                 }
+                else if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 requestAwareHeaderProvider)
+                {
+                    // Request-aware: lets protocols bind request material (e.g. PoP SHR "q"/"h"/"b"). Content is set above.
+                    authorizationHeader = await requestAwareHeaderProvider.CreateAuthorizationHeaderAsync(
+                        effectiveOptions.Scopes,
+                        httpRequestMessage,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                }
                 else
                 {
                     authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
