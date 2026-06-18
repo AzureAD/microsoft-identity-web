@@ -26,6 +26,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://login.microsoftonline.com/common",
                 Instance = "https://login.microsoftonline.com/",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -45,6 +46,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://login.microsoftonline.com/common",
                 TenantId = "organizations",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -65,6 +67,7 @@ namespace Microsoft.Identity.Web.Test
                 Instance = "https://login.microsoftonline.com/",
                 TenantId = "organizations",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -133,6 +136,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
                 Instance = "https://fabrikamb2c.b2clogin.com/",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -152,6 +156,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://contoso.ciamlogin.com/contoso.onmicrosoft.com",
                 Instance = "https://contoso.ciamlogin.com/",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -172,6 +177,7 @@ namespace Microsoft.Identity.Web.Test
                 Instance = "https://custom.contoso.com/",
                 PreserveAuthority = true,
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
                 Logger = _testLogger
             };
 
@@ -191,6 +197,7 @@ namespace Microsoft.Identity.Web.Test
                 Authority = "https://login.microsoftonline.com/common",
                 Instance = "https://login.microsoftonline.com/",
                 AuthorityExplicitlyConfigured = true,
+                InstanceOrTenantIdExplicitlyConfigured = true,
             };
 
             // Act & Assert - Throws regardless of logger presence

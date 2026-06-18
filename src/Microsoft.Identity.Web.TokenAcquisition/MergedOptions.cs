@@ -86,13 +86,23 @@ namespace Microsoft.Identity.Web
             set { if (value) _authorityExplicitlyConfigured = true; }
         }
 
+        // Latch: once true, never reverts to false. Distinguishes user-configured
+        // Instance/TenantId from values derived by ParseAuthorityIfNecessary.
+        private bool _instanceOrTenantIdExplicitlyConfigured;
+        internal bool InstanceOrTenantIdExplicitlyConfigured
+        {
+            get => _instanceOrTenantIdExplicitlyConfigured;
+            set { if (value) _instanceOrTenantIdExplicitlyConfigured = true; }
+        }
+
         // Set after ParseAuthorityIfNecessary runs; makes subsequent calls no-op.
         private bool _authorityParsed;
 
-        // Throws if the user explicitly configured Authority AND Instance/TenantId.
+        // Throws if the user explicitly configured BOTH Authority AND Instance/TenantId.
         internal void ThrowIfAuthorityConflict()
         {
             if (AuthorityExplicitlyConfigured &&
+                InstanceOrTenantIdExplicitlyConfigured &&
                 !string.IsNullOrEmpty(Authority) &&
                 (!string.IsNullOrEmpty(Instance) || !string.IsNullOrEmpty(TenantId)))
             {
@@ -307,6 +317,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
             {
                 mergedOptions.Instance = microsoftIdentityOptions.Instance;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             if (microsoftIdentityOptions.ResetPasswordPath != Constants.ResetPasswordPath)
@@ -366,6 +377,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
             {
                 mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
@@ -420,6 +432,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance))
             {
                 mergedOptions.Instance = confidentialClientApplicationOptions.Instance;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions.IsDefaultPlatformLoggingEnabled |= confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
@@ -434,6 +447,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId))
             {
                 mergedOptions.TenantId = confidentialClientApplicationOptions.TenantId;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions._confidentialClientApplicationOptions = null;
