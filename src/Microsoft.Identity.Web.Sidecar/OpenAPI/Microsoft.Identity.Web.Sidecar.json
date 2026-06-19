@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "Microsoft.Identity.Web.Sidecar | v1",
     "version": "1.0.0"
@@ -51,7 +51,7 @@
           "Microsoft.Identity.Web.Sidecar"
         ],
         "summary": "Get an authorization header for a configured downstream API.",
-        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeader' (default: true). 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the identity of the authenticated request to acquire an authorization header. Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeader' (default: true). Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeader",
         "parameters": [
           {
@@ -91,7 +91,6 @@
             "name": "optionsOverride.Scopes",
             "in": "query",
             "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
-            "style": "form",
             "schema": {
               "type": "string"
             }
@@ -156,9 +155,9 @@
           {
             "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
             "in": "query",
-            "description": "boolean",
+            "description": "true = bypass token cache.",
             "schema": {
-              "type": "true = bypass token cache."
+              "type": "boolean"
             }
           },
           {
@@ -250,7 +249,7 @@
           "Microsoft.Identity.Web.Sidecar"
         ],
         "summary": "Get an authorization header for a configured downstream API using this configured client credentials.",
-        "description": "This endpoint will use the configured client credentials to acquire an authorization header.Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeaderUnauthenticated' (default: false). 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
+        "description": "This endpoint will use the configured client credentials to acquire an authorization header. Use dotted query parameters prefixed with 'optionsOverride.' to override call settings with respect to the configuration. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:GetAuthorizationHeaderUnauthenticated' (default: false). Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\nRepeat parameters like 'optionsOverride.Scopes' to add multiple scopes.",
         "operationId": "AuthorizationHeaderUnauthenticated",
         "parameters": [
           {
@@ -290,7 +289,6 @@
             "name": "optionsOverride.Scopes",
             "in": "query",
             "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
-            "style": "form",
             "schema": {
               "type": "string"
             }
@@ -355,9 +353,9 @@
           {
             "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
             "in": "query",
-            "description": "boolean",
+            "description": "true = bypass token cache.",
             "schema": {
-              "type": "true = bypass token cache."
+              "type": "boolean"
             }
           },
           {
@@ -449,7 +447,7 @@
           "Microsoft.Identity.Web.Sidecar"
         ],
         "summary": "Invoke a configured downstream API through the sidecar using the authenticated identity.",
-        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApi' (default: true). 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApi' (default: true). Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
         "operationId": "DownstreamApi",
         "parameters": [
           {
@@ -489,7 +487,6 @@
             "name": "optionsOverride.Scopes",
             "in": "query",
             "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
-            "style": "form",
             "schema": {
               "type": "string"
             }
@@ -554,9 +551,9 @@
           {
             "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
             "in": "query",
-            "description": "boolean",
+            "description": "true = bypass token cache.",
             "schema": {
-              "type": "true = bypass token cache."
+              "type": "boolean"
             }
           },
           {
@@ -648,7 +645,7 @@
           "Microsoft.Identity.Web.Sidecar"
         ],
         "summary": "Invoke a configured downstream API through the sidecar using the configured client credentials.",
-        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApiUnauthenticated' (default: false). 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
+        "description": "Override downstream call options using dotted query parameters prefixed with 'optionsOverride.'. Whether overrides are honoured is controlled by 'Sidecar:AllowOverrides:CallDownstreamApiUnauthenticated' (default: false). Agent identity parameters (AgentIdentity, AgentUsername, AgentUserId) are also subject to this setting. 'optionsOverride.BaseUrl' is always ignored. Examples:\n  ?optionsOverride.Scopes=User.Read\n  ?optionsOverride.Scopes=User.Read&optionsOverride.Scopes=Mail.Read\n  ?optionsOverride.AcquireTokenOptions.Tenant=GUID\n  ?optionsOverride.RequestAppToken=true&optionsOverride.Scopes=https://graph.microsoft.com/.default",
         "operationId": "DownstreamApiUnauthenticated",
         "parameters": [
           {
@@ -688,7 +685,6 @@
             "name": "optionsOverride.Scopes",
             "in": "query",
             "description": "Repeatable. Each occurrence adds one scope. Example: optionsOverride.Scopes=User.Read",
-            "style": "form",
             "schema": {
               "type": "string"
             }
@@ -753,9 +749,9 @@
           {
             "name": "optionsOverride.AcquireTokenOptions.ForceRefresh",
             "in": "query",
-            "description": "boolean",
+            "description": "true = bypass token cache.",
             "schema": {
-              "type": "true = bypass token cache."
+              "type": "boolean"
             }
           },
           {
@@ -864,7 +860,11 @@
         "type": "object",
         "properties": {
           "statusCode": {
-            "type": "integer",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
             "format": "int32"
           },
           "headers": {
@@ -877,8 +877,10 @@
             }
           },
           "content": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -887,25 +889,37 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "title": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "status": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           },
           "detail": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "instance": {
-            "type": "string",
-            "nullable": true
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

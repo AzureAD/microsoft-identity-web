@@ -217,6 +217,104 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotSame(appEast, appWest);
         }
 
+        /// <summary>
+        /// Proves that the CCA cache key includes isTokenBinding, ensuring a bearer-cached
+        /// CCA is never reused for an mTLS PoP request.
+        ///
+        /// When isTokenBinding=true with a secret credential, BuildConfidentialClientApplication
+        /// correctly throws IDW10115 (secret can't do mTLS binding). The important thing this
+        /// test verifies is that the PoP call does NOT silently return the cached bearer CCA —
+        /// it attempts a fresh build (and fails for a valid reason: wrong credential type).
+        ///
+        /// Before the cache-key fix, the second call would return the bearer CCA unchanged
+        /// (no throw), and MSAL would later throw at request time with the confusing error:
+        /// "A string-returning client assertion callback cannot be used over mTLS."
+        /// </summary>
+        [Fact]
+        public async Task GetOrBuildCca_BearerThenTokenBinding_DoesNotReturnCachedBearerApp()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                RedirectUri = "http://localhost:1729/",
+                ClientSecret = TC.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            // First call: bearer (isTokenBinding=false) — caches a CCA with secret credential.
+            IConfidentialClientApplication bearerApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+            Assert.NotNull(bearerApp);
+
+            // Second call: PoP (isTokenBinding=true) — with the fix, uses a different cache key,
+            // so it attempts a fresh build. A secret credential can't do token binding, so
+            // BuildConfidentialClientApplication correctly throws IDW10115.
+            // Before the fix, this would silently return bearerApp (wrong behavior).
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: true));
+
+            Assert.Contains("IDW10115", ex.Message, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Reverse direction of the bearer→PoP test: proves that a PoP-cached CCA
+        /// (isTokenBinding=true) is not reused for a subsequent bearer call
+        /// (isTokenBinding=false). With a secret credential, the PoP build throws
+        /// IDW10115 (expected), and the bearer build succeeds independently.
+        /// </summary>
+        [Fact]
+        public async Task GetOrBuildCca_TokenBindingThenBearer_DoesNotReturnCachedPopApp()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                RedirectUri = "http://localhost:1729/",
+                ClientSecret = TC.ClientSecret,
+            });
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            // First call: PoP (isTokenBinding=true) — secret can't do token binding, so
+            // BuildConfidentialClientApplication correctly throws IDW10115.
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: true));
+
+            // Second call: bearer (isTokenBinding=false) — must succeed independently.
+            // Before the fix, the failed PoP build would not have cached anything (it threw),
+            // but a successful PoP build WOULD have cached under the same key as bearer,
+            // causing the bearer call to reuse the wrong CCA.
+            IConfidentialClientApplication bearerApp = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+            Assert.NotNull(bearerApp);
+
+            // Verify bearer CCA is cached and reusable with its own key.
+            IConfidentialClientApplication bearerApp2 = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+            Assert.Same(bearerApp, bearerApp2);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
