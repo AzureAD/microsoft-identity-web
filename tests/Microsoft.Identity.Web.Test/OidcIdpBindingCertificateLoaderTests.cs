@@ -206,67 +206,38 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task LoadIfNeededAsync_MtlsPop_BoundCredentialResolvesToNullCertificate_FallsThroughToNextBound()
+        public async Task LoadIfNeededAsync_MtlsPop_BoundCredentialResolvesToNullCertificate_ThrowsWhenMultipleBound()
         {
-            // First bound entry materialises to a null Certificate (e.g. unsupported source, KeyVault returned nothing).
-            // The loader must NOT pin to a null cert; it must walk to the next UseBoundCredential entry.
-            using X509Certificate2 goodCert = CreateSelfSignedTestCertificate();
+            // Two bound entries now throws before any loading — multiple UseBoundCredential = true is invalid.
             CredentialDescription badBound = NewBoundCertCredential();
             CredentialDescription goodBound = NewBoundCertCredential();
             var innerOptions = NewInnerOptions(badBound, goodBound);
             _optionsMonitor.Get(InnerSectionName).Returns(innerOptions);
 
-            var credentialsLoader = Substitute.For<ICredentialsLoader>();
-            credentialsLoader
-                .LoadCredentialsIfNeededAsync(badBound, Arg.Any<CredentialSourceLoaderParameters?>())
-                .Returns(_ => { badBound.Certificate = null; return Task.CompletedTask; });
-            credentialsLoader
-                .LoadCredentialsIfNeededAsync(goodBound, Arg.Any<CredentialSourceLoaderParameters?>())
-                .Returns(_ => { goodBound.Certificate = goodCert; return Task.CompletedTask; });
-            _serviceProvider.GetService(typeof(ICredentialsLoader)).Returns(credentialsLoader);
-
             var loader = NewLoader();
             CredentialDescription outer = NewOuterCustomSignedAssertionCredential();
 
-            try { await loader.LoadIfNeededAsync(outer, NewParameters(MtlsPopProtocol)); }
-            catch { /* expected: trailing probe fails */ }
-
-            await credentialsLoader.Received(1).LoadCredentialsIfNeededAsync(badBound, Arg.Any<CredentialSourceLoaderParameters?>());
-            await credentialsLoader.Received(1).LoadCredentialsIfNeededAsync(goodBound, Arg.Any<CredentialSourceLoaderParameters?>());
-
-            Assert.False(badBound.Skip, "Bound entry that materialised to null must NOT be marked Skip — it never won.");
-            Assert.True(goodBound.Skip, "Selected bound entry must be Skip=true.");
+            InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => loader.LoadIfNeededAsync(outer, NewParameters(MtlsPopProtocol)));
+            Assert.Contains("UseBoundCredential", ex.Message, StringComparison.Ordinal);
+            Assert.True(outer.Skip);
         }
 
         [Fact]
-        public async Task LoadIfNeededAsync_MtlsPop_MultipleBoundCredentials_FirstResolvedWins()
+        public async Task LoadIfNeededAsync_MtlsPop_MultipleBoundCredentials_Throws()
         {
-            using X509Certificate2 firstCert = CreateSelfSignedTestCertificate("CN=First");
-            using X509Certificate2 secondCert = CreateSelfSignedTestCertificate("CN=Second");
             CredentialDescription firstBound = NewBoundCertCredential();
             CredentialDescription secondBound = NewBoundCertCredential();
             var innerOptions = NewInnerOptions(firstBound, secondBound);
             _optionsMonitor.Get(InnerSectionName).Returns(innerOptions);
 
-            var credentialsLoader = Substitute.For<ICredentialsLoader>();
-            credentialsLoader
-                .LoadCredentialsIfNeededAsync(firstBound, Arg.Any<CredentialSourceLoaderParameters?>())
-                .Returns(_ => { firstBound.Certificate = firstCert; return Task.CompletedTask; });
-            credentialsLoader
-                .LoadCredentialsIfNeededAsync(secondBound, Arg.Any<CredentialSourceLoaderParameters?>())
-                .Returns(_ => { secondBound.Certificate = secondCert; return Task.CompletedTask; });
-            _serviceProvider.GetService(typeof(ICredentialsLoader)).Returns(credentialsLoader);
-
             var loader = NewLoader();
             CredentialDescription outer = NewOuterCustomSignedAssertionCredential();
 
-            try { await loader.LoadIfNeededAsync(outer, NewParameters(MtlsPopProtocol)); }
-            catch { /* expected */ }
-
-            Assert.True(firstBound.Skip, "First (selected) bound credential must be Skip=true.");
-            Assert.False(secondBound.Skip, "Second bound credential must not be touched — first wins.");
-            await credentialsLoader.Received(1).LoadCredentialsIfNeededAsync(firstBound, Arg.Any<CredentialSourceLoaderParameters?>());
-            await credentialsLoader.DidNotReceive().LoadCredentialsIfNeededAsync(secondBound, Arg.Any<CredentialSourceLoaderParameters?>());
+            InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => loader.LoadIfNeededAsync(outer, NewParameters(MtlsPopProtocol)));
+            Assert.Contains("UseBoundCredential", ex.Message, StringComparison.Ordinal);
+            Assert.True(outer.Skip);
         }
 
         // ---------------------------------------------------------------------------

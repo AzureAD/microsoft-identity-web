@@ -79,15 +79,6 @@ namespace Microsoft.Identity.Web.OidcFic
             /// <param name="message">Exception message.</param>
             [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.")]
             public static partial void SignedAssertionProviderFailed(ILogger logger, string providerName, string message);
-
-            /// <summary>
-            /// Logger for when more than one bound credential is configured for OIDC FIC mTLS PoP.
-            /// First-valid wins (matches IdWeb's standard fallback pattern); this is informational only.
-            /// </summary>
-            /// <param name="logger">ILogger.</param>
-            /// <param name="count">Number of bound credentials detected.</param>
-            [LoggerMessageAttribute(EventId = 505, Level = LogLevel.Debug, Message = "[MsIdWeb] OIDC FIC mTLS PoP: {Count} bound credentials configured. First valid binding cert wins (KeyVault-fallback semantics). To pin a specific binding cert, leave only one UseBoundCredential = true entry in the inner ClientCredentials collection.")]
-            public static partial void MultipleBoundCredentialsConfigured(ILogger logger, int count);
 #else
             // Fallback implementation for older target frameworks
             private static readonly Action<ILogger, string, Exception?> s_configurationNotRegistered =
@@ -119,12 +110,6 @@ namespace Microsoft.Identity.Web.OidcFic
                     LogLevel.Error,
                     new EventId(504, "OidcIdpSignedAssertionProviderFailed"),
                     "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.");
-
-            private static readonly Action<ILogger, int, Exception?> s_multipleBoundCredentialsConfigured =
-                LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    new EventId(505, "OidcIdpMultipleBoundCredentialsConfigured"),
-                    "[MsIdWeb] OIDC FIC mTLS PoP: {Count} bound credentials configured. First valid binding cert wins (KeyVault-fallback semantics). To pin a specific binding cert, leave only one UseBoundCredential = true entry in the inner ClientCredentials collection.");
 
             /// <summary>
             /// Logger for when IConfiguration is not registered in the service collection.
@@ -168,15 +153,6 @@ namespace Microsoft.Identity.Web.OidcFic
                 ILogger logger,
                 string providerName,
                 string message) => s_signedAssertionProviderFailed(logger, providerName, message, default!);
-
-            /// <summary>
-            /// Logger for when more than one bound credential is configured for OIDC FIC mTLS PoP.
-            /// </summary>
-            /// <param name="logger">ILogger.</param>
-            /// <param name="count">Number of bound credentials detected.</param>
-            public static void MultipleBoundCredentialsConfigured(
-                ILogger logger,
-                int count) => s_multipleBoundCredentialsConfigured(logger, count, default!);
 #endif
         }
 
@@ -299,9 +275,8 @@ namespace Microsoft.Identity.Web.OidcFic
                 return null;
             }
 
-            // First-valid-wins for fallback (matches IdWeb's standard credential-collection semantics; e.g. two
-            // KeyVault refs so a transient KeyVault hiccup doesn't take you down). Log if the customer configured
-            // more than one bound credential so the chosen pair is traceable in telemetry without changing behavior.
+            // Enforce exactly one bound credential. Multiple entries with UseBoundCredential = true
+            // is ambiguous — throw so the misconfiguration is caught early.
             int boundCount = 0;
             foreach (CredentialDescription credential in microsoftIdentityApplicationOptions.ClientCredentials)
             {
@@ -313,7 +288,9 @@ namespace Microsoft.Identity.Web.OidcFic
 
             if (boundCount > 1)
             {
-                Logger.MultipleBoundCredentialsConfigured(_logger, boundCount);
+                throw new InvalidOperationException(
+                    $"OIDC FIC mTLS PoP: {boundCount} credentials have UseBoundCredential = true, but only one is allowed. " +
+                    "Remove UseBoundCredential from all but the intended binding certificate in the inner ClientCredentials collection.");
             }
 
             ICredentialsLoader? credentialsLoader = null;
