@@ -12,6 +12,7 @@ using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Client.KeyAttestation;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.IdentityModel.LoggingExtensions;
 
 namespace Microsoft.Identity.Web
 {
@@ -98,7 +99,7 @@ namespace Microsoft.Identity.Web
 
             if (_logger != null)
             {
-                builder = builder.WithLogging(Log, ConvertMicrosoftExtensionsLogLevelToMsal(_logger), enablePiiLogging: false);
+                builder = builder.WithLogging(new IdentityLoggerAdapter(_logger), enablePiiLogging: false);
                 _logger.LogInformation($"ManagedIdentityClientAssertion with tokenExchangeUrl={_tokenExchangeUrl}");
             }
 
@@ -193,62 +194,6 @@ namespace Microsoft.Identity.Web
             return await miBuilder
                 .ExecuteAsync(effectiveCancellationToken)
                 .ConfigureAwait(false);
-        }
-
-        private void Log(
-          Client.LogLevel level,
-          string message,
-          bool containsPii)
-        {
-            if (_logger == null)
-            {
-                return;
-            }
-
-            switch (level)
-            {
-                case Client.LogLevel.Always:
-                    _logger.LogInformation(message);
-                    break;
-                case Client.LogLevel.Error:
-                    _logger.LogError(message);
-                    break;
-                case Client.LogLevel.Warning:
-                    _logger.LogWarning(message);
-                    break;
-                case Client.LogLevel.Info:
-                    _logger.LogInformation(message);
-                    break;
-                case Client.LogLevel.Verbose:
-                    _logger.LogDebug(message);
-                    break;
-            }
-        }
-
-        private Client.LogLevel? ConvertMicrosoftExtensionsLogLevelToMsal(ILogger logger)
-        {
-            if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug)
-                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
-            {
-                return Client.LogLevel.Verbose;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information))
-            {
-                return Client.LogLevel.Info;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
-            {
-                return Client.LogLevel.Warning;
-            }
-            else if (logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Error)
-                || logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Critical))
-            {
-                return Client.LogLevel.Error;
-            }
-            else
-            {
-                return null;
-            }
         }
 
     }
