@@ -755,18 +755,13 @@ namespace Microsoft.Identity.Web
                     authorizationHeaderInformation = authorizationHeaderResult.Result;
                     authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
                 }
-                else if (_authorizationHeaderProvider is IAuthorizationHeaderProvider2 requestAwareHeaderProvider)
-                {
-                    // Request-aware: lets protocols bind request material (e.g. PoP SHR "q"/"h"/"b"). Content is set above.
-                    authorizationHeader = await requestAwareHeaderProvider.CreateAuthorizationHeaderAsync(
-                        effectiveOptions.Scopes,
-                        httpRequestMessage,
-                        effectiveOptions,
-                        user,
-                        cancellationToken).ConfigureAwait(false);
-                }
                 else
                 {
+                    // Make the outgoing request available to request-binding protocols (e.g. PoP SHR q/h/b) via the
+                    // AcquireTokenOptions.ExtraParameters SDK-to-SDK channel. Content is already set above. The helper
+                    // clones ExtraParameters before writing so concurrent calls never share this per-request value.
+                    effectiveOptions.AcquireTokenOptions.SetHttpRequestMessage(httpRequestMessage);
+
                     authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                         effectiveOptions.Scopes,
                         effectiveOptions,
