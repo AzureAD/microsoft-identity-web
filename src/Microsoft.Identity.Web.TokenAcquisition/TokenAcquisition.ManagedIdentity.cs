@@ -10,6 +10,7 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Identity.Web
@@ -101,8 +102,7 @@ namespace Microsoft.Identity.Web
             ManagedIdentityApplicationBuilder miBuilder = ManagedIdentityApplicationBuilder
                 .Create(managedIdentityId)
                 .WithLogging(
-                    Log,
-                    ConvertMicrosoftExtensionsLogLevelToMsal(_logger),
+                    new IdentityLoggerAdapter(_logger),
                     enablePiiLogging: enablePiiLogging);
 
             if (capabilities?.Any() == true)
