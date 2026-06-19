@@ -205,14 +205,7 @@ namespace Microsoft.Identity.Web
                     true,
                     null);
 
-                return new AcquireTokenResult(
-                    result.AccessToken,
-                    result.ExpiresOn,
-                    result.TenantId,
-                    result.IdToken,
-                    result.Scopes,
-                    result.CorrelationId,
-                    result.TokenType);
+                return AcquireTokenResultFactory.FromMsal(result);
             }
             catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
