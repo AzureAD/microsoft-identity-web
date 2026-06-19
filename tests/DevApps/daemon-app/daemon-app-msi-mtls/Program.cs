@@ -13,6 +13,10 @@ using System.Net;
 //
 // Trigger: AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP" in appsettings.json
 //          (under AcquireTokenOptions, with RequestAppToken = true).
+//
+// Important: Azure Key Vault requires "x-ms-tokenboundauth": "true" header on mTLS PoP
+// requests to trigger TLS renegotiation for client cert binding. This is configured via
+// ExtraHeaderParameters in appsettings.json. Without it, AKV returns 401.
 
 var factory = TokenAcquirerFactory.GetDefaultInstance();
 

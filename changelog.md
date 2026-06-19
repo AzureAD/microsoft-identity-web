@@ -11,6 +11,7 @@
 
 ### Behavior changes
 - **B2C OpenID Connect event handler: LRU cache for issuer address.** Issuer address lookups in the B2C OIDC event handler are now cached with an LRU cache, improving performance for repeated lookups. See [#3821](https://github.com/AzureAD/microsoft-identity-web/pull/3821).
+- **MSAL logs are now emitted as structured logs.** `TokenAcquisition` and `ManagedIdentityClientAssertion` now route MSAL's internal logging through `IdentityLoggerAdapter` (the `IIdentityLogger` overload) instead of the legacy `LogCallback`, so MSAL log entries flow through `ILogger` with their original log level instead of being flattened into a single unstructured message. See [#3820](https://github.com/AzureAD/microsoft-identity-web/issues/3820).
 
 ### Dependencies updates
 - Update MSAL.NET to 4.84.1. See [#3822](https://github.com/AzureAD/microsoft-identity-web/pull/3822).
