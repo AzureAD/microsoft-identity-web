@@ -10,12 +10,9 @@ namespace Microsoft.Identity.Web.Test.Common
     {
         public IgnoreOnAzureDevopsFactAttribute()
         {
-            if (!IsRunningOnAzureDevOps())
-            {
-                return;
-            }
-
-            Skip = "Ignored on Azure DevOps";
+            // No longer auto-skipping on Azure DevOps — these tests should run
+            // on self-hosted agents (e.g., MSALMSIV2) that have the required
+            // certificates and KeyVault access.
         }
 
         /// <summary>Determine if runtime is Azure DevOps.</summary>
