@@ -19,6 +19,9 @@
 - Bump `uuid` and `@azure/msal-node` in SidecarAdapter TypeScript test app. See [#3826](https://github.com/AzureAD/microsoft-identity-web/pull/3826).
 - Bump `qs` in SidecarAdapter TypeScript test app. See [#3829](https://github.com/AzureAD/microsoft-identity-web/pull/3829).
 
+### Documentation
+- Added comprehensive authority configuration documentation, covering Azure AD, B2C, and CIAM scenarios with migration examples and FAQ. Updated to reflect that mixing `Authority` with `Instance`/`TenantId` now throws `InvalidOperationException` (PR #3873). See [#3613](https://github.com/AzureAD/microsoft-identity-web/issues/3613).
+
 ## 4.9.0
 
 ### New features
