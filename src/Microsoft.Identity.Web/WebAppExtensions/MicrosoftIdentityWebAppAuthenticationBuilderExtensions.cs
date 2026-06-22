@@ -322,9 +322,6 @@ namespace Microsoft.Identity.Web
 
                     MergedOptionsValidation.Validate(mergedOptions);
 
-                    // Throw early if Authority conflicts with Instance/TenantId (same check as MSAL path).
-                    mergedOptions.ThrowIfAuthorityConflict();
-
                     if (mergedOptions.Authority != null)
                     {
                         mergedOptions.Authority = AuthorityHelpers.GetAuthorityWithoutQueryIfNeeded(mergedOptions);
