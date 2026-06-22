@@ -20,7 +20,7 @@
     "globals": "^16.4.0",
     "jiti": "^2.6.1",
     "open": "^10.2.0",
-    "tsx": "^4.7.1",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.45.0",
     "vitest": "^4.1.0"
