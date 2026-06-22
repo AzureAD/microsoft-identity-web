@@ -199,7 +199,7 @@ namespace TokenAcquirerTests
             Assert.Equal(11, count.Count);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Theory]
         //[InlineData(false)]
         //[InlineData(true)]
@@ -228,7 +228,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
@@ -247,7 +247,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_Authority_ClientCredentialsAsync()
         {
@@ -265,7 +265,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
+        [Fact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
         {
@@ -283,7 +283,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         // [Fact]
         public async Task AcquireToken_WithFactoryAndMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
@@ -304,7 +304,7 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         // [Fact]
         public async Task AcquireToken_WithFactoryAndAuthorityClientIdCert_ClientCredentialsAsync()
         {
@@ -322,7 +322,7 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphoreAsync()
         {
@@ -363,7 +363,7 @@ namespace TokenAcquirerTests
             Assert.Equal(TaskStatus.RanToCompletion, task2.Status);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireTokenWithPop_ClientCredentialsAsync()
         {
@@ -393,7 +393,7 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireTokenWithMs10AtPop_ClientCredentialsAsync()
         {
@@ -428,7 +428,7 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         // [Fact]
         public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
         {
