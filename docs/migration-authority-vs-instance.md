@@ -1,26 +1,24 @@
 # Migration Guide: Authority vs Instance/TenantId Configuration
 
-This guide helps you upgrade existing Microsoft.Identity.Web applications to use recommended authority configuration patterns, especially if you're encountering the EventId 408 warning about conflicting Authority and Instance/TenantId settings.
+This guide helps you upgrade existing Microsoft.Identity.Web applications to use recommended authority configuration patterns, especially if your app throws an `InvalidOperationException` about conflicting Authority and Instance/TenantId settings.
 
-## Understanding the Warning
+## Understanding the Error
 
-If you see a log message like this:
+If your application fails to start with an error like this:
 
 ```
-[Warning] [MsIdWeb] Authority 'https://login.microsoftonline.com/common' is being ignored 
-because Instance 'https://login.microsoftonline.com/' and/or TenantId 'organizations' 
-are already configured. To use Authority, remove Instance and TenantId from the configuration.
+System.InvalidOperationException: [MsIdWeb] Both 'Authority' ('https://login.microsoftonline.com/common')
+and 'Instance'/'TenantId' ('https://login.microsoftonline.com/', 'organizations') are configured.
+These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.
 ```
 
-This indicates your configuration has **conflicting authority settings**. The library uses Instance and TenantId, completely ignoring the Authority value.
-
-**Event ID**: 408 (AuthorityConflict)
+This means your configuration has **conflicting authority settings**. The library no longer silently ignores one of the values -- it throws at startup to surface the conflict.
 
 ## Quick Fix Options
 
 ### Option 1: Remove Authority (Recommended for most scenarios)
 
-**Before**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAd": {
@@ -45,7 +43,7 @@ This indicates your configuration has **conflicting authority settings**. The li
 
 ### Option 2: Remove Instance and TenantId (Simpler for some scenarios)
 
-**Before**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAd": {
@@ -118,7 +116,7 @@ If you prefer the Authority format, you can keep it:
 
 #### From Mixed Configuration
 
-**Before (conflicting configuration)**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAd": {
@@ -157,7 +155,7 @@ For B2C, **always use Authority** including the policy path. Do NOT use Instance
 
 #### Consolidate to Authority-Only
 
-**Before (incorrect mixed configuration)**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAdB2C": {
@@ -190,7 +188,7 @@ For CIAM, use the complete Authority URL. The library handles CIAM authorities a
 
 #### Remove Conflicting Properties
 
-**Before (conflicting configuration)**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAd": {
@@ -241,7 +239,7 @@ For CIAM, use the complete Authority URL. The library handles CIAM authorities a
 
 ### Azure Government (US)
 
-**Before (conflicting)**:
+**Before** (throws `InvalidOperationException`):
 ```json
 {
   "AzureAd": {
@@ -350,7 +348,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 ## Code-Based Configuration Migration
 
-### Before: Mixed Configuration in Code
+### Before: Mixed Configuration in Code (Throws `InvalidOperationException`)
 
 ```csharp
 // Startup.cs or Program.cs (old pattern)
@@ -399,9 +397,9 @@ services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 Choose your preferred pattern and update `appsettings.json` accordingly.
 
-### Step 2: Clear Warning Logs
+### Step 2: Verify Startup
 
-After updating your configuration, restart your application and verify that the EventId 408 warning no longer appears in your logs.
+After updating your configuration, restart your application and verify that it starts without `InvalidOperationException`.
 
 ### Step 3: Verify Authentication Flow
 
@@ -425,7 +423,7 @@ Enable detailed logging to verify the configuration is applied correctly:
 }
 ```
 
-Look for log entries confirming your authority configuration without warnings.
+Look for log entries confirming your authority configuration without errors.
 
 ## Common Migration Issues
 
@@ -468,7 +466,7 @@ Look for log entries confirming your authority configuration without warnings.
 
 **Symptom**: Authentication fails with custom domain.
 
-**Cause**: Mixing Authority with Instance/TenantId or custom domain not configured properly in Azure.
+**Cause**: Mixing Authority with Instance/TenantId (throws `InvalidOperationException`) or custom domain not configured properly in Azure.
 
 **Solution**: Use Authority only and verify custom domain configuration:
 ```json

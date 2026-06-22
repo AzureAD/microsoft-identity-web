@@ -177,7 +177,9 @@ In your app registration, add redirect URIs using the custom domain:
 
 ### ❌ Mistake 1: Mixing Authority with Instance/TenantId in CIAM
 
-**Wrong**:
+Configuring both `Authority` and `Instance`/`TenantId` throws an `InvalidOperationException` at startup.
+
+**Wrong** (throws at startup):
 ```json
 {
   "AzureAd": {
@@ -289,9 +291,9 @@ Use separate configuration files:
 ### Verify CIAM Configuration
 
 1. **Check Authority Format**: Ensure it uses CIAM domain (`.ciamlogin.com` or custom domain)
-2. **Avoid Instance/TenantId**: Use Authority only, not mixed with Instance/TenantId
+2. **Avoid mixing**: Using both Authority and Instance/TenantId throws `InvalidOperationException`
 3. **Test Sign-in Flow**: Verify authentication redirects work correctly
-4. **Monitor Logs**: Check for EventId 408 warnings indicating configuration conflicts
+4. **Monitor Logs**: Check for any configuration errors at startup
 
 ### Debugging Tips
 
@@ -305,7 +307,7 @@ Use separate configuration files:
 
 **Issue**: Authority configuration errors
 - **Cause**: Mixing Authority with Instance/TenantId
-- **Fix**: Use Authority only for CIAM configurations
+- **Fix**: Use Authority only for CIAM. Mixing throws `InvalidOperationException` at startup
 
 ## Advanced Scenarios
 

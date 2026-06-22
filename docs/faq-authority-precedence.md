@@ -1,6 +1,6 @@
 # Authority Precedence FAQ
 
-This FAQ addresses common questions about authority configuration, precedence rules, and troubleshooting configuration warnings in Microsoft.Identity.Web.
+This FAQ addresses common questions about authority configuration, conflict detection, and troubleshooting configuration errors in Microsoft.Identity.Web.
 
 ## General Questions
 
@@ -35,29 +35,25 @@ When you provide Instance and TenantId, they are combined to form an authority: 
 - You prefer a single, complete URL
 - Migrating from legacy configurations
 
-**Never mix both** – choose one approach to avoid configuration conflicts.
+**Never mix both** -- setting both Authority and Instance/TenantId throws an `InvalidOperationException` at startup.
 
 ### Q: What happens if I configure both Authority and Instance/TenantId?
 
-**A**: **Instance and TenantId take precedence**, and Authority is completely ignored. You'll see a warning:
+**A**: Your application **throws an `InvalidOperationException` at startup** with a clear error message:
 
 ```
-[Warning] [MsIdWeb] Authority 'https://login.microsoftonline.com/common' is being ignored 
-because Instance 'https://login.microsoftonline.com/' and/or TenantId 'organizations' 
-are already configured.
+System.InvalidOperationException: [MsIdWeb] Both 'Authority' ('https://login.microsoftonline.com/common')
+and 'Instance'/'TenantId' ('https://login.microsoftonline.com/', 'organizations') are configured.
+These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.
 ```
-
-**EventId**: 408 (AuthorityConflict)
 
 To fix: Remove either Authority OR both Instance and TenantId from your configuration.
 
-## Warning Messages
+## Configuration Errors
 
-### Q: Why do I see a warning "Both Authority and Instance/TenantId are set"?
+### Q: My application fails to start with "Both 'Authority' and 'Instance'/'TenantId' are configured". What do I do?
 
-**A**: You have configured conflicting authority properties. The warning indicates that your `Authority` setting is being ignored because you also specified `Instance` and/or `TenantId`, which take precedence.
-
-**To resolve**:
+**A**: You have configured conflicting authority properties. Choose one approach:
 
 **Option 1** - Remove Authority:
 ```json
@@ -80,21 +76,11 @@ To fix: Remove either Authority OR both Instance and TenantId from your configur
 }
 ```
 
-### Q: Is the warning critical? Will my application still work?
+### Q: I upgraded Microsoft.Identity.Web and my app no longer starts. What happened?
 
-**A**: Your application will continue to work, but the warning indicates a configuration inconsistency:
+**A**: Starting with the version that includes PR #3873, configuring both `Authority` and `Instance`/`TenantId` throws an `InvalidOperationException` instead of silently ignoring `Authority`. This is a breaking change that surfaces previously hidden configuration conflicts.
 
-- ✅ **Authentication works**: Instance and TenantId are used
-- ⚠️ **Potential confusion**: Authority is ignored, which might not be what you intended
-- 📝 **Best practice**: Clean up the configuration to remove the warning and improve clarity
-
-The warning helps you catch potential misconfigurations before they cause issues.
-
-### Q: How do I suppress the warning without changing my configuration?
-
-**A**: **You shouldn't suppress the warning** – it indicates a real configuration issue. Instead, fix the configuration by choosing one approach (Authority OR Instance/TenantId).
-
-If you have a specific reason to keep both (e.g., gradual migration), the warning will remain until the configuration is corrected.
+**To fix**: Choose one approach -- either `Authority` alone or `Instance` + `TenantId` alone. See the [Migration Guide](migration-authority-vs-instance.md) for detailed upgrade paths.
 
 ## B2C-Specific Questions
 
@@ -180,7 +166,7 @@ Both formats work identically. The modern format without `/tfp/` is recommended 
 }
 ```
 
-**Important**: Do not mix Authority with Instance/TenantId for CIAM scenarios. Use Authority only.
+**Important**: Do not mix Authority with Instance/TenantId for CIAM scenarios -- doing so throws `InvalidOperationException`.
 
 ### Q: Do I need special configuration for CIAM custom domains?
 
@@ -366,7 +352,7 @@ Or with Authority:
 
 **A**: Follow this checklist:
 
-1. **Check for warnings**: Look for EventId 408 in your logs
+1. **Check for conflicts**: Look for `InvalidOperationException` about Authority/Instance/TenantId conflict
 2. **Verify redirect URIs**: Ensure they match your app registration in Azure
 3. **Confirm authority format**: Validate the URL structure is correct
 4. **Test sign-in flow**: Try to authenticate and note any error messages
@@ -391,16 +377,16 @@ Or with Authority:
 
 This provides detailed logs about authority resolution and configuration.
 
-### Q: My application was working, but now I see the EventId 408 warning. What changed?
+### Q: My application was working, but now it throws an InvalidOperationException about Authority conflicts. What changed?
 
 **A**: Possible reasons:
 
-1. **Configuration file updated**: Someone added conflicting Instance/TenantId or Authority
-2. **Library upgrade**: Newer versions of Microsoft.Identity.Web added the warning
+1. **Library upgrade**: Newer versions of Microsoft.Identity.Web throw on this conflict instead of silently ignoring Authority
+2. **Configuration file updated**: Someone added conflicting Instance/TenantId or Authority
 3. **Environment-specific override**: Different settings in environment-specific config files
 4. **Code configuration**: Authority properties set programmatically in addition to configuration files
 
-**Solution**: Review your configuration files (including environment-specific ones) and remove conflicting properties.
+**Solution**: Choose one approach -- either `Authority` alone or `Instance`/`TenantId` alone. Review all configuration sources (including environment-specific files) and remove the conflicting properties.
 
 ### Q: Can I have different authority configurations for development and production?
 
@@ -430,11 +416,11 @@ This provides detailed logs about authority resolution and configuration.
 
 ### Q: I'm upgrading from an older version of Microsoft.Identity.Web. Do I need to change my configuration?
 
-**A**: Not necessarily, but you might see new warnings:
+**A**: Depending on your version, behavior differs:
 
-- **Existing configurations continue to work** due to backward compatibility
-- **New warning (EventId 408)** may appear if you have conflicting settings
-- **Recommended**: Review and clean up your configuration to follow current best practices
+- **Older versions**: Conflicting configurations were silently resolved (Authority was ignored)
+- **Current version**: Conflicting configurations throw `InvalidOperationException` at startup
+- **Recommended**: Review and clean up your configuration to use only one approach
 
 See the [Migration Guide](migration-authority-vs-instance.md) for detailed upgrade paths.
 

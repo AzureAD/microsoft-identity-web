@@ -203,7 +203,9 @@ public IActionResult EditProfile()
 
 ### ❌ Mistake 1: Mixing Authority with Instance/TenantId
 
-**Wrong**:
+Configuring both `Authority` and `Instance`/`TenantId` throws an `InvalidOperationException` at startup.
+
+**Wrong** (throws at startup):
 ```json
 {
   "AzureAdB2C": {
@@ -215,7 +217,7 @@ public IActionResult EditProfile()
 }
 ```
 
-**Correct**: Choose ONE approach:
+**Correct**: Use `Authority` only for B2C:
 ```json
 {
   "AzureAdB2C": {
@@ -310,7 +312,7 @@ Use environment-specific configuration files (`appsettings.Production.json`, `ap
 1. **Check Authority Format**: Ensure it includes instance, tenant domain, and policy
 2. **Validate Policy IDs**: Confirm they match your B2C tenant configuration
 3. **Test All Flows**: Sign-up, sign-in, password reset, and profile edit
-4. **Monitor Logs**: Watch for EventId 408 warnings indicating configuration conflicts
+4. **Check for conflicts**: Mixing Authority with Instance/TenantId throws `InvalidOperationException`
 
 ### Common Validation Errors
 

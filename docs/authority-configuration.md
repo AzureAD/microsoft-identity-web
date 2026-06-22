@@ -8,7 +8,7 @@ This guide explains:
 - How authority-related configuration properties work together
 - The precedence rules when multiple properties are set
 - Best practices for different authentication scenarios
-- How to interpret and resolve configuration warnings
+- How to interpret and resolve configuration errors
 
 ## Terminology
 
@@ -45,32 +45,33 @@ The following flowchart illustrates how Microsoft.Identity.Web resolves the auth
 
 ```mermaid
 flowchart TD
-    A[Configuration Provided] --> B{Instance & TenantId set?}
-    B -- Yes --> C[Use Instance & TenantId<br/>Ignore Authority if present]
-    B -- No --> D{Authority Provided?}
+    A[Configuration Provided] --> B{Both Authority AND<br/>Instance/TenantId set?}
+    B -- Yes --> X[InvalidOperationException<br/>at startup]
+    B -- No --> C{Instance & TenantId set?}
+    C -- Yes --> K[Derive PreparedInstance]
+    C -- No --> D{Authority Provided?}
     D -- No --> E[Configuration Invalid<br/>Requires Instance+TenantId]
     D -- Yes --> H[Parse Authority<br/>Extract Instance + TenantId]
     H --> I{Is B2C?}
     I -- Yes --> J[Normalize /tfp/ if present<br/>Derive PreparedInstance]
-    I -- No --> K[Derive PreparedInstance]
-    C --> K
+    I -- No --> K
     J --> K
     K --> L[Pass PreparedInstance to MSAL]
 ```
 
-## Precedence Rules
+## Configuration Rules
 
-The following table summarizes how different configuration combinations are resolved:
+You must choose **one** approach -- `Authority` or `Instance`/`TenantId`. Setting both throws an `InvalidOperationException` at startup:
 
-| Authority Set | Instance Set | TenantId Set | Result | Warning |
-|---------------|--------------|--------------|--------|---------|
-| ✅ | ❌ | ❌ | Authority is parsed → Instance + TenantId | No |
-| ✅ | ✅ | ❌ | Instance used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ✅ | ❌ | ✅ | TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ✅ | ✅ | ✅ | Instance + TenantId used, Authority **ignored** | ⚠️ Yes (EventId 408) |
-| ❌ | ✅ | ✅ | Instance + TenantId used | No |
-| ❌ | ✅ | ❌ | Instance used, tenant resolved at runtime | No* |
-| ❌ | ❌ | ✅ | Invalid configuration | Error |
+| Authority Set | Instance Set | TenantId Set | Result |
+|---------------|--------------|--------------|--------|
+| ✅ | ❌ | ❌ | Authority is parsed into Instance + TenantId |
+| ❌ | ✅ | ✅ | Instance + TenantId used directly |
+| ❌ | ✅ | ❌ | Instance used, tenant resolved at runtime* |
+| ✅ | ✅ | ❌ | **Throws `InvalidOperationException`** |
+| ✅ | ❌ | ✅ | **Throws `InvalidOperationException`** |
+| ✅ | ✅ | ✅ | **Throws `InvalidOperationException`** |
+| ❌ | ❌ | ✅ | Invalid configuration |
 
 \* For single-tenant apps, always specify TenantId when using Instance.
 
@@ -161,23 +162,19 @@ See [B2C Authority Examples](b2c-authority-examples.md) for more details.
 
 See [CIAM Authority Examples](ciam-authority-examples.md) for more details.
 
-## Understanding the Warning Log Message
+## Conflicting Configuration: Authority + Instance/TenantId
 
-When both `Authority` and (`Instance` and/or `TenantId`) are configured, you'll see a warning like:
+If both `Authority` and (`Instance` and/or `TenantId`) are explicitly configured, Microsoft.Identity.Web throws an `InvalidOperationException` at startup:
 
 ```
-[Warning] [MsIdWeb] Authority 'https://login.microsoftonline.com/common' is being ignored 
-because Instance 'https://login.microsoftonline.com/' and/or TenantId 'contoso.onmicrosoft.com' 
-are already configured. To use Authority, remove Instance and TenantId from the configuration.
+System.InvalidOperationException: [MsIdWeb] Both 'Authority' ('https://login.microsoftonline.com/common')
+and 'Instance'/'TenantId' ('https://login.microsoftonline.com/', 'contoso.onmicrosoft.com') are configured.
+These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.
 ```
-
-**What it means**: Microsoft.Identity.Web detected conflicting configuration. The `Instance` and `TenantId` properties take precedence, and the `Authority` value is completely ignored.
 
 **How to fix**:
 1. **Option 1 (Recommended)**: Remove `Authority` from your configuration, keep `Instance` and `TenantId`.
 2. **Option 2**: Remove both `Instance` and `TenantId`, keep only `Authority`.
-
-**Event ID**: 408 (AuthorityConflict)
 
 ## Edge Cases and Special Scenarios
 
