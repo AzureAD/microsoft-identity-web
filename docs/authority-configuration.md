@@ -41,23 +41,36 @@ This guide explains:
 
 ## Authority Resolution Decision Tree
 
-The following flowchart illustrates how Microsoft.Identity.Web resolves the authority configuration:
+The following flowchart shows how Microsoft.Identity.Web resolves the authority and selects the MSAL builder method:
 
 ```mermaid
 flowchart TD
-    A[Configuration Provided] --> B{Both Authority AND<br/>Instance/TenantId set?}
-    B -- Yes --> X[InvalidOperationException<br/>at startup]
-    B -- No --> C{Instance & TenantId set?}
-    C -- Yes --> K[Derive PreparedInstance]
-    C -- No --> D{Authority Provided?}
-    D -- No --> E[Configuration Invalid<br/>Requires Instance+TenantId]
-    D -- Yes --> H[Parse Authority<br/>Extract Instance + TenantId]
-    H --> I{Is B2C?}
-    I -- Yes --> J[Normalize /tfp/ if present<br/>Derive PreparedInstance]
-    I -- No --> K
-    J --> K
-    K --> L[Pass PreparedInstance to MSAL]
+    A[Configuration Provided] --> B{Both Authority AND<br/>Instance/TenantId<br/>explicitly set?}
+    B -- Yes --> THROW[InvalidOperationException<br/>at startup]
+    B -- No --> C{Instance and/or<br/>TenantId set?}
+    C -- Yes --> D{Is B2C?}
+    D -- Yes --> B2CMSAL["MSAL: WithB2CAuthority()"]
+    D -- No --> AADMSAL["MSAL: WithAuthority()<br/>AAD security + resilience"]
+    C -- No --> G{Authority set?}
+    G -- No --> INVALID[Missing configuration error]
+    G -- Yes --> CIAM{"Host is *.ciamlogin.com<br/>with no path?"}
+    CIAM -- Yes --> REWRITE["Rewrite: append tenant domain<br/>Parse into Instance + TenantId"]
+    REWRITE --> AADMSAL
+    CIAM -- No --> PRESERVE["PreserveAuthority = true<br/>Authority URL kept as-is"]
+    PRESERVE --> OIDCMSAL["MSAL: WithOidcAuthority()<br/>Generic OIDC path"]
+
+    style THROW fill:#f66,color:#fff
+    style INVALID fill:#f66,color:#fff
+    style AADMSAL fill:#4a4,color:#fff
+    style B2CMSAL fill:#48a,color:#fff
+    style OIDCMSAL fill:#a84,color:#fff
 ```
+
+**Key implications**:
+- `Instance` + `TenantId` (AAD) routes through `WithAuthority()` -- full AAD-specific security, instance discovery, and resilience.
+- `Instance` + `TenantId` (B2C with policies) routes through `WithB2CAuthority()` -- B2C-optimized path.
+- `Authority` alone for **any** scenario (AAD, B2C, CIAM with path) routes through `WithOidcAuthority()` -- generic OIDC, no AAD-specific protections.
+- The only exception is `*.ciamlogin.com` with **no** path segment (e.g., `https://contoso.ciamlogin.com`), which gets rewritten and parsed into `Instance` + `TenantId` automatically.
 
 ## Configuration Rules
 
