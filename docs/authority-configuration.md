@@ -93,6 +93,8 @@ You must choose **one** approach -- `Authority` or `Instance`/`TenantId`. Settin
 
 **Alternative**: Use `Authority` (will be parsed automatically).
 
+> **Note**: For AAD authorities, `Instance` + `TenantId` is strongly preferred. Using `Authority` alone routes through MSAL's generic OIDC path (`WithOidcAuthority`), which skips AAD-specific security and resilience features such as instance discovery and authority validation.
+
 ```json
 {
   "AzureAd": {
@@ -117,6 +119,8 @@ You must choose **one** approach -- `Authority` or `Instance`/`TenantId`. Settin
 ```
 
 **Option 2**: Use complete `Authority`.
+
+> **Note**: For AAD authorities, `Instance` + `TenantId` (Option 1) is strongly preferred. Using `Authority` alone routes through MSAL's generic OIDC path, which skips AAD-specific security and resilience features.
 
 ```json
 {

@@ -97,9 +97,11 @@ This means your configuration has **conflicting authority settings**. The librar
 - Easier to update for different environments
 - Consistent with Microsoft documentation
 
-#### Pattern 2: Keep Authority (Also Valid)
+#### Pattern 2: Keep Authority (Not Recommended for AAD)
 
-If you prefer the Authority format, you can keep it:
+> **Warning**: For AAD authorities, using `Authority` alone routes through MSAL's generic OIDC path (`WithOidcAuthority`), which skips AAD-specific security and resilience features. Prefer `Instance` + `TenantId` (Pattern 1).
+
+If you still prefer the Authority format:
 
 ```json
 {
@@ -139,7 +141,10 @@ If you prefer the Authority format, you can keep it:
 }
 ```
 
-**Alternative (using Authority)**:
+**Alternative (using Authority -- not recommended for AAD)**:
+
+> **Warning**: Using `Authority` alone for AAD routes through MSAL's generic OIDC path, losing AAD-specific security and resilience features.
+
 ```json
 {
   "AzureAd": {
@@ -275,7 +280,10 @@ For CIAM, use the complete Authority URL. The library handles CIAM authorities a
 }
 ```
 
-**Alternative (using Authority)**:
+**Alternative (using Authority -- not recommended for AAD)**:
+
+> **Warning**: Using `Authority` alone for AAD routes through MSAL's generic OIDC path, losing AAD-specific security and resilience features.
+
 ```json
 {
   "AzureAd": {

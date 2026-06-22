@@ -21,19 +21,21 @@ When you provide Instance and TenantId, they are combined to form an authority: 
 
 ### Q: Which configuration approach should I use: Authority or Instance/TenantId?
 
-**A**: Both approaches are valid, but recommendations vary by scenario:
+**A**: Recommendations depend on the scenario:
 
-**Use Instance + TenantId when**:
-- Configuring Azure AD single-tenant applications (most common)
+**Use Instance + TenantId when** (strongly preferred for AAD):
+- Configuring Azure AD single-tenant or multi-tenant applications
 - You want clear separation between instance and tenant
 - You need to easily swap between environments with different tenants
 - Following official Microsoft documentation examples
 
+Using `Instance` + `TenantId` routes through MSAL's `WithAuthority()`, which enables AAD-specific security and resilience features (instance discovery, authority validation, regional fallback).
+
 **Use Authority when**:
 - Configuring Azure AD B2C (must include policy path)
 - Configuring CIAM (standard or custom domains)
-- You prefer a single, complete URL
-- Migrating from legacy configurations
+
+> **Warning**: Using `Authority` alone for AAD endpoints routes through MSAL's generic OIDC path (`WithOidcAuthority`), which skips AAD-specific security and resilience features. Avoid this for standard AAD scenarios.
 
 **Never mix both** -- setting both Authority and Instance/TenantId throws an `InvalidOperationException` at startup.
 
@@ -200,7 +202,7 @@ Make sure your custom domain DNS records are correctly configured in the Azure p
 }
 ```
 
-**Using Authority**:
+**Using Authority** (not recommended for AAD -- loses AAD-specific security features):
 ```json
 {
   "AzureAd": {
@@ -325,7 +327,7 @@ Both work identically. The library ensures a trailing slash when needed.
 }
 ```
 
-Or with Authority:
+Or with Authority (not recommended -- loses AAD-specific security features):
 ```json
 {
   "AzureAd": {
