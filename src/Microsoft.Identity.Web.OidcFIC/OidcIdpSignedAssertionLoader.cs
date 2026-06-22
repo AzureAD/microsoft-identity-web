@@ -13,10 +13,8 @@ namespace Microsoft.Identity.Web.OidcFic
 {
     internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
-        // Centralized to avoid drift with TokenAcquisition.ProtocolNames.MtlsPop (which is internal to
-        // that assembly). Value matches what TokenAcquisition writes into CredentialSourceLoaderParameters.Protocol
-        // when AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP" is set.
-        private const string MtlsPopProtocol = "MTLS_POP";
+        // Matches ProtocolNames.MtlsPop in TokenAcquisition.
+        private const string MtlsPopProtocol = "mtls_pop";
 
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
