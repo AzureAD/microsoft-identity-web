@@ -509,7 +509,7 @@ If you have multiple applications:
 
 ## Additional Resources
 
-- [Authority Configuration & Precedence Guide](authority-configuration.md)
+- [Authority Configuration & Precedence Guide](README.md)
 - [Azure AD B2C Authority Examples](b2c-authority-examples.md)
 - [CIAM Authority Examples](ciam-authority-examples.md)
 - [Authority Precedence FAQ](faq-authority-precedence.md)
