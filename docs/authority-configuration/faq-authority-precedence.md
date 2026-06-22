@@ -437,7 +437,7 @@ See the [Migration Guide](migration-authority-vs-instance.md) for detailed upgra
 
 ## Additional Resources
 
-- [Authority Configuration & Precedence Guide](authority-configuration.md)
+- [Authority Configuration & Precedence Guide](README.md)
 - [Azure AD B2C Authority Examples](b2c-authority-examples.md)
 - [CIAM Authority Examples](ciam-authority-examples.md)
 - [Migration Guide: Authority vs Instance/TenantId](migration-authority-vs-instance.md)
@@ -447,7 +447,7 @@ See the [Migration Guide](migration-authority-vs-instance.md) for detailed upgra
 
 If your question isn't answered here:
 
-1. Check the [main documentation](authority-configuration.md)
+1. Check the [main documentation](README.md)
 2. Review [GitHub Issues](https://github.com/AzureAD/microsoft-identity-web/issues)
 3. Ask on [Stack Overflow](https://stackoverflow.com) with tags `microsoft-identity-web` and `azure-ad`
 4. Open a [new GitHub issue](https://github.com/AzureAD/microsoft-identity-web/issues/new) with your specific scenario

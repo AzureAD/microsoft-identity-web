@@ -343,7 +343,7 @@ builder.Services.AddDownstreamApi("DownstreamApi",
 
 ## Additional Resources
 
-- [Authority Configuration & Precedence Guide](authority-configuration.md)
+- [Authority Configuration & Precedence Guide](README.md)
 - [Azure AD B2C Authority Examples](b2c-authority-examples.md)
 - [Migration Guide](migration-authority-vs-instance.md)
 - [Microsoft Entra External ID documentation](https://learn.microsoft.com/entra/external-id/)

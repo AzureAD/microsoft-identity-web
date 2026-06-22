@@ -352,7 +352,7 @@ If upgrading from earlier versions:
 
 ## Additional Resources
 
-- [Authority Configuration & Precedence Guide](authority-configuration.md)
+- [Authority Configuration & Precedence Guide](README.md)
 - [CIAM Authority Examples](ciam-authority-examples.md)
 - [Migration Guide](migration-authority-vs-instance.md)
 - [Azure AD B2C documentation](https://learn.microsoft.com/azure/active-directory-b2c/)
