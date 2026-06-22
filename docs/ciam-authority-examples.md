@@ -40,8 +40,6 @@ For CIAM tenants using the default `.ciamlogin.com` domain:
 
 ### CIAM with Custom Domain
 
-### CIAM with Custom Domain
-
 Custom domains are frequently used in CIAM for seamless brand experience:
 
 ```json
@@ -77,8 +75,7 @@ For CIAM applications supporting multiple customer tenants:
 {
   "AzureAd": {
     "Authority": "https://contoso.ciamlogin.com/common",
-    "ClientId": "11111111-1111-1111-1111-111111111111"
-,
+    "ClientId": "11111111-1111-1111-1111-111111111111",
     "ValidateIssuer": false
   }
 }

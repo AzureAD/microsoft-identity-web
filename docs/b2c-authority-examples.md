@@ -180,22 +180,18 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 ### Profile Edit Flow
 
+Use the `ChallengeAsync` redirect or the built-in Microsoft.Identity.Web UI controller to trigger the edit-profile policy. Avoid manually constructing authorization URLs.
+
 ```csharp
 [Authorize]
 public IActionResult EditProfile()
 {
-    var editProfileUrl = $"{Configuration["AzureAdB2C:Instance"]}" +
-                        $"{Configuration["AzureAdB2C:Domain"]}/" +
-                        $"{Configuration["AzureAdB2C:EditProfilePolicyId"]}" +
-                        "/oauth2/v2.0/authorize" +
-                        $"?client_id={Configuration["AzureAdB2C:ClientId"]}" +
-                        $"&redirect_uri={Request.Scheme}://{Request.Host}/signin-oidc" +
-                        "&response_type=id_token" +
-                        "&scope=openid profile" +
-                        "&response_mode=form_post" +
-                        $"&nonce={Guid.NewGuid()}";
-    
-    return Redirect(editProfileUrl);
+    var properties = new AuthenticationProperties
+    {
+        RedirectUri = "/"
+    };
+    properties.Items["policy"] = Configuration["AzureAdB2C:EditProfilePolicyId"];
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
 }
 ```
 

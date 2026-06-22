@@ -112,7 +112,7 @@ If you still prefer the Authority format:
 }
 ```
 
-**Note**: The library will automatically parse this into Instance and TenantId internally.
+**Note**: The library routes this through MSAL's `WithOidcAuthority()` path, so AAD-specific optimizations do not apply. For AAD scenarios, always prefer `Instance` + `TenantId`.
 
 ### Azure AD Multi-Tenant Applications
 
