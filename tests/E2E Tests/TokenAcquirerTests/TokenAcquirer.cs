@@ -428,7 +428,7 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
-        [Fact]
+        [Fact(Skip = "AAD westus3 test-slice mtlsauth endpoint currently returns token_type=Bearer instead of mtls_pop, which is a server-side issue on the test slice (not a Microsoft.Identity.Web or MSAL regression). Re-enable once the AAD test slice is fixed. Tracking: https://github.com/AzureAD/microsoft-identity-web/issues/3891")]
         // [Fact]
         public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
         {
