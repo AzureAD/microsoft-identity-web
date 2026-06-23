@@ -1,3 +1,32 @@
+## 4.11.0
+
+### New features
+- Add certificate-bound bearer token support: honoring `CredentialDescription.UseBoundCredential` sends the certificate over mTLS so the resulting bearer access token is bound to the certificate. See [#3835](https://github.com/AzureAD/microsoft-identity-web/pull/3835).
+- Add mTLS proof-of-possession support for managed identity and federated-identity-credential-with-managed-identity flows. See [#3839](https://github.com/AzureAD/microsoft-identity-web/pull/3839).
+- Add mTLS authentication-only support to `MicrosoftIdentityMessageHandler`, including mTLS HTTP client factory, credentials provider, and logger wiring. See [#3815](https://github.com/AzureAD/microsoft-identity-web/pull/3815).
+- Surface MSAL token acquisition metadata (`AuthenticationResultMetadata`) and exception details on `AcquireTokenResult`, including cache source, token endpoint, durations, and region details. See [#3856](https://github.com/AzureAD/microsoft-identity-web/pull/3856).
+- Flow the outgoing `HttpRequestMessage` through `AcquireTokenOptions` to request-aware authorization header providers. See [#3876](https://github.com/AzureAD/microsoft-identity-web/pull/3876).
+
+### Bug fixes
+- Include `isTokenBinding` in the confidential client application cache key to prevent bearer/PoP token collisions. See [#3867](https://github.com/AzureAD/microsoft-identity-web/pull/3867).
+
+### Behavior changes
+- **Authority vs `Instance`/`TenantId` conflict check reverted.** The `InvalidOperationException` thrown when mixing `Authority` with `Instance`/`TenantId` (added in 4.10.0) has been removed, restoring the previous precedence behavior. See [#3888](https://github.com/AzureAD/microsoft-identity-web/pull/3888).
+- **OpenID Connect diagnostics require Development.** Enabling OpenID Connect middleware diagnostics outside the Development environment now throws, preventing protocol messages, tokens, and PII from being logged in non-Development environments. See [#3850](https://github.com/AzureAD/microsoft-identity-web/pull/3850).
+- **Sidecar: agent identity parameters gated behind `AllowOverrides`.** `AgentIdentity`, `AgentUsername`, and `AgentUserId` query-string parameters are now ignored on routes where overrides are disabled, with a warning log emitted. See [#3871](https://github.com/AzureAD/microsoft-identity-web/pull/3871).
+
+### Dependencies updates
+- Update `Microsoft.Identity.Client` (MSAL.NET) to 4.85.1. See [#3889](https://github.com/AzureAD/microsoft-identity-web/pull/3889).
+- Update `Microsoft.Identity.Abstractions` to 12.2.0 and MSAL.NET to 4.85.0. See [#3881](https://github.com/AzureAD/microsoft-identity-web/pull/3881).
+- Bump `Microsoft.IdentityModel.*` from 8.18.0 to 8.19.1. See [#3879](https://github.com/AzureAD/microsoft-identity-web/pull/3879).
+- Bump `System.Formats.Asn1` base version to 10.0.2. See [#3875](https://github.com/AzureAD/microsoft-identity-web/pull/3875).
+- Upgrade the Microsoft.Identity.Web Sidecar to .NET 10 (LTS). See [#3841](https://github.com/AzureAD/microsoft-identity-web/pull/3841).
+- Bump `vitest`, `esbuild`, `tsx`, and `js-yaml` in the SidecarAdapter TypeScript test app. See [#3836](https://github.com/AzureAD/microsoft-identity-web/pull/3836), [#3859](https://github.com/AzureAD/microsoft-identity-web/pull/3859), [#3862](https://github.com/AzureAD/microsoft-identity-web/pull/3862).
+
+### Documentation
+- Add mTLS PoP design guidance for Managed Identity, Federated Identity Credentials, and bearer tokens with bound credentials. See [#3832](https://github.com/AzureAD/microsoft-identity-web/pull/3832), [#3833](https://github.com/AzureAD/microsoft-identity-web/pull/3833).
+- Move authority configuration docs into the `docs/authority-configuration/` subfolder. See [#3885](https://github.com/AzureAD/microsoft-identity-web/pull/3885).
+
 ## 4.10.0
 
 ### New features
