@@ -133,6 +133,13 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
+        /// <summary>
+        /// When true, agent User FIC CCAs use MSAL's shared (process-level static) cache.
+        /// This allows tokens to survive CCA re-creation after eviction.
+        /// Defaults to true; set to false in tests that need per-instance cache isolation.
+        /// </summary>
+        internal bool UseSharedCacheForAgentCcas { get; set; } = true;
+
         private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
 
         private const string TokenBindingParameterName = "IsTokenBinding";
@@ -799,7 +806,7 @@ namespace Microsoft.Identity.Web
                 // Capture authenticationScheme for the assertion callback closure.
                 string? capturedAuthScheme = authenticationScheme;
 
-                var newApp = ConfidentialClientApplicationBuilder
+                var builder = ConfidentialClientApplicationBuilder
                     .Create(agentAppId)
                     .WithClientAssertion(async (AssertionRequestOptions options) =>
                     {
@@ -835,8 +842,14 @@ namespace Microsoft.Identity.Web
                     })
                     .WithAuthority(authority)
                     .WithHttpClientFactory(_httpClientFactory)
-                    .WithExperimentalFeatures()
-                    .Build();
+                    .WithExperimentalFeatures();
+
+                if (UseSharedCacheForAgentCcas)
+                {
+                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
+                }
+
+                var newApp = builder.Build();
 
                 _agentUserFicCcas[ccaCacheKey] = new AgentCcaEntry(newApp);
                 Logger.AgentCcaCreated(_logger, ccaCacheKey);

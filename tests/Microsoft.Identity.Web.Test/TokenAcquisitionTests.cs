@@ -790,6 +790,331 @@ namespace Microsoft.Identity.Web.Test
 
         #endregion
 
+        #region Agent Shared Cache Isolation Tests
+
+        /// <summary>
+        /// Verifies that with EnableSharedCacheOptions, tokens for 2 agents and 2 users
+        /// are cached and retrieved correctly — no cross-agent or cross-user collisions.
+        /// </summary>
+        [Fact]
+        public async Task AgentSharedCache_MultiAgentMultiUser_ReturnsCorrectTokens()
+        {
+            // Arrange — 1 blueprint, 2 agents, 2 users
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string user1Uid = Guid.NewGuid().ToString("N");
+            string user2Uid = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+            string user2Upn = "user2@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Enqueue handlers for all 4 combinations (agent1+user1, agent1+user2, agent2+user1, agent2+user2)
+            // Agent1+User1: Leg 1 + Leg 2 + Leg 3
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1-u1", user1Uid, user1Upn);
+            // Agent1+User2: Leg 3 only (Legs 1,2 cached from agent1 CCA)
+            mockHttp!.AddMockHandler(CreateUserFicTokenHandlerForUser("token-a1-u2", user2Uid, user2Upn));
+            // Agent2+User1: New agent CCA → assertion callback fires (Leg 1) + Leg 2 + Leg 3
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a2-u1", user1Uid, user1Upn);
+            // Agent2+User2: Leg 3 only (Leg 2 cached from agent2 CCA)
+            mockHttp.AddMockHandler(CreateUserFicTokenHandlerForUser("token-a2-u2", user2Uid, user2Upn));
+
+            // Act — acquire tokens for all 4 combinations
+            string r_a1u1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            string r_a1u2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user2Upn),
+                claimsPrincipal: null);
+
+            string r_a2u1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            string r_a2u2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
+                claimsPrincipal: null);
+
+            // Assert — each combination got its own unique token
+            Assert.Equal("Bearer token-a1-u1", r_a1u1);
+            Assert.Equal("Bearer token-a1-u2", r_a1u2);
+            Assert.Equal("Bearer token-a2-u1", r_a2u1);
+            Assert.Equal("Bearer token-a2-u2", r_a2u2);
+
+            // Act — silent calls (no more handlers) return the correct cached token
+            string s_a1u1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+            string s_a2u2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
+                claimsPrincipal: null);
+            string s_a1u2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user2Upn),
+                claimsPrincipal: null);
+            string s_a2u1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            Assert.Equal("Bearer token-a1-u1", s_a1u1);
+            Assert.Equal("Bearer token-a2-u2", s_a2u2);
+            Assert.Equal("Bearer token-a1-u2", s_a1u2);
+            Assert.Equal("Bearer token-a2-u1", s_a2u1);
+        }
+
+        /// <summary>
+        /// Verifies that a cached token for (agent1, user1) is NOT returned when
+        /// queried with a different agent or different user — strict cache isolation.
+        /// </summary>
+        [Fact]
+        public async Task AgentSharedCache_DifferentAgentOrUser_DoesNotReturnCachedToken()
+        {
+            // Arrange — cache a token for agent1+user1
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string user1Uid = Guid.NewGuid().ToString("N");
+            string user2Uid = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+            string user2Upn = "user2@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Agent1+User1: full 3-leg flow
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "cached-token-a1u1", user1Uid, user1Upn);
+
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            // Now try different agent (same user) — should NOT get the cached token
+            // Needs all 3 legs (new agent CCA with new assertion callback)
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "fresh-token-a2u1", user1Uid, user1Upn);
+
+            string diffAgent = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            // Now try same agent, different user — should NOT get the cached token
+            mockHttp!.AddMockHandler(CreateUserFicTokenHandlerForUser("fresh-token-a1u2", user2Uid, user2Upn));
+
+            string diffUser = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user2Upn),
+                claimsPrincipal: null);
+
+            // Assert — neither returned the original cached token
+            Assert.Equal("Bearer fresh-token-a2u1", diffAgent);
+            Assert.NotEqual("Bearer cached-token-a1u1", diffAgent);
+
+            Assert.Equal("Bearer fresh-token-a1u2", diffUser);
+            Assert.NotEqual("Bearer cached-token-a1u1", diffUser);
+        }
+
+        /// <summary>
+        /// Verifies that after CCA instances are evicted from the dictionary and new ones
+        /// are created with the same agent app IDs, the new CCAs can still acquire fresh
+        /// tokens (validating that per-instance caches die with the CCA).
+        /// </summary>
+        [Fact]
+        public async Task AgentSharedCache_NewCcaAfterEviction_AcquiresFreshTokens()
+        {
+            // Arrange
+            string agent1 = Guid.NewGuid().ToString("N");
+            string user1Uid = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Acquire the internal TokenAcquisition to manipulate dictionaries
+            var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>() as TokenAcquisition;
+
+            // Disable shared cache to test per-instance behavior (tokens lost on eviction)
+            tokenAcquisition!.UseSharedCacheForAgentCcas = false;
+
+            // First acquisition: full 3-leg flow
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "original-token", user1Uid, user1Upn);
+
+            string result1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            Assert.Equal("Bearer original-token", result1);
+
+            // Verify silent works (no handlers needed)
+            string silent1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+            Assert.Equal("Bearer original-token", silent1);
+
+            // Evict the agent CCA from the dictionary (simulating sweep)
+            tokenAcquisition!._agentUserFicCcas.Clear();
+            tokenAcquisition._agentUserFicAccountIds.Clear();
+
+            // After eviction, a new CCA must be built. Since we're using per-instance caches
+            // (no EnableSharedCacheOptions), the old tokens are gone.
+            // Need full 3-leg flow again with Leg 1 cached in blueprint.
+            mockHttp!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t2-fresh"));
+            mockHttp.AddMockHandler(CreateUserFicTokenHandlerForUser("fresh-token-after-evict", user1Uid, user1Upn));
+
+            string result2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            // Assert — got a fresh token (old cache was lost with the CCA)
+            Assert.Equal("Bearer fresh-token-after-evict", result2);
+            Assert.NotEqual("Bearer original-token", result2);
+        }
+
+        /// <summary>
+        /// Verifies that when EnableSharedCacheOptions is enabled on agent CCAs,
+        /// tokens survive CCA eviction and new CCAs can retrieve them via silent calls.
+        /// This validates that shared static cache makes agent tokens durable across
+        /// CCA lifecycle events.
+        /// </summary>
+        [Fact]
+        public async Task AgentSharedCache_WithSharedCacheEnabled_TokensSurviveCcaEviction()
+        {
+            // Arrange — 2 agents, 2 users, shared cache enabled
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string user1Uid = Guid.NewGuid().ToString("N");
+            string user2Uid = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+            string user2Upn = "user2@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            // UseSharedCacheForAgentCcas defaults to true — shared cache is the production behavior
+
+            // Acquire tokens for both agents and both users
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "shared-token-a1u1", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            mockHttp!.AddMockHandler(CreateUserFicTokenHandlerForUser("shared-token-a1u2", user2Uid, user2Upn));
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user2Upn),
+                claimsPrincipal: null);
+
+            AddAgentUserFicMockHandlersForUser(mockHttp, "shared-token-a2u1", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            mockHttp.AddMockHandler(CreateUserFicTokenHandlerForUser("shared-token-a2u2", user2Uid, user2Upn));
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
+                claimsPrincipal: null);
+
+            // Evict ALL agent CCAs (simulating sweep clearing everything)
+            tokenAcquisition._agentUserFicCcas.Clear();
+            // Keep _agentUserFicAccountIds intact — they store account identifiers for silent lookup
+
+            // Act — acquire again (will build new CCAs, but tokens should come from shared static cache)
+            // New CCAs need assertion callbacks to work → Leg 1 handlers for blueprint
+            // But AcquireTokenSilent doesn't need HTTP handlers!
+
+            // Agent1+User1: New CCA built (needs Leg 1 for assertion), silent should find token
+            mockHttp.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t1-rebuild-a1"));
+            string result_a1u1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            // Agent2+User2: New CCA built (needs Leg 1 for assertion), silent should find token
+            mockHttp.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t1-rebuild-a2"));
+            string result_a2u2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
+                claimsPrincipal: null);
+
+            // Assert — tokens from original acquisition should come back (cached in shared static storage)
+            Assert.Equal("Bearer shared-token-a1u1", result_a1u1);
+            Assert.Equal("Bearer shared-token-a2u2", result_a2u2);
+        }
+
+        // --- Helpers for user-specific mock handlers ---
+
+        /// <summary>
+        /// Adds mock handlers for the 3-leg flow with a specific user identity (uid/upn).
+        /// This allows testing cache isolation between different users.
+        /// </summary>
+        private static void AddAgentUserFicMockHandlersForUser(
+            MockHttpClientFactory mockHttpClient,
+            string userAccessToken,
+            string userUid,
+            string userUpn)
+        {
+            // Leg 1: Blueprint FMI token (T1)
+            mockHttpClient.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t1-fmi-token"));
+            // Leg 2: Agent instance token (T2)
+            mockHttpClient.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t2-instance-token"));
+            // Leg 3: User token with specific user identity
+            mockHttpClient.AddMockHandler(CreateUserFicTokenHandlerForUser(userAccessToken, userUid, userUpn));
+        }
+
+        /// <summary>
+        /// Creates a user_fic response handler with a specific user identity (uid/upn)
+        /// so MSAL creates a distinct account per user in the cache.
+        /// </summary>
+        private static MockHttpMessageHandler CreateUserFicTokenHandlerForUser(
+            string accessToken, string userUid, string userUpn)
+        {
+            string clientInfo = EncodeBase64Url(
+                "{\"uid\":\"" + userUid + "\",\"utid\":\"" + TestConstants.Utid + "\"}");
+            string idToken = MockHttpCreator.CreateIdToken(userUid, userUpn);
+
+            return new MockHttpMessageHandler()
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ResponseMessage = MockHttpCreator.CreateSuccessResponseMessage(
+                    "{\"token_type\":\"Bearer\"," +
+                    "\"expires_in\":3599," +
+                    "\"scope\":\"https://graph.microsoft.com/.default openid profile offline_access\"," +
+                    "\"access_token\":\"" + accessToken + "\"," +
+                    "\"refresh_token\":\"rt-" + accessToken + "\"," +
+                    "\"client_info\":\"" + clientInfo + "\"," +
+                    "\"id_token\":\"" + idToken + "\"}"),
+            };
+        }
+
+        #endregion
+
         #region Agent CCA Sweep Eviction Tests
 
         /// <summary>
