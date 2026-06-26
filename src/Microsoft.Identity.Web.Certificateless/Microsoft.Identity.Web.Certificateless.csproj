@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MicrosoftExtensionsLoggingAbstractionsVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens " Version="$(MicrosoftIdentityModelVersion)" />
+    <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
     <PackageReference Include="Microsoft.Identity.Client.KeyAttestation" Version="$(MicrosoftIdentityClientKeyAttestationVersion)" />
   </ItemGroup>

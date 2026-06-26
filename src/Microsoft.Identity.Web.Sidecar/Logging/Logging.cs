@@ -32,4 +32,11 @@ public static partial class LoggerMessageExtensions
         Message = "Caller-supplied 'optionsOverride.BaseUrl' was ignored. The downstream BaseUrl is fixed by the host configuration and cannot be overridden by the caller.",
         EventName = "BaseUrlOverrideIgnored")]
     public static partial void BaseUrlOverrideIgnored(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Warning,
+        Message = "Caller-supplied agent identity parameters were ignored on route '{RouteName}' because overrides are not allowed for it by configuration. To enable agent identity overrides, set 'Sidecar:AllowOverrides:{RouteName}' to true.",
+        EventName = "AgentIdentityOverridesIgnored")]
+    public static partial void AgentIdentityOverridesIgnored(this ILogger logger, string routeName);
 }

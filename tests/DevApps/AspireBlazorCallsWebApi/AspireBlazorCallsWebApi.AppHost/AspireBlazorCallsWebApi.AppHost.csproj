@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Force patched MessagePack to resolve CVE-2026-48109 (transitive via Aspire.Hosting → StackExchange.Redis) -->
+    <PackageReference Include="MessagePack" Version="2.5.301" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AspireBlazorCallsWebApi.ApiService\AspireBlazorCallsWebApi.ApiService.csproj" />
     <ProjectReference Include="..\AspireBlazorCallsWebApi.Web\AspireBlazorCallsWebApi.Web.csproj" />
   </ItemGroup>
