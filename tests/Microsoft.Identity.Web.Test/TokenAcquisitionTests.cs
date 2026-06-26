@@ -977,215 +977,60 @@ namespace Microsoft.Identity.Web.Test
 
         #endregion
 
-        #region Agent CCA Sweep Eviction Tests
+        #region Agent CCA Size-Threshold Eviction Tests
 
         /// <summary>
-        /// Verifies that the sweep timer removes agent CCA entries that have been
-        /// idle for longer than the configured maximum idle time.
+        /// Verifies that when the agent CCA dictionary exceeds the configured threshold,
+        /// it is cleared entirely as DOS protection. Tokens survive in MSAL's shared
+        /// static cache (tested separately by WithSharedCacheEnabled_TokensSurviveCcaEviction).
         /// </summary>
         [Fact]
-        public async Task AgentCcaSweep_RemovesExpiredEntries()
+        public async Task AgentCcaEviction_ClearsDictionaryAtThreshold()
         {
-            // Arrange
-            string agentAppId = Guid.NewGuid().ToString("N");
+            // Arrange — set a very low threshold to trigger clearing
             var factory = InitTokenAcquirerFactoryForAgent();
             IServiceProvider serviceProvider = factory.Build();
-
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
 
-            // Override the idle threshold to a very short value for testing.
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 50;
+            // Set threshold to 2 so the 3rd agent triggers a clear
+            tokenAcquisition.AgentCcaMaxCount = 2;
 
-            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "sweep-token-1");
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string agent3 = Guid.NewGuid().ToString("N");
+            string user1Uid = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
 
-            var options = CreateAgentIdentityOptions(agentAppId);
-
-            IAuthorizationHeaderProvider authorizationHeaderProvider =
-                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-            // Act — first call populates the agent CCA and account IDs
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+            // Populate 2 agents (at threshold, not over)
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
                 new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: options,
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
                 claimsPrincipal: null);
 
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 1);
-            Assert.NotEmpty(tokenAcquisition._agentUserFicAccountIds);
-
-            // Wait for the entry to expire
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
-
-            // Act — manual sweep
-            int evicted = tokenAcquisition.SweepExpiredAgentCcas();
-
-            // Assert
-            Assert.Equal(1, evicted);
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 0);
-            Assert.True(tokenAcquisition._agentUserFicAccountIds.IsEmpty);
-        }
-
-        /// <summary>
-        /// Verifies that the sweep does not remove agent CCA entries that have been
-        /// recently accessed (i.e., the touch mechanism resets the idle timer).
-        /// </summary>
-        [Fact]
-        public async Task AgentCcaSweep_DoesNotRemoveRecentlyAccessedEntries()
-        {
-            // Arrange
-            string agentAppId = Guid.NewGuid().ToString("N");
-            var factory = InitTokenAcquirerFactoryForAgent();
-            IServiceProvider serviceProvider = factory.Build();
-
-            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 200;
-
-            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "sweep-token-2");
-
-            var options = CreateAgentIdentityOptions(agentAppId);
-
-            IAuthorizationHeaderProvider authorizationHeaderProvider =
-                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-            // Act — first call populates
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a2", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
                 new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: options,
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
                 claimsPrincipal: null);
 
-            // Touch via second call (cache hit, no new handlers needed)
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+            Assert.Equal(2, tokenAcquisition._agentUserFicCcas.Count);
+            Assert.Equal(2, tokenAcquisition._agentUserFicAccountIds.Count);
+
+            // Add 3rd agent — exceeds threshold, triggers clear
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a3", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
                 new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: options,
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent3, user1Upn),
                 claimsPrincipal: null);
 
-            // Sweep should find nothing expired (entry was just touched)
-            int evicted = tokenAcquisition.SweepExpiredAgentCcas();
-
-            // Assert
-            Assert.Equal(0, evicted);
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 1);
-        }
-
-        /// <summary>
-        /// Verifies that the sweep cleans up companion _agentUserFicAccountIds entries
-        /// when an agent CCA is evicted.
-        /// </summary>
-        [Fact]
-        public async Task AgentCcaSweep_CleansUpCompanionAccountIds()
-        {
-            // Arrange — two agents, each with their own user tokens
-            string agentAppId1 = Guid.NewGuid().ToString("N");
-            string agentAppId2 = Guid.NewGuid().ToString("N");
-            var factory = InitTokenAcquirerFactoryForAgent();
-            IServiceProvider serviceProvider = factory.Build();
-
-            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 50;
-
-            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
-
-            // Agent 1 flow
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "agent1-user-token");
-            var options1 = CreateAgentIdentityOptions(agentAppId1);
-            IAuthorizationHeaderProvider authorizationHeaderProvider =
-                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: options1,
-                claimsPrincipal: null);
-
-            // Agent 2 flow
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "agent2-user-token");
-            var options2 = CreateAgentIdentityOptions(agentAppId2);
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: options2,
-                claimsPrincipal: null);
-
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 2);
-            int accountIdsBefore = tokenAcquisition._agentUserFicAccountIds.Count;
-            Assert.True(accountIdsBefore >= 2, "Should have account IDs for both agents.");
-
-            // Wait for both to expire
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
-
-            // Act
-            int evicted = tokenAcquisition.SweepExpiredAgentCcas();
-
-            // Assert — both CCAs evicted, all companion account IDs cleaned up
-            Assert.Equal(2, evicted);
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 0);
-            Assert.True(tokenAcquisition._agentUserFicAccountIds.IsEmpty);
-        }
-
-        /// <summary>
-        /// Verifies that when only one of two agents expires, the sweep only evicts
-        /// the expired agent and leaves the other intact (including its account IDs).
-        /// </summary>
-        [Fact]
-        public async Task AgentCcaSweep_SelectiveEviction_OnlyRemovesExpiredAgent()
-        {
-            // Arrange
-            string agentAppIdOld = Guid.NewGuid().ToString("N");
-            string agentAppIdNew = Guid.NewGuid().ToString("N");
-            var factory = InitTokenAcquirerFactoryForAgent();
-            IServiceProvider serviceProvider = factory.Build();
-
-            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
-            // Use a generous idle threshold so the new agent stays well within bounds
-            // even under CI CPU contention. The old agent will be force-expired by
-            // reducing the threshold right before the sweep.
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 5000;
-
-            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
-
-            // Create old agent first
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "old-agent-token");
-            var optionsOld = CreateAgentIdentityOptions(agentAppIdOld);
-            IAuthorizationHeaderProvider authorizationHeaderProvider =
-                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: optionsOld,
-                claimsPrincipal: null);
-
-            // Wait long enough to create a clear gap between old and new agent timestamps.
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
-
-            AddAgentUserFicMockHandlers(mockHttpClient!, userAccessToken: "new-agent-token");
-            var optionsNew = CreateAgentIdentityOptions(agentAppIdNew);
-            await authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: optionsNew,
-                claimsPrincipal: null);
-
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 2);
-
-            // Now set a threshold that the old agent (200ms+ idle) exceeds
-            // but the new agent (just created) does not.
-            tokenAcquisition.AgentCcaMaxIdleMilliseconds = 100;
-
-            // Act
-            int evicted = tokenAcquisition.SweepExpiredAgentCcas();
-
-            // Assert — only old agent evicted
-            Assert.Equal(1, evicted);
-            Assert.True(tokenAcquisition._agentUserFicCcas.Count == 1);
-
-            // New agent's account IDs should still be present
-            bool hasNewAgentAccountId = false;
-            foreach (var kvp in tokenAcquisition._agentUserFicAccountIds)
-            {
-                if (kvp.Key.StartsWith(agentAppIdNew + ":", StringComparison.Ordinal))
-                {
-                    hasNewAgentAccountId = true;
-                    break;
-                }
-            }
-            Assert.True(hasNewAgentAccountId, "New agent's account IDs should survive the sweep.");
+            // Assert — CCA dictionary was cleared; only the 3rd agent's account ID remains
+            // (written after the clear, during Leg 3 of the triggering call)
+            Assert.Empty(tokenAcquisition._agentUserFicCcas);
+            Assert.Single(tokenAcquisition._agentUserFicAccountIds);
         }
 
         #endregion
