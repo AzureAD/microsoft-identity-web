@@ -694,7 +694,7 @@ namespace Microsoft.Identity.Web
                         }
 
                         var silentResult = await silentBuilder.ExecuteAsync().ConfigureAwait(false);
-                        Logger.AgentUserFicSilentSuccess(_logger, accountLookupKey);
+                        Logger.AgentUserFicSilentSuccess(_logger, agentAppId!, normalizedTenant);
                         return silentResult;
                     }
                     catch (MsalException ex)
@@ -702,7 +702,7 @@ namespace Microsoft.Identity.Web
                         // Catch all MSAL exceptions (not just MsalUiRequiredException) so that
                         // any silent failure (cache errors, client errors, etc.) falls back to
                         // the full 3-leg acquisition rather than propagating up as a hard failure.
-                        Logger.AgentUserFicSilentFailure(_logger, accountLookupKey, ex.ErrorCode ?? ex.GetType().Name, ex);
+                        Logger.AgentUserFicSilentFailure(_logger, agentAppId!, normalizedTenant, ex.ErrorCode ?? ex.GetType().Name, ex);
                     }
                 }
                 else

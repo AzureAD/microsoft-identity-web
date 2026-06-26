@@ -90,17 +90,17 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.AgentUserFicFlowDetected,
                     "[MsIdWeb] Agent User FIC flow detected for agent '{AgentAppId}' with user identifier type '{IdentifierType}'.");
 
-            private static readonly Action<ILogger, string, Exception?> s_agentUserFicSilentSuccess =
-                LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicSilentSuccess =
+                LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     LoggingEventId.AgentUserFicSilentSuccess,
-                    "[MsIdWeb] Agent User FIC silent token acquisition succeeded for key '{AccountLookupKey}'.");
+                    "[MsIdWeb] Agent User FIC silent token acquisition succeeded for agent '{AgentAppId}' in tenant '{TenantId}'.");
 
-            private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicSilentFailure =
-                LoggerMessage.Define<string, string>(
+            private static readonly Action<ILogger, string, string, string, Exception?> s_agentUserFicSilentFailure =
+                LoggerMessage.Define<string, string, string>(
                     LogLevel.Information,
                     LoggingEventId.AgentUserFicSilentFailure,
-                    "[MsIdWeb] Agent User FIC silent token acquisition failed for key '{AccountLookupKey}': {Reason}. Falling back to 3-leg acquisition.");
+                    "[MsIdWeb] Agent User FIC silent token acquisition failed for agent '{AgentAppId}' in tenant '{TenantId}': {Reason}. Falling back to 3-leg acquisition.");
 
             private static readonly Action<ILogger, string, string, Exception?> s_agentUserFicAcquisitionComplete =
                 LoggerMessage.Define<string, string>(
@@ -123,11 +123,11 @@ namespace Microsoft.Identity.Web
             public static void AgentUserFicFlowDetected(ILogger logger, string agentAppId, string identifierType)
                 => s_agentUserFicFlowDetected(logger, agentAppId, identifierType, null);
 
-            public static void AgentUserFicSilentSuccess(ILogger logger, string accountLookupKey)
-                => s_agentUserFicSilentSuccess(logger, accountLookupKey, null);
+            public static void AgentUserFicSilentSuccess(ILogger logger, string agentAppId, string tenantId)
+                => s_agentUserFicSilentSuccess(logger, agentAppId, tenantId, null);
 
-            public static void AgentUserFicSilentFailure(ILogger logger, string accountLookupKey, string reason, Exception? ex)
-                => s_agentUserFicSilentFailure(logger, accountLookupKey, reason, ex);
+            public static void AgentUserFicSilentFailure(ILogger logger, string agentAppId, string tenantId, string reason, Exception? ex)
+                => s_agentUserFicSilentFailure(logger, agentAppId, tenantId, reason, ex);
 
             public static void AgentUserFicAcquisitionComplete(ILogger logger, string agentAppId, string tokenSource)
                 => s_agentUserFicAcquisitionComplete(logger, agentAppId, tokenSource, null);
