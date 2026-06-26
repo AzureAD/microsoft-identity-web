@@ -758,9 +758,8 @@ namespace Microsoft.Identity.Web
 
             Logger.AgentUserFicAcquisitionComplete(_logger, agentAppId!, result.AuthenticationResultMetadata.TokenSource.ToString());
             // Store the account identifier for subsequent silent lookups.
-            // This parallels how other ID Web flows write oid/tid claims back into the
-            // ClaimsPrincipal after acquisition (see line ~541 in the ROPC path). Here,
-            // ClaimsPrincipal is unavailable, so we use _agentUserFicAccountIds instead.
+            // In other ID Web flows, this is persisted in the ClaimsPrincipal (oid+tid claims).
+            // Here, ClaimsPrincipal is unavailable, so we use _agentUserFicAccountIds instead.
             if (result.Account?.HomeAccountId is not null)
             {
                 _agentUserFicAccountIds[accountLookupKey] = result.Account.HomeAccountId.Identifier;
@@ -772,8 +771,9 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Gets or builds an agent CCA for the native User FIC flow. Each agent CCA uses an
         /// assertion callback that chains back to the blueprint CCA for Leg 1 (FMI token).
-        /// The agent CCA's in-memory cache provides natural token isolation per agent.
-        /// Entries are tracked with last-access timestamps for idle-based eviction.
+        /// Each agent CCA has a unique ClientId (the agent app ID), providing natural cache
+        /// key isolation in the shared static cache. Entries are tracked with last-access
+        /// timestamps for idle-based eviction.
         /// </summary>
         private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
             string agentAppId,
