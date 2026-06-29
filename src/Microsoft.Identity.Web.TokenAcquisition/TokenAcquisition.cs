@@ -1122,11 +1122,6 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: mergedOptions.ConfidentialClientApplicationOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
-                if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
-                {
-                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
-                }
-
                 string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
 
                 // The redirect URI is not needed for OBO
@@ -1215,11 +1210,8 @@ namespace Microsoft.Identity.Web
                 IConfidentialClientApplication app = builder.Build();
 
                 // Initialize token cache providers
-                if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
-                {
-                    _tokenCacheProvider.Initialize(app.AppTokenCache);
-                    _tokenCacheProvider.Initialize(app.UserTokenCache);
-                }
+                _tokenCacheProvider.Initialize(app.AppTokenCache);
+                _tokenCacheProvider.Initialize(app.UserTokenCache);
 
                 return app;
             }
@@ -1670,7 +1662,7 @@ namespace Microsoft.Identity.Web
         /// Temporary. Replace with Builder.WithClientAssertion when MSAL.NET supports it.
         /// </summary>
         private static bool OverrideClientAssertionIfNeeded<T>(TokenAcquisitionOptions? tokenAcquisitionOptions, AbstractConfidentialClientAcquireTokenParameterBuilder<T> builder)
-            where T: AbstractAcquireTokenParameterBuilder<T>
+            where T : AbstractAcquireTokenParameterBuilder<T>
         {
             if (tokenAcquisitionOptions == null || tokenAcquisitionOptions.ExtraParameters == null)
             {
