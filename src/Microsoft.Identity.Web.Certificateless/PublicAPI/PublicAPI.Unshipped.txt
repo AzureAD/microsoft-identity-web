@@ -1,5 +1,1 @@
 #nullable enable
-override Microsoft.Identity.Web.ManagedIdentityClientAssertion.GetSignedAssertionWithBindingAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ClientSignedAssertion?>!
-override Microsoft.Identity.Web.ManagedIdentityClientAssertion.SupportsTokenBinding.get -> bool
-virtual Microsoft.Identity.Web.ClientAssertionProviderBase.GetSignedAssertionWithBindingAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ClientSignedAssertion?>!
-virtual Microsoft.Identity.Web.ClientAssertionProviderBase.SupportsTokenBinding.get -> bool

@@ -733,6 +733,11 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
+                    // Make the outgoing request available to request-binding protocols (e.g. PoP SHR q/h/b) via the
+                    // AcquireTokenOptions.ExtraParameters SDK-to-SDK channel. Content is already set above. The helper
+                    // clones ExtraParameters before writing so concurrent calls never share this per-request value.
+                    effectiveOptions.AcquireTokenOptions.SetHttpRequestMessage(httpRequestMessage);
+
                     authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
                         effectiveOptions.Scopes,
                         effectiveOptions,
