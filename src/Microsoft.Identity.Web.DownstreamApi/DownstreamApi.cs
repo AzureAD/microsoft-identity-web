@@ -713,7 +713,28 @@ namespace Microsoft.Identity.Web
 
                 // Firstly check if it's token binding scenario so authorization header provider returns
                 // a binding certificate along with acquired authorization header.
-                if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
+                // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
+                // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
+                if (string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                    && _authorizationHeaderProvider is IAuthorizationHeaderProvider2 boundAuthorizationHeaderProviderV2)
+                {
+                    var authorizationHeaderResult = await boundAuthorizationHeaderProviderV2.CreateAuthorizationHeaderInformationAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (!authorizationHeaderResult.Succeeded)
+                    {
+                        // in theory it shouldn't happen because in case of error during token acquisition
+                        // there will be thrown corresponding exception, so it's more a safeguard
+                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
+                    }
+
+                    authorizationHeaderInformation = authorizationHeaderResult.Result;
+                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
+                }
+                else if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
                     && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
                 {
                     var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
