@@ -16,7 +16,10 @@ namespace Microsoft.Identity.Web
      * Any changes to this member (including removal) can cause runtime failures.
      * Treat as a public member.
      */
-    internal sealed class DefaultAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider
+    internal sealed class DefaultAuthorizationHeaderProvider :
+        IAuthorizationHeaderProvider,
+        IAuthorizationHeaderProvider2,
+        IBoundAuthorizationHeaderProvider
     {
         private static readonly object s_boxedTrue = true;
 
@@ -30,6 +33,11 @@ namespace Microsoft.Identity.Web
             _tokenAcquisition = tokenAcquisition;
         }
 
+        // ---------------------------------------------------------------------
+        // IAuthorizationHeaderProvider (string-returning) — thin adapters over
+        // the metadata-rich engine introduced for IAuthorizationHeaderProvider2.
+        // ---------------------------------------------------------------------
+
         /// <inheritdoc/>
         public async Task<string> CreateAuthorizationHeaderForUserAsync(
             IEnumerable<string> scopes,
@@ -37,17 +45,13 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
         {
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
-            var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
+            var info = await BuildHeaderInformationAsync(
                 scopes,
-                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                downstreamApiOptions?.AcquireTokenOptions.UserFlow,
+                downstreamApiOptions,
                 claimsPrincipal,
-                newTokenAcquisitionOptions).ConfigureAwait(false);
-
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
-            return result.CreateAuthorizationHeader();
+                forceAppToken: false,
+                cancellationToken).ConfigureAwait(false);
+            return info.AuthorizationHeaderValue!;
         }
 
         /// <inheritdoc/>
@@ -56,13 +60,13 @@ namespace Microsoft.Identity.Web
             AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
             CancellationToken cancellationToken = default)
         {
-            var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
-                scopes,
-                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken)).ConfigureAwait(false);
-
-            return result.CreateAuthorizationHeader();
+            var info = await BuildHeaderInformationAsync(
+                new[] { scopes },
+                downstreamApiOptions,
+                claimsPrincipal: null,
+                forceAppToken: true,
+                cancellationToken).ConfigureAwait(false);
+            return info.AuthorizationHeaderValue!;
         }
 
         /// <inheritdoc/>
@@ -72,88 +76,162 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? claimsPrincipal = null,
             CancellationToken cancellationToken = default)
         {
-            Client.AuthenticationResult result;
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
+            var info = await BuildHeaderInformationAsync(
+                scopes,
+                downstreamApiOptions,
+                claimsPrincipal,
+                forceAppToken: IsAppTokenRequest(downstreamApiOptions),
+                cancellationToken).ConfigureAwait(false);
+            return info.AuthorizationHeaderValue!;
+        }
 
-            // Previously, with the API name we were able to distinguish between app and user token acquisition
-            // This context is missing in the new API, so can we enforce that downstreamApiOptions.RequestAppToken
-            // needs to be set to true to acquire a token for the app. We cannot rely on ClaimsPrincipal as it can be null for user token acquisition.
+        // ---------------------------------------------------------------------
+        // IAuthorizationHeaderProvider2 (Abstractions 12.3.0+) — preferred surface.
+        // Returns the full AuthorizationHeaderInformation (header value, binding
+        // certificate, metadata) wrapped in an OperationResult.
+        // ---------------------------------------------------------------------
+
+        /// <inheritdoc/>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateAuthorizationHeaderInformationForUserAsync(
+            IEnumerable<string> scopes,
+            AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null,
+            ClaimsPrincipal? claimsPrincipal = default,
+            CancellationToken cancellationToken = default)
+        {
+            var info = await BuildHeaderInformationAsync(
+                scopes,
+                authorizationHeaderProviderOptions,
+                claimsPrincipal,
+                forceAppToken: false,
+                cancellationToken).ConfigureAwait(false);
+            return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(info);
+        }
+
+        /// <inheritdoc/>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateAuthorizationHeaderInformationForAppAsync(
+            string scopes,
+            AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
+            CancellationToken cancellationToken = default)
+        {
+            var info = await BuildHeaderInformationAsync(
+                new[] { scopes },
+                downstreamApiOptions,
+                claimsPrincipal: null,
+                forceAppToken: true,
+                cancellationToken).ConfigureAwait(false);
+            return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(info);
+        }
+
+        /// <inheritdoc/>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateAuthorizationHeaderInformationAsync(
+            IEnumerable<string> scopes,
+            AuthorizationHeaderProviderOptions? options = null,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
+        {
+            var info = await BuildHeaderInformationAsync(
+                scopes,
+                options,
+                claimsPrincipal,
+                forceAppToken: IsAppTokenRequest(options),
+                cancellationToken).ConfigureAwait(false);
+            return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(info);
+        }
+
+        // ---------------------------------------------------------------------
+        // IBoundAuthorizationHeaderProvider — kept for source/binary compat.
+        // New code should call IAuthorizationHeaderProvider2 instead. The body
+        // is now a thin adapter over the same engine so behavior is identical.
+        // ---------------------------------------------------------------------
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Retained for backward compatibility. Prefer
+        /// <see cref="IAuthorizationHeaderProvider2.CreateAuthorizationHeaderInformationAsync"/>
+        /// for new code; both paths share the same implementation.
+        /// </remarks>
+        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateBoundAuthorizationHeaderAsync(
+            DownstreamApiOptions downstreamApiOptions,
+            ClaimsPrincipal? claimsPrincipal = null,
+            CancellationToken cancellationToken = default)
+        {
+            var info = await BuildHeaderInformationAsync(
+                downstreamApiOptions?.Scopes ?? Enumerable.Empty<string>(),
+                downstreamApiOptions,
+                claimsPrincipal,
+                forceAppToken: IsAppTokenRequest(downstreamApiOptions),
+                cancellationToken).ConfigureAwait(false);
+            return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(info);
+        }
+
+        // ---------------------------------------------------------------------
+        // Engine: single code path used by every public method above.
+        // ---------------------------------------------------------------------
+
+        private async Task<AuthorizationHeaderInformation> BuildHeaderInformationAsync(
+            IEnumerable<string> scopes,
+            AuthorizationHeaderProviderOptions? options,
+            ClaimsPrincipal? claimsPrincipal,
+            bool forceAppToken,
+            CancellationToken cancellationToken)
+        {
+            bool isTokenBinding = string.Equals(options?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
+
+            // Token binding (mTLS PoP) currently supports app tokens only.
+            if (isTokenBinding && !forceAppToken)
+            {
+                throw new ArgumentException(
+                    IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition,
+                    nameof(options.RequestAppToken));
+            }
+
+            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(options, cancellationToken);
+
+            // Previously, with the API name we were able to distinguish between app and user token acquisition.
+            // This context is missing in the new API, so we rely on AuthorizationHeaderProviderOptions.RequestAppToken
+            // (or a ManagedIdentity binding) to switch into the app flow. We cannot rely on ClaimsPrincipal as it can be
+            // null for user token acquisition.
             // DevEx Before:
             // await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default").ConfigureAwait(false);
             // DevEx with the new API:
             // await authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
             //  new [] { "https://graph.microsoft.com/.default" },
             //  new AuthorizationHeaderProviderOptions { RequestAppToken = true }).ConfigureAwait(false);
-            if (downstreamApiOptions != null && (downstreamApiOptions.RequestAppToken || downstreamApiOptions.AcquireTokenOptions?.ManagedIdentity != null))
+            Client.AuthenticationResult result;
+            if (forceAppToken)
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                     scopes.FirstOrDefault()!,
-                    downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                    downstreamApiOptions?.AcquireTokenOptions.Tenant,
+                    options?.AcquireTokenOptions.AuthenticationOptionsName,
+                    options?.AcquireTokenOptions.Tenant,
                     newTokenAcquisitionOptions).ConfigureAwait(false);
             }
             else
             {
                 result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
                     scopes,
-                    downstreamApiOptions?.AcquireTokenOptions?.AuthenticationOptionsName,
-                    downstreamApiOptions?.AcquireTokenOptions?.Tenant,
-                    downstreamApiOptions?.AcquireTokenOptions?.UserFlow,
+                    options?.AcquireTokenOptions?.AuthenticationOptionsName,
+                    options?.AcquireTokenOptions?.Tenant,
+                    options?.AcquireTokenOptions?.UserFlow,
                     claimsPrincipal,
                     newTokenAcquisitionOptions).ConfigureAwait(false);
             }
 
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
-            return result.CreateAuthorizationHeader();
+            UpdateOriginalTokenAcquisitionOptions(options?.AcquireTokenOptions, newTokenAcquisitionOptions);
+
+            return new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = result.CreateAuthorizationHeader(),
+                BindingCertificate = isTokenBinding ? result.BindingCertificate : null,
+                Metadata = AcquireTokenResultFactory.GetMetadata(result),
+                AdditionalResponseParameters = result.AdditionalResponseParameters,
+            };
         }
 
-        /// <inheritdoc/>
-        public async Task<OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>> CreateBoundAuthorizationHeaderAsync(
-            DownstreamApiOptions downstreamApiOptions,
-            ClaimsPrincipal? claimsPrincipal = null,
-            CancellationToken cancellationToken = default)
+        private static bool IsAppTokenRequest(AuthorizationHeaderProviderOptions? options)
         {
-            if (!string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                var authorizationHeaderValue = await CreateAuthorizationHeaderAsync(
-                    downstreamApiOptions?.Scopes ?? Enumerable.Empty<string>(),
-                    downstreamApiOptions,
-                    claimsPrincipal,
-                    cancellationToken).ConfigureAwait(false);
-
-                var result = new AuthorizationHeaderInformation()
-                {
-                    AuthorizationHeaderValue = authorizationHeaderValue,
-                    BindingCertificate = null,
-                };
-
-                return new(result);
-            }
-
-            // Token binding flow currently supports only app tokens.
-            if (!(downstreamApiOptions?.RequestAppToken ?? false))
-            {
-                throw new ArgumentException(IDWebErrorMessage.TokenBindingRequiresEnabledAppTokenAcquisition, nameof(downstreamApiOptions.RequestAppToken));
-            }
-
-            var newTokenAcquisitionOptions = CreateTokenAcquisitionOptionsFromApiOptions(downstreamApiOptions, cancellationToken);
-
-            var tokenAcquisitionResult = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
-                downstreamApiOptions?.Scopes?.FirstOrDefault()!,
-                downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
-                downstreamApiOptions?.AcquireTokenOptions.Tenant,
-                newTokenAcquisitionOptions).ConfigureAwait(false);
-
-            UpdateOriginalTokenAcquisitionOptions(downstreamApiOptions?.AcquireTokenOptions, newTokenAcquisitionOptions);
-
-            var authorizationHeader = tokenAcquisitionResult.CreateAuthorizationHeader();
-            var authorizationHeaderInformation = new AuthorizationHeaderInformation()
-            {
-                AuthorizationHeaderValue = authorizationHeader,
-                BindingCertificate = tokenAcquisitionResult.BindingCertificate
-            };
-
-            return new(authorizationHeaderInformation);
+            return options != null
+                && (options.RequestAppToken || options.AcquireTokenOptions?.ManagedIdentity != null);
         }
 
         private static TokenAcquisitionOptions CreateTokenAcquisitionOptionsFromApiOptions(
