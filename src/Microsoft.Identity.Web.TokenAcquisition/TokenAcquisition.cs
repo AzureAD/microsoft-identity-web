@@ -63,9 +63,11 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Maximum number of agent CCA instances to keep in the dictionary before
-        /// clearing it as a DOS protection measure. Since tokens are stored in MSAL's
-        /// shared static cache (not per-CCA), clearing the dictionary only discards
-        /// lightweight CCA objects — tokens remain accessible to newly-built CCAs.
+        /// clearing it as a DOS protection measure. When <see cref="UseSharedCacheForAgentCcas"/>
+        /// is enabled (the default), tokens are stored in MSAL's shared static cache, so
+        /// clearing the dictionary only discards lightweight CCA objects — tokens remain
+        /// accessible to newly-built CCAs. When shared cache is disabled, clearing the
+        /// dictionary also discards the per-instance in-memory token caches.
         /// </summary>
         internal int AgentCcaMaxCount { get; set; } = 10000;
 
@@ -92,7 +94,8 @@ namespace Microsoft.Identity.Web
         /// request (bot/service pattern), so there is no persistent object to write back to.
         /// This dictionary fills that role, keyed by "{agentAppId}:{USER_IDENTIFIER}:{TENANTID}"
         /// where USER_IDENTIFIER is either the normalized UPN or OID.
-        /// Entries are cleaned up when MSAL evicts the corresponding account from its cache.
+        /// Entries are cleaned up opportunistically (when GetAccountAsync returns null during
+        /// a silent attempt) or when the CCA dictionary is cleared due to size-threshold eviction.
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
@@ -600,11 +603,13 @@ namespace Microsoft.Identity.Web
                 return null;
             }
 
-            string? agentAppId = agentObj as string;
+            string? agentAppId = agentObj as string ?? agentObj?.ToString();
             if (string.IsNullOrEmpty(agentAppId))
             {
                 return null;
             }
+
+            agentAppId = agentAppId.ToUpperInvariant();
 
             // Determine user identifier: UPN takes precedence over OID (matching WithAgentUserIdentity behavior).
             string? username = null;
@@ -618,7 +623,8 @@ namespace Microsoft.Identity.Web
                 userIdentifierForCacheKey = upn.ToUpperInvariant();
             }
             else if (extraParameters.TryGetValue(Constants.UserIdKey, out object? userIdObj)
-                     && userIdObj is string oidStr && Guid.TryParse(oidStr, out Guid parsedOid))
+                     && (userIdObj is string oidStr || (oidStr = userIdObj?.ToString()!) is not null)
+                     && Guid.TryParse(oidStr, out Guid parsedOid))
             {
                 userObjectId = parsedOid;
                 userIdentifierForCacheKey = parsedOid.ToString("D").ToUpperInvariant();
@@ -735,8 +741,8 @@ namespace Microsoft.Identity.Web
         /// Gets or builds an agent CCA for the native User FIC flow. Each agent CCA uses an
         /// assertion callback that chains back to the blueprint CCA for Leg 1 (FMI token).
         /// Each agent CCA has a unique ClientId (the agent app ID), providing natural cache
-        /// key isolation in the shared static cache. Entries are tracked with last-access
-        /// timestamps for idle-based eviction.
+        /// key isolation in the shared static cache. When the dictionary exceeds
+        /// <see cref="AgentCcaMaxCount"/>, it is cleared entirely as DOS protection.
         /// </summary>
         private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
             string agentAppId,
@@ -822,6 +828,7 @@ namespace Microsoft.Identity.Web
                     int cleared = _agentUserFicCcas.Count;
                     _agentUserFicCcas.Clear();
                     _agentUserFicAccountIds.Clear();
+                    _agentCcaSemaphores.Clear();
                     Logger.AgentCcaEviction(_logger, cleared, 0);
                 }
 

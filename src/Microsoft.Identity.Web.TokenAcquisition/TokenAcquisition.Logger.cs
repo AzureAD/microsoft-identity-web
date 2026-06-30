@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Web
                 LoggerMessage.Define<int, int>(
                     LogLevel.Information,
                     LoggingEventId.AgentCcaEviction,
-                    "[MsIdWeb] Agent CCA sweep evicted {EvictedCount} entries. Remaining: {RemainingCount}.");
+                    "[MsIdWeb] Agent CCA cache cleared {EvictedCount} entries (exceeded size threshold). Remaining: {RemainingCount}.");
 
             public static void AgentUserFicFlowDetected(ILogger logger, string agentAppId, string identifierType)
                 => s_agentUserFicFlowDetected(logger, agentAppId, identifierType, null);
