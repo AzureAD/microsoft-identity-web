@@ -609,8 +609,6 @@ namespace Microsoft.Identity.Web
                 return null;
             }
 
-            agentAppId = agentAppId.ToUpperInvariant();
-
             // Determine user identifier: UPN takes precedence over OID (matching WithAgentUserIdentity behavior).
             string? username = null;
             Guid? userObjectId = null;
