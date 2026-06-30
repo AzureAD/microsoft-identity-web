@@ -1,3 +1,11 @@
+## 4.12.0
+
+### New features
+- Implement `IAuthorizationHeaderProvider2` (from `Microsoft.Identity.Abstractions` 12.3.0) on `DefaultAuthorizationHeaderProvider` and the public `BaseAuthorizationHeaderProvider`, exposing the metadata-rich `CreateAuthorizationHeaderInformation*` surface (returning `OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>`) with binding-certificate propagation. `DownstreamApi` and `MicrosoftIdentityMessageHandler` now prefer `IAuthorizationHeaderProvider2` for mTLS PoP and soft-deprecate the bound-only `IBoundAuthorizationHeaderProvider` path (kept as a fallback for source/binary compatibility).
+
+### Dependencies updates
+- Update `Microsoft.Identity.Abstractions` to 12.3.0.
+
 ## 4.11.0
 
 ### New features
