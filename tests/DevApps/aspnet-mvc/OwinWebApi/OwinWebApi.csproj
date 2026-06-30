@@ -105,13 +105,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
-  <!-- Microsoft.IdentityModel.Tokens.Saml is pulled in transitively by WsFederation 5.5.0
-       (intentionally kept at 5.5.0, see .github/dependabot.yml). The patched 5.7.1 (fixes the
-       unauthenticated SAML token parsing DoS advisory,
-       https://aka.ms/mise/advisories/UnauthenticatedSAMLTokenParsing) is only published on the
-       internal IDDP feed used by the OneBranch / Azure DevOps pipelines, which set TF_BUILD. On
-       the public nuget.org feed (GitHub Actions / local restore) only 5.7.0 is available, so fall
-       back to it there. Can be overridden explicitly with -p:SamlPackageVersion=x.y.z. -->
+
   <PropertyGroup>
     <SamlPackageVersion Condition="'$(SamlPackageVersion)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</SamlPackageVersion>
     <SamlPackageVersion Condition="'$(SamlPackageVersion)' == ''">5.7.0</SamlPackageVersion>
