@@ -715,7 +715,8 @@ namespace Microsoft.Identity.Web
                 // a binding certificate along with acquired authorization header.
                 // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
                 // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
-                if (string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                bool isTokenBinding = string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
+                if (isTokenBinding
                     && _authorizationHeaderProvider is IAuthorizationHeaderProvider2 boundAuthorizationHeaderProviderV2)
                 {
                     var authorizationHeaderResult = await boundAuthorizationHeaderProviderV2.CreateAuthorizationHeaderInformationAsync(
@@ -734,8 +735,9 @@ namespace Microsoft.Identity.Web
                     authorizationHeaderInformation = authorizationHeaderResult.Result;
                     authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
                 }
-                else if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
-                    && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                // for backwards compatibility.
+                else if (isTokenBinding
+                    && _authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider)
                 {
                     var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
                         effectiveOptions,

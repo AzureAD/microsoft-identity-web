@@ -486,7 +486,8 @@ namespace Microsoft.Identity.Web
                 // mTLS PoP (Proof-of-Possession) token binding: bound bearer header + binding certificate.
                 // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
                 // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
-                if (string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                bool isTokenBinding = string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
+                if (isTokenBinding
                     && _headerProvider is IAuthorizationHeaderProvider2 boundProviderV2)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
@@ -509,7 +510,8 @@ namespace Microsoft.Identity.Web
                         credentialDescription: null);
                 }
 
-                if (string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                // for backwards compatibility.
+                else if (isTokenBinding
                     && _headerProvider is IBoundAuthorizationHeaderProvider boundProvider)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
