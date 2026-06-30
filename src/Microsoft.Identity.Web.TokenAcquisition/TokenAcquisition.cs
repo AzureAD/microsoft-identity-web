@@ -61,6 +61,53 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, IConfidentialClientApplication?> _applicationsByAuthorityClientId = new();
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
+        /// <summary>
+        /// Maximum number of agent CCA instances to keep in the dictionary before
+        /// clearing it as a DOS protection measure. When <see cref="UseSharedCacheForAgentCcas"/>
+        /// is enabled (the default), tokens are stored in MSAL's shared static cache, so
+        /// clearing the dictionary only discards lightweight CCA objects — tokens remain
+        /// accessible to newly-built CCAs. When shared cache is disabled, clearing the
+        /// dictionary also discards the per-instance in-memory token caches.
+        /// </summary>
+        internal int AgentCcaMaxCount { get; set; } = 10000;
+
+        /// <summary>
+        /// Caches agent CCAs for the native User FIC flow. Each agent CCA uses an assertion
+        /// callback that chains to the blueprint CCA for Leg 1 (FMI token acquisition).
+        /// Key format: "{agentAppId}:{authenticationScheme}".
+        /// The authenticationScheme is included because different schemes may resolve to
+        /// different blueprint credentials (e.g. certificates), and the agent CCA's assertion
+        /// callback captures the scheme to chain to the correct blueprint CCA.
+        /// When the dictionary exceeds <see cref="AgentCcaMaxCount"/>, it is cleared entirely;
+        /// tokens survive in MSAL's shared static cache and are found by new CCAs via silent calls.
+        /// </summary>
+        internal readonly ConcurrentDictionary<string, IConfidentialClientApplication> _agentUserFicCcas = new();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _agentCcaSemaphores = new();
+
+        /// <summary>
+        /// Maps (agentAppId, user identifier, tenantId) tuples to MSAL account identifiers for the
+        /// native User FIC flow. This is needed because AcquireTokenSilent requires an IAccount,
+        /// which can only be obtained from GetAccountAsync(identifier) using an identifier that
+        /// comes back from a prior token acquisition. In all other ID Web flows, this identifier
+        /// is stored in the ClaimsPrincipal (via GetMsalAccountId / oid+tid claims). In the
+        /// agentic scenario, however, ClaimsPrincipal is typically null or freshly created per
+        /// request (bot/service pattern), so there is no persistent object to write back to.
+        /// This dictionary fills that role, keyed by "{agentAppId}:{USER_IDENTIFIER}:{TENANTID}"
+        /// where USER_IDENTIFIER is either the normalized UPN or OID.
+        /// Entries are cleaned up opportunistically (when GetAccountAsync returns null during
+        /// a silent attempt) or when the CCA dictionary is cleared due to size-threshold eviction.
+        /// </summary>
+        internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
+
+        /// <summary>
+        /// When true, agent User FIC CCAs use MSAL's shared (process-level static) cache.
+        /// This allows tokens to survive CCA re-creation after eviction.
+        /// Defaults to true; set to false in tests that need per-instance cache isolation.
+        /// </summary>
+        internal bool UseSharedCacheForAgentCcas { get; set; } = true;
+
+        private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
+
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
@@ -404,31 +451,23 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
+            // Handle agentic User FIC flow (both UPN and OID) using MSAL's native UserFIC API.
+            // This bypasses the ROPC piggybacking approach and provides proper cache behavior.
+            var agentUserFicResult = await TryGetAuthenticationResultForAgentUserFicAsync(
+                application, tenantId, scopes, mergedOptions, tokenAcquisitionOptions).ConfigureAwait(false);
+            if (agentUserFicResult is not null)
+            {
+                return agentUserFicResult;
+            }
+
             string? username = null;
             string? password = null;
-            string? agentIdentity = string.Empty;
 
             // Case where the user is passed through the Claims identity
             if (user != null && user.HasClaim(c => c.Type == ClaimConstants.Username) && user.HasClaim(c => c.Type == ClaimConstants.Password))
             {
                 username = user.FindFirst(ClaimConstants.Username)?.Value ?? string.Empty;
                 password = user.FindFirst(ClaimConstants.Password)?.Value ?? string.Empty;
-            }
-
-            // Case of the Agent User identities
-            var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
-            if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UsernameKey))
-            {
-                // If the agentId is present, we can use it
-                username = extraParameters[Constants.UsernameKey] as string;
-                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
-                password = "password";
-            }
-            else if (extraParameters != null && extraParameters.ContainsKey(Constants.AgentIdentityKey) && extraParameters.ContainsKey(Constants.UserIdKey))
-            {
-                username = extraParameters[Constants.UserIdKey]?.ToString();
-                agentIdentity = extraParameters[Constants.AgentIdentityKey] as string;
-                password = "password"; // placeholder removed by add-in
             }
 
             if (username == null)
@@ -525,6 +564,328 @@ namespace Microsoft.Identity.Web
             }
 
             return authenticationResult;
+        }
+
+        /// <summary>
+        /// Handles agentic User FIC flow using MSAL's native
+        /// AcquireTokenByUserFederatedIdentityCredential
+        /// API (UPN overload for username-based flows, OID overload for user object ID flows).
+        /// This replaces the ROPC piggybacking approach, providing proper token cache behavior
+        /// via MSAL's built-in cache.
+        ///
+        /// The flow follows the multi-CCA pattern:
+        ///   Leg 1: Blueprint CCA acquires FMI token (T1) for the agent — handled transparently
+        ///          by the agent CCA's assertion callback (see <see cref="GetOrBuildAgentUserFicCcaAsync"/>).
+        ///   Leg 2: Agent CCA acquires instance token (T2) via AcquireTokenForClient.
+        ///   Leg 3: Agent CCA exchanges T2 + user identifier for a user-scoped token via native UserFIC.
+        ///
+        /// On subsequent calls, AcquireTokenSilent returns the cached token without network calls.
+        /// Unlike other ID Web flows where the MSAL account identifier is stored in the
+        /// ClaimsPrincipal (via oid/tid claims), the agentic scenario typically has a null or
+        /// request-scoped ClaimsPrincipal — so account identifiers are tracked in
+        /// <see cref="_agentUserFicAccountIds"/> instead.
+        /// </summary>
+        /// <returns>An <see cref="AuthenticationResult"/> if this is an agentic User FIC flow
+        /// (UPN or OID); <c>null</c> if not an agentic flow (regular ROPC).</returns>
+        private async Task<AuthenticationResult?> TryGetAuthenticationResultForAgentUserFicAsync(
+            IConfidentialClientApplication application,
+            string? tenantId,
+            IEnumerable<string> scopes,
+            MergedOptions mergedOptions,
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            var extraParameters = tokenAcquisitionOptions?.ExtraParameters;
+
+            // Detect agentic flow: requires AgentIdentityKey plus either UsernameKey (UPN) or UserIdKey (OID).
+            if (extraParameters is null
+                || !extraParameters.TryGetValue(Constants.AgentIdentityKey, out object? agentObj))
+            {
+                return null;
+            }
+
+            string? agentAppId = agentObj as string ?? agentObj?.ToString();
+            if (string.IsNullOrEmpty(agentAppId))
+            {
+                return null;
+            }
+
+            // Determine user identifier: UPN takes precedence over OID (matching WithAgentUserIdentity behavior).
+            string? username = null;
+            Guid? userObjectId = null;
+            string? userIdentifierForCacheKey = null;
+
+            if (extraParameters.TryGetValue(Constants.UsernameKey, out object? usernameObj)
+                && usernameObj is string upn && !string.IsNullOrEmpty(upn))
+            {
+                username = upn;
+                userIdentifierForCacheKey = upn.ToUpperInvariant();
+            }
+            else if (extraParameters.TryGetValue(Constants.UserIdKey, out object? userIdObj)
+                     && (userIdObj is string oidStr || (oidStr = userIdObj?.ToString()!) is not null)
+                     && Guid.TryParse(oidStr, out Guid parsedOid))
+            {
+                userObjectId = parsedOid;
+                userIdentifierForCacheKey = parsedOid.ToString("D").ToUpperInvariant();
+            }
+            else
+            {
+                // Neither UPN nor valid OID — not a user FIC flow we can handle.
+                return null;
+            }
+
+            string? authScheme = tokenAcquisitionOptions?.AuthenticationOptionsName;
+            string identifierType = username is not null ? "UPN" : "OID";
+            Logger.AgentUserFicFlowDetected(_logger, agentAppId!, identifierType);
+
+            var agentCca = await GetOrBuildAgentUserFicCcaAsync(
+                agentAppId!, application.Authority, authScheme).ConfigureAwait(false);
+
+            bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
+
+            // Try silent retrieval first using a stored account identifier from a prior call.
+            // Include tenantId in the key so cross-tenant calls don't collide.
+            // authenticationScheme is intentionally excluded: a given (agent, user, tenant)
+            // tuple maps to a single MSAL account identity regardless of which auth scheme
+            // was used. The CCA selected above is already scheme-specific, and GetAccountAsync
+            // returns the same account from any CCA that shares the user's cache partition.
+            string normalizedTenant = tenantId?.ToUpperInvariant() ?? string.Empty;
+            string accountLookupKey = $"{agentAppId}:{userIdentifierForCacheKey}:{normalizedTenant}";
+            if (!forceRefresh
+                && _agentUserFicAccountIds.TryGetValue(accountLookupKey, out string? cachedAccountId)
+                && !string.IsNullOrEmpty(cachedAccountId))
+            {
+                var account = await agentCca.GetAccountAsync(cachedAccountId).ConfigureAwait(false);
+                if (account is not null)
+                {
+                    try
+                    {
+                        var silentBuilder = agentCca.AcquireTokenSilent(
+                            scopes.Except(_scopesRequestedByMsal),
+                            account);
+                        if (!string.IsNullOrEmpty(tenantId))
+                        {
+                            silentBuilder.WithTenantId(tenantId);
+                        }
+
+                        var silentResult = await silentBuilder.ExecuteAsync().ConfigureAwait(false);
+                        Logger.AgentUserFicSilentSuccess(_logger, agentAppId!, normalizedTenant);
+                        return silentResult;
+                    }
+                    catch (MsalException ex)
+                    {
+                        // Catch all MSAL exceptions (not just MsalUiRequiredException) so that
+                        // any silent failure (cache errors, client errors, etc.) falls back to
+                        // the full 3-leg acquisition rather than propagating up as a hard failure.
+                        Logger.AgentUserFicSilentFailure(_logger, agentAppId!, normalizedTenant, ex.ErrorCode ?? ex.GetType().Name, ex);
+                    }
+                }
+                else
+                {
+                    // Account was evicted from MSAL's cache — remove stale mapping.
+                    _agentUserFicAccountIds.TryRemove(accountLookupKey, out _);
+                }
+            }
+
+            // Leg 2: Get the agent's instance token (T2).
+            // The assertion callback handles Leg 1 (blueprint → T1) transparently.
+            var leg2Builder = agentCca.AcquireTokenForClient(s_ficScopes);
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                leg2Builder.WithTenantId(tenantId);
+            }
+
+            var leg2 = await leg2Builder.ExecuteAsync().ConfigureAwait(false);
+
+            // Leg 3: Exchange T2 + user identifier for a user-scoped token via native UserFIC.
+            // Uses the UPN overload when username is available, OID overload otherwise.
+            AcquireTokenByUserFederatedIdentityCredentialParameterBuilder leg3Builder;
+            if (username is not null)
+            {
+                leg3Builder = ((IByUserFederatedIdentityCredential)agentCca)
+                    .AcquireTokenByUserFederatedIdentityCredential(
+                        scopes.Except(_scopesRequestedByMsal),
+                        username,
+                        leg2.AccessToken);
+            }
+            else
+            {
+                leg3Builder = ((IByUserFederatedIdentityCredential)agentCca)
+                    .AcquireTokenByUserFederatedIdentityCredential(
+                        scopes.Except(_scopesRequestedByMsal),
+                        userObjectId!.Value,
+                        leg2.AccessToken);
+            }
+
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                leg3Builder.WithTenantId(tenantId);
+            }
+
+            var result = await leg3Builder.ExecuteAsync().ConfigureAwait(false);
+
+            Logger.AgentUserFicAcquisitionComplete(_logger, agentAppId!, result.AuthenticationResultMetadata.TokenSource.ToString());
+            // Store the account identifier for subsequent silent lookups.
+            // In other ID Web flows, this is persisted in the ClaimsPrincipal (oid+tid claims).
+            // Here, ClaimsPrincipal is unavailable, so we use _agentUserFicAccountIds instead.
+            if (result.Account?.HomeAccountId is not null)
+            {
+                _agentUserFicAccountIds[accountLookupKey] = result.Account.HomeAccountId.Identifier;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets or builds an agent CCA for the native User FIC flow. Each agent CCA uses an
+        /// assertion callback that chains back to the blueprint CCA for Leg 1 (FMI token).
+        /// Each agent CCA has a unique ClientId (the agent app ID), providing natural cache
+        /// key isolation in the shared static cache. When the dictionary exceeds
+        /// <see cref="AgentCcaMaxCount"/>, it is cleared entirely as DOS protection.
+        /// </summary>
+        private async Task<IConfidentialClientApplication> GetOrBuildAgentUserFicCcaAsync(
+            string agentAppId,
+            string authority,
+            string? authenticationScheme)
+        {
+            // Include authenticationScheme in the CCA cache key so different schemes
+            // (pointing to different blueprint credentials) get separate CCAs.
+            // Authority is intentionally excluded: within a single TokenAcquisition instance,
+            // the authority is derived from the one configured MergedOptions and does not vary
+            // per call. Multi-authority scenarios would require separate TokenAcquisition instances.
+            string ccaCacheKey = $"{agentAppId}:{authenticationScheme ?? string.Empty}";
+
+            if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var existing))
+            {
+                return existing;
+            }
+
+            var semaphore = _agentCcaSemaphores.GetOrAdd(ccaCacheKey, _ => new SemaphoreSlim(1, 1));
+            await semaphore.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (_agentUserFicCcas.TryGetValue(ccaCacheKey, out var entry))
+                {
+                    return entry;
+                }
+
+                // Capture authenticationScheme for the assertion callback closure.
+                string? capturedAuthScheme = authenticationScheme;
+
+                var builder = ConfidentialClientApplicationBuilder
+                    .Create(agentAppId)
+                    .WithClientAssertion(async (AssertionRequestOptions options) =>
+                    {
+                        // Leg 1: Blueprint acquires FMI token (T1) for this agent.
+                        // AcquireTokenForClient checks cache first — only the first call
+                        // or an expired T1 hits the network.
+                        MergedOptions blueprintOptions = _tokenAcquisitionHost.GetOptions(capturedAuthScheme, out _);
+                        var blueprintCca = await GetOrBuildConfidentialClientApplicationAsync(
+                            blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
+
+                        var leg1Builder = blueprintCca
+                            .AcquireTokenForClient(s_ficScopes)
+                            .WithFmiPath(agentAppId)
+                            .WithSendX5C(blueprintOptions.SendX5C);
+
+                        // Propagate tenant override to Leg 1 when the caller specifies a tenant
+                        // (e.g., via WithTenantId on Leg 2/3). Extract tenant from the token
+                        // endpoint provided by MSAL, matching the pattern used by
+                        // OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance.
+                        string? leg1Tenant = ExtractTenantFromTokenEndpointIfSameInstance(
+                                options.TokenEndpoint,
+                                blueprintOptions.Instance);
+                        if (!string.IsNullOrEmpty(leg1Tenant))
+                        {
+                            leg1Builder.WithTenantId(leg1Tenant);
+                        }
+
+                        var leg1 = await leg1Builder
+                            .ExecuteAsync(options.CancellationToken)
+                            .ConfigureAwait(false);
+
+                        return leg1.AccessToken;
+                    })
+                    .WithAuthority(authority)
+                    .WithHttpClientFactory(_httpClientFactory)
+                    .WithExperimentalFeatures();
+
+                if (UseSharedCacheForAgentCcas)
+                {
+                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
+                }
+
+                var newApp = builder.Build();
+
+                _agentUserFicCcas[ccaCacheKey] = newApp;
+                Logger.AgentCcaCreated(_logger, ccaCacheKey);
+
+                // DOS protection: if the dictionary grows beyond the threshold, clear it.
+                // Tokens survive in MSAL's shared static cache and will be found by new CCAs.
+                if (_agentUserFicCcas.Count > AgentCcaMaxCount)
+                {
+                    int cleared = _agentUserFicCcas.Count;
+                    _agentUserFicCcas.Clear();
+                    _agentUserFicAccountIds.Clear();
+                    _agentCcaSemaphores.Clear();
+                    Logger.AgentCcaEviction(_logger, cleared, 0);
+                }
+
+                return newApp;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Extracts the tenant ID from an OAuth2 token endpoint URL when the endpoint belongs
+        /// to the same cloud instance as the configured authority. Returns null if the hosts
+        /// don't match (cross-cloud) or the URL format is unrecognized.
+        /// Token endpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
+        /// </summary>
+        /// <remarks>
+        /// This is the same logic as OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance,
+        /// duplicated here because that method is internal to the OidcFIC project.
+        /// </remarks>
+        internal static string? ExtractTenantFromTokenEndpointIfSameInstance(
+            string? tokenEndpoint, string? configuredInstance)
+        {
+            if (string.IsNullOrEmpty(tokenEndpoint) || string.IsNullOrEmpty(configuredInstance))
+            {
+                return null;
+            }
+
+            try
+            {
+                var endpointUri = new Uri(tokenEndpoint!);
+                var instanceUri = new Uri(configuredInstance!.TrimEnd('/'));
+
+                if (!string.Equals(endpointUri.Host, instanceUri.Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var pathSegments = endpointUri.AbsolutePath.Split(
+                    new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (pathSegments.Length >= 2)
+                {
+                    for (int i = 1; i < pathSegments.Length; i++)
+                    {
+                        if (string.Equals(pathSegments[i], "oauth2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return pathSegments[0];
+                        }
+                    }
+                }
+            }
+            catch (UriFormatException)
+            {
+                // Invalid URI — fall through to return null.
+            }
+
+            return null;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
