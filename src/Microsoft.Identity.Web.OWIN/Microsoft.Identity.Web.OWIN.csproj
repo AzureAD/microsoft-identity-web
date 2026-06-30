@@ -16,24 +16,11 @@
     <DocumentationFile>Microsoft.Identity.Web.OWIN.xml</DocumentationFile>
   </PropertyGroup>
 
-  <!-- WsFederation and the Microsoft.IdentityModel.Tokens.Saml it pulls in are kept on a single
-       version so the shared Microsoft.IdentityModel.Xml assembly does not conflict (MSB3277). The
-       patched 5.7.1 (fixes the unauthenticated SAML token parsing DoS advisory,
-       https://aka.ms/mise/advisories/UnauthenticatedSAMLTokenParsing) is only published on the
-       internal IDDP feed used by the OneBranch / Azure DevOps pipelines, which set TF_BUILD. On
-       the public nuget.org feed (GitHub Actions / local restore) only 5.7.0 is available, so fall
-       back to it there. Can be overridden explicitly with -p:IdentityModelV5Version=x.y.z. -->
   <PropertyGroup>
     <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</IdentityModelV5Version>
     <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == ''">5.7.0</IdentityModelV5Version>
   </PropertyGroup>
 
-  <!-- The internal patched 5.7.1 IdentityModel assemblies carry assembly version 0.0.1.0, which is
-       lower than the 5.3.0.0 reference that the (fixed-version) Microsoft.Owin.Security.ActiveDirectory
-       4.2.2 was compiled against, so MSBuild cannot unify them and emits MSB3277 on net472. This is
-       harmless (consumers apply binding redirects) and only occurs with the internal 5.7.1 build, so
-       demote MSB3277 to a message there. Public builds (5.7.0, assembly version 5.7.0.0) unify cleanly
-       and keep full MSB3277 detection. -->
   <PropertyGroup Condition="'$(IdentityModelV5Version)' == '5.7.1'">
     <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
