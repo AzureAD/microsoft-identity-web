@@ -51,6 +51,8 @@ public static class LocalCallerRestriction
     {
         if (remoteIpAddress is null)
         {
+            // Allow a null address for the local IPC transport (Unix socket /
+            // named pipe) use case; never null over TCP, so remote callers stay blocked.
             return true;
         }
 
