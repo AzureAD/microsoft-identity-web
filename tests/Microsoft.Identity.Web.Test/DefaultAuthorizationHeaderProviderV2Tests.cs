@@ -154,6 +154,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(AcquiredTokenSource.Cache, result.Result.Metadata!.TokenSource);
             Assert.Equal(AcquiredTokenCacheLevel.L1Cache, result.Result.Metadata.CacheLevel);
             Assert.Equal(42, result.Result.Metadata.DurationTotalInMs);
+            Assert.Equal(auth.ExpiresOn, result.Result.Metadata.ExpiresOn);
             Assert.NotNull(result.Result.AdditionalResponseParameters);
             Assert.Equal("value", result.Result.AdditionalResponseParameters!["extra"]);
         }
