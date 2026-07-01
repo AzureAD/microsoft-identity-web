@@ -191,6 +191,68 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Theory]
+        [InlineData("Authorization")]
+        [InlineData("Cookie")]
+        [InlineData("Host")]
+        [InlineData("X-Original-URL")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL")]
+        public async Task UpdateRequestAsync_ReservedExtraHeaderParameters_AreSkippedInFlowedRequestAsync(string reservedHeaderName)
+        {
+            // Arrange
+            var authorizationHeaderProvider = new CapturingAuthorizationHeaderProvider();
+            var downstreamApi = new DownstreamApi(
+                authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com/path");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { reservedHeaderName, "caller-supplied-value" },
+                    { "X-Allowed", "allowed-value" }
+                }
+            };
+
+            // Act
+            await downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert
+            Assert.Same(httpRequestMessage, authorizationHeaderProvider.CapturedRequest);
+
+            // Reserved names must not be flowed on the captured request, even in the new pre-signing position.
+            Assert.False(
+                authorizationHeaderProvider.CapturedRequest!.Headers.TryGetValues(reservedHeaderName, out var capturedValues)
+                    && capturedValues.Any(v => v == "caller-supplied-value"),
+                $"Reserved header '{reservedHeaderName}' from ExtraHeaderParameters should not be flowed to the authorization header provider.");
+
+            // Non-reserved ExtraHeaderParameters entries should still flow through in the same call.
+            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-Allowed"));
+
+            // The final request must not contain a caller-supplied value for the reserved header either;
+            // for Authorization specifically, the SDK-produced header is the only one that should be present.
+            if (string.Equals(reservedHeaderName, "Authorization", StringComparison.OrdinalIgnoreCase))
+            {
+                var authorizationValues = httpRequestMessage.Headers.GetValues("Authorization").ToList();
+                Assert.Single(authorizationValues);
+                Assert.DoesNotContain("caller-supplied-value", authorizationValues[0], StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.False(
+                    httpRequestMessage.Headers.TryGetValues(reservedHeaderName, out var finalValues)
+                        && finalValues.Any(v => v == "caller-supplied-value"),
+                    $"Reserved header '{reservedHeaderName}' from ExtraHeaderParameters should not be present on the final request.");
+            }
+        }
+
+        [Theory]
         [InlineData(true)]
         [InlineData(false)]
 
