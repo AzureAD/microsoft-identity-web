@@ -4,8 +4,9 @@
     <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
-    <SidecarAspDependencyVersion>10.0.0</SidecarAspDependencyVersion>
+    <SidecarAspDependencyVersion>10.0.9</SidecarAspDependencyVersion>
     <MicrosoftAspNetCoreOpenApiVersion>$(SidecarAspDependencyVersion)</MicrosoftAspNetCoreOpenApiVersion>
+    <MicrosoftOpenApiVersion>2.9.0</MicrosoftOpenApiVersion>
     <MicrosoftExtensionsApiDescriptionServerVersion>$(SidecarAspDependencyVersion)</MicrosoftExtensionsApiDescriptionServerVersion>
     <MicrosoftVisualStudioAzureContainersToolsTargetsVersion>1.22.1</MicrosoftVisualStudioAzureContainersToolsTargetsVersion>
   </PropertyGroup>
