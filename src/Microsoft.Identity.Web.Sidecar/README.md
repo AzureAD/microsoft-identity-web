@@ -48,6 +48,24 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 - **AzureAd**: Standard Microsoft.Identity.Web web API registration; client credentials are optional if only delegated flows are required.
 - **DownstreamApis**: Named profiles for endpoints resolved via `{apiName}`.
 
+### Outbound redirects
+
+`Sidecar:AllowOutboundRedirects` controls whether the sidecar's outbound `HttpClient`
+follows HTTP redirect (3xx) responses returned by a downstream API. It defaults to
+`false`, so a redirect response is returned to the caller as-is rather than followed.
+Set it to `true` to opt in to following redirects.
+
+> **Note:** Outbound redirects are not followed by default (`AllowOutboundRedirects`
+> defaults to `false`). To follow redirects, set it to `true`:
+>
+> ```jsonc
+> {
+>   "Sidecar": {
+>     "AllowOutboundRedirects": true
+>   }
+> }
+> ```
+
 ## Running the sidecar
 
 ### Prerequisites

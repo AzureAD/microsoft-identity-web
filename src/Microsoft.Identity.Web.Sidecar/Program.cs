@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -57,6 +58,14 @@ public class Program
                .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
 
         builder.Services.Configure<SidecarOptions>(builder.Configuration.GetSection("Sidecar"));
+
+        builder.Services.ConfigureHttpClientDefaults(http =>
+            http.ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+                new SocketsHttpHandler
+                {
+                    AllowAutoRedirect = serviceProvider.GetRequiredService<IOptions<SidecarOptions>>()
+                        .Value.AllowOutboundRedirects,
+                }));
 
         builder.Services.AddHealthChecks();
 
