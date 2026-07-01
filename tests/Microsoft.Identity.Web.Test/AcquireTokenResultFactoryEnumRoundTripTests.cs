@@ -150,5 +150,34 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.Null(metadata);
         }
+
+        [Fact]
+        public void FromMsal_MapsExpiresOn_ToTopLevelAndMetadata()
+        {
+            // Arrange
+            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(1);
+            DateTimeOffset extendedExpiresOn = DateTimeOffset.UtcNow.AddHours(2);
+            var source = new AuthenticationResultMetadata(TokenSource.IdentityProvider);
+            var result = new AuthenticationResult(
+                "access-token",
+                false,
+                null,
+                expiresOn,
+                extendedExpiresOn,
+                "tenant",
+                null,
+                null,
+                new[] { "scope" },
+                Guid.NewGuid(),
+                source);
+
+            // Act
+            Abstractions.AcquireTokenResult acquired = AcquireTokenResultFactory.FromMsal(result);
+
+            // Assert — ExpiresOn is surfaced both at the top level and on the metadata surface.
+            Assert.Equal(expiresOn, acquired.ExpiresOn);
+            Assert.NotNull(acquired.Metadata);
+            Assert.Equal(expiresOn, acquired.Metadata!.ExpiresOn);
+        }
     }
 }
