@@ -105,6 +105,11 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <SamlPackageVersion Condition="'$(SamlPackageVersion)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</SamlPackageVersion>
+    <SamlPackageVersion Condition="'$(SamlPackageVersion)' == ''">5.7.0</SamlPackageVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" Version="3.5.0.2" />
     <PackageReference Include="bootstrap" Version="5.3.3" />
@@ -116,6 +121,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="2.0.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.5.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="$(SamlPackageVersion)" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
     <PackageReference Include="Modernizr" Version="2.8.3" />
