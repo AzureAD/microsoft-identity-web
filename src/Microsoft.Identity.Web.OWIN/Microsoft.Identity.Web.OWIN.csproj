@@ -16,6 +16,15 @@
     <DocumentationFile>Microsoft.Identity.Web.OWIN.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</IdentityModelV5Version>
+    <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == ''">5.7.0</IdentityModelV5Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IdentityModelV5Version)' == '5.7.1'">
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
@@ -33,7 +42,8 @@
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.7" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.5.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="$(IdentityModelV5Version)" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="$(IdentityModelV5Version)" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.2" />
