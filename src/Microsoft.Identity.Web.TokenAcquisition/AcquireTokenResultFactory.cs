@@ -55,6 +55,7 @@ namespace Microsoft.Identity.Web
                 DurationTotalInMs = source.DurationTotalInMs,
                 DurationInHttpInMs = source.DurationInHttpInMs,
                 DurationInCacheInMs = source.DurationInCacheInMs,
+                ExpiresOn = result.ExpiresOn,
                 RefreshOn = source.RefreshOn,
                 RegionDetails = MapRegionDetails(source.RegionDetails),
             };
