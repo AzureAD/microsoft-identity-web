@@ -10,7 +10,7 @@ pr:
 jobs:
 - job: "PR_build"
   pool:
-    name: MwWilson1EsHostedPool
+    vmImage: 'windows-2022'
     demands:
     - msbuild
     - visualstudio
