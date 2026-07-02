@@ -10,9 +10,10 @@ pr:
 jobs:
 - job: "PR_build"
   pool:
-    name: MwWilson1EsHostedPool
+    vmImage: 'windows-2022'
     demands:
     - msbuild
+    - visualstudio
   steps:
     - template: build/template-install-dependencies.yaml
     - template: build/template-run-unit-tests.yaml
