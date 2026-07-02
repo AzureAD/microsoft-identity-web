@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
@@ -20,7 +19,7 @@ namespace TokenAcquirerTests
 #if !FROM_GITHUB_ACTION
     public partial class TokenAcquirer
     {
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         public async Task AcquireToken_AuthorityOnly_AAD_NoV2Suffix_Succeeds()
         {
             // Issue #3610: AAD authority without /v2.0 suffix should work
@@ -40,7 +39,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         public async Task AcquireToken_AuthorityOnly_AAD_WithV2Suffix_Succeeds()
         {
             // Issue #3610: AAD authority with /v2.0 suffix should work
@@ -61,7 +60,7 @@ namespace TokenAcquirerTests
         }
 
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         public async Task AcquireToken_InstanceAndTenantId_AAD_Succeeds()
         {
             // Issue #3610: Instance + TenantId configuration should work
@@ -82,7 +81,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         public async Task AcquireToken_ConflictConfig_AAD_AuthorityIgnored_Succeeds()
         {
             // Issue #3610: When both Authority and Instance are set, Instance takes precedence

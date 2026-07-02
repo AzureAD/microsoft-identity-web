@@ -106,7 +106,6 @@ namespace Microsoft.Identity.Web.Test.Common
         public const string GraphScopes = "user.write user.read.all";
 
         // Constants for the lab
-        public const string ConfidentialClientKeyVaultUri = "https://msidlabs.vault.azure.net/secrets/LabVaultAccessCert/";
         public const string ConfidentialClientId = "3bf56293-fbb5-42bd-a407-248ba7431a8c";
         public const string ConfidentialClientLabTenant = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
         public const string OBOUser = "MSAL-User-Default@id4slab1.onmicrosoft.com";
