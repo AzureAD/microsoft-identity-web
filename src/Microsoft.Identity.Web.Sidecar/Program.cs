@@ -40,18 +40,6 @@ public class Program
             options.AllowWebApiToBeAuthorizedByACL = true;
         });
 
-        if (!builder.Environment.IsDevelopment())
-        {
-            // When not in a development environment, only allow connecting over
-            // localhost.
-            // AddHostFiltering is needed because this is using SlimBuilder which doesn't include
-            // that middleware by default.
-            builder.Services.AddHostFiltering(options =>
-            {
-                options.AllowedHosts = ["localhost"];
-            });
-        }
-
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
                .AddDownstreamApis(builder.Configuration.GetSection("DownstreamApis"));
@@ -71,17 +59,23 @@ public class Program
 
         var app = builder.Build();
 
+        if (!app.Environment.IsDevelopment())
+        {
+            // Loopback-only outside development; health endpoint excepted for probes.
+            app.UseLocalCallerRestriction();
+        }
+
+        // Register auth explicitly so it runs after the loopback check.
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         // Single endpoint for both liveness and readiness
         // as no checks are performed as part of startup.
-        app.MapHealthChecks("/healthz");
+        app.MapHealthChecks(LocalCallerRestriction.HealthEndpointPath);
 
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-        }
-        else
-        {
-            app.UseHostFiltering();
         }
 
         app.AddValidateRequestEndpoints();
