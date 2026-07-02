@@ -1,0 +1,19 @@
+# template-build.yaml
+# Restore and build the solution so that the test assemblies exist before
+# the VSTest steps run. This is required on Microsoft-hosted (ephemeral)
+# agents, which start from a clean workspace with no pre-built output.
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Install wasm-tools workload'
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'install wasm-tools'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution (Release)'
+  inputs:
+    command: 'custom'
+    custom: 'msbuild'
+    arguments: 'Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release'
