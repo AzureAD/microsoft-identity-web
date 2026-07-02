@@ -4,6 +4,25 @@
 # agents, which start from a clean workspace with no pre-built output.
 
 steps:
+# On ADO agents (TF_BUILD=true) the OWIN project pins Microsoft.IdentityModel
+# WsFederation/Saml to 5.7.1, which is only published to the internal IDDP
+# Azure Artifacts feed (not nuget.org). Add that feed as a package source so
+# restore can resolve it. Credentials are provided by the NuGetAuthenticate@1
+# task that runs earlier in template-install-dependencies.yaml.
+- powershell: |
+    $sourceUrl = "https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json"
+    $existingSources = dotnet nuget list source --format Short
+    if ($existingSources -match [regex]::Escape($sourceUrl)) {
+        Write-Host "IDDP NuGet source already present. Skipping add."
+    } else {
+        Write-Host "Adding IDDP NuGet source to NuGet.Config..."
+        dotnet nuget add source $sourceUrl -n IDDP --configfile "$(Build.SourcesDirectory)/NuGet.Config"
+        if (-not $?) { Write-Error "Failed to add IDDP NuGet source."; exit 1 }
+    }
+    Write-Host "Final NuGet sources:"
+    dotnet nuget list source
+  displayName: 'Add internal IDDP NuGet feed'
+
 - task: DotNetCoreCLI@2
   displayName: 'Install wasm-tools workload'
   inputs:
