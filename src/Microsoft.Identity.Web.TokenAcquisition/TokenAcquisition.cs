@@ -389,8 +389,7 @@ namespace Microsoft.Identity.Web
             catch (MsalUiRequiredException ex)
             {
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
-                Logger.TokenAcquisitionError(_logger, ex.Message, ex);
-
+                // MsalUiRequiredException is already logged by MSAL. Re-logging here would produce duplicates.
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
@@ -1430,12 +1429,9 @@ namespace Microsoft.Identity.Web
 
                 return null;
             }
-            catch (MsalUiRequiredException ex)
+            catch (MsalUiRequiredException)
             {
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    LogMessages.ErrorAcquiringTokenForDownstreamWebApi + ex.Message,
-                    ex);
+                // MsalUiRequiredException is already logged by MSAL. Re-logging here would produce duplicates.
                 throw;
             }
         }
