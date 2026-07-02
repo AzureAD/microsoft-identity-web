@@ -12,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <!-- Pin Microsoft.OpenApi to the centrally-managed patched version (see tests/DevApps/Directory.Build.props) to avoid the vulnerable 2.0.0 pulled in transitively (CVE-2026-49451). -->
+    <PackageReference Include="Microsoft.OpenApi" Version="$(MicrosoftOpenApiVersion)" />
   </ItemGroup>
 
 </Project>
