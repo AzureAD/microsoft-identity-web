@@ -108,7 +108,7 @@
 
   <PropertyGroup>
     <SamlPackageVersion Condition="'$(SamlPackageVersion)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</SamlPackageVersion>
-    <SamlPackageVersion Condition="'$(SamlPackageVersion)' == ''">5.7.0</SamlPackageVersion>
+    <SamlPackageVersion Condition="'$(SamlPackageVersion)' == ''">8.19.1</SamlPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Antlr" Version="3.5.0.2" />
