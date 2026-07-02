@@ -16,4 +16,5 @@ jobs:
     - visualstudio
   steps:
     - template: build/template-install-dependencies.yaml
+    - template: build/template-build.yaml
     - template: build/template-run-unit-tests.yaml
