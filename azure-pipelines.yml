@@ -9,6 +9,14 @@ pr:
 
 jobs:
 - job: "PR_build"
+  variables:
+    # Load the LabAuth client certificate from the local certificate store
+    # (installed into LocalMachine/My by template-install-dependencies.yaml)
+    # instead of the msidlabs KeyVault. Microsoft-hosted agents have no managed
+    # identity that can read the KeyVault, so DefaultAzureCredential would fail.
+    # The official OneBranch/Wilson pipeline does not set this and keeps using
+    # the KeyVault source.
+    UseLabAuthCertFromStore: true
   pool:
     vmImage: 'windows-2022'
     demands:
