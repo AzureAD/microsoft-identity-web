@@ -16,6 +16,13 @@ public class SidecarOptions
     /// ignored on that route and a warning is logged.
     /// </summary>
     public AllowOverridesOptions AllowOverrides { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the sidecar's outbound
+    /// <see cref="System.Net.Http.HttpClient"/> follows HTTP redirect (3xx) responses
+    /// from downstream APIs. Defaults to <c>false</c>.
+    /// </summary>
+    public bool AllowOutboundRedirects { get; set; }
 }
 
 /// <summary>
