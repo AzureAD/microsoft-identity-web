@@ -38,6 +38,10 @@ namespace Microsoft.Identity.Web
         public static readonly EventId AuthorityIgnored = new EventId(500, "AuthorityIgnored");
         public static readonly EventId AuthorityUsedConsiderInstanceTenantId = new EventId(501, "AuthorityUsedConsiderInstanceTenantId");
 
+        // WebApp automatic authorization code redemption EventIds 600+
+        public static readonly EventId AutomaticAuthorizationCodeRedemptionEnabled = new EventId(600, "AutomaticAuthorizationCodeRedemptionEnabled");
+        public static readonly EventId AutomaticAuthorizationCodeRedemptionNotAvailable = new EventId(601, "AutomaticAuthorizationCodeRedemptionNotAvailable");
+
 #pragma warning restore IDE1006 // Naming Styles
     }
 }
