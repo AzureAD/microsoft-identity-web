@@ -1,3 +1,8 @@
+## 4.12.2
+
+### Bug fixes
+- Make the `Microsoft.Identity.Client.KeyAttestation` dependency conditional on modern .NET (`.NETCoreApp`) targets. It transitively pulls the native-only `Microsoft.Azure.Security.KeyGuardAttestation` package, which ships no .NET Framework/netstandard-compatible assets and broke NuGet restore for .NET Framework (packages.config) projects. `Microsoft.Identity.Web.Certificateless` now multi-targets, and .NET Framework consumers use the `netstandard2.0` asset without this dependency. See [#3894](https://github.com/AzureAD/microsoft-identity-web/issues/3894).
+
 ## 4.12.1
 
 ### Bug fixes

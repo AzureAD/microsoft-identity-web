@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
                 throw new FileNotFoundException($"The file '{_filePath}' containing the signed assertion was not found.");
 
             }
-            string signedAssertion = File.ReadAllText(_filePath);
+            string signedAssertion = File.ReadAllText(_filePath!);
 
             // Verify that the assertion is a JWS, JWE, and computes the expiry
             try

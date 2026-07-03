@@ -20,7 +20,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
+#if NETCOREAPP
 using Microsoft.Identity.Client.KeyAttestation;
+#endif
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
@@ -632,9 +634,11 @@ namespace Microsoft.Identity.Web
 
                     if (isTokenBinding)
                     {
-                        miBuilder = miBuilder
-                            .WithMtlsProofOfPossession()
-                            .WithAttestationSupport();
+                        miBuilder = miBuilder.WithMtlsProofOfPossession();
+#if NETCOREAPP
+                        // Key attestation is only available on modern .NET (issue #3894).
+                        miBuilder = miBuilder.WithAttestationSupport();
+#endif
                     }
 
                     if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))

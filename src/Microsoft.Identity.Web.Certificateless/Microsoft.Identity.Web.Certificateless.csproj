@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -23,6 +23,13 @@
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens " Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.LoggingExtensions" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
+  </ItemGroup>
+
+  <!-- Microsoft.Identity.Client.KeyAttestation transitively depends on the native-only
+       Microsoft.Azure.Security.KeyGuardAttestation package, which ships no .NET Framework/netstandard
+       compatible assets and breaks NuGet restore for .NET Framework (packages.config) consumers (issue #3894).
+       Key attestation is only used on modern .NET, so the dependency is restricted to .NETCoreApp targets. -->
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
     <PackageReference Include="Microsoft.Identity.Client.KeyAttestation" Version="$(MicrosoftIdentityClientKeyAttestationVersion)" />
   </ItemGroup>
 
