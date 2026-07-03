@@ -20,6 +20,8 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <SystemDrawingCommon>10.0.0-rc.1.25451.107</SystemDrawingCommon>
+    <!--CVE-2026-49451: Microsoft.AspNetCore.OpenApi 10.0.x transitively pulls the High-severity-vulnerable Microsoft.OpenApi 2.0.0; floor to patched 2.9.0-->
+    <MicrosoftOpenApiVersion>2.9.0</MicrosoftOpenApiVersion>
   </PropertyGroup>
 
   <ItemGroup>
