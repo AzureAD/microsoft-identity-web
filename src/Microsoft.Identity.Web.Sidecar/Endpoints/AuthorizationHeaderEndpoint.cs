@@ -100,6 +100,9 @@ public static class AuthorizationHeaderEndpoint
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
+        // Work on a per-request copy so the merge and agent overrides below don't modify the shared singleton.
+        options = DownstreamApiOptionsMerger.CloneForRequest(options);
+
         if (optionsOverride.HasAny)
         {
             if (allowOverrides)

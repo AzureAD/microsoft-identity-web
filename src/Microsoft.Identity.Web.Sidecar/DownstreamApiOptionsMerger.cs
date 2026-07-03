@@ -7,6 +7,34 @@ namespace Microsoft.Identity.Web.Sidecar;
 
 public static class DownstreamApiOptionsMerger
 {
+    // Clone() is shallow, so re-copy the collections that MergeOptions and the
+    // agent identity extensions mutate in place. Scopes and ManagedIdentity are
+    // only reassigned, not mutated, so they don't need copying.
+    public static DownstreamApiOptions CloneForRequest(DownstreamApiOptions options)
+    {
+        DownstreamApiOptions result = options.Clone();
+
+        if (result.AcquireTokenOptions.ExtraParameters is not null)
+        {
+            result.AcquireTokenOptions.ExtraParameters =
+                new Dictionary<string, object>(result.AcquireTokenOptions.ExtraParameters);
+        }
+
+        if (result.ExtraHeaderParameters is not null)
+        {
+            result.ExtraHeaderParameters =
+                new Dictionary<string, string>(result.ExtraHeaderParameters);
+        }
+
+        if (result.ExtraQueryParameters is not null)
+        {
+            result.ExtraQueryParameters =
+                new Dictionary<string, string>(result.ExtraQueryParameters);
+        }
+
+        return result;
+    }
+
     public static DownstreamApiOptions MergeOptions(DownstreamApiOptions left, DownstreamApiOptions right)
     {
         var res = left.Clone();
