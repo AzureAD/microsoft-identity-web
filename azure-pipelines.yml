@@ -26,3 +26,8 @@ jobs:
     - template: build/template-install-dependencies.yaml
     - template: build/template-build.yaml
     - template: build/template-run-unit-tests.yaml
+      parameters:
+        # Exclude managed-identity E2E tests: they require an MI assigned to the
+        # host (IMDS), which Microsoft-hosted agents do not have. They still run in
+        # the official OneBranch pipeline on VM-based agents that have the MI.
+        e2eTestFilterCriteria: 'Category!=MI_E2E'
