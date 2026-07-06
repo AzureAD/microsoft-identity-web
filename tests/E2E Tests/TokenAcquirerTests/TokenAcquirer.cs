@@ -551,6 +551,7 @@ namespace TokenAcquirerTests
     }
 
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
+    [Trait("Category", TestCategories.ManagedIdentity)]
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
