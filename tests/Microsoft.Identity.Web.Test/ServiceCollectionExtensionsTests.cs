@@ -75,6 +75,14 @@ namespace Microsoft.Identity.Web.Test
                 },
                 actual =>
                 {
+                    Assert.Equal(ServiceLifetime.Scoped, actual.Lifetime);
+                    Assert.Equal(typeof(IAuthorizationHeaderProvider2), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
+                },
+                actual =>
+                {
                     Assert.Equal(typeof(ICredentialsLoader), actual.ServiceType);
                     Assert.Equal(typeof(DefaultCertificateLoader), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
@@ -155,7 +163,7 @@ namespace Microsoft.Identity.Web.Test
             services.AddTokenAcquisition();
 
             // Verify the number of services added by AddTokenAcquisition (ignoring the service we added here).
-            Assert.Equal(14, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
+            Assert.Equal(15, services.Count(t => t.ServiceType != typeof(ServiceCollectionExtensionsTests)));
         }
 #endif
 
@@ -208,6 +216,43 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.Same(tokenAcquisition, confidentialClientApplicationProvider);
             Assert.IsAssignableFrom<TokenAcquisition>(confidentialClientApplicationProvider);
+        }
+
+        [Fact]
+        public void AddTokenAcquisition_RegistersIAuthorizationHeaderProvider2()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+
+            // Act
+            services.AddTokenAcquisition();
+
+            // Assert
+            ServiceDescriptor serviceDescriptor = Assert.Single(services, s => s.ServiceType == typeof(IAuthorizationHeaderProvider2));
+            Assert.Equal(ServiceLifetime.Scoped, serviceDescriptor.Lifetime);
+            Assert.Null(serviceDescriptor.ImplementationType);
+            Assert.Null(serviceDescriptor.ImplementationInstance);
+            Assert.NotNull(serviceDescriptor.ImplementationFactory);
+        }
+
+        [Fact]
+        public void AddTokenAcquisition_ResolvesIAuthorizationHeaderProvider2ToSameInstanceAsV1()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddTokenAcquisition();
+            services.AddInMemoryTokenCaches();
+            services.AddHttpClient();
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            using IServiceScope serviceScope = serviceProvider.CreateScope();
+
+            // Act
+            var headerProvider = serviceScope.ServiceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var headerProvider2 = serviceScope.ServiceProvider.GetRequiredService<IAuthorizationHeaderProvider2>();
+
+            // Assert
+            Assert.Same(headerProvider, headerProvider2);
+            Assert.IsType<DefaultAuthorizationHeaderProvider>(headerProvider2);
         }
 
         [Fact]
@@ -275,6 +320,14 @@ namespace Microsoft.Identity.Web.Test
                     Assert.Equal(typeof(DefaultAuthorizationHeaderProvider), actual.ImplementationType);
                     Assert.Null(actual.ImplementationInstance);
                     Assert.Null(actual.ImplementationFactory);
+                },
+                actual =>
+                {
+                    Assert.Equal(ServiceLifetime.Singleton, actual.Lifetime);
+                    Assert.Equal(typeof(IAuthorizationHeaderProvider2), actual.ServiceType);
+                    Assert.Null(actual.ImplementationType);
+                    Assert.Null(actual.ImplementationInstance);
+                    Assert.NotNull(actual.ImplementationFactory);
                 },
                 actual =>
                 {
