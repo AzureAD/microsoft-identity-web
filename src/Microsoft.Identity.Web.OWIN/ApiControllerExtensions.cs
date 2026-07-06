@@ -43,6 +43,20 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
+        /// Get the authorization header provider, exposing the richer <see cref="IAuthorizationHeaderProvider2"/> surface.
+        /// </summary>
+        /// <returns></returns>
+        public static IAuthorizationHeaderProvider2 GetAuthorizationHeaderProvider2(this ApiController _)
+        {
+            IAuthorizationHeaderProvider2? headerProvider = TokenAcquirerFactory.GetDefaultInstance().ServiceProvider?.GetService(typeof(IAuthorizationHeaderProvider2)) as IAuthorizationHeaderProvider2;
+            if (headerProvider == null)
+            {
+                throw new ConfigurationErrorsException("Cannot find IAuthorizationHeaderProvider2. Did you create an OwinTokenAcquirerFactory in Startup_Auth.cs?. See https://aka.ms/ms-id-web/owin. ");
+            }
+            return headerProvider;
+        }
+
+        /// <summary>
         /// Get the downstream API service from an ApiController.
         /// </summary>
         /// <returns></returns>
