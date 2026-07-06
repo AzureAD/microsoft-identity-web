@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Cache;
 using Microsoft.Identity.Client.Region;
@@ -89,6 +90,94 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(
                 System.Enum.GetValues(typeof(RegionOutcome)).Length,
                 System.Enum.GetValues(typeof(Abstractions.AcquiredTokenRegionOutcome)).Length);
+        }
+
+        [Fact]
+        public void GetMetadata_SetsExpiresOn_FromResult_WhenMetadataAvailable()
+        {
+            // Arrange
+            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(1);
+            DateTimeOffset extendedExpiresOn = DateTimeOffset.UtcNow.AddHours(2);
+            DateTimeOffset refreshOn = DateTimeOffset.UtcNow.AddMinutes(30);
+            var source = new AuthenticationResultMetadata(TokenSource.IdentityProvider)
+            {
+                RefreshOn = refreshOn,
+            };
+            var result = new AuthenticationResult(
+                "access-token",
+                false,
+                null,
+                expiresOn,
+                extendedExpiresOn,
+                "tenant",
+                null,
+                null,
+                new[] { "scope" },
+                Guid.NewGuid(),
+                source);
+
+            // Act
+            Abstractions.TokenAcquisitionMetadata? metadata = AcquireTokenResultFactory.GetMetadata(result);
+
+            // Assert
+            Assert.NotNull(metadata);
+            Assert.Equal(expiresOn, metadata!.ExpiresOn);
+            // ExpiresOn flows from result.ExpiresOn, distinct from the metadata's RefreshOn hint.
+            Assert.Equal(refreshOn, metadata.RefreshOn);
+        }
+
+        [Fact]
+        public void GetMetadata_ReturnsNull_WhenMetadataAbsent()
+        {
+            // Arrange
+            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(1);
+            DateTimeOffset extendedExpiresOn = DateTimeOffset.UtcNow.AddHours(2);
+            var result = new AuthenticationResult(
+                "access-token",
+                false,
+                null,
+                expiresOn,
+                extendedExpiresOn,
+                "tenant",
+                null,
+                null,
+                new[] { "scope" },
+                Guid.NewGuid());
+
+            // Act
+            Abstractions.TokenAcquisitionMetadata? metadata = AcquireTokenResultFactory.GetMetadata(result);
+
+            // Assert
+            Assert.Null(metadata);
+        }
+
+        [Fact]
+        public void FromMsal_MapsExpiresOn_ToTopLevelAndMetadata()
+        {
+            // Arrange
+            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(1);
+            DateTimeOffset extendedExpiresOn = DateTimeOffset.UtcNow.AddHours(2);
+            var source = new AuthenticationResultMetadata(TokenSource.IdentityProvider);
+            var result = new AuthenticationResult(
+                "access-token",
+                false,
+                null,
+                expiresOn,
+                extendedExpiresOn,
+                "tenant",
+                null,
+                null,
+                new[] { "scope" },
+                Guid.NewGuid(),
+                source);
+
+            // Act
+            Abstractions.AcquireTokenResult acquired = AcquireTokenResultFactory.FromMsal(result);
+
+            // Assert — ExpiresOn is surfaced both at the top level and on the metadata surface.
+            Assert.Equal(expiresOn, acquired.ExpiresOn);
+            Assert.NotNull(acquired.Metadata);
+            Assert.Equal(expiresOn, acquired.Metadata!.ExpiresOn);
         }
     }
 }
