@@ -114,11 +114,11 @@ namespace Microsoft.Identity.Web
                     LoggingEventId.AgentCcaCreated,
                     "[MsIdWeb] Created new agent CCA for cache key '{CcaCacheKey}'.");
 
-            private static readonly Action<ILogger, int, int, Exception?> s_agentCcaEviction =
-                LoggerMessage.Define<int, int>(
+            private static readonly Action<ILogger, int, Exception?> s_agentCcaEviction =
+                LoggerMessage.Define<int>(
                     LogLevel.Information,
                     LoggingEventId.AgentCcaEviction,
-                    "[MsIdWeb] Agent CCA cache cleared {EvictedCount} entries (exceeded size threshold). Remaining: {RemainingCount}.");
+                    "[MsIdWeb] CCA dictionary cleared ({EvictedCount} entries exceeded size threshold).");
 
             public static void AgentUserFicFlowDetected(ILogger logger, string agentAppId, string identifierType)
                 => s_agentUserFicFlowDetected(logger, agentAppId, identifierType, null);
@@ -135,8 +135,8 @@ namespace Microsoft.Identity.Web
             public static void AgentCcaCreated(ILogger logger, string ccaCacheKey)
                 => s_agentCcaCreated(logger, ccaCacheKey, null);
 
-            public static void AgentCcaEviction(ILogger logger, int evictedCount, int remainingCount)
-                => s_agentCcaEviction(logger, evictedCount, remainingCount, null);
+            public static void AgentCcaEviction(ILogger logger, int evictedCount)
+                => s_agentCcaEviction(logger, evictedCount, null);
         }
     }
 }

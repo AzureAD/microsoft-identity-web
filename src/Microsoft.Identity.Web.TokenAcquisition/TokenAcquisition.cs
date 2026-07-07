@@ -62,11 +62,13 @@ namespace Microsoft.Identity.Web
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _appSemaphores = new();
 
         /// <summary>
-        /// Maximum number of agent CCA instances to keep in the shared application dictionary
-        /// before clearing agent entries as a DOS protection measure. Tokens are stored in
-        /// MSAL's shared static cache, so clearing agent entries only discards lightweight
-        /// CCA objects — tokens remain accessible to newly-built CCAs.
-        /// Agent entries are identified by the ":agent:" segment in their cache key.
+        /// Maximum number of CCA instances to keep in the shared application dictionary
+        /// before clearing it as a DOS protection measure. Token data lives in external
+        /// caches (MSAL's shared static cache for in-memory providers, or the distributed
+        /// cache provider for Redis/SQL/etc.), so clearing the dictionary only discards
+        /// lightweight CCA objects — tokens remain accessible to newly-built CCAs.
+        /// Eviction is only triggered by agent CCA creation, since normal CCAs are bounded
+        /// by the number of configured authentication schemes.
         /// </summary>
         internal int AgentCcaMaxCount { get; set; } = 10000;
 
@@ -264,13 +266,24 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">Merged configuration options.</param>
         /// <param name="isTokenBinding">Whether mTLS token binding (PoP) is requested.
         /// Callers must pass this explicitly to avoid accidental cache collisions.</param>
-        /// <returns>Concatenated string of authority, client id, azure region, credential id, and token-binding flag.</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding)
+        /// <param name="agentAppId">When non-null, appends an agent-specific segment so each
+        /// agent CCA gets its own entry in the shared dictionary.</param>
+        /// <returns>Concatenated string of authority, client id, azure region, credential id,
+        /// token-binding flag, and optional agent app id.</returns>
+        private static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding, string? agentAppId = null)
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
 
             string baseKey = DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
-            return isTokenBinding ? baseKey + "-tokenBinding" : baseKey;
+            if (isTokenBinding)
+            {
+                baseKey += "-tokenBinding";
+            }
+            if (agentAppId is not null)
+            {
+                baseKey += $":agent:{agentAppId}";
+            }
+            return baseKey;
         }
 
         /// <summary>
@@ -726,7 +739,17 @@ namespace Microsoft.Identity.Web
             string? authenticationScheme,
             MergedOptions mergedOptions)
         {
-            // Build the assertion callback that chains to the blueprint CCA for Leg 1.
+            // Fast path: if the agent CCA is already cached, return it without
+            // allocating a closure for the assertion callback. The callback captures
+            // authenticationScheme and agentAppId, producing a heap-allocated closure
+            // object + delegate on every call — wasteful when the CCA already exists.
+            string key = GetApplicationKey(mergedOptions, isTokenBinding: false, agentAppId);
+            if (_applicationsByAuthorityClientId.TryGetValue(key, out var cached) && cached != null)
+            {
+                return cached;
+            }
+
+            // Cache miss — build the assertion callback that chains to the blueprint CCA for Leg 1.
             // Capture authenticationScheme so the callback resolves the correct blueprint.
             string? capturedAuthScheme = authenticationScheme;
 
@@ -1306,13 +1329,7 @@ namespace Microsoft.Identity.Web
             string? agentAppId = null,
             Func<AssertionRequestOptions, Task<string>>? clientAssertionProvider = null)
         {
-            // For agent CCAs, incorporate the agent app ID into the cache key so each agent
-            // gets its own CCA instance while sharing the same dictionary and lifecycle.
-            string key = GetApplicationKey(mergedOptions, isTokenBinding);
-            if (agentAppId is not null)
-            {
-                key = $"{key}:agent:{agentAppId}";
-            }
+            string key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
 
             // GetOrAddAsync based on https://github.com/dotnet/runtime/issues/83636#issuecomment-1474998680
             // Fast path: check if already created
@@ -1334,31 +1351,21 @@ namespace Microsoft.Identity.Web
                     mergedOptions, isTokenBinding, agentAppId, clientAssertionProvider);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
-                key = GetApplicationKey(mergedOptions, isTokenBinding);
-                if (agentAppId is not null)
-                {
-                    key = $"{key}:agent:{agentAppId}";
-                }
+                key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
                 _applicationsByAuthorityClientId[key] = newApp;
 
-                // DOS protection for agent CCAs: if too many agent entries accumulate,
-                // clear them. Tokens survive in MSAL's shared static cache and will be
-                // found by new CCAs via AcquireTokenSilent.
-                if (agentAppId is not null)
+                // DOS protection: if the dictionary grows beyond the threshold, clear it.
+                // All token data lives in external caches (MSAL's shared static cache for
+                // in-memory providers, or the distributed cache provider for Redis/SQL/etc.),
+                // so clearing the dictionary only discards lightweight CCA objects — tokens
+                // remain accessible to newly-built CCAs.
+                if (agentAppId is not null && _applicationsByAuthorityClientId.Count > AgentCcaMaxCount)
                 {
-                    int agentCount = _applicationsByAuthorityClientId.Keys.Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0);
-                    if (agentCount > AgentCcaMaxCount)
-                    {
-                        int cleared = 0;
-                        foreach (var agentKey in _applicationsByAuthorityClientId.Keys.Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0).ToList())
-                        {
-                            _applicationsByAuthorityClientId.TryRemove(agentKey, out _);
-                            _appSemaphores.TryRemove(agentKey, out _);
-                            cleared++;
-                        }
-                        _agentUserFicAccountIds.Clear();
-                        Logger.AgentCcaEviction(_logger, cleared, 0);
-                    }
+                    int cleared = _applicationsByAuthorityClientId.Count;
+                    _applicationsByAuthorityClientId.Clear();
+                    _appSemaphores.Clear();
+                    _agentUserFicAccountIds.Clear();
+                    Logger.AgentCcaEviction(_logger, cleared);
                 }
 
                 return newApp;
@@ -1387,6 +1394,15 @@ namespace Microsoft.Identity.Web
             string? agentAppId = null,
             Func<AssertionRequestOptions, Task<string>>? clientAssertionProvider = null)
         {
+            // agentAppId and clientAssertionProvider must both be null or both be non-null.
+            // Agent CCAs require an assertion callback for Leg 1 (FMI token), and the callback
+            // is only meaningful in the context of an agent CCA.
+            if ((agentAppId is null) != (clientAssertionProvider is null))
+            {
+                throw new ArgumentException(
+                    "agentAppId and clientAssertionProvider must both be provided or both be null.");
+            }
+
             bool isAgentCca = agentAppId is not null;
 
             mergedOptions.PrepareAuthorityInstanceForMsal();
