@@ -145,6 +145,113 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Equal(options.AcquireTokenOptions.ExtraQueryParameters, DownstreamApi.CallerSDKDetails);
         }
 
+        [Fact]
+        public async Task UpdateRequestAsync_WithScopes_FlowsFinalRequestToAuthorizationHeaderProviderAsync()
+        {
+            // Arrange
+            var authorizationHeaderProvider = new CapturingAuthorizationHeaderProvider();
+            var downstreamApi = new DownstreamApi(
+                authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com/path");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { "X-From-Options", "header-value" }
+                },
+                ExtraQueryParameters = new Dictionary<string, string>
+                {
+                    { "fromOptions", "query-value" }
+                },
+                CustomizeHttpRequestMessage = request =>
+                {
+                    request.Headers.TryAddWithoutValidation("X-From-Customizer", "customized");
+                }
+            };
+
+            // Act
+            await downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert
+            Assert.Same(httpRequestMessage, authorizationHeaderProvider.CapturedRequest);
+            Assert.Same(content, authorizationHeaderProvider.CapturedRequest!.Content);
+            Assert.Contains("fromOptions=query-value", authorizationHeaderProvider.CapturedRequest.RequestUri!.Query, StringComparison.Ordinal);
+            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Options"));
+            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Customizer"));
+            Assert.False(authorizationHeaderProvider.AuthorizationHeaderPresentWhenCaptured);
+            Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
+        }
+
+        [Theory]
+        [InlineData("Authorization")]
+        [InlineData("Cookie")]
+        [InlineData("Host")]
+        [InlineData("X-Original-URL")]
+        [InlineData("X-MS-CLIENT-PRINCIPAL")]
+        public async Task UpdateRequestAsync_ReservedExtraHeaderParameters_AreSkippedInFlowedRequestAsync(string reservedHeaderName)
+        {
+            // Arrange
+            var authorizationHeaderProvider = new CapturingAuthorizationHeaderProvider();
+            var downstreamApi = new DownstreamApi(
+                authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com/path");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+                ExtraHeaderParameters = new Dictionary<string, string>
+                {
+                    { reservedHeaderName, "caller-supplied-value" },
+                    { "X-Allowed", "allowed-value" }
+                }
+            };
+
+            // Act
+            await downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert
+            Assert.Same(httpRequestMessage, authorizationHeaderProvider.CapturedRequest);
+
+            // Reserved names must not be flowed on the captured request, even in the new pre-signing position.
+            Assert.False(
+                authorizationHeaderProvider.CapturedRequest!.Headers.TryGetValues(reservedHeaderName, out var capturedValues)
+                    && capturedValues.Any(v => v == "caller-supplied-value"),
+                $"Reserved header '{reservedHeaderName}' from ExtraHeaderParameters should not be flowed to the authorization header provider.");
+
+            // Non-reserved ExtraHeaderParameters entries should still flow through in the same call.
+            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-Allowed"));
+
+            // The final request must not contain a caller-supplied value for the reserved header either;
+            // for Authorization specifically, the SDK-produced header is the only one that should be present.
+            if (string.Equals(reservedHeaderName, "Authorization", StringComparison.OrdinalIgnoreCase))
+            {
+                var authorizationValues = httpRequestMessage.Headers.GetValues("Authorization").ToList();
+                Assert.Single(authorizationValues);
+                Assert.DoesNotContain("caller-supplied-value", authorizationValues[0], StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.False(
+                    httpRequestMessage.Headers.TryGetValues(reservedHeaderName, out var finalValues)
+                        && finalValues.Any(v => v == "caller-supplied-value"),
+                    $"Reserved header '{reservedHeaderName}' from ExtraHeaderParameters should not be present on the final request.");
+            }
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -1227,6 +1334,37 @@ namespace Microsoft.Identity.Web.Tests
         }
     }
 
+    public class CapturingAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+    {
+        public HttpRequestMessage? CapturedRequest { get; private set; }
+
+        public bool AuthorizationHeaderPresentWhenCaptured { get; private set; }
+
+        public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
+        {
+            CaptureRequest(downstreamApiOptions);
+            return Task.FromResult("******");
+        }
+
+        public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        {
+            CaptureRequest(authorizationHeaderProviderOptions);
+            return Task.FromResult("******");
+        }
+
+        public Task<string> CreateAuthorizationHeaderAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)
+        {
+            CaptureRequest(authorizationHeaderProviderOptions);
+            return Task.FromResult("******");
+        }
+
+        private void CaptureRequest(AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions)
+        {
+            CapturedRequest = authorizationHeaderProviderOptions?.AcquireTokenOptions.GetHttpRequestMessage();
+            AuthorizationHeaderPresentWhenCaptured = CapturedRequest?.Headers.Contains("Authorization") == true;
+        }
+    }
+
     public class MySamlAuthorizationHeaderProvider : IAuthorizationHeaderProvider
     {
         public Task<string> CreateAuthorizationHeaderForAppAsync(string scopes, AuthorizationHeaderProviderOptions? downstreamApiOptions = null, CancellationToken cancellationToken = default)
@@ -1252,4 +1390,3 @@ namespace Microsoft.Identity.Web.Tests
         public Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
     }
 }
-

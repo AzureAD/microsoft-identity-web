@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test.Common
@@ -9,7 +10,7 @@ namespace Microsoft.Identity.Web.Test.Common
     {
         public OnlyOnAzureDevopsFactAttribute()
         {
-            if (IgnoreOnAzureDevopsFactAttribute.IsRunningOnAzureDevOps())
+            if (Environment.GetEnvironmentVariable("SYSTEM_DEFINITIONID") != null)
             {
                 return;
             }

@@ -679,87 +679,6 @@ namespace Microsoft.Identity.Web
             AuthorizationHeaderInformation? authorizationHeaderInformation = null;
             CredentialDescription? credential = null;
 
-            // Obtention of the authorization header (except when calling an anonymous endpoint)
-            // which is done by not specifying any scopes or mTLS scheme.
-            if (string.Equals(effectiveOptions.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                if (_credentialsProvider == null)
-                {
-                    throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
-                }
-
-                credential = await _credentialsProvider.GetCredentialAsync(
-                    new CredentialSourceLoaderParameters(string.Empty, string.Empty)
-                    {
-                        ApiUrl = effectiveOptions.GetApiUrl(),
-                        Protocol = Constants.MtlsProtocolScheme,
-                    },
-                    cancellationToken);
-
-                if (credential == null || credential.Certificate == null)
-                {
-                    throw new InvalidOperationException("mTLS authentication requires a certificate, but no certificate was found.");
-                }
-
-                authorizationHeaderInformation = new AuthorizationHeaderInformation()
-                {
-                    AuthorizationHeaderValue = null,
-                    BindingCertificate = credential.Certificate,
-                };
-            }
-            else if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
-            {
-                string authorizationHeader = string.Empty;
-
-                // Firstly check if it's token binding scenario so authorization header provider returns
-                // a binding certificate along with acquired authorization header.
-                if (_authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider
-                    && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
-                {
-                    var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
-                        effectiveOptions,
-                        user,
-                        cancellationToken).ConfigureAwait(false);
-
-                    if (!authorizationHeaderResult.Succeeded)
-                    {
-                        // in theory it shouldn't happen because in case of error during token acquisition
-                        // there will be thrown corresponding exception, so it's more a safeguard
-                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
-                    }
-
-                    authorizationHeaderInformation = authorizationHeaderResult.Result;
-                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
-                }
-                else
-                {
-                    // Make the outgoing request available to request-binding protocols (e.g. PoP SHR q/h/b) via the
-                    // AcquireTokenOptions.ExtraParameters SDK-to-SDK channel. Content is already set above. The helper
-                    // clones ExtraParameters before writing so concurrent calls never share this per-request value.
-                    effectiveOptions.AcquireTokenOptions.SetHttpRequestMessage(httpRequestMessage);
-
-                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
-                        effectiveOptions.Scopes,
-                        effectiveOptions,
-                        user,
-                        cancellationToken).ConfigureAwait(false);
-                }
-
-                if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
-                {
-                    // TryAddWithoutValidation method bypasses strict validation, allowing non-standard headers to be added for custom Header schemes that cannot be parsed.
-                    httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
-                }
-                else
-                {
-                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
-                }
-            }
-            else
-            {
-                Logger.UnauthenticatedApiCall(_logger, null);
-            }
-
             if (!string.IsNullOrEmpty(effectiveOptions.AcceptHeader))
             {
                 httpRequestMessage.Headers.Accept.ParseAdd(effectiveOptions.AcceptHeader);
@@ -815,8 +734,112 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
 
-            // Opportunity to change the request message
+            // Opportunity to change the request message before request-binding authorization headers are created.
             effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+
+            // Obtention of the authorization header (except when calling an anonymous endpoint)
+            // which is done by not specifying any scopes or mTLS scheme.
+            if (string.Equals(effectiveOptions.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
+            {
+                if (_credentialsProvider == null)
+                {
+                    throw new InvalidOperationException("mTLS authentication requires a Credentials Provider object to be registered, but no such service was found.");
+                }
+
+                credential = await _credentialsProvider.GetCredentialAsync(
+                    new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                    {
+                        ApiUrl = effectiveOptions.GetApiUrl(),
+                        Protocol = Constants.MtlsProtocolScheme,
+                    },
+                    cancellationToken);
+
+                if (credential == null || credential.Certificate == null)
+                {
+                    throw new InvalidOperationException("mTLS authentication requires a certificate, but no certificate was found.");
+                }
+
+                authorizationHeaderInformation = new AuthorizationHeaderInformation()
+                {
+                    AuthorizationHeaderValue = null,
+                    BindingCertificate = credential.Certificate,
+                };
+            }
+            else if (effectiveOptions.Scopes != null && effectiveOptions.Scopes.Any())
+            {
+                string authorizationHeader = string.Empty;
+
+                // Firstly check if it's token binding scenario so authorization header provider returns
+                // a binding certificate along with acquired authorization header.
+                // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
+                // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
+                bool isTokenBinding = string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
+                if (isTokenBinding
+                    && _authorizationHeaderProvider is IAuthorizationHeaderProvider2 boundAuthorizationHeaderProviderV2)
+                {
+                    var authorizationHeaderResult = await boundAuthorizationHeaderProviderV2.CreateAuthorizationHeaderInformationAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (!authorizationHeaderResult.Succeeded)
+                    {
+                        // in theory it shouldn't happen because in case of error during token acquisition
+                        // there will be thrown corresponding exception, so it's more a safeguard
+                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
+                    }
+
+                    authorizationHeaderInformation = authorizationHeaderResult.Result;
+                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
+                }
+                // for backwards compatibility.
+                else if (isTokenBinding
+                    && _authorizationHeaderProvider is IBoundAuthorizationHeaderProvider boundAuthorizationHeaderBoundProvider)
+                {
+                    var authorizationHeaderResult = await boundAuthorizationHeaderBoundProvider.CreateBoundAuthorizationHeaderAsync(
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (!authorizationHeaderResult.Succeeded)
+                    {
+                        // in theory it shouldn't happen because in case of error during token acquisition
+                        // there will be thrown corresponding exception, so it's more a safeguard
+                        throw new InvalidOperationException("Cannot acquire bound authorization header.");
+                    }
+
+                    authorizationHeaderInformation = authorizationHeaderResult.Result;
+                    authorizationHeader = authorizationHeaderInformation?.AuthorizationHeaderValue!;
+                }
+                else
+                {
+                    // Make the outgoing request available to request-binding protocols (e.g. PoP SHR q/h/b) via the
+                    // AcquireTokenOptions.ExtraParameters SDK-to-SDK channel. Content is already set above. The helper
+                    // clones ExtraParameters before writing so concurrent calls never share this per-request value.
+                    effectiveOptions.AcquireTokenOptions.SetHttpRequestMessage(httpRequestMessage);
+
+                    authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
+                        effectiveOptions.Scopes,
+                        effectiveOptions,
+                        user,
+                        cancellationToken).ConfigureAwait(false);
+                }
+
+                if (authorizationHeader.StartsWith(AuthSchemeDstsSamlBearer, StringComparison.OrdinalIgnoreCase))
+                {
+                    // TryAddWithoutValidation method bypasses strict validation, allowing non-standard headers to be added for custom Header schemes that cannot be parsed.
+                    httpRequestMessage.Headers.TryAddWithoutValidation(Authorization, authorizationHeader);
+                }
+                else
+                {
+                    httpRequestMessage.Headers.Add(Authorization, authorizationHeader);
+                }
+            }
+            else
+            {
+                Logger.UnauthenticatedApiCall(_logger, null);
+            }
 
             return (authorizationHeaderInformation, credential);
         }

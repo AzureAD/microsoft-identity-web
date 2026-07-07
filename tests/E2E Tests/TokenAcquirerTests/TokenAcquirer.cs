@@ -199,7 +199,7 @@ namespace TokenAcquirerTests
             Assert.Equal(11, count.Count);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Theory]
         //[InlineData(false)]
         //[InlineData(true)]
@@ -228,7 +228,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
@@ -247,7 +247,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_Authority_ClientCredentialsAsync()
         {
@@ -265,7 +265,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
+        [Fact(Skip = "https://github.com/AzureAD/microsoft-identity-web/issues/2732")]
         //[Fact]
         public async Task AcquireToken_WithMicrosoftIdentityApplicationOptions_ClientCredentialsCiamAsync()
         {
@@ -283,7 +283,7 @@ namespace TokenAcquirerTests
             await CreateGraphClientAndAssertAsync(tokenAcquirerFactory, services);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         // [Fact]
         public async Task AcquireToken_WithFactoryAndMicrosoftIdentityApplicationOptions_ClientCredentialsAsync()
         {
@@ -304,7 +304,7 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         // [Fact]
         public async Task AcquireToken_WithFactoryAndAuthorityClientIdCert_ClientCredentialsAsync()
         {
@@ -322,7 +322,7 @@ namespace TokenAcquirerTests
             Assert.False(string.IsNullOrEmpty(result.AccessToken));
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task LoadCredentialsIfNeededAsync_MultipleThreads_WaitsForSemaphoreAsync()
         {
@@ -363,7 +363,7 @@ namespace TokenAcquirerTests
             Assert.Equal(TaskStatus.RanToCompletion, task2.Status);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireTokenWithPop_ClientCredentialsAsync()
         {
@@ -393,7 +393,7 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact]
         //[Fact]
         public async Task AcquireTokenWithMs10AtPop_ClientCredentialsAsync()
         {
@@ -428,7 +428,7 @@ namespace TokenAcquirerTests
             Assert.NotNull(result.AccessToken);
         }
 
-        [IgnoreOnAzureDevopsFact]
+        [Fact(Skip = "AAD westus3 test-slice mtlsauth endpoint currently returns token_type=Bearer instead of mtls_pop, which is a server-side issue on the test slice (not a Microsoft.Identity.Web or MSAL regression). Re-enable once the AAD test slice is fixed. Tracking: https://github.com/AzureAD/microsoft-identity-web/issues/3891")]
         // [Fact]
         public async Task AcquireTokenWithMtlsPop_WithBindingCertificate_ReturnsMtlsPopToken()
         {
@@ -551,6 +551,7 @@ namespace TokenAcquirerTests
     }
 
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
+    [Trait("Category", TestCategories.ManagedIdentity)]
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
@@ -560,7 +561,9 @@ namespace TokenAcquirerTests
             // Arrange
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
-            const string clientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+            // User-assigned managed identity "Msal_Integration_tests" (RG MSAL_MSI, sub c1686c51-b717-4fe0-9af3-24a20a41fb0c).
+            // Shared/consolidated lab UAMI reused across MSAL and Id.Web E2E tests.
+            const string clientId = "45344e7d-c562-4be6-868f-18dac789c021";
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();

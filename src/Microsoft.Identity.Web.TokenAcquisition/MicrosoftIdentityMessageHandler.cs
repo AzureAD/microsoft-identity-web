@@ -484,7 +484,34 @@ namespace Microsoft.Identity.Web
             try
             {
                 // mTLS PoP (Proof-of-Possession) token binding: bound bearer header + binding certificate.
-                if (string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
+                // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
+                bool isTokenBinding = string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
+                if (isTokenBinding
+                    && _headerProvider is IAuthorizationHeaderProvider2 boundProviderV2)
+                {
+                    var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
+                    var boundResult = await boundProviderV2.CreateAuthorizationHeaderInformationAsync(
+                        downstreamApiOptions.Scopes ?? Enumerable.Empty<string>(),
+                        downstreamApiOptions,
+                        claimsPrincipal: null,
+                        cancellationToken).ConfigureAwait(false);
+
+                    if (!boundResult.Succeeded)
+                    {
+                        throw new MicrosoftIdentityAuthenticationException(
+                            "Failed to acquire bound authorization header for mTLS PoP.");
+                    }
+
+                    return new AuthArtifacts(
+                        authHeader: boundResult.Result?.AuthorizationHeaderValue!,
+                        bindingCertificate: boundResult.Result?.BindingCertificate,
+                        loaderParameters: null,
+                        credentialDescription: null);
+                }
+
+                // for backwards compatibility.
+                else if (isTokenBinding
                     && _headerProvider is IBoundAuthorizationHeaderProvider boundProvider)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
@@ -628,7 +655,8 @@ namespace Microsoft.Identity.Web
         /// <remarks>
         /// <para>
         /// When token binding (mTLS PoP) is configured via <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>,
-        /// uses <see cref="IBoundAuthorizationHeaderProvider"/> to acquire a bound token and sends the request
+        /// uses <see cref="IAuthorizationHeaderProvider2"/> (or, as a fallback, the legacy
+        /// <see cref="IBoundAuthorizationHeaderProvider"/>) to acquire a bound token and sends the request
         /// through an mTLS-configured HTTP client with the binding certificate.
         /// </para>
         /// <para>
@@ -748,7 +776,9 @@ namespace Microsoft.Identity.Web
         /// Creates a <see cref="DownstreamApiOptions"/> from <see cref="AuthorizationHeaderProviderOptions"/>
         /// (the common base class shared by both <see cref="DownstreamApiOptions"/> and
         /// <see cref="MicrosoftIdentityMessageHandlerOptions"/>) for use with
-        /// <see cref="IBoundAuthorizationHeaderProvider.CreateBoundAuthorizationHeaderAsync"/>.
+        /// <see cref="IAuthorizationHeaderProvider2.CreateAuthorizationHeaderInformationAsync"/>
+        /// (or, as a fallback, the legacy
+        /// <see cref="IBoundAuthorizationHeaderProvider.CreateBoundAuthorizationHeaderAsync"/>).
         /// </summary>
         /// <param name="options">The authorization header provider options (common base class).</param>
         /// <param name="scopes">The scopes for token acquisition.</param>

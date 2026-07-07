@@ -27,6 +27,14 @@ namespace Microsoft.Identity.Web
                 Metadata = MapMetadata(result),
             };
 
+        /// <summary>
+        /// Maps the MSAL <see cref="AuthenticationResultMetadata"/> on an
+        /// <see cref="AuthenticationResult"/> to its abstractions counterpart.
+        /// Returns <see langword="null"/> when no metadata was captured.
+        /// </summary>
+        public static Abstractions.TokenAcquisitionMetadata? GetMetadata(AuthenticationResult result) =>
+            MapMetadata(result);
+
         private static Abstractions.TokenAcquisitionMetadata? MapMetadata(AuthenticationResult result)
         {
             AuthenticationResultMetadata? source = result.AuthenticationResultMetadata;
@@ -48,6 +56,7 @@ namespace Microsoft.Identity.Web
                 DurationInHttpInMs = source.DurationInHttpInMs,
                 DurationInCacheInMs = source.DurationInCacheInMs,
                 RefreshOn = source.RefreshOn,
+                ExpiresOn = result.ExpiresOn,
                 RegionDetails = MapRegionDetails(source.RegionDetails),
             };
         }

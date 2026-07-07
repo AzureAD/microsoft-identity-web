@@ -78,6 +78,7 @@ namespace Microsoft.Identity.Web
                 PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
                 PopClaim = tokenAcquisitionOptions.PopClaim,
                 ExtraParameters = tokenAcquisitionOptions.ExtraParameters,
+                ManagedIdentity = tokenAcquisitionOptions.ManagedIdentity,
                 FmiPath = tokenAcquisitionOptions.FmiPath
             };
         }

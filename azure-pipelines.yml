@@ -9,10 +9,25 @@ pr:
 
 jobs:
 - job: "PR_build"
+  variables:
+    # Load the LabAuth client certificate from the local certificate store
+    # (installed into LocalMachine/My by template-install-dependencies.yaml)
+    # instead of the msidlabs KeyVault. Microsoft-hosted agents have no managed
+    # identity that can read the KeyVault, so DefaultAzureCredential would fail.
+    # The official OneBranch/Wilson pipeline does not set this and keeps using
+    # the KeyVault source.
+    UseLabAuthCertFromStore: true
   pool:
-    name: MwWilson1EsHostedPool
+    vmImage: 'windows-2022'
     demands:
     - msbuild
+    - visualstudio
   steps:
     - template: build/template-install-dependencies.yaml
+    - template: build/template-build.yaml
     - template: build/template-run-unit-tests.yaml
+      parameters:
+        # Exclude managed-identity E2E tests: they require an MI assigned to the
+        # host (IMDS), which Microsoft-hosted agents do not have. They still run in
+        # the official OneBranch pipeline on VM-based agents that have the MI.
+        e2eTestFilterCriteria: 'Category!=MI_E2E'
