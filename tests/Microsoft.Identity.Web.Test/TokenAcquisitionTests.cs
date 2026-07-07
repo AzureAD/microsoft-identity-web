@@ -1034,53 +1034,5 @@ namespace Microsoft.Identity.Web.Test
         }
 
         #endregion
-
-        #region ExtractTenantFromTokenEndpointIfSameInstance Tests
-
-        [Fact]
-        public void ExtractTenant_SameInstance_ReturnsTenant()
-        {
-            // Arrange
-            string tokenEndpoint = "https://login.microsoftonline.com/my-tenant-id/oauth2/v2.0/token";
-            string instance = "https://login.microsoftonline.com/";
-
-            // Act
-            string? tenant = TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance);
-
-            // Assert
-            Assert.Equal("my-tenant-id", tenant);
-        }
-
-        [Fact]
-        public void ExtractTenant_DifferentInstance_ReturnsNull()
-        {
-            // Arrange — China cloud endpoint with public cloud instance
-            string tokenEndpoint = "https://login.chinacloudapi.cn/my-tenant/oauth2/v2.0/token";
-            string instance = "https://login.microsoftonline.com/";
-
-            // Act
-            string? tenant = TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance);
-
-            // Assert
-            Assert.Null(tenant);
-        }
-
-        [Theory]
-        [InlineData(null, "https://login.microsoftonline.com/")]
-        [InlineData("https://login.microsoftonline.com/tenant/oauth2/v2.0/token", null)]
-        [InlineData(null, null)]
-        [InlineData("", "https://login.microsoftonline.com/")]
-        public void ExtractTenant_NullOrEmptyInputs_ReturnsNull(string? tokenEndpoint, string? instance)
-        {
-            Assert.Null(TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance(tokenEndpoint, instance));
-        }
-
-        [Fact]
-        public void ExtractTenant_InvalidUri_ReturnsNull()
-        {
-            Assert.Null(TokenAcquisition.ExtractTenantFromTokenEndpointIfSameInstance("not-a-uri", "also-not-a-uri"));
-        }
-
-        #endregion
     }
 }

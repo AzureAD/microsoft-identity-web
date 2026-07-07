@@ -621,8 +621,7 @@ namespace Microsoft.Identity.Web
                 userIdentifierForCacheKey = upn.ToUpperInvariant();
             }
             else if (extraParameters.TryGetValue(Constants.UserIdKey, out object? userIdObj)
-                     && (userIdObj is string oidStr || (oidStr = userIdObj?.ToString()!) is not null)
-                     && Guid.TryParse(oidStr, out Guid parsedOid))
+                     && Guid.TryParse(userIdObj?.ToString(), out Guid parsedOid))
             {
                 userObjectId = parsedOid;
                 userIdentifierForCacheKey = parsedOid.ToString("D").ToUpperInvariant();
@@ -788,15 +787,11 @@ namespace Microsoft.Identity.Web
                             .WithSendX5C(blueprintOptions.SendX5C);
 
                         // Propagate tenant override to Leg 1 when the caller specifies a tenant
-                        // (e.g., via WithTenantId on Leg 2/3). Extract tenant from the token
-                        // endpoint provided by MSAL, matching the pattern used by
-                        // OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance.
-                        string? leg1Tenant = ExtractTenantFromTokenEndpointIfSameInstance(
-                                options.TokenEndpoint,
-                                blueprintOptions.Instance);
-                        if (!string.IsNullOrEmpty(leg1Tenant))
+                        // (e.g., via WithTenantId on Leg 2/3). MSAL's AssertionRequestOptions
+                        // provides the resolved TenantId directly from the runtime authority.
+                        if (!string.IsNullOrEmpty(options.TenantId))
                         {
-                            leg1Builder.WithTenantId(leg1Tenant);
+                            leg1Builder.WithTenantId(options.TenantId);
                         }
 
                         var leg1 = await leg1Builder
@@ -806,8 +801,7 @@ namespace Microsoft.Identity.Web
                         return leg1.AccessToken;
                     })
                     .WithAuthority(authority)
-                    .WithHttpClientFactory(_httpClientFactory)
-                    .WithExperimentalFeatures();
+                    .WithHttpClientFactory(_httpClientFactory);
 
                 if (UseSharedCacheForAgentCcas)
                 {
@@ -836,56 +830,6 @@ namespace Microsoft.Identity.Web
             {
                 semaphore.Release();
             }
-        }
-
-        /// <summary>
-        /// Extracts the tenant ID from an OAuth2 token endpoint URL when the endpoint belongs
-        /// to the same cloud instance as the configured authority. Returns null if the hosts
-        /// don't match (cross-cloud) or the URL format is unrecognized.
-        /// Token endpoint format: https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token
-        /// </summary>
-        /// <remarks>
-        /// This is the same logic as OidcIdpSignedAssertionProvider.ExtractTenantFromTokenEndpointIfSameInstance,
-        /// duplicated here because that method is internal to the OidcFIC project.
-        /// </remarks>
-        internal static string? ExtractTenantFromTokenEndpointIfSameInstance(
-            string? tokenEndpoint, string? configuredInstance)
-        {
-            if (string.IsNullOrEmpty(tokenEndpoint) || string.IsNullOrEmpty(configuredInstance))
-            {
-                return null;
-            }
-
-            try
-            {
-                var endpointUri = new Uri(tokenEndpoint!);
-                var instanceUri = new Uri(configuredInstance!.TrimEnd('/'));
-
-                if (!string.Equals(endpointUri.Host, instanceUri.Host, StringComparison.OrdinalIgnoreCase))
-                {
-                    return null;
-                }
-
-                var pathSegments = endpointUri.AbsolutePath.Split(
-                    new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (pathSegments.Length >= 2)
-                {
-                    for (int i = 1; i < pathSegments.Length; i++)
-                    {
-                        if (string.Equals(pathSegments[i], "oauth2", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return pathSegments[0];
-                        }
-                    }
-                }
-            }
-            catch (UriFormatException)
-            {
-                // Invalid URI — fall through to return null.
-            }
-
-            return null;
         }
 
         private void LogAuthResult(AuthenticationResult? authenticationResult)
