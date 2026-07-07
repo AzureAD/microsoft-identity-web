@@ -59,6 +59,7 @@ namespace TodoListService.Controllers
         // POST api/values
         [HttpPost]
         [RequiredScope("write")]
+        [ValidateAntiForgeryToken]
         public IActionResult Post([FromBody] Todo todo)
         {
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
