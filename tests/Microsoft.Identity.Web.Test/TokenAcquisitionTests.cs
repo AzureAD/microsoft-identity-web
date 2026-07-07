@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -845,9 +846,13 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
                 claimsPrincipal: null);
 
-            // Evict ALL agent CCAs (simulating sweep clearing everything).
+            // Evict ALL agent CCAs from the shared dictionary.
             // Keep _agentUserFicAccountIds intact — silent lookup needs them to find the account.
-            tokenAcquisition._agentUserFicCcas.Clear();
+            foreach (var key in tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0).ToList())
+            {
+                tokenAcquisition._applicationsByAuthorityClientId.TryRemove(key, out _);
+            }
 
             // Act — new CCAs must be built, but tokens should come from shared static cache.
             // Each new CCA needs a Leg 1 handler (assertion callback fires on first use).
@@ -955,7 +960,7 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
                 claimsPrincipal: null);
 
-            Assert.Equal(2, tokenAcquisition._agentUserFicCcas.Count);
+            Assert.Equal(2, tokenAcquisition._applicationsByAuthorityClientId.Keys.Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
             Assert.Equal(2, tokenAcquisition._agentUserFicAccountIds.Count);
 
             // Add 3rd agent — exceeds threshold, triggers clear
@@ -965,10 +970,108 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent3, user1Upn),
                 claimsPrincipal: null);
 
-            // Assert — CCA dictionary was cleared; only the 3rd agent's account ID remains
-            // (written after the clear, during Leg 3 of the triggering call)
-            Assert.Empty(tokenAcquisition._agentUserFicCcas);
+            // Assert — agent CCA entries were cleared from the shared dictionary;
+            // only the 3rd agent's account ID remains (written after clear, during Leg 3)
+            Assert.Equal(0, tokenAcquisition._applicationsByAuthorityClientId.Keys.Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
             Assert.Single(tokenAcquisition._agentUserFicAccountIds);
+        }
+
+        /// <summary>
+        /// Verifies that agent CCAs are stored in the shared _applicationsByAuthorityClientId
+        /// dictionary alongside normal CCAs, using the ":agent:" key segment for identification.
+        /// This ensures agent CCAs go through the same builder path and get identical configuration
+        /// (logging, authority handling, cache initialization) as normal CCAs.
+        /// </summary>
+        [Fact]
+        public async Task AgentCca_StoredInSharedDictionary_WithAgentKeySegment()
+        {
+            // Arrange
+            string agent1 = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1u1", Guid.NewGuid().ToString("N"), user1Upn);
+
+            // Act
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            // Assert — the shared dictionary has agent entries (identified by ":agent:" segment)
+            var agentKeys = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0)
+                .ToList();
+            Assert.Single(agentKeys);
+            Assert.True(agentKeys[0].IndexOf(agent1, StringComparison.Ordinal) >= 0);
+
+            // The blueprint CCA is also in the same dictionary (created lazily by assertion callback)
+            var blueprintKeys = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) < 0)
+                .ToList();
+            Assert.Single(blueprintKeys);
+        }
+
+        /// <summary>
+        /// Verifies that evicting agent CCAs from the shared dictionary does NOT affect
+        /// the blueprint CCA entry. Normal (non-agent) flows continue to work after
+        /// agent eviction without rebuilding the blueprint.
+        /// </summary>
+        [Fact]
+        public async Task AgentCcaEviction_DoesNotAffect_BlueprintCca()
+        {
+            // Arrange
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string agent3 = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+            string user1Uid = Guid.NewGuid().ToString("N");
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+            tokenAcquisition.AgentCcaMaxCount = 2;
+
+            // Populate 2 agents (at threshold)
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a2", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            // Verify blueprint exists
+            int blueprintCount = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) < 0);
+            Assert.Equal(1, blueprintCount);
+
+            // Act — 3rd agent triggers eviction of agent entries
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a3", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent3, user1Upn),
+                claimsPrincipal: null);
+
+            // Assert — agent entries cleared, but blueprint CCA still present
+            Assert.Equal(0, tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
+            int blueprintCountAfter = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) < 0);
+            Assert.Equal(1, blueprintCountAfter);
         }
 
         #endregion
