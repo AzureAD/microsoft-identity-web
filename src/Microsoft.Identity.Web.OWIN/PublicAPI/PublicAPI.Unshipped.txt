@@ -1,1 +1,3 @@
 #nullable enable
+static Microsoft.Identity.Web.ApiControllerExtensions.GetAuthorizationHeaderProvider2(this System.Web.Http.ApiController! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2!
+static Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider2(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2!
