@@ -797,68 +797,6 @@ namespace Microsoft.Identity.Web.Test
         }
 
         /// <summary>
-        /// Verifies that after CCA instances are evicted from the dictionary and new ones
-        /// are created with the same agent app IDs, the new CCAs must acquire fresh
-        /// tokens when shared cache is disabled (per-instance caches die with the CCA).
-        /// </summary>
-        [Fact]
-        public async Task AgentSharedCache_NewCcaAfterEviction_AcquiresFreshTokens()
-        {
-            // Arrange
-            string agent1 = Guid.NewGuid().ToString("N");
-            string user1Uid = Guid.NewGuid().ToString("N");
-            string user1Upn = "user1@contoso.com";
-
-            var factory = InitTokenAcquirerFactoryForAgent();
-            IServiceProvider serviceProvider = factory.Build();
-            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
-            IAuthorizationHeaderProvider authProvider =
-                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-            // Acquire the internal TokenAcquisition to manipulate dictionaries
-            var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>() as TokenAcquisition;
-
-            // Disable shared cache to test per-instance behavior (tokens lost on eviction)
-            tokenAcquisition!.UseSharedCacheForAgentCcas = false;
-
-            // First acquisition: full 3-leg flow
-            AddAgentUserFicMockHandlersForUser(mockHttp!, "original-token", user1Uid, user1Upn);
-
-            string result1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
-                claimsPrincipal: null);
-
-            Assert.Equal("Bearer original-token", result1);
-
-            // Verify silent works (no handlers needed)
-            string silent1 = await authProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
-                claimsPrincipal: null);
-            Assert.Equal("Bearer original-token", silent1);
-
-            // Evict the agent CCA from the dictionary (simulating sweep)
-            tokenAcquisition!._agentUserFicCcas.Clear();
-            tokenAcquisition._agentUserFicAccountIds.Clear();
-
-            // After eviction, a new CCA must be built. Since we're using per-instance caches
-            // (no EnableSharedCacheOptions), the old tokens are gone.
-            // Need full 3-leg flow again with Leg 1 cached in blueprint.
-            mockHttp!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "t2-fresh"));
-            mockHttp.AddMockHandler(CreateUserFicTokenHandlerForUser("fresh-token-after-evict", user1Uid, user1Upn));
-
-            string result2 = await authProvider.CreateAuthorizationHeaderForUserAsync(
-                new[] { "https://graph.microsoft.com/.default" },
-                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
-                claimsPrincipal: null);
-
-            // Assert — got a fresh token (old cache was lost with the CCA)
-            Assert.Equal("Bearer fresh-token-after-evict", result2);
-            Assert.NotEqual("Bearer original-token", result2);
-        }
-
-        /// <summary>
         /// Verifies that when EnableSharedCacheOptions is enabled on agent CCAs,
         /// tokens survive CCA eviction and new CCAs can retrieve them via silent calls.
         /// This validates that shared static cache makes agent tokens durable across

@@ -63,11 +63,9 @@ namespace Microsoft.Identity.Web
 
         /// <summary>
         /// Maximum number of agent CCA instances to keep in the dictionary before
-        /// clearing it as a DOS protection measure. When <see cref="UseSharedCacheForAgentCcas"/>
-        /// is enabled (the default), tokens are stored in MSAL's shared static cache, so
-        /// clearing the dictionary only discards lightweight CCA objects — tokens remain
-        /// accessible to newly-built CCAs. When shared cache is disabled, clearing the
-        /// dictionary also discards the per-instance in-memory token caches.
+        /// clearing it as a DOS protection measure. Tokens are stored in MSAL's
+        /// shared static cache, so clearing the dictionary only discards lightweight
+        /// CCA objects — tokens remain accessible to newly-built CCAs.
         /// </summary>
         internal int AgentCcaMaxCount { get; set; } = 10000;
 
@@ -98,13 +96,6 @@ namespace Microsoft.Identity.Web
         /// a silent attempt) or when the CCA dictionary is cleared due to size-threshold eviction.
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
-
-        /// <summary>
-        /// When true, agent User FIC CCAs use MSAL's shared (process-level static) cache.
-        /// This allows tokens to survive CCA re-creation after eviction.
-        /// Defaults to true; set to false in tests that need per-instance cache isolation.
-        /// </summary>
-        internal bool UseSharedCacheForAgentCcas { get; set; } = true;
 
         private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
 
@@ -799,12 +790,8 @@ namespace Microsoft.Identity.Web
                         return leg1.AccessToken;
                     })
                     .WithAuthority(authority)
-                    .WithHttpClientFactory(_httpClientFactory);
-
-                if (UseSharedCacheForAgentCcas)
-                {
-                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
-                }
+                    .WithHttpClientFactory(_httpClientFactory)
+                    .WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
 
                 var newApp = builder.Build();
 
