@@ -261,6 +261,92 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(originalKey, callerOptions.LongRunningWebApiSessionKey);
         }
 
+        [Fact]
+        public async Task GetTokenForAppAsync_WithManagedIdentity_PreservesManagedIdentityInEffectiveOptions()
+        {
+            // Arrange
+            const string userAssignedClientId = "11111111-1111-1111-1111-111111111111";
+            var authResult = CreateMockAuthenticationResult();
+            TokenAcquisitionOptions? capturedOptions = null;
+
+            _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<TokenAcquisitionOptions>())
+                .Returns(callInfo =>
+                {
+                    capturedOptions = callInfo.ArgAt<TokenAcquisitionOptions>(3);
+                    return Task.FromResult(authResult);
+                });
+
+            var callerOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = new ManagedIdentityOptions
+                {
+                    UserAssignedClientId = userAssignedClientId,
+                },
+            };
+
+            var tokenAcquirer = new TokenAcquirer(_tokenAcquisition, _authenticationScheme);
+
+            // Act
+            await ((ITokenAcquirer)tokenAcquirer).GetTokenForAppAsync(
+                _scope,
+                callerOptions,
+                CancellationToken.None);
+
+            // Assert - the ManagedIdentity must flow through to the effective TokenAcquisitionOptions,
+            // otherwise the request silently falls back to a confidential client (regression guard).
+            Assert.NotNull(capturedOptions);
+            Assert.NotNull(capturedOptions!.ManagedIdentity);
+            Assert.Equal(userAssignedClientId, capturedOptions.ManagedIdentity!.UserAssignedClientId);
+        }
+
+        [Fact]
+        public async Task GetTokenForUserAsync_WithManagedIdentity_PreservesManagedIdentityInEffectiveOptions()
+        {
+            // Arrange
+            const string userAssignedClientId = "11111111-1111-1111-1111-111111111111";
+            var authResult = CreateMockAuthenticationResult();
+            TokenAcquisitionOptions? capturedOptions = null;
+
+            _tokenAcquisition.GetAuthenticationResultForUserAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<ClaimsPrincipal>(),
+                Arg.Any<TokenAcquisitionOptions>())
+                .Returns(callInfo =>
+                {
+                    capturedOptions = callInfo.ArgAt<TokenAcquisitionOptions>(5);
+                    return Task.FromResult(authResult);
+                });
+
+            var callerOptions = new AcquireTokenOptions
+            {
+                ManagedIdentity = new ManagedIdentityOptions
+                {
+                    UserAssignedClientId = userAssignedClientId,
+                },
+            };
+
+            var tokenAcquirer = new TokenAcquirer(_tokenAcquisition, _authenticationScheme);
+
+            // Act
+            await ((ITokenAcquirer)tokenAcquirer).GetTokenForUserAsync(
+                new[] { _scope },
+                callerOptions,
+                user: null,
+                CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(capturedOptions);
+            Assert.NotNull(capturedOptions!.ManagedIdentity);
+            Assert.Equal(userAssignedClientId, capturedOptions.ManagedIdentity!.UserAssignedClientId);
+        }
+
         private AuthenticationResult CreateMockAuthenticationResult(X509Certificate2? bindingCertificate = null)
         {
             var authResult = new AuthenticationResult(

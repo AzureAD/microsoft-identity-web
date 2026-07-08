@@ -1,0 +1,55 @@
+# template-build.yaml
+# Restore and build the solution so that the test assemblies exist before
+# the VSTest steps run. This is required on Microsoft-hosted (ephemeral)
+# agents, which start from a clean workspace with no pre-built output.
+
+steps:
+# On ADO agents (TF_BUILD=true) the OWIN project pins Microsoft.IdentityModel
+# WsFederation/Saml to 5.7.1, which is only published to the internal IDDP
+# Azure Artifacts feed (not nuget.org). Route restore exclusively through IDDP,
+# which upstreams nuget.org for all other packages. Credentials are provided by
+# the NuGetAuthenticate@1 task that runs earlier in
+# template-install-dependencies.yaml. This mirrors
+# build/template-restore-build-MSIdentityWeb.yaml.
+- powershell: |
+    $configFile = "$(Build.SourcesDirectory)/NuGet.Config"
+    $iddpUrl = "https://identitydivision.pkgs.visualstudio.com/_packaging/IDDP/nuget/v3/index.json"
+
+    Write-Host "Existing NuGet sources:"
+    dotnet nuget list source
+
+    # Remove the public nuget.org source so restore uses IDDP (with upstream) only.
+    $existingSources = dotnet nuget list source --format Short
+    if ($existingSources -match [regex]::Escape("https://api.nuget.org/v3/index.json")) {
+        Write-Host "Removing public nuget.org source..."
+        dotnet nuget remove source NuGet --configfile $configFile
+        if (-not $?) { Write-Error "Failed to remove nuget.org source."; exit 1 }
+    }
+
+    # Add the internal IDDP source if not already present.
+    $existingSources = dotnet nuget list source --format Short
+    if ($existingSources -match [regex]::Escape($iddpUrl)) {
+        Write-Host "IDDP NuGet source already present. Skipping add."
+    } else {
+        Write-Host "Adding IDDP NuGet source..."
+        dotnet nuget add source $iddpUrl -n IDDP --configfile $configFile
+        if (-not $?) { Write-Error "Failed to add IDDP NuGet source."; exit 1 }
+    }
+
+    Write-Host "Final NuGet sources:"
+    dotnet nuget list source
+  displayName: 'Use internal IDDP NuGet feed only'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install wasm-tools workload'
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'install wasm-tools'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution (Release)'
+  inputs:
+    command: 'custom'
+    custom: 'msbuild'
+    arguments: 'Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release'

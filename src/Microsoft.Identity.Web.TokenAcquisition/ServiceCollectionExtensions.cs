@@ -75,6 +75,7 @@ namespace Microsoft.Identity.Web
             ServiceDescriptor? ccaProviderService = services.FirstOrDefault(s => s.ServiceType == typeof(IConfidentialClientApplicationProvider));
             ServiceDescriptor? tokenAcquisitionhost = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquisitionHost));
             ServiceDescriptor? authenticationHeaderCreator = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider));
+            ServiceDescriptor? authenticationHeaderCreator2 = services.FirstOrDefault(s => s.ServiceType == typeof(IAuthorizationHeaderProvider2));
             ServiceDescriptor? tokenAcquirerFactory = services.FirstOrDefault(s => s.ServiceType == typeof(ITokenAcquirerFactory));
             ServiceDescriptor? authSchemeInfoProvider = services.FirstOrDefault(s => s.ServiceType == typeof(Abstractions.IAuthenticationSchemeInformationProvider));
             ServiceDescriptor? credentialsProviderService = services.FirstOrDefault(s => s.ServiceType == typeof(ICredentialsProvider));
@@ -90,6 +91,11 @@ namespace Microsoft.Identity.Web
                     services.Remove(tokenAcquisitionhost);
                     services.Remove(authenticationHeaderCreator);
                     services.Remove(authSchemeInfoProvider);
+
+                    if (authenticationHeaderCreator2 != null)
+                    {
+                        services.Remove(authenticationHeaderCreator2);
+                    }
 
                     if (ccaProviderService != null)
                     {
@@ -148,6 +154,8 @@ namespace Microsoft.Identity.Web
                 services.AddSingleton<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddSingleton<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                // Expose the same instance as IAuthorizationHeaderProvider2 so it can be resolved directly.
+                services.AddSingleton(s => (IAuthorizationHeaderProvider2)s.GetRequiredService<IAuthorizationHeaderProvider>());
                 if (!HasImplementationType(services, typeof(CredentialsProvider)))
                 {
                     services.TryAddSingleton<ICredentialsProvider, CredentialsProvider>();
@@ -183,6 +191,8 @@ namespace Microsoft.Identity.Web
                 services.AddScoped<Abstractions.IAuthenticationSchemeInformationProvider>(sp =>
                     sp.GetRequiredService<ITokenAcquisitionHost>());
                 services.AddScoped<IAuthorizationHeaderProvider, DefaultAuthorizationHeaderProvider>();
+                // Expose the same instance as IAuthorizationHeaderProvider2 so it can be resolved directly.
+                services.AddScoped(s => (IAuthorizationHeaderProvider2)s.GetRequiredService<IAuthorizationHeaderProvider>());
                 if (!HasImplementationType(services, typeof(CredentialsProvider)))
                 {
                     services.TryAddScoped<ICredentialsProvider, CredentialsProvider>();

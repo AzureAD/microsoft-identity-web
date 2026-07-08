@@ -1,6 +1,15 @@
 # template-run-unit-tests.yaml
 # Run all unit tests across the IdWeb project
 
+parameters:
+# VSTest filter applied to the E2E test run. Empty by default so every consumer
+# (e.g. the release build) runs the full E2E suite. The PR build passes a filter
+# to exclude tests that cannot run on Microsoft-hosted agents (e.g. managed
+# identity tests, which require an MI assigned to the host: Category!=MI_E2E).
+- name: e2eTestFilterCriteria
+  type: string
+  default: ''
+
 steps:
 
 - task: VSTest@2
@@ -38,6 +47,7 @@ steps:
         tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
         tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
+    testFiltercriteria: '${{ parameters.e2eTestFilterCriteria }}'
     rerunFailedTests: true
     rerunMaxAttempts: '3'
     runInParallel: false

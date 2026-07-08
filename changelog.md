@@ -1,3 +1,44 @@
+## 4.12.2
+
+### Bug fixes
+- Make the `Microsoft.Identity.Client.KeyAttestation` dependency conditional on modern .NET (`.NETCoreApp`) targets. It transitively pulls the native-only `Microsoft.Azure.Security.KeyGuardAttestation` package, which ships no .NET Framework/netstandard-compatible assets and broke NuGet restore for .NET Framework (packages.config) projects. `Microsoft.Identity.Web.Certificateless` now multi-targets, and .NET Framework consumers use the `netstandard2.0` asset without this dependency. See [#3894](https://github.com/AzureAD/microsoft-identity-web/issues/3894).
+
+## 4.12.1
+
+### Bug fixes
+- Preserve `ManagedIdentity` when converting `AcquireTokenOptions` to `TokenAcquisitionOptions` in `TokenAcquirer`. Previously the `ITokenAcquirer.GetTokenForAppAsync` / `GetTokenForUserAsync` paths silently dropped `ManagedIdentity` and fell back to the confidential-client path, breaking managed-identity mTLS PoP (e.g. MISE Native). See [#3914](https://github.com/AzureAD/microsoft-identity-web/pull/3914).
+
+### Behavior changes
+- **Sidecar: outbound HTTP redirects suppressed by default.** The sidecar no longer follows outbound HTTP redirects; a new opt-in `Sidecar:AllowOutboundRedirects` flag (default `false`) restores the previous behavior. See [#3906](https://github.com/AzureAD/microsoft-identity-web/pull/3906).
+- **Sidecar: per-request isolation of downstream API options.** Downstream API options resolved from the singleton `IOptionsMonitor` are now cloned per request (including fresh `ExtraParameters` / `ExtraHeaderParameters` / `ExtraQueryParameters` dictionaries), preventing request-scoped values from leaking across requests or racing under concurrency. See [#3919](https://github.com/AzureAD/microsoft-identity-web/pull/3919).
+
+### Fundamentals
+- Build the solution in the PR pipeline before running tests. See [#3911](https://github.com/AzureAD/microsoft-identity-web/pull/3911).
+- Restore OWIN 5.7.1 packages from the internal IDDP feed in the PR pipeline. See [#3912](https://github.com/AzureAD/microsoft-identity-web/pull/3912).
+- Run the PR pipeline on the Wilson pool so integration/E2E tests can access the lab KeyVault. See [#3913](https://github.com/AzureAD/microsoft-identity-web/pull/3913).
+
+## 4.12.0
+
+### New features
+- Implement `IAuthorizationHeaderProvider2` (from `Microsoft.Identity.Abstractions` 12.3.0) on `DefaultAuthorizationHeaderProvider` and the public `BaseAuthorizationHeaderProvider`, consolidating all header-creation paths through a single `BuildHeaderInformationAsync` engine and propagating `TokenAcquisitionMetadata` / `AdditionalResponseParameters` onto `AuthorizationHeaderInformation`. `DownstreamApi` and `MicrosoftIdentityMessageHandler` now prefer `IAuthorizationHeaderProvider2` for mTLS PoP. See [#3899](https://github.com/AzureAD/microsoft-identity-web/pull/3899).
+
+### Bug fixes
+- Flow the finalized `DownstreamApi` request (headers, query parameters, content, and customizations) to the authorization header provider before the header is created, so request-binding (mTLS PoP / SHR) providers sign the same request state that is sent on the wire. The `Authorization` header is still added after signing. See [#3902](https://github.com/AzureAD/microsoft-identity-web/pull/3902).
+
+### Behavior changes
+- **Sidecar: loopback-only access.** Sidecar endpoints are now restricted to loopback callers. See [#3897](https://github.com/AzureAD/microsoft-identity-web/pull/3897).
+
+### Dependencies updates
+- Update `Microsoft.Identity.Abstractions` to 12.4.0 and populate the new `TokenAcquisitionMetadata.ExpiresOn` property from MSAL's `AuthenticationResult.ExpiresOn`. See [#3905](https://github.com/AzureAD/microsoft-identity-web/pull/3905).
+- Update `Microsoft.Identity.Abstractions` to 12.3.0. See [#3899](https://github.com/AzureAD/microsoft-identity-web/pull/3899).
+- Bump `Microsoft.Identity.Client` (MSAL.NET) and `Microsoft.Identity.Client.KeyAttestation` from 4.85.1 to 4.85.2. See [#3896](https://github.com/AzureAD/microsoft-identity-web/pull/3896).
+- Upgrade `Microsoft.IdentityModel.Protocols.WsFederation` from 5.5.0 to 5.7.1 for OWIN. See [#3900](https://github.com/AzureAD/microsoft-identity-web/pull/3900).
+
+### Fundamentals
+- Post-release housekeeping: move unshipped Public API entries to `PublicAPI.Shipped.txt` for `Microsoft.Identity.Web.TokenAcquisition`. See [#3907](https://github.com/AzureAD/microsoft-identity-web/pull/3907).
+- Remove the unused `ConfidentialClientKeyVaultUri` test constant (LabVaultAccessCert cleanup). See [#3898](https://github.com/AzureAD/microsoft-identity-web/pull/3898).
+- Use the Microsoft-hosted `windows-2022` pool for the PR pipeline. See [#3908](https://github.com/AzureAD/microsoft-identity-web/pull/3908).
+
 ## 4.11.0
 
 ### New features
