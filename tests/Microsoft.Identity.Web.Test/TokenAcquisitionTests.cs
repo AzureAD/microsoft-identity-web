@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -845,9 +846,13 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user2Upn),
                 claimsPrincipal: null);
 
-            // Evict ALL agent CCAs (simulating sweep clearing everything).
+            // Evict ALL agent CCAs from the shared dictionary.
             // Keep _agentUserFicAccountIds intact — silent lookup needs them to find the account.
-            tokenAcquisition._agentUserFicCcas.Clear();
+            foreach (var key in tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0).ToList())
+            {
+                tokenAcquisition._applicationsByAuthorityClientId.TryRemove(key, out _);
+            }
 
             // Act — new CCAs must be built, but tokens should come from shared static cache.
             // Each new CCA needs a Leg 1 handler (assertion callback fires on first use).
@@ -933,8 +938,12 @@ namespace Microsoft.Identity.Web.Test
                 serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
             var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
 
-            // Set threshold to 2 so the 3rd agent triggers a clear
-            tokenAcquisition.AgentCcaMaxCount = 2;
+            // Set threshold to 4 so the 3rd agent triggers a clear:
+            // 1 blueprint + 2 agents = 3 entries (≤ 4), 1 blueprint + 3 agents = 4 entries (≤ 4)
+            // but after adding the 3rd agent the count becomes 4 which equals the threshold.
+            // We use 3 so that: blueprint + 2 agents = 3 ≤ 3 (no eviction),
+            // blueprint + 3 agents = 4 > 3 (triggers eviction).
+            tokenAcquisition.AgentCcaMaxCount = 3;
 
             string agent1 = Guid.NewGuid().ToString("N");
             string agent2 = Guid.NewGuid().ToString("N");
@@ -955,7 +964,7 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
                 claimsPrincipal: null);
 
-            Assert.Equal(2, tokenAcquisition._agentUserFicCcas.Count);
+            Assert.Equal(2, tokenAcquisition._applicationsByAuthorityClientId.Keys.Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
             Assert.Equal(2, tokenAcquisition._agentUserFicAccountIds.Count);
 
             // Add 3rd agent — exceeds threshold, triggers clear
@@ -965,10 +974,106 @@ namespace Microsoft.Identity.Web.Test
                 authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent3, user1Upn),
                 claimsPrincipal: null);
 
-            // Assert — CCA dictionary was cleared; only the 3rd agent's account ID remains
-            // (written after the clear, during Leg 3 of the triggering call)
-            Assert.Empty(tokenAcquisition._agentUserFicCcas);
+            // Assert — dictionary was cleared by DOS eviction, then repopulated during
+            // the rest of the 3rd agent's flow (blueprint rebuilds for Leg 1).
+            // Previous agent CCAs are gone; only the rebuilt blueprint remains.
+            Assert.Equal(0, tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
             Assert.Single(tokenAcquisition._agentUserFicAccountIds);
+        }
+
+        /// <summary>
+        /// Verifies that agent CCAs are stored in the shared _applicationsByAuthorityClientId
+        /// dictionary alongside normal CCAs, using the ":agent:" key segment for identification.
+        /// This ensures agent CCAs go through the same builder path and get identical configuration
+        /// (logging, authority handling, cache initialization) as normal CCAs.
+        /// </summary>
+        [Fact]
+        public async Task AgentCca_StoredInSharedDictionary_WithAgentKeySegment()
+        {
+            // Arrange
+            string agent1 = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1u1", Guid.NewGuid().ToString("N"), user1Upn);
+
+            // Act
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            // Assert — the shared dictionary has agent entries (identified by ":agent:" segment)
+            var agentKeys = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0)
+                .ToList();
+            Assert.Single(agentKeys);
+            Assert.True(agentKeys[0].IndexOf(agent1, StringComparison.Ordinal) >= 0);
+
+            // The blueprint CCA is also in the same dictionary (created lazily by assertion callback)
+            var blueprintKeys = tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Where(k => k.IndexOf(":agent:", StringComparison.Ordinal) < 0)
+                .ToList();
+            Assert.Single(blueprintKeys);
+        }
+
+        /// <summary>
+        /// Verifies that DOS eviction clears the entire CCA dictionary (including blueprint),
+        /// but tokens survive in MSAL's shared static cache. After eviction, new CCAs are
+        /// rebuilt lazily and can still retrieve cached tokens via AcquireTokenSilent.
+        /// </summary>
+        [Fact]
+        public async Task AgentCcaEviction_ClearsDictionary_TokensSurvive()
+        {
+            // Arrange
+            string agent1 = Guid.NewGuid().ToString("N");
+            string agent2 = Guid.NewGuid().ToString("N");
+            string agent3 = Guid.NewGuid().ToString("N");
+            string user1Upn = "user1@contoso.com";
+            string user1Uid = Guid.NewGuid().ToString("N");
+
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider serviceProvider = factory.Build();
+            var mockHttp = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            IAuthorizationHeaderProvider authProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+            tokenAcquisition.AgentCcaMaxCount = 3;
+
+            // Populate 2 agents (at threshold)
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a1", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent1, user1Upn),
+                claimsPrincipal: null);
+
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a2", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent2, user1Upn),
+                claimsPrincipal: null);
+
+            // Verify dictionary has entries (2 agents + 1 blueprint = 3)
+            Assert.True(tokenAcquisition._applicationsByAuthorityClientId.Count >= 3);
+
+            // Act — 3rd agent triggers eviction (clears entire dictionary)
+            AddAgentUserFicMockHandlersForUser(mockHttp!, "token-a3", user1Uid, user1Upn);
+            await authProvider.CreateAuthorizationHeaderForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authorizationHeaderProviderOptions: CreateAgentIdentityOptionsWithUpn(agent3, user1Upn),
+                claimsPrincipal: null);
+
+            // Assert — dictionary was cleared by eviction, then blueprint was rebuilt
+            // during the 3rd agent's Leg 1. Previous agent CCAs are gone.
+            Assert.Equal(0, tokenAcquisition._applicationsByAuthorityClientId.Keys
+                .Count(k => k.IndexOf(":agent:", StringComparison.Ordinal) >= 0));
         }
 
         #endregion
