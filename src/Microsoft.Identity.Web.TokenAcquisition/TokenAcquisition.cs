@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -274,16 +275,19 @@ namespace Microsoft.Identity.Web
         {
             string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
 
-            string baseKey = DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion) + credentialId;
+            var keyBuilder = new StringBuilder(
+                DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion));
+            keyBuilder.Append(credentialId);
             if (isTokenBinding)
             {
-                baseKey += "-tokenBinding";
+                keyBuilder.Append("-tokenBinding");
             }
             if (agentAppId is not null)
             {
-                baseKey += $":agent:{agentAppId}";
+                keyBuilder.Append(":agent:");
+                keyBuilder.Append(agentAppId);
             }
-            return baseKey;
+            return keyBuilder.ToString();
         }
 
         /// <summary>
@@ -1327,7 +1331,7 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             bool isTokenBinding,
             string? agentAppId = null,
-            Func<AssertionRequestOptions, Task<string>>? clientAssertionProvider = null)
+            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null)
         {
             string key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
 
@@ -1348,7 +1352,7 @@ namespace Microsoft.Identity.Web
 
                 // Build and store the application
                 var newApp = await BuildConfidentialClientApplicationAsync(
-                    mergedOptions, isTokenBinding, agentAppId, clientAssertionProvider);
+                    mergedOptions, isTokenBinding, agentAppId, agenticAssertionProvider);
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
@@ -1382,25 +1386,25 @@ namespace Microsoft.Identity.Web
         /// <param name="mergedOptions">Merged configuration options.</param>
         /// <param name="isTokenBinding">Whether mTLS token binding (PoP) is requested.</param>
         /// <param name="agentAppId">When non-null, builds an agent CCA with this app ID as
-        /// the ClientId and uses <paramref name="clientAssertionProvider"/> for credentials
+        /// the ClientId and uses <paramref name="agenticAssertionProvider"/> for credentials
         /// instead of the normal client credentials. The rest of the builder configuration
         /// (logging, authority, redirect URI, cache initialization) is shared with the normal
         /// CCA builder path.</param>
-        /// <param name="clientAssertionProvider">Assertion callback for agent CCAs. Required
+        /// <param name="agenticAssertionProvider">Assertion callback for agent CCAs. Required
         /// when <paramref name="agentAppId"/> is non-null.</param>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions,
             bool isTokenBinding,
             string? agentAppId = null,
-            Func<AssertionRequestOptions, Task<string>>? clientAssertionProvider = null)
+            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null)
         {
-            // agentAppId and clientAssertionProvider must both be null or both be non-null.
+            // agentAppId and agenticAssertionProvider must both be null or both be non-null.
             // Agent CCAs require an assertion callback for Leg 1 (FMI token), and the callback
             // is only meaningful in the context of an agent CCA.
-            if ((agentAppId is null) != (clientAssertionProvider is null))
+            if ((agentAppId is null) != (agenticAssertionProvider is null))
             {
                 throw new ArgumentException(
-                    "agentAppId and clientAssertionProvider must both be provided or both be null.");
+                    "agentAppId and agenticAssertionProvider must both be provided or both be null.");
             }
 
             bool isAgentCca = agentAppId is not null;
@@ -1522,9 +1526,9 @@ namespace Microsoft.Identity.Web
                 // Configure credentials: agent CCAs use an assertion callback that chains
                 // to the blueprint CCA for Leg 1 (FMI token), while normal CCAs use the
                 // standard client credentials (certificate, secret, etc.).
-                if (isAgentCca && clientAssertionProvider is not null)
+                if (isAgentCca && agenticAssertionProvider is not null)
                 {
-                    builder.WithClientAssertion(clientAssertionProvider);
+                    builder.WithClientAssertion(agenticAssertionProvider);
                 }
                 else
                 {
