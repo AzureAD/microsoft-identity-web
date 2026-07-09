@@ -7,98 +7,27 @@ pr:
     include:
       - master
 
-stages:
-
-# Full multi-TFM build + unit tests. The unit test project targets .NET Framework
-# (net462/net472) as well as net8/net9/net10, so it needs the complete multi-TFM
-# solution build. E2E and managed-identity tests run in their own stages below.
-- stage: Build
-  displayName: 'Build & Unit Tests'
-  jobs:
-  - job: PR_build
-    variables:
-      # Load the LabAuth client certificate from the local certificate store
-      # (installed into LocalMachine/My by template-install-dependencies.yaml)
-      # instead of the msidlabs KeyVault. Microsoft-hosted agents have no managed
-      # identity that can read the KeyVault, so DefaultAzureCredential would fail.
-      # The official OneBranch/Wilson pipeline does not set this and keeps using
-      # the KeyVault source.
-      UseLabAuthCertFromStore: true
-    pool:
-      vmImage: 'windows-2022'
-      demands:
-      - msbuild
-      - visualstudio
-    steps:
-      - template: build/template-install-dependencies.yaml
-      - template: build/template-build.yaml
-      - template: build/template-test-unit.yaml
-
-# Integration tests only depend on .NET 8, so build just that project and run them
-# in parallel with the full Build stage (dependsOn: [] -> no dependency on Build).
-- stage: IntegrationTests
-  displayName: 'Integration Tests (.NET 8)'
-  dependsOn: []
-  jobs:
-  - job: IntegrationTests
-    variables:
-      UseLabAuthCertFromStore: true
-    pool:
-      vmImage: 'windows-2022'
-      demands:
-      - msbuild
-      - visualstudio
-    steps:
-      - template: build/template-install-dependencies.yaml
-      - template: build/template-build-test-project.yaml
-        parameters:
-          Project: 'tests/Microsoft.Identity.Web.Test.Integration/Microsoft.Identity.Web.Test.Integration.csproj'
-          TargetFramework: 'net8.0'
-      - template: build/template-test-integration.yaml
-
-# Browser/host E2E tests (excluding managed identity). The E2E projects target
-# net8.0 and pull their sample apps in as project references, so build just those
-# projects and run in parallel with Build (dependsOn: []).
-- stage: E2ETests
-  displayName: 'E2E Tests (.NET 8)'
-  dependsOn: []
-  jobs:
-  - job: E2ETests
-    variables:
-      UseLabAuthCertFromStore: true
-    pool:
-      vmImage: 'windows-2022'
-      demands:
-      - msbuild
-      - visualstudio
-    steps:
-      - template: build/template-install-dependencies.yaml
-      - template: build/template-build-test-project.yaml
-        parameters:
-          Project: 'tests/E2E Tests/WebAppUiTests/WebAppUiTests.csproj'
-          TargetFramework: 'net8.0'
-      - template: build/template-build-test-project.yaml
-        parameters:
-          Project: 'tests/E2E Tests/TokenAcquirerTests/TokenAcquirerTests.csproj'
-          TargetFramework: 'net8.0'
-      - template: build/template-test-e2e.yaml
-        parameters:
-          # Exclude managed-identity E2E tests: they require an MI assigned to the
-          # host (IMDS), which Microsoft-hosted agents do not have. They run in the
-          # ManagedIdentityE2E stage below on the MSALMSIV2 VM pool.
-          e2eTestFilterCriteria: 'Category!=MI_E2E'
-
-# Managed-identity E2E tests require a VM with an assigned managed identity (IMDS),
-# which Microsoft-hosted agents do not have. They run on the MSALMSIV2 VM pool and
-# build only the E2E project (.NET 8), independent of the Build stage.
-- stage: ManagedIdentityE2E
-  displayName: 'Managed Identity E2E (MSALMSIV2)'
-  dependsOn: []
-  jobs:
-  - job: ManagedIdentityE2E
-    pool:
-      name: 'MSALMSIV2'
-    steps:
-      - template: build/template-run-managed-identity-e2e-tests.yaml
-        parameters:
-          TargetFramework: 'net8.0'
+jobs:
+- job: "PR_build"
+  variables:
+    # Load the LabAuth client certificate from the local certificate store
+    # (installed into LocalMachine/My by template-install-dependencies.yaml)
+    # instead of the msidlabs KeyVault. Microsoft-hosted agents have no managed
+    # identity that can read the KeyVault, so DefaultAzureCredential would fail.
+    # The official OneBranch/Wilson pipeline does not set this and keeps using
+    # the KeyVault source.
+    UseLabAuthCertFromStore: true
+  pool:
+    vmImage: 'windows-2022'
+    demands:
+    - msbuild
+    - visualstudio
+  steps:
+    - template: build/template-install-dependencies.yaml
+    - template: build/template-build.yaml
+    - template: build/template-run-unit-tests.yaml
+      parameters:
+        # Exclude managed-identity E2E tests: they require an MI assigned to the
+        # host (IMDS), which Microsoft-hosted agents do not have. They still run in
+        # the official OneBranch pipeline on VM-based agents that have the MI.
+        e2eTestFilterCriteria: 'Category!=MI_E2E'
