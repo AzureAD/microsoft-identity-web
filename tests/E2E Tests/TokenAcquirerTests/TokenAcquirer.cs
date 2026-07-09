@@ -561,9 +561,10 @@ namespace TokenAcquirerTests
             // Arrange
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
-            // User-assigned managed identity "Msal_Integration_tests" (RG MSAL_MSI, sub c1686c51-b717-4fe0-9af3-24a20a41fb0c).
-            // Shared/consolidated lab UAMI reused across MSAL and Id.Web E2E tests.
-            const string clientId = "45344e7d-c562-4be6-868f-18dac789c021";
+            // User-assigned managed identity "msiv2uami" (RG MSIV2-Testing-MSALNET,
+            // sub c1686c51-b717-4fe0-9af3-24a20a41fb0c) assigned to the MSALMSIV2
+            // VM pool that runs these MI E2E tests. Shared with MSAL.NET E2E tests.
+            const string clientId = "6325cd32-9911-41f3-819c-416cdf9104e7";
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
