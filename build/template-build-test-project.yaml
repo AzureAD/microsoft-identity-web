@@ -1,0 +1,29 @@
+# template-build-test-project.yaml
+# Restore and build a single test project (and its project references) for one
+# target framework. Used by the independent stages that only need .NET 8, so they
+# don't wait on the full multi-TFM solution build.
+
+parameters:
+- name: Project
+  type: string
+- name: BuildConfiguration
+  type: string
+  default: 'Release'
+- name: TargetFramework
+  type: string
+  default: 'net8.0'
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore ${{ parameters.Project }}'
+  inputs:
+    command: 'restore'
+    projects: '${{ parameters.Project }}'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build ${{ parameters.Project }} (${{ parameters.TargetFramework }})'
+  inputs:
+    command: 'build'
+    projects: '${{ parameters.Project }}'
+    arguments: '--configuration ${{ parameters.BuildConfiguration }} --framework ${{ parameters.TargetFramework }} --no-restore'

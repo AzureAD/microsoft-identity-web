@@ -1,0 +1,16 @@
+# template-test-unit.yaml
+# Run the Microsoft.Identity.Web unit tests.
+
+steps:
+
+- task: VSTest@2
+  displayName: 'Run unit tests'
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    runInParallel: true
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: true
+    minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'
