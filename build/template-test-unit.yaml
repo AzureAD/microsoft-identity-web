@@ -7,8 +7,16 @@ steps:
   displayName: 'Run unit tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
+    testAssemblyVer2: |
+        tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll
+        tests\Microsoft.Identity.Web.UI.Test\bin\**\Microsoft.Identity.Web.UI.Test.dll
+        tests\E2E Tests\Sidecar.Tests\bin\**\Sidecar.Tests.dll
+        tests\E2E Tests\OidcIdPSignedAssertionProviderTests\bin\**\OidcIdpSignedAssertionProviderTests.dll
+        tests\E2E Tests\CustomSignedAssertionProviderTests\bin\**\CustomSignedAssertionProviderTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
+    # Match the GitHub Action: Sidecar.Tests ships E2E/integration classes that
+    # need a live sidecar and are excluded there. Skip the same ones here.
+    testFiltercriteria: 'FullyQualifiedName!~SidecarEndpointsE2ETests&FullyQualifiedName!~SidecarIntegrationTests'
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
