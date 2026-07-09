@@ -14,6 +14,9 @@ steps:
         tests\E2E Tests\OidcIdPSignedAssertionProviderTests\bin\**\OidcIdpSignedAssertionProviderTests.dll
         tests\E2E Tests\CustomSignedAssertionProviderTests\bin\**\CustomSignedAssertionProviderTests.dll
     searchFolder: '$(System.DefaultWorkingDirectory)'
+    # Match the GitHub Action: Sidecar.Tests ships E2E/integration classes that
+    # need a live sidecar and are excluded there. Skip the same ones here.
+    testFiltercriteria: 'FullyQualifiedName!~SidecarEndpointsE2ETests&FullyQualifiedName!~SidecarIntegrationTests'
     runInParallel: true
     codeCoverageEnabled: true
     failOnMinTestsNotRun: true
