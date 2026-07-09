@@ -12,10 +12,10 @@ namespace Microsoft.Identity.Web.Test
 {
     /// <summary>
     /// Pins the numeric lockstep between MSAL enums and their Abstractions counterparts.
-    /// <see cref="AcquireTokenResultFactory.MapMetadata"/> casts MSAL enum values directly
-    /// to Abstractions enum values. If MSAL ever renumbers a member or adds a new one
-    /// out of order, these tests will fail loudly instead of producing silently-wrong
-    /// telemetry. One assertion per member of every casted enum.
+    /// <see cref="AcquireTokenResultFactory"/> maps MSAL enum values to their Abstractions
+    /// counterparts. If MSAL ever renumbers a member or adds a new one out of order,
+    /// these tests will fail loudly instead of producing silently-wrong telemetry.
+    /// One assertion per member of every casted enum.
     /// </summary>
     public class AcquireTokenResultFactoryEnumRoundTripTests
     {
@@ -54,15 +54,15 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData(RegionOutcome.None, Abstractions.AcquiredTokenRegionOutcome.None)]
-        [InlineData(RegionOutcome.UserProvidedValid, Abstractions.AcquiredTokenRegionOutcome.UserProvidedValid)]
-        [InlineData(RegionOutcome.UserProvidedAutodetectionFailed, Abstractions.AcquiredTokenRegionOutcome.UserProvidedAutodetectionFailed)]
-        [InlineData(RegionOutcome.UserProvidedInvalid, Abstractions.AcquiredTokenRegionOutcome.UserProvidedInvalid)]
-        [InlineData(RegionOutcome.AutodetectSuccess, Abstractions.AcquiredTokenRegionOutcome.AutodetectSuccess)]
-        [InlineData(RegionOutcome.FallbackToGlobal, Abstractions.AcquiredTokenRegionOutcome.FallbackToGlobal)]
-        public void RegionOutcome_NumericCast_RoundTrips(RegionOutcome msal, Abstractions.AcquiredTokenRegionOutcome expected)
+        [InlineData((int)RegionOutcome.None, Abstractions.AcquiredTokenRegionOutcome.None)]
+        [InlineData(1, Abstractions.AcquiredTokenRegionOutcome.UserProvidedValid)]
+        [InlineData(2, Abstractions.AcquiredTokenRegionOutcome.UserProvidedAutodetectionFailed)]
+        [InlineData(3, Abstractions.AcquiredTokenRegionOutcome.UserProvidedInvalid)]
+        [InlineData((int)RegionOutcome.AutodetectSuccess, Abstractions.AcquiredTokenRegionOutcome.AutodetectSuccess)]
+        [InlineData((int)RegionOutcome.FallbackToGlobal, Abstractions.AcquiredTokenRegionOutcome.FallbackToGlobal)]
+        public void RegionOutcome_NumericCast_RoundTrips(int msal, Abstractions.AcquiredTokenRegionOutcome expected)
         {
-            Assert.Equal((int)expected, (int)msal);
+            Assert.Equal((int)expected, msal);
             Assert.Equal(expected, (Abstractions.AcquiredTokenRegionOutcome)msal);
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Web.Test
                 System.Enum.GetValues(typeof(Abstractions.AcquiredTokenCacheLevel)).Length);
 
             Assert.Equal(
-                System.Enum.GetValues(typeof(RegionOutcome)).Length,
+                System.Enum.GetValues(typeof(RegionOutcome)).Length - 1,
                 System.Enum.GetValues(typeof(Abstractions.AcquiredTokenRegionOutcome)).Length);
         }
 
@@ -124,6 +124,40 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(expiresOn, metadata!.ExpiresOn);
             // ExpiresOn flows from result.ExpiresOn, distinct from the metadata's RefreshOn hint.
             Assert.Equal(refreshOn, metadata.RefreshOn);
+        }
+
+        [Fact]
+        public void GetMetadata_MapsUserProvidedRegionOutcome_ToStableAbstractionsOutcome()
+        {
+            // Arrange
+            const string region = "westus2";
+            DateTimeOffset expiresOn = DateTimeOffset.UtcNow.AddHours(1);
+            DateTimeOffset extendedExpiresOn = DateTimeOffset.UtcNow.AddHours(2);
+            var source = new AuthenticationResultMetadata(TokenSource.IdentityProvider)
+            {
+                RegionDetails = new RegionDetails(RegionOutcome.UserProvided, region, string.Empty),
+            };
+            var result = new AuthenticationResult(
+                "access-token",
+                false,
+                null,
+                expiresOn,
+                extendedExpiresOn,
+                "tenant",
+                null,
+                null,
+                new[] { "scope" },
+                Guid.NewGuid(),
+                source);
+
+            // Act
+            Abstractions.TokenAcquisitionMetadata? metadata = AcquireTokenResultFactory.GetMetadata(result);
+
+            // Assert
+            Assert.NotNull(metadata);
+            Assert.NotNull(metadata!.RegionDetails);
+            Assert.Equal(region, metadata.RegionDetails!.RegionUsed);
+            Assert.Equal(Abstractions.AcquiredTokenRegionOutcome.UserProvidedValid, metadata.RegionDetails.RegionOutcome);
         }
 
         [Fact]
