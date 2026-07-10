@@ -813,8 +813,9 @@ namespace Microsoft.Identity.Web
             // Copy headers
             foreach (var header in originalRequest.Headers)
             {
-                // Skip Authorization header as it will be set by the handler
-                if (header.Key != "Authorization")
+                // The Authorization header is set by the handler. Reserved headers are handled
+                // consistently with ExtraHeaderParameters and are not carried over to the clone.
+                if (header.Key != "Authorization" && !ReservedHeaderNames.IsReserved(header.Key))
                 {
                     clonedRequest.Headers.TryAddWithoutValidation(header.Key, header.Value);
                 }

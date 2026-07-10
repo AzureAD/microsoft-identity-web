@@ -1,3 +1,8 @@
+## 4.12.3
+
+### Bug fixes
+- Apply reserved-header handling on the request-clone path used for challenge retries and mTLS PoP, consistently with `ExtraHeaderParameters`, and broaden the reserved `X-MS-TOKEN-` prefix to cover the whole `X-MS-TOKEN-*` family rather than only `X-MS-TOKEN-AAD-*`.
+
 ## 4.12.2
 
 ### Bug fixes
