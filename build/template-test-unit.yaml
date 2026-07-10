@@ -22,3 +22,16 @@ steps:
     failOnMinTestsNotRun: true
     minimumExpectedTests: '1'
     runSettingsFile: 'build\CodeCoverage.runsettings'
+
+# VSTest@2 on the hosted agent cannot discover the .NET Framework xUnit tests
+# (net472), so the glob above silently runs 0 of them. The GitHub Action covers
+# them via 'dotnet test -f net472'; mirror that here. Only the main unit test
+# project multi-targets .NET Framework. --no-build reuses the solution build
+# output produced earlier in the stage.
+- task: DotNetCoreCLI@2
+  displayName: 'Run unit tests (.NET Framework 4.7.2)'
+  inputs:
+    command: 'test'
+    projects: 'tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj'
+    arguments: '--no-restore --no-build --configuration Release --framework net472'
+    testRunTitle: 'Unit tests (net472)'

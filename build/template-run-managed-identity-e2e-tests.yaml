@@ -35,6 +35,11 @@ steps:
 
 - task: VSTest@2
   displayName: 'Run managed identity E2E tests'
+  # This template runs on the MSALMSIV2 pool; override the UAMI client id to the
+  # msiv2uami identity assigned to that pool. Other pipelines (e.g. id4s-official
+  # on the Wilson pool) leave this unset and fall back to the default in the test.
+  env:
+    IDWEB_MI_UAMI_CLIENTID: '6325cd32-9911-41f3-819c-416cdf9104e7'
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: 'tests\E2E Tests\TokenAcquirerTests\bin\${{ parameters.BuildConfiguration }}\${{ parameters.TargetFramework }}\TokenAcquirerTests.dll'
