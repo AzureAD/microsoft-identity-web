@@ -14,3 +14,5 @@ static Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(thi
 static Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider!
 static Microsoft.Identity.Web.ControllerBaseExtensions.GetDownstreamApi(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IDownstreamApi!
 static Microsoft.Identity.Web.ControllerBaseExtensions.GetGraphServiceClient(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Graph.GraphServiceClient!
+static Microsoft.Identity.Web.ApiControllerExtensions.GetAuthorizationHeaderProvider2(this System.Web.Http.ApiController! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2!
+static Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider2(this System.Web.Mvc.ControllerBase! _) -> Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2!
