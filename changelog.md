@@ -1,3 +1,8 @@
+## 4.12.3
+
+### Bug fixes
+- Apply reserved-header handling on the request-clone path used for challenge retries and mTLS PoP, consistently with `ExtraHeaderParameters`, and broaden the reserved `X-MS-TOKEN-` prefix to cover the whole `X-MS-TOKEN-*` family rather than only `X-MS-TOKEN-AAD-*`.
+
 ## 4.12.2
 
 ### Bug fixes
@@ -38,9 +43,6 @@
 - Post-release housekeeping: move unshipped Public API entries to `PublicAPI.Shipped.txt` for `Microsoft.Identity.Web.TokenAcquisition`. See [#3907](https://github.com/AzureAD/microsoft-identity-web/pull/3907).
 - Remove the unused `ConfidentialClientKeyVaultUri` test constant (LabVaultAccessCert cleanup). See [#3898](https://github.com/AzureAD/microsoft-identity-web/pull/3898).
 - Use the Microsoft-hosted `windows-2022` pool for the PR pipeline. See [#3908](https://github.com/AzureAD/microsoft-identity-web/pull/3908).
-
-### Bug fixes
-- Apply reserved-header handling on the request-clone path used for challenge retries and mTLS PoP, consistently with `ExtraHeaderParameters`, and broaden the reserved `X-MS-TOKEN-` prefix to cover the whole `X-MS-TOKEN-*` family rather than only `X-MS-TOKEN-AAD-*`.
 
 ## 4.11.0
 
