@@ -1,5 +1,9 @@
 # template-run-unit-tests.yaml
-# Run all unit tests across the IdWeb project
+# Aggregator that runs every test suite (unit + integration + E2E) in one job.
+# Kept for consumers that want the full suite in a single stage (e.g. the release
+# build). The PR pipeline composes the granular templates into separate stages
+# instead: template-test-unit.yaml, template-test-integration.yaml and
+# template-test-e2e.yaml.
 
 parameters:
 # VSTest filter applied to the E2E test run. Empty by default so every consumer
@@ -12,70 +16,10 @@ parameters:
 
 steps:
 
-- task: VSTest@2
-  displayName: 'Run unit tests'
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test\bin\**\Microsoft.Identity.Web.Test.dll'
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    runInParallel: true
-    codeCoverageEnabled: true
-    failOnMinTestsNotRun: true
-    minimumExpectedTests: '1'
-    runSettingsFile: 'build\CodeCoverage.runsettings'
+- template: template-test-unit.yaml
 
-- task: VSTest@2
-  displayName: 'Run integration tests'
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test.Integration\bin\**\Microsoft.Identity.Web.Test.Integration.dll'
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    rerunFailedTests: true
-    rerunMaxAttempts: '3'
-    runInParallel: false
-    codeCoverageEnabled: true
-    failOnMinTestsNotRun: false
-    minimumExpectedTests: '1'
-    runSettingsFile: 'build\CodeCoverage.runsettings'
+- template: template-test-integration.yaml
 
-- task: VSTest@2
-  displayName: 'Run E2E tests'
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-        tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
-        tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
-        tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    testFiltercriteria: '${{ parameters.e2eTestFilterCriteria }}'
-    rerunFailedTests: true
-    rerunMaxAttempts: '3'
-    runInParallel: false
-    codeCoverageEnabled: true
-    failOnMinTestsNotRun: false
-    minimumExpectedTests: '1'
-    runSettingsFile: 'build\CodeCoverage.runsettings'
-    
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish traces after test'
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
-    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
-  condition: failed()
-
-# Copy all packages out to staging
-- task: CopyFiles@2
-  displayName: 'Copy screenshots to staging directory'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/tests/E2E Tests/'
-    Contents: '**/*screenshotFail.png'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)\screenshots'
-    flattenFolders: true
-  condition: failed()
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Screenshot after test'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
-    ArtifactName: 'ScreenshotFail'
-  condition: failed()
+- template: template-test-e2e.yaml
+  parameters:
+    e2eTestFilterCriteria: '${{ parameters.e2eTestFilterCriteria }}'

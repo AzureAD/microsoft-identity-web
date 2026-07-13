@@ -1,0 +1,19 @@
+# template-test-integration.yaml
+# Run the Microsoft.Identity.Web integration tests. Only depend on .NET 8, so a
+# consuming stage can build just this project and run in parallel with the build.
+
+steps:
+
+- task: VSTest@2
+  displayName: 'Run integration tests'
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: 'tests\Microsoft.Identity.Web.Test.Integration\bin\**\Microsoft.Identity.Web.Test.Integration.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    rerunFailedTests: true
+    rerunMaxAttempts: '3'
+    runInParallel: false
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: false
+    minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'

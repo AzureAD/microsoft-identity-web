@@ -341,6 +341,8 @@ namespace Microsoft.Identity.Web.Tests
         [InlineData("X-MS-TOKEN-AAD-ID-TOKEN")]
         [InlineData("X-MS-TOKEN-AAD-ACCESS-TOKEN")]
         [InlineData("x-ms-token-aad-refresh-token")]
+        [InlineData("X-MS-TOKEN-EXAMPLE-ACCESS-TOKEN")]
+        [InlineData("x-ms-token-example-refresh-token")]
         public async Task UpdateRequestAsync_ExtraHeaderParameters_ReservedPrefixes_AreIgnored(string headerName)
         {
             // Arrange

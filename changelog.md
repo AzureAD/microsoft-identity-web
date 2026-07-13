@@ -9,6 +9,11 @@
 ### Dependencies updates
 - Bump `Microsoft.Identity.Client` (MSAL.NET) and `Microsoft.Identity.Client.KeyAttestation` from 4.85.2 to 4.86.0. See [#3931](https://github.com/AzureAD/microsoft-identity-web/pull/3931).
 
+## 4.12.3
+
+### Bug fixes
+- Apply reserved-header handling on the request-clone path used for challenge retries and mTLS PoP, consistently with `ExtraHeaderParameters`, and broaden the reserved `X-MS-TOKEN-` prefix to cover the whole `X-MS-TOKEN-*` family rather than only `X-MS-TOKEN-AAD-*`.
+
 ## 4.12.2
 
 ### Bug fixes
