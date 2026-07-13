@@ -1,3 +1,19 @@
+## 4.13.0
+
+### New features
+- Add `GetAuthorizationHeaderProvider2()` extension methods to the OWIN `ApiController` and `ControllerBase`, so OWIN apps can resolve `IAuthorizationHeaderProvider2` (metadata-returning header creation). See [#3928](https://github.com/AzureAD/microsoft-identity-web/pull/3928).
+
+### Bug fixes
+- Register `IAuthorizationHeaderProvider2` in the DI container (both the singleton and scoped registrations) as the same instance already registered for `IAuthorizationHeaderProvider`, so consumers can resolve the v2 interface. See [#3927](https://github.com/AzureAD/microsoft-identity-web/pull/3927).
+
+### Dependencies updates
+- Bump `Microsoft.Identity.Client` (MSAL.NET) and `Microsoft.Identity.Client.KeyAttestation` from 4.85.2 to 4.86.0. See [#3931](https://github.com/AzureAD/microsoft-identity-web/pull/3931).
+
+## 4.12.3
+
+### Bug fixes
+- Apply reserved-header handling on the request-clone path used for challenge retries and mTLS PoP, consistently with `ExtraHeaderParameters`, and broaden the reserved `X-MS-TOKEN-` prefix to cover the whole `X-MS-TOKEN-*` family rather than only `X-MS-TOKEN-AAD-*`.
+
 ## 4.12.2
 
 ### Bug fixes
