@@ -4,15 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
+using NSubstitute;
 using Xunit;
 
 
@@ -158,6 +161,44 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Bearer header.payload.signature", result);
+        }
+
+        /// <summary>
+        /// Tests that a caught <see cref="MsalUiRequiredException"/> is not re-logged by Microsoft.Identity.Web,
+        /// since MSAL.NET already logs it. Re-logging produced duplicate log entries.
+        /// This addresses issue #3528.
+        /// </summary>
+        [Fact]
+        public async Task GetAuthenticationResultForUserAsync_DoesNotDuplicateLog_WhenMsalUiRequiredExceptionIsThrown()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+
+            var innerLogger = Substitute.For<ILogger<TokenAcquisition>>();
+            innerLogger.IsEnabled(Arg.Any<Microsoft.Extensions.Logging.LogLevel>()).Returns(true);
+            tokenAcquirerFactory.Services.AddSingleton<ILogger<TokenAcquisition>>(
+                new LoggerMock<TokenAcquisition>(innerLogger));
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // No account/login-hint claims, so MSAL's AcquireTokenSilent throws MsalUiRequiredException
+            // synchronously (the exact scenario reported in issue #3528).
+            var user = new ClaimsPrincipal(new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() =>
+                authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
+                    new[] { "https://graph.microsoft.com/.default" },
+                    authorizationHeaderProviderOptions: null,
+                    claimsPrincipal: user));
+
+            innerLogger.DidNotReceive().Log(
+                Microsoft.Extensions.Logging.LogLevel.Information,
+                Arg.Is<EventId>(e => e.Id == 300), // LoggingEventId.TokenAcquisitionError
+                Arg.Any<object>(),
+                Arg.Any<Exception?>(),
+                Arg.Any<Func<object, Exception?, string>>());
         }
 
         private TokenAcquirerFactory InitTokenAcquirerFactory()
