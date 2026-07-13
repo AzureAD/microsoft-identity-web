@@ -439,5 +439,51 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             var challengeResult = Assert.IsType<ChallengeResult>(result);
             Assert.Equal("/", challengeResult.Properties!.RedirectUri);
         }
+
+        // -----------------------------------------------------------------------------
+        // SignIn action — percent-encoded slash bypass.
+        //
+        // A redirectUri of "/%2fevil.example" (the value the controller sees after ASP.NET
+        // Core has query-decoded the request once — the raw query string would be "%252f")
+        // passes Url.IsLocalUrl because the framework checks for literal "//" and "/\" only.
+        // A normalising reverse proxy (NGINX, IIS ARR, F5) that decodes percent-encoded
+        // path segments on the way out turns that into "//evil.example", which browsers
+        // treat as a protocol-relative URL. The IsPercentEncodedSlashBypass guard must
+        // block this on the SignIn path, matching the guard already on the Challenge action.
+        // -----------------------------------------------------------------------------
+
+        [Fact]
+        public void SignIn_WithPercentEncodedSlashRedirectUri_UsesDefaultRedirectUri()
+        {
+            // Arrange: use a realistic IsLocalUrl mock so that removing either the
+            // IsLocalUrl check or the IsPercentEncodedSlashBypass check would cause this
+            // test to fail.
+            UseRealisticIsLocalUrl();
+            string scheme = OpenIdConnectDefaults.AuthenticationScheme;
+
+            // "/%2fevil.example" — passes IsLocalUrl (starts with "/" and second char is "%"),
+            // but must be rejected by IsPercentEncodedSlashBypass.
+            // Act
+            var result = _accountController.SignIn(scheme, "/%2fevil.example");
+
+            // Assert: redirect must fall back to default, not to the attacker-controlled URI.
+            var challengeResult = Assert.IsType<ChallengeResult>(result);
+            Assert.Equal("/", challengeResult.Properties!.RedirectUri);
+        }
+
+        [Fact]
+        public void SignIn_WithPercentEncodedBackslashRedirectUri_UsesDefaultRedirectUri()
+        {
+            // Arrange: "/%5cevil.example" — backslash variant of the same bypass.
+            UseRealisticIsLocalUrl();
+            string scheme = OpenIdConnectDefaults.AuthenticationScheme;
+
+            // Act
+            var result = _accountController.SignIn(scheme, "/%5cevil.example");
+
+            // Assert
+            var challengeResult = Assert.IsType<ChallengeResult>(result);
+            Assert.Equal("/", challengeResult.Properties!.RedirectUri);
+        }
     }
 }
