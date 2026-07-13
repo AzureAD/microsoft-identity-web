@@ -444,8 +444,7 @@ namespace Microsoft.Identity.Web
             catch (MsalUiRequiredException ex)
             {
                 // GetAccessTokenForUserAsync is an abstraction that can be called from a web app or a web API
-                Logger.TokenAcquisitionError(_logger, ex.Message, ex);
-
+                // MsalUiRequiredException is already logged by MSAL. Re-logging here would produce duplicates.
                 // Case of the web app: we let the MsalUiRequiredException be caught by the
                 // AuthorizeForScopesAttribute exception filter so that the user can consent, do 2FA, etc ...
                 throw new MicrosoftIdentityWebChallengeUserException(ex, scopes.ToArray(), userFlow);
@@ -1617,171 +1616,160 @@ namespace Microsoft.Identity.Web
            MergedOptions mergedOptions,
            ClaimsPrincipal? userHint)
         {
-            try
+            // In web API, validatedToken will not be null
+            SecurityToken? validatedToken = userHint?.GetBootstrapToken() ?? _tokenAcquisitionHost.GetTokenUsedToCallWebAPI();
+
+            // In the case the token is a JWE (encrypted token), we use the decrypted token.
+            string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
+            string? originalTokenToCallWebApi = tokenUsedToCallTheWebApi;
+
+            AcquireTokenOnBehalfOfParameterBuilder? builder = null;
+            TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
+
+            // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
+            if (tokenUsedToCallTheWebApi != null)
             {
-                // In web API, validatedToken will not be null
-                SecurityToken? validatedToken = userHint?.GetBootstrapToken() ?? _tokenAcquisitionHost.GetTokenUsedToCallWebAPI();
-
-                // In the case the token is a JWE (encrypted token), we use the decrypted token.
-                string? tokenUsedToCallTheWebApi = GetActualToken(validatedToken);
-                string? originalTokenToCallWebApi = tokenUsedToCallTheWebApi;
-
-                AcquireTokenOnBehalfOfParameterBuilder? builder = null;
-                TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
-
-                // Case of web APIs: we need to do an on-behalf-of flow, with the token used to call the API
-                if (tokenUsedToCallTheWebApi != null)
+                if (addInOptions != null && addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync != null)
                 {
-                    if (addInOptions != null && addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync != null)
+                    var oboInitEventArgs = new OnBehalfOfEventArgs
                     {
-                        var oboInitEventArgs = new OnBehalfOfEventArgs
-                        {
-                            UserAssertionToken = tokenUsedToCallTheWebApi,
-                            User = userHint
-                        };
-                        await addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(oboInitEventArgs).ConfigureAwait(false);
+                        UserAssertionToken = tokenUsedToCallTheWebApi,
+                        User = userHint
+                    };
+                    await addInOptions.InvokeOnBeforeOnBehalfOfInitializedAsync(oboInitEventArgs).ConfigureAwait(false);
 
-                        if (oboInitEventArgs.UserAssertionToken != null)
-                        {
-                            tokenUsedToCallTheWebApi = oboInitEventArgs.UserAssertionToken;
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+                    if (oboInitEventArgs.UserAssertionToken != null)
                     {
-                        builder = application
-                                        .AcquireTokenOnBehalfOf(
-                                            scopes.Except(_scopesRequestedByMsal),
-                                            new UserAssertion(tokenUsedToCallTheWebApi));
-                    }
-                    else
-                    {
-                        string? sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey;
-                        if (sessionKey == Abstractions.AcquireTokenOptions.LongRunningWebApiSessionKeyAuto)
-                        {
-                            sessionKey = null;
-                        }
-
-                        builder = (application as ILongRunningWebApi)?
-                                       .InitiateLongRunningProcessInWebApi(
-                                           scopes.Except(_scopesRequestedByMsal),
-                                           tokenUsedToCallTheWebApi,
-                                           ref sessionKey);
-                        tokenAcquisitionOptions.LongRunningWebApiSessionKey = sessionKey;
+                        tokenUsedToCallTheWebApi = oboInitEventArgs.UserAssertionToken;
                     }
                 }
-                else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
+
+                if (string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
                 {
-                    string sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey!;
+                    builder = application
+                                    .AcquireTokenOnBehalfOf(
+                                        scopes.Except(_scopesRequestedByMsal),
+                                        new UserAssertion(tokenUsedToCallTheWebApi));
+                }
+                else
+                {
+                    string? sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey;
+                    if (sessionKey == Abstractions.AcquireTokenOptions.LongRunningWebApiSessionKeyAuto)
+                    {
+                        sessionKey = null;
+                    }
+
                     builder = (application as ILongRunningWebApi)?
-                                   .AcquireTokenInLongRunningProcess(
+                                   .InitiateLongRunningProcessInWebApi(
                                        scopes.Except(_scopesRequestedByMsal),
-                                       sessionKey);
+                                       tokenUsedToCallTheWebApi,
+                                       ref sessionKey);
+                    tokenAcquisitionOptions.LongRunningWebApiSessionKey = sessionKey;
                 }
-
-                if (builder != null)
-                {
-                    builder.WithSendX5C(mergedOptions.SendX5C);
-
-                    ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
-                    var userTenant = string.Empty;
-                    if (userForCcsRouting != null)
-                    {
-                        userTenant = userForCcsRouting.GetTenantId();
-                        builder.WithCcsRoutingHint(userForCcsRouting.GetObjectId(), userTenant);
-                    }
-                    if (!string.IsNullOrEmpty(tenantId))
-                    {
-                        builder.WithTenantId(tenantId);
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(userTenant))
-                        {
-                            builder.WithTenantId(userTenant);
-                        }
-                    }
-                    if (tokenAcquisitionOptions != null)
-                    {
-                        if (addInOptions != null && addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
-                        {
-                            var eventArgs = new OnBehalfOfEventArgs
-                            {
-                                User = userHint,
-                                UserAssertionToken = originalTokenToCallWebApi
-                            };
-
-                            await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
-                        }
-
-                        AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
-
-                        var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
-                        if (dict != null)
-                        {
-                            const string assertionConstant = "assertion";
-                            const string subAssertionConstant = "sub_assertion";
-
-                            // Special case when the OBO inbound token is composite (for instance PFT)
-                            if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
-                            {
-                                string assertion = dict[assertionConstant].value;
-                                string subAssertion = dict[subAssertionConstant].value;
-
-                                // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
-                                CheckAssertionsForInjectionAttempt(assertion, subAssertion);
-
-                                builder.OnBeforeTokenRequest((data) =>
-                                {
-                                    // Replace the assertion and adds sub_assertion with the values from the extra query parameters
-                                    data.BodyParameters[assertionConstant] = assertion;
-                                    data.BodyParameters.Add(subAssertionConstant, subAssertion);
-                                    return Task.CompletedTask;
-                                });
-
-                                // Remove the assertion and sub_assertion from the extra query parameters
-                                // as they are already handled as body parameters.
-                                dict.Remove(assertionConstant);
-                                dict.Remove(subAssertionConstant);
-                            }
-
-                            builder.WithExtraQueryParameters(dict);
-                        }
-                        if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
-                        {
-                            builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
-                        }
-                        if (tokenAcquisitionOptions.CorrelationId != null)
-                        {
-                            builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
-                        }
-                        builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
-                        builder.WithClaims(tokenAcquisitionOptions.Claims);
-                        var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
-                        if (clientClaims != null)
-                        {
-                            builder.WithExtraClientAssertionClaims(clientClaims);
-                        }
-                        if (tokenAcquisitionOptions.PoPConfiguration != null)
-                        {
-                            builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
-                        }
-                    }
-
-                    return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
-                                        .ConfigureAwait(false);
-                }
-
-                return null;
             }
-            catch (MsalUiRequiredException ex)
+            else if (!string.IsNullOrEmpty(tokenAcquisitionOptions?.LongRunningWebApiSessionKey))
             {
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    LogMessages.ErrorAcquiringTokenForDownstreamWebApi + ex.Message,
-                    ex);
-                throw;
+                string sessionKey = tokenAcquisitionOptions!.LongRunningWebApiSessionKey!;
+                builder = (application as ILongRunningWebApi)?
+                               .AcquireTokenInLongRunningProcess(
+                                   scopes.Except(_scopesRequestedByMsal),
+                                   sessionKey);
             }
+
+            if (builder != null)
+            {
+                builder.WithSendX5C(mergedOptions.SendX5C);
+
+                ClaimsPrincipal? userForCcsRouting = _tokenAcquisitionHost.GetUserFromRequest();
+                var userTenant = string.Empty;
+                if (userForCcsRouting != null)
+                {
+                    userTenant = userForCcsRouting.GetTenantId();
+                    builder.WithCcsRoutingHint(userForCcsRouting.GetObjectId(), userTenant);
+                }
+                if (!string.IsNullOrEmpty(tenantId))
+                {
+                    builder.WithTenantId(tenantId);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(userTenant))
+                    {
+                        builder.WithTenantId(userTenant);
+                    }
+                }
+                if (tokenAcquisitionOptions != null)
+                {
+                    if (addInOptions != null && addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync != null)
+                    {
+                        var eventArgs = new OnBehalfOfEventArgs
+                        {
+                            User = userHint,
+                            UserAssertionToken = originalTokenToCallWebApi
+                        };
+
+                        await addInOptions.InvokeOnBeforeTokenAcquisitionForOnBehalfOfAsync(builder, tokenAcquisitionOptions, eventArgs).ConfigureAwait(false);
+                    }
+
+                    AddFmiPathForSignedAssertionIfNeeded(tokenAcquisitionOptions, builder);
+
+                    var dict = MergeExtraQueryParameters(mergedOptions, tokenAcquisitionOptions);
+                    if (dict != null)
+                    {
+                        const string assertionConstant = "assertion";
+                        const string subAssertionConstant = "sub_assertion";
+
+                        // Special case when the OBO inbound token is composite (for instance PFT)
+                        if (dict.ContainsKey(assertionConstant) && dict.ContainsKey(subAssertionConstant))
+                        {
+                            string assertion = dict[assertionConstant].value;
+                            string subAssertion = dict[subAssertionConstant].value;
+
+                            // Check assertion and sub_assertion passed from merging extra query parameters to ensure they do not contain unsupported character(s).
+                            CheckAssertionsForInjectionAttempt(assertion, subAssertion);
+
+                            builder.OnBeforeTokenRequest((data) =>
+                            {
+                                // Replace the assertion and adds sub_assertion with the values from the extra query parameters
+                                data.BodyParameters[assertionConstant] = assertion;
+                                data.BodyParameters.Add(subAssertionConstant, subAssertion);
+                                return Task.CompletedTask;
+                            });
+
+                            // Remove the assertion and sub_assertion from the extra query parameters
+                            // as they are already handled as body parameters.
+                            dict.Remove(assertionConstant);
+                            dict.Remove(subAssertionConstant);
+                        }
+
+                        builder.WithExtraQueryParameters(dict);
+                    }
+                    if (tokenAcquisitionOptions.ExtraHeadersParameters != null)
+                    {
+                        builder.WithExtraHttpHeaders(tokenAcquisitionOptions.ExtraHeadersParameters);
+                    }
+                    if (tokenAcquisitionOptions.CorrelationId != null)
+                    {
+                        builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
+                    }
+                    builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
+                    builder.WithClaims(tokenAcquisitionOptions.Claims);
+                    var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
+                    if (clientClaims != null)
+                    {
+                        builder.WithExtraClientAssertionClaims(clientClaims);
+                    }
+                    if (tokenAcquisitionOptions.PoPConfiguration != null)
+                    {
+                        builder.WithSignedHttpRequestProofOfPossession(tokenAcquisitionOptions.PoPConfiguration);
+                    }
+                }
+
+                return await builder.ExecuteAsync(tokenAcquisitionOptions != null ? tokenAcquisitionOptions.CancellationToken : CancellationToken.None)
+                                    .ConfigureAwait(false);
+            }
+
+            return null;
         }
 
         /// <summary>
