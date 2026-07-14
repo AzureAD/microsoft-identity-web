@@ -1,3 +1,8 @@
+## 4.13.1
+
+### Bug fixes
+- `DownstreamApi`: restored `CustomizeHttpRequestMessage` to its documented timing — it runs after the authorization header (including the `Authorization` header) is set, just before the request is sent. [#3902](https://github.com/AzureAD/microsoft-identity-web/pull/3902) had moved it before header creation (to flow the finalized request for request-binding), which regressed callers that read the header in the callback — they saw `null`. See [#3943](https://github.com/AzureAD/microsoft-identity-web/pull/3943).
+
 ## 4.13.0
 
 ### New features

@@ -170,10 +170,6 @@ namespace Microsoft.Identity.Web.Tests
                 ExtraQueryParameters = new Dictionary<string, string>
                 {
                     { "fromOptions", "query-value" }
-                },
-                CustomizeHttpRequestMessage = request =>
-                {
-                    request.Headers.TryAddWithoutValidation("X-From-Customizer", "customized");
                 }
             };
 
@@ -185,9 +181,34 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Same(content, authorizationHeaderProvider.CapturedRequest!.Content);
             Assert.Contains("fromOptions=query-value", authorizationHeaderProvider.CapturedRequest.RequestUri!.Query, StringComparison.Ordinal);
             Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Options"));
-            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Customizer"));
             Assert.False(authorizationHeaderProvider.AuthorizationHeaderPresentWhenCaptured);
             Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
+        }
+
+        [Fact]
+        // Regression test for CustomizeHttpRequestMessage timing: it must run after the authorization header is set
+        // (its documented contract), so a callback that reads the Authorization header observes it. #3902 had moved
+        // it before header creation, so such callbacks saw null.
+        public async Task UpdateRequestAsync_CustomizeHttpRequestMessage_SeesAuthorizationHeaderAsync()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44352");
+            var content = new StringContent("test content");
+            string? authorizationHeaderSeenByCustomizer = null;
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["api://a021aff4-57ad-453a-bae8-e4192e5860f3/.default"],
+                BaseUrl = "https://localhost:44352",
+                RelativePath = "/WeatherForecast",
+                RequestAppToken = true,
+                CustomizeHttpRequestMessage = request => authorizationHeaderSeenByCustomizer = request.Headers.Authorization?.Parameter,
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, appToken: true, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert - the customizer runs after the header is set, so it observes the Authorization header.
+            Assert.Equal("ey", authorizationHeaderSeenByCustomizer);
         }
 
         [Theory]
