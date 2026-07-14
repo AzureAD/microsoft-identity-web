@@ -793,6 +793,8 @@ namespace Microsoft.Identity.Web
                 RelativePath = options.RelativePath,
                 HttpMethod = options.HttpMethod,
                 CustomizeHttpRequestMessage = options.CustomizeHttpRequestMessage,
+                OnBeforeAuthHeaderCreation = options.OnBeforeAuthHeaderCreation,
+                OnAfterAuthHeaderCreation = options.OnAfterAuthHeaderCreation,
                 AcquireTokenOptions = options.AcquireTokenOptions,
                 ProtocolScheme = options.ProtocolScheme,
                 RequestAppToken = options.RequestAppToken,
