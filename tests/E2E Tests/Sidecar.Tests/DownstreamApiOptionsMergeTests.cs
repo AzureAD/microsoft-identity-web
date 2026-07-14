@@ -688,6 +688,8 @@ public class DownstreamApiOptionsMergeTests
             // Properties intentionally not merged (they use CustomizeHttpRequestMessage pattern or are clone-only)
             "Clone",
             "CustomizeHttpRequestMessage",
+            "OnBeforeAuthHeaderCreation",
+            "OnAfterAuthHeaderCreation",
             "Serializer",
             "Deserializer",
             "ProtocolScheme",
