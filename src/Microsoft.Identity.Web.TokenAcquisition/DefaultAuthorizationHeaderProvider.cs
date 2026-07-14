@@ -17,7 +17,6 @@ namespace Microsoft.Identity.Web
      * Treat as a public member.
      */
     internal sealed class DefaultAuthorizationHeaderProvider :
-        IAuthorizationHeaderProvider,
         IAuthorizationHeaderProvider2,
         IBoundAuthorizationHeaderProvider
     {

@@ -21,7 +21,7 @@ namespace Microsoft.Identity.Web.Extensibility
     /// metadata-rich header-creation surface without needing to opt in. Override the
     /// <c>CreateAuthorizationHeaderInformation*</c> virtuals to customize that path.
     /// </remarks>
-    public class BaseAuthorizationHeaderProvider : IAuthorizationHeaderProvider, IAuthorizationHeaderProvider2
+    public class BaseAuthorizationHeaderProvider : IAuthorizationHeaderProvider2
     {
         /// <summary>
         /// Constructor from a service provider
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Web.Extensibility
             _headerProvider = new DefaultAuthorizationHeaderProvider(_tokenAcquisition);
         }
 
-        private readonly DefaultAuthorizationHeaderProvider _headerProvider;
+        private readonly IAuthorizationHeaderProvider2 _headerProvider;
 
         /// <inheritdoc/>
         public virtual Task<string> CreateAuthorizationHeaderForUserAsync(IEnumerable<string> scopes, AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null, ClaimsPrincipal? claimsPrincipal = null, CancellationToken cancellationToken = default)

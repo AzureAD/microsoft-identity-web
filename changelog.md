@@ -1,7 +1,13 @@
 ## 4.13.2
 
+### New features
+- `DownstreamApi` now honors the new `AuthorizationHeaderProviderOptions.OnBeforeAuthHeaderCreation` and `OnAfterAuthHeaderCreation` hooks (`Microsoft.Identity.Abstractions` 12.5.0). `OnBeforeAuthHeaderCreation` runs before the header is created — use it to shape the request that request-binding protocols (SignedHttpRequest `q`/`h`/`b`) sign — and `OnAfterAuthHeaderCreation` runs after the header is set, to observe or adjust the finalized request. See [#3942](https://github.com/AzureAD/microsoft-identity-web/pull/3942).
+
 ### Dependencies updates
 - Bump `Microsoft.Identity.Abstractions` from 12.4.0 to 12.5.0 (adds the `OnBeforeAuthHeaderCreation` / `OnAfterAuthHeaderCreation` request hooks). See [#3947](https://github.com/AzureAD/microsoft-identity-web/pull/3947).
+
+### Fundamentals
+- `BaseAuthorizationHeaderProvider` and `DefaultAuthorizationHeaderProvider` declare `IAuthorizationHeaderProvider2` only, since it already extends `IAuthorizationHeaderProvider`. See [#3942](https://github.com/AzureAD/microsoft-identity-web/pull/3942).
 
 ## 4.13.1
 
