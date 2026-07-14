@@ -1,3 +1,8 @@
+## 4.13.2
+
+### Dependencies updates
+- Bump `Microsoft.Identity.Abstractions` from 12.4.0 to 12.5.0 (adds the `OnBeforeAuthHeaderCreation` / `OnAfterAuthHeaderCreation` request hooks). See [#3947](https://github.com/AzureAD/microsoft-identity-web/pull/3947).
+
 ## 4.13.1
 
 ### Bug fixes
