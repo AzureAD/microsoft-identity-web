@@ -368,6 +368,9 @@ objd/
 
 key*.xml
 
+# MSBuild temp files (.NET 9+ SDK writes these to a Temp/ folder in the repo root)
+Temp/
+
 # bin files
 
 *.bin
