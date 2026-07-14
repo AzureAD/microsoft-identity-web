@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == '' and '$(TF_BUILD)' == 'true'">5.7.1</IdentityModelV5Version>
-    <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == ''">8.19.1</IdentityModelV5Version>
+    <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == ''">5.7.0</IdentityModelV5Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IdentityModelV5Version)' == '5.7.1'">
