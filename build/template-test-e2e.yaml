@@ -5,7 +5,7 @@
 parameters:
 # VSTest filter applied to the E2E run. Empty by default so the release build runs
 # the full suite. The PR build passes 'Category!=MI_E2E' to exclude managed-identity
-# tests, which run on the MSALMSIV2 pool in their own stage.
+# tests, which run on the MISEManagedIdentity pool in their own stage.
 - name: e2eTestFilterCriteria
   type: string
   default: ''

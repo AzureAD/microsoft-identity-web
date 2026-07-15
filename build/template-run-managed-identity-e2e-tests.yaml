@@ -1,7 +1,7 @@
 # template-run-managed-identity-e2e-tests.yaml
 # Build the TokenAcquirer E2E project (.NET 8 only) and run the managed-identity
 # E2E tests (Category=MI_E2E). These require a VM with an assigned managed
-# identity (IMDS), so they run on the MSALMSIV2 pool, not Microsoft-hosted agents.
+# identity (IMDS), so they run on the MISEManagedIdentity pool, not Microsoft-hosted agents.
 # Mirrors the MSAL.NET template-run-mi-e2e-imds.yaml approach.
 
 parameters:
@@ -35,7 +35,7 @@ steps:
 
 - task: VSTest@2
   displayName: 'Run managed identity E2E tests'
-  # This template runs on the MSALMSIV2 pool; override the UAMI client id to the
+  # This template runs on the MISEManagedIdentity pool; override the UAMI client id to the
   # msiv2uami identity assigned to that pool. Other pipelines (e.g. id4s-official
   # on the Wilson pool) leave this unset and fall back to the default in the test.
   env:
