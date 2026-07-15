@@ -85,19 +85,19 @@ stages:
         parameters:
           # Exclude managed-identity E2E tests: they require an MI assigned to the
           # host (IMDS), which Microsoft-hosted agents do not have. They run in the
-          # ManagedIdentityE2E stage below on the MSALMSIV2 VM pool.
+          # ManagedIdentityE2E stage below on the MISEManagedIdentity VM pool.
           e2eTestFilterCriteria: 'Category!=MI_E2E'
 
 # Managed-identity E2E tests require a VM with an assigned managed identity (IMDS),
-# which Microsoft-hosted agents do not have. They run on the MSALMSIV2 VM pool and
+# which Microsoft-hosted agents do not have. They run on the MISEManagedIdentity VM pool and
 # build only the E2E project (.NET 8), independent of the Build stage.
 - stage: ManagedIdentityE2E
-  displayName: 'Managed Identity E2E (MSALMSIV2)'
+  displayName: 'Managed Identity E2E (MISEManagedIdentity)'
   dependsOn: []
   jobs:
   - job: ManagedIdentityE2E
     pool:
-      name: 'MSALMSIV2'
+      name: 'MISEManagedIdentity'
     steps:
       - template: build/template-run-managed-identity-e2e-tests.yaml
         parameters:
