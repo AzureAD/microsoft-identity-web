@@ -1535,25 +1535,14 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
-                    try
-                    {
-                        await builder.WithClientCredentialsAsync(
-                            mergedOptions,
-                            _credentialsProvider,
-                            new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority)
-                            {
-                                Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
-                            },
-                            isTokenBinding);
-                    }
-                    catch (ArgumentException ex) when (ex.Message == IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded)
-                    {
-                        Logger.TokenAcquisitionError(
-                                    _logger,
-                                    IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded,
-                                    ex);
-                        throw;
-                    }
+                    await builder.WithClientCredentialsAsync(
+                        mergedOptions,
+                        _credentialsProvider,
+                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority)
+                        {
+                            Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                        },
+                        isTokenBinding);
                 }
 
                 IConfidentialClientApplication app = builder.Build();

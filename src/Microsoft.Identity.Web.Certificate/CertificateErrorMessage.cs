@@ -15,7 +15,6 @@ namespace Microsoft.Identity.Web
             "For instance, in the appsettings.json file. ";
         public const string BothClientSecretAndCertificateProvided =
             "IDW10105: Both client secret and client certificate, cannot be included in the configuration of the web app when calling a web API. ";
-        public const string ClientCertificatesHaveExpiredOrCannotBeLoaded = "IDW10109: All client certificates passed to the configuration have expired or can't be loaded. ";
         public const string CustomProviderNameAlreadyExists =
             "IDW10111 The custom signed assertion provider '{0}' already exists, only the the first instance of ICustomSignedAssertionProvider with this name will be used.";
         public const string CustomProviderNameNullOrEmpty = "IDW10112: You configured a custom signed assertion but did not specify a provider name in the CustomSignedAssertionProviderName property of the CredentialDescription. Please specify the name of the custom assertion provider.";

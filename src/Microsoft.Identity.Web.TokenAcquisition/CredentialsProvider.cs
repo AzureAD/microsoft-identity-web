@@ -55,6 +55,7 @@ namespace Microsoft.Identity.Web
             IEnumerable<CredentialDescription> clientCredentials = options.ClientCredentials ?? [];
 
             string errorMessage = "\n";
+            List<Exception>? exceptions = null;
 
             foreach (CredentialDescription credential in clientCredentials)
             {
@@ -72,6 +73,7 @@ namespace Microsoft.Identity.Web
                     {
                         LogMessages.AttemptToLoadCredentialsFailed(_logger, credential, ex);
                         errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
+                        (exceptions ??= []).Add(ex);
                     }
 
                     if (credential.CredentialType == CredentialType.SignedAssertion)
@@ -139,9 +141,19 @@ namespace Microsoft.Identity.Web
 
             if (clientCredentials.Any(c => c.CredentialType == CredentialType.Certificate || c.CredentialType == CredentialType.SignedAssertion))
             {
+                // Preserve the original exceptions so callers can inspect service-level
+                // error details such as AADSTS error codes via InnerException.
+                Exception? innerException = exceptions switch
+                {
+                    { Count: 1 } => exceptions[0],
+                    { Count: > 1 } => new AggregateException(exceptions),
+                    _ => null,
+                };
+
                 throw new ArgumentException(
                    IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded + errorMessage,
-                   nameof(clientCredentials));
+                   nameof(clientCredentials),
+                   innerException);
             }
 
             _logger.LogInformation($"No client credential could be used. Secret may have been defined elsewhere. " +
