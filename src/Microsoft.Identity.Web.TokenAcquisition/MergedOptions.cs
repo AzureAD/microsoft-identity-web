@@ -77,6 +77,42 @@ namespace Microsoft.Identity.Web
          */
         internal bool PreserveAuthority { get; set; }
 
+        // Latch: once true, never reverts to false. Distinguishes user-configured Authority
+        // from the synthetic value computed by MicrosoftEntraApplicationOptions.Authority getter.
+        private bool _authorityExplicitlyConfigured;
+        internal bool AuthorityExplicitlyConfigured
+        {
+            get => _authorityExplicitlyConfigured;
+            set { if (value) _authorityExplicitlyConfigured = true; }
+        }
+
+        // Latch: once true, never reverts to false. Distinguishes user-configured
+        // Instance/TenantId from values derived by ParseAuthorityIfNecessary.
+        private bool _instanceOrTenantIdExplicitlyConfigured;
+        internal bool InstanceOrTenantIdExplicitlyConfigured
+        {
+            get => _instanceOrTenantIdExplicitlyConfigured;
+            set { if (value) _instanceOrTenantIdExplicitlyConfigured = true; }
+        }
+
+        // Set after ParseAuthorityIfNecessary runs; makes subsequent calls no-op.
+        private bool _authorityParsed;
+
+        // Throws if the user explicitly configured BOTH Authority AND Instance/TenantId.
+        internal void ThrowIfAuthorityConflict()
+        {
+            if (AuthorityExplicitlyConfigured &&
+                InstanceOrTenantIdExplicitlyConfigured &&
+                !string.IsNullOrEmpty(Authority) &&
+                (!string.IsNullOrEmpty(Instance) || !string.IsNullOrEmpty(TenantId)))
+            {
+                throw new InvalidOperationException(
+                    $"[MsIdWeb] Both 'Authority' ('{Authority}') and 'Instance'/'TenantId' " +
+                    $"('{Instance ?? string.Empty}', '{TenantId ?? string.Empty}') are configured. " +
+                    "These settings conflict. Remove either 'Authority' or 'Instance'/'TenantId' from the configuration.");
+            }
+        }
+
         /// <summary>
         /// Id Web will modify the instance so that it can be used by MSAL.
         /// This modifies this property so that the original value is not changed.
@@ -281,6 +317,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(microsoftIdentityOptions.Instance))
             {
                 mergedOptions.Instance = microsoftIdentityOptions.Instance;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             if (microsoftIdentityOptions.ResetPasswordPath != Constants.ResetPasswordPath)
@@ -298,6 +335,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(microsoftIdentityOptions.Authority))
             {
                 mergedOptions.Authority = microsoftIdentityOptions.Authority;
+                mergedOptions.AuthorityExplicitlyConfigured = true;
             }
 
             mergedOptions.ClientCredentials ??= microsoftIdentityOptions.ClientCredentials;
@@ -339,6 +377,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(microsoftIdentityOptions.TenantId))
             {
                 mergedOptions.TenantId = microsoftIdentityOptions.TenantId;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions.TokenDecryptionCertificates ??= microsoftIdentityOptions.TokenDecryptionCertificates;
@@ -393,6 +432,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.Instance))
             {
                 mergedOptions.Instance = confidentialClientApplicationOptions.Instance;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions.IsDefaultPlatformLoggingEnabled |= confidentialClientApplicationOptions.IsDefaultPlatformLoggingEnabled;
@@ -407,6 +447,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && !string.IsNullOrEmpty(confidentialClientApplicationOptions.TenantId))
             {
                 mergedOptions.TenantId = confidentialClientApplicationOptions.TenantId;
+                mergedOptions.InstanceOrTenantIdExplicitlyConfigured = true;
             }
 
             mergedOptions._confidentialClientApplicationOptions = null;
@@ -473,22 +514,20 @@ namespace Microsoft.Identity.Web
          */
         internal static void ParseAuthorityIfNecessary(MergedOptions mergedOptions, IdWebLogger.ILogger? logger = null)
         {
-            // Check if Authority is configured but being ignored due to Instance/TenantId taking precedence
-            if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
-                (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
-            {
-                // Log warning that Authority is being ignored
-                if (logger != null)
-                {
-                    MergedOptionsLogging.AuthorityIgnored(
-                        logger,
-                        mergedOptions.Authority!,
-                        mergedOptions.Instance ?? string.Empty,
-                        mergedOptions.TenantId ?? string.Empty);
-                }
-                // Authority is ignored; Instance and TenantId take precedence
-                return;
-            }
+           if (mergedOptions._authorityParsed)
+           {
+               return;
+           }
+
+           if (!string.IsNullOrEmpty(mergedOptions.Authority) &&
+               (!string.IsNullOrEmpty(mergedOptions.Instance) || !string.IsNullOrEmpty(mergedOptions.TenantId)))
+           {
+               mergedOptions.ThrowIfAuthorityConflict();
+
+               // Authority was synthesized (e.g. by MicrosoftEntraApplicationOptions computed getter) -- not a real conflict.
+               mergedOptions._authorityParsed = true;
+               return;
+           }
 
             if (string.IsNullOrEmpty(mergedOptions.TenantId) && string.IsNullOrEmpty(mergedOptions.Instance) && !string.IsNullOrEmpty(mergedOptions.Authority))
             {
@@ -543,6 +582,8 @@ namespace Microsoft.Identity.Web
                     mergedOptions.Instance = mergedOptions.PreserveAuthority ? mergedOptions.Authority! : authoritySpan.Slice(0, indexTenant).ToString();
                     mergedOptions.TenantId = mergedOptions.PreserveAuthority ? null : authoritySpan.Slice(indexTenant + 1, indexEndOfTenant - indexTenant - 1).ToString();
                 }
+
+                mergedOptions._authorityParsed = true;
             }
         }
 
@@ -552,6 +593,7 @@ namespace Microsoft.Identity.Web
             if (string.IsNullOrEmpty(mergedOptions.Authority) && !string.IsNullOrEmpty(jwtBearerOptions.Authority))
             {
                 mergedOptions.Authority = jwtBearerOptions.Authority;
+                mergedOptions.AuthorityExplicitlyConfigured = true;
             }
         }
 #endif
