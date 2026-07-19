@@ -734,8 +734,9 @@ namespace Microsoft.Identity.Web
                 httpRequestMessage.RequestUri = uriBuilder.Uri;
             }
 
-            // Opportunity to change the request message before request-binding authorization headers are created.
-            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
+            // Opportunity to shape the request before the authorization header is created and (for request-binding
+            // protocols such as SignedHttpRequest q/h/b) signed, so the signature covers the finalized request.
+            effectiveOptions.OnBeforeAuthHeaderCreation?.Invoke(httpRequestMessage);
 
             // Obtention of the authorization header (except when calling an anonymous endpoint)
             // which is done by not specifying any scopes or mTLS scheme.
@@ -840,6 +841,12 @@ namespace Microsoft.Identity.Web
             {
                 Logger.UnauthenticatedApiCall(_logger, null);
             }
+
+            // Observe or adjust the finalized request once the authorization header (including the Authorization
+            // header) has been set, just before it is sent. Fire the new OnAfterAuthHeaderCreation hook and the
+            // pre-existing CustomizeHttpRequestMessage (retained for backwards compatibility); both share this timing.
+            effectiveOptions.OnAfterAuthHeaderCreation?.Invoke(httpRequestMessage);
+            effectiveOptions.CustomizeHttpRequestMessage?.Invoke(httpRequestMessage);
 
             return (authorizationHeaderInformation, credential);
         }

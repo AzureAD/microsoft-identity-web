@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             string redirect;
-            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri))
+            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri))
             {
                 redirect = redirectUri;
             }
@@ -254,6 +254,12 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         /// closes. Comparison is case-insensitive because the RFC 3986 encoding is
         /// hex-case-insensitive.
         /// </summary>
+        /// <remarks>
+        /// Canonical implementation: <c>RedirectUriHelper.HasPercentEncodedSlashPrefix</c> in
+        /// <c>Microsoft.Identity.Web</c>. This private copy exists because <c>RedirectUriHelper</c>
+        /// is internal and <c>Microsoft.Identity.Web.UI</c> is a separate assembly. Keep both
+        /// in sync.
+        /// </remarks>
         private static bool IsPercentEncodedSlashBypass(string path) =>
             path.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase);

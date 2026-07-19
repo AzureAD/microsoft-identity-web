@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Region;
 using Abstractions = Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -65,8 +66,15 @@ namespace Microsoft.Identity.Web
             source is null ? null : new Abstractions.AcquiredTokenRegionDetails
             {
                 RegionUsed = source.RegionUsed,
-                RegionOutcome = (Abstractions.AcquiredTokenRegionOutcome)source.RegionOutcome,
+                RegionOutcome = MapRegionOutcome(source.RegionOutcome),
                 AutoDetectionError = source.AutoDetectionError,
+            };
+
+        private static Abstractions.AcquiredTokenRegionOutcome MapRegionOutcome(RegionOutcome regionOutcome) =>
+            regionOutcome switch
+            {
+                RegionOutcome.UserProvided => Abstractions.AcquiredTokenRegionOutcome.UserProvidedValid,
+                _ => (Abstractions.AcquiredTokenRegionOutcome)regionOutcome,
             };
     }
 }

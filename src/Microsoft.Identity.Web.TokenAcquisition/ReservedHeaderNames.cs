@@ -32,7 +32,8 @@ namespace Microsoft.Identity.Web
         private static readonly string[] s_prefixes = new[]
         {
             "X-Forwarded-",
-            "X-MS-TOKEN-AAD-",
+            // Reserve the whole X-MS-TOKEN- family (any X-MS-TOKEN-* header, not only X-MS-TOKEN-AAD-*).
+            "X-MS-TOKEN-",
         };
 
         /// <summary>

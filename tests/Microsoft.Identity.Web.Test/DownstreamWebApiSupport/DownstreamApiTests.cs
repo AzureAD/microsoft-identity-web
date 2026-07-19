@@ -171,9 +171,9 @@ namespace Microsoft.Identity.Web.Tests
                 {
                     { "fromOptions", "query-value" }
                 },
-                CustomizeHttpRequestMessage = request =>
+                OnBeforeAuthHeaderCreation = request =>
                 {
-                    request.Headers.TryAddWithoutValidation("X-From-Customizer", "customized");
+                    request.Headers.TryAddWithoutValidation("X-From-OnBefore", "customized");
                 }
             };
 
@@ -185,7 +185,127 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Same(content, authorizationHeaderProvider.CapturedRequest!.Content);
             Assert.Contains("fromOptions=query-value", authorizationHeaderProvider.CapturedRequest.RequestUri!.Query, StringComparison.Ordinal);
             Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Options"));
-            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-Customizer"));
+            Assert.True(authorizationHeaderProvider.CapturedRequest.Headers.Contains("X-From-OnBefore"));
+            Assert.False(authorizationHeaderProvider.AuthorizationHeaderPresentWhenCaptured);
+            Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
+        }
+
+        [Fact]
+        // Regression test for CustomizeHttpRequestMessage timing: it must run after the authorization header is set
+        // (its documented contract), so a callback that reads the Authorization header observes it. #3902 had moved
+        // it before header creation, so such callbacks saw null.
+        public async Task UpdateRequestAsync_CustomizeHttpRequestMessage_SeesAuthorizationHeaderAsync()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44352");
+            var content = new StringContent("test content");
+            string? authorizationHeaderSeenByCustomizer = null;
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["api://a021aff4-57ad-453a-bae8-e4192e5860f3/.default"],
+                BaseUrl = "https://localhost:44352",
+                RelativePath = "/WeatherForecast",
+                RequestAppToken = true,
+                CustomizeHttpRequestMessage = request => authorizationHeaderSeenByCustomizer = request.Headers.Authorization?.Parameter,
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, appToken: true, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert - the customizer runs after the header is set, so it observes the Authorization header.
+            Assert.Equal("ey", authorizationHeaderSeenByCustomizer);
+        }
+
+        [Fact]
+        // Validates the authorization-header lifecycle hooks. OnBeforeAuthHeaderCreation runs before the header is
+        // created (so it can shape the request that request-binding protocols such as SHR q/h/b sign) and therefore
+        // sees no Authorization header. OnAfterAuthHeaderCreation and the pre-existing CustomizeHttpRequestMessage
+        // (kept for backwards compatibility) run after the header is attached and both observe it.
+        public async Task UpdateRequestAsync_AuthHeaderLifecycleHooks_RunAtDocumentedTimesAsync()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44352");
+            var content = new StringContent("test content");
+            string? headerSeenByOnBefore = "sentinel";
+            string? headerSeenByOnAfter = null;
+            string? headerSeenByCustomize = null;
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["api://a021aff4-57ad-453a-bae8-e4192e5860f3/.default"],
+                BaseUrl = "https://localhost:44352",
+                RelativePath = "/WeatherForecast",
+                RequestAppToken = true,
+                OnBeforeAuthHeaderCreation = request => headerSeenByOnBefore = request.Headers.Authorization?.Parameter,
+                OnAfterAuthHeaderCreation = request => headerSeenByOnAfter = request.Headers.Authorization?.Parameter,
+                CustomizeHttpRequestMessage = request => headerSeenByCustomize = request.Headers.Authorization?.Parameter,
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, appToken: true, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert - OnBefore ran (sentinel overwritten) and saw no header; OnAfter and CustomizeHttpRequestMessage saw it.
+            Assert.Null(headerSeenByOnBefore);
+            Assert.Equal("ey", headerSeenByOnAfter);
+            Assert.Equal("ey", headerSeenByCustomize);
+        }
+
+        [Fact]
+        // Without request-binding (no SHR options configured), the bearer flow still creates and attaches the
+        // Authorization header.
+        public async Task UpdateRequestAsync_WithoutShr_CreatesAuthorizationHeaderAsync()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com/path");
+            var content = new StringContent("test content");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+            };
+
+            // Act
+            await _input.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert - the Authorization header is created and attached.
+            Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
+            Assert.Equal("ey", httpRequestMessage.Headers.Authorization?.Parameter);
+        }
+
+        [Fact]
+        // With request-binding (SHR) configured, the Authorization header is still created and attached. The request
+        // shaped by OnBeforeAuthHeaderCreation is flowed to the provider before signing (so SHR q/h/b can bind it),
+        // and the header is added afterwards.
+        public async Task UpdateRequestAsync_WithShr_CreatesAuthorizationHeaderAsync()
+        {
+            // Arrange
+            var authorizationHeaderProvider = new CapturingAuthorizationHeaderProvider();
+            var downstreamApi = new DownstreamApi(
+                authorizationHeaderProvider,
+                _namedDownstreamApiOptions,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "https://example.com/path");
+            var content = new StringContent("signed-body");
+            var options = new DownstreamApiOptions
+            {
+                Scopes = ["scope1"],
+                OnBeforeAuthHeaderCreation = request => request.Headers.TryAddWithoutValidation("X-Bound-Header", "hvalue"),
+            };
+            // Simulate a request-binding (SHR) caller: WithShrOptions stashes the SHR options in ExtraParameters.
+            options.AcquireTokenOptions.ExtraParameters = new Dictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["SignedHttpRequestCreationParametersOptions"] = new object(),
+            };
+
+            // Act
+            await downstreamApi.UpdateRequestWithCertificateAsync(httpRequestMessage, content, options, false, new ClaimsPrincipal(), CancellationToken.None);
+
+            // Assert - the OnBefore-shaped request reached the provider before signing (Authorization not yet present),
+            // and the Authorization header is created and attached to the final request.
+            Assert.NotNull(authorizationHeaderProvider.CapturedRequest);
+            Assert.True(authorizationHeaderProvider.CapturedRequest!.Headers.Contains("X-Bound-Header"));
             Assert.False(authorizationHeaderProvider.AuthorizationHeaderPresentWhenCaptured);
             Assert.True(httpRequestMessage.Headers.Contains("Authorization"));
         }
@@ -341,6 +461,8 @@ namespace Microsoft.Identity.Web.Tests
         [InlineData("X-MS-TOKEN-AAD-ID-TOKEN")]
         [InlineData("X-MS-TOKEN-AAD-ACCESS-TOKEN")]
         [InlineData("x-ms-token-aad-refresh-token")]
+        [InlineData("X-MS-TOKEN-EXAMPLE-ACCESS-TOKEN")]
+        [InlineData("x-ms-token-example-refresh-token")]
         public async Task UpdateRequestAsync_ExtraHeaderParameters_ReservedPrefixes_AreIgnored(string headerName)
         {
             // Arrange

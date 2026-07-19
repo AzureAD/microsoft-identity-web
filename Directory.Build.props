@@ -4,7 +4,7 @@
     <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
     to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
     -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.12.1</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.13.3</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
     <EnablePackageValidation>true</EnablePackageValidation>
@@ -79,10 +79,10 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.19.1</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.85.2</MicrosoftIdentityClientVersion>
-    <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.85.2</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.4.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.19.2</MicrosoftIdentityModelVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.86.1</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.86.1</MicrosoftIdentityClientKeyAttestationVersion>
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.5.0</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>

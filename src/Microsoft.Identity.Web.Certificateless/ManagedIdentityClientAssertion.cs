@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+#if NETCOREAPP
 using Microsoft.Identity.Client.KeyAttestation;
+#endif
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.LoggingExtensions;
@@ -175,9 +177,12 @@ namespace Microsoft.Identity.Web
 
             if (bindToCertificate)
             {
-                miBuilder = miBuilder
-                    .WithMtlsProofOfPossession()
-                    .WithAttestationSupport();
+                miBuilder = miBuilder.WithMtlsProofOfPossession();
+#if NETCOREAPP
+                // Key attestation is only available on modern .NET; on .NET Framework/netstandard the
+                // KeyAttestation dependency is intentionally absent (issue #3894).
+                miBuilder = miBuilder.WithAttestationSupport();
+#endif
             }
 
             // Propagate claims into the MI token request.

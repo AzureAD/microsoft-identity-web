@@ -653,5 +653,98 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
         #endregion
 
+        #region IDW10109 inner exception preservation tests
+
+        [Fact]
+        public async Task AllCredentialsFail_SingleFailure_PreservesInnerExceptionAndErrorText()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            ICredentialsLoader credLoader = Substitute.For<ICredentialsLoader>();
+
+            var msalException = new MsalServiceException(
+                "AADSTS700027",
+                "AADSTS700027: Client assertion contains an invalid signature.");
+
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Skip = true;
+                    return Task.FromException(msalException);
+                });
+
+            CredentialsProvider provider = new CredentialsProvider(logger, credLoader, [], null);
+
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                ManagedIdentityClientId = "test-client-id"
+            };
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential } }, null));
+
+            // Assert — original exception is preserved as InnerException
+            Assert.NotNull(ex.InnerException);
+            var inner = Assert.IsType<MsalServiceException>(ex.InnerException);
+            Assert.Equal("AADSTS700027", inner.ErrorCode);
+
+            // Assert — error message includes IDW10109 code and FIC guidance
+            Assert.StartsWith("IDW10109:", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("Federated Identity Credential", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("inner exception", ex.Message, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task AllCredentialsFail_MultipleFailures_PreservesAllExceptionsViaAggregateException()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            ICredentialsLoader credLoader = Substitute.For<ICredentialsLoader>();
+
+            var msalException = new MsalServiceException("AADSTS700027", "Invalid signature.");
+            var certException = new InvalidOperationException("Certificate not found in store.");
+
+            int callCount = 0;
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.Skip = true;
+                    return Task.FromException(callCount++ == 0 ? (Exception)msalException : certException);
+                });
+
+            CredentialsProvider provider = new CredentialsProvider(logger, credLoader, [], null);
+
+            var credentials = new[]
+            {
+                new CredentialDescription
+                {
+                    SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                    ManagedIdentityClientId = "test-client-id"
+                },
+                new CredentialDescription
+                {
+                    SourceType = CredentialSource.StoreWithDistinguishedName,
+                    CertificateStorePath = "LocalMachine/My",
+                    CertificateDistinguishedName = "CN=Test"
+                }
+            };
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = credentials }, null));
+
+            // Assert — InnerException is AggregateException containing both originals
+            Assert.NotNull(ex.InnerException);
+            var aggEx = Assert.IsType<AggregateException>(ex.InnerException);
+            Assert.Equal(2, aggEx.InnerExceptions.Count);
+            Assert.IsType<MsalServiceException>(aggEx.InnerExceptions[0]);
+            Assert.IsType<InvalidOperationException>(aggEx.InnerExceptions[1]);
+        }
+
+        #endregion
     }
 }

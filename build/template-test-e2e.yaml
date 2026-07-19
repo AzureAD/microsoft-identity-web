@@ -1,0 +1,55 @@
+# template-test-e2e.yaml
+# Run the browser/host E2E tests (Playwright + multi-target). These require the
+# full multi-TFM build output, so they run in the build stage.
+
+parameters:
+# VSTest filter applied to the E2E run. Empty by default so the release build runs
+# the full suite. The PR build passes 'Category!=MI_E2E' to exclude managed-identity
+# tests, which run on the MISEManagedIdentity pool in their own stage.
+- name: e2eTestFilterCriteria
+  type: string
+  default: ''
+
+steps:
+
+- task: VSTest@2
+  displayName: 'Run E2E tests'
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+        tests\E2E Tests\WebAppUiTests\bin\**\WebAppUiTests.dll
+        tests\E2E Tests\TokenAcquirerTests\bin\**\TokenAcquirerTests.dll
+        tests\E2E Tests\NET 7 tests\IntegrationTests\bin\**\IntegrationTests.dll
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    testFiltercriteria: '${{ parameters.e2eTestFilterCriteria }}'
+    rerunFailedTests: true
+    rerunMaxAttempts: '3'
+    runInParallel: false
+    codeCoverageEnabled: true
+    failOnMinTestsNotRun: false
+    minimumExpectedTests: '1'
+    runSettingsFile: 'build\CodeCoverage.runsettings'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish traces after test'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/tests/E2E Tests/PlaywrightTraces/'
+    ArtifactName: 'traces-after-tests-$(Build.BuildNumber)'
+  condition: failed()
+
+# Copy all packages out to staging
+- task: CopyFiles@2
+  displayName: 'Copy screenshots to staging directory'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/tests/E2E Tests/'
+    Contents: '**/*screenshotFail.png'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)\screenshots'
+    flattenFolders: true
+  condition: failed()
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Screenshot after test'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\screenshots'
+    ArtifactName: 'ScreenshotFail'
+  condition: failed()
