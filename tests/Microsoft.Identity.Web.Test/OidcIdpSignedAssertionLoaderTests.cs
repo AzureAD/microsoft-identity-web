@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -181,5 +182,140 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal("ConfigurationSection is null", exception.Message);
         }
+
+        #region Token-binding (bound signed assertion) loader tests
+
+        private OidcIdpSignedAssertionLoader CreateLoader() =>
+            new OidcIdpSignedAssertionLoader(_logger, _optionsMonitor, _serviceProvider, _tokenAcquirerFactory);
+
+        private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion")
+        {
+            var acquirer = Substitute.For<ITokenAcquirer>();
+            acquirer.GetTokenForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<AcquireTokenOptions>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(new AcquireTokenResult(
+                    accessToken,
+                    DateTimeOffset.UtcNow.AddHours(1),
+                    "inner-tenant",
+                    "inner-id-token",
+                    new[] { "api://AzureADTokenExchange/.default" },
+                    Guid.NewGuid(),
+                    "Bearer")));
+            _tokenAcquirerFactory.GetTokenAcquirer(Arg.Any<IdentityApplicationOptions>()).Returns(acquirer);
+            return acquirer;
+        }
+
+        private static CredentialDescription CreateOidcCredential(bool useBoundCredential = false)
+        {
+            return new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = useBoundCredential,
+                CustomSignedAssertionProviderData = new Dictionary<string, object>
+                {
+                    ["ConfigurationSection"] = "TestSection"
+                }
+            };
+        }
+
+        [Fact]
+        public async Task LoadIfNeededAsync_NormalBearer_ConstructsAndCachesProvider_AndPerformsWarmup()
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var loader = CreateLoader();
+            var credentialDescription = CreateOidcCredential();
+
+            // Act
+            await loader.LoadIfNeededAsync(credentialDescription);
+
+            // Assert — provider constructed, cached, and reports token-binding capability.
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credentialDescription.CachedValue);
+            Assert.True(provider.SupportsTokenBinding);
+            Assert.False(credentialDescription.Skip);
+
+            // Normal unbound Bearer loading preserves the existing warm-up validation behavior.
+            await acquirer.Received().GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task LoadIfNeededAsync_MtlsPopProtocol_DoesNotPerformBearerAcquisition()
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var loader = CreateLoader();
+            var credentialDescription = CreateOidcCredential();
+            var parameters = new CredentialSourceLoaderParameters("c2", "https://login.microsoftonline.com/t2")
+            {
+                Protocol = "MTLS_POP"
+            };
+
+            // Act
+            await loader.LoadIfNeededAsync(credentialDescription, parameters);
+
+            // Assert — provider cached and binding-capable, but no Bearer warm-up acquisition happened.
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credentialDescription.CachedValue);
+            Assert.True(provider.SupportsTokenBinding);
+            Assert.False(credentialDescription.Skip);
+            await acquirer.DidNotReceive().GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task LoadIfNeededAsync_UseBoundCredential_DoesNotPerformBearerAcquisition()
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var loader = CreateLoader();
+            var credentialDescription = CreateOidcCredential(useBoundCredential: true);
+
+            // Act
+            await loader.LoadIfNeededAsync(credentialDescription);
+
+            // Assert
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credentialDescription.CachedValue);
+            Assert.True(provider.SupportsTokenBinding);
+            Assert.False(credentialDescription.Skip);
+            await acquirer.DidNotReceive().GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task LoadIfNeededAsync_UseBoundCredential_DoesNotRequireSecondCertificate_NorModifyInnerSkip()
+        {
+            // Arrange — inner named application configured with a single certificate credential.
+            var innerCertificate = new CredentialDescription
+            {
+                SourceType = CredentialSource.StoreWithDistinguishedName,
+                CertificateStorePath = "CurrentUser/My",
+                CertificateDistinguishedName = "CN=OidcFicInner"
+            };
+            _options.Instance = "https://login.microsoftonline.com/";
+            _options.ClientCredentials = new[] { innerCertificate };
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            SetupInnerAcquirer();
+            var loader = CreateLoader();
+            var credentialDescription = CreateOidcCredential(useBoundCredential: true);
+
+            // Act
+            await loader.LoadIfNeededAsync(credentialDescription);
+
+            // Assert — the loader neither added a second (binding) credential nor marked the inner one skipped.
+            Assert.Single(_options.ClientCredentials);
+            Assert.False(innerCertificate.Skip);
+            Assert.False(credentialDescription.Skip);
+        }
+
+        #endregion
     }
 }

@@ -41,17 +41,14 @@ namespace Microsoft.Identity.Web
                 // created and cached on the CredentialDescription. Providers opt into mTLS PoP
                 // by overriding ClientAssertionProviderBase.SupportsTokenBinding and returning
                 // a ClientSignedAssertion (assertion + binding certificate) from
-                // GetSignedAssertionWithBindingAsync. Today only ManagedIdentityClientAssertion
-                // ships with that capability; OIDC IdP / Kubernetes federation providers do not.
+                // GetSignedAssertionWithBindingAsync. ManagedIdentityClientAssertion and the OIDC
+                // IdP federation provider ship with that capability; Kubernetes/file federation
+                // providers do not.
                 if (credential?.CredentialType == CredentialType.SignedAssertion
                     && credential.CachedValue is ClientAssertionProviderBase bindingProvider
                     && bindingProvider.SupportsTokenBinding)
                 {
-                    return builder.WithClientAssertion(
-                        async (options, ct) =>
-                            (await bindingProvider
-                                .GetSignedAssertionWithBindingAsync(options, ct)
-                                .ConfigureAwait(false))!);
+                    return WithBoundClientAssertion(builder, bindingProvider);
                 }
 
                 throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
@@ -65,7 +62,24 @@ namespace Microsoft.Identity.Web
             switch (credential.CredentialType)
             {
                 case CredentialType.SignedAssertion:
-                    return builder.WithClientAssertion((credential.CachedValue as ClientAssertionProviderBase)!.GetSignedAssertionAsync);
+                    var signedAssertionProvider = credential.CachedValue as ClientAssertionProviderBase;
+
+                    // UseBoundCredential on a signed-assertion credential selects the bound
+                    // callback (assertion + binding certificate) while the final token remains
+                    // Bearer (authentication uses jwt-pop over mTLS). This is generic: it works
+                    // for any binding-capable ClientAssertionProviderBase (OIDC IdP, managed
+                    // identity, future providers) without special-casing a concrete type.
+                    if (credential.UseBoundCredential)
+                    {
+                        if (signedAssertionProvider is null || !signedAssertionProvider.SupportsTokenBinding)
+                        {
+                            throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
+                        }
+
+                        return WithBoundClientAssertion(builder, signedAssertionProvider);
+                    }
+
+                    return builder.WithClientAssertion(signedAssertionProvider!.GetSignedAssertionAsync);
                 case CredentialType.Certificate:
                     if (credential.UseBoundCredential && credential.Certificate is not null)
                     {
@@ -81,6 +95,39 @@ namespace Microsoft.Identity.Web
                     throw new NotImplementedException();
 
             }
+        }
+
+        /// <summary>
+        /// Wires an MSAL <see cref="ClientSignedAssertion"/> callback (assertion + binding
+        /// certificate) from a binding-capable <see cref="ClientAssertionProviderBase"/>. Shared
+        /// by the <c>isTokenBinding</c> (final mtls_pop) and <c>UseBoundCredential</c>
+        /// (final Bearer, jwt-pop over mTLS) paths. A null result from the provider surfaces the
+        /// clear IDW10115 error instead of a NullReferenceException.
+        /// </summary>
+        private static ConfidentialClientApplicationBuilder WithBoundClientAssertion(
+            ConfidentialClientApplicationBuilder builder,
+            ClientAssertionProviderBase bindingProvider)
+        {
+            return builder.WithClientAssertion(
+                async (options, cancellationToken) =>
+                {
+                    ClientSignedAssertion? result = await bindingProvider
+                        .GetSignedAssertionWithBindingAsync(options, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    // Fail fast with the clear IDW10115 error when a binding-capable provider returns a
+                    // null result, or one missing its assertion or binding certificate, so malformed
+                    // (e.g. third-party) providers surface an actionable error instead of a later, more
+                    // opaque MSAL failure.
+                    if (result is null
+                        || string.IsNullOrEmpty(result.Assertion)
+                        || result.TokenBindingCertificate is null)
+                    {
+                        throw new InvalidOperationException(IDWebErrorMessage.MissingTokenBindingCertificate);
+                    }
+
+                    return result;
+                });
         }
     }
 }

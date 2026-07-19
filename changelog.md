@@ -1,3 +1,11 @@
+## 4.13.3
+
+### New features
+- OIDC FIC (`Microsoft.Identity.Web.OidcFIC`) now supports mTLS token binding. `OidcIdpSignedAssertionProvider` reports `SupportsTokenBinding = true` and implements `GetSignedAssertionWithBindingAsync`, propagating the exact binding certificate returned by the inner token acquisition together with the OIDC assertion (as a `ClientSignedAssertion`) — no separate binding-certificate credential is configured. This enables two flows: a final `mtls_pop` token (`AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP"`) and a final `Bearer` token whose client assertion is `jwt-pop` over mTLS (`UseBoundCredential = true` on the outer OIDC `CustomSignedAssertion` credential). It composes with an inner application using `SignedAssertionFromManagedIdentity` (three-leg MSI → OIDC → final flow). Tracked in [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851).
+
+### Bug fixes
+- Token binding: the confidential-client application (CCA) cache key now distinguishes a bound credential (`UseBoundCredential = true`) — for both signed-assertion and certificate credentials — from its otherwise-identical unbound equivalent, so the two configurations no longer collide on the same cached CCA. The certificate-error retry path for app tokens now invalidates the cache entry for the actual request mode (bearer vs mTLS PoP) instead of always the bearer key.
+
 ## 4.13.2
 
 ### New features

@@ -315,6 +315,131 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(bearerApp, bearerApp2);
         }
 
+        #region CCA cache-key regression tests
+
+        private static MergedOptions CreateOptionsWithOidcSignedAssertion(bool useBoundCredential)
+        {
+            return new MergedOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.CustomSignedAssertion,
+                        CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                        UseBoundCredential = useBoundCredential,
+                    },
+                },
+            };
+        }
+
+        private static MergedOptions CreateOptionsWithCertificate(bool useBoundCredential)
+        {
+            return new MergedOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.StoreWithThumbprint,
+                        CertificateThumbprint = "TEST-THUMBPRINT",
+                        CertificateStorePath = "CurrentUser/My",
+                        UseBoundCredential = useBoundCredential,
+                    },
+                },
+            };
+        }
+
+        /// <summary>
+        /// Regression guard: an unbound signed-assertion CCA (string client_assertion callback) and
+        /// a bound signed-assertion CCA (ClientSignedAssertion callback) both build with
+        /// isTokenBinding=false, so without a credential-wiring discriminator they collide on the
+        /// same cache key and the second config silently reuses the first (incompatible) CCA.
+        /// </summary>
+        [Fact]
+        public void GetApplicationKey_UnboundVsBoundSignedAssertion_ProduceDifferentKeys()
+        {
+            string unboundKey = TokenAcquisition.GetApplicationKey(
+                CreateOptionsWithOidcSignedAssertion(useBoundCredential: false), isTokenBinding: false);
+            string boundKey = TokenAcquisition.GetApplicationKey(
+                CreateOptionsWithOidcSignedAssertion(useBoundCredential: true), isTokenBinding: false);
+
+            Assert.NotEqual(unboundKey, boundKey);
+        }
+
+        /// <summary>
+        /// The bearer key and the mTLS PoP (token-binding) key must differ so a failed
+        /// token-binding acquisition invalidates the token-binding CCA key — not the bearer key.
+        /// </summary>
+        [Fact]
+        public void GetApplicationKey_BearerVsTokenBinding_ProduceDifferentKeys()
+        {
+            MergedOptions options = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
+
+            string bearerKey = TokenAcquisition.GetApplicationKey(options, isTokenBinding: false);
+            string bindingKey = TokenAcquisition.GetApplicationKey(options, isTokenBinding: true);
+
+            Assert.NotEqual(bearerKey, bindingKey);
+        }
+
+        /// <summary>
+        /// Regression guard for mixed multi-credential arrays: `[A unbound, B bound]` and
+        /// `[A bound, B unbound]` are the same two credentials with the bound flag on different
+        /// positions. Because `CredentialDescription.Id` does not encode `UseBoundCredential`, a
+        /// single "any bound" bit would collide; the per-credential marker must distinguish them.
+        /// </summary>
+        [Fact]
+        public void GetApplicationKey_MixedBoundPosition_ProduceDifferentKeys()
+        {
+            MergedOptions AboundBunbound = new()
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                ClientCredentials = new[]
+                {
+                    new CredentialDescription { SourceType = CredentialSource.CustomSignedAssertion, CustomSignedAssertionProviderName = "A", UseBoundCredential = true },
+                    new CredentialDescription { SourceType = CredentialSource.CustomSignedAssertion, CustomSignedAssertionProviderName = "B", UseBoundCredential = false },
+                },
+            };
+            MergedOptions AunboundBbound = new()
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                ClientCredentials = new[]
+                {
+                    new CredentialDescription { SourceType = CredentialSource.CustomSignedAssertion, CustomSignedAssertionProviderName = "A", UseBoundCredential = false },
+                    new CredentialDescription { SourceType = CredentialSource.CustomSignedAssertion, CustomSignedAssertionProviderName = "B", UseBoundCredential = true },
+                },
+            };
+
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(AboundBunbound, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(AunboundBbound, isTokenBinding: false));
+        }
+
+        /// <summary>
+        /// Regression guard for the certificate path: UseBoundCredential also changes the certificate
+        /// wiring (WithCertificate + SendCertificateOverMtls vs. plain WithCertificate), so a bound
+        /// certificate configuration must not collide on the same cache key with an otherwise-identical
+        /// unbound one.
+        /// </summary>
+        [Fact]
+        public void GetApplicationKey_UnboundVsBoundCertificate_ProduceDifferentKeys()
+        {
+            string unboundKey = TokenAcquisition.GetApplicationKey(
+                CreateOptionsWithCertificate(useBoundCredential: false), isTokenBinding: false);
+            string boundKey = TokenAcquisition.GetApplicationKey(
+                CreateOptionsWithCertificate(useBoundCredential: true), isTokenBinding: false);
+
+            Assert.NotEqual(unboundKey, boundKey);
+        }
+
+        #endregion
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
