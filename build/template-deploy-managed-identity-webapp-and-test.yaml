@@ -1,0 +1,107 @@
+# template-deploy-managed-identity-webapp-and-test.yaml
+#
+# Builds the net48 ManagedIdentityWebApp dev app, deploys it to an Azure App Service that is
+# protected by App Service Authentication (Easy Auth / Microsoft Entra ID), then verifies the
+# protected endpoint by acquiring a bearer token with the LabAuth certificate for both
+# system-assigned and user-assigned managed identity.
+#
+# This exercises Microsoft.Identity.Web's managed identity path on .NET Framework (net48) in
+# App Service -- coverage that the VM/IMDS-based ManagedIdentityE2E stage does not provide.
+#
+# Auth model:
+#   * LabAuth is fetched from Key Vault and installed by template-install-dependencies.yaml
+#     (writes $(Build.SourcesDirectory)\TestCert.pfx and imports into LocalMachine\My).
+#   * Deploy uses the web app publish profile stored in Key Vault (Kudu Zip Deploy) - no ARM
+#     service connection is required for the deployment itself.
+#   * The test step acquires an app-only token as the Easy Auth app registration using the
+#     LabAuth certificate, then calls the endpoint with 'Authorization: Bearer'. Easy Auth
+#     rejects unauthenticated callers with HTTP 401.
+
+parameters:
+- name: BuildConfiguration
+  type: string
+  default: 'Release'
+- name: WebAppName
+  type: string
+  default: 'idweb-webapp-ci-auth-722e88'
+- name: EasyAuthClientId
+  type: string
+  default: '1060f219-d935-462d-a624-97cbdd648f9e'
+- name: TenantId
+  type: string
+  default: '10c419d4-4a50-45b2-aa4e-919fb84df24f'
+- name: UserAssignedClientId
+  type: string
+  default: '94c0bc47-b35d-490e-8b53-c94da87ae661'
+- name: ProjectDirectory
+  type: string
+  default: 'tests/DevApps/aspnet-mvc/ManagedIdentityWebApp'
+- name: PublishProfileSecretName
+  type: string
+  default: 'IdWeb-WebApp-CI-PublishProfile'
+- name: KeyVaultName
+  type: string
+  default: 'msidlabs'
+- name: AzureServiceConnection
+  type: string
+  default: 'AuthSdkResourceManager'
+- name: TestResourceUri
+  type: string
+  default: 'https://vault.azure.net'
+
+steps:
+# SDK setup, NuGet auth, and LabAuth certificate install (writes $(Build.SourcesDirectory)\TestCert.pfx).
+- template: template-install-dependencies.yaml
+
+# Fetch the web app publish profile (separate Key Vault secret used only by this stage).
+- task: AzureKeyVault@2
+  displayName: 'Fetch web app publish profile'
+  inputs:
+    azureSubscription: '${{ parameters.AzureServiceConnection }}'
+    KeyVaultName: '${{ parameters.KeyVaultName }}'
+    SecretsFilter: '${{ parameters.PublishProfileSecretName }}'
+
+- powershell: dotnet build "$(Build.SourcesDirectory)/${{ parameters.ProjectDirectory }}/ManagedIdentityWebApp.csproj" --configuration ${{ parameters.BuildConfiguration }}
+  displayName: 'Build ManagedIdentityWebApp (net48)'
+
+# Package: regenerate Web.config binding redirects from the built assemblies and assemble the
+# classic ASP.NET App Service zip (Global.asax/Web.config/appsettings.json + /bin).
+- task: PowerShell@2
+  displayName: 'Package net48 web app'
+  inputs:
+    filePath: '$(Build.SourcesDirectory)/build/scripts/Package-NetFxWebApp.ps1'
+    arguments: >-
+      -ProjectDirectory "$(Build.SourcesDirectory)/${{ parameters.ProjectDirectory }}"
+      -BuildOutputDirectory "$(Build.SourcesDirectory)/${{ parameters.ProjectDirectory }}/bin/${{ parameters.BuildConfiguration }}/net48"
+      -ZipPath "$(Build.ArtifactStagingDirectory)/idweb-webapp.zip"
+
+# Deploy using the publish profile (Kudu Zip Deploy). The publish profile carries its own SCM
+# basic-auth credentials, so no ARM service connection is needed for the deployment.
+- task: PowerShell@2
+  displayName: 'Deploy to Azure Web App (Zip Deploy via publish profile)'
+  inputs:
+    filePath: '$(Build.SourcesDirectory)/build/scripts/Deploy-WebAppZipDeploy.ps1'
+    arguments: '-ZipPath "$(Build.ArtifactStagingDirectory)/idweb-webapp.zip" -ExpectedWebAppName "${{ parameters.WebAppName }}"'
+  env:
+    PUBLISH_PROFILE_XML: $(${{ parameters.PublishProfileSecretName }})
+
+# Acquire an app-only token as the Easy Auth app (LabAuth cert) and verify the protected
+# endpoint for system-assigned and user-assigned managed identity.
+#
+# Token version: the resource app registration uses the default requestedAccessTokenVersion (v1),
+# so requesting 'api://<clientId>/.default' from the v2.0 token endpoint still yields a v1-form
+# access token (iss = https://sts.windows.net/<tenantId>/, aud = api://<clientId>), which matches
+# the Easy Auth issuer/audience. If the app is switched to requestedAccessTokenVersion=2, update
+# the Easy Auth issuer to the v2 endpoint (.../v2.0) to keep them aligned.
+- task: PowerShell@2
+  displayName: 'Test protected endpoint (SAMI + UAMI via LabAuth)'
+  inputs:
+    filePath: '$(Build.SourcesDirectory)/build/scripts/Invoke-ManagedIdentityWebAppTest.ps1'
+    arguments: >-
+      -ClientId "${{ parameters.EasyAuthClientId }}"
+      -TenantId "${{ parameters.TenantId }}"
+      -WebAppName "${{ parameters.WebAppName }}"
+      -ResourceUri "${{ parameters.TestResourceUri }}"
+      -UserAssignedClientId "${{ parameters.UserAssignedClientId }}"
+  env:
+    LABAUTH_PFX_PATH: '$(Build.SourcesDirectory)\TestCert.pfx'
