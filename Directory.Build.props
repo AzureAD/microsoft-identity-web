@@ -163,8 +163,9 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.29</SystemSecurityCryptographyXmlVersion>
+    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648: no fixed 8.0.x is published on nuget.org (advisory patch 8.0.29 is unreleased), so use the published, patched 9.0.18 servicing line which also targets net8.0. Pkcs must match to avoid an NU1605 downgrade.-->
+    <SystemSecurityCryptographyPkcsVersion>9.0.18</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>9.0.18</SystemSecurityCryptographyXmlVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
