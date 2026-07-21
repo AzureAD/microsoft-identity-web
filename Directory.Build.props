@@ -121,8 +121,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
-    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf-->
-    <SystemSecurityCryptographyServicingVersion>9.0.15</SystemSecurityCryptographyServicingVersion>
+    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
+    <SystemSecurityCryptographyServicingVersion>9.0.18</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -141,8 +141,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
-    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, DataProtection requires 10.0.7 min instead of 10.0.6-->
-    <SystemSecurityCryptographyServicingVersion>10.0.7</SystemSecurityCryptographyServicingVersion>
+    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, DataProtection requires 10.0.7 min instead of 10.0.6, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
+    <SystemSecurityCryptographyServicingVersion>10.0.10</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -164,7 +164,7 @@
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.3</SystemSecurityCryptographyXmlVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.29</SystemSecurityCryptographyXmlVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
