@@ -102,3 +102,22 @@ stages:
       - template: build/template-run-managed-identity-e2e-tests.yaml
         parameters:
           TargetFramework: 'net8.0'
+
+# App Service managed-identity coverage on .NET Framework (net48): deploys the
+# ManagedIdentityWebApp dev app to an Easy Auth-protected App Service and verifies system- and
+# user-assigned managed identity token acquisition through Microsoft.Identity.Web. Runs on a
+# Microsoft-hosted agent (the managed identity lives on the App Service, not the agent) and is
+# gated by the RunManagedIdentityWebAppDeploy variable so normal PR builds are unaffected.
+- stage: ManagedIdentityWebAppNetFx
+  displayName: 'MI WebApp net48 (App Service, Easy Auth)'
+  dependsOn: []
+  jobs:
+  - job: ManagedIdentityWebAppNetFx
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - msbuild
+      - visualstudio
+    condition: and(succeeded(), eq(variables['RunManagedIdentityWebAppDeploy'], 'true'))
+    steps:
+      - template: build/template-deploy-managed-identity-webapp-and-test.yaml
