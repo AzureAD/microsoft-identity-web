@@ -238,6 +238,15 @@ namespace Microsoft.Identity.Web
          */
         internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
 
+        /*
+         * SDK-to-SDK channel: set by Microsoft.Identity.Web.OidcFic to forward the outer request's
+         * MSAL OpenTelemetry tags enricher onto the inner FIC client-assertion token request, so the
+         * inner acquisition's metrics carry the same enrichment tags as the outer request.
+         * Value is an Action&lt;ExecutionResult, IList&lt;KeyValuePair&lt;string, object&gt;&gt;&gt;.
+         * Any changes to this member (including removal) can cause runtime failures. Treat as a public member.
+         */
+        internal const string OtelTagsEnricherKey = "IDWEB_OTEL_TAGS_ENRICHER";
+
         /// <summary>
         /// Error codes indicating certificate or signed assertion issues that warrant retry with a new certificate.
         /// </summary>
