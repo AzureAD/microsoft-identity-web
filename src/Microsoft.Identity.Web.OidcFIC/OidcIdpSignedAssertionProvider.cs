@@ -69,6 +69,16 @@ namespace Microsoft.Identity.Web.OidcFic
                 };
             }
 
+            // Forward the outer request's MSAL OpenTelemetry tags enricher onto this inner FIC leg so its
+            // metrics carry the same enrichment tags as the outer acquisition. TokenAcquisition reads this
+            // ExtraParameters key and applies it via WithOtelTagsEnricher.
+            if (assertionRequestOptions?.OtelTagsEnricher != null)
+            {
+                acquireTokenOptions ??= new AcquireTokenOptions();
+                acquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+                acquireTokenOptions.ExtraParameters[Constants.OtelTagsEnricherKey] = assertionRequestOptions.OtelTagsEnricher;
+            }
+
             if (_logger != null)
             {
                 _logger.AcquiringToken(tokenExchangeUrl, acquireTokenOptions?.FmiPath);

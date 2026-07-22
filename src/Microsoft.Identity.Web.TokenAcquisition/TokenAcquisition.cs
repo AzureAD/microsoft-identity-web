@@ -1003,6 +1003,16 @@ namespace Microsoft.Identity.Web
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
 
+                // Forward an MSAL OpenTelemetry tags enricher supplied via the ExtraParameters SDK-to-SDK
+                // channel (e.g. by Microsoft.Identity.Web.OidcFic on the inner FIC client-assertion leg) so
+                // this acquisition's metrics carry the same enrichment tags as the request that supplied it.
+                if (tokenAcquisitionOptions.ExtraParameters != null &&
+                    tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.OtelTagsEnricherKey, out var otelEnricherObj) &&
+                    otelEnricherObj is Action<ExecutionResult, IList<KeyValuePair<string, object>>> otelEnricher)
+                {
+                    builder.WithOtelTagsEnricher(otelEnricher);
+                }
+
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)
                 {
