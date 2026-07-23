@@ -14,6 +14,9 @@ updates:
     ignore:
         # We do not want this leaving 5.5.0 since we don't use it and it could break customers
       - dependency-name: "Microsoft.IdentityModel.Protocols.WsFederation"
+        # Pinned to the 5.x line via IdentityModelV5Version; block major bumps (e.g. 5.x -> 8.x)
+      - dependency-name: "Microsoft.IdentityModel.Tokens.Saml"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependabot"
       - "dependencies"
