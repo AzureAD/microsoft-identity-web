@@ -39,8 +39,11 @@ bound-credential flow in Microsoft.Identity.Web.
   non-bound fallback in the same array, and IdWeb will honor each entry
   independently.
 * **Two credential paths** – the opt-in is honored for `Certificate` (and the
-  certificate-flavored sources) and `SignedAssertionFromManagedIdentity`.
-  Other source types ignore the flag.
+  certificate-flavored sources), `SignedAssertionFromManagedIdentity`, and the
+  OIDC IdP signed assertion (`Microsoft.Identity.Web.OidcFIC`). A non-binding-capable
+  signed assertion (file / Kubernetes) marked `UseBoundCredential = true` is
+  **rejected with `IDW10115`** (fail-fast); other source types (for example
+  `ClientSecret`) ignore the flag.
 * **No change to downstream APIs** – the access token returned is a regular
   Bearer; the `DownstreamApi` section is untouched.
 
@@ -53,19 +56,50 @@ app developer at the credential level.
 |----------------------------------------------------------------|---------------------------------------------|
 | Certificate (`Certificate`, `KeyVault`, `Path`, `Base64Encoded`, `StoreWith*`, `ManagedCertificate`) | ✅                                          |
 | `SignedAssertionFromManagedIdentity` (FIC with MI)             | ✅                                          |
-| `SignedAssertion` from OIDC IdP (`Microsoft.Identity.Web.OidcFIC`) | Planned — tracked in [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851) |
+| `SignedAssertion` from OIDC IdP (`Microsoft.Identity.Web.OidcFIC`) | ✅ (see [OIDC FIC as a first-class binding-capable source](#oidc-fic-as-a-first-class-binding-capable-source)) |
 | `ClientSecret`                                                 | n/a                                         |
-| `SignedAssertion*` (non-MI)                                    | Ignored                                     |
+| `SignedAssertion` file / Kubernetes (non binding-capable)      | Rejected with `IDW10115` when `UseBoundCredential = true` |
 
 ### OIDC FIC as a first-class binding-capable source
- 
- `OidcIdpSignedAssertionProvider` (in `Microsoft.Identity.Web.OidcFIC`) currently
- produces bearer-only JWT assertions from an external OIDC IdP. The same
- `SupportsTokenBinding` / `GetSignedAssertionWithBindingAsync` extension point
- that `ManagedIdentityClientAssertion` opts into can be extended to OIDC FIC
- once the cert-sourcing model is settled. That work is tracked in
- [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851); this
- spec will be revised alongside that issue.
+
+`OidcIdpSignedAssertionProvider` (in `Microsoft.Identity.Web.OidcFIC`) now opts
+into the same `SupportsTokenBinding` / `GetSignedAssertionWithBindingAsync`
+extension point that `ManagedIdentityClientAssertion` uses. The provider always
+reports `SupportsTokenBinding = true`.
+
+The **binding certificate is returned by the inner token acquisition** — the
+same `AcquireTokenResult` that produced the OIDC assertion also carries its
+`BindingCertificate`. The provider propagates both together as a
+`ClientSignedAssertion` (`Assertion` = inner access token,
+`TokenBindingCertificate` = the exact inner `BindingCertificate`). There is **no
+separate binding-certificate credential**: the certificate flows automatically
+with the assertion, so no duplicate certificate entry is configured and the
+inner application's credential ordering/selection is never mutated.
+
+Two scenarios are supported:
+
+* **Final `mtls_pop` token** — the caller sets
+  `AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP"`. The inner
+  OIDC exchange is requested in token-binding mode and the final access token is
+  `mtls_pop`, bound to the propagated certificate (its `cnf.x5t#S256` equals the
+  base64url SHA-256 thumbprint of `BindingCertificate`).
+* **Final `Bearer` token with a bound assertion** — the outer OIDC
+  `CustomSignedAssertion` credential sets `UseBoundCredential = true` and the
+  caller does **not** request `MTLS_POP`. The client assertion is sent as
+  `jwt-pop` over mTLS, while the resulting access token is a regular `Bearer`.
+
+This composes with an inner application that uses
+`SignedAssertionFromManagedIdentity`, producing the three-leg flow:
+
+```text
+Managed Identity      -> assertion + binding certificate
+Inner Entra/OIDC app  -> OIDC FIC assertion + same binding certificate
+Outer Entra app       -> final Bearer or mtls_pop token
+```
+
+If the inner application cannot mint a binding certificate, the bound
+acquisition fails with a clear `InvalidOperationException` at runtime rather
+than silently falling back.
 
 ## How developers wire things up today (non-bound Bearer)
 
@@ -119,6 +153,7 @@ wire.
 | G3  | Per-credential opt-in.                                                          | Two credentials in the same `ClientCredentials[]` can have different settings.                  |
 | G4  | No downstream changes.                                                          | Existing `DownstreamApi` sections and `IDownstreamApi` calls work unchanged.                    |
 | G5  | Clear behavior when the platform cannot provide a binding certificate.          | Either silent fallback to non-bound or a clear exception, depending on the final property name. |
+| G6  | Honor `UseBoundCredential` / `MTLS_POP` for the OIDC IdP signed assertion.       | The binding certificate returned by the inner acquisition flows with the assertion; final token is a bound `Bearer` (jwt-pop over mTLS) or `mtls_pop`. No duplicate certificate credential. |
 
 ## Public API Impact
 
