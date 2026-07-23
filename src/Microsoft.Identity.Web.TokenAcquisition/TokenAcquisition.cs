@@ -1449,14 +1449,17 @@ namespace Microsoft.Identity.Web
                             enablePiiLogging: ccaOptions.EnablePiiLogging)
                         .WithExperimentalFeatures();
 
-                if (_tokenCacheProvider is MsalMemoryTokenCacheProvider)
-                {
-                    builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
-                }
-
-                // Agent CCAs always use the shared cache: tokens survive CCA eviction and
-                // are found by newly-built CCAs via AcquireTokenSilent.
-                if (isAgentCca)
+                // Agent CCAs always use the shared (static) internal cache: tokens survive CCA
+                // eviction and are found by newly-built CCAs via AcquireTokenSilent. Developers can
+                // also opt back into the legacy static cache for the in-memory provider via
+                // MsalMemoryTokenCacheOptions.UseSharedCache. MSAL forbids combining the internal
+                // shared cache with external serialization, so when it is enabled we must NOT
+                // initialize the serialization provider below.
+                bool usesSharedInternalCache =
+                    isAgentCca ||
+                    (_tokenCacheProvider is MsalMemoryTokenCacheProvider memoryTokenCacheProvider &&
+                     memoryTokenCacheProvider.UseSharedCache);
+                if (usesSharedInternalCache)
                 {
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
                 }
@@ -1547,11 +1550,13 @@ namespace Microsoft.Identity.Web
 
                 IConfidentialClientApplication app = builder.Build();
 
-                // Initialize token cache providers.
-                // For in-memory caches, the shared cache options above handle caching.
-                // For distributed caches (Redis, SQL, etc.), the provider must be
-                // initialized on both app and user token caches.
-                if (!(_tokenCacheProvider is MsalMemoryTokenCacheProvider))
+                // Initialize the token cache provider so its serialization callbacks (including the
+                // GetSuggestedCacheKey partitioning hook and per-entry expiry) are wired for ALL
+                // providers, including MsalMemoryTokenCacheProvider. Previously the in-memory
+                // provider was short-circuited to MSAL's opaque static cache, which disabled that
+                // hook. We skip this only when the shared internal cache is enabled (agent CCAs),
+                // because MSAL forbids combining internal caching with external serialization.
+                if (!usesSharedInternalCache)
                 {
                     _tokenCacheProvider.Initialize(app.AppTokenCache);
                     _tokenCacheProvider.Initialize(app.UserTokenCache);

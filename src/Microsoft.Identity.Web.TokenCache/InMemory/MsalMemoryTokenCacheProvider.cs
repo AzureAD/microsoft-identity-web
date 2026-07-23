@@ -40,6 +40,14 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.InMemory
         }
 
         /// <summary>
+        /// Gets a value indicating whether this provider was configured to use MSAL's internal shared
+        /// (static) cache instead of the <see cref="IMemoryCache"/> serialization cache. Surfaces
+        /// <see cref="MsalMemoryTokenCacheOptions.UseSharedCache"/> so the token acquisition wiring can
+        /// decide whether to enable the shared cache and skip serialization initialization.
+        /// </summary>
+        public bool UseSharedCache => _cacheOptions.UseSharedCache;
+
+        /// <summary>
         /// Removes a token cache identified by its key, from the serialization
         /// cache.
         /// </summary>

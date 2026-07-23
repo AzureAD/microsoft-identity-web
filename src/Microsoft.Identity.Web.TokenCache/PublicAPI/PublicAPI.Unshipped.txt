@@ -1,1 +1,4 @@
 #nullable enable
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.UseSharedCache.get -> bool
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheOptions.UseSharedCache.set -> void
+Microsoft.Identity.Web.TokenCacheProviders.InMemory.MsalMemoryTokenCacheProvider.UseSharedCache.get -> bool
