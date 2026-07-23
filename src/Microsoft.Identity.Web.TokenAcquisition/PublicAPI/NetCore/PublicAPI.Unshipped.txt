@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.set -> void

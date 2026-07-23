@@ -89,6 +89,23 @@ namespace Microsoft.Identity.Web
         public string? DefaultUserFlow => SignUpSignInPolicyId;
 
         /// <summary>
+        /// When set to <see langword="true"/>, the in-memory token cache uses MSAL's internal
+        /// shared (static) cache instead of the <c>IMemoryCache</c> serialization provider.
+        /// <para>
+        /// Defaults to <see langword="false"/> (recommended). When <see langword="false"/>, tokens
+        /// are stored through the in-memory serialization provider, so the cache honors per-entry
+        /// expiry, the memory cache size limit, and cache-key partitioning.
+        /// </para>
+        /// <para>
+        /// Set to <see langword="true"/> for the fast, process-wide static cache. It avoids
+        /// per-request serialization but is <b>unbounded</b> (no eviction of expired tokens) and
+        /// ignores the expiry/size options and the partitioning hook. This can be set via
+        /// configuration (e.g. <c>"AzureAd": { "UseFastUnboundedCache": true }</c>).
+        /// </para>
+        /// </summary>
+        public bool UseFastUnboundedCache { get; set; }
+
+        /// <summary>
         /// Enables legacy ADAL cache serialization and deserialization.
         /// Performance improvements when working with MSAL only apps.
         /// Set to true if you have a shared cache with ADAL apps.
