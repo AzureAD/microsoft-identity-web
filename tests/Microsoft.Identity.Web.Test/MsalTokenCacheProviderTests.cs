@@ -59,31 +59,6 @@ namespace Microsoft.Identity.Web.Test
                 new object?[] { null, DateTimeOffset.Now.AddHours(-5), TimeSpan.Zero }, // Negative suggested expiry
             };
 
-        [Fact]
-        public void UseSharedCache_DefaultsToFalse()
-        {
-            // Arrange & Act
-            var options = new MsalMemoryTokenCacheOptions();
-
-            // Assert
-            Assert.False(options.UseSharedCache);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Provider_UseSharedCache_ReflectsOptions(bool useSharedCache)
-        {
-            // Arrange
-            var options = new MsalMemoryTokenCacheOptions { UseSharedCache = useSharedCache };
-
-            // Act
-            var provider = new MsalMemoryTokenCacheProvider(GetMemoryCache(), Options.Create(options));
-
-            // Assert
-            Assert.Equal(useSharedCache, provider.UseSharedCache);
-        }
-
         private IMemoryCache GetMemoryCache()
         {
             IOptions<MemoryCacheOptions> options = Options.Create(new MemoryCacheOptions());

@@ -1451,14 +1451,14 @@ namespace Microsoft.Identity.Web
 
                 // Agent CCAs always use the shared (static) internal cache: tokens survive CCA
                 // eviction and are found by newly-built CCAs via AcquireTokenSilent. Developers can
-                // also opt back into the legacy static cache for the in-memory provider via
-                // MsalMemoryTokenCacheOptions.UseSharedCache. MSAL forbids combining the internal
-                // shared cache with external serialization, so when it is enabled we must NOT
-                // initialize the serialization provider below.
+                // also opt into the fast, unbounded static cache for the in-memory provider via
+                // MicrosoftIdentityOptions.UseFastUnboundedCache (settable through configuration).
+                // MSAL forbids combining the internal shared cache with external serialization, so
+                // when it is enabled we must NOT initialize the serialization provider below.
                 bool usesSharedInternalCache =
                     isAgentCca ||
-                    (_tokenCacheProvider is MsalMemoryTokenCacheProvider memoryTokenCacheProvider &&
-                     memoryTokenCacheProvider.UseSharedCache);
+                    (mergedOptions.UseFastUnboundedCache &&
+                     _tokenCacheProvider is MsalMemoryTokenCacheProvider);
                 if (usesSharedInternalCache)
                 {
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
@@ -1554,8 +1554,9 @@ namespace Microsoft.Identity.Web
                 // GetSuggestedCacheKey partitioning hook and per-entry expiry) are wired for ALL
                 // providers, including MsalMemoryTokenCacheProvider. Previously the in-memory
                 // provider was short-circuited to MSAL's opaque static cache, which disabled that
-                // hook. We skip this only when the shared internal cache is enabled (agent CCAs),
-                // because MSAL forbids combining internal caching with external serialization.
+                // hook. We skip this only when the shared internal cache is enabled (agent CCAs or
+                // the UseFastUnboundedCache opt-in), because MSAL forbids combining internal caching
+                // with external serialization.
                 if (!usesSharedInternalCache)
                 {
                     _tokenCacheProvider.Initialize(app.AppTokenCache);

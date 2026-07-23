@@ -17,7 +17,6 @@ using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using NSubstitute;
 using Xunit;
 
@@ -168,7 +167,7 @@ namespace Microsoft.Identity.Web.Test
 
         /// <summary>
         /// Regression test for the in-memory cache short-circuit fix. With the default
-        /// (UseSharedCache = false), acquiring an app token must flow through the
+        /// (UseFastUnboundedCache not set), acquiring an app token must flow through the
         /// MsalMemoryTokenCacheProvider serialization callbacks, so a blob is written to the
         /// backing IMemoryCache. Previously IdWeb enabled MSAL's static cache and skipped
         /// Initialize(), so the IMemoryCache was never used.
@@ -202,20 +201,20 @@ namespace Microsoft.Identity.Web.Test
         }
 
         /// <summary>
-        /// With the opt-out (MsalMemoryTokenCacheOptions.UseSharedCache = true), IdWeb keeps the
+        /// With the opt-in (MicrosoftIdentityOptions.UseFastUnboundedCache = true), IdWeb keeps the
         /// legacy behavior: MSAL's static shared cache is used and the serialization provider is
         /// not initialized, so nothing is written to the backing IMemoryCache.
         /// </summary>
         [Fact]
-        public async Task AppToken_InMemoryCache_UseSharedCache_SkipsSerialization_MemoryCacheEmpty()
+        public async Task AppToken_InMemoryCache_UseFastUnboundedCache_SkipsSerialization_MemoryCacheEmpty()
         {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactory();
             string uniqueClientId = Guid.NewGuid().ToString();
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
                 options => options.ClientId = uniqueClientId);
-            tokenAcquirerFactory.Services.Configure<MsalMemoryTokenCacheOptions>(
-                options => options.UseSharedCache = true);
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityOptions>(
+                options => options.UseFastUnboundedCache = true);
 
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
             var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
