@@ -71,6 +71,38 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
+        public async Task ManagedIdentity_WithBackgroundRefreshCallback_BuildsAndAcquiresToken()
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+
+            var mockHttp = new MockHttpClientFactory();
+            mockHttp.AddMockHandler(
+                MockHttpCreator.CreateMsiTokenHandler(accessToken: MockToken));
+
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
+
+            // Configure the background (proactive) token-refresh completion callback. The managed-identity
+            // build path must enable experimental features before applying it, otherwise MSAL throws when
+            // OnBackgroundTokenRefreshCompleted is set - this test guards that wiring.
+            factory.Services.Configure<TokenAcquisitionExtensionOptions>(
+                options => options.OnBackgroundTokenRefreshCompleted = _ => Task.CompletedTask);
+
+            var tokenAcquirer = factory.Build()
+                                       .GetRequiredService<ITokenAcquisition>();
+
+            var result = await tokenAcquirer.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions { UserAssignedClientId = UamiClientId },
+                });
+
+            Assert.Equal(MockToken, result.AccessToken);
+        }
+
+        [Fact]
         public async Task ManagedIdentity_WithClaims_HeaderBypassesCache()
         {
             // Arrange
