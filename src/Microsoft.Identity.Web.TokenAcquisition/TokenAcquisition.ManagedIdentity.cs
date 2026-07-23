@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Tokens;
@@ -101,6 +103,7 @@ namespace Microsoft.Identity.Web
         {
             ManagedIdentityApplicationBuilder miBuilder = ManagedIdentityApplicationBuilder
                 .Create(managedIdentityId)
+                .WithExperimentalFeatures()
                 .WithLogging(
                     new IdentityLoggerAdapter(_logger),
                     enablePiiLogging: enablePiiLogging);
@@ -113,6 +116,15 @@ namespace Microsoft.Identity.Web
             if (_miHttpFactory != null)
             {
                 miBuilder.WithHttpClientFactory(_miHttpFactory.Create());
+            }
+
+            // Wire up the app-level background (proactive) token-refresh completion callback, if configured.
+            // Experimental features are enabled above, satisfying MSAL's experimental gate for this callback.
+            Func<ExecutionResult, Task>? onBackgroundTokenRefreshCompleted =
+                tokenAcquisitionExtensionOptionsMonitor?.CurrentValue?.OnBackgroundTokenRefreshCompleted;
+            if (onBackgroundTokenRefreshCompleted != null)
+            {
+                miBuilder.OnBackgroundTokenRefreshCompleted(onBackgroundTokenRefreshCompleted);
             }
 
             return miBuilder.Build();

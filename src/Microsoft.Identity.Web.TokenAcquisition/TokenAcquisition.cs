@@ -1568,6 +1568,15 @@ namespace Microsoft.Identity.Web
                         isTokenBinding);
                 }
 
+                // Wire up the app-level background (proactive) token-refresh completion callback, if configured.
+                // The CCA builder already enabled experimental features above, satisfying MSAL's experimental gate.
+                Func<ExecutionResult, Task>? onBackgroundTokenRefreshCompleted =
+                    tokenAcquisitionExtensionOptionsMonitor?.CurrentValue?.OnBackgroundTokenRefreshCompleted;
+                if (onBackgroundTokenRefreshCompleted != null)
+                {
+                    builder.OnBackgroundTokenRefreshCompleted(onBackgroundTokenRefreshCompleted);
+                }
+
                 IConfidentialClientApplication app = builder.Build();
 
                 // Initialize token cache providers.
