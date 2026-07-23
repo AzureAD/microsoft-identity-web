@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.get -> System.Func<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Threading.Tasks.Task!>?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.set -> void

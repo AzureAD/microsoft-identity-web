@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 
 namespace Microsoft.Identity.Web
 {
@@ -16,6 +17,22 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public partial class TokenAcquisitionExtensionOptions
     {
+        /// <summary>
+        /// Callback invoked when a fire-and-forget background (proactive) token refresh completes, for confidential
+        /// client and managed identity applications. Proactive refresh runs on a background thread after the caller
+        /// has already received a valid cached token, so its outcome (latency, failures) is otherwise unobservable;
+        /// this callback surfaces it, for example to emit telemetry.
+        /// </summary>
+        /// <remarks>
+        /// The <see cref="ExecutionResult"/> carries the refreshed token on success
+        /// (<see cref="ExecutionResult.Result"/>) or the exception on failure (<see cref="ExecutionResult.Exception"/>),
+        /// whose <see cref="MsalException.AuthenticationResultMetadata"/> exposes the failed attempt's HTTP duration.
+        /// The callback is invoked on a background thread; exceptions it throws are caught and logged by MSAL so they
+        /// cannot disrupt the refresh. Set once; the same delegate is applied to every confidential client and managed
+        /// identity application built by Microsoft.Identity.Web.
+        /// </remarks>
+        public Func<ExecutionResult, Task>? OnBackgroundTokenRefreshCompleted { get; set; }
+
         /// <summary>
         /// Event fired when a client credential flow request is being built.
         /// </summary>        
