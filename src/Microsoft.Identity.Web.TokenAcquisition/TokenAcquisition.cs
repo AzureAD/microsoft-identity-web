@@ -272,10 +272,29 @@ namespace Microsoft.Identity.Web
         /// <param name="agentAppId">When non-null, appends an agent-specific segment so each
         /// agent CCA gets its own entry in the shared dictionary.</param>
         /// <returns>Concatenated string of authority, client id, azure region, credential id,
-        /// token-binding flag, and optional agent app id.</returns>
-        private static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding, string? agentAppId = null)
+        /// token-binding flag, bound-signed-assertion flag, and optional agent app id.</returns>
+        internal static string GetApplicationKey(MergedOptions mergedOptions, bool isTokenBinding, string? agentAppId = null)
         {
-            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c => c.Id) ?? Enumerable.Empty<string>());
+            // Credential-wiring discriminator: UseBoundCredential changes how the CCA is wired for
+            // both signed-assertion credentials (bound ClientSignedAssertion callback vs. string
+            // assertion callback) and certificate credentials (WithCertificate + SendCertificateOverMtls
+            // vs. plain WithCertificate). Encode the bound state per credential (in place, preserving
+            // order) so a bound configuration never collides on the same cache key with an otherwise-
+            // identical unbound one — including mixed multi-credential arrays where only the position of
+            // the bound flag differs (CredentialDescription.Id itself does not encode UseBoundCredential).
+            // Normal (unbound) Bearer/certificate/secret keys stay byte-identical to before, because the
+            // marker is only appended for a bound signed-assertion or certificate credential. When
+            // isTokenBinding is true the "-tokenBinding" suffix already isolates the mTLS PoP wiring, so
+            // the per-credential marker is not applied.
+            bool markBoundCredentials = !isTokenBinding;
+            string credentialId = string.Join("-", mergedOptions.ClientCredentials?.Select(c =>
+                markBoundCredentials
+                    && c.UseBoundCredential
+                    && (c.CredentialType == CredentialType.SignedAssertion
+                        || c.CredentialType == CredentialType.Certificate)
+                        ? c.Id + "+bound"
+                        : c.Id)
+                ?? Enumerable.Empty<string>());
 
             var keyBuilder = new StringBuilder(
                 DefaultTokenAcquirerFactoryImplementation.GetKey(mergedOptions.Authority, mergedOptions.ClientId, mergedOptions.AzureRegion));
@@ -284,6 +303,7 @@ namespace Microsoft.Identity.Web
             {
                 keyBuilder.Append("-tokenBinding");
             }
+
             if (agentAppId is not null)
             {
                 keyBuilder.Append(":agent:");
@@ -1072,7 +1092,10 @@ namespace Microsoft.Identity.Web
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
-                string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
+                // Invalidate the cache entry for the ACTUAL request mode (bearer vs mTLS PoP),
+                // so a failed token-binding acquisition invalidates the token-binding CCA key
+                // rather than always the Bearer key.
+                string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding);
                 NotifyCertificateSelection(
                     new CredentialSourceLoaderParameters(
                         mergedOptions.ClientId ?? string.Empty,

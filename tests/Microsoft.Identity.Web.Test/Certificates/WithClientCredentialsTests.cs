@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -649,6 +650,306 @@ namespace Microsoft.Identity.Web.Test.Certificates
             // Assert
             Assert.NotNull(result);
             Assert.Same(builder, result);
+        }
+
+        #endregion
+
+        #region Bound signed-assertion (UseBoundCredential / isTokenBinding) wiring tests
+
+        /// <summary>
+        /// Minimal binding-capable provider used to verify that the credential wiring is generic
+        /// (not OIDC-specific). It can be configured to advertise or not advertise token binding,
+        /// and to return a specific (or null) <see cref="ClientSignedAssertion"/>.
+        /// </summary>
+        private sealed class TestBindingProvider : ClientAssertionProviderBase
+        {
+            private readonly ClientSignedAssertion? _boundResult;
+            private readonly bool _supportsTokenBinding;
+
+            public TestBindingProvider(ClientSignedAssertion? boundResult, bool supportsTokenBinding = true)
+            {
+                _boundResult = boundResult;
+                _supportsTokenBinding = supportsTokenBinding;
+            }
+
+            public override bool SupportsTokenBinding => _supportsTokenBinding;
+
+            protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
+                => Task.FromResult(new ClientAssertion("string-assertion", DateTimeOffset.UtcNow.AddHours(1)));
+
+            public override Task<ClientSignedAssertion?> GetSignedAssertionWithBindingAsync(
+                AssertionRequestOptions? assertionRequestOptions,
+                CancellationToken cancellationToken = default)
+                => Task.FromResult(_boundResult);
+        }
+
+        private static CredentialsProvider ProviderThatCaches(object cachedValue)
+        {
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var credLoader = Substitute.For<ICredentialsLoader>();
+            credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var cd = (args[0] as CredentialDescription)!;
+                    cd.CachedValue = cachedValue;
+                    return Task.CompletedTask;
+                });
+            return new CredentialsProvider(logger, credLoader, [], null);
+        }
+
+        private static X509Certificate2 LoadTestCertificate() =>
+            Base64EncodedCertificateLoader.LoadFromBase64Encoded(
+                TestConstants.CertificateX5cWithPrivateKey,
+                TestConstants.CertificateX5cWithPrivateKeyPassword,
+                X509KeyStorageFlags.DefaultKeySet);
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_TokenBinding_BindingCapableProvider_WiresBoundCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var provider = new TestBindingProvider(new ClientSignedAssertion
+            {
+                Assertion = "a",
+                TokenBindingCertificate = LoadTestCertificate(),
+            });
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+            };
+
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(provider),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: true);
+
+            Assert.Same(builder, result);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredential_BindingCapableProvider_WiresBoundCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var provider = new TestBindingProvider(new ClientSignedAssertion
+            {
+                Assertion = "a",
+                TokenBindingCertificate = LoadTestCertificate(),
+            });
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = true,
+            };
+
+            // isTokenBinding=false + UseBoundCredential=true => bound callback, final token Bearer.
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(provider),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            Assert.Same(builder, result);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredentialFalse_SignedAssertion_UsesStringCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var provider = new TestBindingProvider(new ClientSignedAssertion
+            {
+                Assertion = "a",
+                TokenBindingCertificate = LoadTestCertificate(),
+            });
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = false,
+            };
+
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(provider),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            Assert.Same(builder, result);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredential_ManagedIdentityAssertion_WiresBoundCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var provider = new ManagedIdentityClientAssertion("a599ce88-0a5f-4a6e-beca-e67d3fc427f4");
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                ManagedIdentityClientId = "a599ce88-0a5f-4a6e-beca-e67d3fc427f4",
+                UseBoundCredential = true,
+            };
+
+            var result = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(provider),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            Assert.Same(builder, result);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredential_FileAssertion_ThrowsIDW10115Async()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var provider = new AzureIdentityForKubernetesClientAssertion("/var/run/secrets/azure/tokens/azure-identity-token");
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFilePath,
+                SignedAssertionFileDiskPath = "/var/run/secrets/azure/tokens/azure-identity-token",
+                UseBoundCredential = true,
+            };
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => builder.WithClientCredentialsAsync(
+                    new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                    ProviderThatCaches(provider),
+                    credentialSourceLoaderParameters: null,
+                    isTokenBinding: false));
+
+            Assert.Contains("IDW10115", ex.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredential_NullBoundResult_ThrowsClearExceptionAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            // Advertises binding support but returns null: the wiring must surface a clear
+            // Identity Web exception (IDW10115) instead of a NullReferenceException.
+            var provider = new TestBindingProvider(boundResult: null);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = true,
+            };
+
+            var configured = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(provider),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            var cca = configured.Build();
+
+            // The bound callback is invoked during ExecuteAsync (before any network I/O), so the
+            // null result surfaces as the clear IDW10115 error, not a NullReferenceException.
+            var ex = await Assert.ThrowsAnyAsync<Exception>(
+                () => cca.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" }).ExecuteAsync());
+
+            Assert.DoesNotContain(nameof(NullReferenceException), ex.ToString(), StringComparison.Ordinal);
+            Assert.Contains("IDW10115", ex.ToString(), StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Provider whose two callbacks throw distinct sentinels, so executing the built CCA stops at
+        /// whichever callback MSAL selects (before any network I/O). This proves callback *selection*
+        /// (bound vs. string) rather than merely that a builder was returned.
+        /// </summary>
+        private sealed class ThrowingSelectionProvider : ClientAssertionProviderBase
+        {
+            public const string StringCallbackSentinel = "STRING_CALLBACK_INVOKED";
+            public const string BoundCallbackSentinel = "BOUND_CALLBACK_INVOKED";
+
+            public override bool SupportsTokenBinding => true;
+
+            protected override Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
+                => throw new InvalidOperationException(StringCallbackSentinel);
+
+            public override Task<ClientSignedAssertion?> GetSignedAssertionWithBindingAsync(
+                AssertionRequestOptions? assertionRequestOptions,
+                CancellationToken cancellationToken = default)
+                => throw new InvalidOperationException(BoundCallbackSentinel);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredentialTrue_SelectsBoundCallback_NotStringCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = true,
+            };
+
+            var configured = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(new ThrowingSelectionProvider()),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            var cca = configured.Build();
+
+            // UseBoundCredential=true must wire the ClientSignedAssertion (bound) callback, so executing
+            // reaches GetSignedAssertionWithBindingAsync (not the string GetClientAssertionAsync).
+            var ex = await Assert.ThrowsAnyAsync<Exception>(
+                () => cca.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" }).ExecuteAsync());
+
+            Assert.Contains(ThrowingSelectionProvider.BoundCallbackSentinel, ex.ToString(), StringComparison.Ordinal);
+            Assert.DoesNotContain(ThrowingSelectionProvider.StringCallbackSentinel, ex.ToString(), StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task WithClientCredentialsAsync_UseBoundCredentialFalse_SelectsStringCallback_NotBoundCallbackAsync()
+        {
+            var builder = ConfidentialClientApplicationBuilder.Create(TestConstants.ClientId)
+                .WithAuthority(TestConstants.AuthorityCommonTenant);
+
+            var credentialDescription = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                UseBoundCredential = false,
+            };
+
+            var configured = await builder.WithClientCredentialsAsync(
+                new MergedOptions { ClientCredentials = new[] { credentialDescription } },
+                ProviderThatCaches(new ThrowingSelectionProvider()),
+                credentialSourceLoaderParameters: null,
+                isTokenBinding: false);
+
+            var cca = configured.Build();
+
+            // UseBoundCredential=false must wire the string assertion callback, so executing reaches
+            // GetClientAssertionAsync (not the bound GetSignedAssertionWithBindingAsync) — even though
+            // this provider advertises SupportsTokenBinding=true.
+            var ex = await Assert.ThrowsAnyAsync<Exception>(
+                () => cca.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" }).ExecuteAsync());
+
+            Assert.Contains(ThrowingSelectionProvider.StringCallbackSentinel, ex.ToString(), StringComparison.Ordinal);
+            Assert.DoesNotContain(ThrowingSelectionProvider.BoundCallbackSentinel, ex.ToString(), StringComparison.Ordinal);
         }
 
         #endregion

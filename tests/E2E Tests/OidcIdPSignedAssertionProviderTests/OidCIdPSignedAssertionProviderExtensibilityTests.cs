@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -248,6 +249,195 @@ namespace CustomSignedAssertionProviderTests
                     tokenRequestHttpHandler.ActualRequestPostData["client_assertion"],
                     accessTokenFromRequest1);
             }
+        }
+
+        // ---------------------------------------------------------------------
+        // OIDC FIC over mTLS (binding) E2E tests.
+        //
+        // Bound OIDC FIC flow (two token exchanges):
+        //   the inner named app ("OidcFicIdp") authenticates with the automation certificate and
+        //   mints an OIDC FIC assertion + binding certificate (audience api://AzureADTokenExchange);
+        //   the outer app uses that assertion (ClientSignedAssertion) for the final leg.
+        //
+        // This is NOT the Managed Identity three-leg (MI -> inner OIDC -> outer); that composition is
+        // covered at the provider level
+        // (OidcIdpSignedAssertionProviderTests.GetSignedAssertionWithBindingAsync_InnerMsiFicResult_*).
+        //
+        // The binding certificate flows automatically from the inner acquisition result — a single
+        // certificate credential is configured, never a duplicate binding credential.
+        // ---------------------------------------------------------------------
+
+        private const string LabTenant = "bea21ebe-8b64-4d06-9f6d-6a889b120a7c"; // MSI team tenant
+        private const string LabClientId = "163ffef9-a313-45b4-ab2f-c7e2f5e0e23e";
+        private const string AutomationCertificateSubject = "CN=LabAuth.MSIDLab.com";
+
+        private static void ConfigureBoundOidcFic(
+            TokenAcquirerFactory tokenAcquirerFactory,
+            bool useBoundCredentialOnOuter)
+        {
+            // Inner (named) application: one certificate credential — no duplicate binding credential.
+            // The lab automation certificate is provisioned in LocalMachine/My on the Azure DevOps
+            // build agents (matching tests/E2E Tests/TokenAcquirerTests s_clientCredentials).
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                "OidcFicIdp",
+                options =>
+                {
+                    options.Instance = "https://login.microsoftonline.com/";
+                    options.TenantId = LabTenant;
+                    options.ClientId = LabClientId;
+                    options.ClientCredentials = new[]
+                    {
+                        new CredentialDescription
+                        {
+                            SourceType = CredentialSource.StoreWithDistinguishedName,
+                            CertificateStorePath = "LocalMachine/My",
+                            CertificateDistinguishedName = AutomationCertificateSubject,
+                        },
+                    };
+                });
+
+            // Outer application: one CustomSignedAssertion credential. The binding certificate is
+            // returned by the inner acquisition; no second certificate is configured.
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options =>
+                {
+                    options.Instance = "https://login.microsoftonline.com/";
+                    options.TenantId = LabTenant;
+                    options.ClientId = LabClientId;
+                    options.ClientCapabilities = new[] { "cp1" };
+                    options.ClientCredentials = new[]
+                    {
+                        new CredentialDescription
+                        {
+                            SourceType = CredentialSource.CustomSignedAssertion,
+                            CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                            CustomSignedAssertionProviderData = new Dictionary<string, object>
+                            {
+                                ["ConfigurationSection"] = "OidcFicIdp",
+                            },
+                            UseBoundCredential = useBoundCredentialOnOuter,
+                        },
+                    };
+                });
+        }
+
+        private static string ComputeX5tS256(System.Security.Cryptography.X509Certificates.X509Certificate2 certificate)
+        {
+            byte[] hash = SHA256.HashData(certificate.RawData);
+            return Convert.ToBase64String(hash)
+                .TrimEnd('=')
+                .Replace('+', '-')
+                .Replace('/', '_');
+        }
+
+        // E2E TEST A: final mtls_pop token. Requires the Microsoft identity automation test
+        // certificate (CN=LabAuth.MSIDLab.com) and Azure DevOps lab connectivity.
+        [OnlyOnAzureDevopsFact]
+        public async Task OidcFic_FinalMtlsPopToken_BindsToInnerCertificate()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.AddOidcFic();
+            ConfigureBoundOidcFic(tokenAcquirerFactory, useBoundCredentialOnOuter: false);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var headerProvider = (IAuthorizationHeaderProvider2)serviceProvider
+                .GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var options = new AuthorizationHeaderProviderOptions
+            {
+                RequestAppToken = true,
+                ProtocolScheme = "MTLS_POP",
+            };
+
+            // Act
+            OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError> headerResult =
+                await headerProvider.CreateAuthorizationHeaderInformationForAppAsync(
+                    "https://graph.microsoft.com/.default",
+                    options);
+
+            // Assert
+            Assert.True(headerResult.Succeeded);
+            AuthorizationHeaderInformation info = headerResult.Result;
+
+            // 1) mtls_pop scheme, 2) non-empty access token
+            string headerValue = info.AuthorizationHeaderValue ?? string.Empty;
+            Assert.StartsWith("MTLS_POP", headerValue, StringComparison.OrdinalIgnoreCase);
+            string accessToken = headerValue["MTLS_POP ".Length..].Trim();
+            Assert.False(string.IsNullOrEmpty(accessToken));
+
+            // 3) non-null binding certificate
+            Assert.NotNull(info.BindingCertificate);
+
+            // 4) & 5) cnf.x5t#S256 matches SHA-256 thumbprint of the propagated binding certificate
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            var cnfClaim = token.Claims.FirstOrDefault(c => c.Type == "cnf");
+            Assert.NotNull(cnfClaim);
+
+            using JsonDocument cnfDoc = JsonDocument.Parse(cnfClaim!.Value);
+            string? x5tS256 = cnfDoc.RootElement.GetProperty("x5t#S256").GetString();
+            Assert.False(string.IsNullOrEmpty(x5tS256));
+            Assert.Equal(ComputeX5tS256(info.BindingCertificate!), x5tS256);
+
+            // 6) token endpoint uses the mTLS auth endpoint
+            Assert.Contains(
+                "mtlsauth.microsoft.com",
+                info.Metadata?.TokenEndpoint ?? string.Empty,
+                StringComparison.OrdinalIgnoreCase);
+
+            // 7) client capability cp1 flows to the final token
+            string[] xmsCc = token.Claims.Where(c => c.Type == "xms_cc").Select(c => c.Value).ToArray();
+            Assert.Contains("cp1", xmsCc);
+        }
+
+        // E2E TEST B: final Bearer token with a bound OIDC credential (UseBoundCredential = true,
+        // no ProtocolScheme = "MTLS_POP"). Mirrors the MSAL.NET
+        // Sni_AssertionFlow_Uses_JwtPop_And_Acquires_Bearer_Token_TestAsync scenario: the client
+        // assertion is jwt-pop over mTLS while the resulting access token is Bearer.
+        [OnlyOnAzureDevopsFact]
+        public async Task OidcFic_BoundCredential_FinalBearerToken_UsesMtlsClientAuthentication()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.AddOidcFic();
+            ConfigureBoundOidcFic(tokenAcquirerFactory, useBoundCredentialOnOuter: true);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var headerProvider = (IAuthorizationHeaderProvider2)serviceProvider
+                .GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // No ProtocolScheme = "MTLS_POP": the final token is Bearer, but client authentication
+            // uses jwt-pop over mTLS because the outer OIDC credential is bound.
+            var options = new AuthorizationHeaderProviderOptions
+            {
+                RequestAppToken = true,
+            };
+
+            // Act
+            OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError> headerResult =
+                await headerProvider.CreateAuthorizationHeaderInformationForAppAsync(
+                    "https://graph.microsoft.com/.default",
+                    options);
+
+            // Assert
+            Assert.True(headerResult.Succeeded);
+            AuthorizationHeaderInformation info = headerResult.Result;
+
+            // 1) Bearer scheme, 2) non-empty access token
+            string headerValue = info.AuthorizationHeaderValue ?? string.Empty;
+            Assert.StartsWith("Bearer", headerValue, StringComparison.OrdinalIgnoreCase);
+            string accessToken = headerValue["Bearer ".Length..].Trim();
+            Assert.False(string.IsNullOrEmpty(accessToken));
+
+            // 3) token endpoint metadata shows the mTLS auth endpoint (jwt-pop client auth over mTLS).
+            //    The exact client_assertion_type = jwt-pop wire assertion is validated in the mocked
+            //    integration test; the live path asserts endpoint metadata + successful Bearer acquisition.
+            Assert.Contains(
+                "mtlsauth.microsoft.com",
+                info.Metadata?.TokenEndpoint ?? string.Empty,
+                StringComparison.OrdinalIgnoreCase);
         }
     }
 }

@@ -14,6 +14,10 @@ namespace Microsoft.Identity.Web.OidcFic
 {
     internal partial class OidcIdpSignedAssertionLoader : ICustomSignedAssertionProvider
     {
+        // Protocol value set on CredentialSourceLoaderParameters when the final token is mtls_pop.
+        // Mirrors the internal token-acquisition ProtocolNames.MtlsPop / TokenBindingProtocolScheme.
+        private const string MtlsPopProtocol = "MTLS_POP";
+
         private readonly ILogger<OidcIdpSignedAssertionLoader> _logger;
         private readonly IOptionsMonitor<MicrosoftIdentityApplicationOptions> _options;
         private readonly IServiceProvider _serviceProvider;
@@ -197,6 +201,24 @@ namespace Microsoft.Identity.Web.OidcFic
                 {
                     signedAssertion.RequiresSignedAssertionFmiPath = true;
                 }
+            }
+
+            // For bound flows the Bearer warm-up below is skipped:
+            //  - final mtls_pop is selected via parameters.Protocol == "MTLS_POP", or
+            //  - a bound client assertion (final Bearer, jwt-pop over mTLS) is requested via
+            //    credentialDescription.UseBoundCredential.
+            // Warming up with GetSignedAssertionAsync(null) would trigger an unnecessary and
+            // incorrect unbound Bearer inner acquisition. Cache the provider and let MSAL invoke
+            // the bound callback (GetSignedAssertionWithBindingAsync) with real AssertionRequestOptions.
+            bool deferBearerWarmup =
+                signedAssertion != null &&
+                (credentialDescription.UseBoundCredential ||
+                 string.Equals(parameters?.Protocol, MtlsPopProtocol, StringComparison.OrdinalIgnoreCase));
+
+            if (deferBearerWarmup)
+            {
+                credentialDescription.CachedValue = signedAssertion;
+                return;
             }
 
             try
