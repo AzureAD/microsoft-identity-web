@@ -934,6 +934,15 @@ namespace Microsoft.Identity.Web
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
+                    // Carry the OTel tags enricher (from the ExtraParameters channel) onto the MI request too,
+                    // so its metrics — including background refresh — get the same tags.
+                    if (tokenAcquisitionOptions.ExtraParameters != null &&
+                        tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.OtelTagsEnricherKey, out var miOtelEnricherObj) &&
+                        miOtelEnricherObj is Action<ExecutionResult, IList<KeyValuePair<string, object>>> miOtelEnricher)
+                    {
+                        miBuilder.WithOtelTagsEnricher(miOtelEnricher);
+                    }
+
                     //TODO: Should client assertion claims be supported for managed identity?
                     //var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                     //if (clientClaims != null)
