@@ -33,7 +33,10 @@ namespace TokenAcquirerTests
     ///           to the same certificate.
     ///
     /// These tests require a VM with an assigned managed identity and Credential Guard, so they run on
-    /// the MISEManagedIdentity pool (Category = MI_E2E), not on Microsoft-hosted agents.
+    /// the MISEManagedIdentity pool, not on Microsoft-hosted agents. They carry the MI_FIC_E2E trait
+    /// (in addition to MI_E2E) so pipelines that run this assembly on a non-IMDSv2 pool (for example
+    /// the Wilson pool used by the id4s-official / nightly builds) can exclude them with
+    /// Category!=MI_FIC_E2E while still running the regular (IMDSv1) managed-identity test.
     ///
     /// Note: the "bearer final token with a bound client assertion" variant (the exact shape of the
     /// MSAL bearer test) requires <c>UseBoundCredential</c> wiring for signed assertions, which is a
@@ -42,6 +45,7 @@ namespace TokenAcquirerTests
     /// </summary>
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     [Trait("Category", TestCategories.ManagedIdentity)]
+    [Trait("Category", TestCategories.ManagedIdentityFic)]
     public class ManagedIdentityFicTests
     {
         private const string TokenExchangeUrl = "api://AzureADTokenExchange";
