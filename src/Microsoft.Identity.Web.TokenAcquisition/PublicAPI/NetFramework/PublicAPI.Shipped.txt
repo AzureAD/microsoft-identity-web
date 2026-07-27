@@ -119,6 +119,8 @@ Microsoft.Identity.Web.MicrosoftIdentityOptions.Instance.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.LegacyCacheCompatibilityEnabled.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptions.LegacyCacheCompatibilityEnabled.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.MicrosoftIdentityOptions() -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath.get -> string?
 Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPath.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.ResetPasswordPolicyId.get -> string?
@@ -133,6 +135,8 @@ Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates.get 
 Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCertificates.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCredentials.get -> System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>?
 Microsoft.Identity.Web.MicrosoftIdentityOptions.TokenDecryptionCredentials.set -> void
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.UserAssignedManagedIdentityClientId.get -> string?
 Microsoft.Identity.Web.MicrosoftIdentityOptions.UserAssignedManagedIdentityClientId.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.WithSpaAuthCode.get -> bool
@@ -180,6 +184,8 @@ Microsoft.Identity.Web.TokenAcquirerFactory.ServiceProvider.set -> void
 Microsoft.Identity.Web.TokenAcquirerFactory.Services.get -> Microsoft.Extensions.DependencyInjection.ServiceCollection!
 Microsoft.Identity.Web.TokenAcquirerFactory.TokenAcquirerFactory() -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.get -> System.Func<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Threading.Tasks.Task!>?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.set -> void
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeOnBehalfOfInitialized -> Microsoft.Identity.Web.BeforeOnBehalfOfInitialized?
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeOnBehalfOfInitializedAsync -> Microsoft.Identity.Web.BeforeOnBehalfOfInitializedAsync?
 Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBeforeTokenAcquisitionForApp -> Microsoft.Identity.Web.BeforeTokenAcquisitionForApp?
