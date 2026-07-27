@@ -17,5 +17,14 @@ namespace Microsoft.Identity.Web.Test.Common
         /// agents that have no managed identity, so they are filtered out there.
         /// </summary>
         public const string ManagedIdentity = "MI_E2E";
+
+        /// <summary>
+        /// Tests that additionally require an IMDSv2 managed identity capable of mTLS
+        /// Proof-of-Possession + key attestation (the MSI FIC two-leg tests). These carry both
+        /// this trait and <see cref="ManagedIdentity"/>, and run only on the MISEManagedIdentity
+        /// pool. Pipelines that run the assembly on another pool (for example the Wilson pool used
+        /// by the id4s-official / nightly builds) must exclude them with <c>Category!=MI_FIC_E2E</c>.
+        /// </summary>
+        public const string ManagedIdentityFic = "MI_FIC_E2E";
     }
 }
