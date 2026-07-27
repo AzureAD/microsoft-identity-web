@@ -934,6 +934,15 @@ namespace Microsoft.Identity.Web
                         miBuilder.WithClaims(tokenAcquisitionOptions.Claims);
                     }
 
+                    // Carry the OTel tags enricher (from the ExtraParameters channel) onto the MI request too,
+                    // so its metrics — including background refresh — get the same tags.
+                    if (tokenAcquisitionOptions.ExtraParameters != null &&
+                        tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.OtelTagsEnricherKey, out var miOtelEnricherObj) &&
+                        miOtelEnricherObj is Action<ExecutionResult, IList<KeyValuePair<string, object>>> miOtelEnricher)
+                    {
+                        miBuilder.WithOtelTagsEnricher(miOtelEnricher);
+                    }
+
                     //TODO: Should client assertion claims be supported for managed identity?
                     //var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                     //if (clientClaims != null)
@@ -1034,6 +1043,16 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+
+                // Forward an MSAL OpenTelemetry tags enricher supplied via the ExtraParameters SDK-to-SDK
+                // channel (e.g. by Microsoft.Identity.Web.OidcFic on the inner FIC client-assertion leg) so
+                // this acquisition's metrics carry the same enrichment tags as the request that supplied it.
+                if (tokenAcquisitionOptions.ExtraParameters != null &&
+                    tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.OtelTagsEnricherKey, out var otelEnricherObj) &&
+                    otelEnricherObj is Action<ExecutionResult, IList<KeyValuePair<string, object>>> otelEnricher)
+                {
+                    builder.WithOtelTagsEnricher(otelEnricher);
+                }
 
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)

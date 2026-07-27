@@ -192,6 +192,12 @@ namespace Microsoft.Identity.Web
                 miBuilder.WithClaims(assertionRequestOptions!.Claims);
             }
 
+            // Carry the outer request's OTel tags enricher onto this MI FIC leg too, like the OIDC leg does.
+            if (assertionRequestOptions?.OtelTagsEnricher != null)
+            {
+                miBuilder.WithOtelTagsEnricher(assertionRequestOptions.OtelTagsEnricher);
+            }
+
             CancellationToken effectiveCancellationToken = cancellationToken != default
                 ? cancellationToken
                 : assertionRequestOptions?.CancellationToken ?? CancellationToken.None;
