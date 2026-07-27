@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
@@ -34,6 +35,7 @@ namespace Microsoft.Identity.Web.Test
         private IOptionsMonitor<ConfidentialClientApplicationOptions> _applicationOptionsMonitor;
         private IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptionsMonitor;
         private ICredentialsLoader _credentialsLoader;
+        private Func<ExecutionResult, Task>? _backgroundRefreshCallback;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         private void InitializeTokenAcquisitionObjects()
@@ -61,6 +63,8 @@ namespace Microsoft.Identity.Web.Test
             services.AddTransient(
                 provider => _applicationOptionsMonitor);
             services.Configure<MergedOptions>(options => { });
+            services.Configure<TokenAcquisitionExtensionOptions>(
+                options => options.OnBackgroundTokenRefreshCompleted = _backgroundRefreshCallback);
             services.AddHttpClient();
             services.AddInMemoryTokenCaches();
             services.AddTokenAcquisition();
@@ -180,6 +184,38 @@ namespace Microsoft.Identity.Web.Test
             {
                 Assert.Equal("https://IdentityDotNetSDKAutomation/", app.AppConfig.RedirectUri);
             }
+        }
+
+        [Fact]
+        public async Task GetOrBuildConfidentialClientApplication_WithBackgroundRefreshCallback_BuildsApp()
+        {
+            _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TC.AuthorityCommonTenant,
+                ClientId = TC.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+
+            _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TC.AadInstance,
+                ClientSecret = TC.ClientSecret,
+            });
+
+            // Configure the background (proactive) token-refresh completion callback. The CCA build path
+            // must apply it via the experimental OnBackgroundTokenRefreshCompleted extension without MSAL throwing.
+            _backgroundRefreshCallback = _ => Task.CompletedTask;
+
+            BuildTheRequiredServices();
+            MergedOptions mergedOptions = _provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(_microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(_applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            InitializeTokenAcquisitionObjects();
+
+            IConfidentialClientApplication app = await _tokenAcquisition.GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+
+            Assert.NotNull(app);
         }
 
         [Fact]
