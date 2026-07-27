@@ -1,7 +1,1 @@
 #nullable enable
-Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.get -> bool
-Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.set -> void
-Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.get -> bool
-Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.set -> void
-Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.get -> System.Func<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Threading.Tasks.Task!>?
-Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted.set -> void

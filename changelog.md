@@ -1,10 +1,20 @@
-## 4.13.3
+## 4.14.0
 
 ### New features
+- Add `MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience` to partition the app token cache by resource/audience. See [#3979](https://github.com/AzureAD/microsoft-identity-web/pull/3979).
+- Expose MSAL's background token-refresh callback through Id.Web via `TokenAcquisitionExtensionOptions.OnBackgroundTokenRefreshCompleted`. See [#3973](https://github.com/AzureAD/microsoft-identity-web/pull/3973).
+- Add `MicrosoftIdentityOptions.UseFastUnboundedCache`; stop short-circuiting the in-memory token cache serialization provider. See [#3970](https://github.com/AzureAD/microsoft-identity-web/pull/3970).
 - OIDC FIC (`Microsoft.Identity.Web.OidcFIC`) now supports mTLS token binding. `OidcIdpSignedAssertionProvider` reports `SupportsTokenBinding = true` and implements `GetSignedAssertionWithBindingAsync`, propagating the exact binding certificate returned by the inner token acquisition together with the OIDC assertion (as a `ClientSignedAssertion`) — no separate binding-certificate credential is configured. This enables two flows: a final `mtls_pop` token (`AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP"`) and a final `Bearer` token whose client assertion is `jwt-pop` over mTLS (`UseBoundCredential = true` on the outer OIDC `CustomSignedAssertion` credential). It composes with an inner application using `SignedAssertionFromManagedIdentity` (three-leg MSI → OIDC → final flow). Tracked in [#3851](https://github.com/AzureAD/microsoft-identity-web/issues/3851).
 
 ### Bug fixes
 - Token binding: the confidential-client application (CCA) cache key now distinguishes a bound credential (`UseBoundCredential = true`) — for both signed-assertion and certificate credentials — from its otherwise-identical unbound equivalent, so the two configurations no longer collide on the same cached CCA. The certificate-error retry path for app tokens now invalidates the cache entry for the actual request mode (bearer vs mTLS PoP) instead of always the bearer key.
+- Forward the OpenTelemetry tags enricher onto the inner FIC client-assertion leg (AB#3696484). See [#3968](https://github.com/AzureAD/microsoft-identity-web/pull/3968).
+
+### Dependencies updates
+- Bump `Microsoft.Identity.Client` to 4.87.0. See [#3975](https://github.com/AzureAD/microsoft-identity-web/pull/3975).
+- Bump `Microsoft.Identity.Abstractions` to 12.6.0. See [#3976](https://github.com/AzureAD/microsoft-identity-web/pull/3976).
+- Bump `System.Security.Cryptography.Xml` / `System.Security.Cryptography.Pkcs` to patched versions (CVE-2026-47302, -47304, -50525, -50648). See [#3964](https://github.com/AzureAD/microsoft-identity-web/pull/3964).
+- Bump the notsecurity group with 1 update. See [#3965](https://github.com/AzureAD/microsoft-identity-web/pull/3965).
 
 ## 4.13.2
 
