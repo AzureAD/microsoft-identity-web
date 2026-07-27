@@ -1,3 +1,5 @@
 #nullable enable
+Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.get -> bool
+Microsoft.Identity.Web.MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience.set -> void
 Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.get -> bool
 Microsoft.Identity.Web.MicrosoftIdentityOptions.UseFastUnboundedCache.set -> void
