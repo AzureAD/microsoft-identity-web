@@ -147,7 +147,11 @@ isTokenBinding = false?
 │   └── else → builder.WithCertificate(cert)
 │
 ├── CredentialType.SignedAssertion
-│   └── builder.WithClientAssertion(GetSignedAssertionAsync)
+│   ├── UseBoundCredential + SupportsTokenBinding
+│   │   └── builder.WithClientAssertion(GetSignedAssertionWithBindingAsync)
+│   │       (bound assertion → jwt-pop over mTLS; final token stays Bearer)
+│   ├── UseBoundCredential + !SupportsTokenBinding → throw (IDW10115)
+│   └── else → builder.WithClientAssertion(GetSignedAssertionAsync)
 │
 ├── CredentialType.Secret
 │   └── builder.WithClientSecret(secret)
@@ -284,5 +288,5 @@ sequenceDiagram
 | Certificate (KeyVault, Store, Path, Base64) | ✅ `WithCertificate` | ✅ `WithCertificate` + `WithMtlsProofOfPossession` |
 | Client Secret | ✅ `WithClientSecret` | ❌ Not supported (no private key for binding) |
 | FIC via MI (`SignedAssertionFromManagedIdentity`) | ✅ `WithClientAssertion` | ✅ if `SupportsTokenBinding` (via `GetSignedAssertionWithBindingAsync`) |
-| OIDC FIC (`CustomSignedAssertion`) | ✅ `WithClientAssertion` | ❌ Not yet (needs binding cert) |
+| OIDC FIC (`CustomSignedAssertion`) | ✅ `WithClientAssertion` | ✅ via `GetSignedAssertionWithBindingAsync` (binding cert from the inner acquisition) |
 | Managed Identity (direct, not FIC) | ✅ `AcquireTokenForMI` | ✅ `WithMtlsProofOfPossession` + `WithAttestationSupport` |

@@ -506,6 +506,105 @@ public class CustomApiClient
 }
 ```
 
+## Federated Identity Credentials (FIC) with token binding
+
+Token binding also composes with **Federated Identity Credentials**, where the
+confidential client authenticates with a signed assertion instead of (or in
+addition to) a local certificate. In these flows the **binding certificate is
+returned by the inner token acquisition that produced the assertion** — it flows
+automatically with the assertion, so you never configure a second
+binding-certificate credential.
+
+Two binding-capable assertion sources are supported:
+
+- `SignedAssertionFromManagedIdentity` (FIC with Managed Identity)
+- `CustomSignedAssertion` from the OIDC IdP provider
+  (`Microsoft.Identity.Web.OidcFIC`, `AddOidcFic()`)
+
+### OIDC FIC producing a final `mtls_pop` token
+
+The caller requests `ProtocolScheme = "MTLS_POP"`. The inner OIDC exchange is
+performed in token-binding mode, and the final access token is `mtls_pop`, bound
+to the certificate returned by the inner acquisition.
+
+```json
+{
+  "AzureAd": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "<outer-tenant>",
+    "ClientId": "<outer-client-id>",
+    "ClientCapabilities": [ "cp1" ],
+    "ClientCredentials": [
+      {
+        "SourceType": "CustomSignedAssertion",
+        "CustomSignedAssertionProviderName": "OidcIdpSignedAssertion",
+        "CustomSignedAssertionProviderData": { "ConfigurationSection": "OidcFicIdp" }
+      }
+    ]
+  },
+  "OidcFicIdp": {
+    "Instance": "https://login.microsoftonline.com/",
+    "TenantId": "<inner-tenant>",
+    "ClientId": "<inner-client-id>",
+    "ClientCredentials": [
+      {
+        "SourceType": "StoreWithDistinguishedName",
+        "CertificateStorePath": "CurrentUser/My",
+        "CertificateDistinguishedName": "CN=MyInnerAppCert"
+      }
+    ]
+  }
+}
+```
+
+Register the provider with `services.AddOidcFic();` and request the token with
+`ProtocolScheme = "MTLS_POP"` (as shown in the usage examples above). The
+returned `AuthorizationHeaderInformation.BindingCertificate` is non-null and the
+token's `cnf.x5t#S256` equals the base64url SHA-256 thumbprint of that
+certificate.
+
+### OIDC FIC using a bound client assertion while producing a final `Bearer` token
+
+Set `UseBoundCredential = true` on the **outer** OIDC `CustomSignedAssertion`
+credential and do **not** request `MTLS_POP`. The client assertion is sent as
+`jwt-pop` over mTLS (authentication is sender-constrained), while the resulting
+access token remains a regular `Bearer` — downstream APIs are unaffected.
+
+```json
+{
+  "ClientCredentials": [
+    {
+      "SourceType": "CustomSignedAssertion",
+      "CustomSignedAssertionProviderName": "OidcIdpSignedAssertion",
+      "CustomSignedAssertionProviderData": { "ConfigurationSection": "OidcFicIdp" },
+      "UseBoundCredential": true
+    }
+  ]
+}
+```
+
+### OIDC FIC where the inner application uses Managed Identity
+
+The inner (`OidcFicIdp`) application can itself use
+`SignedAssertionFromManagedIdentity`. Managed Identity mints the assertion and a
+binding certificate; that same certificate flows through the OIDC leg and on to
+the outer application, producing the common three-leg flow:
+
+```text
+Managed Identity      -> assertion + binding certificate
+Inner Entra/OIDC app  -> OIDC FIC assertion + same binding certificate
+Outer Entra app       -> final Bearer or mtls_pop token
+```
+
+**Key points**
+
+- The binding certificate is returned by the inner token acquisition and flows
+  automatically with the assertion.
+- No duplicate binding-certificate credential is configured.
+- `UseBoundCredential` belongs on the **outer** OIDC `CustomSignedAssertion`
+  credential for the final-`Bearer` scenario.
+- `ProtocolScheme = "MTLS_POP"` selects the final-`mtls_pop` scenario.
+
 ## Token Structure
 
 ### Standard OAuth2 Token

@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -162,6 +163,75 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Bearer header.payload.signature", result);
+        }
+
+        /// <summary>
+        /// Regression test for the in-memory cache short-circuit fix. With the default
+        /// (UseFastUnboundedCache not set), acquiring an app token must flow through the
+        /// MsalMemoryTokenCacheProvider serialization callbacks, so a blob is written to the
+        /// backing IMemoryCache. Previously IdWeb enabled MSAL's static cache and skipped
+        /// Initialize(), so the IMemoryCache was never used.
+        /// </summary>
+        [Fact]
+        public async Task AppToken_InMemoryCache_WiresSerialization_WritesToMemoryCache()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "app-token-1"));
+
+            var memoryCache = (MemoryCache)serviceProvider.GetRequiredService<IMemoryCache>();
+            Assert.Equal(0, memoryCache.Count);
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default");
+
+            // Assert — the serialization provider ran and wrote the app-token blob to IMemoryCache.
+            Assert.NotNull(result);
+            Assert.Equal(1, memoryCache.Count);
+        }
+
+        /// <summary>
+        /// With the opt-in (MicrosoftIdentityOptions.UseFastUnboundedCache = true), IdWeb keeps the
+        /// legacy behavior: MSAL's static shared cache is used and the serialization provider is
+        /// not initialized, so nothing is written to the backing IMemoryCache.
+        /// </summary>
+        [Fact]
+        public async Task AppToken_InMemoryCache_UseFastUnboundedCache_SkipsSerialization_MemoryCacheEmpty()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityOptions>(
+                options => options.UseFastUnboundedCache = true);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "app-token-shared"));
+
+            var memoryCache = (MemoryCache)serviceProvider.GetRequiredService<IMemoryCache>();
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default");
+
+            // Assert — token acquired, but nothing written to the IMemoryCache (legacy static cache used).
+            Assert.NotNull(result);
+            Assert.Equal(0, memoryCache.Count);
         }
 
         /// <summary>
