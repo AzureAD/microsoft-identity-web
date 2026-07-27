@@ -201,6 +201,15 @@ namespace Microsoft.Identity.Web.OidcFic
                 }
             }
 
+            // Forward the outer request's OTel tags enricher onto the inner FIC leg so its metrics
+            // carry the same tags. Covers both the plain and bound acquisition paths.
+            if (assertionRequestOptions?.OtelTagsEnricher != null)
+            {
+                acquireTokenOptions ??= new AcquireTokenOptions();
+                acquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+                acquireTokenOptions.ExtraParameters[Constants.OtelTagsEnricherKey] = assertionRequestOptions.OtelTagsEnricher;
+            }
+
             if (_logger != null)
             {
                 _logger.AcquiringToken(tokenExchangeUrl, acquireTokenOptions?.FmiPath);
