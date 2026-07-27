@@ -106,6 +106,24 @@ namespace Microsoft.Identity.Web
         public bool UseFastUnboundedCache { get; set; }
 
         /// <summary>
+        /// When set to <see langword="true"/>, the application token cache (client credentials,
+        /// i.e. <c>AcquireTokenForClient</c>) is partitioned by the audience (resource) of the
+        /// requested token.
+        /// <para>
+        /// Applications that acquire app tokens for many resources using the same client and tenant
+        /// otherwise accumulate all of those tokens in a single cache partition, which makes cache
+        /// lookups O(n) in the number of resources. Enabling this adds the resource (derived from the
+        /// requested <c>&lt;resource&gt;/.default</c> scope) as a non-protocol-affecting cache key
+        /// component, so each resource gets its own partition and cache reads stay O(1).
+        /// </para>
+        /// <para>
+        /// Defaults to <see langword="false"/>. This can be set via configuration, e.g.
+        /// <c>"AzureAd": { "PartitionAppTokenCacheByAudience": true }</c>.
+        /// </para>
+        /// </summary>
+        public bool PartitionAppTokenCacheByAudience { get; set; }
+
+        /// <summary>
         /// Enables legacy ADAL cache serialization and deserialization.
         /// Performance improvements when working with MSAL only apps.
         /// Set to true if you have a shared cache with ADAL apps.

@@ -978,6 +978,18 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
+            // Partition the app token cache by audience (resource) so each downstream resource lands
+            // in its own cache partition. This keeps AcquireTokenForClient cache reads O(1) for apps
+            // that acquire tokens for many resources with the same client and tenant. The resource is
+            // derived from the requested "<resource>/.default" scope and added via MSAL's
+            // WithCachePartitionKey as a non-protocol-affecting cache key component (it is not sent to
+            // the token endpoint), which partitions both MSAL's internal cache and the serialized
+            // in-memory cache blob.
+            if (mergedOptions.PartitionAppTokenCacheByAudience)
+            {
+                builder.WithCachePartitionKey(CacheKeyResourceComponent, GetResourceFromScope(scope));
+            }
+
             if (isTokenBinding)
             {
                 builder.WithMtlsProofOfPossession();
@@ -1155,6 +1167,21 @@ namespace Microsoft.Identity.Web
                     AbstractConfidentialClientAcquireTokenParameterBuilderExtension.WithExtraBodyParameters(builder, keyValuePairs);
                 }
             }
+        }
+
+        // Cache key component name used to partition the app token cache by resource/audience
+        // (see MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience).
+        private const string CacheKeyResourceComponent = "resource";
+
+        // Derives the resource (audience) from a client-credential scope of the form
+        // "<resource>/.default". The scope is validated to end with "/.default" earlier in the app
+        // token flow, so the suffix is stripped to obtain a stable per-resource partition value.
+        private static string GetResourceFromScope(string scope)
+        {
+            const string defaultSuffix = "/.default";
+            return scope.EndsWith(defaultSuffix, StringComparison.OrdinalIgnoreCase)
+                ? scope.Substring(0, scope.Length - defaultSuffix.Length)
+                : scope;
         }
 
         private MergedOptions GetMergedOptions(string? authenticationScheme, TokenAcquisitionOptions? tokenAcquisitionOptions)

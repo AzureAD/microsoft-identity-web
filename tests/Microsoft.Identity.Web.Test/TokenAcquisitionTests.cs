@@ -235,6 +235,70 @@ namespace Microsoft.Identity.Web.Test
         }
 
         /// <summary>
+        /// With MicrosoftIdentityOptions.PartitionAppTokenCacheByAudience = true, app tokens for two
+        /// different resources are stored under separate cache keys (each resource is its own
+        /// partition via MSAL's WithCachePartitionKey), so the backing IMemoryCache has one entry per
+        /// resource.
+        /// </summary>
+        [Fact]
+        public async Task AppToken_PartitionByAudience_UsesSeparateCacheEntryPerResource()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityOptions>(
+                options => options.PartitionAppTokenCacheByAudience = true);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "token-resource-1"));
+            mockHttpClient.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "token-resource-2"));
+
+            var memoryCache = (MemoryCache)serviceProvider.GetRequiredService<IMemoryCache>();
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act — acquire app tokens for two distinct resources.
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://resource1.example.com/.default");
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://resource2.example.com/.default");
+
+            // Assert — one cache partition (entry) per resource.
+            Assert.Equal(2, memoryCache.Count);
+        }
+
+        /// <summary>
+        /// Without PartitionAppTokenCacheByAudience, app tokens for different resources share the same
+        /// {clientId}_{tenantId} cache key, so the backing IMemoryCache holds a single (shared) entry.
+        /// </summary>
+        [Fact]
+        public async Task AppToken_WithoutPartitionByAudience_SharesSingleCacheEntry()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "token-resource-1"));
+            mockHttpClient.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "token-resource-2"));
+
+            var memoryCache = (MemoryCache)serviceProvider.GetRequiredService<IMemoryCache>();
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://resource1.example.com/.default");
+            await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync("https://resource2.example.com/.default");
+
+            // Assert — both resources share a single {clientId}_{tenantId} partition.
+            Assert.Equal(1, memoryCache.Count);
+        }
+
+        /// <summary>
         /// Tests that a caught <see cref="MsalUiRequiredException"/> is not re-logged by Microsoft.Identity.Web,
         /// since MSAL.NET already logs it. Re-logging produced duplicate log entries.
         /// This addresses issue #3528.
