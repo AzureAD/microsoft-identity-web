@@ -1,3 +1,9 @@
+## 4.14.2
+
+### Dependencies updates
+- Bump the `Microsoft.IdentityModel.*` (Wilson) version to 8.22.0. See [#3986](https://github.com/AzureAD/microsoft-identity-web/pull/3986).
+- Fix the net8.0 crypto floor to use the patched `System.Security.Cryptography.Xml` 8.0.4 (and its `System.Security.Cryptography.Pkcs` 8.0.1 dependency) instead of over-bumping to the 9.0.18 servicing line (CVE-2026-47302, -47304, -50525, -50648). net9.0 (9.0.18) and net10.0 (10.0.10) are unchanged. See [#3989](https://github.com/AzureAD/microsoft-identity-web/pull/3989).
+
 ## 4.14.1
 
 ### Dependencies updates
