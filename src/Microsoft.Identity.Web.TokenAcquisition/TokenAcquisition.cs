@@ -118,6 +118,22 @@ namespace Microsoft.Identity.Web
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
+            AuthCodeRedemptionResult redemptionResult = await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters).ConfigureAwait(false);
+            return redemptionResult.Result;
+        }
+
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(String)")]
+#endif
+        public async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters)
+        {
+            return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters).ConfigureAwait(false);
+        }
+
+        private async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters)
+        {
             _ = Throws.IfNull(authCodeRedemptionParameters.Scopes);
             MergedOptions mergedOptions = _tokenAcquisitionHost.GetOptions(authCodeRedemptionParameters.AuthenticationScheme, out string effectiveAuthenticationScheme);
 
@@ -174,14 +190,17 @@ namespace Microsoft.Identity.Web
                     _tokenAcquisitionHost.SetSession(Constants.SpaAuthCode, result.SpaAuthCode);
                 }
 
-                return new AcquireTokenResult(
-                result.AccessToken,
-                result.ExpiresOn,
-                result.TenantId,
-                result.IdToken,
-                result.Scopes,
-                result.CorrelationId,
-                result.TokenType);
+                return new AuthCodeRedemptionResult(
+                    new AcquireTokenResult(
+                        result.AccessToken,
+                        result.ExpiresOn,
+                        result.TenantId,
+                        result.IdToken,
+                        result.Scopes,
+                        result.CorrelationId,
+                        result.TokenType),
+                    result.Account?.HomeAccountId?.ObjectId,
+                    result.Account?.HomeAccountId?.TenantId);
             }
             catch (MsalServiceException exMsal) when (IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
@@ -191,7 +210,7 @@ namespace Microsoft.Identity.Web
 
                 // Retry
                 _retryClientCertificate = true;
-                return await AddAccountToCacheFromAuthorizationCodeAsync(authCodeRedemptionParameters).ConfigureAwait(false);
+                return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
