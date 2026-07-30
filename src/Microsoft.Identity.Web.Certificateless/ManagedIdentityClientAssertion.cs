@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.LoggingExtensions;
@@ -119,7 +120,15 @@ namespace Microsoft.Identity.Web
             IKeyAttestationProvider? keyAttestationProvider,
             IMsalHttpClientFactory? testHttpClientFactory)
         {
-            _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
+            // Precedence: an explicit tokenExchangeUrl wins; otherwise take the audience from MSAL's
+            // cloud metadata for the public cloud (single source of truth), falling back to the
+            // documented constant. The managed-identity leg has no AAD authority to auto-resolve a
+            // sovereign cloud, so non-public clouds are configured via tokenExchangeUrl.
+            _tokenExchangeUrl = tokenExchangeUrl
+                ?? KnownCloudConfiguration.Default
+                    .GetSettingsByAuthority(CertificatelessConstants.PublicCloudInstanceHost)
+                    .TokenExchangeAudience()
+                ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
             _keyAttestationProvider = keyAttestationProvider;
 

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Hosts;
 
@@ -51,6 +52,16 @@ namespace Microsoft.Identity.Web
             {
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
+
+            // Default cloud metadata provider used to resolve cloud-specific FIC token-exchange
+            // audiences by authority host. TryAdd lets a caller (or MISE) register a replacement or a
+            // composed provider before this call wins.
+            services.TryAddSingleton<ICloudConfiguration>(KnownCloudConfiguration.Default);
+
+            // The resolver layers an optional upstream ICloudMetadataProvider (registered by a caller or by
+            // MISE) over the MSAL baseline above, and is the single audience-vs-scope decision point shared
+            // by all FIC legs. Registered via a factory so it observes whichever provider/baseline win TryAdd.
+            services.TryAddSingleton<CloudMetadataResolver>(sp => CloudMetadataResolver.FromServiceProvider(sp));
 
             if (!HasImplementationType(services, typeof(MsalMtlsHttpClientFactory)))
             {

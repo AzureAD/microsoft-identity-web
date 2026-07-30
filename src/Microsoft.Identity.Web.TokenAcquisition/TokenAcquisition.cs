@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
+using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
@@ -87,7 +88,12 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
-        private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
+        /// <summary>
+        /// Resolves the cloud-specific FIC token-exchange audience/scope by authority host. Layers a caller
+        /// or upstream-SDK (MISE) <see cref="ICloudMetadataProvider"/> over MSAL's built-in public baseline,
+        /// so a replaced or composed provider is honored on all FIC legs that key off an authority.
+        /// </summary>
+        private readonly CloudMetadataResolver _cloudMetadataResolver;
 
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
@@ -155,6 +161,8 @@ namespace Microsoft.Identity.Web
             }
 
             _credentialsProvider = credentialsProvider;
+            _cloudMetadataResolver = serviceProvider.GetService<CloudMetadataResolver>()
+                ?? CloudMetadataResolver.FromServiceProvider(serviceProvider);
         }
 
 #if NET6_0_OR_GREATER
@@ -705,7 +713,10 @@ namespace Microsoft.Identity.Web
 
             // Leg 2: Get the agent's instance token (T2).
             // The assertion callback handles Leg 1 (blueprint → T1) transparently.
-            var leg2Builder = agentCca.AcquireTokenForClient(s_ficScopes);
+            // Resolve the cloud-specific FIC exchange scope from the agent authority host so sovereign
+            // clouds use the correct audience (public cloud is unchanged via the documented fallback).
+            var leg2Builder = agentCca.AcquireTokenForClient(
+                new[] { _cloudMetadataResolver.ResolveTokenExchangeScope(mergedOptions.Authority ?? mergedOptions.Instance) });
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -789,7 +800,8 @@ namespace Microsoft.Identity.Web
                     blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
 
                 var leg1Builder = blueprintCca
-                    .AcquireTokenForClient(s_ficScopes)
+                    .AcquireTokenForClient(
+                        new[] { _cloudMetadataResolver.ResolveTokenExchangeScope(blueprintOptions.Authority ?? blueprintOptions.Instance) })
                     .WithFmiPath(agentAppId)
                     .WithSendX5C(blueprintOptions.SendX5C);
 
