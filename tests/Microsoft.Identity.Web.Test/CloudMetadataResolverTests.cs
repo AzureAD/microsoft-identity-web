@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web;
+using NSubstitute;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -27,7 +30,7 @@ namespace Microsoft.Identity.Web.Test
         public void ResolveAudience_UnknownHost_NoProvider_ReturnsDocumentedDefault()
         {
             // Arrange
-            var resolver = new CloudMetadataResolver(upstreamProvider: null, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(upstreamProvider: null);
 
             // Act
             string audience = resolver.ResolveTokenExchangeAudience(NewCloudAuthority);
@@ -40,7 +43,7 @@ namespace Microsoft.Identity.Web.Test
         public void ResolveAudience_KnownSovereignHost_NoProvider_ResolvesFromMsalBaseline()
         {
             // Arrange
-            var resolver = new CloudMetadataResolver(upstreamProvider: null, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(upstreamProvider: null);
 
             // Act
             string audience = resolver.ResolveTokenExchangeAudience(UsGovAuthority);
@@ -59,7 +62,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     [AbstractionsCloudKeys.TokenExchangeAudience] = "api://AzureADTokenExchangeCustomGov",
                 });
-            var resolver = new CloudMetadataResolver(provider, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(provider);
 
             // Act
             string audience = resolver.ResolveTokenExchangeAudience(UsGovAuthority);
@@ -78,7 +81,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     [AbstractionsCloudKeys.TokenExchangeAudience] = "api://AzureADTokenExchangeMyCloud",
                 });
-            var resolver = new CloudMetadataResolver(provider, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(provider);
 
             // Act
             string audience = resolver.ResolveTokenExchangeAudience(NewCloudAuthority);
@@ -97,7 +100,7 @@ namespace Microsoft.Identity.Web.Test
                 {
                     [AbstractionsCloudKeys.TokenExchangeAudience] = "api://AzureADTokenExchangeCustomGov",
                 });
-            var resolver = new CloudMetadataResolver(provider, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(provider);
 
             // Act
             string audience = resolver.ResolveTokenExchangeAudience(UsGovAuthority, perCallOverride: "api://PerCallAudience");
@@ -110,7 +113,7 @@ namespace Microsoft.Identity.Web.Test
         public void ResolveScope_AppendsDefaultSuffix_Idempotently()
         {
             // Arrange
-            var resolver = new CloudMetadataResolver(upstreamProvider: null, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(upstreamProvider: null);
 
             // Act
             string fromBare = resolver.ResolveTokenExchangeScope(PublicHost, perCallOverride: "api://Aud");
@@ -125,7 +128,7 @@ namespace Microsoft.Identity.Web.Test
         public void ResolveScope_KnownSovereignHost_ComputesScopeFromBaseline()
         {
             // Arrange
-            var resolver = new CloudMetadataResolver(upstreamProvider: null, msalBaseline: null);
+            var resolver = new CloudMetadataResolver(upstreamProvider: null);
 
             // Act
             string scope = resolver.ResolveTokenExchangeScope(UsGovAuthority);
@@ -146,7 +149,6 @@ namespace Microsoft.Identity.Web.Test
                 });
             var services = new ServiceCollection();
             services.AddSingleton<ICloudMetadataProvider>(provider);
-            services.AddSingleton<ICloudConfiguration>(KnownCloudConfiguration.Default);
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
 
             // Act
@@ -156,5 +158,71 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("api://AzureADTokenExchangeMyCloud", resolver.ResolveTokenExchangeAudience(NewCloudAuthority));
             Assert.Equal("api://AzureADTokenExchangeUSGov", resolver.ResolveTokenExchangeAudience(UsGovAuthority));
         }
+
+        [Fact]
+        public void AddCloudMetadata_FromConfiguration_RegistersResolvableProvider()
+        {
+            // Arrange: a new cloud MSAL/ID Web do not ship, supplied entirely from an appsettings-style section.
+            IConfiguration config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    [$"CloudMetadata:{NewCloudHost}:{AbstractionsCloudKeys.TokenExchangeAudience}"] = "api://AzureADTokenExchangeMyCloud",
+                })
+                .Build();
+            var services = new ServiceCollection();
+
+            // Act
+            services.AddCloudMetadata(config.GetSection("CloudMetadata"));
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            // Assert: the provider is registered and the resolver honors it end-to-end (audience + scope).
+            var provider = serviceProvider.GetRequiredService<ICloudMetadataProvider>();
+            Assert.Equal(
+                "api://AzureADTokenExchangeMyCloud",
+                provider.GetByAuthorityHost(NewCloudHost)!.GetValueOrDefault(AbstractionsCloudKeys.TokenExchangeAudience));
+
+            CloudMetadataResolver resolver = CloudMetadataResolver.FromServiceProvider(serviceProvider);
+            Assert.Equal("api://AzureADTokenExchangeMyCloud", resolver.ResolveTokenExchangeAudience(NewCloudAuthority));
+            Assert.Equal("api://AzureADTokenExchangeMyCloud/.default", resolver.ResolveTokenExchangeScope(NewCloudAuthority));
+        }
+
+        [Fact]
+        public void ResolveAudience_UnknownNonPublicHost_WithLogger_WarnsOncePerHost()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CloudMetadataResolver>>();
+            var resolver = new CloudMetadataResolver(upstreamProvider: null, logger);
+
+            // Act: an unrecognized (non-public) host falls back to the documented public default...
+            string audience = resolver.ResolveTokenExchangeAudience(NewCloudAuthority);
+            // ...and a second lookup for the same host must not warn again (deduped).
+            resolver.ResolveTokenExchangeAudience(NewCloudAuthority);
+
+            // Assert
+            Assert.Equal("api://AzureADTokenExchange", audience);
+            Assert.Equal(1, CountWarnings(logger));
+        }
+
+        [Fact]
+        public void ResolveAudience_PublicOrKnownHost_WithLogger_DoesNotWarn()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CloudMetadataResolver>>();
+            var resolver = new CloudMetadataResolver(upstreamProvider: null, logger);
+
+            // Act: public cloud and a sovereign cloud MSAL ships both resolve without a fallback warning.
+            resolver.ResolveTokenExchangeAudience("https://login.microsoftonline.com/tenant");
+            resolver.ResolveTokenExchangeAudience(UsGovAuthority);
+
+            // Assert
+            Assert.Equal(0, CountWarnings(logger));
+        }
+
+        private static int CountWarnings(ILogger logger) =>
+            logger.ReceivedCalls().Count(call =>
+            {
+                object?[] args = call.GetArguments();
+                return args.Length > 0 && args[0] is LogLevel level && level == LogLevel.Warning;
+            });
     }
 }

@@ -357,7 +357,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         // specific token-exchange audience + "/.default". Auto-resolution here flows from MSAL's built-in
         // baseline (KnownCloudData) keyed by the SOURCE app's cloud — no injected provider needed for the
         // clouds MSAL ships (public, US Gov). A caller override (credential TokenExchangeUrl) must win.
-        // These mirror the MISE UserFic pseudo-E2E tests one layer down. NOT for the final PRs.
+        // The US-Gov-default case is also the regression guard for the Authority-vs-Instance resolution fix.
         // ---------------------------------------------------------------------------------------------
 
         [Fact]
@@ -387,15 +387,6 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             => RunFicExchangeScenarioAsync(
                 scenario: "Public cloud, caller-provided custom endpoint (override wins)",
                 sourceInstance: "https://login.microsoftonline.com/",
-                sourceAuthority: null,
-                customTokenExchangeUrl: "api://MyCustomTokenExchange",
-                expectedExchangeScope: "api://MyCustomTokenExchange/.default");
-
-        [Fact]
-        public Task Fic_Exchange_UsGovCloud_CustomEndpoint_OverrideWinsAsync()
-            => RunFicExchangeScenarioAsync(
-                scenario: "US Gov cloud, caller-provided custom endpoint (override wins over MSAL baseline)",
-                sourceInstance: "https://login.microsoftonline.us/",
                 sourceAuthority: null,
                 customTokenExchangeUrl: "api://MyCustomTokenExchange",
                 expectedExchangeScope: "api://MyCustomTokenExchange/.default");

@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web.OidcFic
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
-            _cloudMetadataResolver = cloudMetadataResolver ?? new CloudMetadataResolver(null, null);
+            _cloudMetadataResolver = cloudMetadataResolver ?? new CloudMetadataResolver(null, _logger);
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
