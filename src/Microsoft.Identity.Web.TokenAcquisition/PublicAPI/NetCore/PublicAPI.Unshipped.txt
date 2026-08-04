@@ -1,1 +1,3 @@
 #nullable enable
+Microsoft.Identity.Web.CloudMetadataServiceCollectionExtensions
+static Microsoft.Identity.Web.CloudMetadataServiceCollectionExtensions.AddCloudMetadata(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfiguration! cloudMetadataSection) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
