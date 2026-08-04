@@ -232,9 +232,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             // Assert endpoints, scopes, client IDs
             // The source app (c1) is configured on US Gov (login.microsoftonline.us), so the FIC
-            // token-exchange audience is now auto-resolved from MSAL's cloud metadata to the US Gov
-            // value instead of the public-cloud default. This is the cross-cloud-metadata feature
-            // correcting the previously hardcoded public-cloud audience.
+            // token-exchange audience auto-resolves from MSAL's cloud metadata to the US Gov value
+            // rather than the public-cloud default — the cross-cloud-metadata resolution under test.
             Assert.Equal("api://AzureADTokenExchangeUSGov/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal(TestConstants.s_scopeForApp, tokenRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal("c1", credentialRequestHttpHandler.ActualRequestPostData["client_id"]);
