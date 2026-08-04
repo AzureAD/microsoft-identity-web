@@ -7,7 +7,7 @@ namespace Microsoft.Identity.Web.Certificateless
     {
         // Managed Identity Federated Identity Credential.
         // Documented public-cloud fallback used only when MSAL's cloud metadata cannot supply the
-        // audience. The primary value now comes from MSAL (single source of truth); an explicit
+        // audience. The primary value comes from MSAL (single source of truth); an explicit
         // TokenExchangeUrl in configuration still overrides both.
         internal const string DefaultTokenExchangeUrl = "api://AzureADTokenExchange";
 
