@@ -107,7 +107,6 @@ namespace Microsoft.Identity.Web
             // single cross-stack owner of that rule — by wrapping the resolved bare audience in a
             // CloudSettings. This guarantees ID Web and MSAL never diverge on the suffix rule.
             var settings = new CloudSettings(
-                null,
                 new Dictionary<string, string>(1, StringComparer.OrdinalIgnoreCase)
                 {
                     [MsalCloudKeys.TokenExchangeAudience] = audience,
@@ -140,7 +139,7 @@ namespace Microsoft.Identity.Web
             }
 
             // 3. MSAL public baseline (same key literal as the upstream provider — no remap needed).
-            return _msalBaseline.GetSettingsByAuthority(host).TokenExchangeAudience();
+            return _msalBaseline.GetSettingsByAuthorityHost(host).TokenExchangeAudience();
         }
 
         /// <summary>

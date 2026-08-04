@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Web
             // sovereign cloud, so non-public clouds are configured via tokenExchangeUrl.
             _tokenExchangeUrl = tokenExchangeUrl
                 ?? KnownCloudConfiguration.Default
-                    .GetSettingsByAuthority(CertificatelessConstants.PublicCloudInstanceHost)
+                    .GetSettingsByAuthorityHost(CertificatelessConstants.PublicCloudInstanceHost)
                     .TokenExchangeAudience()
                 ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
