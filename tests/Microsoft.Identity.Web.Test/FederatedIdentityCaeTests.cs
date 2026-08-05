@@ -280,8 +280,9 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             // First request (credential exchange) — its "scope" is what we assert on.
             var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                 MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-1"));
-            // Second request (actual token acquisition).
-            var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+            // Second request (actual token acquisition). The handler must be queued so the second leg has a
+            // response, but the test asserts only on the first (credential-exchange) request.
+            httpFactoryForTest.AddMockHandler(
                 MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token"));
 
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
