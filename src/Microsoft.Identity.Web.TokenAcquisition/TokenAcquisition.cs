@@ -1528,9 +1528,24 @@ namespace Microsoft.Identity.Web
                     isAgentCca ||
                     (mergedOptions.UseFastUnboundedCache &&
                      _tokenCacheProvider is MsalMemoryTokenCacheProvider);
+
+                // DisableInternalCache turns MSAL's internal in-memory token cache off entirely. It is
+                // an advanced, confidential-client-only option in which the application manages its own
+                // token lifecycle (e.g. GetRefreshToken + AcquireTokenByRefreshToken). Because the
+                // shared internal cache relies on MSAL caching tokens, the two are mutually exclusive.
+                bool disableInternalCache = mergedOptions.DisableInternalCache;
+                if (disableInternalCache && usesSharedInternalCache)
+                {
+                    throw new InvalidOperationException(IDWebErrorMessage.DisableInternalCacheMutuallyExclusive);
+                }
+
                 if (usesSharedInternalCache)
                 {
                     builder.WithCacheOptions(CacheOptions.EnableSharedCacheOptions);
+                }
+                else if (disableInternalCache)
+                {
+                    builder.WithCacheOptions(CacheOptions.DisableInternalCacheOptions);
                 }
 
                 string? currentUri = _tokenAcquisitionHost.GetCurrentRedirectUri(mergedOptions);
@@ -1634,8 +1649,9 @@ namespace Microsoft.Identity.Web
                 // provider was short-circuited to MSAL's opaque static cache, which disabled that
                 // hook. We skip this only when the shared internal cache is enabled (agent CCAs or
                 // the UseFastUnboundedCache opt-in), because MSAL forbids combining internal caching
-                // with external serialization.
-                if (!usesSharedInternalCache)
+                // with external serialization. We also skip it when the internal cache is disabled
+                // (DisableInternalCache): MSAL does not invoke the serialization callbacks in that mode.
+                if (!usesSharedInternalCache && !disableInternalCache)
                 {
                     _tokenCacheProvider.Initialize(app.AppTokenCache);
                     _tokenCacheProvider.Initialize(app.UserTokenCache);

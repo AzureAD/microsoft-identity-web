@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
@@ -296,6 +297,150 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert — both resources share a single {clientId}_{tenantId} partition.
             Assert.Equal(1, memoryCache.Count);
+        }
+
+        /// <summary>
+        /// #5947: with MicrosoftIdentityOptions.DisableInternalCache = true, IdWeb builds the CCA with
+        /// MSAL's CacheOptions.DisableInternalCacheOptions and does NOT initialize the external
+        /// serialization provider (MSAL never invokes the serialization callbacks in that mode). An app
+        /// token can still be acquired (always from the network), but nothing is written to the backing
+        /// IMemoryCache.
+        /// </summary>
+        [Fact]
+        public async Task AppToken_DisableInternalCache_SkipsSerialization_MemoryCacheEmpty()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityOptions>(
+                options => options.DisableInternalCache = true);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            mockHttpClient!.AddMockHandler(CreateClientCredentialsTokenHandler(accessToken: "app-token-no-cache"));
+
+            var memoryCache = (MemoryCache)serviceProvider.GetRequiredService<IMemoryCache>();
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            string result = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default");
+
+            // Assert — token acquired, but the internal cache is disabled so nothing is serialized.
+            Assert.NotNull(result);
+            Assert.Equal(0, memoryCache.Count);
+        }
+
+        /// <summary>
+        /// #5947: DisableInternalCache is mutually exclusive with the shared internal cache. Combining it
+        /// with UseFastUnboundedCache (in-memory provider) fails fast with IDW10118 when the CCA is built.
+        /// </summary>
+        [Fact]
+        public async Task DisableInternalCache_CombinedWithUseFastUnboundedCache_ThrowsAsync()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityOptions>(options =>
+            {
+                options.DisableInternalCache = true;
+                options.UseFastUnboundedCache = true;
+            });
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+
+            IAuthorizationHeaderProvider authorizationHeaderProvider =
+                serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act & Assert — the CCA build guard rejects the combination before any token request,
+            // so no mock handler is needed.
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                    "https://graph.microsoft.com/.default"));
+
+            Assert.Contains("IDW10118", exception.Message, StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// #5947: the refresh token returned by a real confidential-client user flow is available to
+        /// IdWeb consumers through MSAL's AuthenticationResultExtensions.GetRefreshToken() on the
+        /// AuthenticationResult returned by the low-level ITokenAcquisition. This is the building block
+        /// for managing tokens externally (GetRefreshToken + AcquireTokenByRefreshToken) when the
+        /// internal cache is disabled. We drive a long-running on-behalf-of flow (web API): unlike the
+        /// normal OBO flow — where MSAL intentionally clears the refresh token — the long-running flow
+        /// preserves it, so GetRefreshToken() surfaces the token from the response.
+        /// </summary>
+        [Fact]
+        public async Task GetRefreshToken_LowLevelOnBehalfOfFlow_ReturnsRefreshTokenAsync()
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            string uniqueClientId = Guid.NewGuid().ToString();
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(
+                options => options.ClientId = uniqueClientId);
+
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            // OBO token response including "refresh_token":"mock-refresh-token".
+            mockHttpClient!.AddMockHandler(CreateUserFicTokenHandler(accessToken: "obo-access-token"));
+
+            var tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            // A ClaimsPrincipal carrying a bootstrap token triggers the on-behalf-of flow; a session key
+            // makes it a long-running process so MSAL keeps (does not clear) the refresh token.
+            ClaimsPrincipal user = CreatePrincipalWithBootstrapToken();
+            var options = new TokenAcquisitionOptions
+            {
+                LongRunningWebApiSessionKey = "getrt-session-key",
+            };
+
+            // Act — the low-level path returns MSAL's AuthenticationResult.
+            AuthenticationResult result = await tokenAcquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" },
+                authenticationScheme: null,
+                user: user,
+                tokenAcquisitionOptions: options);
+
+            // Assert — GetRefreshToken() surfaces the refresh token from the OBO token response.
+            Assert.Equal("obo-access-token", result.AccessToken);
+            Assert.Equal("mock-refresh-token", result.GetRefreshToken());
+        }
+
+        /// <summary>
+        /// Builds a ClaimsPrincipal whose ClaimsIdentity carries a bootstrap token (an unsecured JWT
+        /// string). IdWeb's GetAuthenticationResultForUserAsync reads it via GetBootstrapToken() and
+        /// performs an on-behalf-of token request using it as the user assertion.
+        /// </summary>
+        private static ClaimsPrincipal CreatePrincipalWithBootstrapToken()
+        {
+            string header = EncodeBase64Url("{\"alg\":\"none\",\"typ\":\"JWT\"}");
+            string payload = EncodeBase64Url(
+                "{\"aud\":\"https://graph.microsoft.com\"," +
+                "\"iss\":\"https://login.microsoftonline.com/" + TestConstants.Utid + "/v2.0\"," +
+                "\"oid\":\"" + TestConstants.Uid + "\"," +
+                "\"tid\":\"" + TestConstants.Utid + "\"," +
+                "\"sub\":\"" + TestConstants.Uid + "\"}");
+            string bootstrapJwt = header + "." + payload + ".";
+
+            var identity = new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity(
+                new[]
+                {
+                    new Claim("oid", TestConstants.Uid),
+                    new Claim("tid", TestConstants.Utid),
+                },
+                authenticationType: "Bearer")
+            {
+                BootstrapContext = bootstrapJwt,
+            };
+
+            return new ClaimsPrincipal(identity);
         }
 
         /// <summary>

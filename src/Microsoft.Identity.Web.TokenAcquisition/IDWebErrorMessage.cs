@@ -29,6 +29,7 @@ namespace Microsoft.Identity.Web
         public const string MissingTokenBindingCertificate = "IDW10115: Token binding requires either a signing certificate or a binding-aware signed assertion (e.g., from a managed identity supporting mTLS PoP). The loaded credential provides neither.";
         public const string TokenBindingRequiresEnabledAppTokenAcquisition = "IDW10116: Token binding requires enabled app token acquisition.";
         public const string OpenIdConnectMiddlewareDiagnosticsRequiresDevelopmentEnvironment = "IDW10117: OpenIdConnectMiddlewareDiagnostics logs full protocol messages, including bearer tokens and PII, and must only be enabled when running the code locally.";
+        public const string DisableInternalCacheMutuallyExclusive = "IDW10118: DisableInternalCache cannot be combined with the shared internal cache. The shared internal cache is used by agent applications and by UseFastUnboundedCache with the in-memory cache provider. Disable one of them.";
 
         // Authorization IDW10200 = "IDW10200:"
         public const string NeitherScopeOrRolesClaimFoundInToken = "IDW10201: Neither scope nor roles claim was found in the bearer token. Authentication scheme used: '{0}'. ";

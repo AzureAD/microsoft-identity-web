@@ -87,6 +87,7 @@ namespace Microsoft.Identity.Web
         {
             mergedOptions.UseFastUnboundedCache |= microsoftIdentityOptions.UseFastUnboundedCache;
             mergedOptions.PartitionAppTokenCacheByAudience |= microsoftIdentityOptions.PartitionAppTokenCacheByAudience;
+            mergedOptions.DisableInternalCache |= microsoftIdentityOptions.DisableInternalCache;
 
 #if NET5_0_OR_GREATER
             mergedOptions.MapInboundClaims = microsoftIdentityOptions.MapInboundClaims;
