@@ -21,7 +21,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
-using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;

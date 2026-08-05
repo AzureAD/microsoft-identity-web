@@ -166,6 +166,13 @@ namespace Microsoft.Identity.Web
             // 3. MSAL public baseline, read directly from KnownCloudConfiguration.Default (same key literal as
             //    the upstream provider — no remap needed). Reading .Default directly keeps the upstream
             //    ICloudMetadataProvider as the single override seam rather than exposing a second DI seam.
+            //    A null/empty host cannot match any cloud, so short-circuit to keep the resolver fail-soft
+            //    (the caller then applies the documented public-cloud default).
+            if (string.IsNullOrEmpty(host))
+            {
+                return null;
+            }
+
             return KnownCloudConfiguration.Default.GetSettingsByAuthorityHost(host).TokenExchangeAudience();
         }
 
