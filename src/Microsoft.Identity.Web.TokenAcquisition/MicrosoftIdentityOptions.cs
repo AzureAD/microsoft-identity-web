@@ -124,31 +124,6 @@ namespace Microsoft.Identity.Web
         public bool PartitionAppTokenCacheByAudience { get; set; }
 
         /// <summary>
-        /// When set to <see langword="true"/>, MSAL's internal in-memory token cache is disabled.
-        /// Microsoft Identity Web builds the confidential client application with
-        /// <see cref="Client.CacheOptions.DisableInternalCacheOptions"/> and does not wire an external
-        /// (serialized) token cache. Use this in advanced confidential-client scenarios where the
-        /// application manages its own token lifecycle.
-        /// <para>
-        /// When enabled, MSAL does not read from or write to any token cache, and the token-cache
-        /// serialization callbacks are not invoked. Flows that rely on the cache throw: both
-        /// <c>AcquireTokenSilent</c> and the long-running on-behalf-of process throw a
-        /// <see cref="Client.MsalUiRequiredException"/> with error code
-        /// <see cref="Client.MsalError.InternalCacheDisabled"/>. Retrieve the refresh token from the
-        /// authentication result with
-        /// <see cref="Client.Extensibility.AuthenticationResultExtensions.GetRefreshToken(Client.AuthenticationResult)"/>
-        /// and redeem it with <c>AcquireTokenByRefreshToken</c> on subsequent requests.
-        /// </para>
-        /// <para>
-        /// This is a confidential-client-only option and cannot be combined with the shared internal
-        /// cache (<see cref="UseFastUnboundedCache"/> with the in-memory provider, or agent
-        /// applications). Defaults to <see langword="false"/>. It can be set via configuration, e.g.
-        /// <c>"AzureAd": { "DisableInternalCache": true }</c>.
-        /// </para>
-        /// </summary>
-        public bool DisableInternalCache { get; set; }
-
-        /// <summary>
         /// Enables legacy ADAL cache serialization and deserialization.
         /// Performance improvements when working with MSAL only apps.
         /// Set to true if you have a shared cache with ADAL apps.
