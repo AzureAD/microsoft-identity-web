@@ -119,7 +119,7 @@ Then `await api.CallApiForUserAsync("GraphAPI")`. No mTLS-specific C#.
    `WithCertificate(cert, new CertificateOptions { SendCertificateOverMtls = true })`
    (`ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync`).
 2. Post-#6009, auth-code / OBO / silent route to `mtlsauth.microsoft.com`,
-   present the cert at TLS, and send `client_assertion` (x5c auto-enabled).
+   present the cert at TLS (x5c auto-enabled).
 3. MSAL returns a **bearer** token; IdWeb's default `MsalMtlsHttpClientFactory`
    supplies the mTLS transport — no extra wiring.
 4. `IDownstreamApi` calls downstream with `Authorization: Bearer` as usual.
