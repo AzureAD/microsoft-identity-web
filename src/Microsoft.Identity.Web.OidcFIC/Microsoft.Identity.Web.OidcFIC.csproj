@@ -11,6 +11,15 @@
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- The configuration binding source generator emits these diagnostics for the certificate
+         object graph on MicrosoftIdentityApplicationOptions (X509Certificate2, PublicKey, PrivateKey,
+         etc.), which is never populated from configuration. Suppressed to match the AOT test app. -->
+    <NoWarn>$(NoWarn);SYSLIB1100;SYSLIB1101;SYSLIB0026;SYSLIB0027;SYSLIB0028</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>

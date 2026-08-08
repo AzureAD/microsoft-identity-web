@@ -30,6 +30,9 @@
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClient"/>
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.GraphServiceClientBeta"/>
 
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.OidcFIC"/>
+    <TrimmerRootAssembly Include="Microsoft.Identity.Web.AgentIdentities"/>
+
     <!--
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraph"/>
     <TrimmerRootAssembly Include="Microsoft.Identity.Web.MicrosoftGraphBeta"/>
