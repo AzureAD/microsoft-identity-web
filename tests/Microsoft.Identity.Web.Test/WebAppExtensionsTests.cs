@@ -22,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
+using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
@@ -430,10 +431,149 @@ namespace Microsoft.Identity.Web.Test
             await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
+        // Issue #3631: a web app configured with a complex client credential (e.g. SignedAssertionFromManagedIdentity)
+        // and ResponseType=code must have its authorization code redeemed by MSAL.NET, even when
+        // EnableTokenAcquisitionToCallDownstreamApi() is never called (sign-in-only scenario). Otherwise the default
+        // OpenID Connect handler redeems the code itself without a client_assertion and Azure AD rejects it with
+        // AADSTS7000218.
+        [Fact]
+        public async Task AddMicrosoftIdentityWebApp_WithComplexClientCredentialAndResponseTypeCode_AutomaticallyRedeemsAuthorizationCodeAsync()
+        {
+            var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
+            var configMock = Substitute.For<IConfiguration>();
+            var services = new ServiceCollection().AddSingleton(configMock);
+
+            Action<MicrosoftIdentityOptions> configureMsOptionsWithComplexCredential = (options) =>
+            {
+                options.Instance = TestConstants.AadInstance;
+                options.TenantId = TestConstants.TenantIdAsGuid;
+                options.ClientId = TestConstants.ClientId;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                    },
+                };
+            };
+
+            services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
+
+            // EnableTokenAcquisitionToCallDownstreamApi() is intentionally NOT called.
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configureMsOptionsWithComplexCredential, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
+
+            // Assert the token acquisition and token cache services were registered automatically. This must be
+            // checked BEFORE the test registers its own ITokenAcquisition mock below, otherwise the assertion
+            // would pass on the mock and not on the automatic registration under test.
+            Assert.Contains(services, s => s.ServiceType == typeof(ITokenAcquisition));
+            Assert.Contains(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
+
+            services.RemoveAll<ITokenAcquisition>();
+            services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
+
+            var provider = services.BuildServiceProvider();
+
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
+            var authCodeReceivedContext = new AuthorizationCodeReceivedContext(httpContext, authScheme, oidcOptions, authProperties);
+
+            await oidcOptions.Events.AuthorizationCodeReceived(authCodeReceivedContext);
+
+            await tokenAcquisitionMock.ReceivedWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>());
+        }
+
+        // Issue #3631 regression guard: an app that predates this feature may already redeem the authorization
+        // code itself in its own OnAuthorizationCodeReceived handler (the historical workaround). The automatic
+        // path must NOT redeem the code a second time in that case, otherwise the single-use code is replayed and
+        // Azure AD rejects it. The library detects this via AuthorizationCodeReceivedContext.HandledCodeRedemption.
+        [Fact]
+        public async Task AddMicrosoftIdentityWebApp_WithComplexClientCredential_WhenAppAlreadyRedeemsCode_DoesNotRedeemAgainAsync()
+        {
+            var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
+            var configMock = Substitute.For<IConfiguration>();
+            var services = new ServiceCollection().AddSingleton(configMock);
+
+            Action<MicrosoftIdentityOptions> configureMsOptionsWithComplexCredential = (options) =>
+            {
+                options.Instance = TestConstants.AadInstance;
+                options.TenantId = TestConstants.TenantIdAsGuid;
+                options.ClientId = TestConstants.ClientId;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                    },
+                };
+            };
+
+            services.AddDataProtection();
+            services.AddSingleton((provider) => _env);
+
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configureMsOptionsWithComplexCredential, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
+
+            // The application redeems the code itself, marking the redemption as handled.
+            services.Configure<OpenIdConnectOptions>(OidcScheme, (options) =>
+            {
+                options.Events ??= new OpenIdConnectEvents();
+                options.Events.OnAuthorizationCodeReceived += context =>
+                {
+                    context.HandleCodeRedemption("access_token", "id_token");
+                    return Task.CompletedTask;
+                };
+            });
+
+            services.RemoveAll<ITokenAcquisition>();
+            services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
+
+            var provider = services.BuildServiceProvider();
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
+            var authCodeReceivedContext = new AuthorizationCodeReceivedContext(httpContext, authScheme, oidcOptions, authProperties);
+
+            await oidcOptions.Events.AuthorizationCodeReceived(authCodeReceivedContext);
+
+            // MSAL redemption must have been skipped because the app already redeemed the code.
+            await tokenAcquisitionMock.DidNotReceiveWithAnyArgs().AddAccountToCacheFromAuthorizationCodeAsync(Arg.Any<AuthorizationCodeReceivedContext>(), Arg.Any<IEnumerable<string>>());
+        }
+
+        // Plain client secrets are handled correctly by the default OpenID Connect handler already:
+        // automatic redemption must stay off, and no token acquisition services should be added, so
+        // that apps that only sign users in (no complex credential) keep their current footprint.
+        [Fact]
+        public void AddMicrosoftIdentityWebApp_WithPlainClientSecretAndResponseTypeCode_DoesNotAutoEnableTokenAcquisition()
+        {
+            var services = new ServiceCollection();
+
+            Action<MicrosoftIdentityOptions> configureMsOptionsWithSecret = (options) =>
+            {
+                options.Instance = TestConstants.AadInstance;
+                options.TenantId = TestConstants.TenantIdAsGuid;
+                options.ClientId = TestConstants.ClientId;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.ClientSecret = "secret";
+            };
+
+            services.AddSingleton((provider) => _env);
+
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configureMsOptionsWithSecret, _configureCookieOptions, OidcScheme, CookieScheme, subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: false);
+
+            Assert.DoesNotContain(services, s => s.ServiceType == typeof(ITokenAcquisition));
+            Assert.DoesNotContain(services, s => s.ServiceType == typeof(IMsalTokenCacheProvider));
+        }
+
         [Theory]
         [InlineData(ClaimConstants.UniqueObjectIdentifier, "user-uid")]
         [InlineData(ClaimConstants.UniqueTenantIdentifier, "user-utid")]
-        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDiffer(string claimType, string claimValue)
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDifferAsync(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
@@ -486,7 +626,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid)]
         [InlineData(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid)]
-        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqual(string claimType, string claimValue)
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigNameParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqualAsync(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
@@ -582,7 +722,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(ClaimConstants.UniqueObjectIdentifier, "user-uid")]
         [InlineData(ClaimConstants.UniqueTenantIdentifier, "user-utid")]
-        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDiffer(string claimType, string claimValue)
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldThrowExceptionForInternalClaims_WhenClaimsDifferAsync(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
             var initialScopes = new List<string>() { "custom_scope" };
@@ -635,7 +775,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(ClaimConstants.UniqueObjectIdentifier, TestConstants.Uid)]
         [InlineData(ClaimConstants.UniqueTenantIdentifier, TestConstants.Utid)]
-        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqual(string claimType, string claimValue)
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync_ShouldNotThrowExceptionForInternalClaims_WhenClaimsAreEqualAsync(string claimType, string claimValue)
         {
             var configMock = Substitute.For<IConfiguration>();
             var initialScopes = new List<string>() { "custom_scope" };

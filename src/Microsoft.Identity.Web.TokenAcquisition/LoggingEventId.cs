@@ -45,6 +45,10 @@ namespace Microsoft.Identity.Web
         public static readonly EventId AgentUserFicAcquisitionComplete = new EventId(603, "AgentUserFicAcquisitionComplete");
         public static readonly EventId AgentCcaCreated = new EventId(604, "AgentCcaCreated");
         public static readonly EventId AgentCcaEviction = new EventId(605, "AgentCcaEviction");
+        
+        // WebApp automatic authorization code redemption EventIds 600+
+        public static readonly EventId AutomaticAuthorizationCodeRedemptionEnabled = new EventId(606, "AutomaticAuthorizationCodeRedemptionEnabled");
+        public static readonly EventId AutomaticAuthorizationCodeRedemptionNotAvailable = new EventId(607, "AutomaticAuthorizationCodeRedemptionNotAvailable");
 
 #pragma warning restore IDE1006 // Naming Styles
     }
