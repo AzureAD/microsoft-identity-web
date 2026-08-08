@@ -231,7 +231,10 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                 });
 
             // Assert endpoints, scopes, client IDs
-            Assert.Equal("api://AzureADTokenExchange/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
+            // The source app (c1) is configured on US Gov (login.microsoftonline.us), so the FIC
+            // token-exchange audience auto-resolves from MSAL's cloud metadata to the US Gov value
+            // rather than the public-cloud default — the cross-cloud-metadata resolution under test.
+            Assert.Equal("api://AzureADTokenExchangeUSGov/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal(TestConstants.s_scopeForApp, tokenRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal("c1", credentialRequestHttpHandler.ActualRequestPostData["client_id"]);
             Assert.Equal("https://login.microsoftonline.us/t1/oauth2/v2.0/token",
@@ -267,6 +270,209 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             Assert.Equal(accessTokenFromRequest1, tokenRequestHttpHandler.ActualRequestPostData["client_assertion"]);
 
             // Bearer header returned
+            Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Fic_CustomSignedAssertion_HonorsInjectedCloudMetadataProvider()
+        {
+            using var httpFactoryForTest = new MockHttpClientFactory();
+            // First request (credential exchange) — its "scope" is what we assert on.
+            var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-1"));
+            // Second request (actual token acquisition). The handler must be queued so the second leg has a
+            // response, but the test asserts only on the first (credential-exchange) request.
+            httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token"));
+
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.AddOidcFic();
+            tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
+
+            // A caller (or MISE) registers an upstream cloud-metadata provider that OVERRIDES the FIC
+            // audience for the source app's cloud (US Gov). This must win over MSAL's built-in US Gov value,
+            // proving the OIDC client-credentials FIC leg honors the injected ICloudMetadataProvider end-to-end.
+            tokenAcquirerFactory.Services.AddSingleton<ICloudMetadataProvider>(
+                new InMemoryCloudMetadataProvider().AddOrUpdate(
+                    "login.microsoftonline.us",
+                    new Dictionary<string, string>
+                    {
+                        [AbstractionsCloudKeys.TokenExchangeAudience] = "api://AzureADTokenExchangeCustomGov"
+                    }));
+
+            // Source app (provides assertion), configured on US Gov.
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>("AzureAd2", options =>
+            {
+                options.Instance = "https://login.microsoftonline.us/";
+                options.TenantId = "t1";
+                options.ClientId = "c1";
+                options.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.ClientSecret,
+                        ClientSecret = TestConstants.ClientSecret
+                    }
+                };
+            });
+
+            // Target app (uses custom signed assertion).
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "t2";
+                options.ClientId = "c2";
+                options.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.CustomSignedAssertion,
+                        CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                        CustomSignedAssertionProviderData = new Dictionary<string, object>
+                        {
+                            ["ConfigurationSection"] = "AzureAd2"
+                        }
+                    }
+                };
+            });
+
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var header = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                TestConstants.s_scopeForApp);
+
+            // The injected provider's audience — NOT MSAL's built-in "api://AzureADTokenExchangeUSGov" —
+            // is used for the credential exchange, with /.default computed by the resolver.
+            Assert.Equal("api://AzureADTokenExchangeCustomGov/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
+            Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
+        }
+
+        // ---------------------------------------------------------------------------------------------
+        // Cross-cloud token-exchange (FIC) pseudo-E2E tests: public / sovereign x default / custom.
+        //
+        // Each test builds the REAL OIDC-CC FIC pipeline (ID Web -> MSAL) and mocks ONLY MSAL's outbound
+        // HTTP, then asserts the credential-exchange request's POST 'scope' equals the expected cloud-
+        // specific token-exchange audience + "/.default". Auto-resolution here flows from MSAL's built-in
+        // baseline (KnownCloudData) keyed by the SOURCE app's cloud — no injected provider needed for the
+        // clouds MSAL ships (public, US Gov). A caller override (credential TokenExchangeUrl) must win.
+        // The US-Gov-default case is also the regression guard for the Authority-vs-Instance resolution fix.
+        // ---------------------------------------------------------------------------------------------
+
+        [Fact]
+        public Task Fic_Exchange_PublicCloud_DefaultEndpoint_SendsPublicAudienceAsync()
+            => RunFicExchangeScenarioAsync(
+                scenario: "Public cloud, default endpoint (auto-resolve via MSAL baseline)",
+                sourceInstance: "https://login.microsoftonline.com/",
+                sourceAuthority: null,
+                customTokenExchangeUrl: null,
+                expectedExchangeScope: "api://AzureADTokenExchange/.default");
+
+        [Fact]
+        public Task Fic_Exchange_UsGovCloud_DefaultEndpoint_AutoResolvesUsGovAudienceAsync()
+            // Source app configured via AUTHORITY ONLY (Instance empty) — this is the regression guard for
+            // the OidcIdpSignedAssertionProvider fix: '_options.Instance ?? _options.Authority' silently
+            // fell back to the public audience because Instance defaults to "" (not null). US Gov is a
+            // cloud MSAL ships, so its audience auto-resolves from the baseline with no injected provider.
+            => RunFicExchangeScenarioAsync(
+                scenario: "US Gov cloud (Authority-only source), default endpoint (auto-resolve via MSAL baseline)",
+                sourceInstance: null,
+                sourceAuthority: "https://login.microsoftonline.us/t1",
+                customTokenExchangeUrl: null,
+                expectedExchangeScope: "api://AzureADTokenExchangeUSGov/.default");
+
+        [Fact]
+        public Task Fic_Exchange_PublicCloud_CustomEndpoint_SendsCustomAudienceAsync()
+            => RunFicExchangeScenarioAsync(
+                scenario: "Public cloud, caller-provided custom endpoint (override wins)",
+                sourceInstance: "https://login.microsoftonline.com/",
+                sourceAuthority: null,
+                customTokenExchangeUrl: "api://MyCustomTokenExchange",
+                expectedExchangeScope: "api://MyCustomTokenExchange/.default");
+
+        /// <summary>
+        /// Drives the real OIDC-CC FIC pipeline (ID Web -> MSAL, mocking only MSAL HTTP) and asserts the
+        /// credential-exchange request carried <paramref name="expectedExchangeScope"/> as its POST 'scope'.
+        /// The source app ("AzureAd2") is configured via EITHER <paramref name="sourceInstance"/> OR
+        /// <paramref name="sourceAuthority"/> (exactly one non-null); cloud resolution keys off it.
+        /// </summary>
+        private async Task RunFicExchangeScenarioAsync(
+            string scenario,
+            string? sourceInstance,
+            string? sourceAuthority,
+            string? customTokenExchangeUrl,
+            string expectedExchangeScope)
+        {
+            using var httpFactoryForTest = new MockHttpClientFactory();
+            // Leg 1: the credential EXCHANGE (client-credentials on the source cloud). Its 'scope' is the
+            // cloud-specific token-exchange audience under test.
+            var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-1"));
+            // Leg 2: the target app's actual token acquisition using the signed assertion.
+            httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token"));
+
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.AddOidcFic();
+            tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
+
+            // Source app (provides assertion), configured on the cloud under test — via Instance OR Authority.
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>("AzureAd2", options =>
+            {
+                if (!string.IsNullOrEmpty(sourceInstance))
+                {
+                    options.Instance = sourceInstance;
+                    options.TenantId = "t1";
+                }
+                else
+                {
+                    options.Authority = sourceAuthority;
+                }
+
+                options.ClientId = "c1";
+                options.ClientCredentials = new[]
+                {
+                    new CredentialDescription
+                    {
+                        SourceType = CredentialSource.ClientSecret,
+                        ClientSecret = TestConstants.ClientSecret
+                    }
+                };
+            });
+
+            // Target app (uses the custom signed assertion; a per-call TokenExchangeUrl overrides resolution).
+            var customSignedAssertion = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                CustomSignedAssertionProviderData = new Dictionary<string, object>
+                {
+                    ["ConfigurationSection"] = "AzureAd2"
+                }
+            };
+            if (!string.IsNullOrEmpty(customTokenExchangeUrl))
+            {
+                customSignedAssertion.TokenExchangeUrl = customTokenExchangeUrl;
+            }
+
+            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "t2";
+                options.ClientId = "c2";
+                options.ClientCredentials = new[] { customSignedAssertion };
+            });
+
+            var serviceProvider = tokenAcquirerFactory.Build();
+            var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            var header = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                TestConstants.s_scopeForApp);
+
+            // PRIMARY: the exchange request MSAL sent carried the expected cloud-specific scope.
+            Assert.Equal(expectedExchangeScope, credentialRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
         }
     }

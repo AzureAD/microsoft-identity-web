@@ -16,9 +16,6 @@ namespace Microsoft.Identity.Web.OidcFic
 {
     internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
     {
-        private const string DefaultTokenExchangeUrl = "api://AzureADTokenExchange";
-        private const string DotDefaultSuffix = "/.default";
-
         // Signals the inner token acquisition to bind the assertion to an mTLS PoP certificate.
         // Kept in sync with the internal constant used by the token-acquisition pipeline.
         private const string TokenBindingParameterName = "IsTokenBinding";
@@ -37,6 +34,7 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly MicrosoftIdentityApplicationOptions _options;
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
+        private readonly CloudMetadataResolver _cloudMetadataResolver;
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
@@ -50,11 +48,17 @@ namespace Microsoft.Identity.Web.OidcFic
         public override bool SupportsTokenBinding => true;
 
         public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
+            : this(tokenAcquirerFactory, options, tokenExchangeUrl, logger, cloudMetadataResolver: null)
+        {
+        }
+
+        internal OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger, CloudMetadataResolver? cloudMetadataResolver)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
+            _cloudMetadataResolver = cloudMetadataResolver ?? new CloudMetadataResolver(null, _logger);
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -151,10 +155,14 @@ namespace Microsoft.Identity.Web.OidcFic
         {
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
-            string tokenExchangeUrl = _tokenExchangeUrl ?? DefaultTokenExchangeUrl;
-            string effectiveTokenExchangeUrl = tokenExchangeUrl.EndsWith(DotDefaultSuffix, StringComparison.OrdinalIgnoreCase)
-                ? tokenExchangeUrl
-                : tokenExchangeUrl + DotDefaultSuffix;
+            // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
+            // resolve the cloud-specific exchange scope from the layered resolver — a caller/MISE
+            // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by this application's
+            // instance host (public cloud is unchanged via the documented fallback). The scope form
+            // (/.default) is used because this is a client-credentials / app-token acquisition.
+            string effectiveTokenExchangeUrl = _cloudMetadataResolver.ResolveTokenExchangeScope(
+                string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
+                perCallOverride: _tokenExchangeUrl);
 
             string? fmiPath = assertionRequestOptions?.ClientAssertionFmiPath;
 
@@ -212,7 +220,7 @@ namespace Microsoft.Identity.Web.OidcFic
 
             if (_logger != null)
             {
-                _logger.AcquiringToken(tokenExchangeUrl, acquireTokenOptions?.FmiPath);
+                _logger.AcquiringToken(effectiveTokenExchangeUrl, acquireTokenOptions?.FmiPath);
             }
 
             CancellationToken effectiveCancellationToken = cancellationToken != default
