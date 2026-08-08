@@ -54,6 +54,16 @@
     <Compile Include="TestDistributedCache.cs" />
   </ItemGroup>
 
+  <!-- The OWIN sign-in adapter is net472-only, so its tests compile and run only on net472. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Web.OWIN\Microsoft.Identity.Web.OWIN.csproj" />
+    <Reference Include="System.Web" />
+    <Compile Include="Owin\OwinAppBuilderExtensionTests.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+    <Compile Remove="Owin\OwinAppBuilderExtensionTests.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="Certificates\SelfSignedTestCert.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -162,10 +162,20 @@ namespace Microsoft.Identity.Web
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
+            AuthCodeRedemptionResult redemptionResult = await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
+            return redemptionResult.Result;
+        }
+
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(String)")]
+#endif
+        public async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters)
+        {
             return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
         }
 
-        private async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
+        private async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters,
             int retryCount)
         {
@@ -236,7 +246,10 @@ namespace Microsoft.Identity.Web
                     true,
                     null);
 
-                return AcquireTokenResultFactory.FromMsal(result);
+                return new AuthCodeRedemptionResult(
+                    AcquireTokenResultFactory.FromMsal(result),
+                    result.Account?.HomeAccountId?.ObjectId,
+                    result.Account?.HomeAccountId?.TenantId);
             }
             catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
