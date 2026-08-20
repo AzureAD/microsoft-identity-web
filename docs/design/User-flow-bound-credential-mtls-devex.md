@@ -2,24 +2,24 @@
 
 ## Summary
 
-`UseBoundCredential: true` presents the app's certificate at the TLS layer
-(`mtlsauth.microsoft.com`) to authenticate to Entra ID, instead of a
-`client_assertion` JWT in the body. The access token is still a plain **bearer**
-token; only the app→ESTS leg changes. Maps to MSAL
+`UseBoundCredential: true` configures certificate-based mTLS client
+authentication for token acquisition. The access token remains a plain
+**bearer** token, and downstream API calls remain unchanged. This maps to MSAL
 `CertificateOptions.SendCertificateOverMtls`.
 
 The knob **already ships** (abstractions 12.1.0) and already works for **app
 tokens** — see the merged sample
 [`daemon-app-cert-bound`](../../tests/DevApps/daemon-app/daemon-app-cert-bound).
-This spec **extends the same knob to user flows** (auth code, OBO, silent).
+This spec **extends the same knob to user flows** (authorization-code
+redemption, OBO, and refresh-token redemption).
 
 **No new public API.** MSAL [#6009](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/pull/6009)
-makes the delegated flows honor the flag; IdWeb just needs the MSAL bump +
-tests + docs/samples.
+makes the delegated flows honor the flag through IdWeb's existing credential
+configuration.
 
 ## Not to be confused with `ProtocolScheme = "MTLS_POP"`
 
-| | `UseBoundCredential: true` | `ProtocolScheme: "MTLS_POP"` ([#3832](./msi-fic-pure-mtls-pop-devex.md)) |
+| | `UseBoundCredential: true` with a certificate credential | `ProtocolScheme: "MTLS_POP"` ([#3832](./msi-fic-pure-mtls-pop-devex.md)) |
 |---|---|---|
 | Set on | the **credential** (`ClientCredentials`) | the **downstream API** options |
 | mTLS applies to | app → ESTS **client auth** | the **downstream API** call |
@@ -30,12 +30,12 @@ Independent; may both be set.
 
 ## Flow coverage
 
-| Flow | Entry point | Bearer-over-mTLS |
+| Flow | IdWeb usage | Bearer-over-mTLS |
 |---|---|---|
-| App token (daemon) | `RequestAppToken` / `CallApiForApp` | ✅ shipped |
-| Web-app sign-in | `AddMicrosoftIdentityWebApp` | ✅ via #6009 |
-| On-behalf-of | `EnableTokenAcquisitionToCallDownstreamApi` | ✅ via #6009 |
-| Silent / refresh-token | `AcquireTokenSilent` | ✅ via #6009 |
+| App token (daemon) | `IDownstreamApi.CallApiForAppAsync` / `IAuthorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync` | ✅ shipped |
+| Authorization-code redemption | `AddMicrosoftIdentityWebApp(...).EnableTokenAcquisitionToCallDownstreamApi()` | ✅ via #6009 |
+| On-behalf-of | `IDownstreamApi.CallApiForUserAsync` / `IAuthorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync` | ✅ via #6009 |
+| Silent refresh | Handled internally when user-token acquisition requires refresh | ✅ via #6009 |
 
 ## Config — web API (OBO)
 
@@ -115,27 +115,29 @@ Then `await api.CallApiForUserAsync("GraphAPI")`. No mTLS-specific C#.
 
 ## How it works
 
-1. `UseBoundCredential: true` → IdWeb builds the CCA with
-   `WithCertificate(cert, new CertificateOptions { SendCertificateOverMtls = true })`
-   (`ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync`).
-2. Post-#6009, auth-code / OBO / silent route to `mtlsauth.microsoft.com`,
-   present the cert at TLS (x5c auto-enabled).
-3. MSAL returns a **bearer** token; IdWeb's default `MsalMtlsHttpClientFactory`
-   supplies the mTLS transport — no extra wiring.
-4. `IDownstreamApi` calls downstream with `Authorization: Bearer` as usual.
+1. IdWeb maps `UseBoundCredential: true` to MSAL's certificate-bound
+   configuration.
+2. MSAL performs token acquisition using mTLS client authentication and returns
+   a **bearer** token.
+3. `IDownstreamApi` calls the downstream API using `Authorization: Bearer` as
+   usual.
 
-## Work items
+## Implementation status
 
-* Bump `Microsoft.Identity.Client` to the build containing #6009.
-* Delegated-flow tests (auth-code, OBO, silent).
-* Two samples: `web-app-bound-credential`, `web-api-obo-bound-credential`.
-* Docs: cert-credentials page + a note in `token-binding.md` contrasting with `MTLS_POP`.
+* ✅ `Microsoft.Identity.Client` 4.87.0, containing #6009, is referenced.
+* ✅ Authorization-code, OBO, and refresh-token tests were added in [#3996](https://github.com/AzureAD/microsoft-identity-web/pull/3996).
+* ⬜ Add coverage for silent acquisition when refresh-token redemption is
+  required.
+* ⬜ Add `web-app-bound-credential` and `web-api-obo-bound-credential` samples.
+* ⬜ Update the certificate-credential documentation and add a note in
+  `token-binding.md` contrasting this flow with `MTLS_POP`.
 
 ## Prerequisites
 
 * MSAL with #6009 (user-flow bearer-over-mTLS).
 * Abstractions ≥ 12.1.0 (already referenced — `UseBoundCredential` shipped in [PR #255](https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet/pull/255)).
-* A **certificate** credential (other credential types ignore the flag).
+* A **certificate** credential. Bound signed-assertion credentials are outside
+  the scope of this document.
 * Cert registered on the app; tenant/app allow-listed for mTLS client auth (else `AADSTS700027`).
 
 ## References
