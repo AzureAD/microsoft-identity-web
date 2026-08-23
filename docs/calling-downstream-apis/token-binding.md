@@ -521,6 +521,17 @@ Two binding-capable assertion sources are supported:
 - `CustomSignedAssertion` from the OIDC IdP provider
   (`Microsoft.Identity.Web.OidcFIC`, `AddOidcFic()`)
 
+Managed identity mTLS PoP uses the unattested flow by default. To enable
+Credential Guard key attestation on supported hosts, install the optional
+`Microsoft.Identity.Web.KeyAttestation` package and register it:
+
+```csharp
+builder.Services.AddMicrosoftIdentityWebKeyAttestation();
+```
+
+Only applications that reference this package receive the native key-attestation
+runtime assets.
+
 ### OIDC FIC producing a final `mtls_pop` token
 
 The caller requests `ProtocolScheme = "MTLS_POP"`. The inner OIDC exchange is

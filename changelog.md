@@ -1,3 +1,8 @@
+## Unreleased
+
+### Bug fixes
+- Move Credential Guard key attestation into the optional `Microsoft.Identity.Web.KeyAttestation` package. Managed identity mTLS proof-of-possession uses the unattested flow unless the package is installed and `AddMicrosoftIdentityWebKeyAttestation()` is registered, preventing native key-attestation binaries and symbols from being published with unrelated applications.
+
 ## 4.14.2
 
 ### Dependencies updates

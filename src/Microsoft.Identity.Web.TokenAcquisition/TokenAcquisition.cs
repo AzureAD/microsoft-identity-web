@@ -21,9 +21,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
-#if NETCOREAPP
-using Microsoft.Identity.Client.KeyAttestation;
-#endif
 using Microsoft.Identity.Web.Experimental;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.TestOnly;
@@ -97,6 +94,8 @@ namespace Microsoft.Identity.Web
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
+        private readonly IManagedIdentityAttestationProvider? _managedIdentityAttestationProvider;
+        private int _unattestedManagedIdentityFlowLogged;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsProvider _credentialsProvider;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
@@ -142,6 +141,8 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _managedIdentityAttestationProvider =
+                serviceProvider.GetService(typeof(IManagedIdentityAttestationProvider)) as IManagedIdentityAttestationProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
@@ -923,10 +924,17 @@ namespace Microsoft.Identity.Web
                     if (isTokenBinding)
                     {
                         miBuilder = miBuilder.WithMtlsProofOfPossession();
-#if NETCOREAPP
-                        // Key attestation is only available on modern .NET (issue #3894).
-                        miBuilder = miBuilder.WithAttestationSupport();
-#endif
+                        if (_managedIdentityAttestationProvider is not null)
+                        {
+                            miBuilder = _managedIdentityAttestationProvider.EnableAttestation(miBuilder);
+                        }
+                        else if (Interlocked.Exchange(ref _unattestedManagedIdentityFlowLogged, 1) == 0)
+                        {
+                            _logger.LogInformation(
+                                "Managed identity mTLS proof-of-possession is using an unattested binding. " +
+                                "Install Microsoft.Identity.Web.KeyAttestation and call " +
+                                "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))
