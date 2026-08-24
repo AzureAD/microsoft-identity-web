@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Web
                         && string.IsNullOrEmpty(credential.TokenExchangeUrl)
                         && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
                     {
-                        credential.TokenExchangeUrl = CloudMetadataResolution.ResolveTokenExchangeAudience(
+                        credential.TokenExchangeUrl = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
                             credentialSourceLoaderParameters!.Authority,
                             perCallOverride: null,
                             _cloudMetadataProvider);

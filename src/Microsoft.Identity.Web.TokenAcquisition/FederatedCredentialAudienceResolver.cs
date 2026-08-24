@@ -10,8 +10,8 @@ using MsalCloudKeys = Microsoft.Identity.Client.Instance.Discovery.CloudMetadata
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Resolves cloud-specific FIC (Federated Identity Credential) token-exchange values, keyed by the
-    /// request's authority host, by layering (highest precedence first):
+    /// Resolves the cloud-specific FIC (Federated Identity Credential) token-exchange <b>audience</b>, keyed by
+    /// the request's authority host, by layering (highest precedence first):
     /// <list type="number">
     /// <item>an explicit per-call override supplied by the caller;</item>
     /// <item>an upstream <see cref="ICloudMetadataProvider"/> (from DI) contributed by a caller or an
@@ -21,17 +21,11 @@ namespace Microsoft.Identity.Web
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This is the single place in ID Web where the audience-vs-scope decision is made, so no call site
-    /// hand-builds either form:
-    /// <list type="bullet">
-    /// <item>Managed-identity / "resource" contexts use the <b>bare</b> audience
-    /// (<see cref="ResolveTokenExchangeAudience"/>).</item>
-    /// <item>Client-credentials / app-token contexts use the computed <b>scope</b> (audience + <c>/.default</c>)
-    /// (<see cref="ResolveTokenExchangeScope"/>).</item>
-    /// </list>
-    /// The <c>/.default</c> suffix computation itself is <b>not</b> duplicated here: it is delegated to MSAL's
-    /// <see cref="TokenExchangeScope.FromAudience(string)"/>, the single cross-stack owner of that rule, so ID
-    /// Web and MSAL can never diverge on it.
+    /// The resolved value is always the <b>bare</b> audience (no <c>/.default</c>). Managed-identity /
+    /// "resource" contexts use it as-is; client-credentials / app-token contexts append the <c>/.default</c>
+    /// suffix at the call site via MSAL's <see cref="TokenExchangeScope.FromAudience(string)"/> — the single
+    /// cross-stack owner of that rule — so ID Web and MSAL can never diverge on it and the suffix decision is
+    /// never duplicated here.
     /// </para>
     /// <para>
     /// The upstream provider and the MSAL baseline both expose the audience under the same key literal
@@ -41,7 +35,7 @@ namespace Microsoft.Identity.Web
     /// needed.
     /// </para>
     /// </remarks>
-    internal static class CloudMetadataResolution
+    internal static class FederatedCredentialAudienceResolver
     {
         /// <summary>
         /// Documented public-cloud default, used only when there is no authority host to key a lookup off
@@ -104,28 +98,6 @@ namespace Microsoft.Identity.Web
                 $"No cloud-specific federated-credential token-exchange audience is registered for authority host '{host}'. " +
                 "Register it by calling services.AddCloudMetadata(...), by registering an ICloudMetadataProvider, " +
                 "or set the token-exchange URL explicitly on the credential (TokenExchangeUrl).");
-        }
-
-        /// <summary>
-        /// Resolves the FIC token-exchange <b>scope</b> (bare audience with <c>/.default</c> appended) for the
-        /// cloud that owns <paramref name="authorityOrInstance"/>. Suitable for client-credentials / app-token
-        /// contexts.
-        /// </summary>
-        /// <param name="authorityOrInstance">The request authority or instance (URL or bare host).</param>
-        /// <param name="perCallOverride">An optional explicit override that wins over all resolved sources. It
-        /// may be supplied bare or already suffixed with <c>/.default</c>; the suffix is applied idempotently.</param>
-        /// <param name="upstreamProvider">An optional upstream provider (from DI) contributed by a caller or
-        /// an upstream SDK. When <c>null</c>, only MSAL's public baseline is consulted.</param>
-        internal static string ResolveTokenExchangeScope(
-            string? authorityOrInstance,
-            string? perCallOverride,
-            ICloudMetadataProvider? upstreamProvider)
-        {
-            string audience = ResolveTokenExchangeAudience(authorityOrInstance, perCallOverride, upstreamProvider);
-
-            // Delegate the audience→scope (/.default) computation to MSAL's TokenExchangeScope — the single
-            // cross-stack owner of that rule — so ID Web and MSAL never diverge on the suffix rule.
-            return TokenExchangeScope.FromAudience(audience);
         }
 
         /// <summary>
