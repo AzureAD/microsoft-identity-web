@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly MicrosoftIdentityApplicationOptions _options;
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
-        private readonly CloudMetadataResolver _cloudMetadataResolver;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
@@ -48,17 +48,17 @@ namespace Microsoft.Identity.Web.OidcFic
         public override bool SupportsTokenBinding => true;
 
         public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
-            : this(tokenAcquirerFactory, options, tokenExchangeUrl, logger, cloudMetadataResolver: null)
+            : this(tokenAcquirerFactory, options, tokenExchangeUrl, logger, cloudMetadataProvider: null)
         {
         }
 
-        internal OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger, CloudMetadataResolver? cloudMetadataResolver)
+        internal OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger, ICloudMetadataProvider? cloudMetadataProvider)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
-            _cloudMetadataResolver = cloudMetadataResolver ?? new CloudMetadataResolver(null, _logger);
+            _cloudMetadataProvider = cloudMetadataProvider;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -156,13 +156,14 @@ namespace Microsoft.Identity.Web.OidcFic
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
             // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
-            // resolve the cloud-specific exchange scope from the layered resolver — a caller/MISE
+            // resolve the cloud-specific exchange scope from the layered resolver — a caller's
             // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by this application's
             // instance host (public cloud is unchanged via the documented fallback). The scope form
             // (/.default) is used because this is a client-credentials / app-token acquisition.
-            string effectiveTokenExchangeUrl = _cloudMetadataResolver.ResolveTokenExchangeScope(
+            string effectiveTokenExchangeUrl = CloudMetadataResolution.ResolveTokenExchangeScope(
                 string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
-                perCallOverride: _tokenExchangeUrl);
+                perCallOverride: _tokenExchangeUrl,
+                _cloudMetadataProvider);
 
             string? fmiPath = assertionRequestOptions?.ClientAssertionFmiPath;
 

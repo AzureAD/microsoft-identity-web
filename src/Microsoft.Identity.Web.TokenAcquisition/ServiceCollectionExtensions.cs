@@ -52,12 +52,6 @@ namespace Microsoft.Identity.Web
                 services.TryAddSingleton<ICredentialsLoader, DefaultCertificateLoader>();
             }
 
-            // The resolver layers an optional upstream ICloudMetadataProvider (registered by a caller or by
-            // MISE — the single override seam) over MSAL's public baseline, which it reads directly from
-            // KnownCloudConfiguration.Default. It is the single audience-vs-scope decision point shared by all
-            // FIC legs. Registered via a factory so it observes whichever ICloudMetadataProvider wins TryAdd.
-            services.TryAddSingleton<CloudMetadataResolver>(sp => CloudMetadataResolver.FromServiceProvider(sp));
-
             if (!HasImplementationType(services, typeof(MsalMtlsHttpClientFactory)))
             {
                 services.TryAddSingleton<IMsalHttpClientFactory, MsalMtlsHttpClientFactory>();

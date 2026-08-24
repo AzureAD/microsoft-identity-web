@@ -91,11 +91,12 @@ namespace Microsoft.Identity.Web
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
         /// <summary>
-        /// Resolves the cloud-specific FIC token-exchange audience/scope by authority host. Layers a caller
-        /// or upstream-SDK (MISE) <see cref="ICloudMetadataProvider"/> over MSAL's built-in public baseline,
-        /// so a replaced or composed provider is honored on all FIC legs that key off an authority.
+        /// Resolves the cloud-specific FIC token-exchange audience/scope by authority host. An optional
+        /// caller or upstream-SDK <see cref="ICloudMetadataProvider"/> (from DI) is layered over MSAL's
+        /// built-in public baseline, so a replaced or composed provider is honored on all FIC legs that key
+        /// off an authority.
         /// </summary>
-        private readonly CloudMetadataResolver _cloudMetadataResolver;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
@@ -155,12 +156,11 @@ namespace Microsoft.Identity.Web
             if (credentialsProvider == null)
             {
                 var credentialsLoader = serviceProvider.GetService<ICredentialsLoader>() ?? throw new InvalidOperationException("Either ICredentialsProvider or ICredentialsLoader must be registered and neither were.");
-                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost);
+                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost, serviceProvider.GetService<ICloudMetadataProvider>());
             }
 
             _credentialsProvider = credentialsProvider;
-            _cloudMetadataResolver = serviceProvider.GetService<CloudMetadataResolver>()
-                ?? CloudMetadataResolver.FromServiceProvider(serviceProvider);
+            _cloudMetadataProvider = serviceProvider.GetService<ICloudMetadataProvider>();
         }
 
 #if NET6_0_OR_GREATER
@@ -714,7 +714,7 @@ namespace Microsoft.Identity.Web
             // Resolve the cloud-specific FIC exchange scope from the agent authority host so sovereign
             // clouds use the correct audience (public cloud is unchanged via the documented fallback).
             var leg2Builder = agentCca.AcquireTokenForClient(
-                new[] { _cloudMetadataResolver.ResolveTokenExchangeScope(string.IsNullOrEmpty(mergedOptions.Authority) ? mergedOptions.Instance : mergedOptions.Authority) });
+                new[] { CloudMetadataResolution.ResolveTokenExchangeScope(string.IsNullOrEmpty(mergedOptions.Authority) ? mergedOptions.Instance : mergedOptions.Authority, perCallOverride: null, _cloudMetadataProvider) });
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -799,7 +799,7 @@ namespace Microsoft.Identity.Web
 
                 var leg1Builder = blueprintCca
                     .AcquireTokenForClient(
-                        new[] { _cloudMetadataResolver.ResolveTokenExchangeScope(string.IsNullOrEmpty(blueprintOptions.Authority) ? blueprintOptions.Instance : blueprintOptions.Authority) })
+                        new[] { CloudMetadataResolution.ResolveTokenExchangeScope(string.IsNullOrEmpty(blueprintOptions.Authority) ? blueprintOptions.Instance : blueprintOptions.Authority, perCallOverride: null, _cloudMetadataProvider) })
                     .WithFmiPath(agentAppId)
                     .WithSendX5C(blueprintOptions.SendX5C);
 
