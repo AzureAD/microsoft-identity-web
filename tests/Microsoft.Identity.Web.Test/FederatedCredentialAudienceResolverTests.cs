@@ -12,11 +12,11 @@ using Xunit;
 namespace Microsoft.Identity.Web.Test
 {
     /// <summary>
-    /// Unit tests for <see cref="CloudMetadataResolution"/>: the ID Web translator that layers a per-call
+    /// Unit tests for <see cref="FederatedCredentialAudienceResolver"/>: the ID Web translator that layers a per-call
     /// override over an upstream <see cref="ICloudMetadataProvider"/> (caller / upstream SDK) over MSAL's
     /// public baseline, keyed by authority host.
     /// </summary>
-    public class CloudMetadataResolutionTests
+    public class FederatedCredentialAudienceResolverTests
     {
         private const string PublicHost = "login.microsoftonline.com";
         private const string UsGovAuthority = "https://login.microsoftonline.us/tenant";
@@ -31,10 +31,10 @@ namespace Microsoft.Identity.Web.Test
             // resolves to the documented public-cloud default rather than throwing.
             Assert.Equal(
                 "api://AzureADTokenExchange",
-                CloudMetadataResolution.ResolveTokenExchangeAudience(null, perCallOverride: null, upstreamProvider: null));
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(null, perCallOverride: null, upstreamProvider: null));
             Assert.Equal(
                 "api://AzureADTokenExchange",
-                CloudMetadataResolution.ResolveTokenExchangeAudience(string.Empty, perCallOverride: null, upstreamProvider: null));
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(string.Empty, perCallOverride: null, upstreamProvider: null));
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Web.Test
             // W5 decision: a non-empty authority host that nothing recognizes fails loudly rather than
             // silently exchanging against the wrong (public-cloud) audience.
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
-                CloudMetadataResolution.ResolveTokenExchangeAudience(NewCloudAuthority, perCallOverride: null, upstreamProvider: null));
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(NewCloudAuthority, perCallOverride: null, upstreamProvider: null));
 
             Assert.Contains(NewCloudHost, ex.Message, StringComparison.Ordinal);
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void ResolveAudience_KnownSovereignHost_NoProvider_ResolvesFromMsalBaseline()
         {
-            string audience = CloudMetadataResolution.ResolveTokenExchangeAudience(
+            string audience = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
                 UsGovAuthority, perCallOverride: null, upstreamProvider: null);
 
             Assert.Equal("api://AzureADTokenExchangeUSGov", audience);
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Web.Test
                     [CloudMetadataKeyNames.FederatedCredentialAudience] = "api://AzureADTokenExchangeCustomGov",
                 });
 
-            string audience = CloudMetadataResolution.ResolveTokenExchangeAudience(
+            string audience = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
                 UsGovAuthority, perCallOverride: null, provider);
 
             Assert.Equal("api://AzureADTokenExchangeCustomGov", audience);
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Web.Test
                     [CloudMetadataKeyNames.FederatedCredentialAudience] = "api://AzureADTokenExchangeMyCloud",
                 });
 
-            string audience = CloudMetadataResolution.ResolveTokenExchangeAudience(
+            string audience = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
                 NewCloudAuthority, perCallOverride: null, provider);
 
             Assert.Equal("api://AzureADTokenExchangeMyCloud", audience);
@@ -101,29 +101,34 @@ namespace Microsoft.Identity.Web.Test
                     [CloudMetadataKeyNames.FederatedCredentialAudience] = "api://AzureADTokenExchangeCustomGov",
                 });
 
-            string audience = CloudMetadataResolution.ResolveTokenExchangeAudience(
+            string audience = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
                 UsGovAuthority, perCallOverride: "api://PerCallAudience", provider);
 
             Assert.Equal("api://PerCallAudience", audience);
         }
 
         [Fact]
-        public void ResolveScope_AppendsDefaultSuffix_Idempotently()
+        public void ScopeProjection_AppendsDefaultSuffix_Idempotently()
         {
-            string fromBare = CloudMetadataResolution.ResolveTokenExchangeScope(
-                PublicHost, perCallOverride: "api://Aud", upstreamProvider: null);
-            string fromSuffixed = CloudMetadataResolution.ResolveTokenExchangeScope(
-                PublicHost, perCallOverride: "api://Aud/.default", upstreamProvider: null);
+            // Call sites that feed an OAuth2 scope-array API project the resolved bare audience to a scope
+            // via MSAL's TokenExchangeScope.FromAudience (the single cross-stack owner of the /.default rule).
+            string fromBare = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                    PublicHost, perCallOverride: "api://Aud", upstreamProvider: null));
+            string fromSuffixed = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                    PublicHost, perCallOverride: "api://Aud/.default", upstreamProvider: null));
 
             Assert.Equal("api://Aud/.default", fromBare);
             Assert.Equal("api://Aud/.default", fromSuffixed);
         }
 
         [Fact]
-        public void ResolveScope_KnownSovereignHost_ComputesScopeFromBaseline()
+        public void ScopeProjection_KnownSovereignHost_ComputesScopeFromBaseline()
         {
-            string scope = CloudMetadataResolution.ResolveTokenExchangeScope(
-                UsGovAuthority, perCallOverride: null, upstreamProvider: null);
+            string scope = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                    UsGovAuthority, perCallOverride: null, upstreamProvider: null));
 
             Assert.Equal("api://AzureADTokenExchangeUSGov/.default", scope);
         }
@@ -152,10 +157,11 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Equal(
                 "api://AzureADTokenExchangeMyCloud",
-                CloudMetadataResolution.ResolveTokenExchangeAudience(NewCloudAuthority, perCallOverride: null, provider));
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(NewCloudAuthority, perCallOverride: null, provider));
             Assert.Equal(
                 "api://AzureADTokenExchangeMyCloud/.default",
-                CloudMetadataResolution.ResolveTokenExchangeScope(NewCloudAuthority, perCallOverride: null, provider));
+                Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                    FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(NewCloudAuthority, perCallOverride: null, provider)));
         }
     }
 }

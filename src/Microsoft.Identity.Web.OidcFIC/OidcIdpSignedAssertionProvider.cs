@@ -156,14 +156,16 @@ namespace Microsoft.Identity.Web.OidcFic
             _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
 
             // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
-            // resolve the cloud-specific exchange scope from the layered resolver — a caller's
+            // resolve the cloud-specific exchange audience from the layered resolver — a caller's
             // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by this application's
             // instance host (public cloud is unchanged via the documented fallback). The scope form
-            // (/.default) is used because this is a client-credentials / app-token acquisition.
-            string effectiveTokenExchangeUrl = CloudMetadataResolution.ResolveTokenExchangeScope(
-                string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
-                perCallOverride: _tokenExchangeUrl,
-                _cloudMetadataProvider);
+            // (/.default) is applied via MSAL's TokenExchangeScope because this is a client-credentials /
+            // app-token acquisition.
+            string effectiveTokenExchangeUrl = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                    string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
+                    perCallOverride: _tokenExchangeUrl,
+                    _cloudMetadataProvider));
 
             string? fmiPath = assertionRequestOptions?.ClientAssertionFmiPath;
 

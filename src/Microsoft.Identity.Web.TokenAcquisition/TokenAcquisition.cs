@@ -714,7 +714,7 @@ namespace Microsoft.Identity.Web
             // Resolve the cloud-specific FIC exchange scope from the agent authority host so sovereign
             // clouds use the correct audience (public cloud is unchanged via the documented fallback).
             var leg2Builder = agentCca.AcquireTokenForClient(
-                new[] { CloudMetadataResolution.ResolveTokenExchangeScope(string.IsNullOrEmpty(mergedOptions.Authority) ? mergedOptions.Instance : mergedOptions.Authority, perCallOverride: null, _cloudMetadataProvider) });
+                new[] { Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(string.IsNullOrEmpty(mergedOptions.Authority) ? mergedOptions.Instance : mergedOptions.Authority, perCallOverride: null, _cloudMetadataProvider)) });
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -799,7 +799,7 @@ namespace Microsoft.Identity.Web
 
                 var leg1Builder = blueprintCca
                     .AcquireTokenForClient(
-                        new[] { CloudMetadataResolution.ResolveTokenExchangeScope(string.IsNullOrEmpty(blueprintOptions.Authority) ? blueprintOptions.Instance : blueprintOptions.Authority, perCallOverride: null, _cloudMetadataProvider) })
+                        new[] { Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(string.IsNullOrEmpty(blueprintOptions.Authority) ? blueprintOptions.Instance : blueprintOptions.Authority, perCallOverride: null, _cloudMetadataProvider)) })
                     .WithFmiPath(agentAppId)
                     .WithSendX5C(blueprintOptions.SendX5C);
 
