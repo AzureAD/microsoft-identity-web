@@ -326,8 +326,10 @@ the configuration example above.
   for this flow.
 * Platform support for the binding certificate today:
   * Certificate flow: any platform — uses the app's existing certificate.
-  * FIC flow: requires the V2 MI credential endpoint, currently Windows
-    Confidential VMs (Key Guard + attestation).
+  * FIC flow: requires the V2 MI credential endpoint. Managed identity mTLS PoP
+    uses `WithMtlsProofOfPossession()` by default; applications that require
+    key attestation install `Microsoft.Identity.Web.KeyAttestation` and call
+    `AddMicrosoftIdentityWebKeyAttestation()`.
 
 ## Open questions
 
