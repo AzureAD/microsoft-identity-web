@@ -19,20 +19,20 @@ namespace Microsoft.Identity.Web
         private readonly ITokenAcquisitionHost? _tokenHost;
         private readonly ICredentialsLoader _credentialsLoader;
         private readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
-        private readonly CloudMetadataResolver? _cloudMetadataResolver;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         public CredentialsProvider(
             ILogger<CredentialsProvider> logger,
             ICredentialsLoader credentialsLoader,
             IEnumerable<ICertificatesObserver> certificatesObservers,
             ITokenAcquisitionHost? tokenHost = null,
-            CloudMetadataResolver? cloudMetadataResolver = null)
+            ICloudMetadataProvider? cloudMetadataProvider = null)
         {
             _logger = logger;
             _tokenHost = tokenHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObservers = [.. certificatesObservers];
-            _cloudMetadataResolver = cloudMetadataResolver;
+            _cloudMetadataProvider = cloudMetadataProvider;
         }
 
         public Task<CredentialDescription?> GetCredentialAsync(
@@ -68,16 +68,17 @@ namespace Microsoft.Identity.Web
                 {
                     // For the managed-identity FIC leg, resolve the cloud-specific token-exchange audience from
                     // the request authority host when the caller did not set one explicitly. This lets sovereign
-                    // (public) and internal-only (via a registered ICloudMetadataProvider, e.g. MISE) clouds use
-                    // the correct audience instead of the public-cloud default. Set only when empty so an
-                    // explicit TokenExchangeUrl always wins; the resolved value is deterministic per authority.
-                    if (_cloudMetadataResolver != null
-                        && credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity
+                    // (public) and internal-only (via a registered ICloudMetadataProvider) clouds use the correct
+                    // audience instead of the public-cloud default. Set only when empty so an explicit
+                    // TokenExchangeUrl always wins; the resolved value is deterministic per authority.
+                    if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity
                         && string.IsNullOrEmpty(credential.TokenExchangeUrl)
                         && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
                     {
-                        credential.TokenExchangeUrl = _cloudMetadataResolver.ResolveTokenExchangeAudience(
-                            credentialSourceLoaderParameters!.Authority);
+                        credential.TokenExchangeUrl = CloudMetadataResolution.ResolveTokenExchangeAudience(
+                            credentialSourceLoaderParameters!.Authority,
+                            perCallOverride: null,
+                            _cloudMetadataProvider);
                     }
 
                     // Load the credentials and record error messages in case we need to fail at the end

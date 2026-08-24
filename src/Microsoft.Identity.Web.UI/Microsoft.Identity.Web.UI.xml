@@ -77,6 +77,12 @@
             closes. Comparison is case-insensitive because the RFC 3986 encoding is
             hex-case-insensitive.
             </summary>
+            <remarks>
+            Canonical implementation: <c>RedirectUriHelper.HasPercentEncodedSlashPrefix</c> in
+            <c>Microsoft.Identity.Web</c>. This private copy exists because <c>RedirectUriHelper</c>
+            is internal and <c>Microsoft.Identity.Web.UI</c> is a separate assembly. Keep both
+            in sync.
+            </remarks>
         </member>
         <member name="T:Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Pages.Account.AccessDeniedModel">
             <summary>

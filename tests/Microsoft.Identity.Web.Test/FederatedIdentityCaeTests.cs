@@ -298,7 +298,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                     "login.microsoftonline.us",
                     new Dictionary<string, string>
                     {
-                        [AbstractionsCloudKeys.TokenExchangeAudience] = "api://AzureADTokenExchangeCustomGov"
+                        [CloudMetadataKeyNames.FederatedCredentialAudience] = "api://AzureADTokenExchangeCustomGov"
                     }));
 
             // Source app (provides assertion), configured on US Gov.

@@ -21,24 +21,23 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Registers an <see cref="ICloudMetadataProvider"/> populated from <paramref name="cloudMetadataSection"/>
         /// so Microsoft.Identity.Web resolves cloud-specific FIC token-exchange values (for clouds it and MSAL do
-        /// not know about) from configuration. This is the ID Web counterpart to MISE's
-        /// <c>AddMiseCloudMetadata(IConfiguration)</c> and uses the same section shape.
+        /// not know about) from configuration, with no code beyond binding an <c>appsettings.json</c> section.
         /// </summary>
         /// <param name="services">The service collection to modify.</param>
         /// <param name="cloudMetadataSection">A configuration section whose immediate children are authority
         /// hosts, each of whose children are metadata key/value pairs. For example:
         /// <code>
         /// "CloudMetadata": {
-        ///   "login.microsoftonline.us": { "token_exchange_audience": "api://AzureADTokenExchangeUSGov" },
-        ///   "login.mynewcloud.example": { "token_exchange_audience": "api://AzureADTokenExchangeMyCloud" }
+        ///   "login.microsoftonline.us": { "federated_credential_audience": "api://AzureADTokenExchangeUSGov" },
+        ///   "login.mynewcloud.example": { "federated_credential_audience": "api://AzureADTokenExchangeMyCloud" }
         /// }
         /// </code>
-        /// Keys should come from <see cref="AbstractionsCloudKeys"/>.
+        /// Keys should come from <see cref="CloudMetadataKeyNames"/>.
         /// </param>
         /// <returns>The original service collection instance.</returns>
         /// <remarks>
         /// The provider is registered with <c>TryAddSingleton</c>, so an <see cref="ICloudMetadataProvider"/> a
-        /// caller (or an upstream SDK such as MISE) registered explicitly beforehand takes precedence and is
+        /// caller (or an upstream SDK) registered explicitly beforehand takes precedence and is
         /// left untouched.
         /// </remarks>
         public static IServiceCollection AddCloudMetadata(this IServiceCollection services, IConfiguration cloudMetadataSection)
