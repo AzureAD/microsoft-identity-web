@@ -355,7 +355,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         // Each test builds the REAL OIDC-CC FIC pipeline (ID Web -> MSAL) and mocks ONLY MSAL's outbound
         // HTTP, then asserts the credential-exchange request's POST 'scope' equals the expected cloud-
         // specific token-exchange audience + "/.default". Auto-resolution here flows from MSAL's built-in
-        // baseline (KnownCloudData) keyed by the SOURCE app's cloud — no injected provider needed for the
+        // baseline (KnownCloudMetadata) keyed by the SOURCE app's cloud — no injected provider needed for the
         // clouds MSAL ships (public, US Gov). A caller override (credential TokenExchangeUrl) must win.
         // The US-Gov-default case is also the regression guard for the Authority-vs-Instance resolution fix.
         // ---------------------------------------------------------------------------------------------
