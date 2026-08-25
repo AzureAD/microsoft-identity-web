@@ -90,7 +90,13 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal readonly ConcurrentDictionary<string, string> _agentUserFicAccountIds = new();
 
-        private static readonly string[] s_ficScopes = new[] { "api://AzureADTokenExchange/.default" };
+        /// <summary>
+        /// Resolves the cloud-specific FIC token-exchange audience/scope by authority host. An optional
+        /// caller or upstream-SDK <see cref="ICloudMetadataProvider"/> (from DI) is layered over MSAL's
+        /// built-in public baseline, so a replaced or composed provider is honored on all FIC legs that key
+        /// off an authority.
+        /// </summary>
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         private const string TokenBindingParameterName = "IsTokenBinding";
         private const int MaxCertificateRetries = 1;
@@ -150,10 +156,11 @@ namespace Microsoft.Identity.Web
             if (credentialsProvider == null)
             {
                 var credentialsLoader = serviceProvider.GetService<ICredentialsLoader>() ?? throw new InvalidOperationException("Either ICredentialsProvider or ICredentialsLoader must be registered and neither were.");
-                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost);
+                credentialsProvider = new CredentialsProvider(new LogAdapter<CredentialsProvider>(logger), credentialsLoader, [.. serviceProvider.GetServices<ICertificatesObserver>()], tokenAcquisitionHost, serviceProvider.GetService<ICloudMetadataProvider>());
             }
 
             _credentialsProvider = credentialsProvider;
+            _cloudMetadataProvider = serviceProvider.GetService<ICloudMetadataProvider>();
         }
 
 #if NET6_0_OR_GREATER
@@ -704,7 +711,10 @@ namespace Microsoft.Identity.Web
 
             // Leg 2: Get the agent's instance token (T2).
             // The assertion callback handles Leg 1 (blueprint → T1) transparently.
-            var leg2Builder = agentCca.AcquireTokenForClient(s_ficScopes);
+            // Resolve the cloud-specific FIC exchange scope from the agent authority host so sovereign
+            // clouds use the correct audience (public cloud is unchanged via the documented fallback).
+            var leg2Builder = agentCca.AcquireTokenForClient(
+                new[] { Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(string.IsNullOrEmpty(mergedOptions.Authority) ? mergedOptions.Instance : mergedOptions.Authority, perCallOverride: null, _cloudMetadataProvider)) });
             if (!string.IsNullOrEmpty(tenantId))
             {
                 leg2Builder.WithTenantId(tenantId);
@@ -788,7 +798,8 @@ namespace Microsoft.Identity.Web
                     blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
 
                 var leg1Builder = blueprintCca
-                    .AcquireTokenForClient(s_ficScopes)
+                    .AcquireTokenForClient(
+                        new[] { Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(string.IsNullOrEmpty(blueprintOptions.Authority) ? blueprintOptions.Instance : blueprintOptions.Authority, perCallOverride: null, _cloudMetadataProvider)) })
                     .WithFmiPath(agentAppId)
                     .WithSendX5C(blueprintOptions.SendX5C);
 

@@ -19,17 +19,20 @@ namespace Microsoft.Identity.Web
         private readonly ITokenAcquisitionHost? _tokenHost;
         private readonly ICredentialsLoader _credentialsLoader;
         private readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         public CredentialsProvider(
             ILogger<CredentialsProvider> logger,
             ICredentialsLoader credentialsLoader,
             IEnumerable<ICertificatesObserver> certificatesObservers,
-            ITokenAcquisitionHost? tokenHost = null)
+            ITokenAcquisitionHost? tokenHost = null,
+            ICloudMetadataProvider? cloudMetadataProvider = null)
         {
             _logger = logger;
             _tokenHost = tokenHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObservers = [.. certificatesObservers];
+            _cloudMetadataProvider = cloudMetadataProvider;
         }
 
         public Task<CredentialDescription?> GetCredentialAsync(
@@ -57,12 +60,34 @@ namespace Microsoft.Identity.Web
             string errorMessage = "\n";
             List<Exception>? exceptions = null;
 
-            foreach (CredentialDescription credential in clientCredentials)
+            foreach (CredentialDescription originalCredential in clientCredentials)
             {
+                CredentialDescription credential = originalCredential;
                 LogMessages.AttemptToLoadCredentials(_logger, credential);
 
                 if (!credential.Skip)
                 {
+                    // For the managed-identity FIC leg, resolve the cloud-specific token-exchange audience from
+                    // the request authority host when the caller did not set one explicitly. This lets sovereign
+                    // (public) and internal-only (via a registered ICloudMetadataProvider) clouds use the correct
+                    // audience instead of the public-cloud default. Resolve onto a per-request copy so we never
+                    // mutate the shared CredentialDescription (which is typically cached and reused across
+                    // requests): mutating it in place is not thread-safe and would leak one cloud's audience into
+                    // a subsequent request for a different cloud. Resolve only when empty so an explicit
+                    // TokenExchangeUrl always wins; the resolved value is deterministic per authority.
+                    if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity
+                        && string.IsNullOrEmpty(credential.TokenExchangeUrl)
+                        && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
+                    {
+                        credential = new CredentialDescription(originalCredential)
+                        {
+                            TokenExchangeUrl = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                                credentialSourceLoaderParameters!.Authority,
+                                perCallOverride: null,
+                                _cloudMetadataProvider),
+                        };
+                    }
+
                     // Load the credentials and record error messages in case we need to fail at the end
                     try
                     {
