@@ -8,7 +8,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Enables optional key attestation on a managed identity mTLS proof-of-possession request.
     /// </summary>
-    public interface IManagedIdentityAttestationProvider
+    public interface IKeyAttestationProvider
     {
         /// <summary>
         /// Configures key attestation on the managed identity request.

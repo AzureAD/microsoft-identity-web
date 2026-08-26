@@ -10,7 +10,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Enables Credential Guard key attestation for managed identity mTLS proof-of-possession requests.
     /// </summary>
-    internal sealed class ManagedIdentityAttestationProvider : IManagedIdentityAttestationProvider
+    internal sealed class KeyAttestationProvider : IKeyAttestationProvider
     {
         /// <inheritdoc/>
         public AcquireTokenForManagedIdentityParameterBuilder EnableAttestation(

@@ -10,14 +10,14 @@ namespace Microsoft.Identity.Web
 {
     internal sealed class KeyAttestedManagedIdentityCredentialLoader : ICredentialSourceLoader
     {
-        private readonly IManagedIdentityAttestationProvider _attestationProvider;
+        private readonly IKeyAttestationProvider _keyAttestationProvider;
         private readonly ILogger<KeyAttestedManagedIdentityCredentialLoader> _logger;
 
         public KeyAttestedManagedIdentityCredentialLoader(
-            IManagedIdentityAttestationProvider attestationProvider,
+            IKeyAttestationProvider keyAttestationProvider,
             ILogger<KeyAttestedManagedIdentityCredentialLoader> logger)
         {
-            _attestationProvider = attestationProvider;
+            _keyAttestationProvider = keyAttestationProvider;
             _logger = logger;
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Web
                     credentialDescription.ManagedIdentityClientId,
                     credentialDescription.TokenExchangeUrl,
                     _logger,
-                    _attestationProvider);
+                    _keyAttestationProvider);
             }
 
             try

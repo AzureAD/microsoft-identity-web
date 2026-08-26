@@ -1,4 +1,4 @@
 #nullable enable
-Microsoft.Identity.Web.IManagedIdentityAttestationProvider
-Microsoft.Identity.Web.IManagedIdentityAttestationProvider.EnableAttestation(Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder! builder) -> Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder!
-Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger, Microsoft.Identity.Web.IManagedIdentityAttestationProvider? attestationProvider) -> void
+Microsoft.Identity.Web.IKeyAttestationProvider
+Microsoft.Identity.Web.IKeyAttestationProvider.EnableAttestation(Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder! builder) -> Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder!
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger, Microsoft.Identity.Web.IKeyAttestationProvider? keyAttestationProvider) -> void

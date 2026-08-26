@@ -23,7 +23,7 @@ namespace Microsoft.Identity.Web
         private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
         private readonly ILogger? _logger;
-        private readonly IManagedIdentityAttestationProvider? _attestationProvider;
+        private readonly IKeyAttestationProvider? _keyAttestationProvider;
         private int _unattestedFlowLogged;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
-                attestationProvider: null,
+                keyAttestationProvider: null,
                 ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
         {
         }
@@ -73,17 +73,17 @@ namespace Microsoft.Identity.Web
         /// <param name="managedIdentityClientId">Optional client ID of the managed identity.</param>
         /// <param name="tokenExchangeUrl">Optional audience of the managed identity token.</param>
         /// <param name="logger">A logger.</param>
-        /// <param name="attestationProvider">The provider that enables key attestation for bound token requests.</param>
+        /// <param name="keyAttestationProvider">The provider that enables key attestation for bound token requests.</param>
         public ManagedIdentityClientAssertion(
             string? managedIdentityClientId,
             string? tokenExchangeUrl,
             ILogger? logger,
-            IManagedIdentityAttestationProvider? attestationProvider)
+            IKeyAttestationProvider? keyAttestationProvider)
             : this(
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
-                attestationProvider,
+                keyAttestationProvider,
                 ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
         {
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Web
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
-                attestationProvider: null,
+                keyAttestationProvider: null,
                 testHttpClientFactory)
         {
         }
@@ -116,12 +116,12 @@ namespace Microsoft.Identity.Web
             string? managedIdentityClientId,
             string? tokenExchangeUrl,
             ILogger? logger,
-            IManagedIdentityAttestationProvider? attestationProvider,
+            IKeyAttestationProvider? keyAttestationProvider,
             IMsalHttpClientFactory? testHttpClientFactory)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
-            _attestationProvider = attestationProvider;
+            _keyAttestationProvider = keyAttestationProvider;
 
             var id = ManagedIdentityId.SystemAssigned;
             if (!string.IsNullOrEmpty(managedIdentityClientId))
@@ -215,9 +215,9 @@ namespace Microsoft.Identity.Web
             if (bindToCertificate)
             {
                 miBuilder = miBuilder.WithMtlsProofOfPossession();
-                if (_attestationProvider is not null)
+                if (_keyAttestationProvider is not null)
                 {
-                    miBuilder = _attestationProvider.EnableAttestation(miBuilder);
+                    miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
                 }
                 else if (Interlocked.Exchange(ref _unattestedFlowLogged, 1) == 0)
                 {

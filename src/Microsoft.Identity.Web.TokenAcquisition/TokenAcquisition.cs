@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Web
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
-        private readonly IManagedIdentityAttestationProvider? _managedIdentityAttestationProvider;
+        private readonly IKeyAttestationProvider? _keyAttestationProvider;
         private int _unattestedManagedIdentityFlowLogged;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsProvider _credentialsProvider;
@@ -141,8 +141,8 @@ namespace Microsoft.Identity.Web
             _httpClientFactory = serviceProvider.GetService<IMsalHttpClientFactory>() ?? new MsalMtlsHttpClientFactory(httpClientFactory);
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _managedIdentityAttestationProvider =
-                serviceProvider.GetService(typeof(IManagedIdentityAttestationProvider)) as IManagedIdentityAttestationProvider;
+            _keyAttestationProvider =
+                serviceProvider.GetService(typeof(IKeyAttestationProvider)) as IKeyAttestationProvider;
             _tokenAcquisitionHost = tokenAcquisitionHost;
             tokenAcquisitionExtensionOptionsMonitor = serviceProvider.GetService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>();
             _miHttpFactory = serviceProvider.GetService<IManagedIdentityTestHttpClientFactory>();
@@ -924,9 +924,9 @@ namespace Microsoft.Identity.Web
                     if (isTokenBinding)
                     {
                         miBuilder = miBuilder.WithMtlsProofOfPossession();
-                        if (_managedIdentityAttestationProvider is not null)
+                        if (_keyAttestationProvider is not null)
                         {
-                            miBuilder = _managedIdentityAttestationProvider.EnableAttestation(miBuilder);
+                            miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
                         }
                         else if (Interlocked.Exchange(ref _unattestedManagedIdentityFlowLogged, 1) == 0)
                         {

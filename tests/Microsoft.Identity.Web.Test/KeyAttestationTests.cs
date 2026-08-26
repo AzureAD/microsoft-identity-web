@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web.Test
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
 
             // Assert
-            Assert.NotNull(serviceProvider.GetService<IManagedIdentityAttestationProvider>());
+            Assert.NotNull(serviceProvider.GetService<IKeyAttestationProvider>());
             Assert.Single(
                 serviceProvider.GetServices<ICredentialSourceLoader>(),
                 loader => loader.CredentialSource == CredentialSource.SignedAssertionFromManagedIdentity);
@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Web.Test
                 managedIdentityClientId: null,
                 tokenExchangeUrl: null,
                 logger: null,
-                attestationProvider: provider);
+                keyAttestationProvider: provider);
 
             // Act
             InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(ThrowingAttestationProvider.ErrorMessage, exception.Message);
         }
 
-        private sealed class ThrowingAttestationProvider : IManagedIdentityAttestationProvider
+        private sealed class ThrowingAttestationProvider : IKeyAttestationProvider
         {
             internal const string ErrorMessage = "Attestation provider invoked.";
 

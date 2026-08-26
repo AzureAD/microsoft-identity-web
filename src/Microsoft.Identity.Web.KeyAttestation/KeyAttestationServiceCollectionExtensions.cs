@@ -24,7 +24,7 @@ namespace Microsoft.Identity.Web
         {
             ArgumentNullException.ThrowIfNull(services);
 
-            services.TryAddSingleton<IManagedIdentityAttestationProvider, ManagedIdentityAttestationProvider>();
+            services.TryAddSingleton<IKeyAttestationProvider, KeyAttestationProvider>();
             services.TryAddEnumerable(
                 ServiceDescriptor.Singleton<ICredentialSourceLoader, KeyAttestedManagedIdentityCredentialLoader>());
 
