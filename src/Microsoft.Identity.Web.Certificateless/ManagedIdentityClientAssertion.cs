@@ -9,9 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
-#if NETCOREAPP
-using Microsoft.Identity.Client.KeyAttestation;
-#endif
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.LoggingExtensions;
@@ -26,6 +23,8 @@ namespace Microsoft.Identity.Web
         private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string _tokenExchangeUrl;
         private readonly ILogger? _logger;
+        private readonly IKeyAttestationProvider? _keyAttestationProvider;
+        private int _unattestedFlowLogged;
 
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
@@ -63,6 +62,28 @@ namespace Microsoft.Identity.Web
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
+                keyAttestationProvider: null,
+                ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
+        {
+        }
+
+        /// <summary>
+        /// Creates a managed identity client assertion provider with optional key attestation support.
+        /// </summary>
+        /// <param name="managedIdentityClientId">Optional client ID of the managed identity.</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the managed identity token.</param>
+        /// <param name="logger">A logger.</param>
+        /// <param name="keyAttestationProvider">The provider that enables key attestation for bound token requests.</param>
+        public ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            IKeyAttestationProvider? keyAttestationProvider)
+            : this(
+                managedIdentityClientId,
+                tokenExchangeUrl,
+                logger,
+                keyAttestationProvider,
                 ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
         {
         }
@@ -82,9 +103,25 @@ namespace Microsoft.Identity.Web
             string? tokenExchangeUrl,
             ILogger? logger,
             IMsalHttpClientFactory? testHttpClientFactory)
+            : this(
+                managedIdentityClientId,
+                tokenExchangeUrl,
+                logger,
+                keyAttestationProvider: null,
+                testHttpClientFactory)
+        {
+        }
+
+        private ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            IKeyAttestationProvider? keyAttestationProvider,
+            IMsalHttpClientFactory? testHttpClientFactory)
         {
             _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
+            _keyAttestationProvider = keyAttestationProvider;
 
             var id = ManagedIdentityId.SystemAssigned;
             if (!string.IsNullOrEmpty(managedIdentityClientId))
@@ -178,11 +215,17 @@ namespace Microsoft.Identity.Web
             if (bindToCertificate)
             {
                 miBuilder = miBuilder.WithMtlsProofOfPossession();
-#if NETCOREAPP
-                // Key attestation is only available on modern .NET; on .NET Framework/netstandard the
-                // KeyAttestation dependency is intentionally absent (issue #3894).
-                miBuilder = miBuilder.WithAttestationSupport();
-#endif
+                if (_keyAttestationProvider is not null)
+                {
+                    miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
+                }
+                else if (Interlocked.Exchange(ref _unattestedFlowLogged, 1) == 0)
+                {
+                    _logger?.LogInformation(
+                        "Managed identity mTLS proof-of-possession is using an unattested binding. " +
+                        "Install Microsoft.Identity.Web.KeyAttestation and call " +
+                        "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
+                }
             }
 
             // Propagate claims into the MI token request.

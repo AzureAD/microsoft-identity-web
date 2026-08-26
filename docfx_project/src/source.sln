@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.Toke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.UI", "..\..\src\Microsoft.Identity.Web.UI\Microsoft.Identity.Web.UI.csproj", "{20535D28-C2F4-4975-9982-A18E7141DA53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Web.KeyAttestation", "..\..\src\Microsoft.Identity.Web.KeyAttestation\Microsoft.Identity.Web.KeyAttestation.csproj", "{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20535D28-C2F4-4975-9982-A18E7141DA53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
