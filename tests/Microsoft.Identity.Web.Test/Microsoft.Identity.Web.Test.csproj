@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'net472'" Include="..\..\src\Microsoft.Identity.Web.OWIN\Microsoft.Identity.Web.OWIN.csproj" />
     <ProjectReference Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Azure\Microsoft.Identity.Web.Azure.csproj" />
@@ -53,6 +54,7 @@
     <Compile Include="CacheExtensionsTests.cs" />
     <Compile Include="CacheEncryptionTests.cs" />
     <Compile Include="TestDistributedCache.cs" />
+    <Compile Include="OwinClaimsValidationTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
