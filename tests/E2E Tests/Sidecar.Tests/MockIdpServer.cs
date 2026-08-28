@@ -19,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway): a self-contained mock Identity Provider (Entra/ESTS stand-in) hosted in-process
+/// A self-contained mock Identity Provider (Entra/ESTS stand-in) hosted in-process
 /// on the ASP.NET Core <see cref="TestServer"/>. It reproduces the real-world validation surface so the
 /// sidecar validates a PoP token's embedded access token through its GENUINE JwtBearer pipeline -
 /// live OIDC discovery + JWKS fetch + signature/issuer/audience/lifetime checks - instead of a

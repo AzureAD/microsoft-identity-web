@@ -14,7 +14,7 @@ using Xunit;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway): round-trip + negative tests for inbound SHR PoP validation in the sidecar.
+/// Round-trip and negative tests for inbound SHR PoP validation in the sidecar.
 /// Positive: a valid ARM-shaped SHR (app-only AT, cnf-bound to a test key) returns 200 + Protocol "PoP".
 /// Negatives: tampered method/uri, expired ts, bad signature, and (proving the reused AzureAd TVP)
 /// wrong-issuer / expired embedded access token are all rejected.
@@ -181,7 +181,7 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     [Fact]
     public async Task Validate_WithWrongIssuerEmbeddedToken_ReturnsUnauthorizedAsync()
     {
-        // Arrange (objective 3 evidence): embedded AT issuer is not the reused TVP's ValidIssuer.
+        // Arrange: embedded AT issuer is not the reused TVP's ValidIssuer.
         string accessToken = PopTestCrypto.CreateAccessToken(
             "https://sts.windows.net/evil-tenant/", PopTestCrypto.TestAudience, DateTime.UtcNow.AddMinutes(10),
             PopTestCrypto.PopSigningKey, PopTestCrypto.PopKeyId);
@@ -199,7 +199,7 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     [Fact]
     public async Task Validate_WithExpiredEmbeddedToken_ReturnsUnauthorizedAsync()
     {
-        // Arrange (objective 3 evidence): the SHR ts is fresh, but the embedded AT is expired, so the
+        // Arrange: the SHR ts is fresh, but the embedded AT is expired, so the
         // reused TVP's lifetime validation must reject it.
         string accessToken = PopTestCrypto.CreateAccessToken(
             PopTestCrypto.TestIssuer, PopTestCrypto.TestAudience, DateTime.UtcNow.AddMinutes(-10),
@@ -301,8 +301,8 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     [Fact]
     public async Task Validate_WithMalformedPopToken_ReturnsUnauthorized_NotServerErrorAsync()
     {
-        // Arrange: a non-JWT garbage string under the PoP scheme. The validator wraps Wilson in a
-        // try/catch, so this must surface as a clean 401 - never a 500.
+        // Arrange: a non-JWT garbage string under the PoP scheme. The validator wraps the identity-model
+        // handler in a try/catch, so this must surface as a clean 401 - never a 500.
         var client = _factory.CreateClient();
 
         // Act
@@ -315,7 +315,7 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     [Fact]
     public async Task Validate_WithWrongAudienceEmbeddedToken_ReturnsUnauthorizedAsync()
     {
-        // Arrange (objective 3 evidence): embedded AT audience is not the reused TVP's ValidAudience.
+        // Arrange: embedded AT audience is not the reused TVP's ValidAudience.
         string accessToken = PopTestCrypto.CreateAccessToken(
             PopTestCrypto.TestIssuer, "api://wrong-audience", DateTime.UtcNow.AddMinutes(10),
             PopTestCrypto.PopSigningKey, PopTestCrypto.PopKeyId);
@@ -390,7 +390,7 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     {
         // Arrange: capture server-side logs on an isolated host, then send a PoP request that fails
         // validation (SHR signed by an untrusted key). JwtBearer logs TokenValidationFailed at
-        // Information; the PoP path must likewise record the reason server-side (the design-doc claim)
+        // Information; the PoP path must likewise record the reason server-side
         // even though the 401 challenge returned to the caller stays generic.
         var logs = new CapturingLoggerProvider();
         using var loggingFactory = _factory.WithWebHostBuilder(builder =>
@@ -434,7 +434,7 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     }
 
     /// <summary>
-    /// SPIKE (throwaway): minimal in-memory <see cref="ILoggerProvider"/> that records every emitted
+    /// Minimal in-memory <see cref="ILoggerProvider"/> that records every emitted
     /// log entry so a test can assert the PoP handler wrote its failure reason to the server-side log.
     /// </summary>
     private sealed class CapturingLoggerProvider : ILoggerProvider

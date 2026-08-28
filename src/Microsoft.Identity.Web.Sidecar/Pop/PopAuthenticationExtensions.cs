@@ -9,16 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Identity.Web.Sidecar.Pop;
 
 /// <summary>
-/// SPIKE (throwaway): wires inbound SHR PoP into the sidecar's authentication pipeline WITHOUT
-/// changing the Bearer path or the global default authentication scheme.
-///
-/// It registers a second authentication handler under the "PoP" scheme and a named authorization
-/// policy (<see cref="PopConstants.ValidatePolicyName"/>) that accepts BOTH "Bearer" and "PoP". Only
-/// the <c>/Validate</c> endpoint opts into that policy, so every other endpoint - and the default
-/// scheme - remains exactly as before. For a Bearer request the PoP handler no-ops (wrong scheme) and
-/// JwtBearer validates as usual; for a PoP request the JwtBearer handler no-ops and the PoP handler
-/// runs the re-hosted MISE SHR validation.
+/// Wires inbound SHR PoP into the sidecar's authentication pipeline without changing the Bearer scheme
+/// or the global default authentication scheme.
 /// </summary>
+/// <remarks>
+/// Registers a second authentication handler under the "PoP" scheme and a named authorization policy
+/// (<see cref="PopConstants.ValidatePolicyName"/>) that accepts both "Bearer" and "PoP". Only the
+/// <c>/Validate</c> endpoint opts into that policy, so every other endpoint - and the default scheme -
+/// is unchanged. A Bearer request is validated by JwtBearer while the PoP handler no-ops; a PoP request
+/// is validated by the PoP handler while JwtBearer no-ops.
+/// </remarks>
 internal static class PopAuthenticationExtensions
 {
     public static AuthenticationBuilder AddInboundShrPop(this AuthenticationBuilder builder)
@@ -29,8 +29,7 @@ internal static class PopAuthenticationExtensions
             PopConstants.SchemeName,
             static _ => { });
 
-        // Scope PoP to /Validate via a policy that authenticates Bearer OR PoP. The global default
-        // authentication scheme is intentionally left as "Bearer" so nothing else changes.
+        // Accept both Bearer and PoP on /Validate. The global default scheme stays "Bearer".
         builder.Services
             .AddAuthorizationBuilder()
             .AddPolicy(PopConstants.ValidatePolicyName, policy =>

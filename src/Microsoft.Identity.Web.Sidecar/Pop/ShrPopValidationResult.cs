@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web.Sidecar.Pop;
 
-/// <summary>SPIKE (throwaway): outcome of inbound SHR PoP validation.</summary>
+/// <summary>Outcome of inbound SHR PoP validation.</summary>
 internal sealed class ShrPopValidationResult
 {
     private ShrPopValidationResult()

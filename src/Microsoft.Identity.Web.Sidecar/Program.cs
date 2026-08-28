@@ -30,11 +30,7 @@ public class Program
         {
             options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
         });
-
-        // SPIKE (throwaway): the Bearer wiring below is UNCHANGED (still the default scheme).
-        // AddInboundShrPop additively registers a second "PoP" authentication handler plus a named
-        // authorization policy that only the /Validate endpoint opts into, so no other endpoint and
-        // no global default is affected.
+        // AddInboundShrPop additively registers a second "PoP" authentication handler plus a named authorization policy that only the /Validate endpoint opts into.
         var authenticationBuilder = builder.Services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 

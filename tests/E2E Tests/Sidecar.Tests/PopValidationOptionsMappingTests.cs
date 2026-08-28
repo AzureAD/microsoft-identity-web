@@ -12,15 +12,15 @@ using Xunit;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway): unit tests for the operator-configurable SHR PoP validation flags. Verifies that
-/// (a) with no <c>Sidecar:PopValidation</c> config the DTO -&gt; <see cref="SignedHttpRequestValidationParameters"/>
-/// mapping reproduces the original hard-coded MISE defaults, and (b) a bound config section overrides
-/// exactly the specified flags and nothing else (body-hash <c>b</c> stays OFF, server nonce stays unset).
+/// Unit tests for the operator-configurable SHR PoP validation flags. Verifies that (a) with no
+/// <c>Sidecar:PopValidation</c> config the DTO -&gt; <see cref="SignedHttpRequestValidationParameters"/>
+/// mapping reproduces the secure defaults, and (b) a bound config section overrides exactly the
+/// specified flags and nothing else (body-hash <c>b</c> stays off, server nonce stays unset).
 /// </summary>
 public class PopValidationOptionsMappingTests
 {
     [Fact]
-    public void CreateValidationParameters_WithDefaultOptions_MatchesOriginalHardcodedDefaults()
+    public void CreateValidationParameters_WithDefaultOptions_MatchesSecureDefaults()
     {
         // Arrange: a brand-new options object is exactly what binding produces when no
         // Sidecar:PopValidation section is present.
@@ -79,7 +79,7 @@ public class PopValidationOptionsMappingTests
         Assert.Equal(TimeSpan.FromMinutes(2), parameters.SignedHttpRequestLifetime);
         Assert.False(parameters.AcceptUnsignedHeaders);
 
-        // ...and nothing else drifted from the MISE defaults.
+        // ...and nothing else drifted from the secure defaults.
         Assert.True(parameters.ValidateM);
         Assert.True(parameters.ValidateU);
         Assert.True(parameters.ValidateP);

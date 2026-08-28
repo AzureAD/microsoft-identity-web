@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway) test helper: mints a self-contained ARM-shaped Signed HTTP Request (SHR) PoP
+/// Test helper that mints a self-contained ARM-shaped Signed HTTP Request (SHR) PoP
 /// token without any live AAD dependency.
 ///
 /// Two RSA keys are used, mirroring a real PoP flow:

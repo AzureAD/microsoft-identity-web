@@ -7,22 +7,19 @@ using System.ComponentModel;
 namespace Microsoft.Identity.Web.Sidecar.Configuration;
 
 /// <summary>
-/// SPIKE (throwaway): operator-tunable flags for inbound Signed HTTP Request (SHR) Proof-of-Possession
-/// validation, bound from the <c>Sidecar:PopValidation</c> configuration subsection. Every property
-/// defaults to the strict MISE <c>SignedHttpRequestValidationOptions</c> default, so when the subsection
-/// is absent the mapped <c>SignedHttpRequestValidationParameters</c> are the current behavior (m/u/p/ts
-/// ON; q/h OFF; unsigned headers/query accepted; 5-minute lifetime; nonce unset).
+/// tunable flags for inbound Signed HTTP Request (SHR) Proof-of-Possession validation, bound
+/// from the <c>Sidecar:PopValidation</c> configuration subsection. Every property defaults to the
+/// secure Microsoft.IdentityModel <c>SignedHttpRequestValidationParameters</c> default, so when the
+/// subsection is absent PoP validation runs with method/URI/path/timestamp binding on, query/header
+/// binding off, unsigned headers and query parameters accepted, and a five-minute lifetime.
 /// <para>
-/// Only the config-clean members Wilson exposes as simple values are surfaced here. Deliberately NOT
-/// configurable (see the design doc): body-hash <c>b</c> (needs request-body buffering; MISE never
-/// surfaces it), jku key resolution (introduces outbound egress; the <c>cnf</c> jwk-vs-jku open item),
-/// and all delegate members (nonce/replay/signature/key-resolver) which are code, not configuration.
+/// Only the members exposed as simple configuration values are surfaced here. Body-hash (<c>b</c>)
 /// </para>
 /// </summary>
 public class PopValidationOptions
 {
     /// <summary>
-    /// Gets or sets a value indicating whether the <c>ts</c> (timestamp) claim is validated. This is the
+    /// Gets or sets a value indicating whether the <c>ts</c> (timestamp) claim is validated - the
     /// replay/freshness guard. Default <c>true</c>; disabling it removes replay protection.
     /// </summary>
     [DefaultValue(true)]
@@ -51,52 +48,51 @@ public class PopValidationOptions
 
     /// <summary>
     /// Gets or sets a value indicating whether the <c>q</c> (query parameters) claim is validated -
-    /// request binding. Default <c>false</c> (matches MISE); enabling it hardens binding but the caller
-    /// must sign <c>q</c> or every request fails.
+    /// request binding. Default <c>false</c>; enabling it hardens binding but the caller must sign
+    /// <c>q</c> or every request fails.
     /// </summary>
     [DefaultValue(false)]
     public bool ValidateQ { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the <c>h</c> (headers) claim is validated - request
-    /// binding. Default <c>false</c> (matches MISE); enabling it hardens binding but the caller must sign
-    /// <c>h</c> or every request fails.
+    /// binding. Default <c>false</c>; enabling it hardens binding but the caller must sign <c>h</c> or
+    /// every request fails.
     /// </summary>
     [DefaultValue(false)]
     public bool ValidateH { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether headers not covered by the signature are accepted.
-    /// Default <c>true</c> (matches MISE).
+    /// Default <c>true</c>.
     /// </summary>
     [DefaultValue(true)]
     public bool AcceptUnsignedHeaders { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether query parameters not covered by the signature are
-    /// accepted. Default <c>true</c> (matches MISE).
+    /// accepted. Default <c>true</c>.
     /// </summary>
     [DefaultValue(true)]
     public bool AcceptUnsignedQueryParameters { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether the claims listed in <see cref="ClaimsToValidateWhenPresent"/>
-    /// are validated when present (even if their individual flag is off). Default <c>false</c> (matches
-    /// MISE); while <c>false</c> the <see cref="ClaimsToValidateWhenPresent"/> list is inert.
+    /// are validated when present (even if their individual flag is off). Default <c>false</c>; while
+    /// <c>false</c> the <see cref="ClaimsToValidateWhenPresent"/> list is inert.
     /// </summary>
     [DefaultValue(false)]
     public bool ValidatePresentClaims { get; set; }
 
     /// <summary>
     /// Gets or sets the signed HTTP request lifetime - the <c>ts</c> clock-skew tolerance. Default
-    /// 5 minutes (matches MISE).
+    /// 5 minutes.
     /// </summary>
     public TimeSpan SignedHttpRequestLifetime { get; set; } = TimeSpan.FromMinutes(5);
 
     /// <summary>
     /// Gets or sets the claims validated only when present, gated by <see cref="ValidatePresentClaims"/>.
-    /// Default <c>{ "m", "p" }</c> (matches MISE). Inert unless <see cref="ValidatePresentClaims"/> is
-    /// <c>true</c>.
+    /// Default <c>{ "m", "p" }</c>. Inert unless <see cref="ValidatePresentClaims"/> is <c>true</c>.
     /// </summary>
     public IList<string> ClaimsToValidateWhenPresent { get; set; } = new Collection<string> { "m", "p" };
 }

@@ -42,7 +42,7 @@ public static partial class LoggerMessageExtensions
 
     // Mirrors JwtBearer's TokenValidationFailed (also LogLevel.Information): record the reason an
     // inbound SHR PoP request failed validation server-side without disclosing it to the caller. The
-    // reason is a Wilson validation message (e.g. lifetime/signature/audience) and never the token.
+    // reason is an identity-model validation message (e.g. lifetime/signature/audience) and never the token.
     [LoggerMessage(
         EventId = 6,
         Level = LogLevel.Information,

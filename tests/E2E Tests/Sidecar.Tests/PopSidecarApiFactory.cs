@@ -11,11 +11,11 @@ using Microsoft.IdentityModel.Tokens;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway): a sidecar test host that repoints the "Bearer" JwtBearerOptions at an in-process
+/// A sidecar test host that repoints the "Bearer" JwtBearerOptions at an in-process
 /// <see cref="MockIdpServer"/> (Entra/ESTS stand-in). The embedded access token inside an SHR is then
-/// validated through the sidecar's GENUINE JwtBearer pipeline - live OIDC discovery + JWKS fetch +
+/// validated through the sidecar's genuine JwtBearer pipeline - live OIDC discovery + JWKS fetch +
 /// signature/issuer/audience/lifetime - with no statically injected signing key. This exercises the
-/// real-world validation path while proving objective 3: the PoP path reuses the SAME "Bearer" TVP
+/// real-world validation path and confirms the PoP path reuses the same "Bearer" TVP
 /// (issuer/audience/expiry/signing key).
 /// </summary>
 public class PopSidecarApiFactory : SidecarApiFactory

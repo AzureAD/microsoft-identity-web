@@ -6,17 +6,15 @@ using Microsoft.IdentityModel.Protocols;
 namespace Microsoft.Identity.Web.Sidecar.Pop;
 
 /// <summary>
-/// SPIKE (throwaway): builds the Wilson <see cref="HttpRequestData"/> that SHR validation binds the
-/// signature against, from the request-line contract headers (original-uri / original-method).
+/// Builds the <see cref="HttpRequestData"/> that SHR validation binds the signature against, from the
+/// request-line contract headers (<c>original-uri</c> / <c>original-method</c>).
 /// </summary>
 /// <remarks>
-/// Design decision (flagged for the design doc): the sidecar is app-invoked today (not Envoy-fronted).
-/// The call to <c>/Validate</c> is NOT the request the SHR was signed over, so the calling app MUST
-/// supply the original method + URI - there is no safe server-side derivation. Hence these headers are
-/// REQUIRED for PoP, a deliberate deviation from MISE (which can fall back to the Envoy-provided
-/// Host/method). The header names are kept identical to MISE so a later Envoy front-end and the MISE
-/// container remain consistent. Only Uri + Method are needed because v1 validates m/u/p/ts (h and q are
-/// OFF), so request headers, query string and body do not participate in the signature.
+/// The sidecar is invoked by its co-located application, so the call to <c>/Validate</c> is not the
+/// request the SHR was signed over; the caller must supply the original method and URI (they cannot be
+/// derived server-side). Only <c>Uri</c> and <c>Method</c> are required because validation covers the
+/// <c>m</c>/<c>u</c>/<c>p</c>/<c>ts</c> claims (<c>h</c> and <c>q</c> are off by default), so request
+/// headers, query string and body do not participate in the signature.
 /// </remarks>
 internal static class PopHttpRequestFactory
 {

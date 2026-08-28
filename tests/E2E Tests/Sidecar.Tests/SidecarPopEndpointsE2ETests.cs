@@ -20,14 +20,13 @@ using Xunit;
 namespace Sidecar.Tests;
 
 /// <summary>
-/// SPIKE (throwaway) END-TO-END pipeline tests for inbound SHR PoP validation - the design-doc §9
-/// "E2E (pipeline)" deliverable. Unlike <see cref="ShrPopValidationTests"/> (which mints tokens from an
-/// in-process mock IdP), these exercise the WHOLE real path: a REAL app-only token is acquired from
-/// Entra, cnf-bound and wrapped in an ARM-shaped Signed HTTP Request by MSAL (via MSIdWeb's
-/// WithSignedHttpRequestProofOfPossession), then validated by the sidecar through its REAL AzureAd
-/// discovery/JWKS path (configured on <see cref="SidecarApiFactory"/>).
+/// End-to-end pipeline tests for inbound SHR PoP validation. Unlike <see cref="ShrPopValidationTests"/>
+/// (which mints tokens from an in-process mock IdP), these exercise the whole real path: a real app-only
+/// token is acquired from Entra, cnf-bound and wrapped in an ARM-shaped Signed HTTP Request by MSAL (via
+/// Microsoft.Identity.Web's WithSignedHttpRequestProofOfPossession), then validated by the sidecar
+/// through its real AzureAd discovery/JWKS path (configured on <see cref="SidecarApiFactory"/>).
 ///
-/// Coverage mirrors the Bearer E2E surface (<see cref="SidecarEndpointsE2ETests"/> +
+/// Coverage mirrors the Bearer surface (<see cref="SidecarEndpointsE2ETests"/> +
 /// <see cref="ValidateEndpointTestsExtended"/>) and adds the PoP-specific guarantees that only a real
 /// token can prove end-to-end:
 ///   - Happy paths: real PoP → Protocol "PoP"; real Bearer control → Protocol "Bearer".
@@ -56,7 +55,7 @@ public class SidecarPopEndpointsE2ETests : IClassFixture<SidecarApiFactory>
     const string AgentApplication = "aab5089d-e764-47e3-9f28-cc11c2513821"; // Sidecar's AzureAd ClientId/Audience (see SidecarApiFactory)
     const string TestClientApplication = "825940df-c1fb-4604-8104-02965f55b1ee"; // Replace with the client used for app-only calls
     const string Instance = "https://login.microsoftonline.com/";           // Entra ID authority instance
-    const string CertificateStorePath = "CurrentUser/My";                   // Local dev: CurrentUser avoids the LocalMachine private-key ACL/elevation requirement (pipeline may use LocalMachine/My)
+    const string CertificateStorePath = "LocalMachine/My";                  // Replace with the certificate store path (local runs without elevation may use CurrentUser/My)
     const string CertificateDistinguishedName = "CN=LabAuth.MSIDLab.com";   // Replace with the certificate subject name
     static readonly string AgentApplicationScope = $"api://{AgentApplication}/.default";
 
@@ -197,7 +196,7 @@ public class SidecarPopEndpointsE2ETests : IClassFixture<SidecarApiFactory>
     }
 
     // ---------------------------------------------------------------------------------------------
-    // No credential (mirrors the Bearer no-auth E2E test + design-doc "no credential -> advertise Bearer")
+    // No credential: mirror the Bearer E2E test (no credential -> advertise Bearer).
     // ---------------------------------------------------------------------------------------------
 
     [Fact]
@@ -247,7 +246,7 @@ public class SidecarPopEndpointsE2ETests : IClassFixture<SidecarApiFactory>
         var request = new HttpRequestMessage(HttpMethod.Get, "/Validate");
         request.Headers.Authorization = new AuthenticationHeaderValue(scheme, credential);
 
-        // Request-line contract headers (identical to the MISE container: original-method / original-uri).
+        // Request-line contract headers: original-method / original-uri.
         // The app supplies these because /Validate receives a validation request, not the signed request.
         if (originalMethod is not null)
         {
