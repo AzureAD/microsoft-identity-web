@@ -82,7 +82,8 @@ request line the SHR was signed over via two headers:
 | `original-method` | HTTP method of the signed request (e.g. `GET`). |
 | `original-uri`    | Absolute URI of the signed request.             |
 
-A validated PoP request returns `{ "protocol": "PoP", "token": "...", "claims": { ... } }`.
+A validated PoP request returns `{ "protocol": "PoP", "token": "...", "claims": { ... } }`. A failed
+PoP credential returns `401` with a `WWW-Authenticate: PoP error="invalid_token"` challenge.
 
 Validation binds the `m` (method), `u` (host), `p` (path), and `ts` (timestamp) claims by default. The
 timestamp provides freshness within a five-minute window; server nonce and replay caching are not

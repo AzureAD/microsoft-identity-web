@@ -7,13 +7,14 @@ using System.ComponentModel;
 namespace Microsoft.Identity.Web.Sidecar.Configuration;
 
 /// <summary>
-/// tunable flags for inbound Signed HTTP Request (SHR) Proof-of-Possession validation, bound
+/// Tunable flags for inbound Signed HTTP Request (SHR) Proof-of-Possession validation, bound
 /// from the <c>Sidecar:PopValidation</c> configuration subsection. Every property defaults to the
 /// secure Microsoft.IdentityModel <c>SignedHttpRequestValidationParameters</c> default, so when the
 /// subsection is absent PoP validation runs with method/URI/path/timestamp binding on, query/header
 /// binding off, unsigned headers and query parameters accepted, and a five-minute lifetime.
 /// <para>
-/// Only the members exposed as simple configuration values are surfaced here. Body-hash (<c>b</c>)
+/// Only members exposed as simple configuration values are surfaced here; body-hash (<c>b</c>)
+/// binding is not configurable and remains off.
 /// </para>
 /// </summary>
 public class PopValidationOptions

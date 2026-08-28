@@ -130,11 +130,28 @@ class MicrosoftIdentityWebSidecarClient:
     def __exit__(self, exc_type, exc_value, traceback) -> None:  # type: ignore[override]
         self.close()
 
-    def validate_authorization_header(self, authorization_header: str) -> ValidateAuthorizationHeaderResult:
+    def validate_authorization_header(
+        self,
+        authorization_header: str,
+        *,
+        original_method: Optional[str] = None,
+        original_uri: Optional[str] = None,
+    ) -> ValidateAuthorizationHeaderResult:
+        """Validate a Bearer or PoP (SHR) authorization header via the /Validate endpoint.
+
+        For PoP (Signed HTTP Request) tokens, supply the signed request line via
+        ``original_method`` and ``original_uri`` so the sidecar can bind the signature to
+        the request. Both are ignored for Bearer tokens.
+        """
+        headers: Dict[str, str] = {"Authorization": authorization_header}
+        if original_method:
+            headers["original-method"] = original_method
+        if original_uri:
+            headers["original-uri"] = original_uri
         response_data = self._send_json(
             method="GET",
             path="Validate",
-            headers={"Authorization": authorization_header},
+            headers=headers,
         )
         return ValidateAuthorizationHeaderResult.from_dict(response_data)
 
