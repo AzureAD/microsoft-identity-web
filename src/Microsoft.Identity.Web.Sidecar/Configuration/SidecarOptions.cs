@@ -23,6 +23,13 @@ public class SidecarOptions
     /// from downstream APIs. Defaults to <c>false</c>.
     /// </summary>
     public bool AllowOutboundRedirects { get; set; }
+
+    /// <summary>
+    /// SPIKE (throwaway): operator-tunable inbound SHR PoP validation flags, bound from the
+    /// <c>Sidecar:PopValidation</c> subsection. When the subsection is absent every flag keeps its
+    /// strict MISE default, so PoP validation behaves exactly as the original hard-coded PoC.
+    /// </summary>
+    public PopValidationOptions PopValidation { get; set; } = new();
 }
 
 /// <summary>

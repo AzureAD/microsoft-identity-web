@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
+using Microsoft.Identity.Web.Sidecar.Pop;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
@@ -19,7 +20,7 @@ public static class ValidateRequestEndpoints
     {
         app.MapGet("/Validate", ValidateEndpoint).
             WithName("ValidateAuthorizationHeader").
-            RequireAuthorization().
+            RequireAuthorization(PopConstants.ValidatePolicyName).
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
@@ -29,6 +30,15 @@ public static class ValidateRequestEndpoints
         HttpContext httpContext,
         [FromServices] IConfiguration configuration)
     {
+        // SPIKE (throwaway): inbound SHR PoP branch. The PoP authentication handler stashes the
+        // validated inner (app-only) access token here after re-hosted MISE SHR validation succeeds.
+        // App-only tokens carry roles, not scopes, so the scope check below is skipped for PoP - the
+        // same effective outcome as an app-only Bearer token under AllowWebApiToBeAuthorizedByACL.
+        if (httpContext.Items[PopConstants.ValidatedAccessTokenItemKey] is JsonWebToken popToken)
+        {
+            return BuildResult(logger, PopConstants.ProtocolName, popToken);
+        }
+
         string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
         {
@@ -42,6 +52,14 @@ public static class ValidateRequestEndpoints
             return TypedResults.Problem("No token found", statusCode: StatusCodes.Status400BadRequest);
         }
 
+        return BuildResult(logger, "Bearer", token);
+    }
+
+    private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> BuildResult(
+        ILogger logger,
+        string protocol,
+        JsonWebToken token)
+    {
         var decodedBody = Base64Url.DecodeFromChars(token.EncodedPayload);
 
         JsonNode? jsonDoc;
@@ -62,7 +80,7 @@ public static class ValidateRequestEndpoints
         }
 
         var result = new ValidateAuthorizationHeaderResult(
-            Protocol: "Bearer",
+            Protocol: protocol,
             Token: token.EncodedToken,
             Claims: jsonDoc
         );

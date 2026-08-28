@@ -39,4 +39,14 @@ public static partial class LoggerMessageExtensions
         Message = "Caller-supplied agent identity parameters were ignored on route '{RouteName}' because overrides are not allowed for it by configuration. To enable agent identity overrides, set 'Sidecar:AllowOverrides:{RouteName}' to true.",
         EventName = "AgentIdentityOverridesIgnored")]
     public static partial void AgentIdentityOverridesIgnored(this ILogger logger, string routeName);
+
+    // Mirrors JwtBearer's TokenValidationFailed (also LogLevel.Information): record the reason an
+    // inbound SHR PoP request failed validation server-side without disclosing it to the caller. The
+    // reason is a Wilson validation message (e.g. lifetime/signature/audience) and never the token.
+    [LoggerMessage(
+        EventId = 6,
+        Level = LogLevel.Information,
+        Message = "Inbound SHR PoP validation failed: {Reason}",
+        EventName = "Pop_ValidationFailed")]
+    public static partial void PopValidationFailed(this ILogger logger, string reason);
 }

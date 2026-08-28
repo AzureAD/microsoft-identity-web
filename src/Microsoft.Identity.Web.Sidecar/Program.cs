@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
+using Microsoft.Identity.Web.Sidecar.Pop;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web.Sidecar;
@@ -30,11 +31,19 @@ public class Program
             options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
         });
 
-        builder.Services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        // SPIKE (throwaway): the Bearer wiring below is UNCHANGED (still the default scheme).
+        // AddInboundShrPop additively registers a second "PoP" authentication handler plus a named
+        // authorization policy that only the /Validate endpoint opts into, so no other endpoint and
+        // no global default is affected.
+        var authenticationBuilder = builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+
+        authenticationBuilder
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
+
+        authenticationBuilder.AddInboundShrPop();
 
         builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
         {
