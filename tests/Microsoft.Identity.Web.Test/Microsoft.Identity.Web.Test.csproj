@@ -58,6 +58,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Certificates\SelfSignedTestCert.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
