@@ -83,6 +83,27 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     }
 
     [Fact]
+    public async Task Validate_WithDelegatedEmbeddedToken_ReturnsUnauthorizedAsync()
+    {
+        // Arrange: a fully valid, cnf-bound SHR whose EMBEDDED token is a DELEGATED (user) token
+        // (carries 'scp' / idtyp "user"). The outer SHR and the inner signature are otherwise valid,
+        // so this isolates the app-only guard: inbound SHR PoP is scoped to app-only, so the sidecar
+        // must reject a delegated token wrapped in an SHR.
+        string delegatedToken = PopTestCrypto.CreateDelegatedAccessToken(
+            PopTestCrypto.TestIssuer, PopTestCrypto.TestAudience, DateTime.UtcNow.AddMinutes(10),
+            PopTestCrypto.PopSigningKey, PopTestCrypto.PopKeyId);
+        string shr = PopTestCrypto.CreateSignedHttpRequest(
+            delegatedToken, ArmMethod, ArmUri, PopTestCrypto.PopSigningKey, PopTestCrypto.PopKeyId);
+        var client = _factory.CreateClient();
+
+        // Act
+        var response = await client.SendAsync(BuildPopRequest(shr, ArmUri, ArmMethod));
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Validate_WithTamperedMethod_ReturnsUnauthorizedAsync()
     {
         // Arrange: SHR signs POST, caller claims GET.

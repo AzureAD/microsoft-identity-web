@@ -129,6 +129,43 @@ internal sealed class ShrPopValidationService
             return ShrPopValidationResult.Fail("Embedded access token validation failed.");
         }
 
+        // SPIKE (throwaway): enforce the declared app-only scope. SHR/inner-AT validation above proves
+        // the embedded token is authentic but does NOT distinguish an app-only (client-credentials)
+        // token from a delegated/user one. Without this guard a valid, cnf-bound *delegated* token
+        // wrapped in an SHR would be accepted as PoP - and because the /Validate PoP branch skips the
+        // delegated-scope (scp) gate, it would sail past the AzureAd:Scopes check a Bearer caller faces.
+        // Reject anything that is not app-only; fail-closed (the handler logs the reason and 401s).
+        if (!IsAppOnlyToken(validatedAccessToken))
+        {
+            return ShrPopValidationResult.Fail(
+                "The embedded access token is not an app-only token; inbound SHR PoP is scoped to app-only (client-credentials) tokens.");
+        }
+
         return ShrPopValidationResult.Success(validatedAccessToken, accessTokenResult.ClaimsIdentity);
+    }
+
+    /// <summary>
+    /// Distinguishes an app-only (client-credentials) token from a delegated/user token. Per Entra
+    /// token semantics a delegated token carries the <c>scp</c> (scope) claim while an app-only token
+    /// does not; the optional <c>idtyp</c> claim, when emitted, states this authoritatively
+    /// (<c>"app"</c> vs <c>"user"</c>). A token is treated as app-only only when it has no <c>scp</c>
+    /// AND (no <c>idtyp</c>, or <c>idtyp == "app"</c>). <c>idtyp</c> presence is not required because it
+    /// is an optional claim many tenants do not emit. Entra always emits <c>scp</c> as a space-delimited
+    /// string and the token is signed/validated, so a caller cannot evade this by reshaping the claim.
+    /// </summary>
+    private static bool IsAppOnlyToken(JsonWebToken token)
+    {
+        if (token.TryGetPayloadValue<string>("scp", out _))
+        {
+            return false;
+        }
+
+        if (token.TryGetPayloadValue<string>("idtyp", out string? idtyp) &&
+            !string.Equals(idtyp, "app", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
     }
 }

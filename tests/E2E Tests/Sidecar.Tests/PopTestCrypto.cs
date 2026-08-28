@@ -124,6 +124,48 @@ internal static class PopTestCrypto
         CreateAccessTokenWithCnf(issuer, audience, expires, cnf: null);
 
     /// <summary>
+    /// Mints a DELEGATED (user) access token bound (via cnf.jwk) to <paramref name="cnfKey"/>: it
+    /// carries the <c>scp</c> claim and <c>idtyp "user"</c> (and no app <c>roles</c>). Used to prove the
+    /// sidecar's app-only guard rejects a delegated token wrapped in an otherwise-valid SHR - inbound
+    /// SHR PoP is scoped to app-only (client-credentials) tokens.
+    /// </summary>
+    public static string CreateDelegatedAccessToken(
+        string issuer,
+        string audience,
+        DateTime expires,
+        RSA cnfKey,
+        string cnfKeyId)
+    {
+        var handler = new JsonWebTokenHandler();
+        DateTime now = DateTime.UtcNow;
+
+        var claims = new Dictionary<string, object>
+        {
+            ["sub"] = "22222222-2222-2222-2222-222222222222",
+            ["oid"] = "22222222-2222-2222-2222-222222222222",
+            ["appid"] = audience,
+            ["idtyp"] = "user",
+            ["scp"] = "user_impersonation",
+            ["cnf"] = BuildCnf(cnfKey, cnfKeyId),
+        };
+
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Issuer = issuer,
+            Audience = audience,
+            IssuedAt = now,
+            NotBefore = now.AddMinutes(-5),
+            Expires = expires,
+            SigningCredentials = new SigningCredentials(
+                new RsaSecurityKey(AccessTokenSigningKey) { KeyId = AccessTokenKeyId },
+                SecurityAlgorithms.RsaSha256),
+            Claims = claims,
+        };
+
+        return handler.CreateToken(descriptor);
+    }
+
+    /// <summary>
     /// Creates an SHR over the given method + URI, signed by <paramref name="popSigningKey"/>.
     /// When <paramref name="tsOverrideEpochSeconds"/> is supplied, that exact (signed) ts is embedded
     /// instead of the current time - used to deterministically produce an expired-ts token.

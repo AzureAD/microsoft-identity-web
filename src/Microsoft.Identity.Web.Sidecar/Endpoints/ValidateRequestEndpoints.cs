@@ -31,9 +31,14 @@ public static class ValidateRequestEndpoints
         [FromServices] IConfiguration configuration)
     {
         // SPIKE (throwaway): inbound SHR PoP branch. The PoP authentication handler stashes the
-        // validated inner (app-only) access token here after re-hosted MISE SHR validation succeeds.
-        // App-only tokens carry roles, not scopes, so the scope check below is skipped for PoP - the
-        // same effective outcome as an app-only Bearer token under AllowWebApiToBeAuthorizedByACL.
+        // validated inner access token here after re-hosted MISE SHR validation succeeds - and only
+        // after ShrPopValidationService has asserted it is app-only (a delegated/user token is rejected
+        // there). App-only tokens carry roles, not the 'scp' claim, so the delegated-scope gate below
+        // (AzureAd:Scopes -> VerifyUserHasAnyAcceptedScope, which matches on 'scp') does not apply to
+        // PoP and is intentionally skipped. NOTE this is deliberately NOT identical to the sidecar's
+        // default token path when AzureAd:Scopes is set: there a token without an 'scp' claim is 403'd,
+        // whereas the PoP path relies on the app-only assertion above instead. Production open item:
+        // decide whether PoP needs a symmetric app-permission (roles) authorization gate.
         if (httpContext.Items[PopConstants.ValidatedAccessTokenItemKey] is JsonWebToken popToken)
         {
             return BuildResult(logger, PopConstants.ProtocolName, popToken);
