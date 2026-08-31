@@ -8,6 +8,9 @@ namespace Microsoft.Identity.Web.Sidecar;
 
 public class AgentOverrides
 {
+    internal const string InvalidAgentUserIdMessage =
+        "AgentUserId must be a non-empty GUID.";
+
     /// <summary>
     /// Applies agent identity overrides to <see cref="DownstreamApiOptions"/>.
     /// Precedence:
@@ -37,15 +40,26 @@ public class AgentOverrides
         {
             options.WithAgentUserIdentity(agentIdentity, agentUsername);
         }
-        else if (!string.IsNullOrWhiteSpace(agentUserId) &&
-            Guid.TryParse(agentUserId, out Guid userGuid))
+        else if (agentUserId is null)
         {
-            options.WithAgentUserIdentity(agentIdentity, userGuid);
+            options.WithAgentIdentity(agentIdentity);
         }
         else
         {
-            // Fallback to plain agent identity.
-            options.WithAgentIdentity(agentIdentity);
+            if (!Guid.TryParse(agentUserId, out Guid userGuid) || userGuid == Guid.Empty)
+            {
+                throw new AgentUserIdValidationException();
+            }
+
+            options.WithAgentUserIdentity(agentIdentity, userGuid);
         }
+    }
+}
+
+internal sealed class AgentUserIdValidationException : ArgumentException
+{
+    internal AgentUserIdValidationException()
+        : base(AgentOverrides.InvalidAgentUserIdMessage)
+    {
     }
 }
