@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
@@ -17,14 +18,24 @@ namespace Microsoft.Identity.Web
     internal class TokenAcquisitionAuthenticationProvider : IAuthenticationProvider
     {
         public TokenAcquisitionAuthenticationProvider(IAuthorizationHeaderProvider authorizationHeaderProvider, TokenAcquisitionAuthenticationProviderOption options)
-        { 
+        {
             _authorizationHeaderProvider = authorizationHeaderProvider;
             _initialOptions = options;
+        }
+
+        internal TokenAcquisitionAuthenticationProvider(
+            IAuthorizationHeaderProvider authorizationHeaderProvider,
+            TokenAcquisitionAuthenticationProviderOption options,
+            string baseUrl)
+            : this(authorizationHeaderProvider, options)
+        {
+            BindBaseUrl(baseUrl);
         }
 
         private readonly IAuthorizationHeaderProvider _authorizationHeaderProvider;
         private readonly TokenAcquisitionAuthenticationProviderOption _initialOptions;
         private readonly IEnumerable<string> _defaultGraphScope = ["https://graph.microsoft.com/.default"];
+        private GraphOrigin? _graphOrigin;
 
         /// <summary>
         /// Adds an authorization header to an HttpRequestMessage.
@@ -33,6 +44,9 @@ namespace Microsoft.Identity.Web
         /// <returns>A Task (as this is an async method).</returns>
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
+            _ = Throws.IfNull(request);
+            ValidateRequestUri(request.RequestUri);
+
             // Default options to settings provided during initialization
             var scopes = _initialOptions.Scopes;
             bool appOnly = _initialOptions.AppOnly ?? false;
@@ -69,7 +83,7 @@ namespace Microsoft.Identity.Web
                     downstreamOptions,
                     user).ConfigureAwait(false);
 
-            // add or replace authorization header
+            // Add or replace authorization header.
             if (request.Headers.Contains(Constants.Authorization))
             {
                 request.Headers.Remove(Constants.Authorization);
@@ -78,7 +92,25 @@ namespace Microsoft.Identity.Web
             request.Headers.Add(
                 Constants.Authorization, authorizationHeader);
 
-            downstreamOptions?.CustomizeHttpRequestMessage?.Invoke(request);
+            try
+            {
+                downstreamOptions.CustomizeHttpRequestMessage?.Invoke(request);
+                ValidateRequestUri(request.RequestUri);
+            }
+            catch
+            {
+                request.Headers.Remove(Constants.Authorization);
+                throw;
+            }
+        }
+
+        internal void BindBaseUrl(string? baseUrl)
+        {
+            GraphOrigin graphOrigin = GraphOrigin.Create(baseUrl);
+            if (Interlocked.CompareExchange(ref _graphOrigin, graphOrigin, null) is not null)
+            {
+                throw new InvalidOperationException("The Microsoft Graph base URL has already been bound.");
+            }
         }
 
         /// <summary>
@@ -91,6 +123,52 @@ namespace Microsoft.Identity.Web
             AuthenticationHandlerOption authHandlerOption = httpRequestMessage.GetMiddlewareOption<AuthenticationHandlerOption>();
 
             return authHandlerOption?.AuthenticationProviderOption as TokenAcquisitionAuthenticationProviderOption;
+        }
+
+        private void ValidateRequestUri(Uri? requestUri)
+        {
+            GraphOrigin? graphOrigin = Volatile.Read(ref _graphOrigin);
+            if (graphOrigin is null || !graphOrigin.Matches(requestUri))
+            {
+                throw new InvalidOperationException(
+                    "The request URI must be an absolute HTTPS URI with the configured Microsoft Graph origin.");
+            }
+        }
+
+        private sealed class GraphOrigin
+        {
+            private GraphOrigin(string host, int port)
+            {
+                Host = host;
+                Port = port;
+            }
+
+            private string Host { get; }
+
+            private int Port { get; }
+
+            internal static GraphOrigin Create(string? baseUrl)
+            {
+                if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out Uri? uri)
+                    || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                    || string.IsNullOrEmpty(uri.Host))
+                {
+                    throw new ArgumentException(
+                        "The Microsoft Graph base URL must be an absolute HTTPS URI.",
+                        nameof(baseUrl));
+                }
+
+                return new GraphOrigin(uri.IdnHost, uri.Port);
+            }
+
+            internal bool Matches(Uri? uri)
+            {
+                return uri is not null
+                    && uri.IsAbsoluteUri
+                    && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(uri.IdnHost, Host, StringComparison.OrdinalIgnoreCase)
+                    && uri.Port == Port;
+            }
         }
     }
 }
