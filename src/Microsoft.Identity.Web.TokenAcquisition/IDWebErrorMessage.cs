@@ -13,6 +13,8 @@ namespace Microsoft.Identity.Web
      */
     internal static class IDWebErrorMessage
     {
+        public const string L2CacheRemovalFailedErrorCode = "idw_l2_cache_removal_failed";
+
         // General IDW10000 = "IDW10000:"
         public const string HttpContextIsNull = "IDW10001: HttpContext is null. ";
         public const string HttpContextAndHttpResponseAreNull = "IDW10002: Current HttpContext and HttpResponse arguments are null. Pass an HttpResponse argument. ";

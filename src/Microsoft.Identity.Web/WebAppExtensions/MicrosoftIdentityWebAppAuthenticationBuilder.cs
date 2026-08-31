@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -217,7 +218,17 @@ namespace Microsoft.Identity.Web
                        {
                            // Remove the account from MSAL.NET token cache
                            var tokenAcquisition = context!.HttpContext.RequestServices.GetRequiredService<ITokenAcquisitionInternal>();
-                           await tokenAcquisition.RemoveAccountAsync(context!.HttpContext.User, openIdConnectScheme).ConfigureAwait(false);
+                           try
+                           {
+                               await tokenAcquisition.RemoveAccountAsync(context!.HttpContext.User, openIdConnectScheme).ConfigureAwait(false);
+                           }
+                           catch (MsalClientException ex) when (ex.ErrorCode == IDWebErrorMessage.L2CacheRemovalFailedErrorCode)
+                           {
+                               context.HttpContext.RequestServices
+                                   .GetService<ILogger<MicrosoftIdentityWebAppAuthenticationBuilder>>()?
+                                   .LogWarning(ex, "The distributed token cache entry could not be removed. OpenID Connect sign-out will continue.");
+                           }
+
                            await signOutHandler(context).ConfigureAwait(false);
                        };
                    });

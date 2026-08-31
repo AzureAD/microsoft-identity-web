@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 {
@@ -29,6 +32,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         private readonly string _distributedCacheType = "DistributedCache"; // for logging
         private readonly string _memoryCacheType = "MemoryCache"; // for logging
         private const string DefaultPurpose = "msal_cache";
+        private readonly ConcurrentDictionary<string, object> _failedL2CacheRemovals =
+            new ConcurrentDictionary<string, object>();
 
         /// <summary>
         /// MSAL distributed token cache options.
@@ -115,6 +120,9 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCacheMessage);
             }
 
+            object removalMarker = new object();
+            _failedL2CacheRemovals[cacheKey] = removalMarker;
+
             if (_memoryCache != null)
             {
                 _memoryCache.Remove(cacheKey);
@@ -122,10 +130,8 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 Logger.MemoryCacheRemove(_logger, _memoryCacheType, remove, cacheKey, null);
             }
 
-            await L2OperationWithRetryOnFailureAsync(
-                remove,
-                (cacheKey) => _distributedCache.RemoveAsync(cacheKey, cacheSerializerHints.CancellationToken),
-                cacheKey).ConfigureAwait(false);
+            await RemoveFromL2CacheAsync(cacheKey, cacheSerializerHints.CancellationToken).ConfigureAwait(false);
+            RemoveFailedRemovalIfCurrent(cacheKey, removalMarker);
         }
 
         /// <summary>
@@ -157,6 +163,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             if (!string.IsNullOrEmpty(cacheSerializerHints.ShouldNotUseDistributedCacheMessage))
             {
                 throw new InvalidOperationException(TokenCacheErrorMessage.CannotUseDistributedCache + " " + cacheSerializerHints?.ShouldNotUseDistributedCacheMessage);
+            }
+
+            if (_failedL2CacheRemovals.TryGetValue(cacheKey, out _))
+            {
+                _memoryCache?.Remove(cacheKey);
+                return null;
             }
 
             if (_memoryCache != null)
@@ -192,6 +204,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     // back propagate to memory cache
                     if (result != null)
                     {
+                        if (_failedL2CacheRemovals.TryGetValue(cacheKey, out _))
+                        {
+                            _memoryCache.Remove(cacheKey);
+                            return null;
+                        }
+
                         MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow = _memoryCacheExpirationTime,
@@ -200,8 +218,20 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
                         Logger.BackPropagateL2toL1(_logger, memoryCacheEntryOptions.Size ?? 0);
                         _memoryCache.Set(cacheKey, result, memoryCacheEntryOptions);
+                        if (_failedL2CacheRemovals.TryGetValue(cacheKey, out _))
+                        {
+                            _memoryCache.Remove(cacheKey);
+                            return null;
+                        }
+
                         Logger.MemoryCacheCount(_logger, _memoryCacheType, read, _memoryCache.Count);
                     }
+                }
+
+                if (_failedL2CacheRemovals.TryGetValue(cacheKey, out _))
+                {
+                    _memoryCache?.Remove(cacheKey);
+                    return null;
                 }
             }
             else
@@ -211,6 +241,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                        (cacheKey) => _distributedCache.RefreshAsync(cacheKey, cacheSerializerHints.CancellationToken),
                        cacheKey,
                        result!).ConfigureAwait(false);
+
+                if (_failedL2CacheRemovals.TryGetValue(cacheKey, out _))
+                {
+                    _memoryCache?.Remove(cacheKey);
+                    return null;
+                }
 
                 if (telemetryData != null)
                 {
@@ -247,6 +283,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
             CacheSerializerHints? cacheSerializerHints)
         {
             const string write = "Write";
+            _failedL2CacheRemovals.TryGetValue(cacheKey, out object? failedRemovalAtInvocation);
 
             DateTimeOffset? cacheExpiry = cacheSerializerHints?.SuggestedCacheExpiry;
 
@@ -285,7 +322,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
 
             if (_distributedCacheOptions.DisableL1Cache || !_distributedCacheOptions.EnableAsyncL2Write)
             {
-                await L2OperationWithRetryOnFailureAsync(
+                var writeMeasure = await L2OperationWithRetryOnFailureAsync(
                     write,
                     (cacheKey) => _distributedCache.SetAsync(
                         cacheKey,
@@ -295,23 +332,27 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                         cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
                     cacheKey,
                     bytes!).MeasureAsync().ConfigureAwait(false);
+                ClearFailedRemovalAfterConfirmedWrite(cacheKey, failedRemovalAtInvocation, writeMeasure.Result);
             }
             else
             {
-                _ = Task.Run(async () => await
-                 L2OperationWithRetryOnFailureAsync(
-                 write,
-                 (cacheKey) => _distributedCache.SetAsync(
-                     cacheKey,
-                     bytes!,
-                     distributedCacheEntryOptions,
-                     cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
-                 cacheKey,
-                 bytes!).MeasureAsync().ConfigureAwait(false));
+                _ = Task.Run(async () =>
+                {
+                    var writeMeasure = await L2OperationWithRetryOnFailureAsync(
+                        write,
+                        (cacheKey) => _distributedCache.SetAsync(
+                            cacheKey,
+                            bytes!,
+                            distributedCacheEntryOptions,
+                            cacheSerializerHints?.CancellationToken ?? CancellationToken.None),
+                        cacheKey,
+                        bytes!).MeasureAsync().ConfigureAwait(false);
+                    ClearFailedRemovalAfterConfirmedWrite(cacheKey, failedRemovalAtInvocation, writeMeasure.Result);
+                });
             }
         }
 
-        private async Task L2OperationWithRetryOnFailureAsync(
+        private async Task<bool> L2OperationWithRetryOnFailureAsync(
             string operation,
             Func<string, Task> cacheOperation,
             string cacheKey,
@@ -329,6 +370,7 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                     bytes?.Length ?? 0,
                     inRetry,
                     measure.MilliSeconds);
+                return true;
             }
             catch (Exception ex)
             {
@@ -343,14 +385,107 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
                 if (_distributedCacheOptions.OnL2CacheFailure != null && _distributedCacheOptions.OnL2CacheFailure(ex) && !inRetry)
                 {
                     Logger.DistributedCacheRetry(_logger, _distributedCacheType, operation, cacheKey, null);
-                    await L2OperationWithRetryOnFailureAsync(
+                    return await L2OperationWithRetryOnFailureAsync(
                         operation,
                         cacheOperation,
                         cacheKey,
                         bytes,
                         true).ConfigureAwait(false);
                 }
+
+                return false;
             }
+        }
+
+        private async Task RemoveFromL2CacheAsync(string cacheKey, CancellationToken cancellationToken)
+        {
+            const string remove = "Remove";
+
+            try
+            {
+                await RemoveFromL2CacheAsync(cacheKey, false, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception initialException)
+            {
+                Logger.DistributedCacheConnectionError(
+                    _logger,
+                    _distributedCacheType,
+                    remove,
+                    false,
+                    initialException.Message,
+                    initialException);
+
+                if (_distributedCacheOptions.OnL2CacheFailure?.Invoke(initialException) != true)
+                {
+                    throw CreateRemovalFailure(initialException);
+                }
+
+                Logger.DistributedCacheRetry(_logger, _distributedCacheType, remove, cacheKey, null);
+                try
+                {
+                    await RemoveFromL2CacheAsync(cacheKey, true, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception retryException)
+                {
+                    Logger.DistributedCacheConnectionError(
+                        _logger,
+                        _distributedCacheType,
+                        remove,
+                        true,
+                        retryException.Message,
+                        retryException);
+                    throw CreateRemovalFailure(retryException);
+                }
+            }
+        }
+
+        private async Task RemoveFromL2CacheAsync(
+            string cacheKey,
+            bool inRetry,
+            CancellationToken cancellationToken)
+        {
+            var measure = await _distributedCache.RemoveAsync(cacheKey, cancellationToken).MeasureAsync().ConfigureAwait(false);
+            Logger.DistributedCacheStateWithTime(
+                _logger,
+                _distributedCacheType,
+                "Remove",
+                cacheKey,
+                0,
+                inRetry,
+                measure.MilliSeconds);
+        }
+
+        private static MsalClientException CreateRemovalFailure(Exception innerException)
+        {
+            return new MsalClientException(
+                TokenCacheErrorMessage.L2CacheRemovalFailedErrorCode,
+                TokenCacheErrorMessage.L2CacheRemovalFailed,
+                innerException);
+        }
+
+        private void ClearFailedRemovalAfterConfirmedWrite(
+            string cacheKey,
+            object? failedRemovalAtInvocation,
+            bool writeConfirmed)
+        {
+            if (writeConfirmed && failedRemovalAtInvocation != null)
+            {
+                RemoveFailedRemovalIfCurrent(cacheKey, failedRemovalAtInvocation);
+            }
+        }
+
+        private void RemoveFailedRemovalIfCurrent(string cacheKey, object failedRemoval)
+        {
+            ((ICollection<KeyValuePair<string, object>>)_failedL2CacheRemovals)
+                .Remove(new KeyValuePair<string, object>(cacheKey, failedRemoval));
         }
 
         private async Task<byte[]?> L2OperationWithRetryOnFailureAsync(

@@ -1163,6 +1163,82 @@ namespace Microsoft.Identity.Web.Test
             await tokenAcquisitionMock.ReceivedWithAnyArgs().RemoveAccountAsync(Arg.Any<ClaimsPrincipal>());
         }
 
+        [Fact]
+        public async Task SignOutCacheRemovalFailure_InvokesOriginalHandlerOnceAsync()
+        {
+            // Arrange
+            var tokenAcquisition = Substitute.For<ITokenAcquisitionInternal>();
+            var redirectHandler = Substitute.For<Func<RedirectContext, Task>>();
+            tokenAcquisition
+                .RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), Arg.Any<string?>())
+                .Returns(_ => throw new MsalClientException(
+                    IDWebErrorMessage.L2CacheRemovalFailedErrorCode,
+                    "cache removal failed"));
+            var (provider, options) = CreateSignOutServices(tokenAcquisition, redirectHandler);
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
+
+            // Act
+            await options.Events.RedirectToIdentityProviderForSignOut(
+                new RedirectContext(httpContext, authScheme, options, authProperties));
+
+            // Assert
+            await tokenAcquisition.Received(1).RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), OidcScheme);
+            await redirectHandler.Received(1).Invoke(Arg.Any<RedirectContext>());
+        }
+
+        [Fact]
+        public async Task SignOutUnrelatedRemovalFailure_PropagatesWithoutInvokingOriginalHandlerAsync()
+        {
+            // Arrange
+            InvalidOperationException removalException = new InvalidOperationException("unrelated removal failure");
+            var tokenAcquisition = Substitute.For<ITokenAcquisitionInternal>();
+            var redirectHandler = Substitute.For<Func<RedirectContext, Task>>();
+            tokenAcquisition
+                .RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), Arg.Any<string?>())
+                .Returns(_ => throw removalException);
+            var (provider, options) = CreateSignOutServices(tokenAcquisition, redirectHandler);
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
+
+            // Act
+            Exception? exception = await Record.ExceptionAsync(
+                () => options.Events.RedirectToIdentityProviderForSignOut(
+                    new RedirectContext(httpContext, authScheme, options, authProperties)));
+
+            // Assert
+            Assert.Same(removalException, exception);
+            await tokenAcquisition.Received(1).RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), OidcScheme);
+            await redirectHandler.DidNotReceive().Invoke(Arg.Any<RedirectContext>());
+        }
+
+        private (ServiceProvider Provider, OpenIdConnectOptions Options) CreateSignOutServices(
+            ITokenAcquisitionInternal tokenAcquisition,
+            Func<RedirectContext, Task> redirectHandler)
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton((provider) => _env)
+                .AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(
+                    options =>
+                    {
+                        _configureMsOptions(options);
+                        options.Events.OnRedirectToIdentityProviderForSignOut = redirectHandler;
+                    },
+                    null,
+                    OidcScheme)
+                .EnableTokenAcquisitionToCallDownstreamApi(new[] { "custom_scope" });
+            services.RemoveAll<ITokenAcquisition>();
+            services.RemoveAll<ITokenAcquisitionInternal>();
+            services.AddScoped<ITokenAcquisition>(_ => tokenAcquisition);
+            services.AddScoped<ITokenAcquisitionInternal>(_ => tokenAcquisition);
+
+            ServiceProvider provider = services.BuildServiceProvider();
+            OpenIdConnectOptions options = provider
+                .GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
+                .Get(OidcScheme);
+            return (provider, options);
+        }
+
         private (HttpContext, AuthenticationScheme, AuthenticationProperties) CreateContextParameters(IServiceProvider provider, IEnumerable<Claim>? claims = null)
         {
             var httpContext = claims != null ? HttpContextUtilities.CreateHttpContext(claims) : HttpContextUtilities.CreateHttpContext();

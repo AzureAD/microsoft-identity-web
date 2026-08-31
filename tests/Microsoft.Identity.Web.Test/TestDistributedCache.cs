@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,10 @@ namespace Microsoft.Identity.Web.Test
     {
         internal readonly ConcurrentDictionary<string, Entry> _dict = new ConcurrentDictionary<string, Entry>();
         internal ManualResetEventSlim ResetEvent { get; set; } = new ManualResetEventSlim(initialState: false);
+        internal Func<string, CancellationToken, Task<byte[]?>>? GetAsyncOverride { get; set; }
+        internal Func<string, CancellationToken, Task>? RefreshAsyncOverride { get; set; }
+        internal Func<string, CancellationToken, Task>? RemoveAsyncOverride { get; set; }
+        internal Func<string, byte[], DistributedCacheEntryOptions, CancellationToken, Task>? SetAsyncOverride { get; set; }
 
         public byte[]? Get(string key)
         {
@@ -35,6 +40,11 @@ namespace Microsoft.Identity.Web.Test
 
         public Task<byte[]?> GetAsync(string key, CancellationToken token = default)
         {
+            if (GetAsyncOverride != null)
+            {
+                return GetAsyncOverride(key, token);
+            }
+
             return Task.FromResult(Get(key));
         }
 
@@ -45,6 +55,11 @@ namespace Microsoft.Identity.Web.Test
 
         public Task RefreshAsync(string key, CancellationToken token = default)
         {
+            if (RefreshAsyncOverride != null)
+            {
+                return RefreshAsyncOverride(key, token);
+            }
+
             Refresh(key);
             return Task.CompletedTask;
         }
@@ -56,6 +71,11 @@ namespace Microsoft.Identity.Web.Test
 
         public Task RemoveAsync(string key, CancellationToken token = default)
         {
+            if (RemoveAsyncOverride != null)
+            {
+                return RemoveAsyncOverride(key, token);
+            }
+
             Remove(key);
             return Task.CompletedTask;
         }
@@ -68,6 +88,11 @@ namespace Microsoft.Identity.Web.Test
 
         public Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
+            if (SetAsyncOverride != null)
+            {
+                return SetAsyncOverride(key, value, options, token);
+            }
+
             Set(key, value, options);
             return Task.CompletedTask;
         }

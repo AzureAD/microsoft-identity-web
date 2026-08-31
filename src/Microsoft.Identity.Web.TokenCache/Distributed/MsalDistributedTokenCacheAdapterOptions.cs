@@ -30,8 +30,12 @@ namespace Microsoft.Identity.Web.TokenCacheProviders.Distributed
         /// for instance, in the case of Redis exception, to reconnect. This is left to the application as it's
         /// the only one that knows about the real implementation of the L2 cache.
         /// The handler should return <c>true</c> if the cache should try the operation again, and
-        /// <c>false</c> otherwise. When <c>true</c> is passed and the retry fails, an exception
-        /// will be thrown.
+        /// <c>false</c> otherwise. Read, refresh, and write failures remain fail-open. For removal,
+        /// caller cancellation bypasses this callback, other failures invoke it once, and
+        /// <c>true</c> requests one retry. Callback exceptions propagate. An unconfirmed removal
+        /// suppresses process-local reads for that key until a later removal, or a later write
+        /// that observed the failed removal, is confirmed. This does not order successful removals
+        /// against ordinary L2 reads already in progress.
         /// </summary>
         public Func<Exception, bool>? OnL2CacheFailure { get; set; }
 

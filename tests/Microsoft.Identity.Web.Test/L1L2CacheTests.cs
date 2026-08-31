@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Cache;
 using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
@@ -392,6 +396,404 @@ namespace Microsoft.Identity.Web.Test
             Assert.Empty(L2Cache._dict);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task RemoveFailure_ThrowsAndBlocksReadsAsync(bool disableL1Cache)
+        {
+            // Arrange
+            InvalidOperationException removalException = new InvalidOperationException("remove failed");
+            var (adapter, cache, _) = CreateAdapter(disableL1Cache);
+            cache.Set(DefaultCacheKey, new byte[] { 1 });
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(removalException);
+
+            // Act
+            MsalClientException exception = await Assert.ThrowsAsync<MsalClientException>(
+                () => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Equal(TokenCacheErrorMessage.L2CacheRemovalFailedErrorCode, exception.ErrorCode);
+            Assert.Same(removalException, exception.InnerException);
+            Assert.Null(result);
+            Assert.Null(adapter._memoryCache?.Get(DefaultCacheKey));
+        }
+
+        [Fact]
+        public async Task RemoveFailure_CallbackFalseIsCalledOnceWithoutRetryAsync()
+        {
+            // Arrange
+            int attempts = 0;
+            int callbackCalls = 0;
+            var (adapter, cache, options) = CreateAdapter();
+            options.OnL2CacheFailure = _ =>
+            {
+                callbackCalls++;
+                return false;
+            };
+            cache.RemoveAsyncOverride = (_, _) =>
+            {
+                attempts++;
+                return Task.FromException(new InvalidOperationException("remove failed"));
+            };
+
+            // Act
+            MsalClientException exception = await Assert.ThrowsAsync<MsalClientException>(
+                () => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+
+            // Assert
+            Assert.Equal(TokenCacheErrorMessage.L2CacheRemovalFailedErrorCode, exception.ErrorCode);
+            Assert.Equal(1, attempts);
+            Assert.Equal(1, callbackCalls);
+        }
+
+        [Fact]
+        public async Task RemoveFailure_CallbackTrueRetriesOnceAsync()
+        {
+            // Arrange
+            int attempts = 0;
+            int callbackCalls = 0;
+            var (adapter, cache, options) = CreateAdapter();
+            cache.Set(DefaultCacheKey, new byte[] { 1 });
+            options.OnL2CacheFailure = _ =>
+            {
+                callbackCalls++;
+                return true;
+            };
+            cache.RemoveAsyncOverride = (key, _) =>
+            {
+                attempts++;
+                if (attempts == 1)
+                {
+                    return Task.FromException(new InvalidOperationException("remove failed"));
+                }
+
+                cache.Remove(key);
+                return Task.CompletedTask;
+            };
+
+            // Act
+            await adapter.TestRemoveKeyAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Equal(2, attempts);
+            Assert.Equal(1, callbackCalls);
+            Assert.Null(await adapter.TestReadCacheBytesAsync(DefaultCacheKey));
+        }
+
+        [Fact]
+        public async Task RemoveRetryFailure_ThrowsFinalFailureAsync()
+        {
+            // Arrange
+            int attempts = 0;
+            int callbackCalls = 0;
+            InvalidOperationException retryException = new InvalidOperationException("retry failed");
+            var (adapter, cache, options) = CreateAdapter();
+            options.OnL2CacheFailure = _ =>
+            {
+                callbackCalls++;
+                return true;
+            };
+            cache.RemoveAsyncOverride = (_, _) =>
+            {
+                attempts++;
+                return Task.FromException(
+                    attempts == 1 ? new InvalidOperationException("remove failed") : retryException);
+            };
+
+            // Act
+            MsalClientException exception = await Assert.ThrowsAsync<MsalClientException>(
+                () => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+
+            // Assert
+            Assert.Equal(2, attempts);
+            Assert.Equal(1, callbackCalls);
+            Assert.Same(retryException, exception.InnerException);
+        }
+
+        [Fact]
+        public async Task RemoveFailure_CallbackExceptionPropagatesAsync()
+        {
+            // Arrange
+            ApplicationException callbackException = new ApplicationException("callback failed");
+            var (adapter, cache, options) = CreateAdapter();
+            options.OnL2CacheFailure = _ => throw callbackException;
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+
+            // Act
+            ApplicationException exception = await Assert.ThrowsAsync<ApplicationException>(
+                () => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+
+            // Assert
+            Assert.Same(callbackException, exception);
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            Assert.Null(await adapter.TestReadCacheBytesAsync(DefaultCacheKey));
+        }
+
+        [Fact]
+        public async Task RemoveCancellation_PropagatesWithoutCallbackOrRetryAsync()
+        {
+            // Arrange
+            int attempts = 0;
+            int callbackCalls = 0;
+            var (adapter, cache, options) = CreateAdapter();
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await cancellationTokenSource.CancelAsync();
+            OperationCanceledException expectedException = new OperationCanceledException(
+                "caller canceled",
+                innerException: null,
+                cancellationTokenSource.Token);
+            options.OnL2CacheFailure = _ =>
+            {
+                callbackCalls++;
+                return true;
+            };
+            cache.RemoveAsyncOverride = (_, _) =>
+            {
+                attempts++;
+                return Task.FromException(expectedException);
+            };
+            CacheSerializerHints hints = new CacheSerializerHints
+            {
+                CancellationToken = cancellationTokenSource.Token,
+            };
+
+            // Act
+            OperationCanceledException exception = await Assert.ThrowsAsync<OperationCanceledException>(
+                () => adapter.TestRemoveKeyAsync(DefaultCacheKey, hints));
+
+            // Assert
+            Assert.Same(expectedException, exception);
+            Assert.Equal(1, attempts);
+            Assert.Equal(0, callbackCalls);
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            Assert.Null(await adapter.TestReadCacheBytesAsync(DefaultCacheKey));
+        }
+
+#pragma warning disable VSTHRD003 // The tasks are deliberately coordinated to exercise overlapping removals.
+        [Fact]
+        public async Task OlderSuccessfulRemoval_DoesNotClearNewerFailedRemovalMarkerAsync()
+        {
+            // Arrange
+            var (adapter, cache, _) = CreateAdapter();
+            int attempts = 0;
+            TaskCompletionSource<object?> firstAttemptStarted = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<object?> releaseFirstAttempt = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            cache.RemoveAsyncOverride = async (key, _) =>
+            {
+                if (Interlocked.Increment(ref attempts) == 1)
+                {
+                    firstAttemptStarted.SetResult(null);
+                    await releaseFirstAttempt.Task;
+                    cache.Remove(key);
+                    return;
+                }
+
+                throw new InvalidOperationException("newer removal failed");
+            };
+
+            // Act
+            Task olderRemoval = adapter.TestRemoveKeyAsync(DefaultCacheKey);
+            await firstAttemptStarted.Task;
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            releaseFirstAttempt.SetResult(null);
+            await olderRemoval;
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Equal(2, attempts);
+            Assert.Null(result);
+            Assert.Equal(1, GetFailedRemovalCount(adapter));
+        }
+
+        [Fact]
+        public async Task OlderFailedRemoval_DoesNotPublishAfterNewerSuccessfulRemovalAsync()
+        {
+            // Arrange
+            var (adapter, cache, _) = CreateAdapter();
+            int attempts = 0;
+            TaskCompletionSource<object?> firstAttemptStarted = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<object?> releaseFirstAttempt = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            cache.RemoveAsyncOverride = async (key, _) =>
+            {
+                if (Interlocked.Increment(ref attempts) == 1)
+                {
+                    firstAttemptStarted.SetResult(null);
+                    await releaseFirstAttempt.Task;
+                    throw new InvalidOperationException("older removal failed");
+                }
+
+                cache.Remove(key);
+            };
+
+            // Act
+            Task olderRemoval = adapter.TestRemoveKeyAsync(DefaultCacheKey);
+            await firstAttemptStarted.Task;
+            await adapter.TestRemoveKeyAsync(DefaultCacheKey);
+            releaseFirstAttempt.SetResult(null);
+            await Assert.ThrowsAsync<MsalClientException>(() => olderRemoval);
+            cache.Set(DefaultCacheKey, new byte[] { 6 });
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Equal(2, attempts);
+            Assert.NotNull(result);
+            Assert.Equal(6, result[0]);
+            Assert.Equal(0, GetFailedRemovalCount(adapter));
+        }
+#pragma warning restore VSTHRD003
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ReadStartedBeforeFailedRemoval_DoesNotReturnOrBackfillAsync(bool useL1)
+        {
+            // Arrange
+            var (adapter, cache, _) = CreateAdapter();
+            SemaphoreSlim readStarted = new SemaphoreSlim(0, 1);
+            SemaphoreSlim releaseRead = new SemaphoreSlim(0, 1);
+            if (useL1)
+            {
+                adapter._memoryCache!.Set(
+                    DefaultCacheKey,
+                    new byte[] { 1 },
+                    new MemoryCacheEntryOptions { Size = 1 });
+                cache.RefreshAsyncOverride = async (_, _) =>
+                {
+                    readStarted.Release();
+                    await releaseRead.WaitAsync();
+                };
+            }
+            else
+            {
+                cache.GetAsyncOverride = async (_, _) =>
+                {
+                    readStarted.Release();
+                    await releaseRead.WaitAsync();
+                    return new byte[] { 1 };
+                };
+            }
+
+            // Act
+            Task<byte[]?> read = adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+            await readStarted.WaitAsync();
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            releaseRead.Release();
+            byte[]? result = await read;
+
+            // Assert
+            Assert.Null(result);
+            Assert.Null(adapter._memoryCache!.Get(DefaultCacheKey));
+        }
+
+        [Fact]
+        public async Task WriteStartedBeforeFailedRemoval_DoesNotClearNewerRemovalMarkerAsync()
+        {
+            // Arrange
+            var (adapter, cache, options) = CreateAdapter();
+            options.EnableAsyncL2Write = false;
+            SemaphoreSlim writeStarted = new SemaphoreSlim(0, 1);
+            SemaphoreSlim releaseWrite = new SemaphoreSlim(0, 1);
+            cache.SetAsyncOverride = async (key, value, entryOptions, _) =>
+            {
+                writeStarted.Release();
+                await releaseWrite.WaitAsync();
+                cache.Set(key, value, entryOptions);
+            };
+
+            // Act
+            Task write = adapter.TestWriteCacheBytesAsync(DefaultCacheKey, new byte[] { 2 });
+            await writeStarted.WaitAsync();
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            releaseWrite.Release();
+            await write;
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task ConfirmedWrite_ClearsOnlyMarkerObservedAtInvocationAsync()
+        {
+            // Arrange
+            var (adapter, cache, options) = CreateAdapter();
+            options.EnableAsyncL2Write = false;
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            SemaphoreSlim writeStarted = new SemaphoreSlim(0, 1);
+            SemaphoreSlim releaseWrite = new SemaphoreSlim(0, 1);
+            cache.SetAsyncOverride = async (key, value, entryOptions, _) =>
+            {
+                writeStarted.Release();
+                await releaseWrite.WaitAsync();
+                cache.Set(key, value, entryOptions);
+            };
+
+            // Act
+            Task write = adapter.TestWriteCacheBytesAsync(DefaultCacheKey, new byte[] { 3 });
+            await writeStarted.WaitAsync();
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            releaseWrite.Release();
+            await write;
+            cache.GetAsyncOverride = (_, _) => throw new Xunit.Sdk.XunitException("L2 read should be blocked.");
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.Null(result);
+            Assert.Equal(1, GetFailedRemovalCount(adapter));
+        }
+
+        [Fact]
+        public async Task ConfirmedWriteAndLaterRemoval_ClearFailedRemovalMarkerAsync()
+        {
+            // Arrange
+            var (adapter, cache, options) = CreateAdapter();
+            options.EnableAsyncL2Write = false;
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+
+            // Act and assert confirmed write recovery
+            await adapter.TestWriteCacheBytesAsync(DefaultCacheKey, new byte[] { 4 });
+            Assert.Equal(4, (await adapter.TestReadCacheBytesAsync(DefaultCacheKey))![0]);
+            Assert.Equal(0, GetFailedRemovalCount(adapter));
+
+            // Act and assert confirmed later removal recovery
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            Assert.Equal(1, GetFailedRemovalCount(adapter));
+            cache.RemoveAsyncOverride = null;
+            await adapter.TestRemoveKeyAsync(DefaultCacheKey);
+            cache.Set(DefaultCacheKey, new byte[] { 5 });
+
+            // Assert
+            Assert.Equal(5, (await adapter.TestReadCacheBytesAsync(DefaultCacheKey))![0]);
+            Assert.Equal(0, GetFailedRemovalCount(adapter));
+        }
+
+        [Fact]
+        public async Task OrdinaryReadAndWrite_DoNotCreateFailedRemovalMarkersAsync()
+        {
+            // Arrange
+            var (adapter, _, _) = CreateAdapter();
+
+            // Act
+            Assert.Null(await adapter.TestReadCacheBytesAsync(DefaultCacheKey));
+            await adapter.TestWriteCacheBytesAsync(AnotherCacheKey, new byte[] { 1 });
+
+            // Assert
+            Assert.Equal(0, GetFailedRemovalCount(adapter));
+        }
+
 
         [Fact]
         public async Task SetLCache_ThrowIf_ShouldNotUseDistributedCache_TestAsync()
@@ -441,6 +843,32 @@ namespace Microsoft.Identity.Web.Test
         private static IDistributedCache MakeMockDistributedCache()
         {
             return new TestDistributedCache();
+        }
+
+        private static int GetFailedRemovalCount(TestMsalDistributedTokenCacheAdapter adapter)
+        {
+            FieldInfo field = typeof(MsalDistributedTokenCacheAdapter).GetField(
+                "_failedL2CacheRemovals",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            return ((ConcurrentDictionary<string, object>)field.GetValue(adapter)!).Count;
+        }
+
+        private static (
+            TestMsalDistributedTokenCacheAdapter Adapter,
+            TestDistributedCache Cache,
+            MsalDistributedTokenCacheAdapterOptions Options) CreateAdapter(bool disableL1Cache = false)
+        {
+            TestDistributedCache cache = new TestDistributedCache();
+            MsalDistributedTokenCacheAdapterOptions options = new MsalDistributedTokenCacheAdapterOptions
+            {
+                DisableL1Cache = disableL1Cache,
+            };
+            ServiceProvider provider = new ServiceCollection().AddLogging().BuildServiceProvider();
+            TestMsalDistributedTokenCacheAdapter adapter = new TestMsalDistributedTokenCacheAdapter(
+                cache,
+                Microsoft.Extensions.Options.Options.Create(options),
+                provider.GetRequiredService<ILogger<MsalDistributedTokenCacheAdapter>>());
+            return (adapter, cache, options);
         }
     }
 }
