@@ -150,7 +150,14 @@ namespace Microsoft.Identity.Web.Test
             {
                 Scopes = new[] { "https://graph.microsoft.com/.default" },
                 ProtocolScheme = "MTLS_POP",
-                RequestAppToken = true
+                RequestAppToken = true,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Configured"] = "value"
+                    }
+                }
             };
 
             var mockAuthenticationResult = new AuthenticationResult(
@@ -196,6 +203,8 @@ namespace Microsoft.Identity.Web.Test
                     o.ExtraParameters.ContainsKey("IsTokenBinding") &&
                     o.ExtraParameters["IsTokenBinding"] is bool &&
                     (bool)o.ExtraParameters["IsTokenBinding"] == true));
+            Assert.Single(downstreamApiOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.False(downstreamApiOptions.AcquireTokenOptions.ExtraParameters.ContainsKey("IsTokenBinding"));
         }
 
         [Theory]

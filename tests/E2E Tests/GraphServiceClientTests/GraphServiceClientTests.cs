@@ -2,6 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
@@ -84,6 +88,174 @@ namespace Microsoft.Identity.Web.Test.Integration
 
             // assert
             Assert.False(request.Headers.ContainsKey("Authorization"));
+        }
+
+        [Fact]
+        public async Task AuthenticateRequestAsync_CustomRequestOptions_AreIsolatedAndReceiveGeneratedSessionKeyAsync()
+        {
+            // Arrange
+            var requestOptions = new CustomGraphAuthenticationOptions
+            {
+                ProtocolScheme = "Pop",
+                Scopes = null!,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    LongRunningWebApiSessionKey = AcquireTokenOptions.LongRunningWebApiSessionKeyAuto,
+                    ExtraParameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["Configured"] = "value"
+                    }
+                }
+            };
+            var authorizationHeaderProvider = new RecordingAuthorizationHeaderProvider();
+            RequestInformation request = new()
+            {
+                URI = new Uri("https://graph.microsoft.com/v1.0/me"),
+                HttpMethod = Method.GET
+            };
+            request.AddRequestOptions([requestOptions]);
+            GraphAuthenticationProvider graphAuthenticationProvider = new(
+                authorizationHeaderProvider,
+                new GraphServiceClientOptions { Scopes = ["default-scope"] });
+
+            // Act
+            await graphAuthenticationProvider.AuthenticateRequestAsync(request);
+
+            // Assert
+            Assert.Equal(["default-scope"], authorizationHeaderProvider.CapturedScopes);
+            Assert.NotSame(requestOptions, authorizationHeaderProvider.CapturedOptions);
+            Assert.NotSame(requestOptions.AcquireTokenOptions, authorizationHeaderProvider.CapturedOptions!.AcquireTokenOptions);
+            Assert.True(authorizationHeaderProvider.CapturedOptions.AcquireTokenOptions.ExtraParameters!.ContainsKey("CONFIGURED"));
+            Assert.Single(requestOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.False(requestOptions.AcquireTokenOptions.ExtraParameters.ContainsKey("request"));
+            Assert.Equal("generated-session-key", requestOptions.AcquireTokenOptions.LongRunningWebApiSessionKey);
+        }
+
+        [Fact]
+        public async Task AuthenticateRequestAsync_CancelledAuthentication_DoesNotModifySourceOptionsAsync()
+        {
+            // Arrange
+            var defaultOptions = new GraphServiceClientOptions
+            {
+                ProtocolScheme = "Pop",
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    LongRunningWebApiSessionKey = AcquireTokenOptions.LongRunningWebApiSessionKeyAuto,
+                    ExtraParameters = new Dictionary<string, object>
+                    {
+                        ["configured"] = "value"
+                    }
+                }
+            };
+            var requestOptions = new GraphAuthenticationOptions
+            {
+                ProtocolScheme = "Pop",
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    LongRunningWebApiSessionKey = AcquireTokenOptions.LongRunningWebApiSessionKeyAuto,
+                    ExtraParameters = new Dictionary<string, object>
+                    {
+                        ["request-configured"] = "value"
+                    }
+                }
+            };
+            var authorizationHeaderProvider = new RecordingAuthorizationHeaderProvider
+            {
+                Exception = new OperationCanceledException()
+            };
+            RequestInformation request = new()
+            {
+                URI = new Uri("https://graph.microsoft.com/v1.0/me"),
+                HttpMethod = Method.GET
+            };
+            request.AddRequestOptions([requestOptions]);
+            GraphAuthenticationProvider graphAuthenticationProvider = new(authorizationHeaderProvider, defaultOptions);
+
+            // Act
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                () => graphAuthenticationProvider.AuthenticateRequestAsync(request));
+
+            // Assert
+            Assert.Single(defaultOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.False(defaultOptions.AcquireTokenOptions.ExtraParameters.ContainsKey("request"));
+            Assert.Equal(
+                AcquireTokenOptions.LongRunningWebApiSessionKeyAuto,
+                defaultOptions.AcquireTokenOptions.LongRunningWebApiSessionKey);
+            Assert.Single(requestOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.False(requestOptions.AcquireTokenOptions.ExtraParameters.ContainsKey("request"));
+            Assert.Equal(
+                AcquireTokenOptions.LongRunningWebApiSessionKeyAuto,
+                requestOptions.AcquireTokenOptions.LongRunningWebApiSessionKey);
+        }
+
+        [Fact]
+        public async Task AuthenticateRequestAsync_BearerRequest_PreservesRequestDestinationOptionsAsync()
+        {
+            // Arrange
+            var authorizationHeaderProvider = new RecordingAuthorizationHeaderProvider();
+            RequestInformation request = new()
+            {
+                URI = new Uri("https://graph.microsoft.com/v1.0/me/messages"),
+                HttpMethod = Method.POST
+            };
+            GraphAuthenticationProvider graphAuthenticationProvider = new(
+                authorizationHeaderProvider,
+                new GraphServiceClientOptions { ProtocolScheme = "Bearer" });
+
+            // Act
+            await graphAuthenticationProvider.AuthenticateRequestAsync(request);
+
+            // Assert
+            Assert.Equal("graph.microsoft.com", authorizationHeaderProvider.CapturedOptions!.BaseUrl);
+            Assert.Equal("/v1.0/me/messages", authorizationHeaderProvider.CapturedOptions.RelativePath);
+            Assert.Equal("POST", authorizationHeaderProvider.CapturedOptions.HttpMethod);
+        }
+
+        private sealed class CustomGraphAuthenticationOptions : GraphAuthenticationOptions
+        {
+        }
+
+        private sealed class RecordingAuthorizationHeaderProvider : IAuthorizationHeaderProvider
+        {
+            public AuthorizationHeaderProviderOptions? CapturedOptions { get; private set; }
+
+            public IEnumerable<string>? CapturedScopes { get; private set; }
+
+            public Exception? Exception { get; init; }
+
+            public Task<string> CreateAuthorizationHeaderAsync(
+                IEnumerable<string> scopes,
+                AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null,
+                ClaimsPrincipal? claimsPrincipal = null,
+                CancellationToken cancellationToken = default)
+            {
+                CapturedScopes = scopes.ToArray();
+                CapturedOptions = authorizationHeaderProviderOptions;
+                CapturedOptions!.AcquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+                CapturedOptions.AcquireTokenOptions.ExtraParameters["request"] = "value";
+                CapturedOptions.AcquireTokenOptions.LongRunningWebApiSessionKey = "generated-session-key";
+
+                return Exception is null
+                    ? Task.FromResult("Bearer token")
+                    : Task.FromException<string>(Exception);
+            }
+
+            public Task<string> CreateAuthorizationHeaderForAppAsync(
+                string scopes,
+                AuthorizationHeaderProviderOptions? downstreamApiOptions = null,
+                CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<string> CreateAuthorizationHeaderForUserAsync(
+                IEnumerable<string> scopes,
+                AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions = null,
+                ClaimsPrincipal? claimsPrincipal = null,
+                CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

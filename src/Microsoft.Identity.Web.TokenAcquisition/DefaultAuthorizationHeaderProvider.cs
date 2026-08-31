@@ -279,7 +279,11 @@ namespace Microsoft.Identity.Web
             var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
             if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
-                extraParameters ??= new Dictionary<string, object>();
+                extraParameters = extraParameters is Dictionary<string, object> dictionary
+                    ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
+                    : extraParameters is not null
+                        ? new Dictionary<string, object>(extraParameters)
+                        : new Dictionary<string, object>();
                 extraParameters[TokenBindingParameterName] = s_boxedTrue;
             }
 
