@@ -44,13 +44,13 @@ This guide focuses on **#4 - validating scopes and app permissions**.
 
 **Used when:** A user delegates permission to an app to act on their behalf.
 
-**Token claim:** `scp` or `scope` for the client app
+**JWT claim:** `scp` for the client app
 **Example values:** `"access_as_user"`, `"User.Read"`, `"Files.ReadWrite"`
 
-**Token claim:** `roles`
+**JWT claim:** `roles`
 **Example values:** `"admin"`, `"SimpleUser"` for the  user.
 
-Delegated tokens can contain `role` or `roles` claims when app roles are assigned to the user or a group.
+Delegated tokens can contain `roles` claims when app roles are assigned to the user or a group.
 
 **Scenario:** Web API on behalf of signed-in user.
 
@@ -58,10 +58,12 @@ Delegated tokens can contain `role` or `roles` claims when app roles are assigne
 
 **Used when:** Web API called by an app acting as itself (no user context), like a daemon/background service.
 
-**Token claim:** `roles`
+**JWT claim:** `roles`
 **Example values:** `"Mail.Read.All"`, `"User.Read.All"`
 
 **Scenario:** Daemon app calls web API using client credentials.
+
+Microsoft.Identity.Web authorization handlers accept `scp` or its mapped scope claim type, and `roles` or mapped `ClaimTypes.Role`, depending on inbound claim mapping.
 
 ---
 
@@ -220,7 +222,7 @@ When a request arrives:
 
 ## App Permissions with RequiredScopeOrAppPermission
 
-The `RequiredScopeOrAppPermission` attribute uses OR semantics: authorization succeeds when an accepted scope is present in an `scp` or `scope` claim, or when an accepted app-permission value is present in a `role` or `roles` claim.
+The `RequiredScopeOrAppPermission` attribute uses OR semantics: authorization succeeds when an accepted scope is present in an `scp` or mapped scope claim type, or when an accepted app-permission value is present in a `roles` or mapped `ClaimTypes.Role` claim.
 
 Matching a role value does not by itself prove that the token is app-only because delegated tokens can also contain roles assigned to users or groups.
 
@@ -286,9 +288,9 @@ public class TodoListController : ControllerBase
 
 ### Token Claim Differences
 
-| Token Type | Claim | Example Value |
-|------------|-------|---------------|
-| **User-delegated** | `scp` or `scope`; may also contain `role` or `roles` | `"access_as_user User.Read"` |
+| Token Type | JWT Wire Claim | Example Value |
+|------------|----------------|---------------|
+| **User-delegated** | `scp`; may also contain `roles` | `"access_as_user User.Read"` |
 | **App-only** | `roles` | `["TodoList.ReadWrite.All"]` |
 
 **Example: User-delegated token:**
