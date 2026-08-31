@@ -136,6 +136,10 @@ to the `Web.config` `appSettings` section:
 <add key="ida:UseLegacyWebRootAppSettings" value="true" />
 ```
 
+This switch affects only automatic configuration loading by
+`OwinTokenAcquirerFactory`. Manual configuration builders choose their own file
+location and are not switched by this setting.
+
 When enabled, the integration loads `~/appsettings.json` and writes a warning.
 Missing, `false`, or invalid switch values use `~/bin/appsettings.json`; invalid
 values also write a warning. The integration selects exactly one location and never
@@ -248,6 +252,7 @@ namespace MyMvcApp
 
             // Add configuration from appsettings.json and/or Web.config
             IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(HttpRuntime.BinDirectory)
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
