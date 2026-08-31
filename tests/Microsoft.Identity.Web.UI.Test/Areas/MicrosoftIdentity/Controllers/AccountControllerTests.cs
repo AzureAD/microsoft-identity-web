@@ -485,5 +485,57 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             var challengeResult = Assert.IsType<ChallengeResult>(result);
             Assert.Equal("/", challengeResult.Properties!.RedirectUri);
         }
+
+        // --- Control-character redirect bypass -------------------------------------------
+        //
+        // "/\t/evil.example" passes IsLocalUrl (first char "/", second char is a tab — neither
+        // "/" nor "\") but browsers strip the tab per the WHATWG URL spec, resolving the emitted
+        // Location to a protocol-relative "//evil.example". These pin the HasControlCharacter
+        // guard on the SignIn and Challenge actions.
+
+        [Theory]
+        [InlineData("/\t/evil.example")]
+        [InlineData("/\r/evil.example")]
+        [InlineData("/\n/evil.example")]
+        [InlineData("/home\u007F")]
+        public void SignIn_WithControlCharacterRedirectUri_UsesDefaultRedirectUri(string redirectUri)
+        {
+            // Arrange: realistic IsLocalUrl accepts the leading-slash path; the control-char
+            // guard is what must reject it.
+            UseRealisticIsLocalUrl();
+            string scheme = OpenIdConnectDefaults.AuthenticationScheme;
+
+            // Act
+            var result = _accountController.SignIn(scheme, redirectUri);
+
+            // Assert
+            var challengeResult = Assert.IsType<ChallengeResult>(result);
+            Assert.Equal("/", challengeResult.Properties!.RedirectUri);
+        }
+
+        [Theory]
+        [InlineData("/\t/evil.example")]
+        [InlineData("/\r/evil.example")]
+        [InlineData("/\n/evil.example")]
+        [InlineData("/home\u007F")]
+        public void Challenge_WithControlCharacterRedirectUri_UsesDefaultRedirectUri(string redirectUri)
+        {
+            // Arrange
+            UseRealisticIsLocalUrl();
+
+            // Act
+            var result = _accountController.Challenge(
+                redirectUri,
+                scope: null!,
+                loginHint: null!,
+                domainHint: null!,
+                claims: null!,
+                policy: null!,
+                scheme: OpenIdConnectDefaults.AuthenticationScheme);
+
+            // Assert
+            var challengeResult = Assert.IsType<ChallengeResult>(result);
+            Assert.Equal("/", challengeResult.Properties!.RedirectUri);
+        }
     }
 }

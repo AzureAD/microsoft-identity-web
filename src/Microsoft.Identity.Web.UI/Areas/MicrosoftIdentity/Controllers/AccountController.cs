@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         {
             scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
             string redirect;
-            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri))
+            if (!string.IsNullOrEmpty(redirectUri) && Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri) && !HasControlCharacter(redirectUri))
             {
                 redirect = redirectUri;
             }
@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
             string? safeRedirect = null;
             if (!string.IsNullOrEmpty(redirectUri))
             {
-                if (Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri))
+                if (Url.IsLocalUrl(redirectUri) && !IsPercentEncodedSlashBypass(redirectUri) && !HasControlCharacter(redirectUri))
                 {
                     safeRedirect = redirectUri;
                 }
@@ -142,7 +142,7 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
                     // would emit verbatim in its Location header. Re-run IsLocalUrl on the coerced value
                     // to reject those shapes.
                     var candidate = absolute.PathAndQuery;
-                    if (Url.IsLocalUrl(candidate) && !IsPercentEncodedSlashBypass(candidate))
+                    if (Url.IsLocalUrl(candidate) && !IsPercentEncodedSlashBypass(candidate) && !HasControlCharacter(candidate))
                     {
                         safeRedirect = candidate;
                     }
@@ -263,5 +263,33 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
         private static bool IsPercentEncodedSlashBypass(string path) =>
             path.StartsWith("/%2f", StringComparison.OrdinalIgnoreCase)
             || path.StartsWith("/%5c", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Defense-in-depth: reject redirect paths containing an ASCII control character
+        /// (C0 range <c>U+0000</c>–<c>U+001F</c> or DEL <c>U+007F</c>). Browsers strip
+        /// characters such as tab, CR, and LF per the WHATWG URL spec, so a value like
+        /// <c>"/\tevil.example"</c> resolves to a protocol-relative URL after stripping.
+        /// ASP.NET Core's <c>Url.IsLocalUrl</c> rejects these, but this guard keeps the
+        /// check independent of the host's ASP.NET Core version.
+        /// </summary>
+        /// <remarks>
+        /// Canonical implementation: <c>RedirectUriHelper.HasControlCharacter</c> in
+        /// <c>Microsoft.Identity.Web</c>. This private copy exists because <c>RedirectUriHelper</c>
+        /// is internal and <c>Microsoft.Identity.Web.UI</c> is a separate assembly. Keep both
+        /// in sync.
+        /// </remarks>
+        private static bool HasControlCharacter(string path)
+        {
+            for (int i = 0; i < path.Length; i++)
+            {
+                char c = path[i];
+                if (c < '\u0020' || c == '\u007F')
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
