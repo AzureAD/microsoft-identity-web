@@ -632,6 +632,23 @@ namespace Microsoft.Identity.Web.Test
                     authenticationScheme: null));
         }
 
+        [Fact]
+        public async Task GetAccessTokenForUserAsync_MismatchedDelegatedScopeIsRejectedAsync()
+        {
+            // Arrange
+            string accessToken = CreateJwt(MicrosoftGraphAppId, "Mail.Read");
+            using var httpClientFactory = new MockHttpClientFactory();
+            AppServicesAuthenticationTokenAcquisition acquisition = CreateAcquisition(
+                CreateContext(accessToken),
+                httpClientFactory);
+
+            // Act / Assert
+            await Assert.ThrowsAsync<ArgumentException>(() =>
+                acquisition.GetAccessTokenForUserAsync(
+                    new[] { "User.Read" },
+                    authenticationScheme: null));
+        }
+
         [Theory]
         [InlineData("[\"User.Read\"]")]
         [InlineData("123")]
