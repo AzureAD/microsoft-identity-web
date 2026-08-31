@@ -96,13 +96,16 @@ dotnet add package Microsoft.Identity.Web.OWIN
 
 ### appsettings.json (Alternative)
 
+By default, the OWIN integration loads this optional file from
+`~/bin/appsettings.json`, rather than from the application root. Package or publish
+the file as `bin/appsettings.json`.
+
 ```json
 {
   "AzureAd": {
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
     "ClientId": "your-client-id",
-    "ClientSecret": "your-client-secret",
     "RedirectUri": "https://localhost:44368/",
     "PostLogoutRedirectUri": "https://localhost:44368/"
   },
@@ -118,6 +121,28 @@ dotnet add package Microsoft.Identity.Web.OWIN
   }
 }
 ```
+
+To migrate an application that currently publishes `appsettings.json` at the
+application root:
+
+1. Update its build or deployment process to publish the file as
+   `bin/appsettings.json`.
+2. Remove the root copy after verifying the application uses the relocated file.
+
+If a deployment needs a temporary transition period, add this compatibility switch
+to the `Web.config` `appSettings` section:
+
+```xml
+<add key="ida:UseLegacyWebRootAppSettings" value="true" />
+```
+
+When enabled, the integration loads `~/appsettings.json` and writes a warning.
+Missing, `false`, or invalid switch values use `~/bin/appsettings.json`; invalid
+values also write a warning. The integration selects exactly one location and never
+combines values from the root and `bin` files. There is no automatic fallback to the
+root file. This switch is temporary: it will be removed in a future major release,
+so applications must migrate to the `bin` location before upgrading to a release
+that removes it.
 
 ---
 
