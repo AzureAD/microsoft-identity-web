@@ -7,7 +7,9 @@ namespace Microsoft.Identity.Web.Resource
 {
     /// <summary>
     /// This attribute is used on a controller, pages, or controller actions
-    /// to declare (and validate) the scopes or app permissions required by a web API. 
+    /// to declare (and validate) the scopes or app permissions required by a web API.
+    /// Authorization succeeds when an accepted scope is present in a scope claim or an accepted
+    /// app permission is present in a role claim. Matching a role does not classify the token as app-only.
     /// These scopes or app permissions can be declared in two ways:
     /// hardcoding them, or declaring them in the configuration. Depending on your
     /// choice, use either one or the other of the constructors.
@@ -56,12 +58,9 @@ namespace Microsoft.Identity.Web.Resource
         public string? RequiredAppPermissionsConfigurationKey { get; set; }
 
         /// <summary>
-        /// Verifies that the web API is called with the right app permissions.
-        /// If the token obtained for this API is on behalf of the authenticated user does not have
-        /// any of these <paramref name="acceptedScopes"/> in its scope claim, 
-        /// nor <paramref name="acceptedAppPermissions"/> in its roles claim, the
-        /// method updates the HTTP response providing a status code 403 (Forbidden)
-        /// and writes to the response body a message telling which scopes are expected in the token.
+        /// Declares the scopes and app permissions accepted by this web API.
+        /// Authorization succeeds when the token has any of these <paramref name="acceptedScopes"/> in its
+        /// scope claims or any of these <paramref name="acceptedAppPermissions"/> in its role claims.
         /// </summary>
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
         /// <param name="acceptedAppPermissions">App permissions accepted by this web API.</param>
