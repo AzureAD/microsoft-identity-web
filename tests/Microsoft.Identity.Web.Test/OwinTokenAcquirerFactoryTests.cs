@@ -67,20 +67,36 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void ResolveConfigurationBasePath_InvalidSettingUsesBin()
+        public void ResolveConfigurationBasePath_InvalidSettingUsesBinAndWarns()
         {
-            string? mappedVirtualPath = null;
+            using StringWriter traceOutput = new StringWriter();
+            using TextWriterTraceListener listener = new TextWriterTraceListener(traceOutput);
+            Trace.Listeners.Add(listener);
 
-            string result = ResolveConfigurationBasePath(
-                "not-a-boolean",
-                virtualPath =>
-                {
-                    mappedVirtualPath = virtualPath;
-                    return @"C:\site\bin";
-                });
+            try
+            {
+                string? mappedVirtualPath = null;
 
-            Assert.Equal("~/bin", mappedVirtualPath);
-            Assert.Equal(@"C:\site\bin", result);
+                string result = ResolveConfigurationBasePath(
+                    "not-a-boolean",
+                    virtualPath =>
+                    {
+                        mappedVirtualPath = virtualPath;
+                        return @"C:\site\bin";
+                    });
+                Trace.Flush();
+
+                Assert.Equal("~/bin", mappedVirtualPath);
+                Assert.Equal(@"C:\site\bin", result);
+                Assert.Contains(
+                    "'ida:UseLegacyWebRootAppSettings' appSetting must be 'true' or 'false'",
+                    traceOutput.ToString(),
+                    StringComparison.Ordinal);
+            }
+            finally
+            {
+                Trace.Listeners.Remove(listener);
+            }
         }
 
         [Theory]
