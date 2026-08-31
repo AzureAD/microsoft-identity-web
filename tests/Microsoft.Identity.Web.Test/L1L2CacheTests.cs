@@ -780,6 +780,60 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(0, GetFailedRemovalCount(adapter));
         }
 
+#pragma warning disable VSTHRD003 // The fire-and-forget L2 write is deliberately coordinated by the test.
+        [Fact]
+        public async Task AsyncL2Write_ConfirmedCompletionClearsFailedRemovalMarkerAsync()
+        {
+            // Arrange
+            var (adapter, cache, options) = CreateAdapter();
+            options.EnableAsyncL2Write = true;
+            cache.RemoveAsyncOverride = (_, _) => Task.FromException(new InvalidOperationException("remove failed"));
+            await Assert.ThrowsAsync<MsalClientException>(() => adapter.TestRemoveKeyAsync(DefaultCacheKey));
+            Assert.Equal(1, GetFailedRemovalCount(adapter));
+
+            int getCalls = 0;
+            cache.GetAsyncOverride = (key, _) =>
+            {
+                Interlocked.Increment(ref getCalls);
+                return Task.FromResult(cache.Get(key));
+            };
+            TaskCompletionSource<object?> setStarted = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<object?> releaseSet = new TaskCompletionSource<object?>();
+            TaskCompletionSource<object?> setCompleted = new TaskCompletionSource<object?>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            cache.SetAsyncOverride = async (key, value, entryOptions, _) =>
+            {
+                setStarted.SetResult(null);
+                await releaseSet.Task;
+                cache.Set(key, value, entryOptions);
+                setCompleted.SetResult(null);
+            };
+
+            // Act
+            Task writeCall = adapter.TestWriteCacheBytesAsync(DefaultCacheKey, new byte[] { 8 });
+            await writeCall;
+            await setStarted.Task;
+
+            // Assert while L2 write is blocked
+            Assert.False(setCompleted.Task.IsCompleted);
+            Assert.Null(await adapter.TestReadCacheBytesAsync(DefaultCacheKey));
+            Assert.Equal(0, getCalls);
+            Assert.Equal(1, GetFailedRemovalCount(adapter));
+
+            // Act after confirmed L2 completion
+            releaseSet.SetResult(null);
+            await setCompleted.Task;
+            await WaitForFailedRemovalCountAsync(adapter, 0);
+            byte[]? result = await adapter.TestReadCacheBytesAsync(DefaultCacheKey);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(8, result[0]);
+            Assert.Equal(1, getCalls);
+        }
+#pragma warning restore VSTHRD003
+
         [Fact]
         public async Task OrdinaryReadAndWrite_DoNotCreateFailedRemovalMarkersAsync()
         {
@@ -851,6 +905,23 @@ namespace Microsoft.Identity.Web.Test
                 "_failedL2CacheRemovals",
                 BindingFlags.Instance | BindingFlags.NonPublic)!;
             return ((ConcurrentDictionary<string, object>)field.GetValue(adapter)!).Count;
+        }
+
+        private static async Task WaitForFailedRemovalCountAsync(
+            TestMsalDistributedTokenCacheAdapter adapter,
+            int expectedCount)
+        {
+            for (int attempt = 0; attempt < 1000; attempt++)
+            {
+                if (GetFailedRemovalCount(adapter) == expectedCount)
+                {
+                    return;
+                }
+
+                await Task.Yield();
+            }
+
+            Assert.Equal(expectedCount, GetFailedRemovalCount(adapter));
         }
 
         private static (

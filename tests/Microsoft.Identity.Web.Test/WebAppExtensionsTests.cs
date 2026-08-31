@@ -27,6 +27,7 @@ using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Identity.Web.Util;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -1169,12 +1170,21 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             var tokenAcquisition = Substitute.For<ITokenAcquisitionInternal>();
             var redirectHandler = Substitute.For<Func<RedirectContext, Task>>();
+            var (provider, options) = CreateSignOutServices(tokenAcquisition, redirectHandler);
+            TestDistributedCache cache = new TestDistributedCache();
+            int removalAttempts = 0;
+            cache.RemoveAsyncOverride = (_, _) =>
+            {
+                removalAttempts++;
+                return Task.FromException(new InvalidOperationException("cache removal failed"));
+            };
+            TestMsalDistributedTokenCacheAdapter adapter = new TestMsalDistributedTokenCacheAdapter(
+                cache,
+                Microsoft.Extensions.Options.Options.Create(new MsalDistributedTokenCacheAdapterOptions()),
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<MsalDistributedTokenCacheAdapter>.Instance);
             tokenAcquisition
                 .RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), Arg.Any<string?>())
-                .Returns(_ => throw new MsalClientException(
-                    IDWebErrorMessage.L2CacheRemovalFailedErrorCode,
-                    "cache removal failed"));
-            var (provider, options) = CreateSignOutServices(tokenAcquisition, redirectHandler);
+                .Returns(_ => adapter.TestRemoveKeyAsync("sign-out-cache-key"));
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
             // Act
@@ -1182,6 +1192,7 @@ namespace Microsoft.Identity.Web.Test
                 new RedirectContext(httpContext, authScheme, options, authProperties));
 
             // Assert
+            Assert.Equal(1, removalAttempts);
             await tokenAcquisition.Received(1).RemoveAccountAsync(Arg.Any<ClaimsPrincipal>(), OidcScheme);
             await redirectHandler.Received(1).Invoke(Arg.Any<RedirectContext>());
         }
