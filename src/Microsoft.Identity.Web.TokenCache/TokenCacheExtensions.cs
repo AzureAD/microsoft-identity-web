@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.TokenCacheProviders;
@@ -19,9 +17,8 @@ namespace Microsoft.Identity.Web
     /// </summary>
     public static class TokenCacheExtensions
     {
-        //internal for testing only
-        internal static readonly ConcurrentDictionary<MethodInfo, IServiceProvider> s_serviceProviderFromAction
-            = new ConcurrentDictionary<MethodInfo, IServiceProvider>();
+        private static readonly Lazy<IServiceProvider> s_inMemoryServiceProvider =
+            new Lazy<IServiceProvider>(() => BuildServiceProvider(services => services.AddInMemoryTokenCaches()));
 
         /// <summary>
         /// Use a token cache and choose the serialization part by adding it to
@@ -73,23 +70,8 @@ namespace Microsoft.Identity.Web
             _ = Throws.IfNull(confidentialClientApp);
             _ = Throws.IfNull(initializeCaches);
 
-            // try to reuse existing XYZ cache if AddXYZCache was called before, to simulate ASP.NET Core
-            var serviceProvider = s_serviceProviderFromAction.GetOrAdd(initializeCaches.Method, _ =>
-            {
-                lock (s_serviceProviderFromAction)
-                {
-                    ServiceCollection services = new ServiceCollection();
-                    initializeCaches(services);
-                    services.AddLogging();
-
-                    return services.BuildServiceProvider();
-                }
-            });
-
-            IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
-            msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
-            msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
-            return confidentialClientApp;
+            IServiceProvider serviceProvider = BuildServiceProvider(initializeCaches);
+            return InitializeTokenCaches(confidentialClientApp, serviceProvider);
         }
 
         /// <summary>
@@ -115,11 +97,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(confidentialClientApp);
 
-            confidentialClientApp.AddTokenCaches(services =>
-            {
-                services.AddInMemoryTokenCaches();
-            });
-            return confidentialClientApp;
+            return InitializeTokenCaches(confidentialClientApp, s_inMemoryServiceProvider.Value);
         }
 
         /// <summary>
@@ -221,6 +199,26 @@ namespace Microsoft.Identity.Web
                 services.AddDataProtection();
                 initializeDistributedCache(services);
             });
+            return confidentialClientApp;
+        }
+
+        private static IServiceProvider BuildServiceProvider(Action<IServiceCollection> initializeCaches)
+        {
+            ServiceCollection services = new ServiceCollection();
+            initializeCaches(services);
+            services.AddLogging();
+
+            return services.BuildServiceProvider();
+        }
+
+        private static IConfidentialClientApplication InitializeTokenCaches(
+            IConfidentialClientApplication confidentialClientApp,
+            IServiceProvider serviceProvider)
+        {
+            IMsalTokenCacheProvider msalTokenCacheProvider = serviceProvider.GetRequiredService<IMsalTokenCacheProvider>();
+            msalTokenCacheProvider.Initialize(confidentialClientApp.UserTokenCache);
+            msalTokenCacheProvider.Initialize(confidentialClientApp.AppTokenCache);
+
             return confidentialClientApp;
         }
     }
