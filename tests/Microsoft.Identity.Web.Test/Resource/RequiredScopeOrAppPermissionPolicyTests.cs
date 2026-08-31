@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -153,6 +154,74 @@ namespace Microsoft.Identity.Web.Test.Resource
             Assert.True(allowed.Succeeded);
         }
 
+        [Fact]
+        public async Task DeclaredConfigurationKeysWithoutValues_FailAsync()
+        {
+            // Arrange
+            var requirement = new ScopeOrAppPermissionAuthorizationRequirement
+            {
+                RequiredScopesConfigurationKey = $"{ConfigSectionName}:MissingScope",
+                RequiredAppPermissionsConfigurationKey = $"{ConfigSectionName}:MissingAppPermission",
+            };
+            var context = CreateAuthorizationContext(
+                requirement,
+                ClaimConstants.Role,
+                AppPermission);
+            var handler = new ScopeOrAppPermissionAuthorizationHandler(new ConfigurationBuilder().Build());
+
+            // Act
+            await handler.HandleAsync(context);
+
+            // Assert
+            Assert.False(context.HasSucceeded);
+        }
+
+        [Fact]
+        public async Task ValidAppPermissionSucceedsWhenDeclaredScopeConfigurationIsMissingAsync()
+        {
+            // Arrange
+            var requirement = new ScopeOrAppPermissionAuthorizationRequirement(
+                scopeAllowedValues: null,
+                new[] { AppPermission })
+            {
+                RequiredScopesConfigurationKey = $"{ConfigSectionName}:MissingScope",
+            };
+            var context = CreateAuthorizationContext(
+                requirement,
+                ClaimConstants.Role,
+                AppPermission);
+            var handler = new ScopeOrAppPermissionAuthorizationHandler(new ConfigurationBuilder().Build());
+
+            // Act
+            await handler.HandleAsync(context);
+
+            // Assert
+            Assert.True(context.HasSucceeded);
+        }
+
+        [Fact]
+        public async Task ValidScopeSucceedsWhenDeclaredAppPermissionConfigurationIsMissingAsync()
+        {
+            // Arrange
+            var requirement = new ScopeOrAppPermissionAuthorizationRequirement(
+                new[] { Scope },
+                appPermissionAllowedValues: null)
+            {
+                RequiredAppPermissionsConfigurationKey = $"{ConfigSectionName}:MissingAppPermission",
+            };
+            var context = CreateAuthorizationContext(
+                requirement,
+                ClaimConstants.Scp,
+                Scope);
+            var handler = new ScopeOrAppPermissionAuthorizationHandler(new ConfigurationBuilder().Build());
+
+            // Act
+            await handler.HandleAsync(context);
+
+            // Assert
+            Assert.True(context.HasSucceeded);
+        }
+
         private IAuthorizationService BuildAuthorizationService(
         string policy,
         string? appPermission,
@@ -201,6 +270,17 @@ namespace Microsoft.Identity.Web.Test.Resource
             });
             _provider = hostBuilder.Build().Services;
             return _provider.GetRequiredService<IAuthorizationService>();
+        }
+
+        private static AuthorizationHandlerContext CreateAuthorizationContext(
+            ScopeOrAppPermissionAuthorizationRequirement requirement,
+            string claimType,
+            string claimValue)
+        {
+            var user = new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[] { new Claim(claimType, claimValue) }));
+
+            return new AuthorizationHandlerContext(new[] { requirement }, user, resource: null);
         }
     }
 }
