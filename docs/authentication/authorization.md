@@ -50,6 +50,7 @@ This guide focuses on **#4 - validating scopes and app permissions**.
 **Token claim:** `roles`
 **Example values:** `"admin"`, `"SimpleUser"` for the  user.
 
+Delegated tokens can contain `role` or `roles` claims when app roles are assigned to the user or a group.
 
 **Scenario:** Web API on behalf of signed-in user.
 
@@ -219,7 +220,9 @@ When a request arrives:
 
 ## App Permissions with RequiredScopeOrAppPermission
 
-The `RequiredScopeOrAppPermission` attribute validates either **scopes** (delegated) OR **app permissions** (application).
+The `RequiredScopeOrAppPermission` attribute uses OR semantics: authorization succeeds when an accepted scope is present in an `scp` or `scope` claim, or when an accepted app-permission value is present in a `role` or `roles` claim.
+
+Matching a role value does not by itself prove that the token is app-only because delegated tokens can also contain roles assigned to users or groups.
 
 ### When to Use
 
@@ -246,8 +249,8 @@ public class TodoListController : ControllerBase
     public IActionResult GetTodos()
     {
         // Accessible with EITHER:
-        // - User-delegated token with "access_as_user" scope, OR
-        // - App-only token with "TodoList.ReadWrite.All" app permission
+        // - A token with the "access_as_user" scope, OR
+        // - A token with the "TodoList.ReadWrite.All" role value
         return Ok(todos);
     }
 }
@@ -285,7 +288,7 @@ public class TodoListController : ControllerBase
 
 | Token Type | Claim | Example Value |
 |------------|-------|---------------|
-| **User-delegated** | `scp` or `scope` | `"access_as_user User.Read"` |
+| **User-delegated** | `scp` or `scope`; may also contain `role` or `roles` | `"access_as_user User.Read"` |
 | **App-only** | `roles` | `["TodoList.ReadWrite.All"]` |
 
 **Example: User-delegated token:**
