@@ -82,7 +82,7 @@
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.22.0</MicrosoftIdentityModelVersion>
     <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.88.0</MicrosoftIdentityClientVersion>
     <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.88.0</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.6.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.6.1</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
@@ -163,7 +163,7 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
-    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648: patched System.Security.Cryptography.Xml for net8.0 is 8.0.4 (advisory affects <=8.0.3; 8.0.29 is the .NET runtime patch, not this OOB package). Xml 8.0.4 depends on Pkcs 8.0.1, so pin Pkcs 8.0.1 to satisfy it without an NU1605 downgrade.-->
+    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648: patched System.Security.Cryptography.Xml for net8.0 is 8.0.4 (advisory affects <=8.0.3; 8.0.29 is the .NET runtime patch, not the standalone package version) -->
     <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>8.0.4</SystemSecurityCryptographyXmlVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
