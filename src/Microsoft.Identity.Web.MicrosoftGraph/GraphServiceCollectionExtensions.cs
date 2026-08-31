@@ -52,15 +52,14 @@ namespace Microsoft.Identity.Web
 
                 string graphBaseUrl = microsoftGraphOptions.BaseUrl;
                 string[] initialScopes = microsoftGraphOptions.Scopes.Split(' ');
+                var authenticationProvider = new TokenAcquisitionAuthenticationProvider(
+                    authorizationHeaderProvider,
+                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() },
+                    graphBaseUrl);
 
                 GraphServiceClient client = string.IsNullOrWhiteSpace(graphBaseUrl) ?
-                            new GraphServiceClient(new TokenAcquisitionAuthenticationProvider(
-                                authorizationHeaderProvider,
-                                new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() })) :
-                            new GraphServiceClient(graphBaseUrl,
-                                new TokenAcquisitionAuthenticationProvider(
-                                    authorizationHeaderProvider,
-                                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                            new GraphServiceClient(authenticationProvider) :
+                            new GraphServiceClient(graphBaseUrl, authenticationProvider);
                 return client;
             });
             return services;
