@@ -116,16 +116,19 @@ namespace Microsoft.Identity.Web
                 OnApplyChallenge = provider.ApplyChallenge,
                 OnValidateIdentity = async context =>
                 {
-                    if (!context.Ticket.Identity.Claims.Any(x => x.Type == ClaimConstants.Scope
-                        || x.Type == ClaimConstants.Scp
-                        || x.Type == ClaimConstants.Roles
-                        || x.Type == ClaimConstants.Role))
-                    {
-                        context.Rejected();
-                        return;
-                    }
+                    bool hasRequiredClaim = context.Ticket.Identity.Claims.Any(claim =>
+                        (claim.Type == ClaimConstants.Scope
+                            || claim.Type == ClaimConstants.Scp
+                            || claim.Type == ClaimConstants.Roles
+                            || claim.Type == ClaimConstants.Role)
+                        && !string.IsNullOrWhiteSpace(claim.Value));
 
                     await provider.ValidateIdentity(context).ConfigureAwait(false);
+
+                    if (!hasRequiredClaim)
+                    {
+                        context.Rejected();
+                    }
                 },
             };
         }
