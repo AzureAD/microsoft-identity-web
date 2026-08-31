@@ -2,7 +2,7 @@
 
 ### Bug fixes
 - Move Credential Guard key attestation into the optional `Microsoft.Identity.Web.KeyAttestation` package. Managed identity mTLS proof-of-possession uses the unattested flow unless the package is installed and `AddMicrosoftIdentityWebKeyAttestation()` is registered, preventing native key-attestation binaries and symbols from being published with unrelated applications.
-- OWIN web APIs now reject bearer tokens that contain no non-empty scope or role claim by default, matching ASP.NET Core behavior and preventing unprovisioned app-only tokens from authenticating. Applications using ACL-based authorization must set `AllowWebApiToBeAuthorizedByACL` to `true`.
+- OWIN web APIs now require bearer tokens to contain a recognized scope or role claim with a non-whitespace value by default. ACL-based authorization remains available by setting `AllowWebApiToBeAuthorizedByACL` to `true`.
 
 ## 4.14.2
 

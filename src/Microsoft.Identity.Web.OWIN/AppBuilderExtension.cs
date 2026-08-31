@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
         /// <remarks>
-        /// By default, bearer tokens must contain a scope or role claim. Set
+        /// By default, bearer tokens must contain a recognized scope or role claim with a non-whitespace value. Set
         /// <see cref="Microsoft.Identity.Abstractions.IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL"/> to
         /// <c>true</c> when the application uses ACL-based authorization instead.
         /// </remarks>
