@@ -124,7 +124,16 @@ public static class AuthorizationHeaderEndpoint
 
         if (allowOverrides)
         {
-            AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
+            try
+            {
+                AgentOverrides.SetOverrides(options, requestParameters.AgentIdentity, requestParameters.AgentUsername, requestParameters.AgentUserId);
+            }
+            catch (AgentUserIdValidationException)
+            {
+                return TypedResults.Problem(
+                    detail: AgentOverrides.InvalidAgentUserIdMessage,
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
         }
         else if (requestParameters.AgentIdentity is not null || requestParameters.AgentUsername is not null || requestParameters.AgentUserId is not null)
         {
