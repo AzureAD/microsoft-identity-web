@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Hosting;
@@ -18,6 +19,8 @@ namespace Microsoft.Identity.Web.OWIN
     /// </summary>
     public class OwinTokenAcquirerFactory : TokenAcquirerFactory 
     {
+        private const string UseLegacyWebRootAppSettings = "ida:UseLegacyWebRootAppSettings";
+
         /// <summary>
         /// Defines the configuration for a given host.
         /// </summary>
@@ -36,7 +39,9 @@ namespace Microsoft.Identity.Web.OWIN
                 ["AzureAd:RedirectUri"] = System.Configuration.ConfigurationManager.AppSettings["ida:RedirectUri"],
             });
 
-            return HostingEnvironment.MapPath("~/");
+            return ResolveConfigurationBasePath(
+                System.Configuration.ConfigurationManager.AppSettings[UseLegacyWebRootAppSettings],
+                HostingEnvironment.MapPath);
         }
 
         /// <summary>
@@ -76,6 +81,44 @@ namespace Microsoft.Identity.Web.OWIN
             }
 
             return value;
+        }
+
+        internal static string ResolveConfigurationBasePath(
+            string? useLegacyWebRootAppSettings,
+            Func<string, string?> mapPath)
+        {
+            string virtualPath = "~/bin";
+
+            if (!string.IsNullOrEmpty(useLegacyWebRootAppSettings))
+            {
+                if (bool.TryParse(useLegacyWebRootAppSettings, out bool useLegacyWebRoot))
+                {
+                    if (useLegacyWebRoot)
+                    {
+                        virtualPath = "~/";
+                        Trace.TraceWarning(
+                            $"The temporary '{UseLegacyWebRootAppSettings}' compatibility setting is enabled. " +
+                            "appsettings.json is being loaded from the application root. Move the file to the bin " +
+                            "directory and remove this setting. The setting will be removed in a future major release.");
+                    }
+                }
+                else
+                {
+                    Trace.TraceWarning(
+                        $"The '{UseLegacyWebRootAppSettings}' appSetting must be 'true' or 'false'. " +
+                        "The value was ignored and appsettings.json will be loaded from the bin directory.");
+                }
+            }
+
+            string? basePath = mapPath(virtualPath);
+            if (string.IsNullOrWhiteSpace(basePath))
+            {
+                throw new ConfigurationErrorsException(
+                    $"Unable to resolve the OWIN configuration directory '{virtualPath}'. " +
+                    "HostingEnvironment.MapPath returned no path.");
+            }
+
+            return basePath!;
         }
     }
 }
