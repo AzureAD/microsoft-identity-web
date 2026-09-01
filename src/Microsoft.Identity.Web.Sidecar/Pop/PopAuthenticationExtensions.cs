@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web.Sidecar.Configuration;
 
 namespace Microsoft.Identity.Web.Sidecar.Pop;
 
@@ -24,6 +26,11 @@ internal static class PopAuthenticationExtensions
     public static AuthenticationBuilder AddInboundShrPop(this AuthenticationBuilder builder)
     {
         builder.Services.AddSingleton<ShrPopValidationService>();
+
+        // Fail fast at startup on an invalid Sidecar configuration (e.g. a non-positive PoP lifetime)
+        // instead of throwing on the first PoP request.
+        builder.Services.AddSingleton<IValidateOptions<SidecarOptions>, ValidateSidecarOptions>();
+        builder.Services.AddOptions<SidecarOptions>().ValidateOnStart();
 
         builder.AddScheme<PopAuthenticationSchemeOptions, PopAuthenticationHandler>(
             PopConstants.SchemeName,

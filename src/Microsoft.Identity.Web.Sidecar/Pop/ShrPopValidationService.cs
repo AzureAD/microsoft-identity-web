@@ -89,22 +89,23 @@ internal sealed class ShrPopValidationService
         accessTokenValidationParameters.ConfigurationManager ??=
             bearerOptions.ConfigurationManager as BaseConfigurationManager;
 
-        var validationContext = new SignedHttpRequestValidationContext(
-            encodedSignedHttpRequest,
-            requestData,
-            accessTokenValidationParameters,
-            CreateValidationParameters(_sidecarOptionsMonitor.CurrentValue.PopValidation));
-
         SignedHttpRequestValidationResult result;
         try
         {
+            var validationContext = new SignedHttpRequestValidationContext(
+                encodedSignedHttpRequest,
+                requestData,
+                accessTokenValidationParameters,
+                CreateValidationParameters(_sidecarOptionsMonitor.CurrentValue.PopValidation));
+
             result = await s_handler
                 .ValidateSignedHttpRequestAsync(validationContext, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // The identity model throws for malformed SHR/JWT input; treat as a validation failure.
+            // The identity model throws for malformed SHR/JWT input or invalid validation parameters;
+            // treat as a validation failure so the request fails closed with a 401 rather than a 500.
             return ShrPopValidationResult.Fail($"SHR validation threw: {ex.Message}");
         }
 
