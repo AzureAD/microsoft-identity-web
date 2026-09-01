@@ -122,7 +122,8 @@
     <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
     <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
-    <SystemSecurityCryptographyServicingVersion>9.0.18</SystemSecurityCryptographyServicingVersion>
+    <!-- [DO NOT MERGE] Deliberate break to validate the cross-repo compat gate. Bumps the net9 crypto floor to the next real version (10.0.10) — IdWeb still builds, but downstream MISE (pinned 9.0.18 on net9) hits an NU1605 downgrade. Original: 9.0.18 -->
+    <SystemSecurityCryptographyServicingVersion>10.0.10</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -133,7 +134,8 @@
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
-    <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
+    <!-- [DO NOT MERGE] bumped in lockstep with the crypto floor above so System.Security.Cryptography.Pkcs 10.0.10 can resolve its Asn1 dependency inside IdWeb. Original: $(NetNineRuntimeVersion) -->
+    <SystemFormatsAsn1Version>10.0.10</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
