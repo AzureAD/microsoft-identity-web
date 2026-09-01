@@ -43,6 +43,11 @@
             <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
+            <remarks>
+            By default, bearer tokens must contain a scope or role claim. Set
+            <see cref="P:Microsoft.Identity.Abstractions.IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL"/> to
+            <c>true</c> when the application uses ACL-based authorization instead.
+            </remarks>
         </member>
         <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddMicrosoftIdentityWebApp(Owin.IAppBuilder,Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory,System.Action{Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions},System.Action{Microsoft.Owin.Security.OpenIdConnect.OpenIdConnectAuthenticationOptions},System.String)">
             <summary>

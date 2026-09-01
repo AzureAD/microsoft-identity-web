@@ -1,0 +1,3 @@
+#nullable enable
+Microsoft.Identity.Web.KeyAttestationServiceCollectionExtensions
+static Microsoft.Identity.Web.KeyAttestationServiceCollectionExtensions.AddMicrosoftIdentityWebKeyAttestation(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!

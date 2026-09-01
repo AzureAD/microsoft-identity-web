@@ -111,11 +111,14 @@ For MI, token binding works differently — no CCA is involved:
 var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
 if (isTokenBinding)
 {
-    miBuilder = miBuilder
-        .WithMtlsProofOfPossession()
-        .WithAttestationSupport();
+    miBuilder = miBuilder.WithMtlsProofOfPossession();
 }
 ```
+
+This is the default, unattested flow. Installing
+`Microsoft.Identity.Web.KeyAttestation` and calling
+`AddMicrosoftIdentityWebKeyAttestation()` additionally applies
+`WithAttestationSupport()`.
 
 MSAL handles the mTLS handshake with IMDS v2 internally.
 
@@ -289,4 +292,4 @@ sequenceDiagram
 | Client Secret | ✅ `WithClientSecret` | ❌ Not supported (no private key for binding) |
 | FIC via MI (`SignedAssertionFromManagedIdentity`) | ✅ `WithClientAssertion` | ✅ if `SupportsTokenBinding` (via `GetSignedAssertionWithBindingAsync`) |
 | OIDC FIC (`CustomSignedAssertion`) | ✅ `WithClientAssertion` | ✅ via `GetSignedAssertionWithBindingAsync` (binding cert from the inner acquisition) |
-| Managed Identity (direct, not FIC) | ✅ `AcquireTokenForMI` | ✅ `WithMtlsProofOfPossession` + `WithAttestationSupport` |
+| Managed Identity (direct, not FIC) | ✅ `AcquireTokenForMI` | ✅ Default: `WithMtlsProofOfPossession`; optional key-attestation package: `WithMtlsProofOfPossession` + `WithAttestationSupport` |

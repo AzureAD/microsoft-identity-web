@@ -68,8 +68,8 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Dictionary of credential loaders per credential source. The application can add more to 
-        /// process additional credential sources(like dSMS).
+        /// Dictionary of credential loaders per credential source. The application can add more to
+        /// process additional credential sources.
         /// </summary>
         public IDictionary<CredentialSource, ICredentialSourceLoader> CredentialSourceLoaders { get; }
 
