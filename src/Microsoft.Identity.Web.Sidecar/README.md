@@ -163,7 +163,7 @@ For all credential configuration options, see the [CredentialDescription documen
 
 | Endpoint                                        | Method | Auth     | Description                                                                                      |
 | ----------------------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------ |
-| `/Validate`                                     | GET    | Required | Returns the token and its claims. Accepts a `Bearer` or app-only `PoP` credential. Enforces `AzureAd:Scopes` when configured. |
+| `/Validate`                                     | GET    | Required | Returns the token and its claims. Accepts a `Bearer` or app-only `PoP` credential. Enforces `AzureAd:Scopes` (when configured) for `Bearer` only; app-only `PoP` tokens carry no `scp`, so authorizing the returned app identity is the caller's responsibility. |
 | `/AuthorizationHeader/{apiName}`                | GET    | Required | Returns an `Authorization` header for the named downstream API using the caller’s identity.      |
 | `/AuthorizationHeaderUnauthenticated/{apiName}` | GET    | Optional | Uses the sidecar’s application identity to obtain a token.                                       |
 | `/DownstreamApi/{apiName}`                      | POST   | Required | Invokes the downstream API profile with the caller’s identity, forwarding body and content-type. |
@@ -206,6 +206,10 @@ Agent identity parameters are also subject to the per-route override flag:
   calling application; the sidecar does not independently observe the downstream request. The
   `ts`-based freshness check (default five minutes) is not a replay cache, and server nonce is not
   implemented.
+- `/Validate` does not authorize app-only `PoP` callers: `AzureAd:Scopes` gates delegated `scp`
+  claims, which app-only tokens do not carry. The sidecar only confirms the token is a valid
+  app-only PoP token; authorizing that app identity (for example by its roles / application
+  permissions) is the calling application's responsibility.
 
 ## Runtime composition
 

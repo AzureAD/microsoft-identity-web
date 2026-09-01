@@ -30,10 +30,14 @@ public static class ValidateRequestEndpoints
         HttpContext httpContext,
         [FromServices] IConfiguration configuration)
     {
-        // A validated inbound SHR PoP request: the PoP handler has already validated the outer signature
-        // and the embedded app-only access token (delegated/user tokens are rejected there) and stashed
-        // it here. Scope enforcement (AzureAd:Scopes -> VerifyUserHasAnyAcceptedScope) targets delegated
-        // 'scp' claims and so does not apply to app-only PoP; the app-only guard above is the equivalent gate.
+        // The PoP handler has already validated the outer SHR signature and the embedded access token,
+        // and rejected any non-app-only (delegated/user) token, before stashing the result here.
+        //
+        // This branch intentionally returns before the AzureAd:Scopes check below. That check
+        // (VerifyUserHasAnyAcceptedScope) enforces delegated 'scp' scopes, which app-only tokens do not
+        // carry — so unlike the Bearer path below, this path applies no scope gate. The app-only
+        // restriction is a token-type admission check, not an authorization decision; authorizing the
+        // returned app identity (e.g. by roles/appid) remains the caller's responsibility.
         if (httpContext.Items[PopConstants.ValidatedAccessTokenItemKey] is JsonWebToken popToken)
         {
             return BuildResult(logger, PopConstants.ProtocolName, popToken);
