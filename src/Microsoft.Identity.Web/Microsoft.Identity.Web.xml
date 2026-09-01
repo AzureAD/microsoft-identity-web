@@ -875,41 +875,53 @@
             Extension for IHttpClientBuilder for startup initialization of Microsoft Identity authentication handlers.
             </summary>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             Adds a named Microsoft Identity user authentication message handler related to a specific configuration section.
             </summary>
             <param name="builder">Builder.</param>
-            <param name="serviceName">Name of the configuration for the service.</param>
             <param name="configuration">Configuration.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+            <inheritdoc cref="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,Microsoft.Extensions.Configuration.IConfiguration)" />
+            <param name="serviceName">Name of the configuration for the service.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
             <summary>
             Adds a named Microsoft Identity user authentication message handler initialized with delegates.
             </summary>
             <param name="builder">Builder.</param>
-            <param name="serviceName">Name of the configuration for the service.</param>
             <param name="configureOptions">Action to configure the options.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+            <inheritdoc cref="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityUserAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})"/>
+            <param name="serviceName">Name of the configuration for the service.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             Adds a named Microsoft Identity application authentication message handler related to a specific configuration section.
             </summary>
             <param name="builder">Builder.</param>
-            <param name="serviceName">Name of the configuration for the service.</param>
             <param name="configuration">Configuration.</param>
             <returns>The builder for chaining.</returns>
         </member>
-        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,Microsoft.Extensions.Configuration.IConfiguration)">
+            <inheritdoc cref="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,Microsoft.Extensions.Configuration.IConfiguration)"/>
+            <param name="serviceName">Name of the configuration for the service.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
             <summary>
             Adds a named Microsoft Identity application authentication message handler initialized with delegates.
             </summary>
             <param name="builder">Builder.</param>
-            <param name="serviceName">Name of the configuration for the service.</param>
             <param name="configureOptions">Action to configure the options.</param>
             <returns>The builder for chaining.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.String,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})">
+            <inheritdoc cref="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAppAuthenticationHandler(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Action{Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerOptions})"/>
+            <param name="serviceName">Name of the configuration for the service.</param>
         </member>
         <member name="M:Microsoft.Identity.Web.MicrosoftIdentityAuthenticationMessageHandlerHttpClientBuilderExtensions.AddMicrosoftIdentityAuthenticationHandlerCore(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder,System.Func{Microsoft.Identity.Web.IMicrosoftIdentityAuthenticationDelegatingHandlerFactory,System.Net.Http.DelegatingHandler})">
             <summary>
