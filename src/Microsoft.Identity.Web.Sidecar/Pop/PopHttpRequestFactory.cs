@@ -12,9 +12,10 @@ namespace Microsoft.Identity.Web.Sidecar.Pop;
 /// <remarks>
 /// The sidecar is invoked by its co-located application, so the call to <c>/Validate</c> is not the
 /// request the SHR was signed over; the caller must supply the original method and URI (they cannot be
-/// derived server-side). Only <c>Uri</c> and <c>Method</c> are required because validation covers the
-/// <c>m</c>/<c>u</c>/<c>p</c>/<c>ts</c> claims (<c>h</c> and <c>q</c> are off by default), so request
-/// headers, query string and body do not participate in the signature.
+/// derived server-side). Only <c>Uri</c> and <c>Method</c> are populated: header (<c>h</c>) and body
+/// (<c>b</c>) binding are not supported (the sidecar never receives the signed headers or body), and
+/// query (<c>q</c>) binding, when enabled, is validated from the query component of the absolute
+/// <c>original-uri</c>. So request headers and body do not participate in validation.
 /// </remarks>
 internal static class PopHttpRequestFactory
 {

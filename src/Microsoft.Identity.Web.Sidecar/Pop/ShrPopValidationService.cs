@@ -42,14 +42,15 @@ internal sealed class ShrPopValidationService
         ValidateU = options.ValidateU,
         ValidateP = options.ValidateP,
         ValidateTs = options.ValidateTs,
-        ValidateH = options.ValidateH,
         ValidateQ = options.ValidateQ,
 
-        // Body-hash (b) stays off and is intentionally not operator-configurable: validating it requires
-        // buffering the request body, which the sidecar does not do.
+        // Header (h) and body-hash (b) binding are intentionally not configurable: the sidecar
+        // receives only the request line (method + URI), not the signed headers or body, so h and b stay
+        // off and unsigned headers are accepted.
+        ValidateH = false,
         ValidateB = false,
+        AcceptUnsignedHeaders = true,
 
-        AcceptUnsignedHeaders = options.AcceptUnsignedHeaders,
         AcceptUnsignedQueryParameters = options.AcceptUnsignedQueryParameters,
         ValidatePresentClaims = options.ValidatePresentClaims,
         ClaimsToValidateWhenPresent = options.ClaimsToValidateWhenPresent,

@@ -10,11 +10,12 @@ namespace Microsoft.Identity.Web.Sidecar.Configuration;
 /// Tunable flags for inbound Signed HTTP Request (SHR) Proof-of-Possession validation, bound
 /// from the <c>Sidecar:PopValidation</c> configuration subsection. Every property defaults to the
 /// secure Microsoft.IdentityModel <c>SignedHttpRequestValidationParameters</c> default, so when the
-/// subsection is absent PoP validation runs with method/URI/path/timestamp binding on, query/header
-/// binding off, unsigned headers and query parameters accepted, and a five-minute lifetime.
+/// subsection is absent PoP validation runs with method/URI/path/timestamp binding on, query
+/// binding off, unsigned query parameters accepted, and a five-minute lifetime.
 /// <para>
-/// Only members exposed as simple configuration values are surfaced here; body-hash (<c>b</c>)
-/// binding is not configurable and remains off.
+/// Only members exposed as simple configuration values are surfaced here. Header (<c>h</c>) and
+/// body-hash (<c>b</c>) binding are not configurable: the sidecar receives only the request line
+/// (method and URI), so header binding stays off and unsigned headers are accepted.
 /// </para>
 /// </summary>
 public class PopValidationOptions
@@ -54,21 +55,6 @@ public class PopValidationOptions
     /// </summary>
     [DefaultValue(false)]
     public bool ValidateQ { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the <c>h</c> (headers) claim is validated - request
-    /// binding. Default <c>false</c>; enabling it hardens binding but the caller must sign <c>h</c> or
-    /// every request fails.
-    /// </summary>
-    [DefaultValue(false)]
-    public bool ValidateH { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether headers not covered by the signature are accepted.
-    /// Default <c>true</c>.
-    /// </summary>
-    [DefaultValue(true)]
-    public bool AcceptUnsignedHeaders { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether query parameters not covered by the signature are

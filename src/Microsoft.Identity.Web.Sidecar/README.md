@@ -98,7 +98,6 @@ implemented. The parameters are operator-tunable under `Sidecar:PopValidation`:
       "ValidateU": true,
       "ValidateP": true,
       "ValidateQ": false,
-      "ValidateH": false,
       "SignedHttpRequestLifetime": "00:05:00"
     }
   }

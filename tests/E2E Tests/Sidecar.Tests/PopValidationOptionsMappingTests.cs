@@ -60,8 +60,12 @@ public class PopValidationOptionsMappingTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Sidecar:PopValidation:ValidateQ"] = "true",
-                ["Sidecar:PopValidation:ValidateH"] = "true",
                 ["Sidecar:PopValidation:SignedHttpRequestLifetime"] = "00:02:00",
+
+                // Header binding is not a supported option: the sidecar receives only the request
+                // line, never the signed headers. These keys are set to insecure values to prove
+                // they have no effect and cannot enable header binding.
+                ["Sidecar:PopValidation:ValidateH"] = "true",
                 ["Sidecar:PopValidation:AcceptUnsignedHeaders"] = "false",
             })
             .Build();
@@ -73,11 +77,14 @@ public class PopValidationOptionsMappingTests
         SignedHttpRequestValidationParameters parameters =
             ShrPopValidationService.CreateValidationParameters(sidecarOptions.PopValidation);
 
-        // Assert: exactly the four overrides took effect...
+        // Assert: exactly the two supported overrides took effect...
         Assert.True(parameters.ValidateQ);
-        Assert.True(parameters.ValidateH);
         Assert.Equal(TimeSpan.FromMinutes(2), parameters.SignedHttpRequestLifetime);
-        Assert.False(parameters.AcceptUnsignedHeaders);
+
+        // ...header binding is not operator-configurable (only the request line reaches the
+        // sidecar), so it stays off regardless of the keys set above...
+        Assert.False(parameters.ValidateH);
+        Assert.True(parameters.AcceptUnsignedHeaders);
 
         // ...and nothing else drifted from the secure defaults.
         Assert.True(parameters.ValidateM);
