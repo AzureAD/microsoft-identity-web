@@ -93,7 +93,6 @@ implemented. The parameters are operator-tunable under `Sidecar:PopValidation`:
 {
   "Sidecar": {
     "PopValidation": {
-      "ValidateTs": true,
       "ValidateM": true,
       "ValidateU": true,
       "ValidateP": true,

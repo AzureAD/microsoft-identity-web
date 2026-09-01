@@ -15,18 +15,13 @@ namespace Microsoft.Identity.Web.Sidecar.Configuration;
 /// <para>
 /// Only members exposed as simple configuration values are surfaced here. Header (<c>h</c>) and
 /// body-hash (<c>b</c>) binding are not configurable: the sidecar receives only the request line
-/// (method and URI), so header binding stays off and unsigned headers are accepted.
+/// (method and URI), so header binding stays off and unsigned headers are accepted. Timestamp
+/// (<c>ts</c>) validation is likewise not configurable and always on - it is the sole
+/// replay/freshness guard in this nonce-less design.
 /// </para>
 /// </summary>
 public class PopValidationOptions
 {
-    /// <summary>
-    /// Gets or sets a value indicating whether the <c>ts</c> (timestamp) claim is validated - the
-    /// replay/freshness guard. Default <c>true</c>; disabling it removes replay protection.
-    /// </summary>
-    [DefaultValue(true)]
-    public bool ValidateTs { get; set; } = true;
-
     /// <summary>
     /// Gets or sets a value indicating whether the <c>m</c> (HTTP method) claim is validated - request
     /// binding. Default <c>true</c>; disabling it lets a captured SHR be replayed against another method.

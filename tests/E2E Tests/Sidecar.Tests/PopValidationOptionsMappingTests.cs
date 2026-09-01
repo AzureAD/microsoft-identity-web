@@ -62,9 +62,11 @@ public class PopValidationOptionsMappingTests
                 ["Sidecar:PopValidation:ValidateQ"] = "true",
                 ["Sidecar:PopValidation:SignedHttpRequestLifetime"] = "00:02:00",
 
-                // Header binding is not a supported option: the sidecar receives only the request
-                // line, never the signed headers. These keys are set to insecure values to prove
-                // they have no effect and cannot enable header binding.
+                // Timestamp and header binding are not supported configuration options: timestamp
+                // validation is always on, and the sidecar receives only the request line, never the
+                // signed headers. The values below would weaken validation if applied, confirming the
+                // mapping ignores them.
+                ["Sidecar:PopValidation:ValidateTs"] = "false",
                 ["Sidecar:PopValidation:ValidateH"] = "true",
                 ["Sidecar:PopValidation:AcceptUnsignedHeaders"] = "false",
             })
@@ -81,8 +83,9 @@ public class PopValidationOptionsMappingTests
         Assert.True(parameters.ValidateQ);
         Assert.Equal(TimeSpan.FromMinutes(2), parameters.SignedHttpRequestLifetime);
 
-        // ...header binding is not operator-configurable (only the request line reaches the
-        // sidecar), so it stays off regardless of the keys set above...
+        // ...timestamp validation and header binding are not operator-configurable, so they keep
+        // their secure values regardless of the keys set above...
+        Assert.True(parameters.ValidateTs);
         Assert.False(parameters.ValidateH);
         Assert.True(parameters.AcceptUnsignedHeaders);
 
@@ -90,7 +93,6 @@ public class PopValidationOptionsMappingTests
         Assert.True(parameters.ValidateM);
         Assert.True(parameters.ValidateU);
         Assert.True(parameters.ValidateP);
-        Assert.True(parameters.ValidateTs);
         Assert.True(parameters.AcceptUnsignedQueryParameters);
         Assert.False(parameters.ValidatePresentClaims);
         Assert.Equal(new[] { "m", "p" }, parameters.ClaimsToValidateWhenPresent);

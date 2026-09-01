@@ -41,8 +41,10 @@ internal sealed class ShrPopValidationService
         ValidateM = options.ValidateM,
         ValidateU = options.ValidateU,
         ValidateP = options.ValidateP,
-        ValidateTs = options.ValidateTs,
         ValidateQ = options.ValidateQ,
+
+        // Timestamp (ts) validation is always on as the only replay/freshness guard in the nonce-less design.
+        ValidateTs = true,
 
         // Header (h) and body-hash (b) binding are intentionally not configurable: the sidecar
         // receives only the request line (method + URI), not the signed headers or body, so h and b stay
