@@ -123,12 +123,13 @@ namespace Microsoft.Identity.Web
                             || claim.Type == ClaimConstants.Role)
                         && !string.IsNullOrWhiteSpace(claim.Value));
 
-                    await provider.ValidateIdentity(context).ConfigureAwait(false);
-
                     if (!hasRequiredClaim)
                     {
                         context.Rejected();
+                        return;
                     }
+
+                    await provider.ValidateIdentity(context).ConfigureAwait(false);
                 },
             };
         }

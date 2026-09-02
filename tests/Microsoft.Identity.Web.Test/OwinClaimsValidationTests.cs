@@ -73,8 +73,13 @@ namespace Microsoft.Identity.Web.Test
             Assert.True(context.IsValidated);
         }
 
-        [Fact]
-        public async Task ConsumerValidation_RunsOnceButCannotRescueOriginallyInvalidIdentityAsync()
+        [Theory]
+        [InlineData(null, "value")]
+        [InlineData(ClaimConstants.Scp, "")]
+        [InlineData(ClaimConstants.Roles, " \t")]
+        public async Task ConsumerValidation_DoesNotRunForInvalidIdentityAsync(
+            string? claimType,
+            string claimValue)
         {
             int callbackCount = 0;
             OAuthBearerAuthenticationOptions options = new()
@@ -84,18 +89,17 @@ namespace Microsoft.Identity.Web.Test
                     OnValidateIdentity = context =>
                     {
                         callbackCount++;
-                        context.Ticket.Identity.AddClaim(new Claim(ClaimConstants.Scp, "consumer-added"));
                         context.Validated();
                         return Task.CompletedTask;
                     },
                 },
             };
             AppBuilderExtension.ConfigureClaimsValidation(options, allowWebApiToBeAuthorizedByACL: false);
-            OAuthValidateIdentityContext context = CreateContext(options);
+            OAuthValidateIdentityContext context = CreateContext(options, claimType, claimValue);
 
             await options.Provider.ValidateIdentity(context);
 
-            Assert.Equal(1, callbackCount);
+            Assert.Equal(0, callbackCount);
             Assert.False(context.IsValidated);
         }
 
