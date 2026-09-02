@@ -82,7 +82,7 @@
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.22.0</MicrosoftIdentityModelVersion>
     <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.88.0</MicrosoftIdentityClientVersion>
     <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.88.0</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.6.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.6.1</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
