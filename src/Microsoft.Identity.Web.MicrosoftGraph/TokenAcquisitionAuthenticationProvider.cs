@@ -45,7 +45,16 @@ namespace Microsoft.Identity.Web
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
             _ = Throws.IfNull(request);
-            ValidateRequestUri(request.RequestUri);
+
+            if (request.Headers.Contains(Constants.Authorization))
+            {
+                request.Headers.Remove(Constants.Authorization);
+            }
+
+            if (!IsRequestUriAllowed(request.RequestUri))
+            {
+                return;
+            }
 
             // Default options to settings provided during initialization
             var scopes = _initialOptions.Scopes;
@@ -83,19 +92,16 @@ namespace Microsoft.Identity.Web
                     downstreamOptions,
                     user).ConfigureAwait(false);
 
-            // Add or replace authorization header.
-            if (request.Headers.Contains(Constants.Authorization))
-            {
-                request.Headers.Remove(Constants.Authorization);
-            }
-
             request.Headers.Add(
                 Constants.Authorization, authorizationHeader);
 
             try
             {
                 downstreamOptions.CustomizeHttpRequestMessage?.Invoke(request);
-                ValidateRequestUri(request.RequestUri);
+                if (!IsRequestUriAllowed(request.RequestUri))
+                {
+                    request.Headers.Remove(Constants.Authorization);
+                }
             }
             catch
             {
@@ -125,14 +131,10 @@ namespace Microsoft.Identity.Web
             return authHandlerOption?.AuthenticationProviderOption as TokenAcquisitionAuthenticationProviderOption;
         }
 
-        private void ValidateRequestUri(Uri? requestUri)
+        private bool IsRequestUriAllowed(Uri? requestUri)
         {
             GraphOrigin? graphOrigin = Volatile.Read(ref _graphOrigin);
-            if (graphOrigin is null || !graphOrigin.Matches(requestUri))
-            {
-                throw new InvalidOperationException(
-                    "The request URI must be an absolute HTTPS URI with the configured Microsoft Graph origin.");
-            }
+            return graphOrigin is not null && graphOrigin.Matches(requestUri);
         }
 
         private sealed class GraphOrigin

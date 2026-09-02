@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("https://graph.microsoft.com:8443/v1.0/me")]
         [InlineData("https://graph.microsoft.com.example/v1.0/me")]
         [InlineData("https://graph.microsoft.com@evil.example/v1.0/me")]
-        public async Task AuthenticateRequestAsync_InvalidInitialDestination_RejectsBeforeTokenAcquisitionAsync(
+        public async Task AuthenticateRequestAsync_InvalidInitialDestination_RemovesAuthorizationBeforeTokenAcquisitionAsync(
             string requestUrl)
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
@@ -55,33 +55,35 @@ namespace Microsoft.Identity.Web.Test
             using var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             request.Headers.Authorization = AuthenticationHeaderValue.Parse(ExistingAuthorizationHeader);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
-            Assert.Equal(ExistingAuthorizationHeader, request.Headers.Authorization?.ToString());
+            Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderNotRequestedAsync(authorizationHeaderProvider);
         }
 
         [Fact]
-        public async Task AuthenticateRequestAsync_NullInitialDestination_RejectsBeforeTokenAcquisitionAsync()
+        public async Task AuthenticateRequestAsync_NullInitialDestination_DoesNotAcquireTokenAsync()
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
             var provider = CreateProvider(authorizationHeaderProvider);
             using var request = new HttpRequestMessage();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
+            Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderNotRequestedAsync(authorizationHeaderProvider);
         }
 
         [Fact]
-        public async Task AuthenticateRequestAsync_RelativeInitialDestination_RejectsBeforeTokenAcquisitionAsync()
+        public async Task AuthenticateRequestAsync_RelativeInitialDestination_DoesNotAcquireTokenAsync()
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
             var provider = CreateProvider(authorizationHeaderProvider);
             using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("me", UriKind.Relative));
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
+            Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderNotRequestedAsync(authorizationHeaderProvider);
         }
 
@@ -108,7 +110,7 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("https://example.com/v1.0/me")]
         [InlineData("http://graph.microsoft.com/v1.0/me")]
-        public async Task AuthenticateRequestAsync_CustomizerChangesOrigin_ClearsAuthorizationAsync(
+        public async Task AuthenticateRequestAsync_CustomizerChangesOrigin_RemovesAuthorizationAsync(
             string finalRequestUrl)
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
@@ -116,21 +118,21 @@ namespace Microsoft.Identity.Web.Test
             using var request = new HttpRequestMessage(HttpMethod.Get, GraphBaseUrl + "/me");
             SetCustomizer(request, message => message.RequestUri = new Uri(finalRequestUrl));
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
             Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderRequestedAsync(authorizationHeaderProvider);
         }
 
         [Fact]
-        public async Task AuthenticateRequestAsync_CustomizerClearsDestination_ClearsAuthorizationAsync()
+        public async Task AuthenticateRequestAsync_CustomizerClearsDestination_RemovesAuthorizationAsync()
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
             var provider = CreateProvider(authorizationHeaderProvider);
             using var request = new HttpRequestMessage(HttpMethod.Get, GraphBaseUrl + "/me");
             SetCustomizer(request, message => message.RequestUri = null);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
             Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderRequestedAsync(authorizationHeaderProvider);
@@ -188,7 +190,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task AuthenticateRequestAsync_UnboundFactoryProvider_FailsClosedAsync()
+        public async Task AuthenticateRequestAsync_UnboundFactoryProvider_DoesNotAcquireTokenAsync()
         {
             IAuthorizationHeaderProvider authorizationHeaderProvider = CreateAuthorizationHeaderProvider();
             var provider = new TokenAcquisitionAuthenticationProvider(
@@ -196,8 +198,9 @@ namespace Microsoft.Identity.Web.Test
                 new TokenAcquisitionAuthenticationProviderOption { Scopes = ["User.Read"] });
             using var request = new HttpRequestMessage(HttpMethod.Get, GraphBaseUrl + "/me");
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.AuthenticateRequestAsync(request));
+            await provider.AuthenticateRequestAsync(request);
 
+            Assert.Null(request.Headers.Authorization);
             await AssertAuthorizationHeaderNotRequestedAsync(authorizationHeaderProvider);
         }
 

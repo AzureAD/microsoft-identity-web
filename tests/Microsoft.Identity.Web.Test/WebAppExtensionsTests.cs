@@ -846,6 +846,33 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddMicrosoftGraph_BlankBaseUrl_UsesDefaultGraphBaseUrl(string? baseUrl)
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+
+            builder.AddMicrosoftGraph(options =>
+            {
+                options.BaseUrl = baseUrl!;
+                options.Scopes = TestConstants.GraphScopes;
+            });
+
+            using ServiceProvider provider = services.BuildServiceProvider();
+            GraphServiceClient graphServiceClient = provider.GetRequiredService<GraphServiceClient>();
+
+            Assert.Equal(Constants.GraphBaseUrlV1, graphServiceClient.BaseUrl);
+        }
+
+        [Theory]
         [InlineData("/v1.0")]
         [InlineData("http://graph.contoso.test/v1.0")]
         public void AddMicrosoftGraphUsingFactoryFunction_InvalidReturnedBaseUrl_ThrowsOnResolution(
