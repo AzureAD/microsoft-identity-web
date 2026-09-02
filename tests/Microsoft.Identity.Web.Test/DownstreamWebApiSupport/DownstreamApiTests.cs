@@ -101,8 +101,7 @@ namespace Microsoft.Identity.Web.Tests
             Assert.False(configuredExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
             Dictionary<string, object> requestExtraParameters =
                 Assert.IsType<Dictionary<string, object>>(mergedOptions.AcquireTokenOptions.ExtraParameters);
-            Assert.Same(StringComparer.OrdinalIgnoreCase, requestExtraParameters.Comparer);
-            Assert.True(requestExtraParameters.ContainsKey("CONFIGURED"));
+            Assert.Equal("value", requestExtraParameters["Configured"]);
             Assert.True(requestExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
         }
 

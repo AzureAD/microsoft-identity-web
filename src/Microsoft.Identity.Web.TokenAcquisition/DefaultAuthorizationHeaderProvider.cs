@@ -276,14 +276,18 @@ namespace Microsoft.Identity.Web
         /// <returns>A dictionary containing extra parameters to be sent during token acquisition or null.</returns>
         private static IDictionary<string, object>? GetExtraParameters(AuthorizationHeaderProviderOptions? downstreamApiOptions)
         {
-            var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
+            IDictionary<string, object>? configuredExtraParameters =
+                downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
+            IDictionary<string, object>? extraParameters =
+                configuredExtraParameters is Dictionary<string, object> dictionary
+                    ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
+                    : configuredExtraParameters is not null
+                        ? new Dictionary<string, object>(configuredExtraParameters)
+                        : null;
+
             if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
-                extraParameters = extraParameters is Dictionary<string, object> dictionary
-                    ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
-                    : extraParameters is not null
-                        ? new Dictionary<string, object>(extraParameters)
-                        : new Dictionary<string, object>();
+                extraParameters ??= new Dictionary<string, object>();
                 extraParameters[TokenBindingParameterName] = s_boxedTrue;
             }
 

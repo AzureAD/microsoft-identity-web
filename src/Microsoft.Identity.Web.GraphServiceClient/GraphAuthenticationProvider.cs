@@ -69,6 +69,10 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user = authenticationOptions?.User;
             string? originalLongRunningWebApiSessionKey =
                 graphServiceClientOptions.AcquireTokenOptions.LongRunningWebApiSessionKey;
+            bool isBearerProtocol = string.Equals(
+                graphServiceClientOptions.ProtocolScheme,
+                "bearer",
+                StringComparison.OrdinalIgnoreCase);
 
             // Remove the authorization header if it exists
             if (request.Headers.ContainsKey(AuthorizationHeaderKey))
@@ -77,14 +81,9 @@ namespace Microsoft.Identity.Web
             }
 
             // Data coming from the request (needed in protocols like "Pop")
-            AuthorizationHeaderProviderOptions authorizationHeaderProviderOptions = new(graphServiceClientOptions)
-            {
-                AcquireTokenOptions = graphServiceClientOptions.AcquireTokenOptions.Clone()
-            };
-            authorizationHeaderProviderOptions.AcquireTokenOptions.ExtraParameters =
-                CopyExtraParameters(graphServiceClientOptions.AcquireTokenOptions.ExtraParameters);
+            AuthorizationHeaderProviderOptions authorizationHeaderProviderOptions = new(graphServiceClientOptions);
 
-            if (string.Compare(graphServiceClientOptions?.ProtocolScheme, "bearer", StringComparison.OrdinalIgnoreCase) == 0)
+            if (isBearerProtocol)
             {
                 authorizationHeaderProviderOptions.BaseUrl = request.URI.Host;
                 authorizationHeaderProviderOptions.RelativePath = request.URI.LocalPath;
@@ -103,6 +102,7 @@ namespace Microsoft.Identity.Web
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
 
                 if (authenticationOptions is not null
+                    && !isBearerProtocol
                     && originalLongRunningWebApiSessionKey == AcquireTokenOptions.LongRunningWebApiSessionKeyAuto
                     && !string.IsNullOrEmpty(authorizationHeaderProviderOptions.AcquireTokenOptions.LongRunningWebApiSessionKey)
                     && authenticationOptions.AcquireTokenOptions.LongRunningWebApiSessionKey == originalLongRunningWebApiSessionKey)
@@ -111,15 +111,6 @@ namespace Microsoft.Identity.Web
                         authorizationHeaderProviderOptions.AcquireTokenOptions.LongRunningWebApiSessionKey;
                 }
             }
-        }
-
-        private static IDictionary<string, object>? CopyExtraParameters(IDictionary<string, object>? extraParameters)
-        {
-            return extraParameters is Dictionary<string, object> dictionary
-                ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
-                : extraParameters is not null
-                    ? new Dictionary<string, object>(extraParameters)
-                    : null;
         }
 
         /// <summary>

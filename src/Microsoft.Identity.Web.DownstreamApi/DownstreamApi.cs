@@ -382,8 +382,6 @@ namespace Microsoft.Identity.Web
             }
 
             DownstreamApiOptions clonedOptions = new DownstreamApiOptions(options);
-            clonedOptions.AcquireTokenOptions.ExtraParameters =
-                CopyExtraParameters(options.AcquireTokenOptions.ExtraParameters);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -410,19 +408,8 @@ namespace Microsoft.Identity.Web
             }
 
             DownstreamApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamApiOptionsReadOnlyHttpMethod(options, httpMethod.ToString());
-            clonedOptions.AcquireTokenOptions.ExtraParameters =
-                CopyExtraParameters(options.AcquireTokenOptions.ExtraParameters);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
-        }
-
-        private static IDictionary<string, object>? CopyExtraParameters(IDictionary<string, object>? extraParameters)
-        {
-            return extraParameters is Dictionary<string, object> dictionary
-                ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
-                : extraParameters is not null
-                    ? new Dictionary<string, object>(extraParameters)
-                    : null;
         }
 
         [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]

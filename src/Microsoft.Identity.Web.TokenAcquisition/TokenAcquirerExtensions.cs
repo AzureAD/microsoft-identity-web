@@ -47,7 +47,6 @@ namespace Microsoft.Identity.Web
             if (clientAssertion != null)
             {
                 tokenAcquisitionOptions = options != null ? options.Clone() : new AcquireTokenOptions();
-                tokenAcquisitionOptions.ExtraParameters = CopyExtraParameters(options?.ExtraParameters);
                 tokenAcquisitionOptions.WithClientAssertion(clientAssertion);
             }
             else
@@ -58,14 +57,6 @@ namespace Microsoft.Identity.Web
             return await tokenAcquirer.GetTokenForAppAsync(scope, tokenAcquisitionOptions, cancellationToken);
         }
 
-        private static IDictionary<string, object>? CopyExtraParameters(IDictionary<string, object>? extraParameters)
-        {
-            return extraParameters is Dictionary<string, object> dictionary
-                ? new Dictionary<string, object>(dictionary, dictionary.Comparer)
-                : extraParameters is not null
-                    ? new Dictionary<string, object>(extraParameters)
-                    : null;
-        }
 
         /// <summary>
         /// Consider the client assertion for the token request.

@@ -125,7 +125,9 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.Equal(["default-scope"], authorizationHeaderProvider.CapturedScopes);
             Assert.NotSame(requestOptions, authorizationHeaderProvider.CapturedOptions);
             Assert.NotSame(requestOptions.AcquireTokenOptions, authorizationHeaderProvider.CapturedOptions!.AcquireTokenOptions);
-            Assert.True(authorizationHeaderProvider.CapturedOptions.AcquireTokenOptions.ExtraParameters!.ContainsKey("CONFIGURED"));
+            Assert.Equal(
+                "value",
+                authorizationHeaderProvider.CapturedOptions.AcquireTokenOptions.ExtraParameters!["Configured"]);
             Assert.Single(requestOptions.AcquireTokenOptions.ExtraParameters);
             Assert.False(requestOptions.AcquireTokenOptions.ExtraParameters.ContainsKey("request"));
             Assert.Equal("generated-session-key", requestOptions.AcquireTokenOptions.LongRunningWebApiSessionKey);

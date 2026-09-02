@@ -95,10 +95,18 @@ namespace Microsoft.Identity.Web.Test
         public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithNonMtlsProtocolAndAppFlow_ReturnsValidResult()
         {
             // Arrange
+            var configuredExtraParameters = new Dictionary<string, object>
+            {
+                ["Configured"] = "value"
+            };
             var downstreamApiOptions = new DownstreamApiOptions
             {
                 Scopes = new[] { "https://graph.microsoft.com/.default" },
-                RequestAppToken = true
+                RequestAppToken = true,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = configuredExtraParameters
+                }
             };
 
             var mockAuthenticationResult = new AuthenticationResult(
@@ -139,7 +147,11 @@ namespace Microsoft.Identity.Web.Test
                 Arg.Any<string>(),
                 Arg.Any<string>(),
                 Arg.Any<string>(),
-                Arg.Any<TokenAcquisitionOptions>());
+                Arg.Is<TokenAcquisitionOptions>(o =>
+                    o.ExtraParameters != null &&
+                    !ReferenceEquals(o.ExtraParameters, configuredExtraParameters) &&
+                    (string)o.ExtraParameters["Configured"] == "value"));
+            Assert.Single(configuredExtraParameters);
         }
 
         [Fact]
