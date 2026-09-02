@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerVersion)" NoWarn="$(NoWarn);NU1605" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.SignedHttpRequest" Version="$(MicrosoftIdentityModelVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="$(MicrosoftAspNetCoreOpenApiVersion)" />
     <PackageReference Include="Microsoft.OpenApi" Version="$(MicrosoftOpenApiVersion)" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="$(MicrosoftExtensionsApiDescriptionServerVersion)">

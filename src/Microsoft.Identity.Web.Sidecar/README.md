@@ -8,6 +8,7 @@ enables Microsoft Entra token acquisition and downstream API calls, and token va
 ### Key capabilities
 
 - Validates incoming tokens and surfaces their claims.
+- Validates inbound app-only Proof-of-Possession (PoP) tokens (Signed HTTP Request) in addition to bearer tokens.
 - Decrypts tokens if applicable.
 - Acquires User OBO or Application tokens for configured downstream APIs.
 
@@ -66,6 +67,45 @@ Set it to `true` to opt in to following redirects.
 > }
 > ```
 
+### Inbound Proof-of-Possession (PoP) validation
+
+The `/Validate` endpoint also accepts a Signed HTTP Request (SHR) Proof-of-Possession credential using
+the `PoP` authorization scheme, in addition to `Bearer`. PoP validation is scoped to **app-only
+(client-credentials) tokens** and validates the embedded access token through the same `AzureAd`
+configuration (issuer, audience, signing keys) used for bearer validation. Bearer behavior is unchanged.
+
+Because the sidecar is invoked by its co-located application, the caller must supply the original
+request line the SHR was signed over via two headers:
+
+| Header            | Description                                     |
+| ----------------- | ----------------------------------------------- |
+| `original-method` | HTTP method of the signed request (e.g. `GET`). |
+| `original-uri`    | Absolute URI of the signed request.             |
+
+A validated PoP request returns `{ "protocol": "PoP", "token": "...", "claims": { ... } }`. A failed
+PoP credential returns `401` with a `WWW-Authenticate: PoP error="invalid_token"` challenge.
+
+Validation binds the `m` (method), `u` (host), `p` (path), and `ts` (timestamp) claims by default. The
+timestamp provides freshness within a five-minute window; server nonce and replay caching are not
+implemented. The parameters are operator-tunable under `Sidecar:PopValidation`:
+
+```jsonc
+{
+  "Sidecar": {
+    "PopValidation": {
+      "ValidateM": true,
+      "ValidateU": true,
+      "ValidateP": true,
+      "ValidateQ": false,
+      "SignedHttpRequestLifetime": "00:05:00"
+    }
+  }
+}
+```
+
+See [`PopValidationOptions`](Configuration/PopValidationOptions.cs) for the full set of flags. When the
+section is absent, secure defaults apply.
+
 ## Running the sidecar
 
 ### Prerequisites
@@ -123,7 +163,7 @@ For all credential configuration options, see the [CredentialDescription documen
 
 | Endpoint                                        | Method | Auth     | Description                                                                                      |
 | ----------------------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------ |
-| `/Validate`                                     | GET    | Required | Returns the raw bearer token and claims. Enforces `AzureAd:Scopes` when configured.              |
+| `/Validate`                                     | GET    | Required | Returns the token and its claims. Accepts a `Bearer` or app-only `PoP` credential. Enforces `AzureAd:Scopes` (when configured) for `Bearer` only; app-only `PoP` tokens carry no `scp`, so authorizing the returned app identity is the caller's responsibility. |
 | `/AuthorizationHeader/{apiName}`                | GET    | Required | Returns an `Authorization` header for the named downstream API using the caller’s identity.      |
 | `/AuthorizationHeaderUnauthenticated/{apiName}` | GET    | Optional | Uses the sidecar’s application identity to obtain a token.                                       |
 | `/DownstreamApi/{apiName}`                      | POST   | Required | Invokes the downstream API profile with the caller’s identity, forwarding body and content-type. |
@@ -156,18 +196,26 @@ Agent identity parameters are also subject to the per-route override flag:
 
 - `/AuthorizationHeader*` returns `{ "authorizationHeader": "Bearer ey..." }`.
 - `/DownstreamApi*` returns `{ "statusCode": 200, "headers": { ... }, "content": "..." }`.
-- `/Validate` returns `{ "protocol": "Bearer", "token": "ey...", "claims": { ... } }`.
+- `/Validate` returns `{ "protocol": "Bearer", "token": "ey...", "claims": { ... } }` (or `"protocol": "PoP"` for a validated PoP request).
 
 ## Security considerations
 
 - This API is only for usage as a sidecar. This API should not be publicly callable as it
   allows the caller to acquire tokens on behalf of the applications identity.
+- Inbound PoP binds to the `original-method`/`original-uri` headers supplied by the co-located
+  calling application; the sidecar does not independently observe the downstream request. The
+  `ts`-based freshness check (default five minutes) is not a replay cache, and server nonce is not
+  implemented.
+- `/Validate` does not authorize app-only `PoP` callers: `AzureAd:Scopes` gates delegated `scp`
+  claims, which app-only tokens do not carry. The sidecar only confirms the token is a valid
+  app-only PoP token; authorizing that app identity (for example by its roles / application
+  permissions) is the calling application's responsibility.
 
 ## Runtime composition
 
 | Concern                        | Implementation                                                                                                                                                                                                     |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Authentication & authorization | [`Program`](Program.cs) wires `AddMicrosoftIdentityWebApi`, optional scope enforcement, and agent identity overrides.                                                                                              |
+| Authentication & authorization | [`Program`](Program.cs) wires `AddMicrosoftIdentityWebApi`, optional scope enforcement, agent identity overrides, and additive inbound PoP validation ([`Pop`](Pop/)).                                                                                              |
 | Endpoints                      | [`ValidateRequestEndpoints`](Endpoints/ValidateRequestEndpoints.cs), [`AuthorizationHeaderEndpoint`](Endpoints/AuthorizationHeaderEndpoint.cs), and [`DownstreamApiEndpoint`](Endpoints/DownstreamApiEndpoint.cs). |
 | Downstream API                 | [`BindableDownstreamApiOptions`](Models/BindableDownstreamApiOptions.cs) merges per-request overrides into per call `DownstreamApis` configuration.                                                                |
 | Agent Identities               | [`AgentOverrides`](AgentOverrides.cs) binds agent identity, userPrincipalName, or user object ID when present and allowed by the per-route override flag.                                                          |

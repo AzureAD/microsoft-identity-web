@@ -42,6 +42,15 @@ export const startServer = async ({
             try {
                 const validation = await sidecarClient.validateAuthorizationHeader({
                     authorizationHeader: authorization,
+                    // PoP (SHR) tokens are bound to the request line; forward it so the sidecar can verify the signature. Bearer needs no extra headers.
+                    ...(authorization.startsWith('PoP ')
+                        ? {
+                            headers: {
+                                'original-method': req.method,
+                                'original-uri': `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+                            },
+                        }
+                        : {}),
                 });
 
                 console.log('Sidecar validation successful');
