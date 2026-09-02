@@ -42,7 +42,7 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 
 `AllowWebApiToBeAuthorizedByACL` will be set to true by the application. No action is required from the user to configure this.
 
-`AllowedHosts` is not used by the sidecar. It will always be `localhost` outside of development environments.
+`AllowedHosts` does not need to be set. Outside of development environments, the sidecar validates the request `Host` header against local host names (`localhost`, `127.0.0.1`, `[::1]`).
 
 *Important sections*
 
@@ -202,6 +202,9 @@ Agent identity parameters are also subject to the per-route override flag:
 
 - This API is only for usage as a sidecar. This API should not be publicly callable as it
   allows the caller to acquire tokens on behalf of the applications identity.
+- Outside of development environments, the sidecar restricts requests to loopback callers and
+  validates the request `Host` header against local host names. The `/healthz` endpoint is exempt
+  from both checks so orchestrator liveness/readiness probes continue to work.
 - Inbound PoP binds to the `original-method`/`original-uri` headers supplied by the co-located
   calling application; the sidecar does not independently observe the downstream request. The
   `ts`-based freshness check (default five minutes) is not a replay cache, and server nonce is not
