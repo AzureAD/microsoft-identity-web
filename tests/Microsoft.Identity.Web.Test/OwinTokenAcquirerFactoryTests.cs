@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -111,11 +112,100 @@ namespace Microsoft.Identity.Web.Test
             Assert.Contains("'~/bin'", exception.Message, StringComparison.Ordinal);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ResolveConfigurationBasePath_RootFilePresenceControlsWarning(bool rootFileExists)
+        {
+            using StringWriter traceOutput = new StringWriter();
+            using TextWriterTraceListener listener = new TextWriterTraceListener(traceOutput);
+            Trace.Listeners.Add(listener);
+
+            try
+            {
+                var mappedVirtualPaths = new List<string>();
+
+                string result = ResolveConfigurationBasePath(
+                    null,
+                    virtualPath =>
+                    {
+                        mappedVirtualPaths.Add(virtualPath);
+                        return virtualPath == "~/appsettings.json"
+                            ? @"C:\site\appsettings.json"
+                            : @"C:\site\bin";
+                    },
+                    path =>
+                    {
+                        Assert.Equal(@"C:\site\appsettings.json", path);
+                        return rootFileExists;
+                    });
+                Trace.Flush();
+
+                Assert.Equal(@"C:\site\bin", result);
+                Assert.Equal(new[] { "~/appsettings.json", "~/bin" }, mappedVirtualPaths);
+                Assert.Equal(
+                    rootFileExists ? 1 : 0,
+                    CountOccurrences(traceOutput.ToString(), "was detected in the application root"));
+                Assert.DoesNotContain(@"C:\site", traceOutput.ToString(), StringComparison.Ordinal);
+            }
+            finally
+            {
+                Trace.Listeners.Remove(listener);
+            }
+        }
+
+        [Theory]
+        [InlineData("missing")]
+        [InlineData("mapping-throws")]
+        [InlineData("probe-throws")]
+        public void ResolveConfigurationBasePath_UnavailableRootProbeDoesNotFailStartup(string scenario)
+        {
+            string result = ResolveConfigurationBasePath(
+                null,
+                virtualPath =>
+                {
+                    if (virtualPath == "~/appsettings.json")
+                    {
+                        if (scenario == "mapping-throws")
+                        {
+                            throw new InvalidOperationException("host unavailable");
+                        }
+
+                        return scenario == "missing" ? null : @"C:\site\appsettings.json";
+                    }
+
+                    return @"C:\site\bin";
+                },
+                _ => scenario == "probe-throws"
+                    ? throw new UnauthorizedAccessException("probe unavailable")
+                    : false);
+
+            Assert.Equal(@"C:\site\bin", result);
+        }
+
         private static string ResolveConfigurationBasePath(
             string? setting,
-            Func<string, string?> mapPath)
+            Func<string, string?> mapPath,
+            Func<string, bool>? fileExists = null)
         {
-            return OwinTokenAcquirerFactory.ResolveConfigurationBasePath(setting, mapPath);
+            return OwinTokenAcquirerFactory.ResolveConfigurationBasePath(
+                setting,
+                mapPath,
+                fileExists ?? (_ => false));
+        }
+
+        private static int CountOccurrences(string value, string searchValue)
+        {
+            int count = 0;
+            int index = 0;
+
+            while ((index = value.IndexOf(searchValue, index, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                index += searchValue.Length;
+            }
+
+            return count;
         }
     }
 }
