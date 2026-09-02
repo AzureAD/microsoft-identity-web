@@ -61,8 +61,10 @@ namespace Microsoft.Identity.Web
         /// </code>
         /// If using distributed token caches, use AddDistributedTokenCache.
         /// </example>
-        /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
-        /// instead.</remarks>
+        /// <remarks>
+        /// Don't use this method in ASP.NET Core. Use the ConfigureServices method instead.
+        /// Each invocation creates an isolated token cache provider.
+        /// </remarks>
         internal static IConfidentialClientApplication AddTokenCaches(
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeCaches)
@@ -90,8 +92,10 @@ namespace Microsoft.Identity.Web
         /// </code>
         ///
         /// </example>
-        /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
-        /// instead.</remarks>
+        /// <remarks>
+        /// Don't use this method in ASP.NET Core. Use the ConfigureServices method instead.
+        /// The token cache provider and its in-memory cache are shared process-wide across calls.
+        /// </remarks>
         public static IConfidentialClientApplication AddInMemoryTokenCache(
             this IConfidentialClientApplication confidentialClientApp)
         {
@@ -124,8 +128,10 @@ namespace Microsoft.Identity.Web
         /// </code>
         ///
         /// </example>
-        /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
-        /// instead.</remarks>
+        /// <remarks>
+        /// Don't use this method in ASP.NET Core. Use the ConfigureServices method instead.
+        /// Each invocation creates an isolated token cache provider and in-memory cache.
+        /// </remarks>
         public static IConfidentialClientApplication AddInMemoryTokenCache(
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeMemoryCache)
@@ -184,8 +190,11 @@ namespace Microsoft.Identity.Web
         /// </code>
         ///
         /// </example>
-        /// <remarks>Don't use this method in ASP.NET Core. Just add use the ConfigureServices method
-        /// instead.</remarks>
+        /// <remarks>
+        /// Don't use this method in ASP.NET Core. Use the ConfigureServices method instead.
+        /// Each invocation creates an isolated token cache provider and L1 cache. Registrations
+        /// that target the same distributed backend continue to share data through that backend.
+        /// </remarks>
         public static IConfidentialClientApplication AddDistributedTokenCache(
             this IConfidentialClientApplication confidentialClientApp,
             Action<IServiceCollection> initializeDistributedCache)
