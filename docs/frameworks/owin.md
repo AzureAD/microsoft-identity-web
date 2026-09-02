@@ -142,11 +142,12 @@ location and are not switched by this setting.
 
 When enabled, the integration loads `~/appsettings.json` and writes a warning.
 Missing, `false`, or invalid switch values use `~/bin/appsettings.json`; invalid
-values also write a warning. The integration selects exactly one location and never
-combines values from the root and `bin` files. There is no automatic fallback to the
-root file. This switch is temporary: it will be removed in a future major release,
-so applications must migrate to the `bin` location before upgrading to a release
-that removes it.
+values also write a warning. In `bin` mode, a remaining root file produces a
+best-effort migration warning when the hosting environment can observe it. The
+integration selects exactly one location and never combines values from the root
+and `bin` files. There is no automatic fallback to the root file. This switch is
+temporary: it will be removed in a future major release, so applications must
+migrate to the `bin` location before upgrading to a release that removes it.
 
 ---
 
