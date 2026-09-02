@@ -23,6 +23,9 @@ public class AgentOverrides
     /// <param name="agentIdentity">Agent identity (client/application ID) to act as.</param>
     /// <param name="agentUsername">Agent user identity UPN.</param>
     /// <param name="agentUserId">Agent user identity object id (GUID string).</param>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="agentUserId"/> is not a non-empty GUID when it is selected for agent user identity acquisition.
+    /// </exception>
     public static void SetOverrides(
         DownstreamApiOptions options,
         string? agentIdentity,
