@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Web.Resource
 
         /// <summary>
         /// App permissions accepted by this web API.
-        /// App permissions appear in the roles claim of the token.
+        /// App permissions appear in role claims. A matching role does not classify the token as app-only.
         /// </summary>
         public string[]? AcceptedAppPermission { get; set; }
 
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Web.Resource
         /// <param name="acceptedScopes">Scopes accepted by this web API.</param>
         /// <param name="acceptedAppPermissions">App permissions accepted by this web API.</param>
         /// <remarks>When neither the scopes nor app permissions match, the response is a 403 (Forbidden),
-        /// because the user is authenticated (hence not 401), but not authorized.</remarks>
+        /// because the caller is authenticated (hence not 401), but not authorized.</remarks>
         /// <example>
         /// Add the following attribute on the controller/page/action to protect:
         ///
