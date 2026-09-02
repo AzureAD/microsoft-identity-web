@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Web
         /// allowed app permission value.
         /// </summary>
         /// <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
-        /// <param name="allowedScopeValues">scopes (the value of scope or scp) accepted by this app.</param>
+        /// <param name="allowedScopeValues">Scopes accepted by this app from the <c>scp</c> or mapped scope claim.</param>
         /// <param name="allowedAppPermissionValues">App permission (in role claim) that this app accepts.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static AuthorizationPolicyBuilder RequireScopeOrAppPermission(

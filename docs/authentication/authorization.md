@@ -206,7 +206,7 @@ public class TodoListController : ControllerBase
 When a request arrives:
 
 1. ASP.NET Core authentication middleware validates the token
-2. `RequiredScope` attribute checks for the `scp` or `scope` claim
+2. `RequiredScope` attribute checks for the `scp` or mapped scope claim
 3. If token contains at least one matching scope → ✅ Request proceeds
 4. If no matching scope found → ❌ 403 Forbidden response
 
@@ -234,6 +234,20 @@ Matching a role value does not by itself prove that the token is app-only becaus
 
 **❌ Use `RequiredScope` when:**
 - Your API only serves user-delegated requests
+
+### Requiring App-Only Callers
+
+A matching role value does not identify an app-only token. When a role is intended
+only for application callers, configure the app role with **Applications** as its
+allowed member type and use a different value from roles assigned to users or
+groups.
+
+If an endpoint must reject delegated callers regardless of its role configuration,
+combine role validation with a separate token-type policy based on claims guaranteed
+and validated by the trusted issuer and token profile. For Microsoft Entra access
+tokens configured to include the optional `idtyp` claim, require `idtyp=app`. Do not
+infer an app-only caller from a `roles` claim, from the absence of `scp`, or from
+`azp`, `appid`, or `sub` alone.
 
 ### Quick Start
 
@@ -628,7 +642,7 @@ Configure appropriate logging levels and error handling for production environme
 
 **Diagnosis:**
 1. Decode token at [jwt.ms](https://jwt.ms)
-2. Check `scp` or `scope` claim
+2. Check the `scp` or mapped scope claim
 3. Verify it matches your `RequiredScope` attribute
 
 **Solution:**
