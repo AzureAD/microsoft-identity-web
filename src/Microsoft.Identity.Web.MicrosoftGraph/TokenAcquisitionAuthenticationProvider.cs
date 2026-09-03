@@ -46,13 +46,9 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(request);
 
-            if (request.Headers.Contains(Constants.Authorization))
-            {
-                request.Headers.Remove(Constants.Authorization);
-            }
-
             if (!IsRequestUriAllowed(request.RequestUri))
             {
+                request.Headers.Remove(Constants.Authorization);
                 return;
             }
 
@@ -92,6 +88,7 @@ namespace Microsoft.Identity.Web
                     downstreamOptions,
                     user).ConfigureAwait(false);
 
+            request.Headers.Remove(Constants.Authorization);
             request.Headers.Add(
                 Constants.Authorization, authorizationHeader);
 
