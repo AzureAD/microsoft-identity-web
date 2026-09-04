@@ -801,6 +801,7 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public void AddMicrosoftGraphUsingFactoryFunction()
         {
+            const string customGraphBaseUrl = "https://graph.contoso.test/v1.0";
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
 
@@ -811,11 +812,44 @@ namespace Microsoft.Identity.Web.Test
                 .AddInMemoryTokenCaches();
             string[] initialScopes = new string[] { };
 
-            builder.AddMicrosoftGraph(authProvider => new GraphServiceClient(authProvider), initialScopes);
+            builder.AddMicrosoftGraph(
+                authProvider => new GraphServiceClient(customGraphBaseUrl, authProvider),
+                initialScopes);
+
+            using ServiceProvider provider = services.BuildServiceProvider();
+            GraphServiceClient graphServiceClient = provider.GetRequiredService<GraphServiceClient>();
+
+            Assert.Equal(customGraphBaseUrl, graphServiceClient.BaseUrl);
         }
 
         [Fact]
         public void AddMicrosoftGraphAppOnlyUsingFactoryFunction()
+        {
+            const string customGraphBaseUrl = "https://graph.contoso.test/v1.0";
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+            string[] initialScopes = new string[] { };
+
+            builder.AddMicrosoftGraphAppOnly(
+                authProvider => new GraphServiceClient(customGraphBaseUrl, authProvider));
+
+            using ServiceProvider provider = services.BuildServiceProvider();
+            GraphServiceClient graphServiceClient = provider.GetRequiredService<GraphServiceClient>();
+
+            Assert.Equal(customGraphBaseUrl, graphServiceClient.BaseUrl);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void AddMicrosoftGraph_BlankBaseUrl_UsesDefaultGraphBaseUrl(string? baseUrl)
         {
             var configMock = Substitute.For<IConfiguration>();
             configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
@@ -825,9 +859,47 @@ namespace Microsoft.Identity.Web.Test
                 .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
                 .EnableTokenAcquisitionToCallDownstreamApi()
                 .AddInMemoryTokenCaches();
-            string[] initialScopes = new string[] { };
 
-            builder.AddMicrosoftGraphAppOnly(authProvider => new GraphServiceClient(authProvider));
+            builder.AddMicrosoftGraph(options =>
+            {
+                options.BaseUrl = baseUrl!;
+                options.Scopes = TestConstants.GraphScopes;
+            });
+
+            using ServiceProvider provider = services.BuildServiceProvider();
+            GraphServiceClient graphServiceClient = provider.GetRequiredService<GraphServiceClient>();
+
+            Assert.Equal(Constants.GraphBaseUrlV1, graphServiceClient.BaseUrl);
+        }
+
+        [Theory]
+        [InlineData("/v1.0")]
+        [InlineData("http://graph.contoso.test/v1.0")]
+        public void AddMicrosoftGraphUsingFactoryFunction_InvalidReturnedBaseUrl_ThrowsOnResolution(
+            string baseUrl)
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+
+            var services = new ServiceCollection();
+            var builder = services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+            builder.AddMicrosoftGraph(
+                authProvider =>
+                {
+                    var graphServiceClient = new GraphServiceClient(authProvider)
+                    {
+                        BaseUrl = baseUrl,
+                    };
+                    return graphServiceClient;
+                },
+                Array.Empty<string>());
+
+            using ServiceProvider provider = services.BuildServiceProvider();
+
+            Assert.Throws<ArgumentException>(() => provider.GetRequiredService<GraphServiceClient>());
         }
 
         [Theory]
