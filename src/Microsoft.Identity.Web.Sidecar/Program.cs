@@ -75,7 +75,8 @@ public class Program
 
         if (!app.Environment.IsDevelopment())
         {
-            // Loopback-only outside development; health endpoint excepted for probes.
+            // Outside development, restrict to loopback callers that use a local
+            // Host header; the health endpoint is excepted for probes.
             app.UseLocalCallerRestriction();
         }
 
