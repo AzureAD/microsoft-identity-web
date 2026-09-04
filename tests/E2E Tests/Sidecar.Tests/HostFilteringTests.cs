@@ -4,6 +4,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web.Sidecar;
 using Xunit;
 
 namespace Sidecar.Tests;
@@ -59,14 +60,17 @@ public class HostFilteringTests(SidecarApiFactory factory) : IClassFixture<Sidec
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    [Fact]
-    public async Task Production_UnexpectedHost_HealthEndpoint_Succeeds()
+    [Theory]
+    [InlineData(LocalCallerRestriction.HealthEndpointPath)]
+    [InlineData(LocalCallerRestriction.HealthEndpointPath + "/")]
+    public async Task Production_UnexpectedHost_HealthEndpoint_Succeeds(string path)
     {
         var client = CreateClient(Environments.Production);
 
-        // The health endpoint is exempt so orchestrator probes, which may target
-        // the routable address, continue to work.
-        var response = await client.SendAsync(Get(HealthEndpoint, UnexpectedHost));
+        // The health endpoint, including the trailing-slash form routing accepts,
+        // is exempt so orchestrator probes, which may target the routable address,
+        // continue to work.
+        var response = await client.SendAsync(Get(path, UnexpectedHost));
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(
@@ -86,7 +90,4 @@ public class HostFilteringTests(SidecarApiFactory factory) : IClassFixture<Sidec
 
         Assert.NotEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-    static string HealthEndpoint =>
-        Microsoft.Identity.Web.Sidecar.LocalCallerRestriction.HealthEndpointPath;
 }

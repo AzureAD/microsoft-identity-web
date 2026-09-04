@@ -71,40 +71,12 @@ public class Program
             options.AddOperationTransformer(new OptionsOverrideOperationTransformer());
         });
 
-        if (!builder.Environment.IsDevelopment())
-        {
-            // Outside development, accept requests only for local host names.
-            builder.Services.AddHostFiltering(options =>
-            {
-                options.AllowedHosts = ["localhost", "127.0.0.1", "[::1]"];
-            });
-
-            // Remove the framework's global Host filtering so it can be applied in the
-            // pipeline below instead, scoped to exempt the health endpoint. The filter is
-            // matched by its framework-internal type name; if that changes, the health test fails.
-            ServiceDescriptor? hostFilteringStartupFilter = builder.Services.FirstOrDefault(
-                static descriptor =>
-                    descriptor.ServiceType == typeof(IStartupFilter) &&
-                    descriptor.ImplementationType?.Name == "HostFilteringStartupFilter");
-
-            if (hostFilteringStartupFilter is not null)
-            {
-                builder.Services.Remove(hostFilteringStartupFilter);
-            }
-        }
-
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())
         {
-            // Validate the Host header outside development, but keep the health
-            // endpoint reachable for probes that target the pod's routable address.
-            app.UseWhen(
-                static context => !context.Request.Path.Equals(
-                    LocalCallerRestriction.HealthEndpointPath, StringComparison.OrdinalIgnoreCase),
-                static appBuilder => appBuilder.UseHostFiltering());
-
-            // Loopback-only outside development; health endpoint excepted for probes.
+            // Outside development, restrict to loopback callers that use a local
+            // Host header; the health endpoint is excepted for probes.
             app.UseLocalCallerRestriction();
         }
 
