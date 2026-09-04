@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Web;
 using System.Web.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +21,8 @@ namespace Microsoft.Identity.Web.OWIN
     /// </summary>
     public class OwinTokenAcquirerFactory : TokenAcquirerFactory 
     {
+        private const string UseLegacyWebRootAppSettings = "ida:UseLegacyWebRootAppSettings";
+
         /// <summary>
         /// Defines the configuration for a given host.
         /// </summary>
@@ -36,7 +41,10 @@ namespace Microsoft.Identity.Web.OWIN
                 ["AzureAd:RedirectUri"] = System.Configuration.ConfigurationManager.AppSettings["ida:RedirectUri"],
             });
 
-            return HostingEnvironment.MapPath("~/");
+            return ResolveConfigurationBasePath(
+                System.Configuration.ConfigurationManager.AppSettings[UseLegacyWebRootAppSettings],
+                HostingEnvironment.MapPath,
+                File.Exists);
         }
 
         /// <summary>
@@ -76,6 +84,110 @@ namespace Microsoft.Identity.Web.OWIN
             }
 
             return value;
+        }
+
+        internal static string ResolveConfigurationBasePath(
+            string? useLegacyWebRootAppSettings,
+            Func<string, string?> mapPath,
+            Func<string, bool> fileExists)
+        {
+            string virtualPath = "~/bin";
+            bool useLegacyWebRoot = false;
+
+            if (!string.IsNullOrEmpty(useLegacyWebRootAppSettings))
+            {
+                if (bool.TryParse(useLegacyWebRootAppSettings, out useLegacyWebRoot))
+                {
+                    if (useLegacyWebRoot)
+                    {
+                        virtualPath = "~/";
+                        Trace.TraceWarning(
+                            $"The temporary '{UseLegacyWebRootAppSettings}' compatibility setting is enabled. " +
+                            "appsettings.json is being loaded from the application root. Move the file to the bin " +
+                            "directory and remove this setting. The setting will be removed in a future major release.");
+                    }
+                }
+                else
+                {
+                    Trace.TraceWarning(
+                        $"The '{UseLegacyWebRootAppSettings}' appSetting must be 'true' or 'false'. " +
+                        "The value was ignored and appsettings.json will be loaded from the bin directory.");
+                }
+            }
+
+            if (!useLegacyWebRoot)
+            {
+                WarnIfRootAppSettingsExists(mapPath, fileExists);
+            }
+
+            string? basePath = mapPath(virtualPath);
+            if (string.IsNullOrWhiteSpace(basePath))
+            {
+                throw new ConfigurationErrorsException(
+                    $"Unable to resolve the OWIN configuration directory '{virtualPath}'. " +
+                    "HostingEnvironment.MapPath returned no path.");
+            }
+
+            return basePath!;
+        }
+
+        private static void WarnIfRootAppSettingsExists(
+            Func<string, string?> mapPath,
+            Func<string, bool> fileExists)
+        {
+            string? rootAppSettingsPath;
+            try
+            {
+                rootAppSettingsPath = mapPath("~/appsettings.json");
+            }
+            catch (ArgumentException)
+            {
+                return;
+            }
+            catch (HttpException)
+            {
+                return;
+            }
+            catch (InvalidOperationException)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(rootAppSettingsPath))
+            {
+                return;
+            }
+
+            bool rootAppSettingsExists;
+            try
+            {
+                rootAppSettingsExists = fileExists(rootAppSettingsPath!);
+            }
+            catch (IOException)
+            {
+                return;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return;
+            }
+            catch (NotSupportedException)
+            {
+                return;
+            }
+            catch (SecurityException)
+            {
+                return;
+            }
+
+            if (rootAppSettingsExists)
+            {
+                Trace.TraceWarning(
+                    "A file named 'appsettings.json' was detected in the application root. " +
+                    "This version does not load that file by default. Publish configuration intended " +
+                    "for Microsoft.Identity.Web under the application's bin directory, remove unnecessary " +
+                    "root copies, and ensure the web server does not expose configuration files.");
+            }
         }
     }
 }

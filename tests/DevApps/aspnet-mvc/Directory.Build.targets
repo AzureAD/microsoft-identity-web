@@ -1,0 +1,25 @@
+<Project>
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'OwinWebApp' Or '$(MSBuildProjectName)' == 'OwinWebApi'">
+    <Content Remove="appsettings.json" />
+    <Content Include="appsettings.json">
+      <Link>bin\appsettings.json</Link>
+    </Content>
+  </ItemGroup>
+
+  <Target
+    Name="CopyOwinAppSettingsToBin"
+    AfterTargets="Build"
+    Condition="'$(MSBuildProjectName)' == 'OwinWebApp' Or '$(MSBuildProjectName)' == 'OwinWebApi'">
+    <Copy
+      SourceFiles="$(MSBuildProjectDirectory)\appsettings.json"
+      DestinationFolder="$(TargetDir)"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target
+    Name="CleanOwinAppSettingsFromBin"
+    AfterTargets="Clean"
+    Condition="'$(MSBuildProjectName)' == 'OwinWebApp' Or '$(MSBuildProjectName)' == 'OwinWebApi'">
+    <Delete Files="$(TargetDir)appsettings.json" />
+  </Target>
+</Project>
