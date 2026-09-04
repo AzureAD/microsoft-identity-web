@@ -67,6 +67,12 @@ namespace Microsoft.Identity.Web
             scopes = authenticationOptions?.Scopes ?? _defaultAuthenticationOptions.Scopes;
             graphServiceClientOptions = authenticationOptions ?? _defaultAuthenticationOptions;
             ClaimsPrincipal? user = authenticationOptions?.User;
+            string? originalLongRunningWebApiSessionKey =
+                graphServiceClientOptions.AcquireTokenOptions.LongRunningWebApiSessionKey;
+            bool isBearerProtocol = string.Equals(
+                graphServiceClientOptions.ProtocolScheme,
+                "bearer",
+                StringComparison.OrdinalIgnoreCase);
 
             // Remove the authorization header if it exists
             if (request.Headers.ContainsKey(AuthorizationHeaderKey))
@@ -75,29 +81,35 @@ namespace Microsoft.Identity.Web
             }
 
             // Data coming from the request (needed in protocols like "Pop")
-            AuthorizationHeaderProviderOptions? authorizationHeaderProviderOptions;
-            if (string.Compare(graphServiceClientOptions?.ProtocolScheme, "bearer", StringComparison.OrdinalIgnoreCase) == 0)
+            AuthorizationHeaderProviderOptions authorizationHeaderProviderOptions = new(graphServiceClientOptions);
+
+            if (isBearerProtocol)
             {
-                authorizationHeaderProviderOptions = new AuthorizationHeaderProviderOptions(graphServiceClientOptions!);
                 authorizationHeaderProviderOptions.BaseUrl = request.URI.Host;
                 authorizationHeaderProviderOptions.RelativePath = request.URI.LocalPath;
                 authorizationHeaderProviderOptions.HttpMethod = GetHttpMethod(request.HttpMethod);
-            }
-            else
-            {
-                authorizationHeaderProviderOptions = graphServiceClientOptions;
             }
 
             // Add the authorization header
             if (_allowedGraphHostsValidator.IsUrlHostValid(request.URI) && !request.Headers.ContainsKey(AuthorizationHeaderKey))
             {
                 string authorizationHeader = await _authorizationHeaderProvider.CreateAuthorizationHeaderAsync(
-                        authorizationHeaderProviderOptions!.RequestAppToken ? _defaultGraphScope : scopes!,
+                        authorizationHeaderProviderOptions.RequestAppToken ? _defaultGraphScope : scopes!,
                         authorizationHeaderProviderOptions,
                         user,
                         cancellationToken).ConfigureAwait(false);
-                
+
                 request.Headers.Add(AuthorizationHeaderKey, authorizationHeader);
+
+                if (authenticationOptions is not null
+                    && !isBearerProtocol
+                    && originalLongRunningWebApiSessionKey == AcquireTokenOptions.LongRunningWebApiSessionKeyAuto
+                    && !string.IsNullOrEmpty(authorizationHeaderProviderOptions.AcquireTokenOptions.LongRunningWebApiSessionKey)
+                    && authenticationOptions.AcquireTokenOptions.LongRunningWebApiSessionKey == originalLongRunningWebApiSessionKey)
+                {
+                    authenticationOptions.AcquireTokenOptions.LongRunningWebApiSessionKey =
+                        authorizationHeaderProviderOptions.AcquireTokenOptions.LongRunningWebApiSessionKey;
+                }
             }
         }
 

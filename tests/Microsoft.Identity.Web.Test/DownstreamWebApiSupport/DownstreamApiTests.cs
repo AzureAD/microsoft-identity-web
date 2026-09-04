@@ -66,6 +66,46 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
+        public void MergeOptions_WithAgentIdentityOverride_DoesNotModifyConfiguredExtraParameters()
+        {
+            // Arrange
+            var configuredExtraParameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Configured"] = "value"
+            };
+            var configuredOptions = new DownstreamApiOptions
+            {
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = configuredExtraParameters
+                }
+            };
+            var optionsMonitor = Substitute.For<IOptionsMonitor<DownstreamApiOptions>>();
+            optionsMonitor.Get("api").Returns(configuredOptions);
+            var downstreamApi = new DownstreamApi(
+                _authorizationHeaderProvider,
+                optionsMonitor,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            // Act
+            DownstreamApiOptions mergedOptions = downstreamApi.MergeOptions(
+                "api",
+                options => options.WithAgentIdentity("request-agent"));
+
+            // Assert
+            Assert.Same(configuredExtraParameters, configuredOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.Single(configuredExtraParameters);
+            Assert.False(configuredExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
+            Dictionary<string, object> requestExtraParameters =
+                Assert.IsType<Dictionary<string, object>>(mergedOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.Equal("value", requestExtraParameters["Configured"]);
+            Assert.True(requestExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
+        }
+
+        [Fact]
         public async Task UpdateRequestAsync_WithContent_AddsContentToRequestAsync()
         {
             // Arrange
