@@ -43,10 +43,10 @@ internal static class RedirectUriHelper
     }
 
     /// <summary>
-    /// Returns <c>true</c> when <paramref name="value"/> contains an ASCII control
-    /// character (C0 range <c>U+0000</c>–<c>U+001F</c> or DEL <c>U+007F</c>).
-    /// Such characters can be stripped during URL parsing, transforming
-    /// <c>"/\t/evil.example"</c> into protocol-relative <c>"//evil.example"</c>.
+    /// Returns <c>true</c> when <paramref name="value"/> contains an ASCII control character.
+    /// URL parsers may remove characters such as tabs and newlines. For example, removing the
+    /// tab from <c>"/\t/evil.example"</c> produces <c>"//evil.example"</c>, which can redirect
+    /// to another host.
     /// </summary>
     internal static bool HasControlCharacter(string value)
     {
