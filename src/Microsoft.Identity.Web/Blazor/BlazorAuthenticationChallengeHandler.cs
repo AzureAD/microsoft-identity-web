@@ -72,7 +72,22 @@ public class BlazorAuthenticationChallengeHandler(
     /// </summary>
     public void ChallengeUser(ClaimsPrincipal user, string[]? scopes = null, string? claims = null)
     {
-        var currentUri = navigation.Uri;
+        // NavigationManager.Uri is always absolute, but the /login endpoint mapped by
+        // MapLoginAndLogout validates returnUrl with RedirectUriHelper.IsLocalUrl, which
+        // rejects absolute URLs and falls back to "/" — so passing the absolute URI loses
+        // the user's page after the consent round-trip. Send the app-local PathAndQuery
+        // instead (preserves any path base, drops the fragment — matching the MVC
+        // AccountController.Challenge coercion of same-origin absolute URLs).
+        //
+        // Defensive re-check: PathAndQuery can still begin with "//" or "/\" for a request
+        // path like "//evil.example/x", which a downstream Location header would treat as
+        // protocol-relative. Re-run IsLocalUrl on the coerced value and fall back to "/",
+        // mirroring the endpoint's own validation.
+        var returnUrl = new Uri(navigation.Uri).PathAndQuery;
+        if (!RedirectUriHelper.IsLocalUrl(returnUrl))
+        {
+            returnUrl = "/";
+        }
 
         // Build scopes string (add OIDC scopes)
         var allScopes = (scopes ?? [])
@@ -87,7 +102,7 @@ public class BlazorAuthenticationChallengeHandler(
         var domainHint = Uri.EscapeDataString(GetDomainHint(user));
 
         // Build the challenge URL
-        var challengeUrl = $"/authentication/login?returnUrl={Uri.EscapeDataString(currentUri)}" +
+        var challengeUrl = $"/authentication/login?returnUrl={Uri.EscapeDataString(returnUrl)}" +
                           $"&scope={scopeString}" +
                           $"&loginHint={loginHint}" +
                           $"&domainHint={domainHint}";
