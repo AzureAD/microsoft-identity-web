@@ -534,6 +534,115 @@ namespace Microsoft.Identity.Web.Test
             await AddMicrosoftIdentityWebAppCallsWebApi_TestRedirectToIdentityProviderForSignOutEventAsync(provider, oidcOptions, redirectFuncMock, tokenAcquisitionMock);
         }
 
+        private (IServiceProvider Provider, OpenIdConnectOptions OidcOptions) BuildCallsWebApiProviderAndOptions()
+        {
+            var configMock = Substitute.For<IConfiguration>();
+            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+            var initialScopes = new List<string>() { "custom_scope" };
+            var tokenAcquisitionMock = Substitute.For<ITokenAcquisitionInternal>();
+            var services = new ServiceCollection();
+
+            services.AddSingleton((provider) => _env)
+                    .AddSingleton(configMock);
+
+            services.AddAuthentication()
+                .AddMicrosoftIdentityWebApp(configMock, ConfigSectionName, OidcScheme)
+                .EnableTokenAcquisitionToCallDownstreamApi(initialScopes);
+
+            services.RemoveAll<ITokenAcquisition>();
+            services.AddScoped<ITokenAcquisition>((provider) => tokenAcquisitionMock);
+
+            var provider = services.BuildServiceProvider();
+            var oidcOptions = provider.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(OidcScheme);
+            return (provider, oidcOptions);
+        }
+
+        private async Task<TokenValidatedContext> InvokeTokenValidatedForHomeAccountIdAsync(
+            IServiceProvider provider,
+            OpenIdConnectOptions oidcOptions,
+            (string Uid, string Utid)? redeemedHomeAccountId,
+            string? frontChannelClientInfo = null,
+            IEnumerable<Claim>? existingClaims = null)
+        {
+            var (httpContext, authScheme, authProperties) = CreateContextParameters(provider, existingClaims);
+
+            if (redeemedHomeAccountId.HasValue)
+            {
+                httpContext.Items[Constants.HomeAccountObjectIdCacheKey] = redeemedHomeAccountId.Value.Uid;
+                httpContext.Items[Constants.HomeAccountTenantIdCacheKey] = redeemedHomeAccountId.Value.Utid;
+            }
+
+            var protocolMessage = new OpenIdConnectMessage();
+            if (frontChannelClientInfo != null)
+            {
+                protocolMessage.SetParameter(ClaimConstants.ClientInfo, frontChannelClientInfo);
+            }
+
+            var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, oidcOptions, httpContext.User, authProperties)
+            {
+                ProtocolMessage = protocolMessage,
+            };
+
+            await oidcOptions.Events.TokenValidated(tokenValidatedContext);
+            return tokenValidatedContext;
+        }
+
+        [Fact]
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_TokenValidated_StampsHomeAccountIdFromRedeemedTokenAsync()
+        {
+            var (provider, oidcOptions) = BuildCallsWebApiProviderAndOptions();
+
+            var context = await InvokeTokenValidatedForHomeAccountIdAsync(provider, oidcOptions, (TestConstants.Uid, TestConstants.Utid));
+
+            Assert.Null(context.Result);
+            Assert.Equal(TestConstants.Uid, context.Principal?.FindFirst(ClaimConstants.UniqueObjectIdentifier)?.Value);
+            Assert.Equal(TestConstants.Utid, context.Principal?.FindFirst(ClaimConstants.UniqueTenantIdentifier)?.Value);
+        }
+
+        [Fact]
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_TokenValidated_PrefersRedeemedTokenOverFrontChannelClientInfoAsync()
+        {
+            var (provider, oidcOptions) = BuildCallsWebApiProviderAndOptions();
+            string divergentFrontChannelClientInfo = Base64UrlHelpers.Encode("{\"uid\":\"front-channel-uid\",\"utid\":\"front-channel-utid\"}")!;
+
+            var context = await InvokeTokenValidatedForHomeAccountIdAsync(
+                provider,
+                oidcOptions,
+                (TestConstants.Uid, TestConstants.Utid),
+                divergentFrontChannelClientInfo);
+
+            Assert.Null(context.Result);
+            Assert.Equal(TestConstants.Uid, context.Principal?.FindFirst(ClaimConstants.UniqueObjectIdentifier)?.Value);
+            Assert.Equal(TestConstants.Utid, context.Principal?.FindFirst(ClaimConstants.UniqueTenantIdentifier)?.Value);
+            Assert.DoesNotContain(context.Principal!.Claims, c => c.Value == "front-channel-uid" || c.Value == "front-channel-utid");
+        }
+
+        [Fact]
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_TokenValidated_StampsB2CHomeAccountIdWhenIdTokenHasNoTenantIdAsync()
+        {
+            var (provider, oidcOptions) = BuildCallsWebApiProviderAndOptions();
+            string b2cHomeObjectId = $"{TestConstants.Uid}-{TestConstants.B2CSignUpSignInUserFlow}";
+
+            // No tid claim on the principal, mirroring a B2C id_token that does not carry a tenant id.
+            var context = await InvokeTokenValidatedForHomeAccountIdAsync(provider, oidcOptions, (b2cHomeObjectId, TestConstants.Utid));
+
+            Assert.Null(context.Result);
+            Assert.Equal(b2cHomeObjectId, context.Principal?.FindFirst(ClaimConstants.UniqueObjectIdentifier)?.Value);
+            Assert.Equal(TestConstants.Utid, context.Principal?.FindFirst(ClaimConstants.UniqueTenantIdentifier)?.Value);
+        }
+
+        [Fact]
+        public async Task AddMicrosoftIdentityWebAppCallsWebApi_TokenValidated_DoesNotStampWhenRedeemedTokenHasNoHomeAccountIdAsync()
+        {
+            var (provider, oidcOptions) = BuildCallsWebApiProviderAndOptions();
+
+            var context = await InvokeTokenValidatedForHomeAccountIdAsync(provider, oidcOptions, redeemedHomeAccountId: null);
+
+            Assert.Null(context.Result);
+            Assert.False(context.Principal!.HasClaim(c => c.Type == ClaimConstants.UniqueObjectIdentifier));
+            Assert.False(context.Principal!.HasClaim(c => c.Type == ClaimConstants.UniqueTenantIdentifier));
+        }
+
         [Fact]
         public async Task AddMicrosoftIdentityWebAppCallsWebApi_WithConfigActionParametersAsync()
         {
@@ -1114,6 +1223,11 @@ namespace Microsoft.Identity.Web.Test
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider);
 
+            // The home account identifier (uid/utid) is stashed on the request by
+            // AddAccountToCacheFromAuthorizationCodeAsync from the token that was actually redeemed.
+            httpContext.Items[Constants.HomeAccountObjectIdCacheKey] = TestConstants.Uid;
+            httpContext.Items[Constants.HomeAccountTenantIdCacheKey] = TestConstants.Utid;
+
             var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, oidcOptions, httpContext.User, authProperties)
             {
                 ProtocolMessage = new OpenIdConnectMessage(
@@ -1134,6 +1248,11 @@ namespace Microsoft.Identity.Web.Test
         private async Task AddMicrosoftIdentityWebAppCallsWebApi_TestTokenValidatedEventAsync(IServiceProvider provider, OpenIdConnectOptions oidcOptions, IEnumerable<Claim>? claims, Action<TokenValidatedContext> assertions)
         {
             var (httpContext, authScheme, authProperties) = CreateContextParameters(provider, claims);
+
+            // The home account identifier (uid/utid) is stashed on the request by
+            // AddAccountToCacheFromAuthorizationCodeAsync from the token that was actually redeemed.
+            httpContext.Items[Constants.HomeAccountObjectIdCacheKey] = TestConstants.Uid;
+            httpContext.Items[Constants.HomeAccountTenantIdCacheKey] = TestConstants.Utid;
 
             var tokenValidatedContext = new TokenValidatedContext(httpContext, authScheme, oidcOptions, httpContext.User, authProperties)
             {

@@ -17,6 +17,7 @@ using Microsoft.Identity.Web.OWIN;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Validators;
+using Microsoft.Owin;
 using Microsoft.Owin.Security.Jwt;
 using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OAuth;
@@ -216,59 +217,8 @@ namespace Microsoft.Identity.Web
                     {
                         HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
 
-                        if (httpContext.Session is null)
-                        {
-                            var clientInfo = context.OwinContext.Get<string>(ClaimConstants.ClientInfo);
-
-                            if (!string.IsNullOrEmpty(clientInfo))
-                            {
-                                ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
-
-                                if (clientInfoFromServer != null)
-                                {
-                                    if (clientInfoFromServer.UniqueTenantIdentifier != null)
-                                    {
-                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
-                                    }
-
-                                    if (clientInfoFromServer.UniqueObjectIdentifier != null)
-                                    {
-                                        RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
-                                    }
-
-                                    if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
-                                    {
-                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                        context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                                    }
-                                }
-                                context.OwinContext.Environment.Remove(ClaimConstants.ClientInfo);
-                            }
-                        }
-                        else if (httpContext.Session[ClaimConstants.ClientInfo] is string clientInfo && !string.IsNullOrEmpty(clientInfo))
-                        {
-                            ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
-
-                            if (clientInfoFromServer != null)
-                            {
-                                if (clientInfoFromServer.UniqueTenantIdentifier != null)
-                                {
-                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier);
-                                }
-
-                                if (clientInfoFromServer.UniqueObjectIdentifier != null)
-                                {
-                                    RejectInternalClaims(context.AuthenticationTicket.Identity, ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier);
-                                }
-
-                                if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
-                                {
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                    context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                                }
-                            }
-                            httpContext.Session.Remove(ClaimConstants.ClientInfo);
-                        }
+                        (string? homeObjectId, string? homeTenantId) = GetAndRemoveHomeAccountIdentifier(context.OwinContext, httpContext);
+                        AddHomeAccountIdentifierClaims(context.AuthenticationTicket.Identity, homeObjectId, homeTenantId);
 
                         Claim? nameClaim = context.AuthenticationTicket.Identity.FindFirst("preferred_username")
                                           ?? context.AuthenticationTicket.Identity.FindFirst("name");
@@ -290,7 +240,7 @@ namespace Microsoft.Identity.Web
                 context.TokenEndpointRequest.Parameters.TryGetValue("code_verifier", out string codeVerifier);
                 var tokenAcquisition = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<ITokenAcquisitionInternal>();
                 var msIdentityOptions = tokenAcquirerFactory?.ServiceProvider?.GetRequiredService<IOptions<MicrosoftIdentityOptions>>();
-                var result = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAsync(
+                var redemption = await (tokenAcquisition!.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(
                     new AuthCodeRedemptionParameters(
                     new string[] { options.Scope },
                     context.Code,
@@ -300,15 +250,8 @@ namespace Microsoft.Identity.Web
                     msIdentityOptions?.Value.DefaultUserFlow,
                     context.ProtocolMessage.DomainHint))).ConfigureAwait(false);
                 HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
-                if (httpContext.Session is null)
-                {
-                    context.OwinContext.Set(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
-                }
-                else
-                {
-                    httpContext.Session.Add(ClaimConstants.ClientInfo, context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo));
-                }
-                context.HandleCodeRedemption(result.AccessToken, result.IdToken);
+                StoreHomeAccountIdentifier(context.OwinContext, httpContext, redemption.HomeObjectId, redemption.HomeTenantId);
+                context.HandleCodeRedemption(redemption.Result.AccessToken, redemption.Result.IdToken);
             };
 
             updateOptions?.Invoke(options);
@@ -332,6 +275,91 @@ namespace Microsoft.Identity.Web
             if (identityClaim != null && !string.Equals(claimValue, identityClaim.Value, StringComparison.OrdinalIgnoreCase))
             {
                 throw new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, claimType));
+            }
+        }
+
+        /// <summary>
+        /// Stashes the home account identifier (uid/utid) taken from the token that was actually
+        /// redeemed, so that the account-identifier claims can later be stamped from a value that is
+        /// consistent with the acquired token. Nothing is stored when either value is absent.
+        /// </summary>
+        /// <param name="owinContext">The current OWIN context.</param>
+        /// <param name="httpContext">The current <see cref="HttpContextBase"/>.</param>
+        /// <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+        /// <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
+        internal static void StoreHomeAccountIdentifier(IOwinContext owinContext, HttpContextBase httpContext, string? homeObjectId, string? homeTenantId)
+        {
+            if (string.IsNullOrEmpty(homeObjectId) || string.IsNullOrEmpty(homeTenantId))
+            {
+                return;
+            }
+
+            if (httpContext.Session is null)
+            {
+                owinContext.Set(Constants.HomeAccountObjectIdCacheKey, homeObjectId);
+                owinContext.Set(Constants.HomeAccountTenantIdCacheKey, homeTenantId);
+            }
+            else
+            {
+                httpContext.Session[Constants.HomeAccountObjectIdCacheKey] = homeObjectId;
+                httpContext.Session[Constants.HomeAccountTenantIdCacheKey] = homeTenantId;
+            }
+        }
+
+        /// <summary>
+        /// Reads and removes the home account identifier (uid/utid) previously stashed during
+        /// authorization-code redemption, from the OWIN context (no session) or the session.
+        /// </summary>
+        /// <param name="owinContext">The current OWIN context.</param>
+        /// <param name="httpContext">The current <see cref="HttpContextBase"/>.</param>
+        /// <returns>The home account object identifier and tenant identifier, either of which can be <see langword="null"/>.</returns>
+        internal static (string? homeObjectId, string? homeTenantId) GetAndRemoveHomeAccountIdentifier(IOwinContext owinContext, HttpContextBase httpContext)
+        {
+            string? homeObjectId;
+            string? homeTenantId;
+
+            if (httpContext.Session is null)
+            {
+                homeObjectId = owinContext.Get<string>(Constants.HomeAccountObjectIdCacheKey);
+                homeTenantId = owinContext.Get<string>(Constants.HomeAccountTenantIdCacheKey);
+                owinContext.Environment.Remove(Constants.HomeAccountObjectIdCacheKey);
+                owinContext.Environment.Remove(Constants.HomeAccountTenantIdCacheKey);
+            }
+            else
+            {
+                homeObjectId = httpContext.Session[Constants.HomeAccountObjectIdCacheKey] as string;
+                homeTenantId = httpContext.Session[Constants.HomeAccountTenantIdCacheKey] as string;
+                httpContext.Session.Remove(Constants.HomeAccountObjectIdCacheKey);
+                httpContext.Session.Remove(Constants.HomeAccountTenantIdCacheKey);
+            }
+
+            return (homeObjectId, homeTenantId);
+        }
+
+        /// <summary>
+        /// Stamps the home account identifier claims (uid/utid) on the identity, first ensuring they do
+        /// not conflict with same-named claims the app may have injected (see issue 2968). Both claims are
+        /// added only when both values are present.
+        /// </summary>
+        /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user.</param>
+        /// <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+        /// <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
+        internal static void AddHomeAccountIdentifierClaims(ClaimsIdentity identity, string? homeObjectId, string? homeTenantId)
+        {
+            if (homeTenantId != null)
+            {
+                RejectInternalClaims(identity, ClaimConstants.UniqueTenantIdentifier, homeTenantId);
+            }
+
+            if (homeObjectId != null)
+            {
+                RejectInternalClaims(identity, ClaimConstants.UniqueObjectIdentifier, homeObjectId);
+            }
+
+            if (homeTenantId != null && homeObjectId != null)
+            {
+                identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, homeTenantId));
+                identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, homeObjectId));
             }
         }
     }

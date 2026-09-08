@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Web
             string authCode = context!.ProtocolMessage!.Code;
             string? userFlow = context.Principal?.GetUserFlowId();
 
-            AcquireTokenResult result = await AddAccountToCacheFromAuthorizationCodeAsync(new AuthCodeRedemptionParameters(
+            AuthCodeRedemptionResult redemption = await AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(new AuthCodeRedemptionParameters(
                 scopes,
                 authCode,
                 authenticationScheme,
@@ -181,7 +181,18 @@ namespace Microsoft.Identity.Web
                 codeVerifier,
                 userFlow,
                 context!.ProtocolMessage.DomainHint)).ConfigureAwait(false);
-            context.HandleCodeRedemption(result.AccessToken!, result.IdToken!);
+
+            // Stash the home account identifier (uid/utid) taken from the token that was actually
+            // redeemed on the request, so that OnTokenValidated stamps account-identifier claims that
+            // are consistent with the acquired token. HttpContext.Items is request-scoped and is not
+            // serialized into the authentication cookie.
+            if (!string.IsNullOrEmpty(redemption.HomeObjectId) && !string.IsNullOrEmpty(redemption.HomeTenantId))
+            {
+                context.HttpContext.Items[Constants.HomeAccountObjectIdCacheKey] = redemption.HomeObjectId;
+                context.HttpContext.Items[Constants.HomeAccountTenantIdCacheKey] = redemption.HomeTenantId;
+            }
+
+            context.HandleCodeRedemption(redemption.Result.AccessToken!, redemption.Result.IdToken!);
         }
 
         private void CheckParameters(
