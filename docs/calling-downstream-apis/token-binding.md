@@ -521,6 +521,34 @@ Two binding-capable assertion sources are supported:
 - `CustomSignedAssertion` from the OIDC IdP provider
   (`Microsoft.Identity.Web.OidcFIC`, `AddOidcFic()`)
 
+Managed identity mTLS PoP uses `WithMtlsProofOfPossession()` without key
+attestation by default. To also apply `WithAttestationSupport()` on supported
+hosts, install the optional `Microsoft.Identity.Web.KeyAttestation` package and
+register it:
+
+```csharp
+builder.Services.AddMicrosoftIdentityWebKeyAttestation();
+```
+
+For applications using `TokenAcquirerFactory`, register it before building the
+service provider:
+
+```csharp
+var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+tokenAcquirerFactory.Services.AddMicrosoftIdentityWebKeyAttestation();
+
+var serviceProvider = tokenAcquirerFactory.Build();
+```
+
+The resulting behavior is:
+
+- Default: `WithMtlsProofOfPossession()`
+- Optional package and registration:
+  `WithMtlsProofOfPossession()` + `WithAttestationSupport()`
+
+Only applications that reference this package receive the native key-attestation
+runtime assets.
+
 ### OIDC FIC producing a final `mtls_pop` token
 
 The caller requests `ProtocolScheme = "MTLS_POP"`. The inner OIDC exchange is

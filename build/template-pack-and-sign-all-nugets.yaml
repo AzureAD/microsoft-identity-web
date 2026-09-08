@@ -133,6 +133,13 @@ steps:
     ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Azure'
     AssemblyName: 'Microsoft.Identity.Web.Azure*'
 
+# Pack Microsoft.Identity.Web.KeyAttestation
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.KeyAttestation'
+    AssemblyName: 'Microsoft.Identity.Web.KeyAttestation*'
+
 # Copy all packages out to staging
 - task: CopyFiles@2
   displayName: 'Copy Files from $(Build.SourcesDirectory) to: $(Build.ArtifactStagingDirectory)\packages'

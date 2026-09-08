@@ -148,8 +148,11 @@ public class OutboundRedirectTests
         var options = provider.GetRequiredService<IOptionsMonitor<DownstreamApiOptions>>().Get(apiName);
 
         // Assert
-        Assert.All(schemes, s => Assert.Equal(JwtBearerDefaults.AuthenticationScheme, s.Name));
+        // Inbound SHR PoP additively registers a second "PoP" scheme; Bearer must remain registered
+        // and stay the default authenticate scheme, and no mTLS scheme should be present.
+        Assert.Contains(schemes, s => s.Name == JwtBearerDefaults.AuthenticationScheme);
         Assert.Equal(JwtBearerDefaults.AuthenticationScheme, defaultScheme?.Name);
+        Assert.DoesNotContain(schemes, s => s.Name.Contains("MTLS", StringComparison.OrdinalIgnoreCase));
         Assert.NotEqual("MTLS", options.ProtocolScheme, StringComparer.OrdinalIgnoreCase);
         Assert.NotEqual("MTLS_POP", options.ProtocolScheme, StringComparer.OrdinalIgnoreCase);
     }

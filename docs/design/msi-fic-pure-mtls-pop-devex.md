@@ -28,8 +28,9 @@ This spec closes that gap.
   Identity and FIC-with-MI.
 * **Transparent binding** – IdWeb forwards the request to MSAL, MSAL
   provisions the binding certificate via the V2 Managed Identity credential
-  API (Key Guard + attestation), and the downstream HTTP call uses that
-  certificate over mTLS.
+  API, and the downstream HTTP call uses that certificate over mTLS. Key
+  attestation is added only when the optional
+  `Microsoft.Identity.Web.KeyAttestation` package is registered.
 
 The goal is **zero-touch** for developers who already use Managed Identity or
 FIC for bearer tokens.
@@ -255,8 +256,11 @@ the configuration example above.
 
 ## Prerequisites
 
-* `Microsoft.Identity.Web` takes a dependency on
-  `Microsoft.Identity.Client.KeyAttestation` (GA in the next MSAL release).
+* Managed identity mTLS PoP uses `WithMtlsProofOfPossession()` by default.
+  Applications that require key attestation install
+  `Microsoft.Identity.Web.KeyAttestation` and call
+  `AddMicrosoftIdentityWebKeyAttestation()`, which additionally applies
+  `WithAttestationSupport()`.
 * The downstream resource (Microsoft Graph, Azure Key Vault, a custom API)
   must accept mTLS PoP tokens. This is configured per-resource in ESTS.
 * The application's tenant and client must be on the ESTS allow-list for

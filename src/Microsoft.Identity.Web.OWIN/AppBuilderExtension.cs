@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -38,6 +39,11 @@ namespace Microsoft.Identity.Web
         /// <param name="updateOptions">Update the OWIN options if you want to finesse the token validation.</param>
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
+        /// <remarks>
+        /// By default, bearer tokens must contain a scope or role claim. Set
+        /// <see cref="Microsoft.Identity.Abstractions.IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL"/> to
+        /// <c>true</c> when the application uses ACL-based authorization instead.
+        /// </remarks>
         public static IAppBuilder AddMicrosoftIdentityWebApi(
             this IAppBuilder app,
             OwinTokenAcquirerFactory tokenAcquirerFactory,
@@ -49,12 +55,12 @@ namespace Microsoft.Identity.Web
             var configuration = tokenAcquirerFactory.Configuration;
 
             // Configure the Microsoft authentication options
-            services.Configure(
-                string.Empty,
+            Action<MicrosoftIdentityApplicationOptions> configureOptions =
                 configureMicrosoftIdentityApplicationOptions ?? (option =>
                 {
                     configuration?.GetSection(configurationSection).Bind(option);
-                }));
+                });
+            services.Configure(string.Empty, configureOptions);
             services.Configure<ConfidentialClientApplicationOptions>(
                 string.Empty,
                 (option =>
@@ -85,7 +91,43 @@ namespace Microsoft.Identity.Web
                 updateOptions(options);
             }
 
+            MicrosoftIdentityApplicationOptions applicationOptions = new();
+            configureOptions(applicationOptions);
+            ConfigureClaimsValidation(options, applicationOptions.AllowWebApiToBeAuthorizedByACL);
+
             return app.UseOAuthBearerAuthentication(options);
+        }
+
+        internal static void ConfigureClaimsValidation(
+            OAuthBearerAuthenticationOptions options,
+            bool allowWebApiToBeAuthorizedByACL)
+        {
+            if (allowWebApiToBeAuthorizedByACL)
+            {
+                return;
+            }
+
+            IOAuthBearerAuthenticationProvider provider =
+                options.Provider ?? new OAuthBearerAuthenticationProvider();
+
+            options.Provider = new OAuthBearerAuthenticationProvider
+            {
+                OnRequestToken = provider.RequestToken,
+                OnApplyChallenge = provider.ApplyChallenge,
+                OnValidateIdentity = async context =>
+                {
+                    if (!context.Ticket.Identity.Claims.Any(x => x.Type == ClaimConstants.Scope
+                        || x.Type == ClaimConstants.Scp
+                        || x.Type == ClaimConstants.Roles
+                        || x.Type == ClaimConstants.Role))
+                    {
+                        context.Rejected();
+                        return;
+                    }
+
+                    await provider.ValidateIdentity(context).ConfigureAwait(false);
+                },
+            };
         }
 
         /// <summary>
