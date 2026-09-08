@@ -44,10 +44,9 @@ internal static class RedirectUriHelper
 
     /// <summary>
     /// Returns <c>true</c> when <paramref name="value"/> contains an ASCII control
-    /// character (C0 range <c>U+0000</c>–<c>U+001F</c> or DEL <c>U+007F</c>). Browsers
-    /// strip characters such as tab, CR, and LF per the WHATWG URL spec, so a value like
-    /// <c>"/\tevil.example"</c> resolves to a protocol-relative URL after stripping and
-    /// must not be treated as local.
+    /// character (C0 range <c>U+0000</c>–<c>U+001F</c> or DEL <c>U+007F</c>).
+    /// Such characters can be stripped during URL parsing, transforming
+    /// <c>"/\t/evil.example"</c> into protocol-relative <c>"//evil.example"</c>.
     /// </summary>
     internal static bool HasControlCharacter(string value)
     {
