@@ -35,6 +35,12 @@ Example: validate an authorization header returned by `get_token.py`:
 uv run --with requests main.py --base-url $side_car_url --authorization-header "Bearer $token" validate
 ```
 
+Example: validate a PoP (Signed HTTP Request) app-only token, supplying the signed request line:
+
+```sh
+uv run --with requests main.py --base-url $side_car_url --authorization-header "PoP <shr-token>" validate --original-method GET --original-uri "https://api.contoso.com/data"
+```
+
 Invoke a downstream API by name, supplying an override scope and a JSON payload stored in `body.json`:
 
 ```sh

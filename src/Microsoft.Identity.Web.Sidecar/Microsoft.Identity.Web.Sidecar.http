@@ -1,6 +1,7 @@
 @Microsoft.Identity.Web.Sidecar_HostAddress = http://localhost:5178
 
 @AccessToken =
+@PopToken =
 @ApiName =
 
 ###
@@ -36,3 +37,12 @@ Authorization: Bearer {{AccessToken}}
 
 POST {{Microsoft.Identity.Web.Sidecar_HostAddress}}/DownstreamApiUnauthenticated/{{ApiName}}
 Accept: application/json
+
+###
+
+# Inbound PoP (Signed HTTP Request) validation for an app-only token. The caller supplies the
+# original request line the SHR was signed over via the original-method / original-uri headers.
+GET {{Microsoft.Identity.Web.Sidecar_HostAddress}}/Validate
+Authorization: PoP {{PopToken}}
+original-method: GET
+original-uri: https://api.contoso.com/data
