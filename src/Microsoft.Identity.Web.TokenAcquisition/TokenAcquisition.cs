@@ -146,21 +146,10 @@ namespace Microsoft.Identity.Web
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
 
-                string? backUpAuthRoutingHint = string.Empty;
-                if (!string.IsNullOrEmpty(authCodeRedemptionParameters.ClientInfo))
-                {
-                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(authCodeRedemptionParameters.ClientInfo);
-                    if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
-                    {
-                        backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
-                    }
-                }
-
                 var builder = application
                     .AcquireTokenByAuthorizationCode(authCodeRedemptionParameters.Scopes.Except(_scopesRequestedByMsal), authCodeRedemptionParameters.AuthCode)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(authCodeRedemptionParameters.CodeVerifier)
-                    .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
                 if (mergedOptions.ExtraQueryParameters != null)

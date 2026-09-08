@@ -13,13 +13,11 @@ namespace Microsoft.Identity.Web.Test
         {
             string authCode = "1234cat56789";
             string authScheme = "Bearer";
-            string clientInfo = "clientInfo";
             string codeVerifier = "1234verify56789";
             AuthCodeRedemptionParameters authCodeRedemptionParameters = new AuthCodeRedemptionParameters(
                 TestConstants.s_userReadScope,
                 authCode,
                 authScheme,
-                clientInfo,
                 codeVerifier,
                 TestConstants.B2CSignUpSignInUserFlow,
                 TestConstants.TenantIdAsGuid);
@@ -27,7 +25,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(TestConstants.s_userReadScope, authCodeRedemptionParameters.Scopes);
             Assert.Equal(authCode, authCodeRedemptionParameters.AuthCode);
             Assert.Equal(authScheme, authCodeRedemptionParameters.AuthenticationScheme);
-            Assert.Equal(clientInfo, authCodeRedemptionParameters.ClientInfo);
             Assert.Equal(codeVerifier, authCodeRedemptionParameters.CodeVerifier);
             Assert.Equal(TestConstants.B2CSignUpSignInUserFlow, authCodeRedemptionParameters.UserFlow);
             Assert.Equal(TestConstants.TenantIdAsGuid, authCodeRedemptionParameters.Tenant);

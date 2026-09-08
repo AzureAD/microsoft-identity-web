@@ -62,15 +62,45 @@
         </member>
         <member name="M:Microsoft.Identity.Web.AppBuilderExtension.RejectInternalClaims(System.Security.Claims.ClaimsIdentity,System.String,System.String)">
             <summary>
-            The SDK injects 2 claims named uuid and utid into the ClaimsPrincipal, from ESTS's client_info. These represent 
-            the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
-            scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
-            a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
+            The SDK injects two claims named uid and utid into the ClaimsPrincipal from the redeemed token's
+            home account identifier. Together they form the AccountId, which MSAL uses as the cache key for
+            web app scenarios. If the app owner adds claims with the same names to the ID token, this conflicts
+            with the reserved claims injected by Microsoft.Identity.Web. See issue 2968 for details.
             </summary>
             <param name="identity">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> associated to the logged-in user</param>
             <param name="claimType">The claim type</param>
             <param name="claimValue">The claim value</param>
             <exception cref="T:System.Security.Authentication.AuthenticationException">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.StoreHomeAccountIdentifier(Microsoft.Owin.IOwinContext,System.Web.HttpContextBase,System.String,System.String)">
+            <summary>
+            Stashes the home account identifier (uid/utid) taken from the token that was actually
+            redeemed, so that the account-identifier claims can later be stamped from a value that is
+            consistent with the acquired token. Nothing is stored when either value is absent.
+            </summary>
+            <param name="owinContext">The current OWIN context.</param>
+            <param name="httpContext">The current <see cref="T:System.Web.HttpContextBase"/>.</param>
+            <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+            <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.GetAndRemoveHomeAccountIdentifier(Microsoft.Owin.IOwinContext,System.Web.HttpContextBase)">
+            <summary>
+            Reads and removes the home account identifier (uid/utid) previously stashed during
+            authorization-code redemption, from the OWIN context (no session) or the session.
+            </summary>
+            <param name="owinContext">The current OWIN context.</param>
+            <param name="httpContext">The current <see cref="T:System.Web.HttpContextBase"/>.</param>
+            <returns>The home account object identifier and tenant identifier, either of which can be <see langword="null"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddHomeAccountIdentifierClaims(System.Security.Claims.ClaimsIdentity,System.String,System.String)">
+            <summary>
+            Stamps the home account identifier claims (uid/utid) on the identity, first ensuring they do
+            not conflict with same-named claims the app may have injected (see issue 2968). Both claims are
+            added only when both values are present.
+            </summary>
+            <param name="identity">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> associated to the logged-in user.</param>
+            <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+            <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
         </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>

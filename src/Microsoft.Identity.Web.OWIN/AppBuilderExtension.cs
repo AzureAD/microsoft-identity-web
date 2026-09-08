@@ -206,7 +206,6 @@ namespace Microsoft.Identity.Web
                             // it will take up extra space in the cookie.
                             context.ProtocolMessage.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                         }
-                        context.ProtocolMessage.SetParameter(ClaimConstants.ClientInfo, Constants.One);
                         context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
 
                         if (context.ProtocolMessage.IssuerAddress != null && context.ProtocolMessage.IssuerAddress.EndsWith("/authorize", StringComparison.OrdinalIgnoreCase))
@@ -249,7 +248,6 @@ namespace Microsoft.Identity.Web
                     new string[] { options.Scope },
                     context.Code,
                     string.Empty,
-                    context.ProtocolMessage.GetParameter(ClaimConstants.ClientInfo),
                     codeVerifier,
                     msIdentityOptions?.Value.DefaultUserFlow,
                     context.ProtocolMessage.DomainHint))).ConfigureAwait(false);
@@ -264,10 +262,7 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// The SDK injects 2 claims named uuid and utid into the ClaimsPrincipal, from ESTS's client_info. These represent 
-        /// the home oid and home tid and together they form the AccountId, which MSAL uses as cache key for web site 
-        /// scenarios. In case the app owner defines claims with the same name to be added to the ID Token, this creates 
-        /// a conflict with the reserved claims Id.Web injects, and it is better to throw a meaningful error. See issue 2968 for details.
+        /// Ensures an existing reserved claim is consistent with the value being applied.
         /// </summary>
         /// <param name="identity">The <see cref="ClaimsIdentity"/> associated to the logged-in user</param>
         /// <param name="claimType">The claim type</param>
