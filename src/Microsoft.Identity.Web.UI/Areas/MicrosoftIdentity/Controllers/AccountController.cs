@@ -247,7 +247,8 @@ namespace Microsoft.Identity.Web.UI.Areas.MicrosoftIdentity.Controllers
 
         /// <summary>
         /// Returns <c>true</c> when <paramref name="path"/> begins with an encoded slash
-        /// or backslash, or contains an ASCII control character.
+        /// or backslash, or contains an ASCII control character. Percent-encoded values
+        /// are compared case-insensitively because RFC 3986 hexadecimal digits are case-insensitive.
         /// </summary>
         private static bool HasUnsafeRedirectPattern(string path)
         {
