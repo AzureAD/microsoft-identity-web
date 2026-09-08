@@ -261,12 +261,11 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         }
 
         /// <summary>
-        /// Installs an <see cref="IUrlHelper"/> mock whose <c>IsLocalUrl</c> mirrors the real framework
-        /// semantics (rejects null/empty, <c>//host</c>, <c>/\host</c>, and anything non-slash-prefixed;
-        /// accepts a single-leading-slash path). This matches the behavior the <c>Challenge</c> action
-        /// relies on both for the initial validation and for the re-check on a coerced same-origin path.
+        /// Installs an <see cref="IUrlHelper"/> mock whose <c>IsLocalUrl</c> models framework behavior
+        /// before control-character hardening. This verifies that the additional library checks work
+        /// independently of the host framework version.
         /// </summary>
-        private void UseRealisticIsLocalUrl()
+        private void UseLegacyIsLocalUrlBehavior()
         {
             var urlHelperMock = Substitute.For<IUrlHelper>();
             urlHelperMock.IsLocalUrl(Arg.Any<string>()).Returns(ci =>
@@ -286,7 +285,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: Blazor Server step-up consent flow — NavigationManager.Uri is absolute.
             ConfigureRequest("https", "myapp.example.com", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             string redirectUri = "https://myapp.example.com/weather?city=Seattle";
 
@@ -307,7 +306,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: the "/" edge case — Uri.PathAndQuery yields "/" for a host-only absolute URL.
             ConfigureRequest("https", "myapp.example.com", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
@@ -325,7 +324,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: request is for myapp.example.com but redirect points at attacker.example.com.
             ConfigureRequest("https", "myapp.example.com", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
@@ -343,7 +342,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: request is HTTPS but redirect is HTTP — scheme downgrade rejected.
             ConfigureRequest("https", "myapp.example.com", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
@@ -361,7 +360,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: request is on the default HTTPS port (443) but redirect targets port 1234.
             ConfigureRequest("https", "myapp.example.com", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
@@ -379,7 +378,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: non-default port on both sides (localhost:5001 dev scenario).
             ConfigureRequest("https", "localhost", port: 5001);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
@@ -407,7 +406,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange
             ConfigureRequest("https", "victim.app", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act: "http://victim.app//evil.com/x" → Uri.Host="victim.app" (matches request host, but
             // request scheme is https, so same-origin returns false). We deliberately match the scheme
@@ -427,7 +426,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange
             ConfigureRequest("https", "victim.app", port: null);
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act: "https://victim.app/\evil.com" → Uri normalizes to PathAndQuery="//evil.com" — same bypass shape.
             var result = _accountController.Challenge(
@@ -458,7 +457,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             // Arrange: use a realistic IsLocalUrl mock so that removing either the
             // IsLocalUrl check or the IsPercentEncodedSlashBypass check would cause this
             // test to fail.
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
 
             // "/%2fevil.example" — passes IsLocalUrl (starts with "/" and second char is "%"),
@@ -475,7 +474,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         public void SignIn_WithPercentEncodedBackslashRedirectUri_UsesDefaultRedirectUri()
         {
             // Arrange: "/%5cevil.example" — backslash variant of the same bypass.
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
 
             // Act
@@ -502,7 +501,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         {
             // Arrange: realistic IsLocalUrl accepts the leading-slash path; the control-char
             // guard is what must reject it.
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
             string scheme = OpenIdConnectDefaults.AuthenticationScheme;
 
             // Act
@@ -521,7 +520,7 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         public void Challenge_WithControlCharacterRedirectUri_UsesDefaultRedirectUri(string redirectUri)
         {
             // Arrange
-            UseRealisticIsLocalUrl();
+            UseLegacyIsLocalUrlBehavior();
 
             // Act
             var result = _accountController.Challenge(
