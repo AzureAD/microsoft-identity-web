@@ -33,6 +33,12 @@ stages:
       - template: build/template-install-dependencies.yaml
       - template: build/template-build.yaml
       - template: build/template-test-unit.yaml
+      - task: BuildQualityChecks@9
+        displayName: 'Check Warnings'
+        inputs:
+          checkWarnings: true
+          warningFailOption: 'build'
+          showStatistics: true
 
 # Integration tests only depend on .NET 8, so build just that project and run them
 # in parallel with the full Build stage (dependsOn: [] -> no dependency on Build).
