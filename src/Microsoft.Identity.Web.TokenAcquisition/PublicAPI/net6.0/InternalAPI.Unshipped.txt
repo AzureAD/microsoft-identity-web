@@ -1,1 +1,14 @@
 #nullable enable
+const Microsoft.Identity.Web.Constants.HomeAccountObjectIdCacheKey = "Microsoft.Identity.Web.HomeAccountObjectId" -> string!
+const Microsoft.Identity.Web.Constants.HomeAccountTenantIdCacheKey = "Microsoft.Identity.Web.HomeAccountTenantId" -> string!
+Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCodeRedemptionParameters(System.Collections.Generic.IEnumerable<string!>! scopes, string! authCode, string! authScheme, string? codeVerifier, string? userFlow, string? tenant) -> void
+Microsoft.Identity.Web.AuthCodeRedemptionResult
+Microsoft.Identity.Web.AuthCodeRedemptionResult.AuthCodeRedemptionResult(Microsoft.Identity.Abstractions.AcquireTokenResult! result, string? homeObjectId, string? homeTenantId) -> void
+Microsoft.Identity.Web.AuthCodeRedemptionResult.HomeObjectId.get -> string?
+Microsoft.Identity.Web.AuthCodeRedemptionResult.HomeTenantId.get -> string?
+Microsoft.Identity.Web.AuthCodeRedemptionResult.Result.get -> Microsoft.Identity.Abstractions.AcquireTokenResult!
+Microsoft.Identity.Web.HomeAccountIdentifierClaims
+static Microsoft.Identity.Web.HomeAccountIdentifierClaims.AddOrValidate(System.Security.Claims.ClaimsIdentity? identity, string? uniqueObjectIdentifier, string? uniqueTenantIdentifier) -> void
+Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.AuthCodeRedemptionResult!>!
+Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.AuthCodeRedemptionResult!>!
+static Microsoft.Identity.Web.TokenAcquisitionAspNetCore.ApplyRedeemedHomeAccountId(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext! context, string? homeObjectId, string? homeTenantId) -> void
