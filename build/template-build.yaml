@@ -1,0 +1,18 @@
+# template-build.yaml
+# Restore and build the solution so test assemblies exist on a clean hosted agent.
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install wasm-tools workload'
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'install wasm-tools'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution (Release)'
+  inputs:
+    command: 'custom'
+    custom: 'msbuild'
+    arguments: 'Microsoft.Identity.Web.sln -r -t:build -verbosity:m -property:Configuration=Release -property:NuGetAudit=false'

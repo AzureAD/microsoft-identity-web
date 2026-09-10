@@ -481,6 +481,7 @@ namespace TokenAcquirerTests
     }
 
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
+    [Trait("Category", "MI_E2E")]
     public class AcquireTokenManagedIdentity
     {
         [OnlyOnAzureDevopsFact]
@@ -490,7 +491,8 @@ namespace TokenAcquirerTests
             // Arrange
             const string scope = "https://vault.azure.net/.default";
             const string baseUrl = "https://vault.azure.net";
-            const string clientId = "5bcd1685-b002-4fd1-8ebd-1ec3e1e4ca4d";
+            string clientId = Environment.GetEnvironmentVariable("IDWEB_MI_UAMI_CLIENTID")
+                ?? "45344e7d-c562-4be6-868f-18dac789c021";
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
