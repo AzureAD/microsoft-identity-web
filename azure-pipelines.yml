@@ -6,13 +6,80 @@ pr:
   branches:
     include:
       - master
+      - rel/3v
 
-jobs:
-- job: "PR_build"
-  pool:
-    name: MwWilson1EsHostedPool
-    demands:
-    - msbuild
-  steps:
-    - template: build/template-install-dependencies.yaml
-    - template: build/template-run-unit-tests.yaml
+stages:
+
+- stage: Build
+  displayName: 'Build & Unit Tests'
+  jobs:
+  - job: PR_build
+    variables:
+      UseLabAuthCertFromStore: true
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - msbuild
+      - visualstudio
+    steps:
+      - template: build/template-install-dependencies.yaml
+      - template: build/template-build.yaml
+      - template: build/template-test-unit.yaml
+
+- stage: IntegrationTests
+  displayName: 'Integration Tests (.NET 8)'
+  dependsOn: []
+  jobs:
+  - job: IntegrationTests
+    variables:
+      UseLabAuthCertFromStore: true
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - msbuild
+      - visualstudio
+    steps:
+      - template: build/template-install-dependencies.yaml
+      - template: build/template-build-test-project.yaml
+        parameters:
+          Project: 'tests/Microsoft.Identity.Web.Test.Integration/Microsoft.Identity.Web.Test.Integration.csproj'
+          TargetFramework: 'net8.0'
+      - template: build/template-test-integration.yaml
+
+- stage: E2ETests
+  displayName: 'E2E Tests (.NET 8)'
+  dependsOn: []
+  jobs:
+  - job: E2ETests
+    variables:
+      UseLabAuthCertFromStore: true
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - msbuild
+      - visualstudio
+    steps:
+      - template: build/template-install-dependencies.yaml
+      - template: build/template-build-test-project.yaml
+        parameters:
+          Project: 'tests/E2E Tests/WebAppUiTests/WebAppUiTests.csproj'
+          TargetFramework: 'net8.0'
+      - template: build/template-build-test-project.yaml
+        parameters:
+          Project: 'tests/E2E Tests/TokenAcquirerTests/TokenAcquirerTests.csproj'
+          TargetFramework: 'net8.0'
+      - template: build/template-test-e2e.yaml
+        parameters:
+          e2eTestFilterCriteria: 'Category!=MI_E2E'
+
+- stage: ManagedIdentityE2E
+  displayName: 'Managed Identity E2E (MISEManagedIdentity)'
+  dependsOn: []
+  jobs:
+  - job: ManagedIdentityE2E
+    pool:
+      name: 'MISEManagedIdentity'
+    steps:
+      - template: build/template-run-managed-identity-e2e-tests.yaml
+        parameters:
+          TargetFramework: 'net8.0'
