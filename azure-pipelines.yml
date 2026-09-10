@@ -33,7 +33,7 @@ stages:
       - template: build/template-install-dependencies.yaml
       - template: build/template-build.yaml
       - template: build/template-test-unit.yaml
-      - task: BuildQualityChecks@9
+      - task: BuildQualityChecks@10
         displayName: 'Check Warnings'
         inputs:
           checkWarnings: true
