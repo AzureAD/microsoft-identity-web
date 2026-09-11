@@ -78,6 +78,53 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.Equal(credentialDescriptions[1], cd);
         }
 
+        [Fact]
+        public async Task OidcFicCredential_IsLoadedPerRelyingApplicationAuthorityAsync()
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            ICredentialsLoader credLoader = Substitute.For<ICredentialsLoader>();
+            var loadedCredentials = new List<CredentialDescription>();
+            credLoader.LoadCredentialsIfNeededAsync(
+                    Arg.Any<CredentialDescription>(),
+                    Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(args =>
+                {
+                    var credential = (CredentialDescription)args[0];
+                    loadedCredentials.Add(credential);
+                    credential.CachedValue = new object();
+                    return Task.CompletedTask;
+                });
+
+            var originalCredential = new CredentialDescription
+            {
+                SourceType = CredentialSource.CustomSignedAssertion,
+                CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
+                CachedValue = new object(),
+            };
+            var options = new MergedOptions
+            {
+                ClientCredentials = [originalCredential],
+            };
+            var provider = new CredentialsProvider(logger, credLoader, [], null);
+
+            // Act
+            CredentialDescription? publicCloudCredential = await provider.GetCredentialAsync(
+                options,
+                new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.com/tenant"));
+            CredentialDescription? usGovCredential = await provider.GetCredentialAsync(
+                options,
+                new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant"));
+
+            // Assert
+            Assert.NotSame(originalCredential, publicCloudCredential);
+            Assert.NotSame(originalCredential, usGovCredential);
+            Assert.NotSame(publicCloudCredential, usGovCredential);
+            Assert.Equal(2, loadedCredentials.Count);
+            Assert.Same(publicCloudCredential, loadedCredentials[0]);
+            Assert.Same(usGovCredential, loadedCredentials[1]);
+        }
+
         #region Test around failure to load creds
         [Fact]
         public async Task FailsForFic_ReturnsMeaningfulMessageAsync()

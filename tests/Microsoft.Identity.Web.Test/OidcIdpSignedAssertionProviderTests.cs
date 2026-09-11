@@ -162,13 +162,20 @@ namespace Microsoft.Identity.Web.Test
 
         private static (OidcIdpSignedAssertionProvider provider, ITokenAcquirer acquirer) CreateProvider(
             MicrosoftIdentityApplicationOptions? options = null,
-            string? tokenExchangeUrl = null)
+            string? tokenExchangeUrl = null,
+            string? relyingApplicationAuthority = null)
         {
             var acquirer = Substitute.For<ITokenAcquirer>();
             var factory = Substitute.For<ITokenAcquirerFactory>();
             options ??= new MicrosoftIdentityApplicationOptions { Instance = SameCloudInstance };
             factory.GetTokenAcquirer(Arg.Any<IdentityApplicationOptions>()).Returns(acquirer);
-            var provider = new OidcIdpSignedAssertionProvider(factory, options, tokenExchangeUrl, logger: null);
+            var provider = new OidcIdpSignedAssertionProvider(
+                factory,
+                options,
+                tokenExchangeUrl,
+                logger: null,
+                cloudMetadataProvider: null,
+                relyingApplicationAuthority);
             return (provider, acquirer);
         }
 
@@ -205,6 +212,51 @@ namespace Microsoft.Identity.Web.Test
         {
             var (provider, _) = CreateProvider();
             Assert.True(provider.SupportsTokenBinding);
+        }
+
+        [Theory]
+        [InlineData(
+            "https://login.microsoftonline.us/",
+            "https://login.microsoftonline.com/outer-tenant/",
+            "api://AzureADTokenExchange/.default")]
+        [InlineData(
+            "https://login.microsoftonline.com/",
+            "https://login.microsoftonline.us/outer-tenant/",
+            "api://AzureADTokenExchangeUSGov/.default")]
+        public async Task GetSignedAssertionAsync_CrossCloud_UsesOuterRelyingApplicationAudience(
+            string innerInstance,
+            string outerAuthority,
+            string expectedScope)
+        {
+            // Arrange
+            var (provider, acquirer) = CreateProvider(
+                new MicrosoftIdentityApplicationOptions { Instance = innerInstance });
+            var capture = SetupAcquirer(acquirer, CreateResult("assertion"));
+
+            // Act
+            await provider.GetSignedAssertionAsync(
+                new AssertionRequestOptions { Authority = outerAuthority });
+
+            // Assert
+            Assert.Equal(expectedScope, capture.Scope);
+        }
+
+        [Fact]
+        public async Task GetSignedAssertionWithBindingAsync_MtlsCallback_UsesCapturedRelyingApplicationAuthority()
+        {
+            // Arrange
+            var (provider, acquirer) = CreateProvider(
+                relyingApplicationAuthority: "https://login.microsoftonline.com/outer-tenant/");
+            var capture = SetupAcquirer(
+                acquirer,
+                CreateResult("assertion", CreateSelfSignedCertificate()));
+
+            // Act
+            await provider.GetSignedAssertionWithBindingAsync(
+                new AssertionRequestOptions { Authority = "https://mtlsauth.microsoft.com/outer-tenant/" });
+
+            // Assert
+            Assert.Equal("api://AzureADTokenExchange/.default", capture.Scope);
         }
 
         [Fact]
