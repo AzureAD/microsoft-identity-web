@@ -175,10 +175,10 @@ namespace Microsoft.Identity.Web.OidcFic
             string? assertionRequestAuthority = assertionRequestOptions?.Authority;
             string effectiveTokenExchangeUrl = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
                 FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
-                    !string.IsNullOrEmpty(assertionRequestAuthority)
-                        ? assertionRequestAuthority
-                        : !string.IsNullOrEmpty(_relyingApplicationAuthority)
-                            ? _relyingApplicationAuthority
+                    !string.IsNullOrEmpty(_relyingApplicationAuthority)
+                        ? _relyingApplicationAuthority
+                        : !string.IsNullOrEmpty(assertionRequestAuthority)
+                            ? assertionRequestAuthority
                             : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
                     perCallOverride: _tokenExchangeUrl,
                     _cloudMetadataProvider));

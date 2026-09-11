@@ -231,10 +231,9 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                 });
 
             // Assert endpoints, scopes, client IDs
-            // The source app (c1) is configured on US Gov (login.microsoftonline.us), so the FIC
-            // token-exchange audience auto-resolves from MSAL's cloud metadata to the US Gov value
-            // rather than the public-cloud default — the cross-cloud-metadata resolution under test.
-            Assert.Equal("api://AzureADTokenExchangeUSGov/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
+            // The target app owns the FIC registration and is configured on the public cloud, so the
+            // assertion audience uses the public-cloud value even though the source app is in US Gov.
+            Assert.Equal("api://AzureADTokenExchange/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal(TestConstants.s_scopeForApp, tokenRequestHttpHandler.ActualRequestPostData["scope"]);
             Assert.Equal("c1", credentialRequestHttpHandler.ActualRequestPostData["client_id"]);
             Assert.Equal("https://login.microsoftonline.us/t1/oauth2/v2.0/token",
@@ -290,12 +289,11 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             tokenAcquirerFactory.Services.AddOidcFic();
             tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
 
-            // A caller (or MISE) registers an upstream cloud-metadata provider that OVERRIDES the FIC
-            // audience for the source app's cloud (US Gov). This must win over MSAL's built-in US Gov value,
-            // proving the OIDC client-credentials FIC leg honors the injected ICloudMetadataProvider end-to-end.
+            // A caller registers an upstream provider that overrides the FIC audience for the target
+            // application's public-cloud authority.
             tokenAcquirerFactory.Services.AddSingleton<ICloudMetadataProvider>(
                 new InMemoryCloudMetadataProvider().AddOrUpdate(
-                    "login.microsoftonline.us",
+                    "login.microsoftonline.com",
                     new Dictionary<string, string>
                     {
                         [CloudMetadataKeyNames.FederatedCredentialAudience] = "api://AzureADTokenExchangeCustomGov"
@@ -355,9 +353,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         // Each test builds the REAL OIDC-CC FIC pipeline (ID Web -> MSAL) and mocks ONLY MSAL's outbound
         // HTTP, then asserts the credential-exchange request's POST 'scope' equals the expected cloud-
         // specific token-exchange audience + "/.default". Auto-resolution here flows from MSAL's built-in
-        // baseline (KnownCloudMetadata) keyed by the SOURCE app's cloud — no injected provider needed for the
+        // baseline (KnownCloudMetadata) keyed by the TARGET app's cloud — no injected provider needed for the
         // clouds MSAL ships (public, US Gov). A caller override (credential TokenExchangeUrl) must win.
-        // The US-Gov-default case is also the regression guard for the Authority-vs-Instance resolution fix.
         // ---------------------------------------------------------------------------------------------
 
         [Fact]
@@ -365,20 +362,16 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             => RunFicExchangeScenarioAsync(
                 scenario: "Public cloud, default endpoint (auto-resolve via MSAL baseline)",
                 sourceInstance: "https://login.microsoftonline.com/",
-                sourceAuthority: null,
+                targetInstance: "https://login.microsoftonline.com/",
                 customTokenExchangeUrl: null,
                 expectedExchangeScope: "api://AzureADTokenExchange/.default");
 
         [Fact]
-        public Task Fic_Exchange_UsGovCloud_DefaultEndpoint_AutoResolvesUsGovAudienceAsync()
-            // Source app configured via AUTHORITY ONLY (Instance empty) — this is the regression guard for
-            // the OidcIdpSignedAssertionProvider fix: '_options.Instance ?? _options.Authority' silently
-            // fell back to the public audience because Instance defaults to "" (not null). US Gov is a
-            // cloud MSAL ships, so its audience auto-resolves from the baseline with no injected provider.
+        public Task Fic_Exchange_UsGovRelyingApplication_DefaultEndpoint_AutoResolvesUsGovAudienceAsync()
             => RunFicExchangeScenarioAsync(
-                scenario: "US Gov cloud (Authority-only source), default endpoint (auto-resolve via MSAL baseline)",
-                sourceInstance: null,
-                sourceAuthority: "https://login.microsoftonline.us/t1",
+                scenario: "US Gov relying application, default endpoint (auto-resolve via MSAL baseline)",
+                sourceInstance: "https://login.microsoftonline.com/",
+                targetInstance: "https://login.microsoftonline.us/",
                 customTokenExchangeUrl: null,
                 expectedExchangeScope: "api://AzureADTokenExchangeUSGov/.default");
 
@@ -387,26 +380,25 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             => RunFicExchangeScenarioAsync(
                 scenario: "Public cloud, caller-provided custom endpoint (override wins)",
                 sourceInstance: "https://login.microsoftonline.com/",
-                sourceAuthority: null,
+                targetInstance: "https://login.microsoftonline.com/",
                 customTokenExchangeUrl: "api://MyCustomTokenExchange",
                 expectedExchangeScope: "api://MyCustomTokenExchange/.default");
 
         /// <summary>
         /// Drives the real OIDC-CC FIC pipeline (ID Web -> MSAL, mocking only MSAL HTTP) and asserts the
         /// credential-exchange request carried <paramref name="expectedExchangeScope"/> as its POST 'scope'.
-        /// The source app ("AzureAd2") is configured via EITHER <paramref name="sourceInstance"/> OR
-        /// <paramref name="sourceAuthority"/> (exactly one non-null); cloud resolution keys off it.
+        /// Cloud resolution keys off the relying application's <paramref name="targetInstance"/>.
         /// </summary>
         private async Task RunFicExchangeScenarioAsync(
             string scenario,
-            string? sourceInstance,
-            string? sourceAuthority,
+            string sourceInstance,
+            string targetInstance,
             string? customTokenExchangeUrl,
             string expectedExchangeScope)
         {
             using var httpFactoryForTest = new MockHttpClientFactory();
-            // Leg 1: the credential EXCHANGE (client-credentials on the source cloud). Its 'scope' is the
-            // cloud-specific token-exchange audience under test.
+            // Leg 1: the source app's credential exchange. Its scope is determined by the target app's
+            // FIC registration.
             var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
                 MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-1"));
             // Leg 2: the target app's actual token acquisition using the signed assertion.
@@ -418,19 +410,11 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             tokenAcquirerFactory.Services.AddOidcFic();
             tokenAcquirerFactory.Services.AddSingleton<IHttpClientFactory>(httpFactoryForTest);
 
-            // Source app (provides assertion), configured on the cloud under test — via Instance OR Authority.
+            // Source app (provides assertion).
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>("AzureAd2", options =>
             {
-                if (!string.IsNullOrEmpty(sourceInstance))
-                {
-                    options.Instance = sourceInstance;
-                    options.TenantId = "t1";
-                }
-                else
-                {
-                    options.Authority = sourceAuthority;
-                }
-
+                options.Instance = sourceInstance;
+                options.TenantId = "t1";
                 options.ClientId = "c1";
                 options.ClientCredentials = new[]
                 {
@@ -459,7 +443,7 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
 
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
-                options.Instance = "https://login.microsoftonline.com/";
+                options.Instance = targetInstance;
                 options.TenantId = "t2";
                 options.ClientId = "c2";
                 options.ClientCredentials = new[] { customSignedAssertion };

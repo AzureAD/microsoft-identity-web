@@ -162,13 +162,20 @@ namespace Microsoft.Identity.Web.Test
 
         private static (OidcIdpSignedAssertionProvider provider, ITokenAcquirer acquirer) CreateProvider(
             MicrosoftIdentityApplicationOptions? options = null,
-            string? tokenExchangeUrl = null)
+            string? tokenExchangeUrl = null,
+            string? relyingApplicationAuthority = null)
         {
             var acquirer = Substitute.For<ITokenAcquirer>();
             var factory = Substitute.For<ITokenAcquirerFactory>();
             options ??= new MicrosoftIdentityApplicationOptions { Instance = SameCloudInstance };
             factory.GetTokenAcquirer(Arg.Any<IdentityApplicationOptions>()).Returns(acquirer);
-            var provider = new OidcIdpSignedAssertionProvider(factory, options, tokenExchangeUrl, logger: null);
+            var provider = new OidcIdpSignedAssertionProvider(
+                factory,
+                options,
+                tokenExchangeUrl,
+                logger: null,
+                cloudMetadataProvider: null,
+                relyingApplicationAuthority);
             return (provider, acquirer);
         }
 
@@ -232,6 +239,24 @@ namespace Microsoft.Identity.Web.Test
 
             // Assert
             Assert.Equal(expectedScope, capture.Scope);
+        }
+
+        [Fact]
+        public async Task GetSignedAssertionWithBindingAsync_MtlsCallback_UsesCapturedRelyingApplicationAuthority()
+        {
+            // Arrange
+            var (provider, acquirer) = CreateProvider(
+                relyingApplicationAuthority: "https://login.microsoftonline.com/outer-tenant/");
+            var capture = SetupAcquirer(
+                acquirer,
+                CreateResult("assertion", CreateSelfSignedCertificate()));
+
+            // Act
+            await provider.GetSignedAssertionWithBindingAsync(
+                new AssertionRequestOptions { Authority = "https://mtlsauth.microsoft.com/outer-tenant/" });
+
+            // Assert
+            Assert.Equal("api://AzureADTokenExchange/.default", capture.Scope);
         }
 
         [Fact]
