@@ -168,13 +168,15 @@ namespace Microsoft.Identity.Web.OidcFic
             // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by the outer relying
             // application's authority. The outer app owns the FIC registration that validates the assertion
             // audience; using the inner assertion issuer's cloud would select the wrong audience in a
-            // cross-cloud flow. Fall back to the inner instance only when direct/legacy callers provide no
-            // assertion request authority. The scope form (/.default) is applied via MSAL's
-            // TokenExchangeScope because this is a client-credentials / app-token acquisition.
+            // cross-cloud flow. For eager acquisition, use the authority captured by the credential loader;
+            // fall back to the inner instance only when direct/legacy callers provide neither source of outer
+            // request context. The scope form (/.default) is applied via MSAL's TokenExchangeScope because
+            // this is a client-credentials / app-token acquisition.
+            string? assertionRequestAuthority = assertionRequestOptions?.Authority;
             string effectiveTokenExchangeUrl = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
                 FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
-                    !string.IsNullOrEmpty(assertionRequestOptions?.Authority)
-                        ? assertionRequestOptions.Authority
+                    !string.IsNullOrEmpty(assertionRequestAuthority)
+                        ? assertionRequestAuthority
                         : !string.IsNullOrEmpty(_relyingApplicationAuthority)
                             ? _relyingApplicationAuthority
                             : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
