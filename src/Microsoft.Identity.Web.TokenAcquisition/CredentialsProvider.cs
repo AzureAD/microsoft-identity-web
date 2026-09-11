@@ -15,6 +15,8 @@ namespace Microsoft.Identity.Web
 {
     internal partial class CredentialsProvider : ICredentialsProvider
     {
+        private const string OidcIdpSignedAssertionProviderName = "OidcIdpSignedAssertion";
+
         private readonly ILogger _logger;
         private readonly ITokenAcquisitionHost? _tokenHost;
         private readonly ICredentialsLoader _credentialsLoader;
@@ -67,6 +69,22 @@ namespace Microsoft.Identity.Web
 
                 if (!credential.Skip)
                 {
+                    // The OIDC provider captures the relying application's authority when a CCA is built.
+                    // Keep that request-specific provider off the shared credential description so one
+                    // cloud's authority cannot leak into a CCA built for another cloud.
+                    if (credential.SourceType == CredentialSource.CustomSignedAssertion
+                        && string.Equals(
+                            credential.CustomSignedAssertionProviderName,
+                            OidcIdpSignedAssertionProviderName,
+                            StringComparison.Ordinal)
+                        && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
+                    {
+                        credential = new CredentialDescription(originalCredential)
+                        {
+                            CachedValue = null,
+                        };
+                    }
+
                     // For the managed-identity FIC leg, resolve the cloud-specific token-exchange audience from
                     // the request authority host when the caller did not set one explicitly. This lets sovereign
                     // (public) and internal-only (via a registered ICloudMetadataProvider) clouds use the correct
