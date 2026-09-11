@@ -35,6 +35,7 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
         private readonly ICloudMetadataProvider? _cloudMetadataProvider;
+        private readonly string? _relyingApplicationAuthority;
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
@@ -52,13 +53,20 @@ namespace Microsoft.Identity.Web.OidcFic
         {
         }
 
-        internal OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger, ICloudMetadataProvider? cloudMetadataProvider)
+        internal OidcIdpSignedAssertionProvider(
+            ITokenAcquirerFactory tokenAcquirerFactory,
+            MicrosoftIdentityApplicationOptions options,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            ICloudMetadataProvider? cloudMetadataProvider,
+            string? relyingApplicationAuthority = null)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
             _cloudMetadataProvider = cloudMetadataProvider;
+            _relyingApplicationAuthority = relyingApplicationAuthority;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -157,13 +165,19 @@ namespace Microsoft.Identity.Web.OidcFic
 
             // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
             // resolve the cloud-specific exchange audience from the layered resolver — a caller's
-            // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by this application's
-            // instance host (public cloud is unchanged via the documented fallback). The scope form
-            // (/.default) is applied via MSAL's TokenExchangeScope because this is a client-credentials /
-            // app-token acquisition.
+            // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by the outer relying
+            // application's authority. The outer app owns the FIC registration that validates the assertion
+            // audience; using the inner assertion issuer's cloud would select the wrong audience in a
+            // cross-cloud flow. Fall back to the inner instance only when direct/legacy callers provide no
+            // assertion request authority. The scope form (/.default) is applied via MSAL's
+            // TokenExchangeScope because this is a client-credentials / app-token acquisition.
             string effectiveTokenExchangeUrl = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
                 FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
-                    string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
+                    !string.IsNullOrEmpty(assertionRequestOptions?.Authority)
+                        ? assertionRequestOptions.Authority
+                        : !string.IsNullOrEmpty(_relyingApplicationAuthority)
+                            ? _relyingApplicationAuthority
+                            : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
                     perCallOverride: _tokenExchangeUrl,
                     _cloudMetadataProvider));
 

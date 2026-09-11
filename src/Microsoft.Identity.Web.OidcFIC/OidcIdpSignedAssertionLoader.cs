@@ -201,7 +201,8 @@ namespace Microsoft.Identity.Web.OidcFic
                     microsoftIdentityApplicationOptions,
                     credentialDescription.TokenExchangeUrl,
                     _logger,
-                    _serviceProvider.GetService<ICloudMetadataProvider>());
+                    _serviceProvider.GetService<ICloudMetadataProvider>(),
+                    parameters?.Authority);
                 if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
                 {
                     signedAssertion.RequiresSignedAssertionFmiPath = true;
