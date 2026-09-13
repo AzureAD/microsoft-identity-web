@@ -26,4 +26,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Web.Sidecar\Microsoft.Identity.Web.Sidecar.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\src\Microsoft.Identity.Web.Sidecar\DockerFile.NanoServer"
+          Link="DockerFile.NanoServer"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

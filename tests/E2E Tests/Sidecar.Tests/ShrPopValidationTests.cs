@@ -299,6 +299,29 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
     }
 
     [Fact]
+    public async Task Validate_WithRoleFreeAppOnlyBearerToken_Returns200_AndProtocolBearerAsync()
+    {
+        // Arrange
+        string accessToken = PopTestCrypto.CreateRoleFreeAppOnlyAccessToken(
+            PopTestCrypto.TestIssuer, PopTestCrypto.TestAudience, DateTime.UtcNow.AddMinutes(10));
+        var client = _factory.CreateClient();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Validate");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        // Act
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<ValidateAuthorizationHeaderResult>(s_webOptions);
+        Assert.NotNull(result);
+        Assert.Equal("Bearer", result!.Protocol);
+        Assert.Equal(accessToken, result.Token);
+        Assert.NotNull(result.Claims);
+    }
+
+    [Fact]
     public async Task Validate_WithMalformedPopToken_ReturnsUnauthorized_NotServerErrorAsync()
     {
         // Arrange: a non-JWT garbage string under the PoP scheme. The validator wraps the identity-model

@@ -41,10 +41,9 @@ public class Program
 
         authenticationBuilder.AddInboundShrPop();
 
-        builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-        {
-            options.AllowWebApiToBeAuthorizedByACL = true;
-        });
+        // Configure every options instance before MicrosoftIdentityOptionsMerger post-configures named schemes.
+        builder.Services.ConfigureAll<MicrosoftIdentityOptions>(
+            options => options.AllowWebApiToBeAuthorizedByACL = true);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()

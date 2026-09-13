@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -136,16 +137,18 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
     }
 
     [Fact]
-    public void MicrosoftIdentityOptions_AllowWebApiToBeAuthorizedByACL_IsSetToTrue()
+    public void MicrosoftIdentityOptions_DefaultAndBearerSchemes_AllowAclAuthorization()
     {
         // Arrange
         using var scope = _factory.Services.CreateScope();
         var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>();
 
         // Act
-        var options = optionsMonitor.CurrentValue;
+        var defaultOptions = optionsMonitor.CurrentValue;
+        var bearerOptions = optionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
 
         // Assert
-        Assert.True(options.AllowWebApiToBeAuthorizedByACL);
+        Assert.True(defaultOptions.AllowWebApiToBeAuthorizedByACL);
+        Assert.True(bearerOptions.AllowWebApiToBeAuthorizedByACL);
     }
 }
