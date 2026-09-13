@@ -7,7 +7,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Xunit;
 
@@ -319,6 +321,35 @@ public class ShrPopValidationTests : IClassFixture<PopSidecarApiFactory>
         Assert.Equal("Bearer", result!.Protocol);
         Assert.Equal(accessToken, result.Token);
         Assert.NotNull(result.Claims);
+    }
+
+    [Fact]
+    public async Task Validate_WithRoleFreeAppOnlyBearerToken_AndAclDisabled_ReturnsUnauthorizedAsync()
+    {
+        // Arrange
+        string accessToken = PopTestCrypto.CreateRoleFreeAppOnlyAccessToken(
+            PopTestCrypto.TestIssuer, PopTestCrypto.TestAudience, DateTime.UtcNow.AddMinutes(10));
+        using var factory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, configuration) =>
+                configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    {
+                        $"AzureAd:{nameof(MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)}",
+                        "false"
+                    }
+                }));
+        });
+        var client = factory.CreateClient();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Validate");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        // Act
+        var response = await client.SendAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
