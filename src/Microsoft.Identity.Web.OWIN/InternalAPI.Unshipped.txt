@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.ResolveConfigurationBasePath(string? useLegacyWebRootAppSettings, System.Func<string!, string?>! mapPath, System.Func<string!, bool>! fileExists) -> string!
