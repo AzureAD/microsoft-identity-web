@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.AppBuilderExtension.ConfigureClaimsValidation(Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions! options, bool allowWebApiToBeAuthorizedByACL) -> void

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'net472'" Include="..\..\src\Microsoft.Identity.Web.OWIN\Microsoft.Identity.Web.OWIN.csproj" />
     <ProjectReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Include="..\..\src\Microsoft.Identity.Web.MicrosoftGraph\Microsoft.Identity.Web.MicrosoftGraph.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Identity.Web.Azure\Microsoft.Identity.Web.Azure.csproj" />
@@ -18,6 +19,7 @@
   
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
+    <Compile Remove="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,6 +54,7 @@
     <Compile Include="CacheExtensionsTests.cs" />
     <Compile Include="CacheEncryptionTests.cs" />
     <Compile Include="TestDistributedCache.cs" />
+    <Compile Include="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' == 'net472'" />
   </ItemGroup>
 
   <ItemGroup>
