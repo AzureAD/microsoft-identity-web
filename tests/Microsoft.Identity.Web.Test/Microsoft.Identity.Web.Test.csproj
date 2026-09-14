@@ -19,6 +19,7 @@
   
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
+    <Compile Remove="OwinTokenAcquirerFactoryTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
     <Compile Remove="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
   </ItemGroup>
 
@@ -54,6 +55,7 @@
     <Compile Include="CacheExtensionsTests.cs" />
     <Compile Include="CacheEncryptionTests.cs" />
     <Compile Include="TestDistributedCache.cs" />
+    <Compile Include="OwinTokenAcquirerFactoryTests.cs" Condition="'$(TargetFramework)' == 'net472'" />
     <Compile Include="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' == 'net472'" />
   </ItemGroup>
 
