@@ -41,10 +41,12 @@ public class Program
 
         authenticationBuilder.AddInboundShrPop();
 
-        builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-        {
-            options.AllowWebApiToBeAuthorizedByACL = true;
-        });
+        // Default Bearer to ACL-based authorization while preserving an explicit AzureAd setting.
+        builder.Services.Configure<MicrosoftIdentityOptions>(
+            JwtBearerDefaults.AuthenticationScheme,
+            options => options.AllowWebApiToBeAuthorizedByACL =
+                builder.Configuration.GetValue<bool?>(
+                    $"AzureAd:{nameof(MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)}") ?? true);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
