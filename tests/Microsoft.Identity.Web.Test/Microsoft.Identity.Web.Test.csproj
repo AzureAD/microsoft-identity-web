@@ -19,6 +19,7 @@
   
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" />
+    <Compile Remove="OwinTokenAcquirerFactoryTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
   </ItemGroup>
 
   <ItemGroup>
