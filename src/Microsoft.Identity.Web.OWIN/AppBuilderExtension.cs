@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Web
         /// <param name="configurationSection">Configuration section in which to read the options.</param>
         /// <returns>The app builder to chain.</returns>
         /// <remarks>
-        /// By default, bearer tokens must contain a scope or role claim. Set
+        /// By default, bearer tokens must contain a recognized scope or role claim with a non-whitespace value. Set
         /// <see cref="Microsoft.Identity.Abstractions.IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL"/> to
         /// <c>true</c> when the application uses ACL-based authorization instead.
         /// </remarks>
@@ -116,10 +116,14 @@ namespace Microsoft.Identity.Web
                 OnApplyChallenge = provider.ApplyChallenge,
                 OnValidateIdentity = async context =>
                 {
-                    if (!context.Ticket.Identity.Claims.Any(x => x.Type == ClaimConstants.Scope
-                        || x.Type == ClaimConstants.Scp
-                        || x.Type == ClaimConstants.Roles
-                        || x.Type == ClaimConstants.Role))
+                    bool hasRequiredClaim = context.Ticket.Identity.Claims.Any(claim =>
+                        (claim.Type == ClaimConstants.Scope
+                            || claim.Type == ClaimConstants.Scp
+                            || claim.Type == ClaimConstants.Roles
+                            || claim.Type == ClaimConstants.Role)
+                        && !string.IsNullOrWhiteSpace(claim.Value));
+
+                    if (!hasRequiredClaim)
                     {
                         context.Rejected();
                         return;
