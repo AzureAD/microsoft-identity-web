@@ -124,6 +124,8 @@ namespace Microsoft.Identity.Web.Test.Integration
             // Assert
             Assert.Equal(["default-scope"], authorizationHeaderProvider.CapturedScopes);
             Assert.NotSame(requestOptions, authorizationHeaderProvider.CapturedOptions);
+            Assert.True(requestOptions.CloneInternalCalled);
+            Assert.IsType<CustomGraphAuthenticationOptions>(authorizationHeaderProvider.CapturedOptions);
             Assert.NotSame(requestOptions.AcquireTokenOptions, authorizationHeaderProvider.CapturedOptions!.AcquireTokenOptions);
             Assert.Equal(
                 "value",
@@ -215,6 +217,16 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private sealed class CustomGraphAuthenticationOptions : GraphAuthenticationOptions
         {
+            public bool CloneInternalCalled { get; private set; }
+
+            protected override AuthorizationHeaderProviderOptions CloneInternal()
+            {
+                CloneInternalCalled = true;
+                var clone = (CustomGraphAuthenticationOptions)MemberwiseClone();
+                clone.AcquireTokenOptions = AcquireTokenOptions.Clone();
+
+                return clone;
+            }
         }
 
         private sealed class RecordingAuthorizationHeaderProvider : IAuthorizationHeaderProvider

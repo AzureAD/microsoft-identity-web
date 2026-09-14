@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Web
             }
 
             // Data coming from the request (needed in protocols like "Pop")
-            AuthorizationHeaderProviderOptions authorizationHeaderProviderOptions = new(graphServiceClientOptions);
+            AuthorizationHeaderProviderOptions authorizationHeaderProviderOptions = graphServiceClientOptions.Clone();
 
             if (isBearerProtocol)
             {
