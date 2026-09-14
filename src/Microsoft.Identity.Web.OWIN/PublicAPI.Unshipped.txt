@@ -1,1 +1,2 @@
 #nullable enable
+override Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.AddDefaultJsonConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder! builder, string! basePath) -> void
