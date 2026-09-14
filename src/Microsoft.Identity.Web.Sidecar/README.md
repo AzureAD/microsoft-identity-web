@@ -40,7 +40,9 @@ Settings are supplied via `appsettings.json`, environment variables, or any stan
 }
 ```
 
-`AllowWebApiToBeAuthorizedByACL` will be set to true by the application. No action is required from the user to configure this.
+`AzureAd:AllowWebApiToBeAuthorizedByACL` defaults to `true`. Set it to `false` to require
+Bearer tokens to contain a role or scope claim. This setting applies only to Bearer authentication;
+the separate PoP validation path is unaffected.
 
 `AllowedHosts` does not need to be set. Outside of development environments, the sidecar validates the request `Host` header against local host names (`localhost`, `127.0.0.1`, `[::1]`).
 
