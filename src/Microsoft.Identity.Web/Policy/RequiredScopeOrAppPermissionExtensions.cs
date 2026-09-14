@@ -31,8 +31,9 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// This method adds metadata to route endpoint to describe required scopes or app permissions. It's the imperative version of
-        /// the [RequiredScopeOrAppPermission] attribute.
+        /// This method adds metadata to a route endpoint to describe required scopes or app permissions.
+        /// Authorization succeeds when an accepted scope is present in a scope claim or an accepted app permission
+        /// is present in a role claim. It's the imperative version of the [RequiredScopeOrAppPermission] attribute.
         /// </summary>
         /// <typeparam name="TBuilder">Class implementing <see cref="IEndpointConventionBuilder"/>.</typeparam>
         /// <param name="endpointConventionBuilder">To customize the endpoints.</param>
