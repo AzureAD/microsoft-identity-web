@@ -1,2 +1,4 @@
 #nullable enable
 virtual Microsoft.Identity.Web.TokenAcquirerFactory.AddDefaultJsonConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder! builder, string! basePath) -> void
+Microsoft.Identity.Web.CloudMetadataServiceCollectionExtensions
+static Microsoft.Identity.Web.CloudMetadataServiceCollectionExtensions.AddCloudMetadata(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, Microsoft.Extensions.Configuration.IConfiguration! cloudMetadataSection) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
