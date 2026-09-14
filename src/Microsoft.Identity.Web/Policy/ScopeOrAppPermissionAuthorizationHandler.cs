@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web
 
             if (scopeConfigurationKey != null)
             {
-                scopes = _configuration[scopeConfigurationKey]?.Split(' ');
+                scopes = _configuration[scopeConfigurationKey]?.Split(' ') ?? Array.Empty<string>();
             }
 
             if (scopes is null)
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Web
 
             if (appPermissionConfigurationKey != null)
             {
-                appPermissions = _configuration[appPermissionConfigurationKey]?.Split(' ');
+                appPermissions = _configuration[appPermissionConfigurationKey]?.Split(' ') ?? Array.Empty<string>();
             }
 
             if (appPermissions is null)
