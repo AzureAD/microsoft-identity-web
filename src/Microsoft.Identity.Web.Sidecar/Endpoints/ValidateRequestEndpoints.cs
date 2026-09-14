@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.Identity.Web.Sidecar.Logging;
 using Microsoft.Identity.Web.Sidecar.Models;
+using Microsoft.Identity.Web.Sidecar.Pop;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web.Sidecar.Endpoints;
@@ -19,7 +20,7 @@ public static class ValidateRequestEndpoints
     {
         app.MapGet("/Validate", ValidateEndpoint).
             WithName("ValidateAuthorizationHeader").
-            RequireAuthorization().
+            RequireAuthorization(PopConstants.ValidatePolicyName).
             ProducesProblem(StatusCodes.Status400BadRequest).
             ProducesProblem(StatusCodes.Status401Unauthorized);
     }
@@ -29,6 +30,19 @@ public static class ValidateRequestEndpoints
         HttpContext httpContext,
         [FromServices] IConfiguration configuration)
     {
+        // The PoP handler has already validated the outer SHR signature and the embedded access token,
+        // and rejected any non-app-only (delegated/user) token, before stashing the result here.
+        //
+        // This branch intentionally returns before the AzureAd:Scopes check below. That check
+        // (VerifyUserHasAnyAcceptedScope) enforces delegated 'scp' scopes, which app-only tokens do not
+        // carry — so unlike the Bearer path below, this path applies no scope gate. The app-only
+        // restriction is a token-type admission check, not an authorization decision; authorizing the
+        // returned app identity (e.g. by roles/appid) remains the caller's responsibility.
+        if (httpContext.Items[PopConstants.ValidatedAccessTokenItemKey] is JsonWebToken popToken)
+        {
+            return BuildResult(logger, PopConstants.ProtocolName, popToken);
+        }
+
         string scopeRequiredByApi = configuration["AzureAd:Scopes"] ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(scopeRequiredByApi))
         {
@@ -42,6 +56,14 @@ public static class ValidateRequestEndpoints
             return TypedResults.Problem("No token found", statusCode: StatusCodes.Status400BadRequest);
         }
 
+        return BuildResult(logger, "Bearer", token);
+    }
+
+    private static Results<Ok<ValidateAuthorizationHeaderResult>, ProblemHttpResult> BuildResult(
+        ILogger logger,
+        string protocol,
+        JsonWebToken token)
+    {
         var decodedBody = Base64Url.DecodeFromChars(token.EncodedPayload);
 
         JsonNode? jsonDoc;
@@ -62,7 +84,7 @@ public static class ValidateRequestEndpoints
         }
 
         var result = new ValidateAuthorizationHeaderResult(
-            Protocol: "Bearer",
+            Protocol: protocol,
             Token: token.EncodedToken,
             Claims: jsonDoc
         );

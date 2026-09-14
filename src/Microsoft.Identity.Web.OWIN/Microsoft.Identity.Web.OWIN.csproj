@@ -20,10 +20,6 @@
     <IdentityModelV5Version Condition="'$(IdentityModelV5Version)' == ''">5.7.1</IdentityModelV5Version>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IdentityModelV5Version)' == '5.7.1'">
-    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
@@ -44,7 +40,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="$(IdentityModelV5Version)" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="$(IdentityModelV5Version)" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
-    <PackageReference Include="Microsoft.Owin.Security.ActiveDirectory" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security.Jwt" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>

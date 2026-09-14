@@ -19,21 +19,21 @@ jobs:
       AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
       AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           dotnet-version: '8.x'
       - name: Run benchmark
         run: cd benchmark && dotnet run -c release -f net8.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json 
 
       - name: Download previous benchmark data
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ./cache
           key: ${{ runner.os }}-benchmark
 
       - name: Store TokenAcquisitionBenchmark benchmark results
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@52576c92bccf6ac60c8223ec7eb2565637cae9ba # v1.22.1
         with:
           name: TokenAcquisitionBenchmarks
           tool: 'benchmarkdotnet'
