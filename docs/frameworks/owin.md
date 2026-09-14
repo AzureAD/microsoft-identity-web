@@ -145,9 +145,18 @@ Missing, `false`, or invalid switch values use `~/bin/appsettings.json`; invalid
 values also write a warning. In `bin` mode, a remaining root file produces a
 best-effort migration warning when the hosting environment can observe it. The
 integration selects exactly one location and never combines values from the root
-and `bin` files. There is no automatic fallback to the root file. This switch is
-temporary: it will be removed in a future major release, so applications must
-migrate to the `bin` location before upgrading to a release that removes it.
+and `bin` files. There is no automatic fallback to the root file.
+
+If the selected location cannot be resolved or does not exist, automatic JSON
+configuration is skipped. Configuration supplied through `Web.config` and
+environment variables remains available. Applications that require JSON
+configuration must correct the deployment, publish `appsettings.json` at the
+selected location, and restart the application. A JSON file that is found at the
+selected location but cannot be read or parsed continues to produce an error.
+
+The compatibility switch is temporary: it will be removed in a future major
+release, so applications must migrate to the `bin` location before upgrading to a
+release that removes it.
 
 ---
 
