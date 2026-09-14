@@ -23,6 +23,11 @@ internal static class RedirectUriHelper
             return false;
         }
 
+        if (HasControlCharacter(url!))
+        {
+            return false;
+        }
+
         if (HasPercentEncodedSlashPrefix(url!))
         {
             return false;
@@ -32,6 +37,26 @@ internal static class RedirectUriHelper
         if (url![0] == '/')
         {
             return url.Length == 1 || (url[1] != '/' && url[1] != '\\');
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns <c>true</c> when <paramref name="value"/> contains an ASCII control character.
+    /// URL parsers may remove characters such as tabs and newlines. For example, removing the
+    /// tab from <c>"/\t/evil.example"</c> produces <c>"//evil.example"</c>, which can redirect
+    /// to another host.
+    /// </summary>
+    internal static bool HasControlCharacter(string value)
+    {
+        for (int i = 0; i < value.Length; i++)
+        {
+            char c = value[i];
+            if (c < '\u0020' || c == '\u007F')
+            {
+                return true;
+            }
         }
 
         return false;
