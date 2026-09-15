@@ -1,3 +1,3 @@
 #nullable enable
-static Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.ResolveConfigurationBasePath(string? useLegacyWebRootAppSettings, System.Func<string!, string?>! mapPath, System.Func<string!, bool>! fileExists) -> string!
+static Microsoft.Identity.Web.OWIN.OwinTokenAcquirerFactory.ResolveConfigurationBasePath(string? useLegacyWebRootAppSettings, System.Func<string!, string?>! mapPath, System.Func<string!, bool>! fileExists, out string! virtualPath) -> string!
 static Microsoft.Identity.Web.AppBuilderExtension.ConfigureClaimsValidation(Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions! options, bool allowWebApiToBeAuthorizedByACL) -> void
