@@ -229,24 +229,12 @@ namespace Microsoft.Identity.Web
                 // Read the configuration from a file and augment/replace from environment variable
                 var builder = new ConfigurationBuilder();
                 string basePath = DefineConfiguration(builder);
-                AddDefaultJsonConfiguration(builder, basePath);
-                builder.AddEnvironmentVariables();
+                builder.SetBasePath(basePath)
+                       .AddJsonFile("appsettings.json", optional: true)
+                       .AddEnvironmentVariables();
                 Configuration = builder.Build();
             }
             return Configuration;
-        }
-
-        /// <summary>
-        /// Adds the default optional JSON configuration source.
-        /// </summary>
-        /// <param name="builder">The configuration builder.</param>
-        /// <param name="basePath">The base path for the JSON configuration file.</param>
-        protected virtual void AddDefaultJsonConfiguration(
-            IConfigurationBuilder builder,
-            string basePath)
-        {
-            builder.SetBasePath(basePath)
-                   .AddJsonFile("appsettings.json", optional: true);
         }
 
         /// <summary>
