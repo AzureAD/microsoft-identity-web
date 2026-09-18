@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Web.OWIN
     public class OwinTokenAcquirerFactory : TokenAcquirerFactory 
     {
         private const string UseLegacyWebRootAppSettings = "ida:UseLegacyWebRootAppSettings";
-        private string _automaticJsonConfigurationVirtualPath = "~/bin";
 
         /// <summary>
         /// Defines the configuration for a given host.
@@ -45,28 +44,7 @@ namespace Microsoft.Identity.Web.OWIN
             return ResolveConfigurationBasePath(
                 ConfigurationManager.AppSettings[UseLegacyWebRootAppSettings],
                 HostingEnvironment.MapPath,
-                File.Exists,
-                out _automaticJsonConfigurationVirtualPath);
-        }
-
-        /// <inheritdoc/>
-        protected override void AddDefaultJsonConfiguration(
-            IConfigurationBuilder builder,
-            string basePath)
-        {
-            if (string.IsNullOrWhiteSpace(basePath))
-            {
-                return;
-            }
-
-            try
-            {
-                base.AddDefaultJsonConfiguration(builder, basePath);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                WarnAutomaticJsonConfigurationSkipped(_automaticJsonConfigurationVirtualPath);
-            }
+                File.Exists);
         }
 
         /// <summary>
@@ -111,10 +89,9 @@ namespace Microsoft.Identity.Web.OWIN
         internal static string ResolveConfigurationBasePath(
             string? useLegacyWebRootAppSettings,
             Func<string, string?> mapPath,
-            Func<string, bool> fileExists,
-            out string virtualPath)
+            Func<string, bool> fileExists)
         {
-            virtualPath = "~/bin";
+            string virtualPath = "~/bin";
             bool useLegacyWebRoot = false;
 
             if (!string.IsNullOrEmpty(useLegacyWebRootAppSettings))
@@ -126,7 +103,7 @@ namespace Microsoft.Identity.Web.OWIN
                         virtualPath = "~/";
                         Trace.TraceWarning(
                             $"The temporary '{UseLegacyWebRootAppSettings}' compatibility setting is enabled. " +
-                            "Application-root loading was requested. Move appsettings.json to the bin " +
+                            "appsettings.json is being loaded from the application root. Move the file to the bin " +
                             "directory and remove this setting. The setting will be removed in a future major release.");
                     }
                 }
@@ -143,53 +120,15 @@ namespace Microsoft.Identity.Web.OWIN
                 WarnIfRootAppSettingsExists(mapPath, fileExists);
             }
 
-            string? basePath;
-            try
-            {
-                basePath = mapPath(virtualPath);
-            }
-            catch (ArgumentException)
-            {
-                WarnAutomaticJsonConfigurationSkipped(virtualPath);
-                return string.Empty;
-            }
-            catch (HttpException)
-            {
-                WarnAutomaticJsonConfigurationSkipped(virtualPath);
-                return string.Empty;
-            }
-            catch (InvalidOperationException)
-            {
-                WarnAutomaticJsonConfigurationSkipped(virtualPath);
-                return string.Empty;
-            }
-
+            string? basePath = mapPath(virtualPath);
             if (string.IsNullOrWhiteSpace(basePath))
             {
-                WarnAutomaticJsonConfigurationSkipped(virtualPath);
-                return string.Empty;
+                throw new ConfigurationErrorsException(
+                    $"Unable to resolve the OWIN configuration directory '{virtualPath}'. " +
+                    "HostingEnvironment.MapPath returned no path.");
             }
 
             return basePath!;
-        }
-
-        private static void WarnAutomaticJsonConfigurationSkipped(string virtualPath)
-        {
-            if (string.Equals(virtualPath, "~/", StringComparison.Ordinal))
-            {
-                Trace.TraceWarning(
-                    $"Legacy JSON loading was requested by '{UseLegacyWebRootAppSettings}=true', " +
-                    "but the application's '~/' location is unavailable. Automatic JSON configuration was skipped. " +
-                    "Web.config and environment-variable settings remain available. If JSON settings are required, " +
-                    "publish them under '~/bin', disable the legacy setting, and restart the application.");
-            }
-            else
-            {
-                Trace.TraceWarning(
-                    "Automatic JSON configuration was skipped because the application's '~/bin' location is unavailable. " +
-                    "Web.config and environment-variable settings remain available. If JSON settings are required, " +
-                    "repair the deployment, publish appsettings.json under '~/bin', and restart the application.");
-            }
         }
 
         private static void WarnIfRootAppSettingsExists(

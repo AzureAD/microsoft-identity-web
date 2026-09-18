@@ -1,2 +1,1 @@
 #nullable enable
-virtual Microsoft.Identity.Web.TokenAcquirerFactory.AddDefaultJsonConfiguration(Microsoft.Extensions.Configuration.IConfigurationBuilder! builder, string! basePath) -> void
