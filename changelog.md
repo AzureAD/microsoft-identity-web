@@ -1,8 +1,26 @@
-## Unreleased
+## 4.15.0
+
+### New features
+- Resolve the federated-credential token-exchange audience and scope from the authority host, enabling cloud-specific metadata for sovereign and private clouds while preserving explicit overrides. See [#3994](https://github.com/AzureAD/microsoft-identity-web/pull/3994).
+- Add inbound Signed HTTP Request proof-of-possession validation for app-only tokens to the Entra Sidecar `/Validate` endpoint. Existing bearer-token validation remains unchanged. See [#4008](https://github.com/AzureAD/microsoft-identity-web/pull/4008).
 
 ### Bug fixes
-- Move Credential Guard key attestation into the optional `Microsoft.Identity.Web.KeyAttestation` package. Managed identity mTLS proof-of-possession uses the unattested flow unless the package is installed and `AddMicrosoftIdentityWebKeyAttestation()` is registered, preventing native key-attestation binaries and symbols from being published with unrelated applications.
-- OWIN web APIs now require bearer tokens to contain a recognized scope or role claim with a non-whitespace value by default. ACL-based authorization remains available by setting `AllowWebApiToBeAuthorizedByACL` to `true`.
+- Move Credential Guard key attestation into the optional `Microsoft.Identity.Web.KeyAttestation` package. Managed identity mTLS proof-of-possession uses the unattested flow unless the package is installed and `AddMicrosoftIdentityWebKeyAttestation()` is registered, preventing native key-attestation binaries and symbols from being published with unrelated applications. See [#4004](https://github.com/AzureAD/microsoft-identity-web/pull/4004).
+- Make EasyAuth `GetAuthenticationResultForAppAsync` use client-credential acquisition and return an app-only authentication result instead of the provider token associated with the signed-in user. See [#4015](https://github.com/AzureAD/microsoft-identity-web/pull/4015).
+- Fix Entra Sidecar Windows container startup by using the built-in `ContainerUser` account, and correctly apply ACL authorization defaults to named bearer options. See [#4042](https://github.com/AzureAD/microsoft-identity-web/pull/4042).
+
+### Behavior changes
+- OWIN web APIs now require bearer tokens to contain a recognized scope or role claim with a non-whitespace value by default. Applications using ACL-based authorization must set `AllowWebApiToBeAuthorizedByACL` to `true`. See [#4006](https://github.com/AzureAD/microsoft-identity-web/pull/4006) and [#4009](https://github.com/AzureAD/microsoft-identity-web/pull/4009).
+- Authorization now fails when an explicitly configured scope or app-permission key is missing. Applications must provide the referenced configuration value or remove the explicit requirement. See [#4010](https://github.com/AzureAD/microsoft-identity-web/pull/4010).
+- Graph v4 credentials are attached only to absolute HTTPS request destinations that match the configured client origin, including after request customization. Custom Graph proxies remain supported when configured as the client's absolute HTTPS base URL; requests to other origins continue without an authorization header. See [#4012](https://github.com/AzureAD/microsoft-identity-web/pull/4012).
+- Local redirect paths containing raw control characters are rejected. Applications must provide a valid local path without control characters. See [#4028](https://github.com/AzureAD/microsoft-identity-web/pull/4028).
+- Entra Sidecar returns HTTP 400 when a selected `AgentUserId` is empty, malformed, or the empty GUID. Callers must provide a non-empty GUID or omit the user ID. See [#4011](https://github.com/AzureAD/microsoft-identity-web/pull/4011).
+- Entra Sidecar startup rejects automatic forwarded-header processing outside Development when `ForwardedHeaders_Enabled` is `true`. Deployments outside Development must leave this automatic setting disabled. See [#4018](https://github.com/AzureAD/microsoft-identity-web/pull/4018).
+- Outside Development, Entra Sidecar rejects non-local `Host` headers on all endpoints except `/healthz`. Callers must use `localhost`, `127.0.0.1`, or `[::1]`; the health endpoint remains exempt. See [#4023](https://github.com/AzureAD/microsoft-identity-web/pull/4023).
+
+### Dependencies updates
+- Bump `Microsoft.Identity.Client` and `Microsoft.Identity.Client.KeyAttestation` from 4.87.0 to 4.90.0. See [#4003](https://github.com/AzureAD/microsoft-identity-web/pull/4003), [#3994](https://github.com/AzureAD/microsoft-identity-web/pull/3994), and [#4052](https://github.com/AzureAD/microsoft-identity-web/pull/4052).
+- Bump `Microsoft.Identity.Abstractions` from 12.6.0 to 12.7.0. See [#4020](https://github.com/AzureAD/microsoft-identity-web/pull/4020) and [#3994](https://github.com/AzureAD/microsoft-identity-web/pull/3994).
 
 ## 4.14.2
 
