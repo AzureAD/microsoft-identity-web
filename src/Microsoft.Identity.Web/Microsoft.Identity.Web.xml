@@ -122,6 +122,11 @@
             <summary>
             Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
             </summary>
+            <remarks>
+            User token methods return the provider access token supplied by App Services authentication
+            for the current request. App token methods acquire an app-only token through MSAL using the
+            configured application credentials.
+            </remarks>
         </member>
         <member name="F:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition._application">
             <summary>
@@ -138,6 +143,10 @@
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForAppAsync(System.String,System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <inheritdoc/>
+            <remarks>
+            Acquires an app-only token through the client credentials flow. This method does not
+            return the provider token associated with the signed-in user.
+            </remarks>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable{System.String},System.String,System.String,System.String,System.Security.Claims.ClaimsPrincipal,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <inheritdoc/>
@@ -153,6 +162,10 @@
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetAuthenticationResultForAppAsync(System.String,System.String,System.String,Microsoft.Identity.Web.TokenAcquisitionOptions)">
             <inheritdoc/>
+            <remarks>
+            Acquires an app-only token through the client credentials flow. This method does not
+            return the provider token associated with the signed-in user.
+            </remarks>
         </member>
         <member name="M:Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.GetEffectiveAuthenticationScheme(System.String)">
             <inheritdoc/>

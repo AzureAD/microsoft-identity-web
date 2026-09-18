@@ -16,6 +16,11 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// Implementation of ITokenAcquisition for App Services authentication (EasyAuth).
     /// </summary>
+    /// <remarks>
+    /// User token methods return the provider access token supplied by App Services authentication
+    /// for the current request. App token methods acquire an app-only token through MSAL using the
+    /// configured application credentials.
+    /// </remarks>
     public class AppServicesAuthenticationTokenAcquisition : ITokenAcquisition
     {
         private readonly object _applicationSyncObj = new object();
@@ -100,19 +105,20 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// Acquires an app-only token through the client credentials flow. This method does not
+        /// return the provider token associated with the signed-in user.
+        /// </remarks>
         public async Task<string> GetAccessTokenForAppAsync(
             string scope,
             string? authenticationScheme,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            // We could use MSI
-            _ = Throws.IfNull(scope);
-
-            var app = GetOrCreateApplication();
-            AuthenticationResult result = await app.AcquireTokenForClient(new[] { scope })
-                .ExecuteAsync()
-                .ConfigureAwait(false);
+            AuthenticationResult result = await GetAuthenticationResultForAppInternalAsync(
+                scope,
+                tenant,
+                tokenAcquisitionOptions).ConfigureAwait(false);
 
             return result.AccessToken;
         }
@@ -241,14 +247,39 @@ namespace Microsoft.Identity.Web
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// Acquires an app-only token through the client credentials flow. This method does not
+        /// return the provider token associated with the signed-in user.
+        /// </remarks>
         public Task<AuthenticationResult> GetAuthenticationResultForAppAsync(
             string scope,
             string? authenticationScheme,
             string? tenant = null,
             TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
-            return this.GetAuthenticationResultForUserAsync(new string[] {scope}, authenticationScheme, tenant,
-                tokenAcquisitionOptions: tokenAcquisitionOptions);
+            return GetAuthenticationResultForAppInternalAsync(
+                scope,
+                tenant,
+                tokenAcquisitionOptions);
+        }
+
+        private async Task<AuthenticationResult> GetAuthenticationResultForAppInternalAsync(
+            string scope,
+            string? tenant,
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            _ = Throws.IfNull(scope);
+
+            AcquireTokenForClientParameterBuilder builder = GetOrCreateApplication()
+                .AcquireTokenForClient(new[] { scope });
+
+            string? effectiveTenant = tenant ?? tokenAcquisitionOptions?.Tenant;
+            if (!string.IsNullOrEmpty(effectiveTenant))
+            {
+                builder.WithTenantId(effectiveTenant);
+            }
+
+            return await builder.ExecuteAsync().ConfigureAwait(false);
         }
 
         /// <inheritdoc/>

@@ -81,7 +81,25 @@ internal static class PopTestCrypto
         string issuer,
         string audience,
         DateTime expires,
-        JsonElement? cnf)
+        JsonElement? cnf) =>
+        CreateAccessTokenCore(issuer, audience, expires, cnf, includeRoles: true);
+
+    /// <summary>
+    /// Mints a valid app-only access token without roles or scopes. The sidecar must accept this token
+    /// because it enables ACL-based application authorization for the Bearer scheme by default.
+    /// </summary>
+    public static string CreateRoleFreeAppOnlyAccessToken(
+        string issuer,
+        string audience,
+        DateTime expires) =>
+        CreateAccessTokenCore(issuer, audience, expires, cnf: null, includeRoles: false);
+
+    private static string CreateAccessTokenCore(
+        string issuer,
+        string audience,
+        DateTime expires,
+        JsonElement? cnf,
+        bool includeRoles)
     {
         var handler = new JsonWebTokenHandler();
         DateTime now = DateTime.UtcNow;
@@ -92,8 +110,12 @@ internal static class PopTestCrypto
             ["oid"] = "11111111-1111-1111-1111-111111111111",
             ["appid"] = audience,
             ["idtyp"] = "app",
-            ["roles"] = new[] { "Sidecar.Access" },
         };
+
+        if (includeRoles)
+        {
+            claims["roles"] = new[] { "Sidecar.Access" };
+        }
 
         if (cnf is not null)
         {

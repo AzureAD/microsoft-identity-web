@@ -55,10 +55,12 @@
     <Compile Include="CacheEncryptionTests.cs" />
     <Compile Include="TestDistributedCache.cs" />
     <Compile Include="OwinClaimsValidationTests.cs" />
+    <Compile Include="OwinTokenAcquirerFactoryTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="OwinClaimsValidationTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
+    <Compile Remove="OwinTokenAcquirerFactoryTests.cs" Condition="'$(TargetFramework)' != 'net472'" />
   </ItemGroup>
 
   <ItemGroup>

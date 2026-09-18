@@ -24,7 +24,7 @@ public class Program
 #pragma warning restore IL3057
 #pragma warning restore IL2123
     {
-        var builder = WebApplication.CreateSlimBuilder(args);
+        var builder = CreateBuilder(args);
 
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
@@ -41,10 +41,12 @@ public class Program
 
         authenticationBuilder.AddInboundShrPop();
 
-        builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-        {
-            options.AllowWebApiToBeAuthorizedByACL = true;
-        });
+        // Default Bearer to ACL-based authorization while preserving an explicit AzureAd setting.
+        builder.Services.Configure<MicrosoftIdentityOptions>(
+            JwtBearerDefaults.AuthenticationScheme,
+            options => options.AllowWebApiToBeAuthorizedByACL =
+                builder.Configuration.GetValue<bool?>(
+                    $"AzureAd:{nameof(MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)}") ?? true);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
@@ -100,6 +102,24 @@ public class Program
         app.SetNoCachingMiddleware();
 
         app.Run();
+    }
+
+    internal static WebApplicationBuilder CreateBuilder(string[] args)
+    {
+        var builder = WebApplication.CreateSlimBuilder(args);
+
+        if (!builder.Environment.IsDevelopment() &&
+            string.Equals(
+                builder.Configuration["ForwardedHeaders_Enabled"],
+                "true",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Forwarded headers cannot be enabled outside Development. " +
+                "Remove 'ForwardedHeaders_Enabled' or set it to 'false'.");
+        }
+
+        return builder;
     }
 
     private static void ConfigureAuthN(WebApplicationBuilder builder)
