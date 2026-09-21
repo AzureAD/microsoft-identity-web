@@ -119,6 +119,7 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.HelpPage" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="2.0.1" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.5.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="$(SamlPackageVersion)" />
     <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
