@@ -27,3 +27,6 @@ override Microsoft.Identity.Web.ManagedIdentityClientAssertion.GetSignedAssertio
 override Microsoft.Identity.Web.ManagedIdentityClientAssertion.SupportsTokenBinding.get -> bool
 virtual Microsoft.Identity.Web.ClientAssertionProviderBase.GetSignedAssertionWithBindingAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ClientSignedAssertion?>!
 virtual Microsoft.Identity.Web.ClientAssertionProviderBase.SupportsTokenBinding.get -> bool
+Microsoft.Identity.Web.IKeyAttestationProvider
+Microsoft.Identity.Web.IKeyAttestationProvider.EnableAttestation(Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder! builder) -> Microsoft.Identity.Client.AcquireTokenForManagedIdentityParameterBuilder!
+Microsoft.Identity.Web.ManagedIdentityClientAssertion.ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger, Microsoft.Identity.Web.IKeyAttestationProvider? keyAttestationProvider) -> void
