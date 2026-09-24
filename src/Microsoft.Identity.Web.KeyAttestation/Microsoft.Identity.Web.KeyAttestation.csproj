@@ -5,7 +5,7 @@
     <Description>Optional key attestation support for managed identity mTLS proof-of-possession flows.</Description>
     <ProjectGuid>{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}</ProjectGuid>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
     <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
 
