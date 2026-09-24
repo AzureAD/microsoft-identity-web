@@ -46,7 +46,9 @@ namespace Microsoft.Identity.Web.Test.Blazor
             }, "TestAuth"));
 
             var authState = new AuthenticationState(expectedUser);
+#pragma warning disable BL0013 // Configuring a test substitute; no authentication state is cached.
             _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+#pragma warning restore BL0013
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
