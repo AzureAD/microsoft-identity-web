@@ -4,6 +4,19 @@ Changes to the `Microsoft.Identity.Web.Sidecar` container image
 (`mcr.microsoft.com/entra-sdk/auth-sidecar`). Each release lists sidecar changes and the version of
 Microsoft.Identity.Web it bundles.
 
+## 1.1.2 — 2026-09-22
+
+- Return HTTP 400 when a selected agent user ID is empty, malformed, or the empty GUID. See [#4011](https://github.com/AzureAD/microsoft-identity-web/pull/4011).
+- Reject automatic forwarded-header processing outside Development when `ForwardedHeaders_Enabled` is `true`. See [#4018](https://github.com/AzureAD/microsoft-identity-web/pull/4018).
+- Microsoft.Identity.Web upgraded to [4.15.0](https://github.com/AzureAD/microsoft-identity-web/releases/tag/4.15.0).
+
+## 1.1.2-preview — 2026-09-14
+
+- Add inbound Signed HTTP Request (SHR) proof-of-possession validation to the `/Validate` endpoint for app-only tokens. See [#4008](https://github.com/AzureAD/microsoft-identity-web/pull/4008).
+- Validate the `Host` header outside Development while keeping the `/healthz` endpoint exempt. See [#4023](https://github.com/AzureAD/microsoft-identity-web/pull/4023).
+- Fix Windows container startup by using `ContainerUser`, and correctly apply the default ACL-based authorization setting to named Bearer options while preserving an explicit configuration override. See [#4042](https://github.com/AzureAD/microsoft-identity-web/pull/4042).
+- Microsoft.Identity.Web upgraded to [4.14.2](https://github.com/AzureAD/microsoft-identity-web/releases/tag/4.14.2).
+
 ## 1.1.1 -2026-07-17
 
 - Microsoft.Identity.Web upgraded to [4.13.2](https://github.com/AzureAD/microsoft-identity-web/releases/tag/4.13.2).
