@@ -28,7 +28,7 @@
   <PropertyGroup>
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
-    <TargetFrameworks>net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0; net9.0; net10.0; net11.0; net462; net472; netstandard2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -138,7 +138,9 @@
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+  <!-- Keep net11.0 NuGet dependencies stable until .NET 11 packages reach GA. The net11.0
+       framework reference still supplies its own .NET 11 APIs at compile and run time. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net11.0'">
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
     <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, DataProtection requires 10.0.7 min instead of 10.0.6, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
