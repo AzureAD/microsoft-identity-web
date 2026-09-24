@@ -1,1 +1,5 @@
 #nullable enable
+Microsoft.Identity.Web.IClientAssertionEnrichmentOptions
+Microsoft.Identity.Web.IClientAssertionEnrichmentOptions.OtelTagsEnricher.get -> System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>?
+override Microsoft.Identity.Web.ManagedIdentityClientAssertion.CacheSignedAssertion.get -> bool
+virtual Microsoft.Identity.Web.ClientAssertionProviderBase.CacheSignedAssertion.get -> bool

@@ -53,6 +53,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             // Mock IMDS (for the MI assertion)
             var mockMiHttp = new MockHttpClientFactory();
             mockMiHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("mi-assertion-token"));
+            var challengedAssertionHandler = mockMiHttp.AddMockHandler(
+                MockHttpCreator.CreateMsiTokenHandler("mi-assertion-token-with-claims"));
 
             var miTestFactory = new TestManagedIdentityHttpFactory(mockMiHttp);
             ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = miTestFactory.Create();
@@ -121,6 +123,8 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             // New token & explicitly from IdentityProvider
             Assert.Equal("token2", r3.AccessToken);
             Assert.Equal(TokenSource.IdentityProvider, r3.AuthenticationResultMetadata.TokenSource);
+            Assert.NotNull(challengedAssertionHandler.ActualRequestMessage);
+            Assert.Equal("mi-assertion-token-with-claims", secondTokenHandler.ActualRequestPostData["client_assertion"]);
 
             // And the actual HTTP POST for that second AAD call contained the merged claims (cp1 + mark1)
             Assert.True(secondTokenHandler.ActualRequestPostData.TryGetValue("claims", out var secondClaimsJson));

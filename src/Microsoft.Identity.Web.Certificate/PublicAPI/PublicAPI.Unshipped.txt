@@ -1,1 +1,4 @@
 #nullable enable
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters.ClientAssertionCredentialSourceLoaderParameters(string! clientId, string! authority, System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>? otelTagsEnricher = null) -> void
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters.OtelTagsEnricher.get -> System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>?

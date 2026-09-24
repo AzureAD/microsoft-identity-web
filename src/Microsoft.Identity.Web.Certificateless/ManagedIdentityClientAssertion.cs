@@ -29,6 +29,12 @@ namespace Microsoft.Identity.Web
         private int _unattestedFlowLogged;
 
         /// <summary>
+        /// Gets whether assertions are cached by Microsoft.Identity.Web. Returns <c>false</c>
+        /// so MSAL handles token caching and processes telemetry and claims on every assertion request.
+        /// </summary>
+        protected override bool CacheSignedAssertion => false;
+
+        /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>

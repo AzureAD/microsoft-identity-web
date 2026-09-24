@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.OidcFic;
 using NSubstitute;
 using Xunit;
@@ -184,6 +185,68 @@ namespace Microsoft.Identity.Web.Test
         }
 
         #region Token-binding (bound signed assertion) loader tests
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_EnrichmentContext_PreservesFmiDeferral(bool requiresFmiPath)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential();
+            credential.CustomSignedAssertionProviderData!["RequiresSignedAssertionFmiPath"] = requiresFmiPath;
+            Action<ExecutionResult, IList<KeyValuePair<string, object>>> enricher = (_, _) => { };
+            var parameters = new ClientAssertionCredentialSourceLoaderParameters(
+                "outer", "https://login.microsoftonline.com/tenant", enricher);
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential, parameters);
+
+            // Assert
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.False(credential.Skip);
+            if (requiresFmiPath)
+            {
+                await acquirer.DidNotReceive().GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            }
+            else
+            {
+                await acquirer.Received(1).GetTokenForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Is<AcquireTokenOptions?>(options => options != null &&
+                        options.ExtraParameters != null &&
+                        ReferenceEquals(options.ExtraParameters[Constants.OtelTagsEnricherKey], enricher)),
+                    Arg.Any<CancellationToken>());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_EnrichmentContext_DoesNotEnableBoundWarmup(bool useBoundCredential)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential(useBoundCredential);
+            var parameters = new ClientAssertionCredentialSourceLoaderParameters(
+                "outer", "https://login.microsoftonline.com/tenant", (_, _) => { })
+            {
+                Protocol = useBoundCredential ? "Bearer" : "MTLS_POP",
+            };
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential, parameters);
+
+            // Assert
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            await acquirer.DidNotReceive().GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+        }
 
         private OidcIdpSignedAssertionLoader CreateLoader() =>
             new OidcIdpSignedAssertionLoader(_logger, _optionsMonitor, _serviceProvider, _tokenAcquirerFactory);

@@ -394,7 +394,8 @@ namespace Microsoft.Identity.Web
                 return agentResult;
             }
 
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding: false);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(
+                mergedOptions, isTokenBinding: false, otelTagsEnricher: GetOtelTagsEnricher(tokenAcquisitionOptions));
 
             CredentialSourceLoaderParameters loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
             {
@@ -796,7 +797,7 @@ namespace Microsoft.Identity.Web
                 // or an expired T1 hits the network.
                 MergedOptions blueprintOptions = _tokenAcquisitionHost.GetOptions(capturedAuthScheme, out _);
                 var blueprintCca = await GetOrBuildConfidentialClientApplicationAsync(
-                    blueprintOptions, isTokenBinding: false).ConfigureAwait(false);
+                    blueprintOptions, isTokenBinding: false, otelTagsEnricher: options.OtelTagsEnricher).ConfigureAwait(false);
 
                 var leg1Builder = blueprintCca
                     .AcquireTokenForClient(
@@ -955,9 +956,7 @@ namespace Microsoft.Identity.Web
 
                     // Carry the OTel tags enricher (from the ExtraParameters channel) onto the MI request too,
                     // so its metrics — including background refresh — get the same tags.
-                    if (tokenAcquisitionOptions.ExtraParameters != null &&
-                        tokenAcquisitionOptions.ExtraParameters.TryGetValue(Constants.OtelTagsEnricherKey, out var miOtelEnricherObj) &&
-                        miOtelEnricherObj is Action<ExecutionResult, IList<KeyValuePair<string, object>>> miOtelEnricher)
+                    if (GetOtelTagsEnricher(tokenAcquisitionOptions) is { } miOtelEnricher)
                     {
                         miBuilder.WithOtelTagsEnricher(miOtelEnricher);
                     }
@@ -991,11 +990,17 @@ namespace Microsoft.Identity.Web
             TokenAcquisitionExtensionOptions? addInOptions = tokenAcquisitionExtensionOptionsMonitor?.CurrentValue;
 
             // Use MSAL to get the right token to call the API
-            var application = await GetOrBuildConfidentialClientApplicationAsync(mergedOptions, isTokenBinding);
+            var application = await GetOrBuildConfidentialClientApplicationAsync(
+                mergedOptions, isTokenBinding, otelTagsEnricher: GetOtelTagsEnricher(tokenAcquisitionOptions));
 
             AcquireTokenForClientParameterBuilder builder = application
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
+
+            if (addInOptions?.DefaultOtelTagsEnricher is { } defaultEnricher)
+            {
+                builder.WithOtelTagsEnricher(defaultEnricher);
+            }
 
             // Partition the app token cache by audience (resource) so each downstream resource lands
             // in its own cache partition. This keeps AcquireTokenForClient cache reads O(1) for apps
@@ -1409,6 +1414,18 @@ namespace Microsoft.Identity.Web
             return clientClaims;
         }
 
+        private Action<ExecutionResult, IList<KeyValuePair<string, object>>>? GetOtelTagsEnricher(
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
+        {
+            if (tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(Constants.OtelTagsEnricherKey, out var value) == true &&
+                value is Action<ExecutionResult, IList<KeyValuePair<string, object>>> enricher)
+            {
+                return enricher;
+            }
+
+            return tokenAcquisitionExtensionOptionsMonitor?.CurrentValue?.DefaultOtelTagsEnricher;
+        }
+
         /// <inheritdoc/>
         public async Task<IConfidentialClientApplication> GetConfidentialClientApplicationAsync(
             string? authenticationScheme = null)
@@ -1422,7 +1439,8 @@ namespace Microsoft.Identity.Web
             MergedOptions mergedOptions,
             bool isTokenBinding,
             string? agentAppId = null,
-            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null)
+            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null,
+            Action<ExecutionResult, IList<KeyValuePair<string, object>>>? otelTagsEnricher = null)
         {
             string key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
 
@@ -1443,7 +1461,8 @@ namespace Microsoft.Identity.Web
 
                 // Build and store the application
                 var newApp = await BuildConfidentialClientApplicationAsync(
-                    mergedOptions, isTokenBinding, agentAppId, agenticAssertionProvider);
+                    mergedOptions, isTokenBinding, agentAppId, agenticAssertionProvider,
+                    otelTagsEnricher ?? GetOtelTagsEnricher(null));
 
                 // Recompute the key as BuildConfidentialClientApplicationAsync can cause it to change.
                 key = GetApplicationKey(mergedOptions, isTokenBinding, agentAppId);
@@ -1483,11 +1502,13 @@ namespace Microsoft.Identity.Web
         /// CCA builder path.</param>
         /// <param name="agenticAssertionProvider">Assertion callback for agent CCAs. Required
         /// when <paramref name="agentAppId"/> is non-null.</param>
+        /// <param name="otelTagsEnricher">Operation-local callback forwarded to credential warm-up.</param>
         private async Task<IConfidentialClientApplication> BuildConfidentialClientApplicationAsync(
             MergedOptions mergedOptions,
             bool isTokenBinding,
             string? agentAppId = null,
-            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null)
+            Func<AssertionRequestOptions, Task<string>>? agenticAssertionProvider = null,
+            Action<ExecutionResult, IList<KeyValuePair<string, object>>>? otelTagsEnricher = null)
         {
             // agentAppId and agenticAssertionProvider must both be null or both be non-null.
             // Agent CCAs require an assertion callback for Leg 1 (FMI token), and the callback
@@ -1629,7 +1650,7 @@ namespace Microsoft.Identity.Web
                     await builder.WithClientCredentialsAsync(
                         mergedOptions,
                         _credentialsProvider,
-                        new CredentialSourceLoaderParameters(mergedOptions.ClientId!, authority)
+                        new ClientAssertionCredentialSourceLoaderParameters(mergedOptions.ClientId!, authority, otelTagsEnricher)
                         {
                             Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
                         },

@@ -39,6 +39,8 @@ namespace Microsoft.Identity.Web.OidcFic
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
+        protected override bool CacheSignedAssertion => false;
+
         /// <summary>
         /// This provider can produce a binding certificate alongside its signed assertion: the
         /// certificate is returned dynamically by the inner token acquisition (see
