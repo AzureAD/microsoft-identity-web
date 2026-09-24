@@ -132,14 +132,16 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     // Warn only when neither token-based antiforgery nor automatic CSRF protection is available.
     private static bool HasAutomaticCsrfProtection(IServiceProvider? serviceProvider)
     {
+#if NET11_0_OR_GREATER
         // The .NET 11 WebApplication builder registers this service when it can inject
         // automatic CSRF middleware. Earlier runtimes and legacy hosts do not.
-        var csrfProtectionType = Type.GetType("Microsoft.AspNetCore.Antiforgery.ICsrfProtection, Microsoft.AspNetCore.Http.Abstractions");
         var csrfSetting = serviceProvider?.GetService<IConfiguration>()?["DisableCsrfProtection"];
-        return csrfProtectionType is not null
-            && serviceProvider?.GetService<IServiceProviderIsService>()?.IsService(csrfProtectionType) is true
+        return serviceProvider?.GetService<IServiceProviderIsService>()?.IsService(typeof(ICsrfProtection)) is true
             && !string.Equals(csrfSetting, "true", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(csrfSetting, "1", StringComparison.Ordinal);
+#else
+        return false;
+#endif
     }
 
     private static void WarnIfAntiforgeryMissing(IServiceProvider? serviceProvider, bool hasAutomaticCsrfProtection)

@@ -425,7 +425,11 @@ namespace Microsoft.Identity.Web.Test.Blazor
             crossOriginWithOriginHeader.Headers.TryAddWithoutValidation("Origin", "https://other.example");
             using var crossOriginWithOriginHeaderResponse = await client.SendAsync(crossOriginWithOriginHeader);
 
-            var canSignOut = useTokenMiddleware || (Environment.Version.Major >= 11 && !disableAutomaticCsrf);
+#if NET11_0_OR_GREATER
+            var canSignOut = useTokenMiddleware || !disableAutomaticCsrf;
+#else
+            var canSignOut = useTokenMiddleware;
+#endif
             Assert.Equal(canSignOut ? HttpStatusCode.OK : HttpStatusCode.BadRequest,
                 sameOriginResponse.StatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, crossOriginResponse.StatusCode);
