@@ -84,7 +84,7 @@ jobs:
       run: dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "(FullyQualifiedName!~Microsoft.Identity.Web.Test.Integration)&(FullyQualifiedName!~WebAppUiTests)&(FullyQualifiedName=IntegrationTests)"
 
     - name: Build with .NET 11
-      run: dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:FROM_GITHUB_ACTION=true --configuration Release --filter "FullyQualifiedName~Microsoft.Identity.Web.Test.Blazor"
+      run: dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=4.15.2-localbuild -p:FROM_GITHUB_ACTION=true --configuration Release --filter "FullyQualifiedName~Microsoft.Identity.Web.Test.Blazor"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
