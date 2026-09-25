@@ -72,23 +72,13 @@ sequenceDiagram
 ## Assertion caching and telemetry
 
 For managed-identity FIC and OIDC FIC, Microsoft.Identity.Web retains the selected
-credential/provider and its client instances, but delegates assertion-token caching
-to MSAL. Each assertion request reaches the inner token-acquisition pipeline, including
-MSAL cache hits, so a supplied `OtelTagsEnricher` is applied to the current acquisition.
-Other assertion providers retain their existing Identity.Web assertion-value caching.
-
-This does not force token-endpoint requests or refreshes. MSAL determines cache reuse
-and refresh timing; its expiration buffer and claims handling can cause an acquisition
-earlier than Identity.Web's former assertion-expiry check. OIDC cache access also uses
-the configured token-cache provider, so cache eviction, distributed-cache operations,
-and cache availability can affect acquisition latency and request counts.
+provider but delegates assertion-token caching to MSAL when wiring these providers into
+an outer MSAL client. This lets inner MSAL cache hits emit telemetry with the current
+`OtelTagsEnricher`. Direct provider calls and other providers retain Identity.Web caching.
 
 An ordinary outer bearer-token cache hit does not request an assertion and therefore
-does not produce an inner acquisition metric. Credential warm-up and fallback remain
-enabled. Identity.Web forwards an enricher supplied in the request's
-`AcquireTokenOptions.ExtraParameters["IDWEB_OTEL_TAGS_ENRICHER"]` to the OIDC,
-managed-identity, and key-attested managed-identity loaders before warm-up.
-The callback is passed per operation, not retained on the cached provider.
+does not produce an inner acquisition metric. Warm-up and credential fallback are
+unchanged. Enrichers are forwarded per operation and are not retained by cached providers.
 
 ### Configuring an early default enricher
 
@@ -98,23 +88,16 @@ app-token acquisitions, register the callback before building the service provid
 ```csharp
 services.Configure<TokenAcquisitionExtensionOptions>(options =>
 {
-    options.DefaultOtelTagsEnricher = (_, tags) =>
+    options.DefaultAppTokenOtelTagsEnricher = (_, tags) =>
         tags.Add(new KeyValuePair<string, object>("component", "orders"));
 });
 ```
 
-The per-request enricher takes precedence over this default. Existing app-token
-builder hooks can override the default on their own request; the per-request
-extra-parameter enricher is still applied after those hooks. A callback configured
-only in the outer builder hook is too late for that outer client's credential
-warm-up. Use the early default or per-request extra parameter when warm-up must
-carry the same tags.
+The per-request enricher takes precedence. App-token builder hooks can override the
+default for their request but run too late to affect credential warm-up.
 
 Keep the callback thread-safe, synchronous, and low-cardinality. Do not capture
-request-scoped services in the default callback; MSAL may invoke it during background
-refresh. MSAL supplies the actual acquisition outcome, including cache hits and
-failures, and invokes the callback independently of whether a metrics listener is
-enabled.
+request-scoped services because MSAL may invoke it during background refresh.
 
 ### Supplying enrichment when invoking a loader directly
 
@@ -130,11 +113,9 @@ var parameters = new ClientAssertionCredentialSourceLoaderParameters(
 await credentialsLoader.LoadCredentialsIfNeededAsync(credential, parameters);
 ```
 
-Custom loaders can read `IClientAssertionEnrichmentOptions` from the supplied
-parameters and forward its `OtelTagsEnricher` to their inner acquisition. Original
-parameters and null parameters remain supported. The context carries telemetry only:
-it does not fabricate MSAL request details or make FMI paths available during warm-up.
-FMI-dependent OIDC credentials and bound OIDC flows keep their existing deferral.
+Custom loaders can read `IClientAssertionEnrichmentOptions` and forward its
+`OtelTagsEnricher`. Existing and null parameters remain supported. FMI-dependent and
+bound OIDC flows retain their existing warm-up deferral.
 
 ## Prerequisites
 

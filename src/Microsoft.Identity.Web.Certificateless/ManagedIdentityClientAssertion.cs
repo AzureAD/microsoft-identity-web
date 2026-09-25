@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
+    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase, IPerRequestClientAssertionProvider
     {
         private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string? _explicitTokenExchangeUrl;
@@ -27,12 +27,6 @@ namespace Microsoft.Identity.Web
         private readonly ILogger? _logger;
         private readonly IKeyAttestationProvider? _keyAttestationProvider;
         private int _unattestedFlowLogged;
-
-        /// <summary>
-        /// Gets whether assertions are cached by Microsoft.Identity.Web. Returns <c>false</c>
-        /// so MSAL handles token caching and processes telemetry and claims on every assertion request.
-        /// </summary>
-        protected override bool CacheSignedAssertion => false;
 
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
@@ -179,6 +173,14 @@ namespace Microsoft.Identity.Web
                 .ConfigureAwait(false);
 
             return new ClientAssertion(result.AccessToken, result.ExpiresOn);
+        }
+
+        async Task<string> IPerRequestClientAssertionProvider.GetSignedAssertionForRequestAsync(
+            AssertionRequestOptions? assertionRequestOptions)
+        {
+            ClientAssertion assertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
+
+            return assertion.SignedAssertion;
         }
 
         /// <summary>

@@ -154,15 +154,17 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Fic_CustomSignedAssertion_ClaimsAndCapabilities_AreSent_OnSecondRequest(bool withFmiPath)
+        public async Task OidcFic_WithClaims_DoesNotReuseCachedOrdinaryAssertion(bool withFmiPath)
         {
             using var httpFactoryForTest = new MockHttpClientFactory();
-            // First request (credential exchange)
-            var credentialRequestHttpHandler = httpFactoryForTest.AddMockHandler(
+            var firstCredentialRequestHandler = httpFactoryForTest.AddMockHandler(
                 MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-1"));
-            // Second request (actual token acquisition)
-            var tokenRequestHttpHandler = httpFactoryForTest.AddMockHandler(
-                MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token"));
+            var firstTokenRequestHandler = httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token-1"));
+            var challengedCredentialRequestHandler = httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("token-exchange-2"));
+            var challengedTokenRequestHandler = httpFactoryForTest.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler("final-access-token-2"));
 
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
@@ -215,65 +217,79 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
             var serviceProvider = tokenAcquirerFactory.Build();
             var authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-            // Second call will carry claims (with cp1 in xms_cc)
             var claimsPayload = "{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\"]}}}";
+            Dictionary<string, object>? CreateExtraParameters()
+            {
+                return withFmiPath
+                    ? new Dictionary<string, object>
+                    {
+                        [Constants.FmiPathForClientAssertion] = "myFmiPathForSignedAssertion"
+                    }
+                    : null;
+            }
 
-            var header = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+            // Act
+            var firstHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
+                TestConstants.s_scopeForApp,
+                new AuthorizationHeaderProviderOptions
+                {
+                    AcquireTokenOptions = new AcquireTokenOptions
+                    {
+                        ExtraParameters = CreateExtraParameters()
+                    }
+                });
+            var challengedHeader = await authorizationHeaderProvider.CreateAuthorizationHeaderForAppAsync(
                 TestConstants.s_scopeForApp,
                 new AuthorizationHeaderProviderOptions
                 {
                     AcquireTokenOptions = new AcquireTokenOptions
                     {
                         Claims = claimsPayload,
-                        ExtraParameters = withFmiPath
-                            ? new Dictionary<string, object>
-                            {
-                                [Constants.FmiPathForClientAssertion] = "myFmiPathForSignedAssertion"
-                            }
-                            : null
+                        ExtraParameters = CreateExtraParameters()
                     }
                 });
 
-            // Assert endpoints, scopes, client IDs
+            // Assert
             // The target app owns the FIC registration and is configured on the public cloud, so the
             // assertion audience uses the public-cloud value even though the source app is in US Gov.
-            Assert.Equal("api://AzureADTokenExchange/.default", credentialRequestHttpHandler.ActualRequestPostData["scope"]);
-            Assert.Equal(TestConstants.s_scopeForApp, tokenRequestHttpHandler.ActualRequestPostData["scope"]);
-            Assert.Equal("c1", credentialRequestHttpHandler.ActualRequestPostData["client_id"]);
+            Assert.Equal("api://AzureADTokenExchange/.default", firstCredentialRequestHandler.ActualRequestPostData["scope"]);
+            Assert.Equal(TestConstants.s_scopeForApp, firstTokenRequestHandler.ActualRequestPostData["scope"]);
+            Assert.Equal("c1", firstCredentialRequestHandler.ActualRequestPostData["client_id"]);
             Assert.Equal("https://login.microsoftonline.us/t1/oauth2/v2.0/token",
-                         credentialRequestHttpHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
-            Assert.Equal("c2", tokenRequestHttpHandler.ActualRequestPostData["client_id"]);
+                         firstCredentialRequestHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
+            Assert.Equal("c2", firstTokenRequestHandler.ActualRequestPostData["client_id"]);
             Assert.Equal("https://login.microsoftonline.com/t2/oauth2/v2.0/token",
-                         tokenRequestHttpHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
+                         firstTokenRequestHandler.ActualRequestMessage?.RequestUri?.AbsoluteUri);
 
             if (withFmiPath)
             {
-                Assert.Equal("myFmiPathForSignedAssertion", credentialRequestHttpHandler.ActualRequestPostData["fmi_path"]);
+                Assert.Equal("myFmiPathForSignedAssertion", firstCredentialRequestHandler.ActualRequestPostData["fmi_path"]);
+                Assert.Equal("myFmiPathForSignedAssertion", challengedCredentialRequestHandler.ActualRequestPostData["fmi_path"]);
             }
 
-            // Claims: absent on first request, present on second with cp1
-            Assert.False(credentialRequestHttpHandler.ActualRequestPostData.ContainsKey("claims"));
-            Assert.True(tokenRequestHttpHandler.ActualRequestPostData.ContainsKey("claims"));
+            Assert.False(firstCredentialRequestHandler.ActualRequestPostData.ContainsKey("claims"));
+            Assert.True(challengedCredentialRequestHandler.ActualRequestPostData.TryGetValue("claims", out string? innerClaimsJson));
+            Assert.True(challengedTokenRequestHandler.ActualRequestPostData.TryGetValue("claims", out string? outerClaimsJson));
 
-            var claimsJson = tokenRequestHttpHandler.ActualRequestPostData["claims"];
-            using var doc = JsonDocument.Parse(claimsJson);
-            var cp = doc.RootElement
-                        .GetProperty("access_token")
-                        .GetProperty("xms_cc")
-                        .GetProperty("values")[0]
-                        .GetString();
-            Assert.Equal("cp1", cp);
-
-            // First token is reused as client_assertion on second request
-            string accessTokenFromRequest1;
-            using (var document = JsonDocument.Parse(credentialRequestHttpHandler.ResponseString))
+            static void AssertClaims(string claimsJson)
             {
-                accessTokenFromRequest1 = document.RootElement.GetProperty("access_token").GetString()!;
+                using var doc = JsonDocument.Parse(claimsJson);
+                string? capability = doc.RootElement
+                    .GetProperty("access_token")
+                    .GetProperty("xms_cc")
+                    .GetProperty("values")[0]
+                    .GetString();
+                Assert.Equal("cp1", capability);
             }
-            Assert.Equal(accessTokenFromRequest1, tokenRequestHttpHandler.ActualRequestPostData["client_assertion"]);
+
+            AssertClaims(innerClaimsJson);
+            AssertClaims(outerClaimsJson);
+            Assert.Equal("token-exchange-1", firstTokenRequestHandler.ActualRequestPostData["client_assertion"]);
+            Assert.Equal("token-exchange-2", challengedTokenRequestHandler.ActualRequestPostData["client_assertion"]);
 
             // Bearer header returned
-            Assert.StartsWith("Bearer", header, StringComparison.Ordinal);
+            Assert.StartsWith("Bearer", firstHeader, StringComparison.Ordinal);
+            Assert.StartsWith("Bearer", challengedHeader, StringComparison.Ordinal);
         }
 
         [Fact]

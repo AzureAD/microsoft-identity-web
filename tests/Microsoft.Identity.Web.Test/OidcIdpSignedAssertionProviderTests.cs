@@ -514,10 +514,11 @@ namespace Microsoft.Identity.Web.Test
         // channel that TokenAcquisition reads to call WithOtelTagsEnricher. Without this, the inner FIC
         // credential-exchange metrics lack the enrichment tags applied to the outer acquisition.
         [Fact]
-        public async Task GetSignedAssertionAsync_AfterWarmup_ForwardsEachRequestsContext()
+        public async Task GetSignedAssertionForRequestAsync_AfterWarmup_ForwardsEachRequestsContext()
         {
             // Arrange
             var (provider, acquirer) = CreateProvider();
+            var perRequestProvider = (IPerRequestClientAssertionProvider)provider;
             var captured = new List<(AcquireTokenOptions? Options, CancellationToken Cancellation)>();
             AcquireTokenResult result = CreateResult("assertion");
             acquirer.GetTokenForAppAsync(Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>())
@@ -532,18 +533,18 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             await provider.GetSignedAssertionAsync(null);
-            await provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            await perRequestProvider.GetSignedAssertionForRequestAsync(new AssertionRequestOptions
             {
                 OtelTagsEnricher = first,
                 ClientAssertionFmiPath = "first",
                 CancellationToken = cancellation.Token,
             });
-            await provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            await perRequestProvider.GetSignedAssertionForRequestAsync(new AssertionRequestOptions
             {
                 OtelTagsEnricher = second,
                 ClientAssertionFmiPath = "second",
             });
-            await provider.GetSignedAssertionAsync(new AssertionRequestOptions());
+            await perRequestProvider.GetSignedAssertionForRequestAsync(new AssertionRequestOptions());
 
             // Assert
             Assert.Equal(4, captured.Count);
@@ -559,10 +560,11 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task GetSignedAssertionAsync_RequiresFmiPath_StillDefersWarmup()
+        public async Task GetSignedAssertionForRequestAsync_RequiresFmiPath_StillDefersWarmup()
         {
             // Arrange
             var (provider, acquirer) = CreateProvider();
+            var perRequestProvider = (IPerRequestClientAssertionProvider)provider;
             provider.RequiresSignedAssertionFmiPath = true;
             SetupAcquirer(acquirer, CreateResult("assertion"));
 
@@ -572,19 +574,20 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             await acquirer.DidNotReceive().GetTokenForAppAsync(
                 Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
-            Assert.Equal("assertion", await provider.GetSignedAssertionAsync(
+            Assert.Equal("assertion", await perRequestProvider.GetSignedAssertionForRequestAsync(
                 new AssertionRequestOptions { ClientAssertionFmiPath = "first" }));
-            Assert.Equal("assertion", await provider.GetSignedAssertionAsync(
+            Assert.Equal("assertion", await perRequestProvider.GetSignedAssertionForRequestAsync(
                 new AssertionRequestOptions { ClientAssertionFmiPath = "second" }));
             await acquirer.Received(2).GetTokenForAppAsync(
                 Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
-        public async Task GetSignedAssertionAsync_ConcurrentRequests_DoNotShareAssertionsOrOptions()
+        public async Task GetSignedAssertionForRequestAsync_ConcurrentRequests_DoNotShareAssertionsOrOptions()
         {
             // Arrange
             var (provider, acquirer) = CreateProvider();
+            var perRequestProvider = (IPerRequestClientAssertionProvider)provider;
             SetupAcquirer(acquirer, CreateResult("warmup"));
             await provider.GetSignedAssertionAsync(null);
             var firstResult = new TaskCompletionSource<AcquireTokenResult>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -601,12 +604,12 @@ namespace Microsoft.Identity.Web.Test
                 });
 
             // Act
-            Task<string> first = provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            Task<string> first = perRequestProvider.GetSignedAssertionForRequestAsync(new AssertionRequestOptions
             {
                 ClientAssertionFmiPath = "first",
                 OtelTagsEnricher = firstEnricher,
             });
-            Task<string> second = provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            Task<string> second = perRequestProvider.GetSignedAssertionForRequestAsync(new AssertionRequestOptions
             {
                 ClientAssertionFmiPath = "second",
                 OtelTagsEnricher = secondEnricher,
@@ -624,7 +627,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task GetSignedAssertionAsync_ForwardsOtelTagsEnricher_OntoInnerLeg()
+        public async Task GetSignedAssertionForRequestAsync_ForwardsOtelTagsEnricher_OntoInnerLeg()
         {
             // Arrange
             AcquireTokenOptions? capturedInnerOptions = null;
@@ -651,7 +654,7 @@ namespace Microsoft.Identity.Web.Test
             var assertionRequestOptions = new AssertionRequestOptions { OtelTagsEnricher = enricher };
 
             // Act
-            await provider.GetSignedAssertionAsync(assertionRequestOptions);
+            await ((IPerRequestClientAssertionProvider)provider).GetSignedAssertionForRequestAsync(assertionRequestOptions);
 
             // Assert
             Assert.NotNull(capturedInnerOptions);
@@ -661,7 +664,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task GetSignedAssertionAsync_NoEnricher_DoesNotSetOtelTagsEnricherKey()
+        public async Task GetSignedAssertionForRequestAsync_NoEnricher_DoesNotSetOtelTagsEnricherKey()
         {
             // Arrange
             AcquireTokenOptions? capturedInnerOptions = null;
@@ -685,7 +688,7 @@ namespace Microsoft.Identity.Web.Test
                 logger: null);
 
             // Act: no enricher on the options.
-            await provider.GetSignedAssertionAsync(new AssertionRequestOptions());
+            await ((IPerRequestClientAssertionProvider)provider).GetSignedAssertionForRequestAsync(new AssertionRequestOptions());
 
             // Assert: the enricher key is never set when the outer request carried no enricher.
             Assert.False(capturedInnerOptions?.ExtraParameters?.ContainsKey(Constants.OtelTagsEnricherKey) == true);

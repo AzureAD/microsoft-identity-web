@@ -230,8 +230,7 @@ namespace Microsoft.Identity.Web.OidcFic
 
             try
             {
-                // Try to get a signed assertion, and if it fails, move to the next credentials
-                // Null signals FMI warm-up deferral; enrichment alone must not bypass that signal.
+                // Preserve FMI warm-up deferral when only enrichment is available.
                 AssertionRequestOptions? assertionOptions =
                     !signedAssertion!.RequiresSignedAssertionFmiPath &&
                     parameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }

@@ -19,16 +19,13 @@ namespace Microsoft.Identity.Web
     public partial class TokenAcquisitionExtensionOptions
     {
         /// <summary>
-        /// Gets or sets the default OpenTelemetry tags enricher for app-token acquisitions
-        /// and client assertion warm-up, including client construction without a token request.
+        /// Gets or sets the default OpenTelemetry tags enricher for app tokens and assertion warm-up.
         /// </summary>
         /// <remarks>
-        /// A per-request enricher supplied through <c>IDWEB_OTEL_TAGS_ENRICHER</c> takes precedence.
-        /// App-token builder hooks can override this default, but run too late to affect outer
-        /// credential warm-up. The callback must be thread-safe and must not capture request-scoped
-        /// services; MSAL may invoke it during background refresh.
+        /// Per-request enrichment takes precedence. The callback must be thread-safe and must not
+        /// capture request-scoped services because MSAL may invoke it during background refresh.
         /// </remarks>
-        public Action<ExecutionResult, IList<KeyValuePair<string, object>>>? DefaultOtelTagsEnricher { get; set; }
+        public Action<ExecutionResult, IList<KeyValuePair<string, object>>>? DefaultAppTokenOtelTagsEnricher { get; set; }
 
         /// <summary>
         /// Callback invoked when a fire-and-forget background (proactive) token refresh completes, for confidential

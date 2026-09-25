@@ -997,7 +997,7 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
-            if (addInOptions?.DefaultOtelTagsEnricher is { } defaultEnricher)
+            if (addInOptions?.DefaultAppTokenOtelTagsEnricher is { } defaultEnricher)
             {
                 builder.WithOtelTagsEnricher(defaultEnricher);
             }
@@ -1423,7 +1423,7 @@ namespace Microsoft.Identity.Web
                 return enricher;
             }
 
-            return tokenAcquisitionExtensionOptionsMonitor?.CurrentValue?.DefaultOtelTagsEnricher;
+            return tokenAcquisitionExtensionOptionsMonitor?.CurrentValue?.DefaultAppTokenOtelTagsEnricher;
         }
 
         /// <inheritdoc/>

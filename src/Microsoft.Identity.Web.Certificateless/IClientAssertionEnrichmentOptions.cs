@@ -8,15 +8,13 @@ using Microsoft.Identity.Client.Extensibility;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Provides operation-local telemetry enrichment to a client assertion credential loader.
-    /// Implement this on loader parameters to supply an enricher before MSAL requests an assertion.
+    /// Exposes operation-local telemetry enrichment to client assertion loaders.
     /// </summary>
     public interface IClientAssertionEnrichmentOptions
     {
         /// <summary>
-        /// Gets the callback to forward to the assertion's token acquisition, or <c>null</c>
-        /// if none is supplied. MSAL invokes it with the actual acquisition outcome.
-        /// Loaders must not retain the callback on cached credentials or providers.
+        /// Gets the optional callback for the assertion acquisition.
+        /// Loaders must not retain it on cached state.
         /// </summary>
         Action<ExecutionResult, IList<KeyValuePair<string, object>>>? OtelTagsEnricher { get; }
     }

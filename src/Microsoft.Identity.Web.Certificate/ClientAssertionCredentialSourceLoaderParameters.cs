@@ -9,18 +9,17 @@ using Microsoft.Identity.Client.Extensibility;
 namespace Microsoft.Identity.Web
 {
     /// <summary>
-    /// Credential loader parameters that carry an OpenTelemetry tags enricher for assertion warm-up.
-    /// Compatible with existing loaders accepting <see cref="CredentialSourceLoaderParameters"/>.
+    /// Loader parameters for client assertion warm-up.
     /// </summary>
     public sealed class ClientAssertionCredentialSourceLoaderParameters :
         CredentialSourceLoaderParameters, IClientAssertionEnrichmentOptions
     {
         /// <summary>
-        /// Initializes operation-local parameters for loading a client assertion credential.
+        /// Initializes client assertion loader parameters.
         /// </summary>
         /// <param name="clientId">Client ID of the application presenting the assertion.</param>
         /// <param name="authority">Authority to which the credential will be presented.</param>
-        /// <param name="otelTagsEnricher">Optional callback forwarded to the warm-up acquisition.</param>
+        /// <param name="otelTagsEnricher">Optional warm-up telemetry enricher.</param>
         public ClientAssertionCredentialSourceLoaderParameters(
             string clientId,
             string authority,

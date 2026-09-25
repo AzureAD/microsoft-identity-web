@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -211,67 +208,29 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task ManagedIdentityAssertion_ConcurrentCacheHits_KeepEachRequestsEnricher()
+        public async Task ManagedIdentityAssertion_DirectCalls_PreserveAssertionCache()
         {
             // Arrange
             using var http = new MockHttpClientFactory();
             var handler = http.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("cached-assertion"));
             var provider = new ManagedIdentityClientAssertion(
                 Guid.NewGuid().ToString(), tokenExchangeUrl: null, logger: null, testHttpClientFactory: http);
-            await provider.GetSignedAssertionAsync(null);
-            var callbacks = new ConcurrentQueue<(int Request, string Token, TokenSource Source)>();
-            using var start = new SemaphoreSlim(0, 8);
+            bool callbackInvoked = false;
 
             // Act
-            Task<string>[] requests = Enumerable.Range(0, 8).Select(request => Task.Run(async () =>
+            string first = await provider.GetSignedAssertionAsync(null);
+            DateTimeOffset? expiry = provider.Expiry;
+            string second = await provider.GetSignedAssertionAsync(new AssertionRequestOptions
             {
-                await start.WaitAsync();
-                return await provider.GetSignedAssertionAsync(new AssertionRequestOptions
-                {
-                    OtelTagsEnricher = (result, _) => callbacks.Enqueue(
-                        (request, result.Result.AccessToken, result.Result.AuthenticationResultMetadata.TokenSource)),
-                });
-            })).ToArray();
-            start.Release(8);
-            string[] assertions = await Task.WhenAll(requests);
+                Claims = "{\"access_token\":{}}",
+                OtelTagsEnricher = (_, _) => callbackInvoked = true,
+            });
 
             // Assert
             Assert.NotNull(handler.ActualRequestMessage);
-            Assert.All(assertions, assertion => Assert.Equal("cached-assertion", assertion));
-            Assert.Equal(Enumerable.Range(0, 8), callbacks.Select(callback => callback.Request).OrderBy(request => request));
-            Assert.All(callbacks, callback =>
-            {
-                Assert.Equal("cached-assertion", callback.Token);
-                Assert.Equal(TokenSource.Cache, callback.Source);
-            });
-            Assert.NotNull(provider.Expiry);
-        }
-
-        [Fact]
-        public async Task ManagedIdentityAssertion_ClaimsFailure_DoesNotReturnPreviousAssertion()
-        {
-            // Arrange
-            using var http = new MockHttpClientFactory();
-            http.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("cached-assertion"));
-            var failure = new MsalServiceException("invalid_client", "Mock assertion acquisition failed.");
-            http.AddMockHandler(new MockHttpMessageHandler { ExceptionToThrow = failure });
-            var provider = new ManagedIdentityClientAssertion(
-                Guid.NewGuid().ToString(), tokenExchangeUrl: null, logger: null, testHttpClientFactory: http);
-            await provider.GetSignedAssertionAsync(null);
-            DateTimeOffset? expiry = provider.Expiry;
-            ExecutionResult? captured = null;
-
-            // Act
-            MsalServiceException exception = await Assert.ThrowsAsync<MsalServiceException>(() => provider.GetSignedAssertionAsync(new AssertionRequestOptions
-            {
-                Claims = "{\"access_token\":{}}",
-                OtelTagsEnricher = (result, _) => captured = result,
-            }));
-
-            // Assert
-            Assert.NotNull(captured);
-            Assert.False(captured!.Successful);
-            Assert.Same(failure, exception);
+            Assert.Equal("cached-assertion", first);
+            Assert.Equal(first, second);
+            Assert.False(callbackInvoked);
             Assert.Equal(expiry, provider.Expiry);
         }
     }

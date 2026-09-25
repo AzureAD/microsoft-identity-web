@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             using var harness = new WarmupHarness(providerKind);
             harness.Factory.Services.Configure<TokenAcquisitionExtensionOptions>(
-                options => options.DefaultOtelTagsEnricher = harness.Enricher("default"));
+                options => options.DefaultAppTokenOtelTagsEnricher = harness.Enricher("default"));
             var acquisition = harness.Factory.Build().GetRequiredService<ITokenAcquisition>();
 
             // Act
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             using var harness = new WarmupHarness(providerKind, failWarmup: true, fallback);
             harness.Factory.Services.Configure<TokenAcquisitionExtensionOptions>(
-                options => options.DefaultOtelTagsEnricher = harness.Enricher("default"));
+                options => options.DefaultAppTokenOtelTagsEnricher = harness.Enricher("default"));
             var acquisition = harness.Factory.Build().GetRequiredService<ITokenAcquisition>();
             var options = new TokenAcquisitionOptions
             {
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Web.Test
             if (configureDefault)
             {
                 harness.Factory.Services.Configure<TokenAcquisitionExtensionOptions>(
-                    options => options.DefaultOtelTagsEnricher = harness.Enricher("default"));
+                    options => options.DefaultAppTokenOtelTagsEnricher = harness.Enricher("default"));
             }
             var services = harness.Factory.Build();
             var applicationProvider = services.GetRequiredService<IConfidentialClientApplicationProvider>();
@@ -156,7 +156,7 @@ namespace Microsoft.Identity.Web.Test
             int hookCalls = 0;
             harness.Factory.Services.Configure<TokenAcquisitionExtensionOptions>(options =>
             {
-                options.DefaultOtelTagsEnricher = harness.Enricher("default");
+                options.DefaultAppTokenOtelTagsEnricher = harness.Enricher("default");
                 options.OnBeforeTokenAcquisitionForApp += (builder, _) =>
                 {
                     hookCalls++;
