@@ -46,8 +46,12 @@ namespace Microsoft.Identity.Web
 
             try
             {
+                AssertionRequestOptions? assertionOptions =
+                    credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                        ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                        : null;
                 _ = await managedIdentityClientAssertion!
-                    .GetSignedAssertionAsync(null)
+                    .GetSignedAssertionAsync(assertionOptions)
                     .ConfigureAwait(false);
                 credentialDescription.CachedValue = managedIdentityClientAssertion;
             }

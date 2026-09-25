@@ -57,5 +57,6 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(signedAssertion, assertion.SignedAssertion);
             Assert.Equal(expiry, assertion.Expiry);
         }
+
     }
 }

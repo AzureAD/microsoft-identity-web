@@ -14,7 +14,7 @@ using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
+    internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase, IPerRequestClientAssertionProvider
     {
         // Signals the inner token acquisition to bind the assertion to an mTLS PoP certificate.
         // Kept in sync with the internal constant used by the token-acquisition pipeline.
@@ -101,6 +101,14 @@ namespace Microsoft.Identity.Web.OidcFic
                 clientAssertion = null!;
             }
             return clientAssertion;
+        }
+
+        async Task<string> IPerRequestClientAssertionProvider.GetSignedAssertionForRequestAsync(
+            AssertionRequestOptions? assertionRequestOptions)
+        {
+            ClientAssertion assertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
+
+            return assertion.SignedAssertion;
         }
 
         /// <summary>
@@ -197,10 +205,12 @@ namespace Microsoft.Identity.Web.OidcFic
                 : null;
 
             Guid correlationId = assertionRequestOptions?.CorrelationId ?? Guid.Empty;
+            string? claims = assertionRequestOptions?.Claims;
 
             AcquireTokenOptions? acquireTokenOptions = null;
             if (!string.IsNullOrEmpty(fmiPath)
                 || !string.IsNullOrEmpty(tenant)
+                || !string.IsNullOrEmpty(claims)
                 || requestTokenBinding
                 || correlationId != Guid.Empty)
             {
@@ -219,6 +229,11 @@ namespace Microsoft.Identity.Web.OidcFic
                 if (correlationId != Guid.Empty)
                 {
                     acquireTokenOptions.CorrelationId = correlationId;
+                }
+
+                if (!string.IsNullOrEmpty(claims))
+                {
+                    acquireTokenOptions.Claims = claims;
                 }
 
                 if (requestTokenBinding)

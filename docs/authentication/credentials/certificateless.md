@@ -69,6 +69,54 @@ sequenceDiagram
 
 ---
 
+## Assertion caching and telemetry
+
+For managed-identity FIC and OIDC FIC, Microsoft.Identity.Web retains the selected
+provider but delegates assertion-token caching to MSAL when wiring these providers into
+an outer MSAL client. This lets inner MSAL cache hits emit telemetry with the current
+`OtelTagsEnricher`. Direct provider calls and other providers retain Identity.Web caching.
+
+An ordinary outer bearer-token cache hit does not request an assertion and therefore
+does not produce an inner acquisition metric. Warm-up and credential fallback are
+unchanged. Enrichers are forwarded per operation and are not retained by cached providers.
+
+### Configuring an early default enricher
+
+For client construction without token-request options, or to provide a default for
+app-token acquisitions, register the callback before building the service provider:
+
+```csharp
+services.Configure<TokenAcquisitionExtensionOptions>(options =>
+{
+    options.DefaultAppTokenOtelTagsEnricher = (_, tags) =>
+        tags.Add(new KeyValuePair<string, object>("component", "orders"));
+});
+```
+
+The per-request enricher takes precedence. App-token builder hooks can override the
+default for their request but run too late to affect credential warm-up.
+
+Keep the callback thread-safe, synchronous, and low-cardinality. Do not capture
+request-scoped services because MSAL may invoke it during background refresh.
+
+### Supplying enrichment when invoking a loader directly
+
+Existing loader interfaces are unchanged. Callers can pass the Identity.Web-specific
+context wherever `CredentialSourceLoaderParameters` is accepted:
+
+```csharp
+var parameters = new ClientAssertionCredentialSourceLoaderParameters(
+    clientId, authority, enricher)
+{
+    Protocol = "Bearer",
+};
+await credentialsLoader.LoadCredentialsIfNeededAsync(credential, parameters);
+```
+
+Custom loaders can read `IClientAssertionEnrichmentOptions` and forward its
+`OtelTagsEnricher`. Existing and null parameters remain supported. FMI-dependent and
+bound OIDC flows retain their existing warm-up deferral.
+
 ## Prerequisites
 
 ### Azure Resources Required

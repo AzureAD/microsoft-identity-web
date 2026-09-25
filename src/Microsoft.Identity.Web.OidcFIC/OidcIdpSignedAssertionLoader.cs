@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using AssertionRequestOptions = Microsoft.Identity.Client.AssertionRequestOptions;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
@@ -229,8 +230,13 @@ namespace Microsoft.Identity.Web.OidcFic
 
             try
             {
-                // Try to get a signed assertion, and if it fails, move to the next credentials
-                _ = await signedAssertion!.GetSignedAssertionAsync(null);
+                // Preserve FMI warm-up deferral when only enrichment is available.
+                AssertionRequestOptions? assertionOptions =
+                    !signedAssertion!.RequiresSignedAssertionFmiPath &&
+                    parameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                        ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                        : null;
+                _ = await signedAssertion.GetSignedAssertionAsync(assertionOptions);
                 credentialDescription.CachedValue = signedAssertion;
             }
             catch (Exception ex)

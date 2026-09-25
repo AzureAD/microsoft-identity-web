@@ -19,7 +19,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
+    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase, IPerRequestClientAssertionProvider
     {
         private IManagedIdentityApplication _managedIdentityApplication;
         private readonly string? _explicitTokenExchangeUrl;
@@ -173,6 +173,14 @@ namespace Microsoft.Identity.Web
                 .ConfigureAwait(false);
 
             return new ClientAssertion(result.AccessToken, result.ExpiresOn);
+        }
+
+        async Task<string> IPerRequestClientAssertionProvider.GetSignedAssertionForRequestAsync(
+            AssertionRequestOptions? assertionRequestOptions)
+        {
+            ClientAssertion assertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
+
+            return assertion.SignedAssertion;
         }
 
         /// <summary>
