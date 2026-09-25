@@ -87,35 +87,31 @@ If you find a security issue with our libraries or services, please report it to
 
 ## Building with .NET Preview Versions
 
-Microsoft Identity Web supports building and testing with .NET preview versions using the `TargetNetNext` conditional compilation flag. This enables early testing and compatibility validation with the latest .NET preview releases.
+Microsoft Identity Web supports building and testing with .NET 11 RC1 using the `TargetNetNext` build property. The `net11.0` library and test targets are excluded from stable builds so that stable packages have no prerelease .NET dependencies.
 
 ### Prerequisites
 
-- Install .NET 10 preview SDK from [https://dotnet.microsoft.com/download/dotnet/10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+- Install the .NET 11 RC1 SDK selected in `global.json`.
 
-### Building with .NET 10 Preview
+### Building with .NET 11 RC1
 
-To build the solution with .NET 10 preview support:
-
-```bash
-# Build with .NET 10 preview targets included
-dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
-
-# Or using MSBuild
-msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
-```
-You can also set the TargetNetNext environment variable on your machine with the value `True`.
-
-### Testing with .NET 10 Preview
-
-To run tests targeting .NET 10 preview:
+To build and pack with .NET 11 RC1 support, specify a prerelease Microsoft Identity Web version:
 
 ```bash
-# Run tests with .NET 10 preview (conditional)
-dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=True
+dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
+dotnet pack src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj --no-build -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
+```
+For preview releases, set the release pipeline's `TargetNetNext` variable to `True` and its `MicrosoftIdentityWebVersion` variable to a prerelease version. Both variables must also be set for the package-packing steps. Leave `TargetNetNext` unset for stable releases.
+
+### Testing with .NET 11 RC1
+
+To run the .NET 11 unit tests:
+
+```bash
+dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
 ```
 
-**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=True` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
+**Note:** A stable package with .NET 11 RC1 dependencies produces NuGet warning `NU5104`; keep the prerelease version and `TargetNetNext` setting consistent across restore, build, and pack.
 
 ## Trademarks
 
