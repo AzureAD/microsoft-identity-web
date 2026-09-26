@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -34,6 +35,8 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     /// <summary>
     /// Maps login and logout endpoints under the current route group.
     /// The login endpoint supports incremental consent via scope, loginHint, domainHint, and claims parameters.
+    /// Logout uses the framework's antiforgery verdict when available, falling back to token
+    /// validation when antiforgery services are registered without middleware.
     /// </summary>
     /// <param name="endpoints">The endpoint route builder.</param>
     /// <returns>The endpoint convention builder for further configuration.</returns>
@@ -43,7 +46,8 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     {
         var group = endpoints.MapGroup("");
 
-        WarnIfAntiforgeryMissing(endpoints.ServiceProvider);
+        var hasAutomaticCsrfProtection = HasAutomaticCsrfProtection(endpoints.ServiceProvider);
+        WarnIfAntiforgeryMissing(endpoints.ServiceProvider, hasAutomaticCsrfProtection);
 
         // Enhanced login endpoint that supports incremental consent and Conditional Access
         group.MapGet("/login", (
@@ -84,26 +88,25 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
         })
         .AllowAnonymous();
 
-        group.MapPost("/logout", async (HttpContext context) =>
+        var logout = group.MapPost("/logout", async (HttpContext context) =>
         {
-            // Defense-in-depth CSRF validation (MSRC hardening). When the host has registered
-            // IAntiforgery via AddAntiforgery() (or indirectly via AddControllersWithViews,
-            // AddRazorPages, AddMvc, etc.), we explicitly validate the request token here —
-            // independently of whether UseAntiforgery() middleware is in the pipeline. This
-            // avoids coupling our endpoint to pipeline shape: MVC hosts that rely on filter-
-            // time validation, minimal-API hosts that wire UseAntiforgery(), and Blazor hosts
-            // that wire both all receive equivalent protection at this endpoint. Hosts that
-            // do not register IAntiforgery at all fall back to RequireAuthorization() +
-            // SameSite=Lax cookie semantics as the primary CSRF gate — matching pre-MSRC
-            // behavior and logged once at map time (see WarnIfAntiforgeryMissing).
-            // IsRequestValidAsync is safe to call after UseAntiforgery() middleware has already
-            // validated: the form is buffered (ReadFormAsync is cached on HttpRequest), tokens
-            // are not single-use in the default flow, and re-validation is a cheap hash verify —
-            // not a no-op, but inexpensive.
-            var antiforgery = context.RequestServices.GetService<IAntiforgery>();
-            if (antiforgery is not null && !await antiforgery.IsRequestValidAsync(context))
+            var validation = context.Features.Get<IAntiforgeryValidationFeature>();
+            if (validation is not null)
             {
-                return Results.BadRequest();
+                if (!validation.IsValid)
+                {
+                    return Results.BadRequest();
+                }
+            }
+            else
+            {
+                // MVC hosts can register antiforgery services without running antiforgery
+                // middleware. Preserve token validation when no middleware recorded a verdict.
+                var antiforgery = context.RequestServices.GetService<IAntiforgery>();
+                if (antiforgery is not null && !await antiforgery.IsRequestValidAsync(context))
+                {
+                    return Results.BadRequest();
+                }
             }
 
             string? returnUrl = null;
@@ -118,18 +121,34 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
         })
         .RequireAuthorization();
 
+        if (hasAutomaticCsrfProtection)
+        {
+            logout.WithMetadata(new RequireAntiforgeryTokenAttribute());
+        }
+
         return group;
     }
 
-    // Emits a single warning at endpoint-build time when IAntiforgery isn't registered in DI.
-    // This surfaces the graceful-degradation state to operators so it's not silently invisible
-    // that CSRF protection at /logout relies solely on RequireAuthorization + SameSite=Lax
-    // (rather than token validation). Called once per MapLoginAndLogout invocation.
-    private static void WarnIfAntiforgeryMissing(IServiceProvider? serviceProvider)
+    // Warn only when neither token-based antiforgery nor automatic CSRF protection is available.
+    private static bool HasAutomaticCsrfProtection(IServiceProvider? serviceProvider)
+    {
+#if NET11_0_OR_GREATER
+        // The .NET 11 WebApplication builder registers this service when it can inject
+        // automatic CSRF middleware. Earlier runtimes and legacy hosts do not.
+        var csrfSetting = serviceProvider?.GetService<IConfiguration>()?["DisableCsrfProtection"];
+        return serviceProvider?.GetService<IServiceProviderIsService>()?.IsService(typeof(ICsrfProtection)) is true
+            && !string.Equals(csrfSetting, "true", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(csrfSetting, "1", StringComparison.Ordinal);
+#else
+        return false;
+#endif
+    }
+
+    private static void WarnIfAntiforgeryMissing(IServiceProvider? serviceProvider, bool hasAutomaticCsrfProtection)
     {
         var isService = serviceProvider?.GetService<IServiceProviderIsService>();
         var antiforgeryRegistered = isService?.IsService(typeof(IAntiforgery)) ?? false;
-        if (antiforgeryRegistered)
+        if (antiforgeryRegistered || hasAutomaticCsrfProtection)
         {
             return;
         }

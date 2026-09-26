@@ -24,8 +24,9 @@ stages:
       # The official OneBranch/Wilson pipeline does not set this and keeps using
       # the KeyVault source.
       UseLabAuthCertFromStore: true
+    # The .NET 11 SDK uses MSBuild 18; legacy web projects in this solution need VS 2026 web targets.
     pool:
-      vmImage: 'windows-2022'
+      vmImage: 'windows-2025-vs2026'
       demands:
       - msbuild
       - visualstudio

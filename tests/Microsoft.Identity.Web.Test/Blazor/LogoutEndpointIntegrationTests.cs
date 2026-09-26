@@ -49,7 +49,8 @@ namespace Microsoft.Identity.Web.Test.Blazor
         private static TestServer CreateServer(
             AuthState authState,
             bool addAntiforgeryServices,
-            bool useAntiforgeryMiddleware)
+            bool useAntiforgeryMiddleware,
+            bool? validationResult = null)
         {
 #pragma warning disable ASPDEPR004 // WebHostBuilder is deprecated — acceptable for TestServer-based test hosts.
             var builder = new WebHostBuilder()
@@ -84,6 +85,15 @@ namespace Microsoft.Identity.Web.Test.Blazor
                     if (useAntiforgeryMiddleware)
                     {
                         app.UseAntiforgery();
+                    }
+                    if (validationResult.HasValue)
+                    {
+                        app.Use(async (context, next) =>
+                        {
+                            context.Features.Set<IAntiforgeryValidationFeature>(
+                                new TestAntiforgeryValidationFeature(validationResult.Value));
+                            await next();
+                        });
                     }
 
 #pragma warning disable ASP0014 // UseEndpoints is intentional for the test host
@@ -211,7 +221,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             using var response = await client.SendAsync(request);
 
             // SignOut returns 200 OK when the sign-out handlers don't issue a redirect.
-            // The stub handler is a no-op, so we expect a non-error response.
+            // The stub handler does not issue a redirect, so we expect a non-error response.
             Assert.True(
                 (int)response.StatusCode < 400,
                 $"Expected success, got {(int)response.StatusCode} {response.StatusCode}");
@@ -322,11 +332,123 @@ namespace Microsoft.Identity.Web.Test.Blazor
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Theory]
+        [InlineData(true, HttpStatusCode.OK, 2)]
+        [InlineData(false, HttpStatusCode.BadRequest, 0)]
+        public async Task Logout_UsesMiddlewareAntiforgeryVerdict(
+            bool isValid, HttpStatusCode expectedStatus, int expectedSignOuts)
+        {
+            var authState = new AuthState { Authenticated = true };
+            using var server = CreateServer(
+                authState,
+                addAntiforgeryServices: true,
+                useAntiforgeryMiddleware: false,
+                validationResult: isValid);
+            using var client = server.CreateClient();
+
+            using var response = await client.PostAsync(
+                "/logout",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["ReturnUrl"] = "/",
+                }));
+
+            Assert.Equal(expectedStatus, response.StatusCode);
+            Assert.Equal(expectedSignOuts, authState.SignOutCount);
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public async Task Logout_MinimalHosting_UsesFrameworkCsrfProtection(bool useTokenMiddleware, bool disableAutomaticCsrf)
+        {
+            var authState = new AuthState { Authenticated = true };
+            var builder = WebApplication.CreateBuilder();
+            builder.WebHost.UseTestServer();
+            if (disableAutomaticCsrf)
+            {
+                builder.Configuration["DisableCsrfProtection"] = "1";
+            }
+            builder.Services.AddRazorComponents();
+            builder.Services.AddSingleton(authState);
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                    CookieAuthenticationDefaults.AuthenticationScheme, _ => { })
+                .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                    OpenIdConnectDefaults.AuthenticationScheme, _ => { });
+            builder.Services.AddAuthorization();
+
+            await using var app = builder.Build();
+            if (useTokenMiddleware)
+            {
+                app.UseAntiforgery();
+                app.MapGet("/_testing/antiforgery-token", (HttpContext ctx, IAntiforgery af) =>
+                    Results.Text(af.GetAndStoreTokens(ctx).RequestToken ?? string.Empty));
+            }
+            app.MapLoginAndLogout();
+            await app.StartAsync();
+            using var client = app.GetTestClient();
+            client.BaseAddress = new Uri("https://localhost");
+
+            var formValues = new Dictionary<string, string>();
+            string? antiforgeryCookie = null;
+            if (useTokenMiddleware)
+            {
+                var (token, cookie) = await GetAntiforgeryTokenAndCookieAsync(client);
+                formValues[AntiforgeryFormFieldName] = token;
+                antiforgeryCookie = cookie;
+            }
+
+            using var sameOrigin = new HttpRequestMessage(HttpMethod.Post, "/logout")
+            {
+                Content = new FormUrlEncodedContent(formValues),
+            };
+            sameOrigin.Headers.Add("Sec-Fetch-Site", "same-origin");
+            if (antiforgeryCookie is not null)
+            {
+                sameOrigin.Headers.Add("Cookie", antiforgeryCookie);
+            }
+            using var sameOriginResponse = await client.SendAsync(sameOrigin);
+
+            using var crossOrigin = new HttpRequestMessage(HttpMethod.Post, "/logout")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>()),
+            };
+            crossOrigin.Headers.Add("Sec-Fetch-Site", "cross-site");
+            using var crossOriginResponse = await client.SendAsync(crossOrigin);
+
+            using var crossOriginWithOriginHeader = new HttpRequestMessage(HttpMethod.Post, "/logout")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>()),
+            };
+            crossOriginWithOriginHeader.Headers.TryAddWithoutValidation("Origin", "https://other.example");
+            using var crossOriginWithOriginHeaderResponse = await client.SendAsync(crossOriginWithOriginHeader);
+
+#if NET11_0_OR_GREATER
+            var canSignOut = useTokenMiddleware || !disableAutomaticCsrf;
+#else
+            var canSignOut = useTokenMiddleware;
+#endif
+            Assert.Equal(canSignOut ? HttpStatusCode.OK : HttpStatusCode.BadRequest,
+                sameOriginResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, crossOriginResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, crossOriginWithOriginHeaderResponse.StatusCode);
+            Assert.Equal(canSignOut ? 2 : 0, authState.SignOutCount);
+        }
+
         // ─── Helpers ─────────────────────────────────────────────────────────────────
 
         internal sealed class AuthState
         {
             public bool Authenticated { get; set; }
+            public int SignOutCount { get; set; }
+        }
+
+        private sealed class TestAntiforgeryValidationFeature(bool isValid) : IAntiforgeryValidationFeature
+        {
+            public bool IsValid { get; } = isValid;
+            public Exception? Error => null;
         }
 
         /// <summary>
@@ -336,6 +458,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
         /// <c>SignOut(..., [Cookies, OIDC])</c> call has registered handlers to dispatch
         /// to. <c>HandleAuthenticateAsync</c> consults the per-server <see cref="AuthState"/>
         /// so individual tests can toggle the authenticated state independently.
+        /// Sign-out dispatch is counted without clearing real cookies or contacting an identity provider.
         /// </summary>
         private sealed class StubCookieAndOidcHandler
             : AuthenticationHandler<AuthenticationSchemeOptions>, IAuthenticationSignOutHandler
@@ -366,9 +489,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
 
             public Task SignOutAsync(AuthenticationProperties? properties)
             {
-                // No-op: confirm sign-out was dispatched without performing any real work
-                // (no cookie clearing, no end-session redirect). The test asserts on HTTP
-                // status, not on side effects.
+                Context.RequestServices.GetRequiredService<AuthState>().SignOutCount++;
                 return Task.CompletedTask;
             }
         }
