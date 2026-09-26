@@ -298,6 +298,15 @@ namespace Microsoft.Identity.Web
                 return;
             }
 
+            // Best-effort detection of complex client credentials (e.g. SignedAssertionFromManagedIdentity)
+            // configured together with ResponseType=code: makes the token acquisition services available so
+            // that MicrosoftIdentityWebAppAuthenticationBuilder.EnableAutomaticAuthorizationCodeRedemptionIfNeeded
+            // (registered below) can automatically redeem the authorization code with MSAL.NET even when
+            // EnableTokenAcquisitionToCallDownstreamApi() is never called. See issue #3631.
+            MicrosoftIdentityWebAppAuthenticationBuilder.EnsureTokenAcquisitionServicesForComplexCredentials(
+                builder.Services,
+                configureMicrosoftIdentityOptions);
+
             if (!string.IsNullOrEmpty(displayName))
             {
                 builder.AddOpenIdConnect(openIdConnectScheme, displayName: displayName, options => { });
@@ -451,6 +460,24 @@ namespace Microsoft.Identity.Web
 
                         diagnostics.Subscribe(options.Events);
                     }
+                });
+
+            // Runs after the Configure step above, and after EnableTokenAcquisitionToCallDownstreamApi()'s own
+            // Configure step (if the caller uses it), since PostConfigure delegates always run after all
+            // Configure delegates for the same named options. This lets
+            // EnableAutomaticAuthorizationCodeRedemptionIfNeeded reliably tell whether the authorization code
+            // is already being redeemed by Microsoft.Identity.Web before deciding whether to wire it up itself.
+            builder.Services.AddOptions<OpenIdConnectOptions>(openIdConnectScheme)
+                .PostConfigure<IMergedOptionsStore, ILogger<MicrosoftIdentityWebAppAuthenticationBuilder>>((
+                    options,
+                    mergedOptionsMonitor,
+                    logger) =>
+                {
+                    MicrosoftIdentityWebAppAuthenticationBuilder.EnableAutomaticAuthorizationCodeRedemptionIfNeeded(
+                        options,
+                        mergedOptionsMonitor.Get(openIdConnectScheme),
+                        openIdConnectScheme,
+                        logger);
                 });
         }
 
