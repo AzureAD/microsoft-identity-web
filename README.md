@@ -98,9 +98,10 @@ Microsoft Identity Web supports building and testing with .NET 11 RC1 using the 
 To build and pack with .NET 11 RC1 support, specify a prerelease Microsoft Identity Web version:
 
 ```bash
-dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
-dotnet pack src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj --no-build -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
+dotnet build Microsoft.Identity.Web.sln --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
+dotnet pack src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj --no-build --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
 ```
+
 For preview releases, set the release pipeline's `TargetNetNext` variable to `True` and its `MicrosoftIdentityWebVersion` variable to a prerelease version. Both variables must also be set for the package-packing steps. Leave `TargetNetNext` unset for stable releases.
 
 ### Testing with .NET 11 RC1
