@@ -46,9 +46,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             }, "TestAuth"));
 
             var authState = new AuthenticationState(expectedUser);
-#pragma warning disable BL0013 // Configuring a test substitute; no authentication state is cached.
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
-#pragma warning restore BL0013
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -73,7 +71,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             }, "TestAuth"));
 
             var authState = new AuthenticationState(authenticatedUser);
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -94,7 +92,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             var unauthenticatedUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity());
 
             var authState = new AuthenticationState(unauthenticatedUser);
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -119,7 +117,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             }, "TestAuth"));
 
             var authState = new AuthenticationState(user);
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -148,7 +146,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             }, "TestAuth"));
 
             var authState = new AuthenticationState(user);
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -171,7 +169,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
             // Arrange
             var user = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity());
             var authState = new AuthenticationState(user);
-            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(authState);
+            SetAuthenticationState(authState);
 
             var handler = new BlazorAuthenticationChallengeHandler(
                 _mockNavigationManager,
@@ -185,6 +183,13 @@ namespace Microsoft.Identity.Web.Test.Blazor
 
             // Assert
             Assert.False(handled);
+        }
+
+        private void SetAuthenticationState(AuthenticationState state)
+        {
+#pragma warning disable BL0013 // Configuring a test substitute; no authentication state is cached.
+            _mockAuthStateProvider.GetAuthenticationStateAsync().Returns(state);
+#pragma warning restore BL0013
         }
 
         // Note: Additional tests for ChallengeUser, GetLoginHint, and GetDomainHint

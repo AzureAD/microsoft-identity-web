@@ -38,12 +38,34 @@ public class MicrosoftIdentityServiceHandlerTests
         Assert.Same(secondUser, consentHandler.User);
     }
 
-    private sealed class TestAuthenticationStateProvider(ClaimsPrincipal initialUser) : AuthenticationStateProvider
+    [Fact]
+    public async Task InitialStateDoesNotOverwriteAuthenticationChange()
+    {
+        var firstUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("initial"));
+        var secondUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("updated"));
+        var initialState = new TaskCompletionSource<AuthenticationState>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var provider = new TestAuthenticationStateProvider(firstUser, initialState.Task);
+        using var services = new ServiceCollection().BuildServiceProvider();
+        var consentHandler = new MicrosoftIdentityConsentAndConditionalAccessHandler(services);
+        var handler = new MicrosoftIdentityServiceHandler(
+            consentHandler, provider, new TestNavigationManager(), NullLogger<MicrosoftIdentityServiceHandler>.Instance);
+
+        var opening = handler.OnCircuitOpenedAsync(null!, CancellationToken.None);
+        provider.ChangeUser(secondUser);
+        initialState.SetResult(new AuthenticationState(firstUser));
+        await opening;
+
+        Assert.Same(secondUser, consentHandler.User);
+        await handler.OnCircuitClosedAsync(null!, CancellationToken.None);
+    }
+
+    private sealed class TestAuthenticationStateProvider(
+        ClaimsPrincipal initialUser, Task<AuthenticationState>? initialState = null) : AuthenticationStateProvider
     {
         private ClaimsPrincipal _user = initialUser;
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
-            => Task.FromResult(new AuthenticationState(_user));
+            => initialState ?? Task.FromResult(new AuthenticationState(_user));
 
         public void ChangeUser(ClaimsPrincipal user)
         {
