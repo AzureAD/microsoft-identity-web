@@ -338,7 +338,7 @@ namespace Microsoft.Identity.Web.Test.Blazor
         {
             var authState = new AuthState { Authenticated = true };
 #pragma warning disable ASPDEPR008 // Verifies compatibility with the legacy default host.
-            var builder = WebHost.CreateDefaultBuilder()
+            var builder = Microsoft.AspNetCore.WebHost.CreateDefaultBuilder()
 #pragma warning restore ASPDEPR008
                 .UseTestServer()
                 .ConfigureServices(services =>
@@ -389,6 +389,45 @@ namespace Microsoft.Identity.Web.Test.Blazor
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(2, authState.SignOutCount);
+        }
+
+        [Theory]
+        [InlineData("same-origin", HttpStatusCode.OK, 2)]
+        [InlineData("cross-site", HttpStatusCode.BadRequest, 0)]
+        public async Task Logout_WithoutAntiforgeryServices_ValidatesCsrfWithoutMiddlewareVerdict(
+            string fetchSite, HttpStatusCode expectedStatus, int expectedSignOuts)
+        {
+            var authState = new AuthState { Authenticated = true };
+            var builder = WebApplication.CreateBuilder();
+            builder.WebHost.UseTestServer();
+            builder.Services.AddSingleton(authState);
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                    CookieAuthenticationDefaults.AuthenticationScheme, _ => { })
+                .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                    OpenIdConnectDefaults.AuthenticationScheme, _ => { });
+            builder.Services.AddAuthorization();
+
+            await using var app = builder.Build();
+            app.Use(async (context, next) =>
+            {
+                context.Features.Set<IAntiforgeryValidationFeature>(null);
+                await next();
+            });
+            app.MapLoginAndLogout();
+            await app.StartAsync();
+            using var client = app.GetTestClient();
+            client.BaseAddress = new Uri("https://localhost");
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/logout")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>())
+            };
+            request.Headers.Add("Sec-Fetch-Site", fetchSite);
+            using var response = await client.SendAsync(request);
+
+            Assert.Equal(expectedStatus, response.StatusCode);
+            Assert.Equal(expectedSignOuts, authState.SignOutCount);
         }
 #endif
 

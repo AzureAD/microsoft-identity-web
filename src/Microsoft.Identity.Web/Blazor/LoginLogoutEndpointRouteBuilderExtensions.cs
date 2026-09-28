@@ -103,10 +103,20 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
                 // MVC hosts can register antiforgery services without running antiforgery
                 // middleware. Preserve token validation when no middleware recorded a verdict.
                 var antiforgery = context.RequestServices.GetService<IAntiforgery>();
-                if (antiforgery is not null && !await antiforgery.IsRequestValidAsync(context))
+                if (antiforgery is not null)
+                {
+                    if (!await antiforgery.IsRequestValidAsync(context))
+                    {
+                        return Results.BadRequest();
+                    }
+                }
+#if NET11_0_OR_GREATER
+                else if (hasAutomaticCsrfProtection &&
+                    !(await context.RequestServices.GetRequiredService<ICsrfProtection>().ValidateAsync(context)).IsAllowed)
                 {
                     return Results.BadRequest();
                 }
+#endif
             }
 
             string? returnUrl = null;
