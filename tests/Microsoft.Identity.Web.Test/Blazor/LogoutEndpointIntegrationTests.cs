@@ -332,6 +332,66 @@ namespace Microsoft.Identity.Web.Test.Blazor
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+#if NET11_0_OR_GREATER
+        [Fact]
+        public async Task Logout_LegacyDefaultHost_UsesTokenValidation()
+        {
+            var authState = new AuthState { Authenticated = true };
+#pragma warning disable ASPDEPR008 // Verifies compatibility with the legacy default host.
+            var builder = WebHost.CreateDefaultBuilder()
+#pragma warning restore ASPDEPR008
+                .UseTestServer()
+                .ConfigureServices(services =>
+                {
+                    services.AddRazorComponents();
+                    services.AddSingleton(authState);
+                    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                        .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                            CookieAuthenticationDefaults.AuthenticationScheme, _ => { })
+                        .AddScheme<AuthenticationSchemeOptions, StubCookieAndOidcHandler>(
+                            OpenIdConnectDefaults.AuthenticationScheme, _ => { });
+                    services.AddAuthorization();
+                })
+                .Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseAuthentication();
+                    app.UseAuthorization();
+#pragma warning disable ASP0014 // UseEndpoints is required by the legacy hosting model.
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapGet("/_testing/antiforgery-token", (HttpContext context, IAntiforgery antiforgery) =>
+                        {
+                            var tokens = antiforgery.GetAndStoreTokens(context);
+                            return Results.Text(tokens.RequestToken ?? string.Empty);
+                        });
+                        endpoints.MapLoginAndLogout();
+                    });
+#pragma warning restore ASP0014
+                });
+
+#pragma warning disable ASPDEPR008 // TestServer(IWebHostBuilder) is required for the legacy host.
+            using var server = new TestServer(builder);
+#pragma warning restore ASPDEPR008
+            using var client = server.CreateClient();
+            var (token, antiforgeryCookie) = await GetAntiforgeryTokenAndCookieAsync(client);
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/logout")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    [AntiforgeryFormFieldName] = token,
+                    ["ReturnUrl"] = "/",
+                }),
+            };
+            request.Headers.Add("Cookie", antiforgeryCookie);
+
+            using var response = await client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(2, authState.SignOutCount);
+        }
+#endif
+
         [Theory]
         [InlineData(true, HttpStatusCode.OK, 2)]
         [InlineData(false, HttpStatusCode.BadRequest, 0)]

@@ -133,12 +133,13 @@ public static class LoginLogoutEndpointRouteBuilderExtensions
     private static bool HasAutomaticCsrfProtection(IServiceProvider? serviceProvider)
     {
 #if NET11_0_OR_GREATER
-        // The .NET 11 WebApplication builder registers this service when it can inject
-        // automatic CSRF middleware. Earlier runtimes and legacy hosts do not.
-        var csrfSetting = serviceProvider?.GetService<IConfiguration>()?["DisableCsrfProtection"];
-        return serviceProvider?.GetService<IServiceProviderIsService>()?.IsService(typeof(ICsrfProtection)) is true
-            && !string.Equals(csrfSetting, "true", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(csrfSetting, "1", StringComparison.Ordinal);
+        // Automatic CSRF middleware is injected by WebApplicationBuilder, whose configuration remains a ConfigurationManager.
+        // Legacy default hosts also register ICsrfProtection, but expose a built configuration root and do not inject the middleware.
+        var configuration = serviceProvider?.GetService<IConfiguration>();
+        return configuration is ConfigurationManager
+            && serviceProvider?.GetService<IServiceProviderIsService>()?.IsService(typeof(ICsrfProtection)) is true
+            && !string.Equals(configuration["DisableCsrfProtection"], "true", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(configuration["DisableCsrfProtection"], "1", StringComparison.Ordinal);
 #else
         return false;
 #endif
