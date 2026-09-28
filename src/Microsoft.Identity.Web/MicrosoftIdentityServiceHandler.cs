@@ -74,7 +74,11 @@ namespace Microsoft.Identity.Web
 
         private void OnAuthenticationStateChanged(Task<AuthenticationState> stateTask)
         {
-            var version = Interlocked.Increment(ref _authStateVersion);
+            long version;
+            lock (_authStateLock)
+            {
+                version = ++_authStateVersion;
+            }
             _ = UpdateUserAsync(stateTask, version);
         }
 
