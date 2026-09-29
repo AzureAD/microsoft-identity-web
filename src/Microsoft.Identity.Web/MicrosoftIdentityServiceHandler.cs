@@ -16,6 +16,7 @@ namespace Microsoft.Identity.Web
         private readonly ILogger<MicrosoftIdentityServiceHandler> _logger;
         private readonly object _authStateLock = new();
         private long _authStateVersion;
+        private bool _userInitialized;
         private bool _circuitClosed;
 
         public MicrosoftIdentityServiceHandler(
@@ -38,16 +39,17 @@ namespace Microsoft.Identity.Web
 
         public override async Task OnCircuitOpenedAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            var initialVersion = Interlocked.Read(ref _authStateVersion);
             Provider.AuthenticationStateChanged += OnAuthenticationStateChanged;
             try
             {
                 var state = await Provider.GetAuthenticationStateAsync().ConfigureAwait(false);
                 lock (_authStateLock)
                 {
-                    if (!_circuitClosed && _authStateVersion == initialVersion)
+                    // A pending notification must not leave the circuit without an initial user.
+                    if (!_circuitClosed && !_userInitialized)
                     {
                         Service.User = state.User;
+                        _userInitialized = true;
                     }
                 }
                 Service.IsBlazorServer = true;
@@ -94,6 +96,7 @@ namespace Microsoft.Identity.Web
                     if (!_circuitClosed && _authStateVersion == version)
                     {
                         Service.User = state.User;
+                        _userInitialized = true;
                     }
                 }
             }
