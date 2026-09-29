@@ -87,39 +87,37 @@ If you find a security issue with our libraries or services, please report it to
 
 ## Building with .NET Preview Versions
 
-The `TargetNetNext` build property opts in to the next .NET version supported by the repository. Leave it unset or set it to `False` for released targets; set it to `True` to include preview targets and their dependencies. The flag is version-independent: the configured preview targets, dependency versions, and CI SDK version are updated as new .NET previews are adopted.
-
-The current preview target is `net11.0`, using .NET 11 RC1 dependencies. It is excluded from stable builds so that stable packages have no prerelease .NET dependencies.
-
-The `Microsoft.Identity.Web.UI` package includes `net8.0`, `net9.0`, and `net10.0` assets in stable builds; only its `net11.0` asset requires `TargetNetNext=True`.
+Microsoft Identity Web supports building and testing with .NET preview versions using the `TargetNetNext` build property. This enables early testing and compatibility validation with the configured .NET preview release.
 
 ### Prerequisites
 
-- For released targets, install a supported SDK meeting the minimum version in `global.json` (currently .NET SDK 10.0.104). A preview SDK is not required.
-- For preview targets, also install a compatible SDK for the configured preview version (currently .NET 11 RC1 or later).
+- Install .NET 11 RC1 or later from [https://dotnet.microsoft.com/download/dotnet/11.0](https://dotnet.microsoft.com/download/dotnet/11.0) to build preview targets.
 
-`global.json` allows roll-forward to newer installed SDKs, including previews. If a preview SDK is installed, it may also be selected for released-target builds. SDK selection happens before MSBuild evaluates `TargetNetNext`: the flag controls targets and dependencies, not which SDK is selected. Use `dotnet --version` to check the selected SDK.
+Released targets only require the minimum SDK in `global.json`. A preview SDK is optional, but may be selected if installed; `TargetNetNext` controls targets, not SDK selection.
 
-### Building with preview targets
+### Building with .NET 11 Preview
 
-To build and pack with the configured preview target, specify a prerelease Microsoft Identity Web version:
-
-```bash
-dotnet build Microsoft.Identity.Web.sln --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
-dotnet pack src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj --no-build --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
-```
-
-For preview releases, set the release pipeline's `TargetNetNext` variable to `True` and its `MicrosoftIdentityWebVersion` variable to a prerelease version. The shared Azure pipeline setup installs the configured preview SDK when `TargetNetNext=True`. Both variables must also be set for the package-packing steps. Leave `TargetNetNext` unset for stable releases.
-
-### Testing with preview targets
-
-To run tests for the current preview target:
+To build the solution with .NET 11 preview support:
 
 ```bash
-dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True
+# Build with .NET 11 preview targets included
+dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
+
+# Or using MSBuild
+msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
+```
+You can also set the TargetNetNext environment variable on your machine with the value `True`.
+
+### Testing with .NET 11 Preview
+
+To run tests targeting .NET 11 preview:
+
+```bash
+# Run tests with .NET 11 preview (conditional)
+dotnet test Microsoft.Identity.Web.sln -f net11.0 -p:TargetNetNext=True
 ```
 
-**Note:** A stable package with prerelease dependencies produces NuGet warning `NU5104`; keep the prerelease version and `TargetNetNext` setting consistent across restore, build, and pack. When a .NET version becomes stable, move its supported targets and dependencies into the released configuration and update the preview configuration for the next version.
+**Note:** Leave `TargetNetNext` unset or set it to `False` for released targets. When producing preview packages, also set `MicrosoftIdentityWebVersion` to a prerelease version consistently during restore, build, and pack.
 
 ## Trademarks
 
