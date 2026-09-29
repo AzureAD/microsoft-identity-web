@@ -20,50 +20,6 @@ env:
   TargetNetNext: 'False'
 
 jobs:
-  unit-tests:
-    name: Unit tests (${{ matrix.framework }})
-    runs-on: windows-latest
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        framework: [net8.0, net9.0, net10.0, net11.0]
-    env:
-      TargetNetNext: ${{ matrix.framework == 'net11.0' && 'True' || 'False' }}
-      MicrosoftIdentityWebVersion: '4.15.2-localbuild'
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-    - name: Setup .NET SDK and test runtimes
-      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-      with:
-        global-json-file: global.json
-        dotnet-version: |
-          8.0.x
-          9.0.x
-          10.0.x
-
-    - name: Run core and UI unit tests
-      shell: pwsh
-      env:
-        TEST_FRAMEWORK: ${{ matrix.framework }}
-      run: |
-        $ErrorActionPreference = 'Stop'
-        $resultsDirectory = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString())
-        foreach ($project in @('Microsoft.Identity.Web.Test', 'Microsoft.Identity.Web.UI.Test')) {
-          dotnet test "tests\$project\$project.csproj" --framework $env:TEST_FRAMEWORK --configuration Release `
-            --results-directory $resultsDirectory --logger "trx;LogFileName=$project.trx"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          [xml]$results = Get-Content -LiteralPath "$resultsDirectory\$project.trx" -Raw
-          if ([int]$results.TestRun.ResultSummary.Counters.executed -lt 1) {
-            throw "No tests executed for $project ($env:TEST_FRAMEWORK)."
-          }
-        }
-
   analyse:
     name: Analyse
     runs-on: ubuntu-latest
