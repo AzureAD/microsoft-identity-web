@@ -89,6 +89,8 @@ If you find a security issue with our libraries or services, please report it to
 
 Microsoft Identity Web supports building and testing with .NET 11 RC1 using the `TargetNetNext` build property. The `net11.0` library and test targets are excluded from stable builds so that stable packages have no prerelease .NET dependencies.
 
+The `Microsoft.Identity.Web.UI` package includes `net8.0`, `net9.0`, and `net10.0` assets in stable builds; only its `net11.0` asset requires `TargetNetNext=True`.
+
 ### Prerequisites
 
 - Install the .NET 11 RC1 SDK selected in `global.json`.
