@@ -116,7 +116,7 @@ For preview releases, set the release pipeline's `TargetNetNext` variable to `Tr
 To run tests for the current preview target:
 
 ```bash
-dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
+dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True
 ```
 
 **Note:** A stable package with prerelease dependencies produces NuGet warning `NU5104`; keep the prerelease version and `TargetNetNext` setting consistent across restore, build, and pack. When a .NET version becomes stable, move its supported targets and dependencies into the released configuration and update the preview configuration for the next version.
