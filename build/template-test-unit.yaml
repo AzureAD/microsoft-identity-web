@@ -24,9 +24,9 @@ steps:
     runSettingsFile: 'build\CodeCoverage.runsettings'
 
 # Keep the explicit .NET Framework xUnit test run (net472) rather than relying
-# on VSTest discovery. Only the main unit test
-# project multi-targets .NET Framework. --no-build reuses the solution build
-# output produced earlier in the stage.
+# on VSTest discovery. Only the main unit test project multi-targets .NET
+# Framework. --no-build reuses the solution build output produced earlier
+# in the stage.
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests (.NET Framework 4.7.2)'
   inputs:
