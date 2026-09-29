@@ -36,6 +36,7 @@ namespace Microsoft.Identity.Web.OidcFic
         private readonly ILogger? _logger;
         private readonly ICloudMetadataProvider? _cloudMetadataProvider;
         private readonly string? _relyingApplicationAuthority;
+        private readonly string? _configurationSection;
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
@@ -59,7 +60,8 @@ namespace Microsoft.Identity.Web.OidcFic
             string? tokenExchangeUrl,
             ILogger? logger,
             ICloudMetadataProvider? cloudMetadataProvider,
-            string? relyingApplicationAuthority = null)
+            string? relyingApplicationAuthority = null,
+            string? configurationSection = null)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
@@ -67,6 +69,7 @@ namespace Microsoft.Identity.Web.OidcFic
             _logger = logger;
             _cloudMetadataProvider = cloudMetadataProvider;
             _relyingApplicationAuthority = relyingApplicationAuthority;
+            _configurationSection = configurationSection;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -241,6 +244,15 @@ namespace Microsoft.Identity.Web.OidcFic
                     acquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
                     acquireTokenOptions.ExtraParameters[TokenBindingParameterName] = true;
                 }
+            }
+
+            if (RequiresSignedAssertionFmiPath && _configurationSection is not null)
+            {
+                // Preserve the named credential selection even if the factory shares an inner acquirer.
+                acquireTokenOptions ??= new AcquireTokenOptions();
+                acquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
+                acquireTokenOptions.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = _options;
+                acquireTokenOptions.ExtraParameters[Constants.AgentParentConfiguration] = _configurationSection;
             }
 
             // Forward the outer request's OTel tags enricher onto the inner FIC leg so its metrics

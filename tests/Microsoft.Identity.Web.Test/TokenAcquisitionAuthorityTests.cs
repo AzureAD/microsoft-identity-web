@@ -390,6 +390,28 @@ namespace Microsoft.Identity.Web.Test
             };
         }
 
+        [Fact]
+        public void GetApplicationKey_AgentParentPartitions_DoNotMutateOriginalOptions()
+        {
+            // Arrange
+            MergedOptions original = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
+            string originalKey = TokenAcquisition.GetApplicationKey(original, isTokenBinding: false);
+            var originalCcaOptions = original.ConfidentialClientApplicationOptions;
+
+            // Act
+            MergedOptions parentA = original.WithAgentCachePartition("parent-a");
+            MergedOptions parentB = original.WithAgentCachePartition("parent-b");
+
+            // Assert
+            Assert.Null(original.AgentCachePartition);
+            Assert.Equal(originalKey, TokenAcquisition.GetApplicationKey(original, isTokenBinding: false));
+            Assert.NotSame(originalCcaOptions, parentA.ConfidentialClientApplicationOptions);
+            Assert.NotEqual(originalKey, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(parentB, isTokenBinding: false));
+        }
+
         /// <summary>
         /// Regression guard: an unbound signed-assertion CCA (string client_assertion callback) and
         /// a bound signed-assertion CCA (ClientSignedAssertion callback) both build with

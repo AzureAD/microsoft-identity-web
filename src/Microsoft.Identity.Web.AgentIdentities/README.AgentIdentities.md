@@ -139,6 +139,19 @@ apps), or even create a daemon application.
 
 ### 3. Use Agent Identities
 
+#### Cache isolation for named blueprints
+
+Set `AcquireTokenOptions.AuthenticationOptionsName` before calling `WithAgentIdentity`
+to select a named blueprint configuration. Agent app-only and agent UserFIC acquisitions
+partition their client and token caches by the selected configuration and parent identity.
+Different configuration names remain isolated even when they refer to the same parent application.
+UserFIC uses the same partition for instance tokens, user access tokens, refresh tokens, and silent acquisition.
+
+Repeated requests within the same partition still use cached tokens. Entries created without
+the parent partition are not reused, so the first request after upgrading may acquire fresh tokens.
+An in-memory cache is also cleared by restarting the process. No cache purge is required.
+These partitions do not replace application authorization of callers or agent IDs.
+
 #### Agent Identity
 
 ##### Autonomous agent

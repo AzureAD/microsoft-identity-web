@@ -237,6 +237,7 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string MicrosoftIdentityOptionsParameter = "IDWEB_FMI_MICROSOFT_IDENTITY_OPTIONS";
+        internal const string AgentParentConfiguration = "IDWEB_AGENT_PARENT_CONFIGURATION";
 
         /*
          * SDK-to-SDK channel: set by Microsoft.Identity.Web.OidcFic to forward the outer request's

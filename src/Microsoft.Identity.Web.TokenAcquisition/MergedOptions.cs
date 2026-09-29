@@ -34,6 +34,16 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal IdWebLogger.ILogger? Logger { get; set; }
 
+        internal string? AgentCachePartition { get; private set; }
+
+        internal MergedOptions WithAgentCachePartition(string partition)
+        {
+            var options = (MergedOptions)MemberwiseClone();
+            options._confidentialClientApplicationOptions = null;
+            options.AgentCachePartition = partition;
+            return options;
+        }
+
         public ConfidentialClientApplicationOptions ConfidentialClientApplicationOptions
         {
             get
