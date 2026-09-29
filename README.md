@@ -91,16 +91,16 @@ Microsoft Identity Web supports building and testing with .NET preview versions 
 
 ### Prerequisites
 
-- Install .NET 11 RC1 or later from [https://dotnet.microsoft.com/download/dotnet/11.0](https://dotnet.microsoft.com/download/dotnet/11.0) to build preview targets.
+- Install a .NET SDK compatible with the preview target configured in `Directory.Build.props` from the [.NET download page](https://dotnet.microsoft.com/download/dotnet).
 
 Released targets only require the minimum SDK in `global.json`. A preview SDK is optional, but may be selected if installed; `TargetNetNext` controls targets, not SDK selection.
 
-### Building with .NET 11 Preview
+### Building with preview targets
 
-To build the solution with .NET 11 preview support:
+To build the solution with preview support:
 
 ```bash
-# Build with .NET 11 preview targets included
+# Build with preview targets included
 dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
 
 # Or using MSBuild
@@ -108,13 +108,13 @@ msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
 ```
 You can also set the TargetNetNext environment variable on your machine with the value `True`.
 
-### Testing with .NET 11 Preview
+### Testing with preview targets
 
-To run tests targeting .NET 11 preview:
+To run tests for the preview target, replace `<preview-tfm>` with the target framework configured in `Directory.Build.props`:
 
 ```bash
-# Run tests with .NET 11 preview (conditional)
-dotnet test Microsoft.Identity.Web.sln -f net11.0 -p:TargetNetNext=True
+# Run tests with preview targets enabled
+dotnet test Microsoft.Identity.Web.sln -f "<preview-tfm>" -p:TargetNetNext=True
 ```
 
 **Note:** Leave `TargetNetNext` unset or set it to `False` for released targets. When producing preview packages, also set `MicrosoftIdentityWebVersion` to a prerelease version consistently during restore, build, and pack.
