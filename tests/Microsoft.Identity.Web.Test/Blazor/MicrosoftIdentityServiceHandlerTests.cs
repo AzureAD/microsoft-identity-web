@@ -39,24 +39,73 @@ public class MicrosoftIdentityServiceHandlerTests
     }
 
     [Fact]
-    public async Task InitialStateDoesNotOverwriteAuthenticationChange()
+    public async Task PendingAuthenticationChangeDoesNotPreventInitialUser()
     {
+        // Arrange
         var firstUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("initial"));
         var secondUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("updated"));
         var initialState = new TaskCompletionSource<AuthenticationState>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var changedState = new TaskCompletionSource<AuthenticationState>(TaskCreationOptions.RunContinuationsAsynchronously);
         var provider = new TestAuthenticationStateProvider(firstUser, initialState.Task);
         using var services = new ServiceCollection().BuildServiceProvider();
         var consentHandler = new MicrosoftIdentityConsentAndConditionalAccessHandler(services);
         var handler = new MicrosoftIdentityServiceHandler(
             consentHandler, provider, new TestNavigationManager(), NullLogger<MicrosoftIdentityServiceHandler>.Instance);
 
-        var opening = handler.OnCircuitOpenedAsync(null!, CancellationToken.None);
-        provider.ChangeUser(secondUser);
-        initialState.SetResult(new AuthenticationState(firstUser));
-        await opening;
+        try
+        {
+            // Act
+            var opening = handler.OnCircuitOpenedAsync(null!, CancellationToken.None);
+            provider.ChangeUser(changedState.Task);
+            initialState.SetResult(new AuthenticationState(firstUser));
+            await opening;
 
-        Assert.Same(secondUser, consentHandler.User);
-        await handler.OnCircuitClosedAsync(null!, CancellationToken.None);
+            // Assert
+            Assert.Same(firstUser, consentHandler.User);
+        }
+        finally
+        {
+            await handler.OnCircuitClosedAsync(null!, CancellationToken.None);
+            changedState.SetResult(new AuthenticationState(secondUser));
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task InitialStateDoesNotOverwriteAuthenticationChange(bool newerChangePending)
+    {
+        // Arrange
+        var firstUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("initial"));
+        var secondUser = new ClaimsPrincipal(new CaseSensitiveClaimsIdentity("updated"));
+        var initialState = new TaskCompletionSource<AuthenticationState>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var pendingState = new TaskCompletionSource<AuthenticationState>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var provider = new TestAuthenticationStateProvider(firstUser, initialState.Task);
+        using var services = new ServiceCollection().BuildServiceProvider();
+        var consentHandler = new MicrosoftIdentityConsentAndConditionalAccessHandler(services);
+        var handler = new MicrosoftIdentityServiceHandler(
+            consentHandler, provider, new TestNavigationManager(), NullLogger<MicrosoftIdentityServiceHandler>.Instance);
+
+        try
+        {
+            // Act
+            var opening = handler.OnCircuitOpenedAsync(null!, CancellationToken.None);
+            provider.ChangeUser(secondUser);
+            if (newerChangePending)
+            {
+                provider.ChangeUser(pendingState.Task);
+            }
+            initialState.SetResult(new AuthenticationState(firstUser));
+            await opening;
+
+            // Assert
+            Assert.Same(secondUser, consentHandler.User);
+        }
+        finally
+        {
+            await handler.OnCircuitClosedAsync(null!, CancellationToken.None);
+            pendingState.SetResult(new AuthenticationState(firstUser));
+        }
     }
 
     private sealed class TestAuthenticationStateProvider(
@@ -70,8 +119,11 @@ public class MicrosoftIdentityServiceHandlerTests
         public void ChangeUser(ClaimsPrincipal user)
         {
             _user = user;
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+            ChangeUser(Task.FromResult(new AuthenticationState(user)));
         }
+
+        public void ChangeUser(Task<AuthenticationState> stateTask)
+            => NotifyAuthenticationStateChanged(stateTask);
     }
 
     private sealed class TestNavigationManager : NavigationManager
