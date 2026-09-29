@@ -87,34 +87,39 @@ If you find a security issue with our libraries or services, please report it to
 
 ## Building with .NET Preview Versions
 
-Microsoft Identity Web supports building and testing with .NET 11 RC1 using the `TargetNetNext` build property. The `net11.0` library and test targets are excluded from stable builds so that stable packages have no prerelease .NET dependencies.
+The `TargetNetNext` build property opts in to the next .NET version supported by the repository. Leave it unset or set it to `False` for released targets; set it to `True` to include preview targets and their dependencies. The flag is version-independent: the configured preview targets, dependency versions, and CI SDK version are updated as new .NET previews are adopted.
+
+The current preview target is `net11.0`, using .NET 11 RC1 dependencies. It is excluded from stable builds so that stable packages have no prerelease .NET dependencies.
 
 The `Microsoft.Identity.Web.UI` package includes `net8.0`, `net9.0`, and `net10.0` assets in stable builds; only its `net11.0` asset requires `TargetNetNext=True`.
 
 ### Prerequisites
 
-- Install the .NET 11 RC1 SDK selected in `global.json`.
+- For released targets, install a supported SDK meeting the minimum version in `global.json` (currently .NET SDK 10.0.104). A preview SDK is not required.
+- For preview targets, also install a compatible SDK for the configured preview version (currently .NET 11 RC1 or later).
 
-### Building with .NET 11 RC1
+`global.json` allows roll-forward to newer installed SDKs, including previews. If a preview SDK is installed, it may also be selected for released-target builds. SDK selection happens before MSBuild evaluates `TargetNetNext`: the flag controls targets and dependencies, not which SDK is selected. Use `dotnet --version` to check the selected SDK.
 
-To build and pack with .NET 11 RC1 support, specify a prerelease Microsoft Identity Web version:
+### Building with preview targets
+
+To build and pack with the configured preview target, specify a prerelease Microsoft Identity Web version:
 
 ```bash
 dotnet build Microsoft.Identity.Web.sln --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
 dotnet pack src/Microsoft.Identity.Web/Microsoft.Identity.Web.csproj --no-build --configuration Release -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
 ```
 
-For preview releases, set the release pipeline's `TargetNetNext` variable to `True` and its `MicrosoftIdentityWebVersion` variable to a prerelease version. Both variables must also be set for the package-packing steps. Leave `TargetNetNext` unset for stable releases.
+For preview releases, set the release pipeline's `TargetNetNext` variable to `True` and its `MicrosoftIdentityWebVersion` variable to a prerelease version. The shared Azure pipeline setup installs the configured preview SDK when `TargetNetNext=True`. Both variables must also be set for the package-packing steps. Leave `TargetNetNext` unset for stable releases.
 
-### Testing with .NET 11 RC1
+### Testing with preview targets
 
-To run the .NET 11 unit tests:
+To run tests for the current preview target:
 
 ```bash
 dotnet test tests/Microsoft.Identity.Web.Test/Microsoft.Identity.Web.Test.csproj -f net11.0 -p:TargetNetNext=True -p:MicrosoftIdentityWebVersion=<prerelease-version>
 ```
 
-**Note:** A stable package with .NET 11 RC1 dependencies produces NuGet warning `NU5104`; keep the prerelease version and `TargetNetNext` setting consistent across restore, build, and pack.
+**Note:** A stable package with prerelease dependencies produces NuGet warning `NU5104`; keep the prerelease version and `TargetNetNext` setting consistent across restore, build, and pack. When a .NET version becomes stable, move its supported targets and dependencies into the released configuration and update the preview configuration for the next version.
 
 ## Trademarks
 
