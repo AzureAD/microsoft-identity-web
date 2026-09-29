@@ -1,524 +1,423 @@
-# Microsoft.Identity.Web.AgentIdentities
+# Agent identities with Microsoft.Identity.Web
 
-Not .NET? See [Entra SDK container sidecar](https://github.com/AzureAD/microsoft-identity-web/blob/feature/doc-modernization/docs/sidecar/agent-identities.md) for the Entra SDK container documentation allowing support of agent identies in any language and platform.
+The `Microsoft.Identity.Web.AgentIdentities` package enables .NET applications to acquire tokens for Microsoft Entra agent identities and agent user identities. It supports:
 
-## Overview
+- **Autonomous agents** that acquire app-only tokens as an agent identity.
+- **Interactive agents** that acquire delegated tokens as an agent identity on behalf of a signed-in user.
+- **Agent user identities** that acquire delegated tokens for a user identity assigned to an agent.
 
-The Microsoft.Identity.Web.AgentIdentities NuGet package provides support for Agent Identities in Microsoft Entra ID. It enables applications to securely authenticate and acquire tokens for agent applications, agent identities, and agent user identities, which is useful for autonomous agents, interactive agents acting on behalf of their user, and agents having their own user identity.
+For an introduction to Microsoft Entra Agent ID and provisioning agent identities, see the [Microsoft Entra Agent ID documentation](https://learn.microsoft.com/entra/agent-id/).
 
-This package is part of the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) suite of libraries and was introduced in version 3.10.0.
-
-## Key Concepts
+## Concepts
 
 ### Agent identity blueprint
 
-An agent identity blueprint has a special application registration in Microsoft Entra ID that has permissions to act on behalf of Agent identities or Agent User identities. It's represented by its application ID (Agent identity blueprint Client ID). The agent identity blueprint is configured with credentials (typically FIC+MSI or client certificates) and permissions to acquire tokens for itself to call graph. This is the app that you develop. It's a confidential client application, usually a web API. The only permissions it can have are maintain (create / delete) Agent Identities (using the Microsoft Graph)
+An agent identity blueprint is the confidential client application that hosts your agent. You configure its client ID, tenant, and credentials in Microsoft.Identity.Web. The blueprint can create and manage agent identities and acquire tokens through them.
 
-### Agent Identity
+### Agent identity
 
-An agent identity is a special service principal in Microsoft Entra ID. It represents an identity that the agent identity blueprint created and is authorized to impersonate. It doesn't have credentials on its own. The agent identity blueprint can acquire tokens on behalf of the agent identity provided the user or tenant admin consented for the agent identity to the corresponding scopes. Autonomous agents acquire app tokens on behalf of the agent identity. Interactive agents called with a user token acquire user tokens on behalf of the agent identity.
+An agent identity is a service principal created from an agent identity blueprint. It has no credential of its own. The blueprint uses a federated identity credential (FIC) trust chain to acquire tokens as the agent identity.
 
-### Agent User Identity
+An agent identity can:
 
-An agent user identity is an Agent identity that can also act as a user (think of an agent identity that would have its own mailbox, or would report to you in the directory). An agent application can acquire a token on behalf of an agent user identity.
+- Acquire an app-only token for an autonomous agent.
+- Represent an interactive agent while the application acts on behalf of a signed-in user.
 
-### Federated Identity Credentials (FIC)
+### Agent user identity
 
-FIC is a trust mechanism in Microsoft Entra ID that enables applications to trust each other using OpenID Connect (OIDC) tokens. In the context of agent identities, FICs are used to establish trust between the agent application and agent identities, and agent identities and agent user identities.
+An agent user identity represents a user identity assigned to an agent. For example, it can have a mailbox or appear as a user in the directory. The blueprint identifies the agent user by either user principal name (UPN) or object ID (OID).
 
-### More information
-For details about Entra ID agent identities see [Microsoft Entra Agent ID documentation](https://learn.microsoft.com/entra/agent-id/)
-
-## Installation
+## Install the package
 
 ```bash
 dotnet add package Microsoft.Identity.Web.AgentIdentities
 ```
 
-## Usage
+Install integration packages as needed:
 
-### 1. Configure Services
-
-First, register the required services in your application:
-
-```csharp
-// Add the core Identity Web services
-services.AddTokenAcquisition();
-services.AddInMemoryTokenCaches();
-services.AddHttpClient();
-
-// Add Microsoft Graph integration if needed.
-// Requires the Microsoft.Identity.Web.GraphServiceClient package
-services.AddMicrosoftGraph();
-
-// Add Agent Identities support
-services.AddAgentIdentities();
+```bash
+dotnet add package Microsoft.Identity.Web.DownstreamApi
+dotnet add package Microsoft.Identity.Web.GraphServiceClient
+dotnet add package Microsoft.Identity.Web.Azure
 ```
 
-### 2. Configure the Agent identity blueprint
+## Configure services
 
-Configure your agent identity blueprint application with the necessary credentials using appsettings.json:
+Configure the agent identity blueprint as a confidential client:
 
 ```json
 {
   "AzureAd": {
     "Instance": "https://login.microsoftonline.com/",
     "TenantId": "your-tenant-id",
-    "ClientId": "agent-application-client-id",
-
+    "ClientId": "your-agent-blueprint-client-id",
+    "SendX5C": true,
     "ClientCredentials": [
       {
         "SourceType": "StoreWithDistinguishedName",
         "CertificateStorePath": "LocalMachine/My",
         "CertificateDistinguishedName": "CN=YourCertificateName"
       }
-
-      // Or for Federation Identity Credential with Managed Identity:
-      // {
-      //   "SourceType": "SignedAssertionFromManagedIdentity",
-      //   "ManagedIdentityClientId": "managed-identity-client-id"  // Omit for system-assigned
-      // }
     ]
   }
 }
 ```
 
-Or, if you prefer, configure programmatically:
+For a certificate-based blueprint, `SendX5C` must be `true`. This enables Subject Name and Issuer (SN+I) authentication by sending the certificate chain, which the FMI request requires.
+
+Register token acquisition, a token cache, and agent identity support:
 
 ```csharp
-// Configure the information about the agent application
 services.Configure<MicrosoftIdentityApplicationOptions>(
-    options =>
-    {
-        options.Instance = "https://login.microsoftonline.com/";
-        options.TenantId = "your-tenant-id";
-        options.ClientId = "agent-application-client-id";
-        options.ClientCredentials = [
-            CertificateDescription.FromStoreWithDistinguishedName(
-                "CN=YourCertificateName", StoreLocation.LocalMachine, StoreName.My)
-        ];
-    });
+    configuration.GetSection("AzureAd"));
+
+services.AddTokenAcquisition(isTokenAcquisitionSingleton: true);
+services.AddInMemoryTokenCaches();
+services.AddHttpClient();
+services.AddAgentIdentities();
 ```
 
-See https://aka.ms/ms-id-web/credential-description for all the ways to express credentials.
-
-On ASP.NET Core, use the override of services.Configure taking an authentication scheeme. Youy can also
-use Microsoft.Identity.Web.Owin if you have an ASP.NET Core application on OWIN (not recommended for new
-apps), or even create a daemon application.
-
-### 3. Use Agent Identities
-
-#### Agent Identity
-
-##### Autonomous agent
-
-For your autonomous agent application to acquire **app-only** tokens for an agent identity:
+`AddAgentIdentities()` registers the FIC support used by agent identity flows. If the application calls Microsoft Graph or other downstream APIs, also register the corresponding integration:
 
 ```csharp
-// Get the required services from the DI container
-IAuthorizationHeaderProvider authorizationHeaderProvider =
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-// Configure options for the agent identity
-string agentIdentity = "agent-identity-guid";
-var options = new AuthorizationHeaderProviderOptions()
-    .WithAgentIdentity(agentIdentity);
-
-// Acquire an access token for the agent identity
-string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForAppAsync("https://resource/.default", options);
-
-// The authHeader contains "Bearer " + the access token (or another protocol
-// depending on the options)
-```
-
-##### Interactive agent
-
-For your interactive agent application to acquire **user** tokens for an agent identity on behalf of the user calling the web API:
-
-```csharp
-// Get the required services from the DI container
-IAuthorizationHeaderProvider authorizationHeaderProvider =
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-// Configure options for the agent identity
-string agentIdentity = "agent-identity-guid";
-var options = new AuthorizationHeaderProviderOptions()
-    .WithAgentIdentity(agentIdentity);
-
-// Acquire an access token for the agent identity
-string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForAppAsync(["https://resource/.default"], options);
-
-// The authHeader contains "Bearer " + the access token (or another protocol
-// depending on the options)
-```
-
-#### Agent User Identity
-
-For your agent application to acquire tokens on behalf of a agent user identity, you can use either the user's UPN (User Principal Name) or OID (Object ID).
-
-##### Using UPN (User Principal Name)
-
-```csharp
-// Get the required services
-IAuthorizationHeaderProvider authorizationHeaderProvider =
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-// Configure options for the agent user identity using UPN
-string agentIdentity = "agent-identity-client-id";
-string userUpn = "user@contoso.com";
-var options = new AuthorizationHeaderProviderOptions()
-    .WithAgentUserIdentity(agentIdentity, userUpn);
-
-// Create a ClaimsPrincipal to enable token caching
-ClaimsPrincipal user = new ClaimsPrincipal();
-
-// Acquire a user token
-string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForUserAsync(
-        scopes: ["https://graph.microsoft.com/.default"],
-        options: options,
-        user: user);
-
-// The user object now has claims including uid and utid. If you use it
-// in another call it will use the cached token.
-```
-
-##### Using OID (Object ID)
-
-```csharp
-// Get the required services
-IAuthorizationHeaderProvider authorizationHeaderProvider =
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-// Configure options for the agent user identity using OID
-string agentIdentity = "agent-identity-client-id";
-Guid userOid = Guid.Parse("e1f76997-1b35-4aa8-8a58-a5d8f1ac4636");
-var options = new AuthorizationHeaderProviderOptions()
-    .WithAgentUserIdentity(agentIdentity, userOid);
-
-// Create a ClaimsPrincipal to enable token caching
-ClaimsPrincipal user = new ClaimsPrincipal();
-
-// Acquire a user token
-string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForUserAsync(
-        scopes: ["https://graph.microsoft.com/.default"],
-        options: options,
-        user: user);
-
-// The user object now has claims including uid and utid. If you use it
-// in another call it will use the cached token.
-```
-
-### 4. Microsoft Graph Integration
-
-Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
-
-```bash
-dotnet add package Microsoft.Identity.Web.AgentIdentities
-```
-
-Add the support for Microsoft Graph in your service collection.
-
-```bash
 services.AddMicrosoftGraph();
+services.AddDownstreamApis(
+    configuration.GetSection("DownstreamApis"));
 ```
 
-You can now get a GraphServiceClient from the service provider
+Microsoft.Identity.Web creates and reuses the per-agent confidential clients required by the flow. They inherit the blueprint's selected authentication scheme, authority, Azure region, client capabilities, logging, and HTTP configuration. Do not create or separately configure an MSAL confidential client for each agent identity.
 
-#### Using Agent Identity with Microsoft Graph:
+See the [credentials guide](../authentication/credentials/credentials-README.md) for certificate, managed identity, and other credential options.
+
+## How Microsoft.Identity.Web implements the flow
+
+Microsoft.Identity.Web hides the MSAL confidential-client and token-exchange plumbing:
+
+1. The configured **blueprint client** uses its credential to acquire an FMI token (T1) for the requested agent identity.
+2. Microsoft.Identity.Web creates or reuses an internal **agent client**, keyed by the agent identity's client ID. That client uses T1 as its assertion.
+3. For an autonomous agent, the agent client acquires the downstream app-only token directly.
+4. For an agent user identity, the agent client first acquires an instance token (T2), then uses MSAL's User FIC API with T2 and the user's UPN or OID to acquire the delegated token.
+
+The FIC token-exchange audience used for T1 and T2 is resolved from the configured authority host, so applications should not hardcode `api://AzureADTokenExchange/.default`.
+
+MSAL's User FIC API always performs a network request. Microsoft.Identity.Web first attempts `AcquireTokenSilent` using the account identifier it retained from an earlier successful request. It invokes the User FIC API only when no usable cached user token exists or when refresh is forced.
+
+For the equivalent lower-level MSAL pattern, see [How to use FIC and FMI in agentic scenarios](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/How-to-Use-FIC-and-FMI-in-Agentic-Scenarios).
+
+## Acquire tokens
+
+Choose the API that matches the token type:
+
+| Scenario | Options | Token acquisition API |
+|---|---|---|
+| Autonomous agent | `WithAgentIdentity(...)` | `CreateAuthorizationHeaderForAppAsync(...)` |
+| Interactive agent acting for a signed-in user | `WithAgentIdentity(...)` | `CreateAuthorizationHeaderForUserAsync(...)` |
+| Agent user identity | `WithAgentUserIdentity(...)` | `CreateAuthorizationHeaderForUserAsync(...)` |
+
+### Autonomous agent
+
+Use `WithAgentIdentity` with the app-token API:
 
 ```csharp
-// Get the GraphServiceClient
-GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
+IAuthorizationHeaderProvider authorizationHeaderProvider =
+    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-// Call Microsoft Graph APIs with the agent identity
-var applications = await graphServiceClient.Applications
-    .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
+string agentIdentityId = "agent-identity-client-id";
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentIdentity(agentIdentityId);
+
+string authorizationHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForAppAsync(
+        "https://resource.example/.default",
+        options);
+```
+
+The returned value includes the authorization scheme, for example `Bearer <access-token>`.
+
+### Interactive agent
+
+When a protected web API receives a user token and the agent must call a downstream API on behalf of that user, use `WithAgentIdentity` with the user-token API:
+
+```csharp
+string agentIdentityId = "agent-identity-client-id";
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentIdentity(agentIdentityId);
+
+string authorizationHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        scopes: ["api://downstream-api/access_as_user"],
+        authorizationHeaderProviderOptions: options,
+        claimsPrincipal: HttpContext.User);
+```
+
+This is an on-behalf-of flow. Pass the authenticated caller's `ClaimsPrincipal` as you would for a non-agent web API.
+
+### Agent user identity by UPN
+
+Use `WithAgentUserIdentity` and identify the agent user by UPN:
+
+```csharp
+string agentIdentityId = "agent-identity-client-id";
+string userUpn = "agent-user@contoso.com";
+
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentityId, userUpn);
+
+string authorizationHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        scopes: ["https://graph.microsoft.com/.default"],
+        authorizationHeaderProviderOptions: options);
+```
+
+### Agent user identity by object ID
+
+You can instead identify the agent user by OID:
+
+```csharp
+string agentIdentityId = "agent-identity-client-id";
+Guid userObjectId = Guid.Parse("e1f76997-1b35-4aa8-8a58-a5d8f1ac4636");
+
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentityId, userObjectId);
+
+string authorizationHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        scopes: ["https://graph.microsoft.com/.default"],
+        authorizationHeaderProviderOptions: options);
+```
+
+If both identifiers are placed in the options manually, the UPN takes precedence. The public overloads set only one identifier.
+
+## Agent user token caching
+
+Agent user identity flows use MSAL's native User FIC API and cache tokens by agent identity, user identifier, and tenant. You do not need to create or reuse a synthetic `ClaimsPrincipal` to enable caching:
+
+```csharp
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentityId, userUpn);
+
+string firstHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        ["https://graph.microsoft.com/.default"],
+        options);
+
+// The same agent, user, tenant, and scopes can be served from the token cache.
+string secondHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        ["https://graph.microsoft.com/.default"],
+        options);
+```
+
+Microsoft.Identity.Web tracks the MSAL account needed for silent acquisition internally. Set `AuthorizationHeaderProviderOptions.AcquireTokenOptions.ForceRefresh` when you intentionally need to bypass the cached access token.
+
+> [!NOTE]
+> Agent-user account lookup state and the shared MSAL cache are maintained by the running application. Do not depend on a caller-created `ClaimsPrincipal` to transfer this state between application instances.
+
+## Tenant overrides
+
+For multi-tenant applications, set the tenant on the acquisition options. Microsoft.Identity.Web applies the tenant to each leg of the agent token flow:
+
+```csharp
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentityId, userUpn);
+
+options.AcquireTokenOptions.Tenant = "customer-tenant-id";
+
+string authorizationHeader = await authorizationHeaderProvider
+    .CreateAuthorizationHeaderForUserAsync(
+        ["https://graph.microsoft.com/.default"],
+        options);
+```
+
+## Microsoft Graph
+
+### Agent identity
+
+For app-only Graph calls, set both the agent identity and `RequestAppToken`:
+
+```csharp
+GraphServiceClient graphClient =
+    serviceProvider.GetRequiredService<GraphServiceClient>();
+
+var applications = await graphClient.Applications.GetAsync(request =>
+{
+    request.Options.WithAuthenticationOptions(options =>
     {
-        options.WithAgentIdentity(agentIdentity);
+        options.WithAgentIdentity(agentIdentityId);
         options.RequestAppToken = true;
-    }));
+    });
+});
 ```
 
-#### Using Agent User Identity with Microsoft Graph:
+### Agent user identity
 
-You can use either UPN or OID with Microsoft Graph:
+For an agent user, configure either the UPN or OID:
 
 ```csharp
-// Get the GraphServiceClient
-GraphServiceClient graphServiceClient = serviceProvider.GetRequiredService<GraphServiceClient>();
-
-// Call Microsoft Graph APIs with the agent user identity using UPN
-var me = await graphServiceClient.Me
-    .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
-        options.WithAgentUserIdentity(agentIdentity, userUpn)));
-
-// Or using OID
-var me = await graphServiceClient.Me
-    .GetAsync(r => r.Options.WithAuthenticationOptions(options =>
-        options.WithAgentUserIdentity(agentIdentity, userOid)));
+var profile = await graphClient.Me.GetAsync(request =>
+{
+    request.Options.WithAuthenticationOptions(options =>
+        options.WithAgentUserIdentity(agentIdentityId, userUpn));
+});
 ```
 
-### 5. Downstream API Integration
-
-To call other APIs using the IDownstreamApi abstraction:
-
-1. Install the Microsoft.Identity.Web.GraphServiceClient which handles authentication for the Graph SDK
-
-```bash
-dotnet add package Microsoft.Identity.Web.DownstreamApi
+```csharp
+var profile = await graphClient.Me.GetAsync(request =>
+{
+    request.Options.WithAuthenticationOptions(options =>
+        options.WithAgentUserIdentity(agentIdentityId, userObjectId));
+});
 ```
 
-2. Add a "DownstreamApis" section in your configuration, expliciting the parameters for your downstream API:
+## IDownstreamApi
+
+Configure a downstream API:
 
 ```json
-"AzureAd":{
-    // usual config
-},
-"DownstreamApis":{
-   "MyApi":
-   {
-    "BaseUrl": "https://myapi.domain.com",
-    "Scopes": [ "https://myapi.domain.com/read", "https://myapi.domain.com/write" ]
-   }
+{
+  "DownstreamApis": {
+    "MyApi": {
+      "BaseUrl": "https://api.example.com/",
+      "Scopes": [ "api://my-api/.default" ]
+    }
+  }
 }
 ```
 
-3. Add the support for Downstream apis in your service collection.
-
-```bash
-services.AddDownstreamApis(Configuration.GetSection("DownstreamApis"));
-```
-
-You can now access an `IDownstreamApi` service in the service provider, and call the "MyApi" API using
-any Http verb
-
+Call it as an agent identity or agent user identity:
 
 ```csharp
-// Get the IDownstreamApi service
-IDownstreamApi downstreamApi = serviceProvider.GetRequiredService<IDownstreamApi>();
+IDownstreamApi downstreamApi =
+    serviceProvider.GetRequiredService<IDownstreamApi>();
 
-// Call API with agent identity
-var response = await downstreamApi.GetForAppAsync<string>(
+var appResponse = await downstreamApi.GetForAppAsync<string>(
     "MyApi",
-    options => options.WithAgentIdentity(agentIdentity));
+    options => options.WithAgentIdentity(agentIdentityId));
 
-// Call API with agent user identity using UPN
 var userResponse = await downstreamApi.GetForUserAsync<string>(
     "MyApi",
-    options => options.WithAgentUserIdentity(agentIdentity, userUpn));
-
-// Or using OID
-var userResponseByOid = await downstreamApi.GetForUserAsync<string>(
-    "MyApi",
-    options => options.WithAgentUserIdentity(agentIdentity, userOid));
+    options => options.WithAgentUserIdentity(agentIdentityId, userUpn));
 ```
 
+## HttpClient
 
-### 6. Azure SDKs integration
-
-To call Azure SDKs, use the MicrosoftIdentityAzureCredential class from the Microsoft.Identity.Web.Azure NuGet package.
-
-Install the Microsoft.Identity.Web.Azure package:
-
-```bash
-dotnet add package Microsoft.Identity.Web.Azure
-```
-
-Add the support for Azure token credential in your service collection:
-
-```bash
-services.AddMicrosoftIdentityAzureTokenCredential();
-```
-
-You can now get a `MicrosoftIdentityTokenCredential` from the service provider. This class has a member Options to which you can apply the
-`.WithAgentIdentity()` or `.WithAgentUserIdentity()` methods.
-
-See [Azure SDKs integration](./azure-sdks.md) for more details.
-
-### 7. HttpClient with MicrosoftIdentityMessageHandler Integration
-
-For scenarios where you want to use HttpClient directly with flexible authentication options, you can use the `MicrosoftIdentityMessageHandler` from the Microsoft.Identity.Web.TokenAcquisition package.
-
-Note: The Microsoft.Identity.Web.TokenAcquisition package is already referenced by Microsoft.Identity.Web.AgentIdentities.
-
-#### Using Agent Identity with MicrosoftIdentityMessageHandler:
+`MicrosoftIdentityMessageHandler` supports per-request agent authentication:
 
 ```csharp
-// Configure HttpClient with MicrosoftIdentityMessageHandler in DI
-services.AddHttpClient("MyApiClient", client =>
+services.AddHttpClient("AgentApi", client =>
 {
-    client.BaseAddress = new Uri("https://myapi.domain.com");
+    client.BaseAddress = new Uri("https://api.example.com/");
 })
 .AddMicrosoftIdentityMessageHandler(options =>
 {
-    options.Scopes= { "https://myapi.domain.com/.default" }
+    options.Scopes.Add("api://my-api/.default");
 });
-
-// Usage in your service or controller
-public class MyService
-{
-    private readonly HttpClient _httpClient;
-
-    public MyService(IHttpClientFactory httpClientFactory)
-    {
-        _httpClient = httpClientFactory.CreateClient("MyApiClient");
-    }
-
-    public async Task<string> CallApiWithAgentIdentity(string agentIdentity)
-    {
-        // Create request with agent identity authentication
-        var request = new HttpRequestMessage(HttpMethod.Get, "/api/data")
-            .WithAuthenticationOptions(options =>
-            {
-                options.WithAgentIdentity(agentIdentity);
-                options.RequestAppToken = true;
-            });
-
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync();
-    }
-}
 ```
 
-#### Using Agent User Identity with MicrosoftIdentityMessageHandler:
+For an autonomous agent:
 
 ```csharp
-public async Task<string> CallApiWithAgentUserIdentity(string agentIdentity, string userUpn)
-{
-    // Create request with agent user identity authentication
-    var request = new HttpRequestMessage(HttpMethod.Get, "/api/userdata")
-        .WithAuthenticationOptions(options =>
-        {
-            options.WithAgentUserIdentity(agentIdentity, userUpn);
-            options.Scopes.Add("https://myapi.domain.com/user.read");
-        });
-
-    var response = await _httpClient.SendAsync(request);
-    response.EnsureSuccessStatusCode();
-    return await response.Content.ReadAsStringAsync();
-}
-```
-
-#### Manual HttpClient Configuration:
-
-You can also configure the handler manually for more control:
-
-```csharp
-// Get the authorization header provider
-IAuthorizationHeaderProvider headerProvider =
-    serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
-
-// Create the handler with default options
-var handler = new MicrosoftIdentityMessageHandler(
-    headerProvider,
-    new MicrosoftIdentityMessageHandlerOptions
-    {
-        Scopes = { "https://graph.microsoft.com/.default" }
-    });
-
-// Create HttpClient with the handler
-using var httpClient = new HttpClient(handler);
-
-// Make requests with per-request authentication options
-var request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/v1.0/applications")
+var request = new HttpRequestMessage(HttpMethod.Get, "data")
     .WithAuthenticationOptions(options =>
     {
-        options.WithAgentIdentity(agentIdentity);
+        options.WithAgentIdentity(agentIdentityId);
         options.RequestAppToken = true;
     });
 
-var response = await httpClient.SendAsync(request);
+HttpResponseMessage response = await httpClient.SendAsync(request);
 ```
 
-The `MicrosoftIdentityMessageHandler` provides a flexible, composable way to add authentication to your HttpClient-based code while maintaining full compatibility with existing Microsoft Identity Web extension methods for agent identities.
+For an agent user identity:
 
-### Validate tokens from Agent identities
+```csharp
+var request = new HttpRequestMessage(HttpMethod.Get, "user-data")
+    .WithAuthenticationOptions(options =>
+        options.WithAgentUserIdentity(agentIdentityId, userUpn));
 
-Token validation of token acquired for agent identities or agent user identities is the same as for any web API. However you can:
-- check if a token was issued for an agent identity and for which agent blueprint.
+HttpResponseMessage response = await httpClient.SendAsync(request);
+```
 
-  ```csharp
-  HttpContext.User.GetParentAgentBlueprint()
-  ```
-   returns the ClientId of the parent agent blueprint if the token is issued for an agent identity (or agent user identity)\
+## Azure SDKs
 
-- check if a token was issued for an agent user identity.
+Register `MicrosoftIdentityTokenCredential`:
 
-  ```csharp
-  HttpContext.User.IsAgentUserIdentity()
-  ```
+```csharp
+services.AddMicrosoftIdentityAzureTokenCredential();
+```
 
-These 2 extensions methods, apply to both ClaimsIdentity and ClaimsPrincipal.
+Apply agent options to the credential before using it with an Azure SDK client:
 
+```csharp
+MicrosoftIdentityTokenCredential credential =
+    serviceProvider.GetRequiredService<MicrosoftIdentityTokenCredential>();
 
-## Prerequisites
+credential.Options.WithAgentIdentity(agentIdentityId);
+credential.Options.RequestAppToken = true;
+```
 
-### Microsoft Entra ID Configuration
+For agent user identities, use `WithAgentUserIdentity` instead. See [Azure SDK integration](./azure-sdks.md) for complete examples.
 
-1. **Agent Application Configuration**:
-   - Register an agent application with the graph SDK
-   - Add client credentials for the agent application
-   - Grant appropriate API permissions, such as Application.ReadWrite.All to create agent identities
-   - Example configuration in JSON:
-     ```json
-     {
-       "AzureAd": {
-         "Instance": "https://login.microsoftonline.com/",
-         "TenantId": "your-tenant-id",
-         "ClientId": "agent-application-id",
-         "ClientCredentials": [
-           {
-             "SourceType": "StoreWithDistinguishedName",
-             "CertificateStorePath": "LocalMachine/My",
-             "CertificateDistinguishedName": "CN=YourCertName"
-           }
-         ]
-       }
-     }
-     ```
+## Sovereign and private clouds
 
-2. **Agent Identity Configuration**:
-   - Have the agent create an agent identity
-   - Grant appropriate API permissions based on what your agent identity needs to do
+Microsoft.Identity.Web resolves the FIC token-exchange audience from the configured authority host. Known clouds, such as Azure public, US Government, and China, work automatically.
 
-3. **User Permission**:
-   - For agent user identity scenarios, ensure appropriate user permissions are configured.
+For a private or otherwise unknown cloud, register its FIC audience from configuration:
 
-## How It Works
+```json
+{
+  "CloudMetadata": {
+    "login.my-cloud.example": {
+      "federated_credential_audience": "api://AzureADTokenExchangeMyCloud"
+    }
+  }
+}
+```
 
-Under the hood, the Microsoft.Identity.Web.AgentIdentities package:
+```csharp
+services.AddCloudMetadata(
+    configuration.GetSection("CloudMetadata"));
+```
 
-1. Uses Federated Identity Credentials (FIC) to establish trust between the agent application and agent identity and between the agent identity and the agent user identity.
-2. Acquires FIC tokens using the `GetFicTokenAsync` method
-3. Uses the FIC tokens to authenticate as the agent identity
-4. For agent user identities, it leverages MSAL extensions to perform user token acquisition
+You can alternatively register an `ICloudMetadataProvider` before Microsoft.Identity.Web services. An explicitly registered provider takes precedence over the configuration-based provider.
+
+If the authority host is non-empty but no FIC audience is known for it, token acquisition fails with an `InvalidOperationException` instead of silently using the public-cloud audience.
+
+## Validate tokens issued to agent identities
+
+Protect the API as you would for any other bearer token. The package also provides helpers for inspecting agent claims:
+
+```csharp
+string? parentBlueprintClientId =
+    HttpContext.User.GetParentAgentBlueprint();
+
+bool isAgentUserIdentity =
+    HttpContext.User.IsAgentUserIdentity();
+```
+
+Both methods are available for `ClaimsPrincipal` and `ClaimsIdentity`. `GetParentAgentBlueprint()` returns the `xms_par_app_azp` claim when present. `IsAgentUserIdentity()` validates the `xms_sub_fct` claim and returns `true` when it contains the agent-user facet.
 
 ## Troubleshooting
 
-### Common Issues
+### The wrong token acquisition API is used
 
-1. **Missing FIC Configuration**: Ensure Federated Identity Credentials are properly configured in Microsoft Entra ID between the agent application and agent identity.
+- For an autonomous agent, use `CreateAuthorizationHeaderForAppAsync` with `WithAgentIdentity`.
+- For an interactive agent acting on behalf of an authenticated caller, use `CreateAuthorizationHeaderForUserAsync` with `WithAgentIdentity` and pass the caller's `ClaimsPrincipal`.
+- For an agent user identity, use `CreateAuthorizationHeaderForUserAsync` with `WithAgentUserIdentity`. A synthetic `ClaimsPrincipal` is not required.
 
-2. **Permission Issues**: Verify the agent application has sufficient permissions to manage agent identities and that the agent identities have enough permissions to call the downstream APIs.
+### Repeated network token requests
 
-3. **Certificate Problems**: If you use a client certificate, make sure the certificate is registered in the app registration, and properly installed and accessible by the code of the agent application.
+- Reuse the registered Microsoft.Identity.Web services instead of building a new service provider for each request.
+- Ensure the agent identity ID, user identifier, tenant, and requested scopes remain consistent.
+- Check whether `ForceRefresh` is enabled.
+- Enable Microsoft.Identity.Web and MSAL logging to distinguish cache misses from refreshes.
 
-4. **Token Acquisition Failures**: Enable logging to diagnose token acquisition failures:
-   ```csharp
-   services.AddLogging(builder => {
-       builder.AddConsole();
-       builder.SetMinimumLevel(LogLevel.Debug);
-   });
-   ```
+### An unknown-cloud exception is thrown
 
-## Resources
+Verify that `AzureAd:Instance` contains the correct authority. For a cloud not included in MSAL's built-in metadata, call `AddCloudMetadata(...)` or register an `ICloudMetadataProvider`.
 
-- [Microsoft Entra ID documentation](https://docs.microsoft.com/en-us/azure/active-directory/)
-- [Microsoft Identity Web documentation](https://github.com/AzureAD/microsoft-identity-web/wiki)
-- [Workload Identity Federation](https://docs.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation)
-- [Microsoft Graph SDK documentation](https://docs.microsoft.com/en-us/graph/sdks/sdks-overview)
+### Permissions or FIC errors
+
+- Verify the blueprint credential and tenant configuration.
+- Verify the blueprint is authorized to act for the agent identity.
+- Verify the agent identity or agent user has the permissions required by the downstream API.
+- Verify the requested token type matches the API permissions: application permissions for app-only tokens and delegated permissions for user tokens.
