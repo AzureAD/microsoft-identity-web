@@ -25,6 +25,7 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public MockHttpMessageHandler AddMockHandler(MockHttpMessageHandler handler)
         {
+            // Another cloud may need discovery after an earlier token request used cached metadata.
             handler.ReplaceMockHttpMessageHandler = (h) =>
             {
                 return _httpMessageHandlerQueue.AddFirst(h).Value;
