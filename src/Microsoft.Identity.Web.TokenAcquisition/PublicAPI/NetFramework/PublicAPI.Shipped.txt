@@ -1,4 +1,6 @@
 #nullable enable
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.DefaultAppTokenOtelTagsEnricher.get -> System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>?
+Microsoft.Identity.Web.TokenAcquisitionExtensionOptions.DefaultAppTokenOtelTagsEnricher.set -> void
 const Microsoft.Identity.Web.ClaimConstants.Acr = "acr" -> string!
 const Microsoft.Identity.Web.ClaimConstants.ClientInfo = "client_info" -> string!
 const Microsoft.Identity.Web.ClaimConstants.Name = "name" -> string!

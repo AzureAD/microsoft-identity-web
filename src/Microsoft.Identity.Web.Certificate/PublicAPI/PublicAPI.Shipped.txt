@@ -16,6 +16,9 @@ Microsoft.Identity.Web.CertificateSource.Path = 3 -> Microsoft.Identity.Web.Cert
 Microsoft.Identity.Web.CertificateSource.StoreWithDistinguishedName = 5 -> Microsoft.Identity.Web.CertificateSource
 Microsoft.Identity.Web.CertificateSource.StoreWithSubjectName = 13 -> Microsoft.Identity.Web.CertificateSource
 Microsoft.Identity.Web.CertificateSource.StoreWithThumbprint = 4 -> Microsoft.Identity.Web.CertificateSource
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters.ClientAssertionCredentialSourceLoaderParameters(string! clientId, string! authority, System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>? otelTagsEnricher = null) -> void
+Microsoft.Identity.Web.ClientAssertionCredentialSourceLoaderParameters.OtelTagsEnricher.get -> System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>?
 Microsoft.Identity.Web.DefaultCertificateLoader
 Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader() -> void
 Microsoft.Identity.Web.DefaultCertificateLoader.DefaultCertificateLoader(Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.DefaultCertificateLoader!>? logger) -> void
