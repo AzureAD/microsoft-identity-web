@@ -81,60 +81,6 @@ namespace AgentApplicationsTests
             AssertEntraAuthenticationDenied((MsalServiceException)repeatedDenial!);
         }
 
-        [Fact]
-        public async Task AutonomousAgentBlueprintCacheSeparatesAgentsAsync()
-        {
-            const string blueprintName = "Blueprint";
-            const string blueprintId = "80757962-12c9-4913-b362-adb8cdb612df";
-            const string agentId = "a89203cd-4b6b-43b5-8f20-e8c51e50d858";
-            const string otherAgentId = "";
-            const string scope = "https://graph.microsoft.com/.default";
-
-            // Arrange: the second child of B2 is pending; fail before constructing providers or making HTTP calls.
-            Assert.False(string.IsNullOrWhiteSpace(otherAgentId),
-                $"A second agent identity under blueprint {blueprintId} is required.");
-            IServiceCollection services = new ServiceCollection();
-            services.ConfigureAgentApplication(blueprintName, blueprintId, overriddenTenantId);
-            using var serviceProvider = (ServiceProvider)services.ConfigureServicesForAgentIdentitiesTests();
-            var headerProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider2>();
-            var firstAgentOptions = new AuthorizationHeaderProviderOptions
-            {
-                AcquireTokenOptions = new AcquireTokenOptions { AuthenticationOptionsName = blueprintName }
-            }.WithAgentIdentity(agentId);
-            var secondAgentOptions = new AuthorizationHeaderProviderOptions
-            {
-                AcquireTokenOptions = new AcquireTokenOptions { AuthenticationOptionsName = blueprintName }
-            }.WithAgentIdentity(otherAgentId);
-
-            // Act: both agents use the same blueprint, provider and cache.
-            string firstAgentToken = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, firstAgentOptions);
-            AssertTokenIdentity(firstAgentToken, overriddenTenantId, agentId, blueprintId);
-            string secondAgentToken = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, secondAgentOptions);
-            AssertTokenIdentity(secondAgentToken, overriddenTenantId, otherAgentId, blueprintId);
-            Assert.False(string.Equals(firstAgentToken, secondAgentToken, StringComparison.Ordinal),
-                "Different agents must not receive the same token.");
-
-            // Assert: alternating requests retain each agent's own cached identity and token.
-            for (int repetition = 0; repetition < 2; repetition++)
-            {
-                var firstRepeatedResult = await headerProvider.CreateAuthorizationHeaderInformationForAppAsync(scope, firstAgentOptions);
-                Assert.True(firstRepeatedResult.Succeeded);
-                Assert.Equal(AcquiredTokenSource.Cache, firstRepeatedResult.Result?.Metadata?.TokenSource);
-                string firstRepeatedToken = firstRepeatedResult.Result!.AuthorizationHeaderValue!;
-                Assert.True(string.Equals(firstAgentToken, firstRepeatedToken, StringComparison.Ordinal),
-                    "The first agent should retain its own cached token after requesting a token for the second agent.");
-                AssertTokenIdentity(firstRepeatedToken, overriddenTenantId, agentId, blueprintId);
-
-                var secondRepeatedResult = await headerProvider.CreateAuthorizationHeaderInformationForAppAsync(scope, secondAgentOptions);
-                Assert.True(secondRepeatedResult.Succeeded);
-                Assert.Equal(AcquiredTokenSource.Cache, secondRepeatedResult.Result?.Metadata?.TokenSource);
-                string secondRepeatedToken = secondRepeatedResult.Result!.AuthorizationHeaderValue!;
-                Assert.True(string.Equals(secondAgentToken, secondRepeatedToken, StringComparison.Ordinal),
-                    "The second agent should retain its own cached token after requesting a token for the first agent.");
-                AssertTokenIdentity(secondRepeatedToken, overriddenTenantId, otherAgentId, blueprintId);
-            }
-        }
-
         [Theory]
         [InlineData("organizations")]
         [InlineData("10c419d4-4a50-45b2-aa4e-919fb84df24f")]

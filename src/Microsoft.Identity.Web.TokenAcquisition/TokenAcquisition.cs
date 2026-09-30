@@ -992,11 +992,6 @@ namespace Microsoft.Identity.Web
                    .AcquireTokenForClient(new[] { scope }.Except(_scopesRequestedByMsal))
                    .WithSendX5C(mergedOptions.SendX5C);
 
-            if (mergedOptions.AgentCachePartition is not null)
-            {
-                builder.WithCachePartitionKey(AgentPairCacheComponent, mergedOptions.AgentCachePartition);
-            }
-
             if (addInOptions?.DefaultAppTokenOtelTagsEnricher is { } defaultEnricher)
             {
                 builder.WithOtelTagsEnricher(defaultEnricher);
@@ -1122,6 +1117,11 @@ namespace Microsoft.Identity.Web
                            tokenAcquisitionOptions.PopClaim!);
                     }
                 }
+            }
+
+            if (mergedOptions.AgentCachePartition is not null)
+            {
+                builder.WithCachePartitionKey(AgentPairCacheComponent, mergedOptions.AgentCachePartition);
             }
 
             try

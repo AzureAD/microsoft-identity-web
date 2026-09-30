@@ -739,12 +739,26 @@ namespace Microsoft.Identity.Web.Test
             });
         }
 
-        [Fact]
-        public async Task AgentAppIdentity_ExplicitParent_DoesNotReuseOtherParentsClientOrToken()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("query")]
+        [InlineData("callback")]
+        public async Task AgentAppIdentity_ExplicitParent_DoesNotReuseOtherParentsClientOrToken(string? partitionOverride)
         {
             // Arrange
             var test = CreateAgentCacheTest();
             var options = ToTokenOptions(CreateNamedAgentAppOptions(test.AgentId, "BlueprintA"));
+            string partitionA = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            if (partitionOverride == "query")
+            {
+                options.ExtraQueryParameters = new Dictionary<string, string> { ["idweb_agent_pair_v1"] = partitionA };
+            }
+            else if (partitionOverride == "callback")
+            {
+                test.Services.GetRequiredService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>().CurrentValue
+                    .OnBeforeTokenAcquisitionForApp += (builder, _) =>
+                        builder.WithCachePartitionKey("idweb_agent_pair_v1", partitionA);
+            }
             var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
             var credential = application.ClientCredentials!.Single();
             var providerData = credential.CustomSignedAssertionProviderData!;
@@ -775,13 +789,19 @@ namespace Microsoft.Identity.Web.Test
                 var error = await Assert.ThrowsAsync<MsalServiceException>(() => AcquireAsync("BlueprintB"));
                 Assert.Equal("unauthorized_client", error.ErrorCode);
                 Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
-                Assert.Equal(first.AccessToken, (await AcquireAsync("BlueprintA")).AccessToken);
+                var recovered = await AcquireAsync("BlueprintA");
+                Assert.Equal(first.AccessToken, recovered.AccessToken);
+                Assert.Equal(TokenSource.Cache, recovered.AuthenticationResultMetadata.TokenSource);
             }
 
             // Assert
             Assert.Equal("agent-token-via-a", first.AccessToken);
             Assert.Equal(first.AccessToken, cached.AccessToken);
             Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
+            if (partitionOverride == "query")
+            {
+                Assert.Equal(partitionA, options.ExtraQueryParameters!["idweb_agent_pair_v1"]);
+            }
             Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
             Assert.Equal("BlueprintA", options.ExtraParameters[Constants.AgentBlueprintConfiguration]);
             Assert.Same(credential, application.ClientCredentials!.Single());
