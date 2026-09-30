@@ -1,3 +1,21 @@
+## 4.16.0
+
+### New features
+- Add `TokenAcquisitionExtensionOptions.DefaultAppTokenOtelTagsEnricher` to configure a default OpenTelemetry tags enricher for app-token acquisition and assertion warm-up before client construction. Per-request enrichment takes precedence. See [#4072](https://github.com/AzureAD/microsoft-identity-web/pull/4072).
+
+### Bug fixes
+- Forward operation-local OpenTelemetry enrichment during OIDC, managed-identity, and key-attested managed-identity credential warm-up. Built-in OIDC and managed-identity FIC providers now delegate assertion-token caching to inner MSAL when used by an outer MSAL client, allowing inner cache hits to emit telemetry with the current enricher. Direct provider calls and custom providers retain Identity.Web assertion caching. See [#4072](https://github.com/AzureAD/microsoft-identity-web/pull/4072).
+- Forward claims challenges to OIDC assertion acquisition so an unsuitable cached assertion is not reused. See [#4072](https://github.com/AzureAD/microsoft-identity-web/pull/4072).
+
+### Dependency updates
+- Update `Microsoft.Identity.Client` and `Microsoft.Identity.Client.KeyAttestation` from 4.90.0 to 4.90.1. Applications with direct MSAL references must use at least 4.90.1 to avoid package-downgrade errors. See [#4074](https://github.com/AzureAD/microsoft-identity-web/pull/4074).
+- Update the `Microsoft.IdentityModel.*` (Wilson) 8.x dependency version from 8.22.0 to 8.23.0. See [#4074](https://github.com/AzureAD/microsoft-identity-web/pull/4074).
+- Update the OWIN `Microsoft.IdentityModel.*` 5.x dependency version from 5.7.1 to 5.7.2. See [#4074](https://github.com/AzureAD/microsoft-identity-web/pull/4074).
+
+### Documentation
+- Refresh Agent ID and daemon-app guidance to describe current agentic scenarios. See [#4077](https://github.com/AzureAD/microsoft-identity-web/pull/4077).
+- Document the previously released Sidecar 1.1.2-preview and 1.1.2 images in the Sidecar changelog. See [#4070](https://github.com/AzureAD/microsoft-identity-web/pull/4070).
+
 ## 4.15.0
 
 ### Federated credentials and proof of possession
