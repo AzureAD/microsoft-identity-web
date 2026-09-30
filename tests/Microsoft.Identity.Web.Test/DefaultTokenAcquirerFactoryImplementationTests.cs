@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web.Test.Common;
 using Xunit;
@@ -65,6 +66,11 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.AzureRegion, mergedOptions.AzureRegion);
             Assert.Equal(options.ClientCapabilities, mergedOptions.ClientCapabilities);
             Assert.Equal(options.SendX5C, mergedOptions.SendX5C);
+            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
+            Assert.Equal(options.ClientId, namedOptions.ClientId);
+            Assert.Equal(options.Authority, namedOptions.Authority);
+            Assert.Equal(options.AzureRegion, namedOptions.AzureRegion);
+            Assert.Same(options.ClientCredentials, namedOptions.ClientCredentials);
         }
 
         [Fact]
@@ -102,6 +108,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.ClientId, mergedOptions.ClientId);
             Assert.Equal(options.EnablePiiLogging, mergedOptions.EnablePiiLogging);
             Assert.Equal(options.AllowWebApiToBeAuthorizedByACL, mergedOptions.AllowWebApiToBeAuthorizedByACL);
+            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
+            Assert.Equal(options.ClientId, namedOptions.ClientId);
+            Assert.Equal(options.Authority, namedOptions.Authority);
+            Assert.Same(options.ClientCredentials, namedOptions.ClientCredentials);
         }
 
         [Fact]
@@ -145,6 +155,62 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.SendX5C, mergedOptions.SendX5C);
             Assert.Equal(options.Domain, mergedOptions.Domain);
             Assert.Equal(options.SignUpSignInPolicyId, mergedOptions.SignUpSignInPolicyId);
+            Assert.Same(options, provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void GetTokenAcquirer_ProgrammaticSchemes_UseConsistentOptionsAcrossFactoryInstances(bool useStringOverload)
+        {
+            // Arrange
+            var taf = new CustomTAF();
+            var provider = taf.Build();
+            var firstFactory = new DefaultTokenAcquirerFactoryImplementation(provider);
+            var secondFactory = new DefaultTokenAcquirerFactoryImplementation(provider);
+            var credentialsA = new[] { new CredentialDescription { SourceType = CredentialSource.ClientSecret, ClientSecret = "test-secret-a" } };
+            var credentialsB = new[] { new CredentialDescription { SourceType = CredentialSource.ClientSecret, ClientSecret = "test-secret-b" } };
+            var firstOptions = new MicrosoftIdentityApplicationOptions
+            {
+                Authority = "https://login.microsoftonline.com/test-tenant",
+                ClientId = "test-client-id",
+                AzureRegion = "westus",
+                ClientCredentials = credentialsA,
+            };
+            var secondOptions = new MicrosoftIdentityApplicationOptions
+            {
+                Authority = firstOptions.Authority,
+                ClientId = firstOptions.ClientId,
+                AzureRegion = firstOptions.AzureRegion,
+                ClientCredentials = credentialsB,
+            };
+            string key = DefaultTokenAcquirerFactoryImplementation.GetKey(
+                firstOptions.Authority, firstOptions.ClientId, firstOptions.AzureRegion);
+
+            // Act
+            if (useStringOverload)
+            {
+                firstFactory.GetTokenAcquirer(firstOptions.Authority!, firstOptions.ClientId, credentialsA, firstOptions.AzureRegion);
+                secondFactory.GetTokenAcquirer(secondOptions.Authority!, secondOptions.ClientId, credentialsB, secondOptions.AzureRegion);
+            }
+            else
+            {
+                firstFactory.GetTokenAcquirer(firstOptions);
+                secondFactory.GetTokenAcquirer(secondOptions);
+            }
+            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
+            var mergedOptions = provider.GetRequiredService<IMergedOptionsStore>().Get(key);
+
+            // Assert
+            Assert.Equal(firstOptions.ClientId, namedOptions.ClientId);
+            Assert.Equal(firstOptions.Authority, namedOptions.Authority);
+            Assert.Equal(firstOptions.AzureRegion, namedOptions.AzureRegion);
+            Assert.Same(credentialsA, namedOptions.ClientCredentials);
+            Assert.Same(namedOptions.ClientCredentials, mergedOptions.ClientCredentials);
+            Assert.Equal(namedOptions.ClientId, mergedOptions.ClientId);
+            Assert.Equal(namedOptions.Authority, mergedOptions.Authority);
+            Assert.Same(credentialsA, firstOptions.ClientCredentials);
+            Assert.Same(credentialsB, secondOptions.ClientCredentials);
         }
 
         private class CustomTAF : TokenAcquirerFactory

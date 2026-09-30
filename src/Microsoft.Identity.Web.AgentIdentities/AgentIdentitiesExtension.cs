@@ -107,11 +107,14 @@ namespace Microsoft.Identity.Web
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
+            options.ExtraParameters[Constants.AgentIdentityKey] = agentApplicationId;
+
             // Until it makes it way through Abstractions
             options.ExtraParameters[Constants.FmiPathForClientAssertion] = agentApplicationId;
 
             // Use the developer's AuthenticationOptionsName if set, otherwise default to "AzureAd"
             string configurationSection = options.AuthenticationOptionsName ?? "AzureAd";
+            options.ExtraParameters[Constants.AgentBlueprintConfiguration] = configurationSection;
 
             options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
             {

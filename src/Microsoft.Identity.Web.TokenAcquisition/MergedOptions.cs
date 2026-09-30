@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using IdWebLogger = Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -33,6 +35,19 @@ namespace Microsoft.Identity.Web
         /// Logger instance for diagnostics.
         /// </summary>
         internal IdWebLogger.ILogger? Logger { get; set; }
+
+        internal string? AgentCachePartition { get; private set; }
+
+        internal MergedOptions WithAgentCachePartition(string? blueprintClientId, string? agentClientId)
+        {
+            string normalizedPair = Throws.IfNullOrWhitespace(blueprintClientId).ToLowerInvariant()
+                + ":" + Throws.IfNullOrWhitespace(agentClientId).ToLowerInvariant();
+            using var sha256 = SHA256.Create();
+            var options = (MergedOptions)MemberwiseClone();
+            options._confidentialClientApplicationOptions = null;
+            options.AgentCachePartition = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(normalizedPair)));
+            return options;
+        }
 
         public ConfidentialClientApplicationOptions ConfidentialClientApplicationOptions
         {

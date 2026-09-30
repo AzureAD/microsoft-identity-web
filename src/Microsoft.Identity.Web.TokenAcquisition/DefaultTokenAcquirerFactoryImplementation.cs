@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -50,9 +51,11 @@ namespace Microsoft.Identity.Web
                         MicrosoftIdentityApplicationOptions.AzureRegion = region;
                     }
 
+                    var registeredOptions = ServiceProvider.GetRequiredService<IOptionsMonitorCache<MicrosoftIdentityApplicationOptions>>()
+                        .GetOrAdd(key, () => MicrosoftIdentityApplicationOptions);
                     IMergedOptionsStore optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
                     MergedOptions mergedOptions = optionsMonitor.Get(key);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(registeredOptions, mergedOptions);
 
                     return MakeTokenAcquirer(key);
                 });
@@ -99,11 +102,12 @@ namespace Microsoft.Identity.Web
 
             return _authSchemes.GetOrAdd(key, (key) =>
             {
+                var registeredOptions = ServiceProvider.GetRequiredService<IOptionsMonitorCache<MicrosoftIdentityApplicationOptions>>()
+                    .GetOrAdd(key, () => microsoftIdentityApplicationOptions);
                 IMergedOptionsStore optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
                 MergedOptions mergedOptions = optionsMonitor.Get(key);
 
-       
-                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(microsoftIdentityApplicationOptions, mergedOptions);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(registeredOptions, mergedOptions);
                 return MakeTokenAcquirer(key);
             });
         }

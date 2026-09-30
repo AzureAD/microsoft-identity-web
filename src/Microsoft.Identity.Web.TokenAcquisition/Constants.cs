@@ -213,6 +213,10 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
+        /// <summary>
+        /// Blueprint configuration selected by the app-identity helper, before per-call overrides.
+        /// </summary>
+        internal const string AgentBlueprintConfiguration = "IDWEB_AGENT_BLUEPRINT_CONFIGURATION";
         /*
          * Used by Microsoft.Identity.Web.AgentIdentities
          * Any changes to this member (including removal) can cause runtime failures.
