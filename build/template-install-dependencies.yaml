@@ -33,6 +33,12 @@ steps:
   inputs:
     useGlobalJson: true
 
+- task: UseDotNet@2
+  displayName: 'Use .NET preview SDK'
+  condition: and(succeeded(), eq(variables['TargetNetNext'], 'True'))
+  inputs:
+    version: 11.0.100-rc.1.26425.128
+
 # Run Nuget Tool Installer
 
 - task: NuGetToolInstaller@1

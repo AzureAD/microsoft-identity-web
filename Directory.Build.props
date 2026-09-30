@@ -29,6 +29,7 @@
     <!-- For files to appear in the Visual Studio Solution explorer given we have conditional inclusion in some projects (IdWeb for instance)
          we need to have the higher framework, even if this produces a warning in the IDE -->
     <TargetFrameworks>net8.0; net9.0; net10.0; net462; net472; netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetNetNext)' == 'True'">$(TargetFrameworks); net11.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -156,6 +157,23 @@
     <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <NetElevenRuntimeVersion>11.0.0-rc.1.26425.128</NetElevenRuntimeVersion>
+    <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(NetElevenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
+    <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(NetElevenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsHostingVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
+    <MicrosoftAspNetCoreDataProtectionVersion>$(NetElevenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
+    <SystemSecurityCryptographyPkcsVersion>$(NetElevenRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>$(NetElevenRuntimeVersion)</SystemSecurityCryptographyXmlVersion>
+    <MicrosoftExtensionsLoggingVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
+    <SystemFormatsAsn1Version>$(NetElevenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemTextJsonVersion>$(NetElevenRuntimeVersion)</SystemTextJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>$(NetElevenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
