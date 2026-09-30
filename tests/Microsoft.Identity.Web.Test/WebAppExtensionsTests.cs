@@ -256,12 +256,23 @@ namespace Microsoft.Identity.Web.Test
         [Fact]
         public Task AddMicrosoftIdentityWebApp_WithConfigAuthority_TestCorrectMetadataAddressAsync()
         {
-            // Arrange
+            // Arrange - use a minimal config without Instance/TenantId to avoid conflict.
             string authority = "https://login.microsoftonline.com/some-tenant-id/v2.0";
             string appId = "some-client-id";
             string expectedMetadataAddress = $"{authority}/.well-known/openid-configuration?appId={appId}";
+
+            var authorityOnlyConfig = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    { ConfigSectionName, null },
+                    { $"{ConfigSectionName}:ClientId", TestConstants.TenantIdAsGuid },
+                    { $"{ConfigSectionName}:Domain", TestConstants.Domain },
+                })
+                .Build()
+                .GetSection(ConfigSectionName);
+
             var configMock = Substitute.For<IConfiguration>();
-            configMock.Configure().GetSection(ConfigSectionName).Returns(_configSection);
+            configMock.Configure().GetSection(ConfigSectionName).Returns(authorityOnlyConfig);
 
             var services = new ServiceCollection()
                 .AddSingleton(configMock)
