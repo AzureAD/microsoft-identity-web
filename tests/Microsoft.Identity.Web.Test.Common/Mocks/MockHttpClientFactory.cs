@@ -23,18 +23,12 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
     {
         private LinkedList<MockHttpMessageHandler> _httpMessageHandlerQueue = new();
 
-        private volatile bool _addInstanceDiscovery = true;
-
         public MockHttpMessageHandler AddMockHandler(MockHttpMessageHandler handler)
         {
-            if (_httpMessageHandlerQueue.Count == 0 && _addInstanceDiscovery)
+            handler.ReplaceMockHttpMessageHandler = (h) =>
             {
-                _addInstanceDiscovery = false;
-                handler.ReplaceMockHttpMessageHandler = (h) =>
-                {
-                    return _httpMessageHandlerQueue.AddFirst(h).Value;                    
-                };
-            }
+                return _httpMessageHandlerQueue.AddFirst(h).Value;
+            };
 
             // add a message to the front of the queue
             _httpMessageHandlerQueue.AddLast(handler);
