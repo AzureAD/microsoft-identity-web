@@ -390,6 +390,54 @@ namespace Microsoft.Identity.Web.Test
             };
         }
 
+        [Fact]
+        public void GetApplicationKey_AgentCachePartitions_DoNotMutateOriginalOptions()
+        {
+            // Arrange
+            MergedOptions original = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
+            string originalKey = TokenAcquisition.GetApplicationKey(original, isTokenBinding: false);
+            var originalCcaOptions = original.ConfidentialClientApplicationOptions;
+            const string parentAId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+            const string parentBId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+            const string agentAId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+            const string agentBId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+            const string expectedPartition = "t9FyOmMbyVZXqi1EDEIK1tifRd9cqyZWeAbrj7kEmns=";
+
+            // Act
+            MergedOptions parentA = original.WithAgentCachePartition(parentAId, agentAId);
+            MergedOptions parentB = original.WithAgentCachePartition(parentBId, agentAId);
+            MergedOptions agentB = original.WithAgentCachePartition(parentAId, agentBId);
+            MergedOptions aliasA = original.WithAgentCachePartition(parentAId.ToUpperInvariant(), agentAId.ToUpperInvariant());
+
+            // Assert
+            Assert.Null(original.AgentCachePartition);
+            Assert.Equal(originalKey, TokenAcquisition.GetApplicationKey(original, isTokenBinding: false));
+            Assert.NotSame(originalCcaOptions, parentA.ConfidentialClientApplicationOptions);
+            Assert.Same(originalCcaOptions, original.ConfidentialClientApplicationOptions);
+            Assert.Equal(original.ClientId, parentA.ClientId);
+            Assert.Same(original.ClientCredentials, parentA.ClientCredentials);
+            Assert.Equal(expectedPartition, parentA.AgentCachePartition);
+            Assert.Equal(expectedPartition, original.WithAgentCachePartition(parentAId, agentAId).AgentCachePartition);
+            Assert.Equal(expectedPartition, aliasA.AgentCachePartition);
+            Assert.NotEqual(parentA.AgentCachePartition, parentB.AgentCachePartition);
+            Assert.NotEqual(parentA.AgentCachePartition, agentB.AgentCachePartition);
+            Assert.Equal(originalKey + ":agent-pair:" + expectedPartition, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.Equal(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(aliasA, isTokenBinding: false));
+            Assert.NotEqual(originalKey, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(parentB, isTokenBinding: false));
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(agentB, isTokenBinding: false));
+            Assert.Throws<ArgumentNullException>(() => original.WithAgentCachePartition(null, agentAId));
+            Assert.Throws<ArgumentNullException>(() => original.WithAgentCachePartition(parentAId, null));
+            Assert.Throws<ArgumentException>(() => original.WithAgentCachePartition(string.Empty, agentAId));
+            Assert.Throws<ArgumentException>(() => original.WithAgentCachePartition(parentAId, " "));
+        }
+
         /// <summary>
         /// Regression guard: an unbound signed-assertion CCA (string client_assertion callback) and
         /// a bound signed-assertion CCA (ClientSignedAssertion callback) both build with

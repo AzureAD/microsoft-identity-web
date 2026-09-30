@@ -148,7 +148,7 @@ var options = new AuthorizationHeaderProviderOptions()
 
 // Acquire an access token for the agent identity
 string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForAppAsync(["https://resource/.default"], options);
+    .CreateAuthorizationHeaderForUserAsync(["https://resource/.default"], options);
 
 // The authHeader contains "Bearer " + the access token (or another protocol
 // depending on the options)

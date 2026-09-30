@@ -139,6 +139,21 @@ apps), or even create a daemon application.
 
 ### 3. Use Agent Identities
 
+#### Cache isolation by blueprint and agent
+
+App-only, OBO, and UserFIC flows isolate client and token caches using the same SHA-256 hash of
+the lowercase blueprint and agent client IDs. Different pairs are isolated; configurations
+with the same pair may share tokens, even with different credentials. Entra still controls authorization.
+
+Set `AcquireTokenOptions.AuthenticationOptionsName` before `WithAgentIdentity` to select
+the blueprint (default: `AzureAd`). For direct `ITokenAcquisition` calls, `authenticationScheme` overrides it.
+
+Older cache entries are ignored after upgrading; no purge is needed. Unpartitioned long-running
+OBO sessions must be reinitialized with a valid incoming user assertion.
+
+`AutonomousAgentTests.cs` checks A1/B1 success, A1/B2 rejection, A2/B2 success, then A1/B2 rejection
+using one provider and cache. The separate same-blueprint two-agent case still needs a second agent under B2.
+
 #### Agent Identity
 
 ##### Autonomous agent
@@ -179,7 +194,7 @@ var options = new AuthorizationHeaderProviderOptions()
 
 // Acquire an access token for the agent identity
 string authHeader = await authorizationHeaderProvider
-    .CreateAuthorizationHeaderForAppAsync(["https://resource/.default"], options);
+    .CreateAuthorizationHeaderForUserAsync(["https://resource/.default"], options);
 
 // The authHeader contains "Bearer " + the access token (or another protocol
 // depending on the options)

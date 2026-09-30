@@ -8,15 +8,20 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using NSubstitute;
 using Xunit;
 
@@ -596,6 +601,676 @@ namespace Microsoft.Identity.Web.Test
 
         #region Agent User Identity Cache Tests (Issue #3840)
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentObo_DifferentParents_DoNotShareTokens(bool longRunning)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var optionsA = ToTokenOptions(new AuthorizationHeaderProviderOptions().WithAgentIdentity(test.AgentId));
+            optionsA.LongRunningWebApiSessionKey = longRunning ? AcquireTokenOptions.LongRunningWebApiSessionKeyAuto : null;
+            string partitionA = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            var optionsB = new TokenAcquisitionOptions
+            {
+                ExtraParameters = optionsA.ExtraParameters,
+                CachePartitionKeys = new Dictionary<string, string> { ["idweb_agent_pair_v1"] = partitionA },
+            };
+            ClaimsPrincipal principal = CreateAgentOboPrincipal(test.AgentId);
+            Task<AuthenticationResult> AcquireAsync(string? scheme, TokenAcquisitionOptions options, ClaimsPrincipal? user) =>
+                test.Acquisition.GetAuthenticationResultForUserAsync(
+                    new[] { "https://graph.microsoft.com/.default" },
+                    authenticationScheme: scheme, user: user, tokenAcquisitionOptions: options);
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentA, "assertion-a");
+            var obo = MockHttpCreator.CreateLrOboTokenHandler("https://graph.microsoft.com/.default", "obo-a", "refresh-a");
+            obo.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["client_id"] = test.AgentId,
+                ["client_assertion"] = "assertion-a",
+                ["requested_token_use"] = "on_behalf_of",
+                ["assertion"] = (string)((ClaimsIdentity)principal.Identity!).BootstrapContext!,
+            };
+            test.Http.AddMockHandler(obo);
+
+            // Act
+            var first = await AcquireAsync(null, optionsA, principal);
+            ClaimsPrincipal? repeatedPrincipal = longRunning ? null : principal;
+            var repeated = await AcquireAsync(null, optionsA, repeatedPrincipal);
+            optionsB.LongRunningWebApiSessionKey = optionsA.LongRunningWebApiSessionKey;
+            if (longRunning)
+            {
+                var missingSession = await Assert.ThrowsAsync<MsalClientException>(() =>
+                    AcquireAsync("BlueprintB", optionsB, null));
+                Assert.Equal("obo_cache_key_not_in_cache_error", missingSession.ErrorCode);
+            }
+            var rejection = CreateRejectedBlueprintHandler(test.ParentB);
+            rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+            rejection.ExpectedPostData["fmi_path"] = test.AgentId;
+            test.Http.AddMockHandler(rejection);
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                AcquireAsync("BlueprintB", optionsB, principal));
+            var recovered = await AcquireAsync(null, optionsA, repeatedPrincipal);
+
+            // Assert
+            Assert.Equal("obo-a", first.AccessToken);
+            Assert.Equal("obo-a", repeated.AccessToken);
+            Assert.Equal(TokenSource.Cache, repeated.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
+            Assert.Equal("obo-a", recovered.AccessToken);
+            Assert.Equal(TokenSource.Cache, recovered.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal(partitionA, optionsB.CachePartitionKeys["idweb_agent_pair_v1"]);
+            Assert.Equal("AzureAd", optionsA.ExtraParameters![Constants.AgentBlueprintConfiguration]);
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentObo_LongRunningRefresh_StaysWithSelectedParent()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            const string originalScope = "https://graph.microsoft.com/.default";
+            const string requestedScope = "https://other-resource.example/.default";
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(test.AgentId, "BlueprintA"));
+            options.LongRunningWebApiSessionKey = "shared-session-" + test.AgentId;
+            var principal = CreateAgentOboPrincipal(test.AgentId);
+            Task<AuthenticationResult> AcquireAsync(string scheme, ClaimsPrincipal? user, string scope) =>
+                test.Acquisition.GetAuthenticationResultForUserAsync(
+                    new[] { scope }, authenticationScheme: scheme, user: user, tokenAcquisitionOptions: options);
+            foreach (string name in new[] { "BlueprintB", "BlueprintA" })
+            {
+                AddBlueprintAssertion(test.Http, test.AgentId, name == "BlueprintB" ? test.ParentB : test.ParentA,
+                    "assertion-" + name, name == "BlueprintB" ? "test-only-b-secret" : "test-only-secret");
+                var obo = MockHttpCreator.CreateLrOboTokenHandler(originalScope, "obo-" + name, "refresh-" + name);
+                obo.ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["requested_token_use"] = "on_behalf_of",
+                    ["client_assertion"] = "assertion-" + name,
+                };
+                test.Http.AddMockHandler(obo);
+                await AcquireAsync(name, principal, originalScope);
+            }
+            var refresh = MockHttpCreator.CreateLrOboTokenHandler(requestedScope, "refreshed-b", "refresh-b-new");
+            refresh.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = "refresh-BlueprintB",
+                ["client_id"] = test.AgentId,
+                ["client_assertion"] = "assertion-BlueprintB",
+            };
+            refresh.ResponseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"error\":\"invalid_grant\",\"error_description\":\"Refresh token revoked.\"}"),
+            };
+            test.Http.AddMockHandler(refresh);
+
+            // Act
+            var error = await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() =>
+                AcquireAsync("BlueprintB", null, requestedScope));
+            Assert.Equal("invalid_grant", error.MsalUiRequiredException.ErrorCode);
+            var reinitialized = MockHttpCreator.CreateLrOboTokenHandler(requestedScope, "reinitialized-b", "refresh-b-new");
+            reinitialized.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["requested_token_use"] = "on_behalf_of",
+                ["client_id"] = test.AgentId,
+                ["client_assertion"] = "assertion-BlueprintB",
+            };
+            test.Http.AddMockHandler(reinitialized);
+            var result = await AcquireAsync("BlueprintB", principal, requestedScope);
+            var recoveredA = await AcquireAsync("BlueprintA", null, originalScope);
+
+            // Assert
+            Assert.Equal("reinitialized-b", result.AccessToken);
+            Assert.Equal("refresh-BlueprintB", refresh.ActualRequestPostData["refresh_token"]);
+            Assert.Equal("obo-BlueprintA", recoveredA.AccessToken);
+            Assert.Equal(TokenSource.Cache, recoveredA.AuthenticationResultMetadata.TokenSource);
+            test.Http.Dispose();
+        }
+
+        private static ClaimsPrincipal CreateAgentOboPrincipal(string agentId)
+        {
+            string header = EncodeBase64Url("{\"alg\":\"none\",\"typ\":\"JWT\"}");
+            string payload = EncodeBase64Url("{\"aud\":\"" + agentId + "\",\"sub\":\"" + TestConstants.Uid +
+                "\",\"tid\":\"10c419d4-4a50-45b2-aa4e-919fb84df24f\",\"oid\":\"" + TestConstants.Uid + "\"}");
+            return new ClaimsPrincipal(new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity(
+                new[] { new Claim(ClaimTypes.Name, AgentTestUsername) }, "Bearer")
+            {
+                BootstrapContext = header + "." + payload + ".",
+            });
+        }
+
+        [Fact]
+        public async Task AgentAppIdentity_ExplicitParent_DoesNotReuseOtherParentsClientOrToken()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(test.AgentId, "BlueprintA"));
+            var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var credential = application.ClientCredentials!.Single();
+            var providerData = credential.CustomSignedAssertionProviderData!;
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentA, "parent-a-assertion");
+            var tokenA = CreateClientCredentialsTokenHandler("agent-token-via-a");
+            tokenA.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["client_id"] = test.AgentId,
+                ["client_assertion"] = "parent-a-assertion",
+            };
+            test.Http.AddMockHandler(tokenA);
+            Task<AuthenticationResult> AcquireAsync(string scheme) => test.Acquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", authenticationScheme: scheme, tokenAcquisitionOptions: options);
+
+            // Act
+            var first = await AcquireAsync("BlueprintA");
+            var cached = await AcquireAsync("BlueprintA");
+            foreach (bool rebuildClient in new[] { false, true })
+            {
+                if (rebuildClient)
+                {
+                    test.Acquisition._applicationsByAuthorityClientId.Clear();
+                }
+                var rejection = CreateRejectedBlueprintHandler(test.ParentB);
+                rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+                rejection.ExpectedPostData["fmi_path"] = test.AgentId;
+                test.Http.AddMockHandler(rejection);
+                var error = await Assert.ThrowsAsync<MsalServiceException>(() => AcquireAsync("BlueprintB"));
+                Assert.Equal("unauthorized_client", error.ErrorCode);
+                Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
+                Assert.Equal(first.AccessToken, (await AcquireAsync("BlueprintA")).AccessToken);
+            }
+
+            // Assert
+            Assert.Equal("agent-token-via-a", first.AccessToken);
+            Assert.Equal(first.AccessToken, cached.AccessToken);
+            Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
+            Assert.Equal("BlueprintA", options.ExtraParameters[Constants.AgentBlueprintConfiguration]);
+            Assert.Same(credential, application.ClientCredentials!.Single());
+            Assert.Same(providerData, credential.CustomSignedAssertionProviderData);
+            Assert.Equal("BlueprintA", providerData["ConfigurationSection"]);
+            Assert.Null(credential.CachedValue);
+            Assert.False(credential.Skip);
+            Assert.Null(test.Services.GetRequiredService<ITokenAcquisitionHost>().GetOptions("BlueprintA", out _).AgentCachePartition);
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentUserIdentity_DifferentParents_DoNotShareTokens(bool useOid)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var options = ToTokenOptions(CreateNamedAgentOptions(test.AgentId, "BlueprintA", userFic: true, useOid: useOid));
+            options.ExtraParameters!.Remove(Constants.MicrosoftIdentityOptionsParameter);
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentA, "assertion-a");
+            test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("instance-a"));
+            test.Http.AddMockHandler(CreateUserFicTokenHandler("agent-user-token-via-a"));
+            Task<AuthenticationResult> AcquireAsync(string scheme) => test.Acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, authenticationScheme: scheme, tokenAcquisitionOptions: options);
+
+            // Act
+            var first = await AcquireAsync("BlueprintA");
+            var cached = await AcquireAsync("BlueprintA");
+            var rejection = CreateRejectedBlueprintHandler(test.ParentB);
+            rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+            test.Http.AddMockHandler(rejection);
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() => AcquireAsync("BlueprintB"));
+            var recovered = await AcquireAsync("BlueprintA");
+
+            // Assert
+            Assert.Equal("agent-user-token-via-a", first.AccessToken);
+            Assert.Equal(first.AccessToken, cached.AccessToken);
+            Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
+            Assert.Equal(first.AccessToken, recovered.AccessToken);
+            Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
+            string expectedPartition = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            Assert.Contains(test.Acquisition._applicationsByAuthorityClientId.Keys,
+                key => key.Contains(":agent-pair:" + expectedPartition, StringComparison.Ordinal));
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentIdentity_ConfigurationAliases_ReuseTokens(bool userFic)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var provider = test.Services.GetRequiredService<IAuthorizationHeaderProvider>();
+            var optionsA = CreateNamedAgentOptions(test.AgentId, "BlueprintA", userFic);
+            var optionsB = CreateNamedAgentOptions(test.AgentId, "BlueprintAlias", userFic);
+            Task<string> AcquireAsync(AuthorizationHeaderProviderOptions options) => userFic
+                ? provider.CreateAuthorizationHeaderForUserAsync(new[] { "https://graph.microsoft.com/.default" }, options)
+                : provider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentA, "assertion-a");
+            test.Http.AddMockHandler(CreateClientCredentialsTokenHandler(userFic ? "instance-a" : "token-a"));
+            if (userFic)
+            {
+                test.Http.AddMockHandler(CreateUserFicTokenHandler("token-a"));
+            }
+
+            // Act
+            string first = await AcquireAsync(optionsA);
+            string second = await AcquireAsync(optionsB);
+            test.Acquisition._applicationsByAuthorityClientId.Clear();
+            string secondCached = await AcquireAsync(optionsB);
+
+            // Assert
+            Assert.Equal("Bearer token-a", first);
+            Assert.Equal(first, second);
+            Assert.Equal(second, secondCached);
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentUserIdentity_RefreshAndFallback_IgnoreOtherParentAndLegacyTokens()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var provider = test.Services.GetRequiredService<IAuthorizationHeaderProvider>();
+            var options = CreateNamedAgentOptions(test.AgentId, "BlueprintB", userFic: true);
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
+            foreach (string name in new[] { "BlueprintB", "BlueprintA" })
+            {
+                options.AcquireTokenOptions.AuthenticationOptionsName = name;
+                AddBlueprintAssertion(test.Http, test.AgentId, name == "BlueprintB" ? test.ParentB : test.ParentA,
+                    "assertion-" + name, name == "BlueprintB" ? "test-only-b-secret" : "test-only-secret");
+                test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("instance-" + name));
+                test.Http.AddMockHandler(CreateUserFicTokenHandler(
+                    "user-" + name, "refresh-" + name, name == "BlueprintB" ? -1 : 3599));
+                await provider.CreateAuthorizationHeaderForUserAsync(scopes, options);
+            }
+            var legacyClient = ConfidentialClientApplicationBuilder.Create(test.AgentId)
+                .WithAuthority("https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f")
+                .WithClientSecret("test-only-legacy-secret")
+                .WithHttpClientFactory(test.Http)
+                .WithCacheOptions(CacheOptions.EnableSharedCacheOptions)
+                .Build();
+            test.Http.AddMockHandler(CreateUserFicTokenHandler("legacy-user", "legacy-refresh"));
+            await ((IByUserFederatedIdentityCredential)legacyClient).AcquireTokenByUserFederatedIdentityCredential(
+                scopes, AgentTestUsername, "legacy-instance").ExecuteAsync();
+            var refresh = CreateClientCredentialsTokenHandler("refreshed-b");
+            refresh.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = "refresh-BlueprintB",
+                ["client_id"] = test.AgentId,
+            };
+            refresh.ResponseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"error\":\"invalid_grant\",\"error_description\":\"Refresh token revoked.\"}"),
+            };
+            var fallback = CreateUserFicTokenHandler("reacquired-b");
+            test.Http.AddMockHandler(refresh);
+            test.Http.AddMockHandler(fallback);
+            options.AcquireTokenOptions.AuthenticationOptionsName = "BlueprintB";
+
+            // Act
+            string result = await provider.CreateAuthorizationHeaderForUserAsync(scopes, options);
+
+            // Assert
+            Assert.Equal("Bearer reacquired-b", result);
+            Assert.Equal("refresh-BlueprintB", refresh.ActualRequestPostData["refresh_token"]);
+            Assert.Contains("instance-BlueprintB", fallback.ActualRequestPostData.Values);
+            Assert.Equal(test.AgentId, fallback.ActualRequestPostData["client_id"]);
+            Assert.Equal(result, await provider.CreateAuthorizationHeaderForUserAsync(scopes, options));
+            options.AcquireTokenOptions.AuthenticationOptionsName = "BlueprintA";
+            Assert.Equal("Bearer user-BlueprintA", await provider.CreateAuthorizationHeaderForUserAsync(scopes, options));
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentAppIdentity_DoesNotReadLegacyUnpartitionedToken()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var legacyClient = ConfidentialClientApplicationBuilder.Create(test.AgentId)
+                .WithAuthority("https://login.microsoftonline.com/10c419d4-4a50-45b2-aa4e-919fb84df24f")
+                .WithClientSecret("test-only-legacy-secret")
+                .WithHttpClientFactory(test.Http)
+                .WithExperimentalFeatures()
+                .Build();
+            test.Services.GetRequiredService<TokenCacheProviders.IMsalTokenCacheProvider>().Initialize(legacyClient.AppTokenCache);
+            test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("legacy-token"));
+            await legacyClient.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" })
+                .WithFmiPathForClientAssertion(test.AgentId)
+                .ExecuteAsync();
+            var rejection = CreateRejectedBlueprintHandler(test.ParentB);
+            rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+            test.Http.AddMockHandler(rejection);
+
+            // Act
+            var provider = test.Services.GetRequiredService<IAuthorizationHeaderProvider>();
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                provider.CreateAuthorizationHeaderForAppAsync(
+                    "https://graph.microsoft.com/.default", CreateNamedAgentAppOptions(test.AgentId, "BlueprintB")));
+
+            // Assert
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public async Task AgentAppIdentity_DefaultHelper_ResolvesAzureAdConfigurationSection(
+            bool aspNetHost, bool namedOptionsOverrideConfiguration)
+        {
+            // Arrange
+            string agentId = Guid.NewGuid().ToString();
+            string parentA = Guid.NewGuid().ToString();
+            string parentB = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            ConfigureAgentBlueprint(factory, string.Empty, parentB, "test-only-b-secret");
+            ConfigureAgentBlueprint(factory, "HostDefault", parentB, "test-only-b-secret");
+            if (namedOptionsOverrideConfiguration)
+            {
+                ConfigureAgentBlueprint(factory, "AzureAd", parentA, "test-only-a-secret");
+            }
+            factory.Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
+                    ["AzureAd:TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                    ["AzureAd:ClientId"] = namedOptionsOverrideConfiguration ? Guid.NewGuid().ToString() : parentA,
+                    ["AzureAd:ClientCredentials:0:SourceType"] = "ClientSecret",
+                    ["AzureAd:ClientCredentials:0:ClientSecret"] = namedOptionsOverrideConfiguration ? "test-only-other-secret" : "test-only-a-secret",
+                }).Build());
+            if (aspNetHost)
+            {
+                factory.Services.AddAuthentication("HostDefault").AddJwtBearer("HostDefault", _ => { });
+                factory.Services.AddSingleton<ITokenAcquisitionHost>(provider => new TokenAcquisitionAspnetCoreHost(
+                    new Microsoft.AspNetCore.Http.HttpContextAccessor(),
+                    provider.GetRequiredService<IMergedOptionsStore>(),
+                    provider));
+            }
+            factory.Services.AddAgentIdentities();
+            IServiceProvider services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var acquisition = services.GetRequiredService<ITokenAcquisition>();
+            var options = new TokenAcquisitionOptions
+            {
+                ExtraParameters = new AuthorizationHeaderProviderOptions().WithAgentIdentity(agentId).AcquireTokenOptions.ExtraParameters,
+            };
+            AddBlueprintAssertion(http, agentId, parentA, "assertion-a", "test-only-a-secret");
+            http.AddMockHandler(CreateClientCredentialsTokenHandler("token-a"));
+            var rejection = CreateRejectedBlueprintHandler(parentB);
+            rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+            http.AddMockHandler(rejection);
+
+            // Act
+            var first = await acquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", tokenAcquisitionOptions: options);
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() => acquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", authenticationScheme: string.Empty, tokenAcquisitionOptions: options));
+            var repeated = await acquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("token-a", first.AccessToken);
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(parentB, rejection.ActualRequestPostData["client_id"]);
+            Assert.Equal(first.AccessToken, repeated.AccessToken);
+            Assert.Equal(TokenSource.Cache, repeated.AuthenticationResultMetadata.TokenSource);
+            http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentUserIdentity_DefaultHelper_UsesHostDefaultBlueprint()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var options = ToTokenOptions(new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(test.AgentId, AgentTestUsername));
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentB, "assertion-b", "test-only-b-secret");
+            test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("instance-b"));
+            test.Http.AddMockHandler(CreateUserFicTokenHandler("user-b"));
+
+            // Act
+            var first = await test.Acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+            var repeated = await test.Acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("user-b", first.AccessToken);
+            Assert.Equal("user-b", repeated.AccessToken);
+            Assert.Equal(TokenSource.Cache, repeated.AuthenticationResultMetadata.TokenSource);
+            Assert.False(options.ExtraParameters!.ContainsKey(Constants.AgentBlueprintConfiguration));
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentAppIdentity_ProgrammaticFactory_UsesSelectedBlueprint(bool useStringOverload)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var acquirerFactory = test.Services.GetRequiredService<ITokenAcquirerFactory>();
+            var options = CreateNamedAgentAppOptions(test.AgentId, "BlueprintA").AcquireTokenOptions;
+            options.AuthenticationOptionsName = null;
+            var helperApplication = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var helperCredential = helperApplication.ClientCredentials!.Single();
+            var helperData = helperCredential.CustomSignedAssertionProviderData!;
+            var applicationB = new MicrosoftIdentityApplicationOptions
+            {
+                Instance = "https://login.microsoftonline.com/",
+                TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ClientId = test.ParentB,
+                ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "test-only-b-secret",
+                }],
+            };
+            ITokenAcquirer SelectApplication(MicrosoftIdentityApplicationOptions application) => useStringOverload
+                ? test.Factory.GetTokenAcquirer(application.Authority!, application.ClientId!, application.ClientCredentials!, region: null)
+                : acquirerFactory.GetTokenAcquirer(application);
+            var rejection = CreateRejectedBlueprintHandler(test.ParentB);
+            rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
+            rejection.ExpectedPostData["fmi_path"] = test.AgentId;
+            test.Http.AddMockHandler(rejection);
+
+            // Act
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                SelectApplication(applicationB).GetTokenForAppAsync("https://graph.microsoft.com/.default", options));
+            AddBlueprintAssertion(test.Http, test.AgentId, test.ParentA, "assertion-a");
+            test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("token-a"));
+            var applicationA = test.Services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get("BlueprintA");
+            var recovered = await SelectApplication(applicationA).GetTokenForAppAsync("https://graph.microsoft.com/.default", options);
+            var cached = await acquirerFactory.GetTokenAcquirer("BlueprintA").GetTokenForAppAsync("https://graph.microsoft.com/.default", options);
+
+            // Assert
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
+            Assert.Equal("token-a", recovered.AccessToken);
+            Assert.Equal(recovered.AccessToken, cached.AccessToken);
+            Assert.Null(options.AuthenticationOptionsName);
+            Assert.Equal("BlueprintA", options.ExtraParameters[Constants.AgentBlueprintConfiguration]);
+            Assert.Same(helperCredential, helperApplication.ClientCredentials!.Single());
+            Assert.Same(helperData, helperCredential.CustomSignedAssertionProviderData);
+            Assert.Equal("BlueprintA", helperData["ConfigurationSection"]);
+            Assert.Null(helperCredential.CachedValue);
+            Assert.Equal(test.ParentB, applicationB.ClientId);
+            Assert.Equal("test-only-b-secret", applicationB.ClientCredentials.Single().ClientSecret);
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentAppIdentity_TwoAgents_KeepTokensAndFmiPathsIsolated()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            string[] agentIds = { test.AgentId, Guid.NewGuid().ToString() };
+            var provider = test.Services.GetRequiredService<IAuthorizationHeaderProvider>();
+            foreach (string agentId in agentIds)
+            {
+                AddBlueprintAssertion(test.Http, agentId, test.ParentA, "assertion-" + agentId);
+                var token = CreateClientCredentialsTokenHandler("token-" + agentId);
+                token.ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["client_id"] = agentId,
+                    ["client_assertion"] = "assertion-" + agentId,
+                };
+                test.Http.AddMockHandler(token);
+            }
+
+            // Act
+            foreach (string agentId in agentIds.Concat(agentIds.Reverse()))
+            {
+                string result = await provider.CreateAuthorizationHeaderForAppAsync(
+                    "https://graph.microsoft.com/.default", CreateNamedAgentAppOptions(agentId, "BlueprintA"));
+
+                // Assert
+                Assert.Equal("Bearer token-" + agentId, result);
+            }
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task AgentAppIdentity_SeparateServiceProviders_DistributedCacheKeepsParentsIsolated()
+        {
+            // Arrange
+            string agentId = Guid.NewGuid().ToString();
+            string parentA = Guid.NewGuid().ToString();
+            string parentB = Guid.NewGuid().ToString();
+            var storage = new TestDistributedCache();
+            IServiceProvider BuildProvider()
+            {
+                var factory = InitTokenAcquirerFactoryForAgent();
+                ConfigureAgentBlueprint(factory, "BlueprintA", parentA);
+                ConfigureAgentBlueprint(factory, "BlueprintB", parentB);
+                factory.Services.AddAgentIdentities();
+                factory.Services.AddSingleton<IDistributedCache>(storage);
+                factory.Services.AddDistributedTokenCaches();
+                factory.Services.Configure<MsalDistributedTokenCacheAdapterOptions>(options => options.DisableL1Cache = true);
+                return factory.Build();
+            }
+            IServiceProvider firstServices = BuildProvider();
+            var firstHttp = Assert.IsType<MockHttpClientFactory>(firstServices.GetRequiredService<IMsalHttpClientFactory>());
+            var firstProvider = firstServices.GetRequiredService<IAuthorizationHeaderProvider>();
+            firstHttp.AddMockHandler(CreateClientCredentialsTokenHandler("assertion-a"));
+            firstHttp.AddMockHandler(CreateClientCredentialsTokenHandler("token-a"));
+
+            // Act
+            string first = await firstProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default", CreateNamedAgentAppOptions(agentId, "BlueprintA"));
+            Assert.IsAssignableFrom<IDisposable>(firstServices).Dispose();
+            IServiceProvider secondServices = BuildProvider();
+            var secondHttp = Assert.IsType<MockHttpClientFactory>(secondServices.GetRequiredService<IMsalHttpClientFactory>());
+            var secondProvider = secondServices.GetRequiredService<IAuthorizationHeaderProvider>();
+            string shared = await secondProvider.CreateAuthorizationHeaderForAppAsync(
+                "https://graph.microsoft.com/.default", CreateNamedAgentAppOptions(agentId, "BlueprintA"));
+            var rejection = CreateRejectedBlueprintHandler(parentB);
+            secondHttp.AddMockHandler(rejection);
+            var error = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                secondProvider.CreateAuthorizationHeaderForAppAsync(
+                    "https://graph.microsoft.com/.default", CreateNamedAgentAppOptions(agentId, "BlueprintB")));
+
+            // Assert
+            Assert.Equal("Bearer token-a", first);
+            Assert.Equal(first, shared);
+            Assert.Equal("unauthorized_client", error.ErrorCode);
+            Assert.Equal(parentB, rejection.ActualRequestPostData["client_id"]);
+            Assert.NotEmpty(storage._dict);
+            secondHttp.Dispose();
+            Assert.IsAssignableFrom<IDisposable>(secondServices).Dispose();
+        }
+
+        private (TokenAcquirerFactory Factory, IServiceProvider Services, MockHttpClientFactory Http,
+            TokenAcquisition Acquisition, string AgentId, string ParentA, string ParentB) CreateAgentCacheTest()
+        {
+            string agentId = Guid.NewGuid().ToString();
+            string parentA = Guid.NewGuid().ToString();
+            string parentB = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            ConfigureAgentBlueprint(factory, "BlueprintA", parentA);
+            ConfigureAgentBlueprint(factory, "BlueprintB", parentB, "test-only-b-secret");
+            ConfigureAgentBlueprint(factory, "BlueprintAlias", parentA.ToUpperInvariant(), "test-only-alias-secret");
+            ConfigureAgentBlueprint(factory, "AzureAd", parentA);
+            ConfigureAgentBlueprint(factory, string.Empty, parentB, "test-only-b-secret");
+            factory.Services.AddAgentIdentities();
+            IServiceProvider services = factory.Build();
+
+            return (factory, services, Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>()),
+                (TokenAcquisition)services.GetRequiredService<ITokenAcquisition>(), agentId, parentA, parentB);
+        }
+
+        private static void AddBlueprintAssertion(
+            MockHttpClientFactory http, string agentId, string parentId, string assertion, string secret = "test-only-secret")
+        {
+            var handler = CreateClientCredentialsTokenHandler(assertion);
+            handler.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["client_id"] = parentId,
+                ["client_secret"] = secret,
+                ["fmi_path"] = agentId,
+            };
+            http.AddMockHandler(handler);
+        }
+
+        private static TokenAcquisitionOptions ToTokenOptions(AuthorizationHeaderProviderOptions options) => new()
+        {
+            AuthenticationOptionsName = options.AcquireTokenOptions.AuthenticationOptionsName,
+            ExtraParameters = options.AcquireTokenOptions.ExtraParameters,
+        };
+
+        private static AuthorizationHeaderProviderOptions CreateNamedAgentOptions(
+            string agentId, string name, bool userFic, bool useOid = false)
+        {
+            if (!userFic)
+            {
+                return CreateNamedAgentAppOptions(agentId, name);
+            }
+
+            var options = useOid
+                ? new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(agentId, AgentTestUserOid)
+                : new AuthorizationHeaderProviderOptions().WithAgentUserIdentity(agentId, AgentTestUsername);
+            options.AcquireTokenOptions.AuthenticationOptionsName = name;
+            return options;
+        }
+
+        private static void ConfigureAgentBlueprint(
+            TokenAcquirerFactory factory, string name, string clientId, string secret = "test-only-secret")
+        {
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(name, options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
+                options.ClientId = clientId;
+                options.ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = secret,
+                }];
+            });
+        }
+
+        private static AuthorizationHeaderProviderOptions CreateNamedAgentAppOptions(string agentId, string name)
+        {
+            return new AuthorizationHeaderProviderOptions
+            {
+                AcquireTokenOptions = new AcquireTokenOptions { AuthenticationOptionsName = name },
+            }.WithAgentIdentity(agentId);
+        }
+
+        private static MockHttpMessageHandler CreateRejectedBlueprintHandler(string clientId)
+        {
+            return new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ExpectedPostData = new Dictionary<string, string> { ["client_id"] = clientId },
+                ResponseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent("{\"error\":\"unauthorized_client\",\"error_description\":\"Blueprint is not authorized for this agent.\"}"),
+                },
+            };
+        }
+
         private const string AgentTestUsername = "testuser@contoso.com";
 
         /// <summary>
@@ -779,17 +1454,18 @@ namespace Microsoft.Identity.Web.Test
         /// Creates a mock handler for a user_fic response (Leg 3) with id_token, refresh_token,
         /// and client_info so MSAL creates a proper account in the cache.
         /// </summary>
-        private static MockHttpMessageHandler CreateUserFicTokenHandler(string accessToken)
+        private static MockHttpMessageHandler CreateUserFicTokenHandler(
+            string accessToken, string refreshToken = "mock-refresh-token", int expiresIn = 3599)
         {
             return new MockHttpMessageHandler()
             {
                 ExpectedMethod = HttpMethod.Post,
                 ResponseMessage = MockHttpCreator.CreateSuccessResponseMessage(
                     "{\"token_type\":\"Bearer\"," +
-                    "\"expires_in\":3599," +
+                    "\"expires_in\":" + expiresIn + "," +
                     "\"scope\":\"https://graph.microsoft.com/.default openid profile offline_access\"," +
                     "\"access_token\":\"" + accessToken + "\"," +
-                    "\"refresh_token\":\"mock-refresh-token\"," +
+                    "\"refresh_token\":\"" + refreshToken + "\"," +
                     "\"client_info\":\"" + EncodeBase64Url(
                         "{\"uid\":\"" + TestConstants.Uid + "\",\"utid\":\"" + TestConstants.Utid + "\"}") + "\"," +
                     "\"id_token\":\"" + MockHttpCreator.CreateIdToken(TestConstants.Uid, AgentTestUsername) + "\"}"),
