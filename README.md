@@ -87,18 +87,20 @@ If you find a security issue with our libraries or services, please report it to
 
 ## Building with .NET Preview Versions
 
-Microsoft Identity Web supports building and testing with .NET preview versions using the `TargetNetNext` conditional compilation flag. This enables early testing and compatibility validation with the latest .NET preview releases.
+Microsoft Identity Web supports building and testing with .NET preview versions using the `TargetNetNext` build property. This enables early testing and compatibility validation with the configured .NET preview release.
 
 ### Prerequisites
 
-- Install .NET 10 preview SDK from [https://dotnet.microsoft.com/download/dotnet/10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+- Install a .NET SDK compatible with the preview target configured in `Directory.Build.props` from the [.NET download page](https://dotnet.microsoft.com/download/dotnet).
 
-### Building with .NET 10 Preview
+Released targets only require the minimum SDK in `global.json`. A preview SDK is optional, but may be selected if installed; `TargetNetNext` controls targets, not SDK selection.
 
-To build the solution with .NET 10 preview support:
+### Building with preview targets
+
+To build the solution with preview support:
 
 ```bash
-# Build with .NET 10 preview targets included
+# Build with preview targets included
 dotnet build Microsoft.Identity.Web.sln -p:TargetNetNext=True
 
 # Or using MSBuild
@@ -106,16 +108,16 @@ msbuild Microsoft.Identity.Web.sln -p:TargetNetNext=True
 ```
 You can also set the TargetNetNext environment variable on your machine with the value `True`.
 
-### Testing with .NET 10 Preview
+### Testing with preview targets
 
-To run tests targeting .NET 10 preview:
+To run tests for the preview target, replace `<preview-tfm>` with the target framework configured in `Directory.Build.props`:
 
 ```bash
-# Run tests with .NET 10 preview (conditional)
-dotnet test Microsoft.Identity.Web.sln -f net10.0 -p:TargetNetNext=True
+# Run tests with preview targets enabled
+dotnet test Microsoft.Identity.Web.sln -f "<preview-tfm>" -p:TargetNetNext=True
 ```
 
-**Note:** .NET 10 preview support is conditional and requires setting `TargetNetNext=True` during build/test operations. This ensures compatibility with the latest preview versions while maintaining stability for production builds.
+**Note:** Leave `TargetNetNext` unset or set it to `False` for released targets. When producing preview packages, also set `MicrosoftIdentityWebVersion` to a prerelease version consistently during restore, build, and pack.
 
 ## Trademarks
 
