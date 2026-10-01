@@ -69,6 +69,17 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal bool MergedWithCca { get; set; }
+
+        /// <summary>
+        /// Set to true once Microsoft.Identity.Web has wired-up MSAL-based authorization code
+        /// redemption (OnAuthorizationCodeReceived) for this scheme - either because
+        /// EnableTokenAcquisitionToCallDownstreamApi() was called, or automatically, because a
+        /// complex client credential (not a plain client secret) was detected together with
+        /// ResponseType=code. Prevents the automatic detection from wiring a second, redundant
+        /// handler when EnableTokenAcquisitionToCallDownstreamApi() is used explicitly.
+        /// </summary>
+        internal bool AuthorizationCodeHandledByMicrosoftIdentityWeb { get; set; }
+
         // This is for supporting for CIAM authorities including custom url domains, see https://github.com/AzureAD/microsoft-identity-web/issues/2690
         /*
          * Used by Microsoft.Identity.Web
