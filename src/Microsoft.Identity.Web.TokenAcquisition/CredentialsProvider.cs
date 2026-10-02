@@ -111,14 +111,19 @@ namespace Microsoft.Identity.Web
                     {
                         await _credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
                     }
-                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    catch (Exception ex) when (
+                        credential.SourceType != CredentialSource.SignedAssertionFromManagedIdentity
+                        || ex is not OperationCanceledException)
                     {
                         LogMessages.AttemptToLoadCredentialsFailed(_logger, credential, ex);
                         errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
                         (exceptions ??= []).Add(ex);
-                        // A failed load is unusable for this attempt, even when the loader
-                        // leaves Skip unset so a later request can try again.
-                        continue;
+                        if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
+                        {
+                            // MI failures are unusable for this attempt but remain eligible later.
+                            // Preserve the existing selection rules for all other credential sources.
+                            continue;
+                        }
                     }
 
                     if (credential.CredentialType == CredentialType.SignedAssertion)

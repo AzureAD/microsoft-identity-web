@@ -16,7 +16,7 @@ flowchart TD
     
     Config -->|"bound to MergedOptions"| Provider
 
-    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If loader throws → try next credential for this attempt;<br/>&nbsp;&nbsp;&nbsp;cancellation propagates without fallback<br/>4. First success → return credential"]
+    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. Apply source-specific failure handling<br/>4. Select using Skip and loaded values"]
 
     Provider -->|"resolved CredentialDescription"| Wiring
 
@@ -229,7 +229,9 @@ To reset, call `ResetCredentials()` which clears both `CachedValue` and `Skip`.
 Managed-identity assertion failures leave `Skip` unset and `CachedValue` empty. The provider
 tries the next credential for that selection attempt; if none succeeds, IDW10109 preserves
 the original exception (or an aggregate of the failures) as its inner exception. Cancellation
-propagates without trying fallback credentials.
+from a managed-identity assertion load propagates without trying fallback credentials.
+These changes apply only to `SignedAssertionFromManagedIdentity`. Other credential sources
+retain their existing loaded-value selection, `Skip`, error, and cancellation handling.
 
 A later credential selection can retry the managed-identity assertion using the same services
 and credential description, including when both authority and `TokenExchangeUrl` are explicit.
