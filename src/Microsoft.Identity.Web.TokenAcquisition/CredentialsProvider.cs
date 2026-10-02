@@ -109,14 +109,16 @@ namespace Microsoft.Identity.Web
                     // Load the credentials and record error messages in case we need to fail at the end
                     try
                     {
-
                         await _credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         LogMessages.AttemptToLoadCredentialsFailed(_logger, credential, ex);
                         errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
                         (exceptions ??= []).Add(ex);
+                        // A failed load is unusable for this attempt, even when the loader
+                        // leaves Skip unset so a later request can try again.
+                        continue;
                     }
 
                     if (credential.CredentialType == CredentialType.SignedAssertion)

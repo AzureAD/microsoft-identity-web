@@ -16,7 +16,7 @@ flowchart TD
     
     Config -->|"bound to MergedOptions"| Provider
 
-    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If loader throws → loader sets Skip=true on itself;<br/>&nbsp;&nbsp;&nbsp;CredentialsProvider catches, tries next credential<br/>4. First success → return credential"]
+    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If loader throws → try next credential for this attempt;<br/>&nbsp;&nbsp;&nbsp;cancellation propagates without fallback<br/>4. First success → return credential"]
 
     Provider -->|"resolved CredentialDescription"| Wiring
 
@@ -65,11 +65,14 @@ flowchart LR
     Skipped["<b>Skipped</b><br/>Skip = true<br/>CachedValue = null<br/><i>CredentialsProvider moves to next</i>"]
 
     Initial -->|"LoadIfNeededAsync() succeeds"| Loaded
-    Initial -->|"LoadIfNeededAsync() throws"| Skipped
+    Initial -->|"Loader sets Skip = true"| Skipped
+    Initial -->|"MI assertion load fails: next selection may retry"| Initial
 ```
 
 **Architectural rule:** A loader may set `Skip = true` on *itself* (the credential it was asked to load)
-when it cannot operate (e.g., MI not available locally). A loader must NOT set `Skip` on
+when it cannot operate (e.g., a projected assertion file cannot be loaded). The managed-identity
+assertion loader does not set `Skip` on failure, so dependency recovery does not require a reset.
+A loader must NOT set `Skip` on
 other credentials in the collection — that is the orchestrator's responsibility.
 
 ---
@@ -223,8 +226,18 @@ At runtime:
 First successful load wins. Failed credentials where the loader sets `Skip = true`
 remain skipped on subsequent requests (CredentialsProvider checks `if (!credential.Skip)`).
 To reset, call `ResetCredentials()` which clears both `CachedValue` and `Skip`.
-For credentials that failed without setting Skip (rare), the `CachedValue == null` check
-allows a natural retry on the next request.
+Managed-identity assertion failures leave `Skip` unset and `CachedValue` empty. The provider
+tries the next credential for that selection attempt; if none succeeds, IDW10109 preserves
+the original exception (or an aggregate of the failures) as its inner exception. Cancellation
+propagates without trying fallback credentials.
+
+A later credential selection can retry the managed-identity assertion using the same services
+and credential description, including when both authority and `TokenExchangeUrl` are explicit.
+Configured authority and audience values are preserved. Each credential is attempted once per
+selection; no additional Identity Web retry loop or backoff policy is introduced over MSAL's
+existing managed-identity request handling. Persistent authentication failures still fail each
+attempt. If a fallback credential succeeds, the existing confidential-client application cache
+continues to use that selected credential until credential selection is needed again.
 
 ---
 
