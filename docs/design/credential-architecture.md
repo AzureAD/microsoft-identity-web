@@ -16,7 +16,7 @@ flowchart TD
     
     Config -->|"bound to MergedOptions"| Provider
 
-    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If loader throws → loader sets Skip=true on itself;<br/>&nbsp;&nbsp;&nbsp;CredentialsProvider catches, tries next credential<br/>4. First success → return credential"]
+    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. Apply source-specific failure handling<br/>4. Select using Skip and loaded values"]
 
     Provider -->|"resolved CredentialDescription"| Wiring
 
@@ -65,11 +65,15 @@ flowchart LR
     Skipped["<b>Skipped</b><br/>Skip = true<br/>CachedValue = null<br/><i>CredentialsProvider moves to next</i>"]
 
     Initial -->|"LoadIfNeededAsync() succeeds"| Loaded
-    Initial -->|"LoadIfNeededAsync() throws"| Skipped
+    Initial -->|"Loader sets Skip = true"| Skipped
+    Initial -->|"MI assertion load fails: next selection may retry"| Initial
 ```
 
 **Architectural rule:** A loader may set `Skip = true` on *itself* (the credential it was asked to load)
-when it cannot operate (e.g., MI not available locally). A loader must NOT set `Skip` on
+when it cannot operate (e.g., a projected assertion file cannot be loaded). The managed-identity
+loaders (`SignedAssertionFromManagedIdentityCredentialLoader` and `KeyAttestedManagedIdentityCredentialLoader`)
+never set `Skip` on failure, so a transient MI outage does not require a reset.
+A loader must NOT set `Skip` on
 other credentials in the collection — that is the orchestrator's responsibility.
 
 ---
@@ -223,8 +227,15 @@ At runtime:
 First successful load wins. Failed credentials where the loader sets `Skip = true`
 remain skipped on subsequent requests (CredentialsProvider checks `if (!credential.Skip)`).
 To reset, call `ResetCredentials()` which clears both `CachedValue` and `Skip`.
-For credentials that failed without setting Skip (rare), the `CachedValue == null` check
-allows a natural retry on the next request.
+
+Managed-identity assertion (`SignedAssertionFromManagedIdentity`) failures are not sticky: `Skip`
+stays `false` and `CachedValue` stays `null`, the provider moves to the next credential for that
+selection, and a later selection retries MI. If no credential succeeds, IDW10109 wraps the original
+exception (or an `AggregateException`) as `InnerException`. Only caller-requested cancellation
+(the `CancellationToken` passed to `GetCredentialAsync` is cancelled) propagates directly; other
+`OperationCanceledException`s, such as HTTP timeouts, are treated as failures and fall back.
+No Identity Web backoff is applied, so during a sustained MI outage every selection re-attempts MI
+and incurs MSAL's bounded MI retry latency. Other credential sources keep their existing behavior.
 
 ---
 
