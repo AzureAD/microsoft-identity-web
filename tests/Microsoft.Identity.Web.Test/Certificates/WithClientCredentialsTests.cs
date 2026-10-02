@@ -78,8 +78,10 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.False(credentialDescriptions[0].Skip);
         }
 
-        [Fact]
-        public async Task ManagedIdentityCredentialLoadingCanceled_PropagatesWithoutTryingFallbackAsync()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ManagedIdentityCredentialLoadingCanceled_PropagatesWithoutTryingFallbackAsync(bool taskCanceled)
         {
             // Arrange
             var logger = Substitute.For<ILogger<CredentialsProvider>>();
@@ -96,13 +98,15 @@ namespace Microsoft.Identity.Web.Test.Certificates
             };
             using var cancellation = new CancellationTokenSource();
             await cancellation.CancelAsync();
-            var failure = new OperationCanceledException(cancellation.Token);
+            OperationCanceledException failure = taskCanceled
+                ? new TaskCanceledException("Canceled by caller.", null, cancellation.Token)
+                : new OperationCanceledException(cancellation.Token);
             loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
                 .ThrowsAsync(failure);
             var provider = new CredentialsProvider(logger, loader, [], null);
 
             // Act
-            var exception = await Assert.ThrowsAsync<OperationCanceledException>(() => provider.GetCredentialAsync(
+            var exception = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => provider.GetCredentialAsync(
                 new MergedOptions { ClientCredentials = new[] { credential, fallback } },
                 new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant"),
                 cancellation.Token));
@@ -112,6 +116,46 @@ namespace Microsoft.Identity.Web.Test.Certificates
             Assert.False(credential.Skip);
             Assert.Null(credential.CachedValue);
             await loader.DidNotReceive().LoadCredentialsIfNeededAsync(fallback, Arg.Any<CredentialSourceLoaderParameters>());
+        }
+
+        [Fact]
+        public async Task ManagedIdentityCredentialLoadingTimedOut_FallsBackToNextCredentialAsync()
+        {
+            // Arrange: a TaskCanceledException without caller cancellation models an HttpClient timeout.
+            var loader = Substitute.For<ICredentialsLoader>();
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                TokenExchangeUrl = "api://AzureADTokenExchangeUSGov",
+            };
+            var fallback = new CredentialDescription
+            {
+                SourceType = CredentialSource.ClientSecret,
+                ClientSecret = TestConstants.ClientSecret,
+            };
+            using var cancellation = new CancellationTokenSource();
+            var timeout = new TaskCanceledException("The request timed out.");
+            loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
+                .ThrowsAsync(timeout);
+            var provider = new CredentialsProvider(Substitute.For<ILogger<CredentialsProvider>>(), loader, [], null);
+            var parameters = new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant");
+
+            // Act
+            CredentialDescription? selected = await provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential, fallback } },
+                parameters,
+                cancellation.Token);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential } },
+                parameters,
+                cancellation.Token));
+
+            // Assert
+            Assert.Same(fallback, selected);
+            Assert.StartsWith("IDW10109:", exception.Message, StringComparison.Ordinal);
+            Assert.Same(timeout, exception.InnerException);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
         }
 
         [Theory]

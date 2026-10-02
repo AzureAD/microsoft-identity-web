@@ -185,4 +185,57 @@ public class ManagedIdentityCredentialRecoveryTests
             ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = previousFactory;
         }
     }
+
+    [Fact]
+    public async Task KeyAttestedLoader_RepeatedManagedIdentityFailure_DoesNotSkipAndLaterSuccessCachesAsync()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddTokenAcquisition();
+        services.AddMicrosoftIdentityWebKeyAttestation();
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+        var loader = Assert.IsType<DefaultCertificateLoader>(serviceProvider.GetRequiredService<ICredentialsLoader>());
+        Assert.Equal(
+            typeof(KeyAttestationServiceCollectionExtensions).Assembly,
+            loader.CredentialSourceLoaders[CredentialSource.SignedAssertionFromManagedIdentity].GetType().Assembly);
+
+        using var miHttp = new MockHttpClientFactory();
+        var credential = new CredentialDescription
+        {
+            SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+            ManagedIdentityClientId = Guid.NewGuid().ToString(),
+            TokenExchangeUrl = "api://AzureADTokenExchangeUSGov",
+        };
+        var parameters = new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant");
+        IMsalHttpClientFactory? previousFactory = ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests;
+        ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = miHttp;
+        try
+        {
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                var failure = new MsalServiceException("managed_identity_unreachable_network", "Managed identity is unavailable.");
+                miHttp.AddMockHandler(new MockHttpMessageHandler { ExceptionToThrow = failure });
+
+                // Act
+                var exception = await Assert.ThrowsAsync<MsalServiceException>(
+                    () => loader.LoadCredentialsIfNeededAsync(credential, parameters));
+
+                // Assert
+                Assert.Same(failure, exception);
+                Assert.Null(credential.CachedValue);
+                Assert.False(credential.Skip);
+            }
+
+            miHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("recovered-assertion", credential.TokenExchangeUrl));
+            await loader.LoadCredentialsIfNeededAsync(credential, parameters);
+
+            Assert.IsType<ManagedIdentityClientAssertion>(credential.CachedValue);
+            Assert.False(credential.Skip);
+        }
+        finally
+        {
+            ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests = previousFactory;
+        }
+    }
 }

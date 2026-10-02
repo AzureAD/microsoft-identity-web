@@ -71,7 +71,8 @@ flowchart LR
 
 **Architectural rule:** A loader may set `Skip = true` on *itself* (the credential it was asked to load)
 when it cannot operate (e.g., a projected assertion file cannot be loaded). The managed-identity
-assertion loader does not set `Skip` on failure, so dependency recovery does not require a reset.
+loaders (`SignedAssertionFromManagedIdentityCredentialLoader` and `KeyAttestedManagedIdentityCredentialLoader`)
+never set `Skip` on failure, so a transient MI outage does not require a reset.
 A loader must NOT set `Skip` on
 other credentials in the collection — that is the orchestrator's responsibility.
 
@@ -226,20 +227,15 @@ At runtime:
 First successful load wins. Failed credentials where the loader sets `Skip = true`
 remain skipped on subsequent requests (CredentialsProvider checks `if (!credential.Skip)`).
 To reset, call `ResetCredentials()` which clears both `CachedValue` and `Skip`.
-Managed-identity assertion failures leave `Skip` unset and `CachedValue` empty. The provider
-tries the next credential for that selection attempt; if none succeeds, IDW10109 preserves
-the original exception (or an aggregate of the failures) as its inner exception. Cancellation
-from a managed-identity assertion load propagates without trying fallback credentials.
-These changes apply only to `SignedAssertionFromManagedIdentity`. Other credential sources
-retain their existing loaded-value selection, `Skip`, error, and cancellation handling.
 
-A later credential selection can retry the managed-identity assertion using the same services
-and credential description, including when both authority and `TokenExchangeUrl` are explicit.
-Configured authority and audience values are preserved. Each credential is attempted once per
-selection; no additional Identity Web retry loop or backoff policy is introduced over MSAL's
-existing managed-identity request handling. Persistent authentication failures still fail each
-attempt. If a fallback credential succeeds, the existing confidential-client application cache
-continues to use that selected credential until credential selection is needed again.
+Managed-identity assertion (`SignedAssertionFromManagedIdentity`) failures are not sticky: `Skip`
+stays `false` and `CachedValue` stays `null`, the provider moves to the next credential for that
+selection, and a later selection retries MI. If no credential succeeds, IDW10109 wraps the original
+exception (or an `AggregateException`) as `InnerException`. Only caller-requested cancellation
+(the `CancellationToken` passed to `GetCredentialAsync` is cancelled) propagates directly; other
+`OperationCanceledException`s, such as HTTP timeouts, are treated as failures and fall back.
+No Identity Web backoff is applied, so during a sustained MI outage every selection re-attempts MI
+and incurs MSAL's bounded MI retry latency. Other credential sources keep their existing behavior.
 
 ---
 
