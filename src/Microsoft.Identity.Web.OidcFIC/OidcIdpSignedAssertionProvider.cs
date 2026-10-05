@@ -30,8 +30,9 @@ namespace Microsoft.Identity.Web.OidcFic
             "(for example SignedAssertionFromManagedIdentity or a certificate).";
 
         private ITokenAcquirer? _tokenAcquirer = null;
-        private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
-        private readonly MicrosoftIdentityApplicationOptions _options;
+        private readonly ITokenAcquirerFactory? _tokenAcquirerFactory;
+        private readonly MicrosoftIdentityApplicationOptions? _options;
+        private readonly string? _agentParentInstance;
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
         private readonly ICloudMetadataProvider? _cloudMetadataProvider;
@@ -63,6 +64,22 @@ namespace Microsoft.Identity.Web.OidcFic
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
+            _tokenExchangeUrl = tokenExchangeUrl;
+            _logger = logger;
+            _cloudMetadataProvider = cloudMetadataProvider;
+            _relyingApplicationAuthority = relyingApplicationAuthority;
+        }
+
+        internal OidcIdpSignedAssertionProvider(
+            ITokenAcquirer tokenAcquirer,
+            string? parentInstance,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            ICloudMetadataProvider? cloudMetadataProvider,
+            string? relyingApplicationAuthority)
+        {
+            _tokenAcquirer = tokenAcquirer;
+            _agentParentInstance = parentInstance;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
             _cloudMetadataProvider = cloudMetadataProvider;
@@ -169,7 +186,7 @@ namespace Microsoft.Identity.Web.OidcFic
             bool requestTokenBinding,
             CancellationToken cancellationToken)
         {
-            _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
+            _tokenAcquirer ??= _tokenAcquirerFactory!.GetTokenAcquirer(_options!);
 
             // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
             // resolve the cloud-specific exchange audience from the layered resolver — a caller's
@@ -187,7 +204,8 @@ namespace Microsoft.Identity.Web.OidcFic
                         ? _relyingApplicationAuthority
                         : !string.IsNullOrEmpty(assertionRequestAuthority)
                             ? assertionRequestAuthority
-                            : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
+                            : _options is null ? _agentParentInstance
+                                : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
                     perCallOverride: _tokenExchangeUrl,
                     _cloudMetadataProvider));
 
@@ -292,7 +310,7 @@ namespace Microsoft.Identity.Web.OidcFic
             // https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token.
             string? tenant = ExtractTenantFromTokenEndpointIfSameInstance(
                 assertionRequestOptions.TokenEndpoint,
-                _options.Instance);
+                _options?.Instance ?? _agentParentInstance);
             if (!string.IsNullOrEmpty(tenant))
             {
                 return tenant;
@@ -306,7 +324,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 && IsSameCloudInstance(
                     assertionRequestOptions.Authority,
                     assertionRequestOptions.TokenEndpoint,
-                    _options.Instance))
+                    _options?.Instance ?? _agentParentInstance))
             {
                 return assertionRequestOptions.TenantId;
             }

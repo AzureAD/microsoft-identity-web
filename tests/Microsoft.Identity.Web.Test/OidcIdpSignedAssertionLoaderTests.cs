@@ -34,6 +34,59 @@ namespace Microsoft.Identity.Web.Test
             _options = new MicrosoftIdentityApplicationOptions();
         }
 
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void CompatibilityRepair_NamedCodeOptions_DoNotInheritUnrequestedJson(bool configureBefore, bool invalidJson)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Inner:Instance"] = "https://login.microsoftonline.us/",
+                    ["Inner:TenantId"] = "json-tenant",
+                    ["Inner:ClientId"] = "json-client",
+                    ["Inner:ExtraQueryParameters:dc"] = "json-routing-hint",
+                    ["Inner:SendX5C"] = invalidJson ? "not-a-boolean" : "true",
+                }).Build());
+            void ConfigureOptions() => services.Configure<MicrosoftIdentityApplicationOptions>("Inner", options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "code-tenant";
+                options.ClientId = "code-client";
+                options.SendX5C = false;
+                options.ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "test-only-secret",
+                }];
+            });
+            if (configureBefore)
+            {
+                ConfigureOptions();
+            }
+            services.AddOidcFic();
+            if (!configureBefore)
+            {
+                ConfigureOptions();
+            }
+            using var provider = services.BuildServiceProvider();
+
+            // Act
+            var options = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get("Inner");
+
+            // Assert
+            Assert.Equal("code-client", options.ClientId);
+            Assert.Equal("code-tenant", options.TenantId);
+            Assert.Equal("https://login.microsoftonline.com/", options.Instance);
+            Assert.False(options.SendX5C);
+            Assert.Null(options.ExtraQueryParameters);
+        }
+
         [Fact]
         public async Task LoadIfNeededAsync_ConfigurationIsNull_ThrowsInvalidOperationException()
         {
@@ -61,6 +114,36 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Contains("IConfiguration is not registered in the service collection", exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("https://aka.ms/ms-id-web/fic-oidc/troubleshoot", exception.Message, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task CompatibilityRepair_OrdinaryLoader_BindsMissingSectionOnDemand()
+        {
+            // Arrange
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["TestSection:Instance"] = "https://login.microsoftonline.com/",
+                ["TestSection:TenantId"] = "json-tenant",
+                ["TestSection:ClientId"] = "json-client",
+                ["TestSection:ClientCredentials:0:SourceType"] = "ClientSecret",
+                ["TestSection:ClientCredentials:0:ClientSecret"] = "test-only-secret",
+            }).Build();
+            _serviceProvider.GetService(typeof(IConfiguration)).Returns(configuration);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential();
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential);
+
+            // Assert
+            _tokenAcquirerFactory.Received(1).GetTokenAcquirer(
+                Arg.Is<IdentityApplicationOptions>(options => options.ClientId == "json-client"
+                    && options.Authority == "https://login.microsoftonline.com/json-tenant/v2.0"));
+            await acquirer.Received(1).GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.False(credential.Skip);
         }
 
         [Fact]

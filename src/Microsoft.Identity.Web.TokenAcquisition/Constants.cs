@@ -217,6 +217,7 @@ namespace Microsoft.Identity.Web
         /// Blueprint configuration selected by the app-identity helper, before per-call overrides.
         /// </summary>
         internal const string AgentBlueprintConfiguration = "IDWEB_AGENT_BLUEPRINT_CONFIGURATION";
+        internal const string AgentBlueprintOptions = "IDWEB_AGENT_BLUEPRINT_OPTIONS";
         /*
          * Used by Microsoft.Identity.Web.AgentIdentities
          * Any changes to this member (including removal) can cause runtime failures.

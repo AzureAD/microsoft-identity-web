@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 
 namespace Microsoft.Identity.Web
@@ -51,13 +50,11 @@ namespace Microsoft.Identity.Web
                         MicrosoftIdentityApplicationOptions.AzureRegion = region;
                     }
 
-                    var registeredOptions = ServiceProvider.GetRequiredService<IOptionsMonitorCache<MicrosoftIdentityApplicationOptions>>()
-                        .GetOrAdd(key, () => MicrosoftIdentityApplicationOptions);
                     IMergedOptionsStore optionsMonitor = ServiceProvider.GetRequiredService<IMergedOptionsStore>();
                     MergedOptions mergedOptions = optionsMonitor.Get(key);
-                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(registeredOptions, mergedOptions);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(MicrosoftIdentityApplicationOptions, mergedOptions);
 
-                    return MakeTokenAcquirer(key);
+                    return MakeTokenAcquirer(key, hasExplicitApplicationOptions: true);
                 });
         }
 
@@ -102,13 +99,11 @@ namespace Microsoft.Identity.Web
 
             return _authSchemes.GetOrAdd(key, (key) =>
             {
-                var registeredOptions = ServiceProvider.GetRequiredService<IOptionsMonitorCache<MicrosoftIdentityApplicationOptions>>()
-                    .GetOrAdd(key, () => microsoftIdentityApplicationOptions);
                 IMergedOptionsStore optionsMonitor = ServiceProvider!.GetRequiredService<IMergedOptionsStore>();
                 MergedOptions mergedOptions = optionsMonitor.Get(key);
 
-                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(registeredOptions, mergedOptions);
-                return MakeTokenAcquirer(key);
+                MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(microsoftIdentityApplicationOptions, mergedOptions);
+                return MakeTokenAcquirer(key, hasExplicitApplicationOptions: true);
             });
         }
 
@@ -121,12 +116,12 @@ namespace Microsoft.Identity.Web
             });
         }
 
-        private ITokenAcquirer MakeTokenAcquirer(string authenticationScheme = "")
+        private ITokenAcquirer MakeTokenAcquirer(string authenticationScheme = "", bool hasExplicitApplicationOptions = false)
         {
             CheckServiceProviderNotNull();
 
             ITokenAcquisition tokenAcquisition = ServiceProvider!.GetRequiredService<ITokenAcquisition>();
-            return new TokenAcquirer(tokenAcquisition, authenticationScheme);
+            return new TokenAcquirer(tokenAcquisition, authenticationScheme, hasExplicitApplicationOptions);
         }
 
         private void CheckServiceProviderNotNull()

@@ -38,13 +38,19 @@ namespace Microsoft.Identity.Web
 
         internal string? AgentCachePartition { get; private set; }
 
+        internal MergedOptions Clone()
+        {
+            var options = (MergedOptions)MemberwiseClone();
+            options._confidentialClientApplicationOptions = null;
+            return options;
+        }
+
         internal MergedOptions WithAgentCachePartition(string? blueprintClientId, string? agentClientId)
         {
             string normalizedPair = Throws.IfNullOrWhitespace(blueprintClientId).ToLowerInvariant()
                 + ":" + Throws.IfNullOrWhitespace(agentClientId).ToLowerInvariant();
             using var sha256 = SHA256.Create();
-            var options = (MergedOptions)MemberwiseClone();
-            options._confidentialClientApplicationOptions = null;
+            var options = Clone();
             options.AgentCachePartition = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(normalizedPair)));
             return options;
         }

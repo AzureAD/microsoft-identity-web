@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -21,7 +22,9 @@ using Microsoft.Identity.Web.Extensibility;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using NSubstitute;
 using Xunit;
 
@@ -974,6 +977,97 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CompatibilityRepair_UnconfiguredAttributes_PreserveStandardValidationContract(bool rejectMissingName)
+        {
+            // Arrange
+            const string selectedName = "BlueprintB";
+            string parentId = Guid.NewGuid().ToString();
+            string agentId = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            ConfigureAgentBlueprint(factory, selectedName, parentId);
+            factory.Services.AddOptions<MicrosoftIdentityApplicationOptions>(selectedName).Validate(
+                value => !rejectMissingName || !string.IsNullOrEmpty(value.Name), "A configured name is required.");
+            factory.Services.AddAgentIdentities();
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            if (!rejectMissingName)
+            {
+                AddBlueprintAssertion(http, agentId, parentId, "unnamed-parent-assertion");
+                http.AddMockHandler(CreateClientCredentialsTokenHandler("unnamed-parent-token"));
+            }
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(agentId, selectedName));
+            Task<AuthenticationResult> AcquireAsync() =>
+                services.GetRequiredService<ITokenAcquisition>().GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", tokenAcquisitionOptions: options);
+
+            // Act
+            if (rejectMissingName)
+            {
+                var error = await Assert.ThrowsAsync<OptionsValidationException>(AcquireAsync);
+
+                // Assert
+                Assert.Equal(selectedName, error.OptionsName);
+                Assert.Equal(new[] { "A configured name is required." }, error.Failures);
+            }
+            else
+            {
+                var result = await AcquireAsync();
+
+                // Assert
+                Assert.Equal("unnamed-parent-token", result.AccessToken);
+            }
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CompatibilityRepair_HostOptions_PreserveIdentityAndApplicationPrecedence(bool aspnetHost)
+        {
+            // Arrange
+            const string selectedName = "BlueprintB";
+            string identityClientId = Guid.NewGuid().ToString();
+            string applicationClientId = Guid.NewGuid().ToString();
+            string parentId = aspnetHost ? applicationClientId : identityClientId;
+            string secret = aspnetHost ? "test-only-secret" : "test-only-identity-secret";
+            string agentId = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            factory.Services.Configure<MicrosoftIdentityOptions>(selectedName, value =>
+            {
+                value.Instance = "https://login.microsoftonline.com/";
+                value.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
+                value.ClientId = identityClientId;
+                value.ClientSecret = "test-only-identity-secret";
+            });
+            ConfigureAgentBlueprint(factory, selectedName, applicationClientId);
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(selectedName, value => value.Name = "complete-parent");
+            factory.Services.AddOptions<MicrosoftIdentityApplicationOptions>(selectedName).Validate(
+                value => value.ClientId == applicationClientId && value.Name == "complete-parent",
+                "Normal validation must inspect the configured application options.");
+            factory.Services.AddAgentIdentities();
+            if (aspnetHost)
+            {
+                factory.Services.AddHttpContextAccessor();
+                factory.Services.AddSingleton<ITokenAcquisitionHost, TokenAcquisitionAspnetCoreHost>();
+            }
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            AddBlueprintAssertion(http, agentId, parentId, "precedence-parent-assertion", secret);
+            http.AddMockHandler(CreateClientCredentialsTokenHandler("precedence-parent-token"));
+
+            // Act
+            var result = await services.GetRequiredService<ITokenAcquisition>().GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", authenticationScheme: selectedName,
+                tokenAcquisitionOptions: ToTokenOptions(CreateNamedAgentAppOptions(agentId, "StaleParent")));
+
+            // Assert
+            Assert.Equal("precedence-parent-token", result.AccessToken);
+            http.Dispose();
+        }
+
+        [Theory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -1120,6 +1214,151 @@ namespace Microsoft.Identity.Web.Test
             test.Http.Dispose();
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentAppIdentity_NamedWebScheme_UsesResolvedBlueprint(bool staleHelperOptions)
+        {
+            // Arrange
+            string agentId = Guid.NewGuid().ToString();
+            string parentA = Guid.NewGuid().ToString();
+            string parentB = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
+                ["AzureAd:TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ["AzureAd:ClientId"] = parentB,
+                ["AzureAd:ClientSecret"] = "test-only-b-secret",
+            }).Build();
+            factory.Services.AddSingleton<IConfiguration>(configuration);
+            factory.Services.AddAuthentication("B")
+                .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"), openIdConnectScheme: "B")
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                .AddInMemoryTokenCaches();
+            if (staleHelperOptions)
+            {
+                ConfigureAgentBlueprint(factory, "AzureAd", parentA, "test-only-a-secret");
+            }
+            factory.Services.AddAgentIdentities();
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var acquisition = (TokenAcquisition)services.GetRequiredService<ITokenAcquisition>();
+            var options = new AuthorizationHeaderProviderOptions().WithAgentIdentity(agentId).AcquireTokenOptions;
+            var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var credential = application.ClientCredentials!.Single();
+            var data = credential.CustomSignedAssertionProviderData;
+            AddBlueprintAssertion(http, agentId, parentB, "assertion-b", "test-only-b-secret");
+            http.AddMockHandler(CreateClientCredentialsTokenHandler("agent-via-b"));
+
+            // Act
+            var acquirer = services.GetRequiredService<ITokenAcquirerFactory>().GetTokenAcquirer("B");
+            var first = await acquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", options);
+            var second = await acquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", options);
+
+            // Assert
+            Assert.Equal("agent-via-b", first.AccessToken);
+            Assert.Equal(first.AccessToken, second.AccessToken);
+            string partition = new MergedOptions().WithAgentCachePartition(parentB, agentId).AgentCachePartition!;
+            Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-pair:" + partition, StringComparison.Ordinal));
+            Assert.Same(credential, application.ClientCredentials!.Single());
+            Assert.Same(data, credential.CustomSignedAssertionProviderData);
+            Assert.Equal("AzureAd", data!["ConfigurationSection"]);
+            Assert.Null(credential.CachedValue);
+            Assert.False(credential.Skip);
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData("configure", false)]
+        [InlineData("configure", true)]
+        [InlineData("validation", false)]
+        [InlineData("validation", true)]
+        [InlineData("monitor", false)]
+        [InlineData("monitor", true)]
+        public async Task CompatibilityRepair_PublicFactory_PreservesOptionsPipeline(string scenario, bool useStringOverload)
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactoryForAgent();
+            var application = new MicrosoftIdentityApplicationOptions
+            {
+                Instance = "https://login.microsoftonline.com/",
+                TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ClientId = Guid.NewGuid().ToString(),
+                ClientCredentials = scenario == "configure" ? null : [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "test-only-secret",
+                }],
+            };
+            string key = DefaultTokenAcquirerFactoryImplementation.GetKey(application.Authority, application.ClientId, null);
+            int configurations = 0;
+            int postConfigurations = 0;
+            if (scenario == "configure")
+            {
+                factory.Services.ConfigureAll<MicrosoftIdentityApplicationOptions>(options =>
+                {
+                    Interlocked.Increment(ref configurations);
+                    options.ClientCredentials = [new CredentialDescription
+                    {
+                        SourceType = CredentialSource.ClientSecret,
+                        ClientSecret = "test-only-secret",
+                    }];
+                });
+            }
+            factory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(key, _ => Interlocked.Increment(ref postConfigurations));
+            if (scenario == "validation")
+            {
+                var validator = Substitute.For<IValidateOptions<MicrosoftIdentityApplicationOptions>>();
+                validator.Validate(Arg.Any<string>(), Arg.Any<MicrosoftIdentityApplicationOptions>())
+                    .Returns(call => (string?)call[0] == key
+                        ? ValidateOptionsResult.Fail("Test consumer rejects selected options.")
+                        : ValidateOptionsResult.Success);
+                factory.Services.AddSingleton(validator);
+            }
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            if (scenario == "monitor")
+            {
+                Assert.Null(services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key).ClientId);
+            }
+            Task<AcquireTokenResult> AcquireAsync()
+            {
+                var acquirer = useStringOverload
+                    ? factory.GetTokenAcquirer(application.Authority!, application.ClientId!, application.ClientCredentials!, region: null)
+                    : services.GetRequiredService<ITokenAcquirerFactory>().GetTokenAcquirer(application);
+                return acquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default");
+            }
+
+            // Act
+            if (scenario == "validation")
+            {
+                var error = await Assert.ThrowsAsync<OptionsValidationException>(AcquireAsync);
+                Assert.Contains("Test consumer rejects selected options.", error.Failures);
+            }
+            else
+            {
+                var handler = CreateClientCredentialsTokenHandler("ordinary-token");
+                handler.ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["client_id"] = application.ClientId!,
+                    ["client_secret"] = "test-only-secret",
+                };
+                http.AddMockHandler(handler);
+                var result = await AcquireAsync();
+                Assert.Equal("ordinary-token", result.AccessToken);
+            }
+
+            // Assert
+            Assert.True(postConfigurations > 0);
+            if (scenario == "configure")
+            {
+                Assert.True(configurations > 0);
+                Assert.Null(application.ClientCredentials);
+            }
+            http.Dispose();
+        }
+
         [Fact]
         public async Task AgentAppIdentity_TwoAgents_KeepTokensAndFmiPathsIsolated()
         {
@@ -1149,6 +1388,464 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal("Bearer token-" + agentId, result);
             }
             test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task CompatibilityRepair_ConcurrentWarmPairs_KeepTokensAndCallerOptionsIsolated()
+        {
+            // Arrange
+            var test = CreateAgentCacheTest(trackCacheConcurrency: true);
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(test.AgentId, "BlueprintA"));
+            var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var credential = application.ClientCredentials!.Single();
+            var data = credential.CustomSignedAssertionProviderData;
+            foreach (string scheme in new[] { "BlueprintA", "BlueprintB" })
+            {
+                AddBlueprintAssertion(test.Http, test.AgentId, scheme == "BlueprintA" ? test.ParentA : test.ParentB,
+                    "assertion-" + scheme, scheme == "BlueprintA" ? "test-only-secret" : "test-only-b-secret");
+                test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("token-" + scheme));
+                await test.Acquisition.GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: scheme, tokenAcquisitionOptions: options);
+            }
+
+            // Act
+            await Task.WhenAll(Enumerable.Range(0, 12).Select(index => Task.Run(async () =>
+            {
+                string scheme = index % 2 == 0 ? "BlueprintA" : "BlueprintB";
+                var result = await test.Acquisition.GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: scheme, tokenAcquisitionOptions: options);
+
+                // Assert
+                Assert.Equal("token-" + scheme, result.AccessToken);
+                Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
+            })));
+            var cache = Assert.IsType<ConcurrencyTrackingMemoryTokenCacheProvider>(
+                test.Services.GetRequiredService<IMsalTokenCacheProvider>());
+            Assert.NotEmpty(cache.MaximumReaders);
+            Assert.All(cache.MaximumReaders, value => Assert.Equal(1, value));
+            Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
+            Assert.Same(credential, application.ClientCredentials!.Single());
+            Assert.Same(data, credential.CustomSignedAssertionProviderData);
+            Assert.Equal("BlueprintA", data!["ConfigurationSection"]);
+            Assert.Null(credential.CachedValue);
+            Assert.False(credential.Skip);
+            test.Http.Dispose();
+        }
+
+        [Fact]
+        public async Task CompatibilityRepair_AgentSelectedParent_ValidationStopsBeforeHttp()
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactoryForAgent();
+            ConfigureAgentBlueprint(factory, "BlueprintB", Guid.NewGuid().ToString(), "test-only-b-secret");
+            var validator = Substitute.For<IValidateOptions<MicrosoftIdentityApplicationOptions>>();
+            validator.Validate(Arg.Any<string>(), Arg.Any<MicrosoftIdentityApplicationOptions>())
+                .Returns(call => (string?)call[0] == "BlueprintB"
+                    ? ValidateOptionsResult.Fail("Test consumer rejects selected blueprint.")
+                    : ValidateOptionsResult.Success);
+            factory.Services.AddSingleton(validator);
+            factory.Services.AddAgentIdentities();
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(Guid.NewGuid().ToString(), "AzureAd"));
+
+            // Act
+            var error = await Assert.ThrowsAsync<OptionsValidationException>(() =>
+                services.GetRequiredService<ITokenAcquisition>().GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: "BlueprintB", tokenAcquisitionOptions: options));
+
+            // Assert
+            Assert.Contains("Test consumer rejects selected blueprint.", error.Failures);
+            Assert.Equal("AzureAd", options.AuthenticationOptionsName);
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData("configuration", true)]
+        [InlineData("configuration", false)]
+        [InlineData("web", true)]
+        [InlineData("web", false)]
+        [InlineData("configured", true)]
+        [InlineData("configured", false)]
+        public async Task CompatibilityRepair_AgentSelectedParent_NormalConfiguredValidation(string source, bool rejected)
+        {
+            // Arrange
+            string selectedName = source == "web" ? "B" : "AzureAd";
+            string rejectedClientId = Guid.NewGuid().ToString();
+            string allowedClientId = Guid.NewGuid().ToString();
+            string parentId = rejected ? rejectedClientId : allowedClientId;
+            string configuredClientId = source == "configured"
+                ? (rejected ? allowedClientId : rejectedClientId)
+                : parentId;
+            string parentSecret = source == "configured" ? "test-only-code-secret" : "test-only-b-secret";
+            string agentId = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
+                ["AzureAd:TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ["AzureAd:ClientId"] = configuredClientId,
+                ["AzureAd:ClientCredentials:0:SourceType"] = "ClientSecret",
+                ["AzureAd:ClientCredentials:0:ClientSecret"] = "test-only-b-secret",
+            }).Build();
+            factory.Services.AddSingleton<IConfiguration>(configuration);
+            if (source == "web")
+            {
+                factory.Services.AddAuthentication("B")
+                    .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"), openIdConnectScheme: "B")
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddInMemoryTokenCaches();
+            }
+            ConfigureAgentBlueprint(factory, "StaleParent", Guid.NewGuid().ToString(), "test-only-stale-secret");
+            int configurations = 0;
+            int postConfigurations = 0;
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(selectedName, options =>
+            {
+                configurations++;
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f";
+                options.ClientId = parentId;
+                options.ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = parentSecret,
+                }];
+            });
+            factory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(selectedName, _ => postConfigurations++);
+            var validatedClientIds = new List<string?>();
+            factory.Services.AddSingleton<IValidateOptions<MicrosoftIdentityApplicationOptions>>(
+                new ValidateOptions<MicrosoftIdentityApplicationOptions>(selectedName, options =>
+                {
+                    validatedClientIds.Add(options.ClientId);
+                    return options.ClientId != rejectedClientId;
+                }, "Selected-name validation rejects the configured client."));
+            factory.Services.AddSingleton<IValidateOptions<MicrosoftIdentityApplicationOptions>>(
+                new ValidateOptions<MicrosoftIdentityApplicationOptions>(null,
+                    options => options.ClientId != rejectedClientId, "All-name validation rejects the configured client."));
+            factory.Services.AddSingleton<IValidateOptions<MicrosoftIdentityApplicationOptions>>(
+                new ValidateOptions<MicrosoftIdentityApplicationOptions>("UnusedParent", _ => false, "Skipped validation must not fail."));
+            factory.Services.AddSingleton<IValidateOptions<MicrosoftIdentityApplicationOptions>>(
+                new ValidateOptions<MicrosoftIdentityApplicationOptions>(selectedName, _ => true, "Successful validation must not fail."));
+            factory.Services.AddAgentIdentities();
+            var credentialsLoader = Substitute.For<ICredentialsLoader>();
+            factory.Services.AddSingleton<ICredentialsLoader>(provider =>
+            {
+                var loader = ActivatorUtilities.CreateInstance<DefaultCertificateLoader>(provider);
+                credentialsLoader.LoadCredentialsIfNeededAsync(
+                    Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
+                    .Returns(call => loader.LoadCredentialsIfNeededAsync(
+                        call.ArgAt<CredentialDescription>(0), call.ArgAt<CredentialSourceLoaderParameters?>(1)));
+                return credentialsLoader;
+            });
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var acquisition = (TokenAcquisition)services.GetRequiredService<ITokenAcquisition>();
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(agentId, "StaleParent"));
+            var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var credential = application.ClientCredentials!.Single();
+            var data = credential.CustomSignedAssertionProviderData;
+            if (!rejected)
+            {
+                AddBlueprintAssertion(http, agentId, parentId, "selected-parent-assertion", parentSecret);
+                var token = CreateClientCredentialsTokenHandler("selected-parent-token");
+                token.ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["client_id"] = agentId,
+                    ["client_assertion"] = "selected-parent-assertion",
+                };
+                http.AddMockHandler(token);
+            }
+
+            // Act
+            if (rejected)
+            {
+                var error = await Assert.ThrowsAsync<OptionsValidationException>(() =>
+                    acquisition.GetAuthenticationResultForAppAsync(
+                        "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options));
+
+                // Assert
+                Assert.Equal(selectedName, error.OptionsName);
+                Assert.Equal(typeof(MicrosoftIdentityApplicationOptions), error.OptionsType);
+                Assert.Equal(new[]
+                {
+                    "Selected-name validation rejects the configured client.",
+                    "All-name validation rejects the configured client.",
+                }, error.Failures);
+                Assert.Empty(credentialsLoader.ReceivedCalls());
+                Assert.Empty(acquisition._applicationsByAuthorityClientId);
+            }
+            else
+            {
+                var first = await acquisition.GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options);
+                var cached = await acquisition.GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options);
+
+                // Assert
+                Assert.Equal("selected-parent-token", first.AccessToken);
+                Assert.Equal(first.AccessToken, cached.AccessToken);
+                Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
+                string partition = new MergedOptions().WithAgentCachePartition(parentId, agentId).AgentCachePartition!;
+                Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key =>
+                    key.Contains(":agent-pair:" + partition, StringComparison.Ordinal));
+            }
+            Assert.Contains(parentId, validatedClientIds);
+            Assert.Equal(1, configurations);
+            Assert.Equal(1, postConfigurations);
+            Assert.Equal("StaleParent", options.AuthenticationOptionsName);
+            Assert.Same(credential, application.ClientCredentials!.Single());
+            Assert.Same(data, credential.CustomSignedAssertionProviderData);
+            Assert.Equal("StaleParent", data!["ConfigurationSection"]);
+            Assert.Null(credential.CachedValue);
+            Assert.False(credential.Skip);
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData("configuration", false)]
+        [InlineData("configuration", true)]
+        [InlineData("default", false)]
+        [InlineData("default", true)]
+        [InlineData("web", false)]
+        [InlineData("web", true)]
+        public async Task CompatibilityRepair_ConfigurationOnlyParent_StandardValidationPreservesBaseline(string source, bool rejected)
+        {
+            // Arrange
+            string selectedName = source == "web" ? "B" : "AzureAd";
+            string parentId = rejected ? string.Empty : Guid.NewGuid().ToString();
+            string agentId = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
+                ["AzureAd:TenantId"] = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ["AzureAd:ClientId"] = parentId,
+                ["AzureAd:ClientCredentials:0:SourceType"] = "ClientSecret",
+                ["AzureAd:ClientCredentials:0:ClientSecret"] = "test-only-b-secret",
+            }).Build();
+            factory.Services.AddSingleton<IConfiguration>(configuration);
+            if (source == "web")
+            {
+                factory.Services.AddAuthentication("B")
+                    .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"), openIdConnectScheme: "B")
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddInMemoryTokenCaches();
+                ConfigureAgentBlueprint(factory, "AzureAd", Guid.NewGuid().ToString(), "test-only-stale-secret");
+            }
+            factory.Services.AddAgentIdentities();
+            if (source == "default")
+            {
+                factory.Services.AddSingleton<ITokenAcquisitionHost, Hosts.DefaultTokenAcquisitionHost>();
+            }
+            int configurations = 0;
+            int postConfigurations = 0;
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(selectedName, _ => configurations++);
+            factory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(selectedName, _ => postConfigurations++);
+            var validated = new List<MicrosoftIdentityApplicationOptions>();
+            factory.Services.AddOptions<MicrosoftIdentityApplicationOptions>(selectedName).Validate(options =>
+            {
+                validated.Add(options);
+                return !string.IsNullOrEmpty(options.ClientId);
+            }, "A selected blueprint requires a client ID.");
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var acquisition = (TokenAcquisition)services.GetRequiredService<ITokenAcquisition>();
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(agentId, "AzureAd"));
+            // Act
+            var error = await Assert.ThrowsAsync<OptionsValidationException>(() =>
+                acquisition.GetAuthenticationResultForAppAsync(
+                    "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options));
+
+            // Assert
+            Assert.Equal(selectedName, error.OptionsName);
+            Assert.Equal(typeof(MicrosoftIdentityApplicationOptions), error.OptionsType);
+            Assert.Equal(new[] { "A selected blueprint requires a client ID." }, error.Failures);
+            Assert.Empty(acquisition._applicationsByAuthorityClientId);
+            Assert.NotEmpty(validated);
+            Assert.All(validated, value =>
+            {
+                Assert.True(string.IsNullOrEmpty(value.ClientId));
+                Assert.Null(value.Instance);
+                Assert.Null(value.TenantId);
+                Assert.Null(value.ClientCredentials);
+            });
+            Assert.Equal(1, configurations);
+            Assert.Equal(1, postConfigurations);
+            Assert.Equal("AzureAd", options.AuthenticationOptionsName);
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData("Name")]
+        [InlineData("Audience")]
+        [InlineData("Audiences")]
+        public async Task CompatibilityRepair_ConfiguredParent_PreservesCompleteTypedOptions(string validatedProperty)
+        {
+            // Arrange
+            const string selectedName = "BlueprintB";
+            string parentId = Guid.NewGuid().ToString();
+            string agentId = Guid.NewGuid().ToString();
+            var factory = InitTokenAcquirerFactoryForAgent();
+            ConfigureAgentBlueprint(factory, selectedName, parentId);
+            MicrosoftIdentityApplicationOptions? configured = null;
+            int configurations = 0;
+            int postConfigurations = 0;
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(selectedName, options =>
+            {
+                configurations++;
+                options.Name = "configured-blueprint";
+                options.Audience = "api://configured-audience";
+                options.Audiences = new[] { "api://configured-audience", "api://second-audience" };
+                options.SignUpSignInPolicyId = "configured-user-flow";
+                configured = options;
+            });
+            factory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(selectedName, _ => postConfigurations++);
+            factory.Services.AddOptions<MicrosoftIdentityApplicationOptions>(selectedName).Validate(options => validatedProperty switch
+            {
+                "Name" => options.Name == "configured-blueprint",
+                "Audience" => options.Audience == "api://configured-audience",
+                "Audiences" => options.Audiences?.SequenceEqual(new[] { "api://configured-audience", "api://second-audience" }) == true,
+                _ => false,
+            }, "Configured application attributes must survive normal options validation.");
+            factory.Services.AddAgentIdentities();
+            var services = factory.Build();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            AddBlueprintAssertion(http, agentId, parentId, "complete-parent-assertion");
+            http.AddMockHandler(CreateClientCredentialsTokenHandler("complete-parent-token"));
+            var options = ToTokenOptions(CreateNamedAgentAppOptions(agentId, "StaleParent"));
+            var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+            var helperCredential = Assert.Single(application.ClientCredentials!);
+            var helperData = helperCredential.CustomSignedAssertionProviderData;
+
+            // Act
+            var result = await services.GetRequiredService<ITokenAcquisition>().GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options);
+            var cached = await services.GetRequiredService<ITokenAcquisition>().GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default", authenticationScheme: selectedName, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("complete-parent-token", result.AccessToken);
+            Assert.Equal(result.AccessToken, cached.AccessToken);
+            Assert.NotNull(configured);
+            Assert.Same(configured, services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(selectedName));
+            Assert.Equal(parentId, configured.ClientId);
+            Assert.Equal("configured-blueprint", configured.Name);
+            Assert.Equal("api://configured-audience", configured.Audience);
+            Assert.Equal(new[] { "api://configured-audience", "api://second-audience" }, configured.Audiences);
+            Assert.Equal("configured-user-flow", configured.DefaultUserFlow);
+            var configuredCredential = Assert.Single(configured.ClientCredentials!);
+            Assert.Null(configuredCredential.CachedValue);
+            Assert.False(configuredCredential.Skip);
+            Assert.Equal(1, configurations);
+            Assert.Equal(1, postConfigurations);
+            Assert.Same(helperCredential, Assert.Single(application.ClientCredentials!));
+            Assert.Same(helperData, helperCredential.CustomSignedAssertionProviderData);
+            Assert.Equal("StaleParent", helperData!["ConfigurationSection"]);
+            Assert.Null(helperCredential.CachedValue);
+            Assert.False(helperCredential.Skip);
+            http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public async Task CompatibilityRepair_ProgrammaticFactory_IsExplicitOnlyForAgentRequests(bool agentRequest, bool useStringOverload)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var applicationB = test.Services.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get("BlueprintB");
+            var options = agentRequest
+                ? CreateNamedAgentAppOptions(test.AgentId, "BlueprintA").AcquireTokenOptions
+                : new AcquireTokenOptions { AuthenticationOptionsName = "BlueprintA" };
+            if (agentRequest)
+            {
+                AddBlueprintAssertion(test.Http, test.AgentId, test.ParentB, "assertion-b", "test-only-b-secret");
+                test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("agent-via-b"));
+            }
+            else
+            {
+                var handler = CreateClientCredentialsTokenHandler("ordinary-via-a");
+                handler.ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["client_id"] = test.ParentA,
+                    ["client_secret"] = "test-only-secret",
+                };
+                test.Http.AddMockHandler(handler);
+            }
+
+            // Act
+            var acquirer = useStringOverload
+                ? test.Factory.GetTokenAcquirer(applicationB.Authority!, applicationB.ClientId!, applicationB.ClientCredentials!, region: null)
+                : test.Services.GetRequiredService<ITokenAcquirerFactory>().GetTokenAcquirer(applicationB);
+            var result = await acquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default", options);
+
+            // Assert
+            Assert.Equal(agentRequest ? "agent-via-b" : "ordinary-via-a", result.AccessToken);
+            Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
+            if (agentRequest)
+            {
+                var agentApplication = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
+                var credential = agentApplication.ClientCredentials!.Single();
+                Assert.Equal("BlueprintA", credential.CustomSignedAssertionProviderData!["ConfigurationSection"]);
+                Assert.Null(credential.CachedValue);
+                Assert.False(credential.Skip);
+            }
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CompatibilityRepair_ConcurrentFactory_UsesOneAcquirerAndNormalPipeline(bool useStringOverload)
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactoryForAgent();
+            var application = new MicrosoftIdentityApplicationOptions
+            {
+                Instance = "https://login.microsoftonline.com/",
+                TenantId = "10c419d4-4a50-45b2-aa4e-919fb84df24f",
+                ClientId = Guid.NewGuid().ToString(),
+                ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "test-only-secret",
+                }],
+            };
+            string key = DefaultTokenAcquirerFactoryImplementation.GetKey(application.Authority, application.ClientId, null);
+            int configurations = 0;
+            int postConfigurations = 0;
+            factory.Services.ConfigureAll<MicrosoftIdentityApplicationOptions>(_ => Interlocked.Increment(ref configurations));
+            factory.Services.PostConfigure<MicrosoftIdentityApplicationOptions>(key, _ => Interlocked.Increment(ref postConfigurations));
+            var services = factory.Build();
+            var acquirerFactory = services.GetRequiredService<ITokenAcquirerFactory>();
+            var http = Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>());
+            var handler = CreateClientCredentialsTokenHandler("concurrent-factory-token");
+            handler.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["client_id"] = application.ClientId!,
+                ["client_secret"] = "test-only-secret",
+            };
+            http.AddMockHandler(handler);
+
+            // Act
+            var acquirers = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Task.Run(() => useStringOverload
+                ? factory.GetTokenAcquirer(application.Authority!, application.ClientId!, application.ClientCredentials!, region: null)
+                : acquirerFactory.GetTokenAcquirer(application))));
+            var first = await acquirers[0].GetTokenForAppAsync("https://graph.microsoft.com/.default");
+            var cached = await Task.WhenAll(acquirers.Select(acquirer => acquirer.GetTokenForAppAsync("https://graph.microsoft.com/.default")));
+
+            // Assert
+            Assert.All(acquirers, acquirer => Assert.Same(acquirers[0], acquirer));
+            Assert.Equal("concurrent-factory-token", first.AccessToken);
+            Assert.All(cached, result => Assert.Equal(first.AccessToken, result.AccessToken));
+            Assert.True(configurations > 0);
+            Assert.True(postConfigurations > 0);
+            Assert.Equal(application.ClientId, services.GetRequiredService<IMergedOptionsStore>().Get(key).ClientId);
+            Assert.Same(application.ClientCredentials, services.GetRequiredService<IMergedOptionsStore>().Get(key).ClientCredentials);
+            Assert.Equal("test-only-secret", application.ClientCredentials!.Single().ClientSecret);
+            http.Dispose();
         }
 
         [Fact]
@@ -1202,7 +1899,7 @@ namespace Microsoft.Identity.Web.Test
         }
 
         private (TokenAcquirerFactory Factory, IServiceProvider Services, MockHttpClientFactory Http,
-            TokenAcquisition Acquisition, string AgentId, string ParentA, string ParentB) CreateAgentCacheTest()
+            TokenAcquisition Acquisition, string AgentId, string ParentA, string ParentB) CreateAgentCacheTest(bool trackCacheConcurrency = false)
         {
             string agentId = Guid.NewGuid().ToString();
             string parentA = Guid.NewGuid().ToString();
@@ -1214,10 +1911,47 @@ namespace Microsoft.Identity.Web.Test
             ConfigureAgentBlueprint(factory, "AzureAd", parentA);
             ConfigureAgentBlueprint(factory, string.Empty, parentB, "test-only-b-secret");
             factory.Services.AddAgentIdentities();
+            if (trackCacheConcurrency)
+            {
+                factory.Services.AddInMemoryTokenCaches();
+                factory.Services.AddSingleton<IMsalTokenCacheProvider>(provider =>
+                    new ConcurrencyTrackingMemoryTokenCacheProvider(provider.GetRequiredService<IMemoryCache>(),
+                        provider.GetRequiredService<IOptions<MsalMemoryTokenCacheOptions>>()));
+            }
             IServiceProvider services = factory.Build();
 
             return (factory, services, Assert.IsType<MockHttpClientFactory>(services.GetRequiredService<IMsalHttpClientFactory>()),
                 (TokenAcquisition)services.GetRequiredService<ITokenAcquisition>(), agentId, parentA, parentB);
+        }
+
+        private sealed class ConcurrencyTrackingMemoryTokenCacheProvider : MsalMemoryTokenCacheProvider
+        {
+            private readonly ConcurrentDictionary<string, int> _readers = new();
+            private readonly ConcurrentDictionary<string, int> _maximum = new();
+
+            internal ConcurrencyTrackingMemoryTokenCacheProvider(IMemoryCache memoryCache, IOptions<MsalMemoryTokenCacheOptions> options)
+                : base(memoryCache, options)
+            {
+            }
+
+            internal IEnumerable<int> MaximumReaders => _maximum.Values;
+
+            protected override async Task<byte[]?> ReadCacheBytesAsync(
+                string cacheKey, CacheSerializerHints hints)
+            {
+                int readers = _readers.AddOrUpdate(cacheKey, 1, (_, value) => value + 1);
+                _maximum.AddOrUpdate(cacheKey, readers, (_, value) => Math.Max(readers, value));
+                try
+                {
+                    // Exercise asynchronous serialization without masking missing MSAL synchronization.
+                    await Task.Yield();
+                    return await base.ReadCacheBytesAsync(cacheKey, hints);
+                }
+                finally
+                {
+                    _readers.AddOrUpdate(cacheKey, 0, (_, value) => value - 1);
+                }
+            }
         }
 
         private static void AddBlueprintAssertion(

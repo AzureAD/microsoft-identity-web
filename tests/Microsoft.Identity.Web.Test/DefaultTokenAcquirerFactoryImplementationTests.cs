@@ -66,11 +66,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.AzureRegion, mergedOptions.AzureRegion);
             Assert.Equal(options.ClientCapabilities, mergedOptions.ClientCapabilities);
             Assert.Equal(options.SendX5C, mergedOptions.SendX5C);
-            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
-            Assert.Equal(options.ClientId, namedOptions.ClientId);
-            Assert.Equal(options.Authority, namedOptions.Authority);
-            Assert.Equal(options.AzureRegion, namedOptions.AzureRegion);
-            Assert.Same(options.ClientCredentials, namedOptions.ClientCredentials);
+            Assert.Equal(options.Authority, mergedOptions.Authority);
+            Assert.Same(options.ClientCredentials, mergedOptions.ClientCredentials);
         }
 
         [Fact]
@@ -108,10 +105,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.ClientId, mergedOptions.ClientId);
             Assert.Equal(options.EnablePiiLogging, mergedOptions.EnablePiiLogging);
             Assert.Equal(options.AllowWebApiToBeAuthorizedByACL, mergedOptions.AllowWebApiToBeAuthorizedByACL);
-            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
-            Assert.Equal(options.ClientId, namedOptions.ClientId);
-            Assert.Equal(options.Authority, namedOptions.Authority);
-            Assert.Same(options.ClientCredentials, namedOptions.ClientCredentials);
+            Assert.Equal(options.Authority, mergedOptions.Authority);
+            Assert.Same(options.ClientCredentials, mergedOptions.ClientCredentials);
         }
 
         [Fact]
@@ -155,7 +150,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(options.SendX5C, mergedOptions.SendX5C);
             Assert.Equal(options.Domain, mergedOptions.Domain);
             Assert.Equal(options.SignUpSignInPolicyId, mergedOptions.SignUpSignInPolicyId);
-            Assert.Same(options, provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key));
+            Assert.Equal(options.Authority, mergedOptions.Authority);
         }
 
         [Theory]
@@ -198,17 +193,14 @@ namespace Microsoft.Identity.Web.Test
                 firstFactory.GetTokenAcquirer(firstOptions);
                 secondFactory.GetTokenAcquirer(secondOptions);
             }
-            var namedOptions = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key);
             var mergedOptions = provider.GetRequiredService<IMergedOptionsStore>().Get(key);
 
             // Assert
-            Assert.Equal(firstOptions.ClientId, namedOptions.ClientId);
-            Assert.Equal(firstOptions.Authority, namedOptions.Authority);
-            Assert.Equal(firstOptions.AzureRegion, namedOptions.AzureRegion);
-            Assert.Same(credentialsA, namedOptions.ClientCredentials);
-            Assert.Same(namedOptions.ClientCredentials, mergedOptions.ClientCredentials);
-            Assert.Equal(namedOptions.ClientId, mergedOptions.ClientId);
-            Assert.Equal(namedOptions.Authority, mergedOptions.Authority);
+            Assert.Equal(firstOptions.ClientId, mergedOptions.ClientId);
+            Assert.Equal(firstOptions.Authority, mergedOptions.Authority);
+            Assert.Equal(firstOptions.AzureRegion, mergedOptions.AzureRegion);
+            Assert.Same(credentialsA, mergedOptions.ClientCredentials);
+            Assert.Null(provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get(key).ClientId);
             Assert.Same(credentialsA, firstOptions.ClientCredentials);
             Assert.Same(credentialsB, secondOptions.ClientCredentials);
         }

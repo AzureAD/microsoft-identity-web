@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -96,6 +97,8 @@ namespace Microsoft.Identity.Web
         private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         private const string TokenBindingParameterName = "IsTokenBinding";
+        internal delegate void AgentBlueprintOptionsBinder(IConfigurationSection section, MicrosoftIdentityApplicationOptions options);
+
         private const int MaxCertificateRetries = 1;
         protected readonly IMsalHttpClientFactory _httpClientFactory;
         protected readonly ILogger _logger;
@@ -378,7 +381,7 @@ namespace Microsoft.Identity.Web
         {
             _ = Throws.IfNull(scopes);
 
-            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out MergedOptions parentOptions);
+            var (mergedOptions, parentOptions) = await GetMergedOptionsAsync(authenticationScheme, tokenAcquisitionOptions).ConfigureAwait(false);
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
 
             if (tokenAcquisitionOptions is not null)
@@ -910,7 +913,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentException(IDWebErrorMessage.ClientCredentialScopeParameterShouldEndInDotDefault, nameof(scope));
             }
 
-            MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions, out _);
+            var (mergedOptions, _) = await GetMergedOptionsAsync(authenticationScheme, tokenAcquisitionOptions).ConfigureAwait(false);
 
             bool isTokenBinding = tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(TokenBindingParameterName, out var isTokenBindingObject) == true
                 && isTokenBindingObject is bool isTokenBindingValue
@@ -1209,10 +1212,9 @@ namespace Microsoft.Identity.Web
                 : scope;
         }
 
-        private MergedOptions GetMergedOptions(
+        private Task<(MergedOptions Options, MergedOptions ParentOptions)> GetMergedOptionsAsync(
             string? authenticationScheme,
-            TokenAcquisitionOptions? tokenAcquisitionOptions,
-            out MergedOptions parentMergedOptions)
+            TokenAcquisitionOptions? tokenAcquisitionOptions)
         {
             string? parentScheme = authenticationScheme ?? tokenAcquisitionOptions?.AuthenticationOptionsName;
             if (parentScheme is null
@@ -1221,7 +1223,22 @@ namespace Microsoft.Identity.Web
             {
                 parentScheme = capturedConfiguration;
             }
-            parentMergedOptions = _tokenAcquisitionHost.GetOptions(parentScheme, out string effectiveParentScheme);
+            bool isAgent = tokenAcquisitionOptions?.ExtraParameters?.ContainsKey(Constants.AgentIdentityKey) == true;
+            if (tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(Constants.AgentBlueprintOptions, out object? assertionParent) == true
+                && assertionParent is MergedOptions resolvedParent)
+            {
+                return Task.FromResult((resolvedParent, resolvedParent));
+            }
+            string? effectiveScheme = isAgent ? _tokenAcquisitionHost.GetEffectiveAuthenticationScheme(parentScheme) : null;
+            MergedOptions parentMergedOptions;
+            if (isAgent)
+            {
+                parentMergedOptions = GetAgentParentOptions(parentScheme, effectiveScheme!);
+            }
+            else
+            {
+                parentMergedOptions = _tokenAcquisitionHost.GetOptions(parentScheme, out _);
+            }
             MergedOptions mergedOptions;
 
             if (tokenAcquisitionOptions != null
@@ -1238,6 +1255,7 @@ namespace Microsoft.Identity.Web
                     Instance = microsoftEntraApplicationOptions.Instance ?? parentMergedOptions.Instance,
                     AzureRegion = microsoftEntraApplicationOptions.AzureRegion ?? parentMergedOptions.AzureRegion,
                     TenantId = microsoftEntraApplicationOptions.TenantId ?? parentMergedOptions.TenantId,
+                    EnableCacheSynchronization = isAgent && parentMergedOptions.EnableCacheSynchronization,
                 };
             }
             else
@@ -1248,19 +1266,16 @@ namespace Microsoft.Identity.Web
             if (tokenAcquisitionOptions?.ExtraParameters?.TryGetValue(Constants.AgentIdentityKey, out object? agentIdentity) == true)
             {
                 mergedOptions = mergedOptions.WithAgentCachePartition(parentMergedOptions.ClientId, agentIdentity as string);
-
-                // Rebind helper-generated assertions without changing the caller's reusable credentials.
-                if (parentScheme is not null && mergedOptions.ClientCredentials is not null)
+                ITokenAcquirer parentAcquirer = new TokenAcquirer(
+                    _serviceProvider.GetRequiredService<ITokenAcquisition>(), effectiveScheme, false, parentMergedOptions);
+                if (mergedOptions.ClientCredentials is not null)
                 {
                     mergedOptions.ClientCredentials = mergedOptions.ClientCredentials.Select(credential =>
                     {
                         if (credential.SourceType == CredentialSource.CustomSignedAssertion
                             && string.Equals(credential.CustomSignedAssertionProviderName, "OidcIdpSignedAssertion", StringComparison.Ordinal)
                             && credential.CustomSignedAssertionProviderData is { } providerData
-                            && providerData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresFmi) && requiresFmi is true
-                            && providerData.TryGetValue("ConfigurationSection", out object? section)
-                            && section is string sectionName
-                            && !string.Equals(sectionName, effectiveParentScheme, StringComparison.Ordinal))
+                            && providerData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresFmi) && requiresFmi is true)
                         {
                             return new CredentialDescription(credential)
                             {
@@ -1268,7 +1283,7 @@ namespace Microsoft.Identity.Web
                                 Skip = false,
                                 CustomSignedAssertionProviderData = new Dictionary<string, object>(providerData)
                                 {
-                                    ["ConfigurationSection"] = effectiveParentScheme,
+                                    [Constants.AgentBlueprintOptions] = (parentAcquirer, parentMergedOptions.Instance),
                                 },
                             };
                         }
@@ -1278,7 +1293,47 @@ namespace Microsoft.Identity.Web
                 }
             }
 
-            return mergedOptions;
+            return Task.FromResult((mergedOptions, parentMergedOptions));
+        }
+
+        private MergedOptions GetAgentParentOptions(string? parentScheme, string effectiveScheme)
+        {
+            MergedOptions parentOptions;
+            IConfigurationSection? section = _serviceProvider.GetService<IConfiguration>()?.GetSection(effectiveScheme);
+            try
+            {
+                parentOptions = _tokenAcquisitionHost.GetOptions(parentScheme, out _).Clone();
+            }
+            catch (InvalidOperationException error) when (
+                section?.Exists() == true
+                && error.Message.StartsWith(
+                    IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect.Substring(
+                        0, IDWebErrorMessage.ProvidedAuthenticationSchemeIsIncorrect.IndexOf("{", StringComparison.Ordinal)),
+                    StringComparison.Ordinal))
+            {
+                // The normal web host pipeline has completed, but this JSON-only helper
+                // section is not an authentication scheme. Do not catch validation failures.
+                parentOptions = _serviceProvider.GetRequiredService<IMergedOptionsStore>().Get(effectiveScheme).Clone();
+            }
+            if (string.IsNullOrEmpty(parentOptions.Instance) && string.IsNullOrEmpty(parentOptions.Authority))
+            {
+                if (section is not null && section.Exists())
+                {
+                    var options = new MicrosoftIdentityApplicationOptions();
+                    _serviceProvider.GetRequiredService<AgentBlueprintOptionsBinder>()(section, options);
+                    MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityApplicationOptions(options, parentOptions);
+                }
+            }
+
+            MergedOptions.ParseAuthorityIfNecessary(parentOptions);
+            parentOptions.ClientCredentials = parentOptions.ClientCredentials?.Select(credential =>
+                new CredentialDescription(credential)
+                {
+                    CustomSignedAssertionProviderData = credential.CustomSignedAssertionProviderData is { } providerData
+                        ? new Dictionary<string, object>(providerData)
+                        : null,
+                }).ToArray();
+            return parentOptions;
         }
 
         private static void AddFmiPathForSignedAssertionIfNeeded(TokenAcquisitionOptions tokenAcquisitionOptions, AcquireTokenForClientParameterBuilder builder)
