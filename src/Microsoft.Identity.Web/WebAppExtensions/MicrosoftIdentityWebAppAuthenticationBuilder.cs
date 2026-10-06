@@ -165,47 +165,47 @@ namespace Microsoft.Identity.Web
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
 
-                       // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
+                       // Stamp the home account identifier (uid/utid) from the token that was actually
+                       // redeemed in OnAuthorizationCodeReceived (stashed on HttpContext.Items), so these
+                       // claims are always consistent with the acquired token. This also covers cases where
+                       // the id_token does not carry a tenant id (example: B2C).
                        var onTokenValidatedHandler = options.Events.OnTokenValidated;
                        options.Events.OnTokenValidated = async context =>
                        {
-                           string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                           string? uniqueObjectIdentifier = context!.HttpContext.Items.TryGetValue(Constants.HomeAccountObjectIdCacheKey, out var uniqueObjectIdentifierValue)
+                               ? uniqueObjectIdentifierValue as string
+                               : null;
+                           string? uniqueTenantIdentifier = context!.HttpContext.Items.TryGetValue(Constants.HomeAccountTenantIdCacheKey, out var uniqueTenantIdentifierValue)
+                               ? uniqueTenantIdentifierValue as string
+                               : null;
 
-                           if (!string.IsNullOrEmpty(clientInfo))
+                           var identity = context!.Principal!.Identities.FirstOrDefault();
+                           if (identity != null)
                            {
-                               ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
-
-                               if (clientInfoFromServer != null)
+                               if (uniqueTenantIdentifier != null)
                                {
-                                   var identity = context!.Principal!.Identities.FirstOrDefault();
-                                   if (identity != null)
+                                   var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
+                                   if (uniqueTenantIdentifierClaim != null && !string.Equals(uniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
                                    {
-                                       if (clientInfoFromServer.UniqueTenantIdentifier != null)
-                                       {
-                                           var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
-                                           if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                           {
-                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier)));
-                                               return;
-                                           }
-                                       }
-
-                                       if (clientInfoFromServer.UniqueObjectIdentifier != null)
-                                       {
-                                           var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                           if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                           {
-                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier)));
-                                               return;
-                                           }
-                                       }
-
-                                       if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
-                                       {
-                                           identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                           identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                                       }
+                                       context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier)));
+                                       return;
                                    }
+                               }
+
+                               if (uniqueObjectIdentifier != null)
+                               {
+                                   var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
+                                   if (uniqueObjectIdentifierClaim != null && !string.Equals(uniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
+                                   {
+                                       context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier)));
+                                       return;
+                                   }
+                               }
+
+                               if (uniqueTenantIdentifier != null && uniqueObjectIdentifier != null)
+                               {
+                                   identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, uniqueTenantIdentifier));
+                                   identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, uniqueObjectIdentifier));
                                }
                            }
                            await onTokenValidatedHandler(context).ConfigureAwait(false);

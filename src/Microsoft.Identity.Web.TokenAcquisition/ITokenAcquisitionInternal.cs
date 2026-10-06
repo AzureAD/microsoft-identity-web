@@ -73,6 +73,17 @@ namespace Microsoft.Identity.Web
         /// <returns>The token acquirer result.</returns>
         Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters);
+
+        /// <summary>
+        /// In a web app, adds, to the MSAL.NET cache, the account of the user authenticating to the web app, when the authorization code is received,
+        /// and returns the home account identifier (object id and tenant id) of the token that was redeemed, so that callers can stamp the
+        /// account-identifier claims from a value that is consistent with the token that was actually acquired.
+        /// </summary>
+        /// <param name="authCodeRedemptionParameters">Auth code redemption params, some of which
+        /// can be null. Includes scope, tenant, authCode, code verifier, etc...</param>
+        /// <returns>The redemption result, including the home account identifier of the redeemed token.</returns>
+        Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters);
 #endif
 
         /// <summary>
