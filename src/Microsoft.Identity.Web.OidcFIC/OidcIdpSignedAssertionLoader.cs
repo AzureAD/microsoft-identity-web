@@ -170,40 +170,50 @@ namespace Microsoft.Identity.Web.OidcFic
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
-                string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
-                if (sectionName == null)
+                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue(Constants.AgentAcquisitionContext, out object? context)
+                    && context is AgentAcquisitionContext agentContext)
                 {
-                    Logger.ConfigurationSectionNull(_logger);
-                    throw new InvalidOperationException("ConfigurationSection is null");
+                    signedAssertion = new OidcIdpSignedAssertionProvider(
+                        agentContext, credentialDescription.TokenExchangeUrl,
+                        _logger, _serviceProvider.GetService<ICloudMetadataProvider>(), parameters?.Authority);
                 }
-
-                MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
-                
-                if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
+                else
                 {
-                    // Get IConfiguration from service provider just-in-time
-                    IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
-                    if (configuration == null)
+                    string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
+                    if (sectionName == null)
                     {
-                        const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
-                        Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
-                        throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
-                            $"Please register IConfiguration in the service collection or configure MicrosoftIdentityOptions with named options '{sectionName}'. see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
+                        Logger.ConfigurationSectionNull(_logger);
+                        throw new InvalidOperationException("ConfigurationSection is null");
                     }
-                    
-                    Logger.ConfigurationBinding(_logger, sectionName);
-                    configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
-                }
 
-                // Special case for Signed assertions with an FmiPath.
-                // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
-                signedAssertion = new OidcIdpSignedAssertionProvider(
-                    _tokenAcquirerFactory,
-                    microsoftIdentityApplicationOptions,
-                    credentialDescription.TokenExchangeUrl,
-                    _logger,
-                    _serviceProvider.GetService<ICloudMetadataProvider>(),
-                    parameters?.Authority);
+                    MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
+
+                    if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
+                    {
+                        // Get IConfiguration from service provider just-in-time
+                        IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
+                        if (configuration == null)
+                        {
+                            const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
+                            Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
+                            throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
+                                $"Please register IConfiguration in the service collection or configure MicrosoftIdentityOptions with named options '{sectionName}'. see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
+                        }
+
+                        Logger.ConfigurationBinding(_logger, sectionName);
+                        configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
+                    }
+
+                    // Special case for Signed assertions with an FmiPath.
+                    // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
+                    signedAssertion = new OidcIdpSignedAssertionProvider(
+                        _tokenAcquirerFactory,
+                        microsoftIdentityApplicationOptions,
+                        credentialDescription.TokenExchangeUrl,
+                        _logger,
+                        _serviceProvider.GetService<ICloudMetadataProvider>(),
+                        parameters?.Authority);
+                }
                 if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
                 {
                     signedAssertion.RequiresSignedAssertionFmiPath = true;
