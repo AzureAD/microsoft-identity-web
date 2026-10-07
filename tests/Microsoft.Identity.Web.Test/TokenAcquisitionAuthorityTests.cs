@@ -21,6 +21,7 @@ using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using NSubstitute;
 using Xunit;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
@@ -394,34 +395,37 @@ namespace Microsoft.Identity.Web.Test
         public void GetApplicationKey_AgentCachePartitions_DoNotMutateOriginalOptions()
         {
             // Arrange
-            MergedOptions original = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
-            string originalKey = TokenAcquisition.GetApplicationKey(original, isTokenBinding: false);
-            var originalCcaOptions = original.ConfidentialClientApplicationOptions;
             const string parentAId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
             const string parentBId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
             const string agentAId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
             const string agentBId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
-            const string expectedPartition = "t9FyOmMbyVZXqi1EDEIK1tifRd9cqyZWeAbrj7kEmns=";
+            MergedOptions original = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
+            original.ClientId = agentAId;
+            string originalKey = TokenAcquisition.GetApplicationKey(original, isTokenBinding: false);
+            var originalCcaOptions = original.ConfidentialClientApplicationOptions;
+            var acquisition = Substitute.For<ITokenAcquisition>();
+            AgentAcquisitionContext CreateContext(string blueprintId, string agentId) =>
+                new(agentId, new MergedOptions { ClientId = blueprintId }, acquisition, "Blueprint");
 
             // Act
-            MergedOptions parentA = original.WithAgentCachePartition(parentAId, agentAId);
-            MergedOptions parentB = original.WithAgentCachePartition(parentBId, agentAId);
-            MergedOptions agentB = original.WithAgentCachePartition(parentAId, agentBId);
-            MergedOptions aliasA = original.WithAgentCachePartition(parentAId.ToUpperInvariant(), agentAId.ToUpperInvariant());
+            MergedOptions parentA = original.WithAgentContext(CreateContext(parentAId, agentAId));
+            MergedOptions parentB = original.WithAgentContext(CreateContext(parentBId, agentAId));
+            MergedOptions agentB = original.WithAgentContext(CreateContext(parentAId, agentBId));
+            agentB.ClientId = agentBId;
+            MergedOptions aliasA = original.WithAgentContext(CreateContext(parentAId.ToUpperInvariant(), agentAId));
 
             // Assert
-            Assert.Null(original.AgentCachePartition);
+            Assert.Null(original.AgentContext);
             Assert.Equal(originalKey, TokenAcquisition.GetApplicationKey(original, isTokenBinding: false));
             Assert.NotSame(originalCcaOptions, parentA.ConfidentialClientApplicationOptions);
             Assert.Same(originalCcaOptions, original.ConfidentialClientApplicationOptions);
             Assert.Equal(original.ClientId, parentA.ClientId);
             Assert.Same(original.ClientCredentials, parentA.ClientCredentials);
-            Assert.Equal(expectedPartition, parentA.AgentCachePartition);
-            Assert.Equal(expectedPartition, original.WithAgentCachePartition(parentAId, agentAId).AgentCachePartition);
-            Assert.Equal(expectedPartition, aliasA.AgentCachePartition);
-            Assert.NotEqual(parentA.AgentCachePartition, parentB.AgentCachePartition);
-            Assert.NotEqual(parentA.AgentCachePartition, agentB.AgentCachePartition);
-            Assert.Equal(originalKey + ":agent-pair:" + expectedPartition, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.Equal(parentAId, parentA.AgentContext!.BlueprintClientId);
+            Assert.Equal(parentAId, aliasA.AgentContext!.BlueprintClientId);
+            Assert.NotEqual(parentA.AgentContext.BlueprintClientId, parentB.AgentContext!.BlueprintClientId);
+            Assert.Equal(parentA.AgentContext.BlueprintClientId, agentB.AgentContext!.BlueprintClientId);
+            Assert.Equal(originalKey + ":agent-blueprint:" + parentAId, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
             Assert.Equal(
                 TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
                 TokenAcquisition.GetApplicationKey(aliasA, isTokenBinding: false));
@@ -432,10 +436,11 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotEqual(
                 TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
                 TokenAcquisition.GetApplicationKey(agentB, isTokenBinding: false));
-            Assert.Throws<ArgumentNullException>(() => original.WithAgentCachePartition(null, agentAId));
-            Assert.Throws<ArgumentNullException>(() => original.WithAgentCachePartition(parentAId, null));
-            Assert.Throws<ArgumentException>(() => original.WithAgentCachePartition(string.Empty, agentAId));
-            Assert.Throws<ArgumentException>(() => original.WithAgentCachePartition(parentAId, " "));
+            Assert.Throws<ArgumentNullException>(() => CreateContext(null!, agentAId));
+            Assert.Throws<ArgumentNullException>(() => CreateContext(parentAId, null!));
+            Assert.Throws<ArgumentException>(() => CreateContext(string.Empty, agentAId));
+            Assert.Throws<ArgumentException>(() => CreateContext(parentAId, " "));
+            Assert.Throws<ArgumentNullException>(() => original.WithAgentContext(null!));
         }
 
         /// <summary>

@@ -605,19 +605,22 @@ namespace Microsoft.Identity.Web.Test
         #region Agent User Identity Cache Tests (Issue #3840)
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task AgentObo_DifferentParents_DoNotShareTokens(bool longRunning)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public async Task AgentObo_DifferentParents_DoNotShareTokens(bool longRunning, bool uppercaseComponent)
         {
             // Arrange
             var test = CreateAgentCacheTest();
             var optionsA = ToTokenOptions(new AuthorizationHeaderProviderOptions().WithAgentIdentity(test.AgentId));
             optionsA.LongRunningWebApiSessionKey = longRunning ? AcquireTokenOptions.LongRunningWebApiSessionKeyAuto : null;
-            string partitionA = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            string partitionA = test.ParentA.ToLowerInvariant();
+            string component = uppercaseComponent ? "IDWEB_AGENT_BLUEPRINT_ID" : "idweb_agent_blueprint_id";
             var optionsB = new TokenAcquisitionOptions
             {
                 ExtraParameters = optionsA.ExtraParameters,
-                CachePartitionKeys = new Dictionary<string, string> { ["idweb_agent_pair_v1"] = partitionA },
+                CachePartitionKeys = new Dictionary<string, string> { [component] = partitionA },
             };
             ClaimsPrincipal principal = CreateAgentOboPrincipal(test.AgentId);
             Task<AuthenticationResult> AcquireAsync(string? scheme, TokenAcquisitionOptions options, ClaimsPrincipal? user) =>
@@ -662,8 +665,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
             Assert.Equal("obo-a", recovered.AccessToken);
             Assert.Equal(TokenSource.Cache, recovered.AuthenticationResultMetadata.TokenSource);
-            Assert.Equal(partitionA, optionsB.CachePartitionKeys["idweb_agent_pair_v1"]);
-            Assert.Equal("AzureAd", optionsA.ExtraParameters![Constants.AgentBlueprintConfiguration]);
+            Assert.Equal(partitionA, optionsB.CachePartitionKeys[component]);
+            Assert.Null(optionsA.AuthenticationOptionsName);
             test.Http.Dispose();
         }
 
@@ -751,16 +754,16 @@ namespace Microsoft.Identity.Web.Test
             // Arrange
             var test = CreateAgentCacheTest();
             var options = ToTokenOptions(CreateNamedAgentAppOptions(test.AgentId, "BlueprintA"));
-            string partitionA = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            string partitionA = test.ParentA.ToLowerInvariant();
             if (partitionOverride == "query")
             {
-                options.ExtraQueryParameters = new Dictionary<string, string> { ["idweb_agent_pair_v1"] = partitionA };
+                options.ExtraQueryParameters = new Dictionary<string, string> { ["idweb_agent_blueprint_id"] = partitionA };
             }
             else if (partitionOverride == "callback")
             {
                 test.Services.GetRequiredService<IOptionsMonitor<TokenAcquisitionExtensionOptions>>().CurrentValue
                     .OnBeforeTokenAcquisitionForApp += (builder, _) =>
-                        builder.WithCachePartitionKey("idweb_agent_pair_v1", partitionA);
+                        builder.WithCachePartitionKey("idweb_agent_blueprint_id", partitionA);
             }
             var application = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
             var credential = application.ClientCredentials!.Single();
@@ -803,16 +806,16 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
             if (partitionOverride == "query")
             {
-                Assert.Equal(partitionA, options.ExtraQueryParameters!["idweb_agent_pair_v1"]);
+                Assert.Equal(partitionA, options.ExtraQueryParameters!["idweb_agent_blueprint_id"]);
             }
             Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
-            Assert.Equal("BlueprintA", options.ExtraParameters[Constants.AgentBlueprintConfiguration]);
+            Assert.False(options.ExtraParameters.ContainsKey(Constants.AgentAcquisitionContext));
             Assert.Same(credential, application.ClientCredentials!.Single());
             Assert.Same(providerData, credential.CustomSignedAssertionProviderData);
-            Assert.Equal("BlueprintA", providerData["ConfigurationSection"]);
+            Assert.False(providerData.ContainsKey("ConfigurationSection"));
             Assert.Null(credential.CachedValue);
             Assert.False(credential.Skip);
-            Assert.Null(test.Services.GetRequiredService<ITokenAcquisitionHost>().GetOptions("BlueprintA", out _).AgentCachePartition);
+            Assert.Null(test.Services.GetRequiredService<ITokenAcquisitionHost>().GetOptions("BlueprintA", out _).AgentContext);
             test.Http.Dispose();
         }
 
@@ -848,9 +851,9 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(test.ParentB, rejection.ActualRequestPostData["client_id"]);
             Assert.Equal(first.AccessToken, recovered.AccessToken);
             Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
-            string expectedPartition = new MergedOptions().WithAgentCachePartition(test.ParentA, test.AgentId).AgentCachePartition!;
+            string expectedPartition = test.ParentA.ToLowerInvariant();
             Assert.Contains(test.Acquisition._applicationsByAuthorityClientId.Keys,
-                key => key.Contains(":agent-pair:" + expectedPartition, StringComparison.Ordinal));
+                key => key.Contains(":agent-blueprint:" + expectedPartition, StringComparison.Ordinal));
             test.Http.Dispose();
         }
 
@@ -944,8 +947,10 @@ namespace Microsoft.Identity.Web.Test
             test.Http.Dispose();
         }
 
-        [Fact]
-        public async Task AgentAppIdentity_DoesNotReadLegacyUnpartitionedToken()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AgentAppIdentity_DoesNotReadLegacyTokenFormats(bool usePairPartition)
         {
             // Arrange
             var test = CreateAgentCacheTest();
@@ -957,9 +962,16 @@ namespace Microsoft.Identity.Web.Test
                 .Build();
             test.Services.GetRequiredService<TokenCacheProviders.IMsalTokenCacheProvider>().Initialize(legacyClient.AppTokenCache);
             test.Http.AddMockHandler(CreateClientCredentialsTokenHandler("legacy-token"));
-            await legacyClient.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" })
-                .WithFmiPathForClientAssertion(test.AgentId)
-                .ExecuteAsync();
+            var legacyBuilder = legacyClient.AcquireTokenForClient(new[] { "https://graph.microsoft.com/.default" })
+                .WithFmiPathForClientAssertion(test.AgentId);
+            if (usePairPartition)
+            {
+                using var sha256 = System.Security.Cryptography.SHA256.Create();
+                string pair = test.ParentB.ToLowerInvariant() + ":" + test.AgentId.ToLowerInvariant();
+                string legacyPartition = Convert.ToBase64String(sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pair)));
+                legacyBuilder.WithCachePartitionKey("idweb_agent_pair_v1", legacyPartition);
+            }
+            await legacyBuilder.ExecuteAsync();
             var rejection = CreateRejectedBlueprintHandler(test.ParentB);
             rejection.ExpectedPostData["client_secret"] = "test-only-b-secret";
             test.Http.AddMockHandler(rejection);
@@ -1153,7 +1165,40 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("user-b", first.AccessToken);
             Assert.Equal("user-b", repeated.AccessToken);
             Assert.Equal(TokenSource.Cache, repeated.AuthenticationResultMetadata.TokenSource);
-            Assert.False(options.ExtraParameters!.ContainsKey(Constants.AgentBlueprintConfiguration));
+            Assert.False(options.ExtraParameters!.ContainsKey(Constants.AgentAcquisitionContext));
+            test.Http.Dispose();
+        }
+
+        [Theory]
+        [InlineData(null, "BlueprintA")]
+        [InlineData("BlueprintA", "BlueprintA")]
+        [InlineData("", "BlueprintB")]
+        public async Task AgentAppIdentity_SelectionChangedAfterHelper_UsesCurrentSelection(string? selection, string expectedBlueprint)
+        {
+            // Arrange
+            var test = CreateAgentCacheTest();
+            var options = CreateNamedAgentAppOptions(test.AgentId, "BlueprintB");
+            options.AcquireTokenOptions.AuthenticationOptionsName = selection;
+            bool usesBlueprintA = expectedBlueprint == "BlueprintA";
+            AddBlueprintAssertion(test.Http, test.AgentId, usesBlueprintA ? test.ParentA : test.ParentB,
+                "selected-assertion", usesBlueprintA ? "test-only-secret" : "test-only-b-secret");
+            var handler = CreateClientCredentialsTokenHandler("selected-token");
+            handler.ExpectedPostData = new Dictionary<string, string>
+            {
+                ["client_id"] = test.AgentId,
+                ["client_assertion"] = "selected-assertion",
+            };
+            test.Http.AddMockHandler(handler);
+            var provider = test.Services.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            var first = await provider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+            var repeated = await provider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default", options);
+
+            // Assert
+            Assert.Equal("Bearer selected-token", first);
+            Assert.Equal(first, repeated);
+            Assert.Equal(selection, options.AcquireTokenOptions.AuthenticationOptionsName);
             test.Http.Dispose();
         }
 
@@ -1204,10 +1249,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("token-a", recovered.AccessToken);
             Assert.Equal(recovered.AccessToken, cached.AccessToken);
             Assert.Null(options.AuthenticationOptionsName);
-            Assert.Equal("BlueprintA", options.ExtraParameters[Constants.AgentBlueprintConfiguration]);
+            Assert.False(options.ExtraParameters.ContainsKey(Constants.AgentAcquisitionContext));
             Assert.Same(helperCredential, helperApplication.ClientCredentials!.Single());
             Assert.Same(helperData, helperCredential.CustomSignedAssertionProviderData);
-            Assert.Equal("BlueprintA", helperData["ConfigurationSection"]);
+            Assert.False(helperData.ContainsKey("ConfigurationSection"));
             Assert.Null(helperCredential.CachedValue);
             Assert.Equal(test.ParentB, applicationB.ClientId);
             Assert.Equal("test-only-b-secret", applicationB.ClientCredentials.Single().ClientSecret);
@@ -1259,11 +1304,11 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.Equal("agent-via-b", first.AccessToken);
             Assert.Equal(first.AccessToken, second.AccessToken);
-            string partition = new MergedOptions().WithAgentCachePartition(parentB, agentId).AgentCachePartition!;
-            Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-pair:" + partition, StringComparison.Ordinal));
+            string partition = parentB.ToLowerInvariant();
+            Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-blueprint:" + partition, StringComparison.Ordinal));
             Assert.Same(credential, application.ClientCredentials!.Single());
             Assert.Same(data, credential.CustomSignedAssertionProviderData);
-            Assert.Equal("AzureAd", data!["ConfigurationSection"]);
+            Assert.False(data!.ContainsKey("ConfigurationSection"));
             Assert.Null(credential.CachedValue);
             Assert.False(credential.Skip);
             http.Dispose();
@@ -1426,7 +1471,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("BlueprintA", options.AuthenticationOptionsName);
             Assert.Same(credential, application.ClientCredentials!.Single());
             Assert.Same(data, credential.CustomSignedAssertionProviderData);
-            Assert.Equal("BlueprintA", data!["ConfigurationSection"]);
+            Assert.False(data!.ContainsKey("ConfigurationSection"));
             Assert.Null(credential.CachedValue);
             Assert.False(credential.Skip);
             test.Http.Dispose();
@@ -1585,9 +1630,9 @@ namespace Microsoft.Identity.Web.Test
                 Assert.Equal("selected-parent-token", first.AccessToken);
                 Assert.Equal(first.AccessToken, cached.AccessToken);
                 Assert.Equal(TokenSource.Cache, cached.AuthenticationResultMetadata.TokenSource);
-                string partition = new MergedOptions().WithAgentCachePartition(parentId, agentId).AgentCachePartition!;
+                string partition = parentId.ToLowerInvariant();
                 Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key =>
-                    key.Contains(":agent-pair:" + partition, StringComparison.Ordinal));
+                    key.Contains(":agent-blueprint:" + partition, StringComparison.Ordinal));
             }
             Assert.Contains(parentId, validatedClientIds);
             Assert.Equal(1, configurations);
@@ -1595,7 +1640,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("StaleParent", options.AuthenticationOptionsName);
             Assert.Same(credential, application.ClientCredentials!.Single());
             Assert.Same(data, credential.CustomSignedAssertionProviderData);
-            Assert.Equal("StaleParent", data!["ConfigurationSection"]);
+            Assert.False(data!.ContainsKey("ConfigurationSection"));
             Assert.Null(credential.CachedValue);
             Assert.False(credential.Skip);
             http.Dispose();
@@ -1740,7 +1785,7 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(1, postConfigurations);
             Assert.Same(helperCredential, Assert.Single(application.ClientCredentials!));
             Assert.Same(helperData, helperCredential.CustomSignedAssertionProviderData);
-            Assert.Equal("StaleParent", helperData!["ConfigurationSection"]);
+            Assert.False(helperData!.ContainsKey("ConfigurationSection"));
             Assert.Null(helperCredential.CachedValue);
             Assert.False(helperCredential.Skip);
             http.Dispose();
@@ -1788,7 +1833,7 @@ namespace Microsoft.Identity.Web.Test
             {
                 var agentApplication = (MicrosoftEntraApplicationOptions)options.ExtraParameters![Constants.MicrosoftIdentityOptionsParameter];
                 var credential = agentApplication.ClientCredentials!.Single();
-                Assert.Equal("BlueprintA", credential.CustomSignedAssertionProviderData!["ConfigurationSection"]);
+                Assert.False(credential.CustomSignedAssertionProviderData!.ContainsKey("ConfigurationSection"));
                 Assert.Null(credential.CachedValue);
                 Assert.False(credential.Skip);
             }

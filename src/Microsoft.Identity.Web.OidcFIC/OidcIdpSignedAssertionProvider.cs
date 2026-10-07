@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Web.OidcFic
         private ITokenAcquirer? _tokenAcquirer = null;
         private readonly ITokenAcquirerFactory? _tokenAcquirerFactory;
         private readonly MicrosoftIdentityApplicationOptions? _options;
-        private readonly string? _agentParentInstance;
+        private readonly AgentAcquisitionContext? _agentContext;
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
         private readonly ICloudMetadataProvider? _cloudMetadataProvider;
@@ -71,15 +71,14 @@ namespace Microsoft.Identity.Web.OidcFic
         }
 
         internal OidcIdpSignedAssertionProvider(
-            ITokenAcquirer tokenAcquirer,
-            string? parentInstance,
+            AgentAcquisitionContext agentContext,
             string? tokenExchangeUrl,
             ILogger? logger,
             ICloudMetadataProvider? cloudMetadataProvider,
             string? relyingApplicationAuthority)
         {
-            _tokenAcquirer = tokenAcquirer;
-            _agentParentInstance = parentInstance;
+            _tokenAcquirer = agentContext.BlueprintTokenAcquirer;
+            _agentContext = agentContext;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
             _cloudMetadataProvider = cloudMetadataProvider;
@@ -204,7 +203,7 @@ namespace Microsoft.Identity.Web.OidcFic
                         ? _relyingApplicationAuthority
                         : !string.IsNullOrEmpty(assertionRequestAuthority)
                             ? assertionRequestAuthority
-                            : _options is null ? _agentParentInstance
+                            : _options is null ? _agentContext?.BlueprintOptions.Instance
                                 : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
                     perCallOverride: _tokenExchangeUrl,
                     _cloudMetadataProvider));
@@ -310,7 +309,7 @@ namespace Microsoft.Identity.Web.OidcFic
             // https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token.
             string? tenant = ExtractTenantFromTokenEndpointIfSameInstance(
                 assertionRequestOptions.TokenEndpoint,
-                _options?.Instance ?? _agentParentInstance);
+                _options?.Instance ?? _agentContext?.BlueprintOptions.Instance);
             if (!string.IsNullOrEmpty(tenant))
             {
                 return tenant;
@@ -324,7 +323,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 && IsSameCloudInstance(
                     assertionRequestOptions.Authority,
                     assertionRequestOptions.TokenEndpoint,
-                    _options?.Instance ?? _agentParentInstance))
+                    _options?.Instance ?? _agentContext?.BlueprintOptions.Instance))
             {
                 return assertionRequestOptions.TenantId;
             }

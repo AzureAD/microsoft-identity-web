@@ -170,22 +170,22 @@ namespace Microsoft.Identity.Web.OidcFic
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
-                string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
-                if (sectionName == null)
-                {
-                    Logger.ConfigurationSectionNull(_logger);
-                    throw new InvalidOperationException("ConfigurationSection is null");
-                }
-
-                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue(Constants.AgentBlueprintOptions, out object? blueprint)
-                    && blueprint is ValueTuple<ITokenAcquirer, string?> selectedParent)
+                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue(Constants.AgentAcquisitionContext, out object? context)
+                    && context is AgentAcquisitionContext agentContext)
                 {
                     signedAssertion = new OidcIdpSignedAssertionProvider(
-                        selectedParent.Item1, selectedParent.Item2, credentialDescription.TokenExchangeUrl,
+                        agentContext, credentialDescription.TokenExchangeUrl,
                         _logger, _serviceProvider.GetService<ICloudMetadataProvider>(), parameters?.Authority);
                 }
                 else
                 {
+                    string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
+                    if (sectionName == null)
+                    {
+                        Logger.ConfigurationSectionNull(_logger);
+                        throw new InvalidOperationException("ConfigurationSection is null");
+                    }
+
                     MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
 
                     if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")

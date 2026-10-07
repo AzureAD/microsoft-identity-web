@@ -104,6 +104,44 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(_bindingCertificate.Thumbprint, result.BindingCertificate.Thumbprint);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetTokenForAppAsync_BlueprintAcquirer_PropagatesResolvedContextWithoutMutatingOptions(bool supplyOptions)
+        {
+            // Arrange
+            var blueprint = new MergedOptions { ClientId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" };
+            var context = new AgentAcquisitionContext("agent-client-id", blueprint, _tokenAcquisition, _authenticationScheme);
+            var extraParameters = new Dictionary<string, object> { ["caller-data"] = "preserved" };
+            var options = supplyOptions ? new AcquireTokenOptions { ExtraParameters = extraParameters } : null;
+            using var cancellation = new CancellationTokenSource();
+            TokenAcquisitionOptions? capturedOptions = null;
+            _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                _scope, _authenticationScheme, null, Arg.Any<TokenAcquisitionOptions>())
+                .Returns(call =>
+                {
+                    capturedOptions = call.ArgAt<TokenAcquisitionOptions>(3);
+                    return CreateMockAuthenticationResult();
+                });
+
+            // Act
+            var result = await context.BlueprintTokenAcquirer.GetTokenForAppAsync(_scope, options, cancellation.Token);
+
+            // Assert
+            Assert.Equal(_accessToken, result.AccessToken);
+            Assert.Same(blueprint, context.BlueprintOptions);
+            Assert.NotNull(capturedOptions);
+            Assert.Equal(cancellation.Token, capturedOptions.CancellationToken);
+            Assert.Same(context, capturedOptions.ExtraParameters![Constants.AgentAcquisitionContext]);
+            Assert.NotSame(extraParameters, capturedOptions.ExtraParameters);
+            Assert.Single(extraParameters);
+            if (supplyOptions)
+            {
+                Assert.Equal("preserved", capturedOptions.ExtraParameters["caller-data"]);
+                Assert.Same(extraParameters, options!.ExtraParameters);
+            }
+        }
+
         [Fact]
         public async Task GetTokenForUserAsync_WithAutoSessionKey_PropagatesGeneratedKeyBackToCaller()
         {

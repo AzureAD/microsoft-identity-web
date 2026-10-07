@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using IdWebLogger = Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -36,7 +34,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal IdWebLogger.ILogger? Logger { get; set; }
 
-        internal string? AgentCachePartition { get; private set; }
+        internal AgentAcquisitionContext? AgentContext { get; private set; }
 
         internal MergedOptions Clone()
         {
@@ -45,13 +43,10 @@ namespace Microsoft.Identity.Web
             return options;
         }
 
-        internal MergedOptions WithAgentCachePartition(string? blueprintClientId, string? agentClientId)
+        internal MergedOptions WithAgentContext(AgentAcquisitionContext context)
         {
-            string normalizedPair = Throws.IfNullOrWhitespace(blueprintClientId).ToLowerInvariant()
-                + ":" + Throws.IfNullOrWhitespace(agentClientId).ToLowerInvariant();
-            using var sha256 = SHA256.Create();
             var options = Clone();
-            options.AgentCachePartition = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(normalizedPair)));
+            options.AgentContext = Throws.IfNull(context);
             return options;
         }
 

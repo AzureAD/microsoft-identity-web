@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.OidcFic;
 using NSubstitute;
@@ -333,6 +334,62 @@ namespace Microsoft.Identity.Web.Test
 
         private OidcIdpSignedAssertionLoader CreateLoader() =>
             new OidcIdpSignedAssertionLoader(_logger, _optionsMonitor, _serviceProvider, _tokenAcquirerFactory);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_ResolvedAgentContext_DoesNotResolveConfigurationAgain(bool hasStaleSection)
+        {
+            // Arrange
+            const string agentId = "agent-client-id";
+            var acquisition = Substitute.For<ITokenAcquisition>();
+            var blueprint = new MergedOptions
+            {
+                ClientId = "blueprint-client-id",
+                Instance = "https://login.microsoftonline.com/",
+            };
+            var context = new AgentAcquisitionContext(agentId, blueprint, acquisition, "Blueprint");
+            var credential = CreateOidcCredential();
+            credential.CustomSignedAssertionProviderData = new Dictionary<string, object>
+            {
+                [Constants.AgentAcquisitionContext] = context,
+                ["RequiresSignedAssertionFmiPath"] = true,
+            };
+            if (hasStaleSection)
+            {
+                credential.CustomSignedAssertionProviderData["ConfigurationSection"] = "UnregisteredSection";
+            }
+            TokenAcquisitionOptions? capturedOptions = null;
+            acquisition.GetAuthenticationResultForAppAsync(
+                "api://AzureADTokenExchange/.default", "Blueprint", "tenant", Arg.Any<TokenAcquisitionOptions>())
+                .Returns(call =>
+                {
+                    capturedOptions = call.ArgAt<TokenAcquisitionOptions>(3);
+                    return new AuthenticationResult(
+                        "blueprint-assertion", false, "unused", DateTimeOffset.UtcNow.AddHours(1),
+                        DateTimeOffset.UtcNow.AddHours(1), "tenant", null, "unused",
+                        new[] { "api://AzureADTokenExchange/.default" }, Guid.NewGuid());
+                });
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential);
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            var assertion = await provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            {
+                ClientAssertionFmiPath = agentId,
+                TokenEndpoint = "https://login.microsoftonline.com/tenant/oauth2/v2.0/token",
+            });
+
+            // Assert
+            Assert.Equal("blueprint-assertion", assertion);
+            Assert.NotNull(capturedOptions);
+            Assert.Equal(agentId, capturedOptions.FmiPath);
+            Assert.Same(context, capturedOptions.ExtraParameters![Constants.AgentAcquisitionContext]);
+            _optionsMonitor.DidNotReceive().Get(Arg.Any<string>());
+            _tokenAcquirerFactory.DidNotReceive().GetTokenAcquirer(Arg.Any<IdentityApplicationOptions>());
+            _serviceProvider.DidNotReceive().GetService(typeof(IConfiguration));
+            Assert.False(credential.Skip);
+        }
 
         private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion")
         {

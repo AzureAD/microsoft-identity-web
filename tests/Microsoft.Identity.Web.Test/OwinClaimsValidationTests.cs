@@ -113,10 +113,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal("owin-user-token", result.AccessToken);
             Assert.Equal(identityClientId, blueprint.ActualRequestPostData["client_id"]);
             Assert.Equal("test-only-identity-secret", blueprint.ActualRequestPostData["client_secret"]);
-            string partition = new MergedOptions().WithAgentCachePartition(identityClientId, agentId).AgentCachePartition!;
-            string wrongPartition = new MergedOptions().WithAgentCachePartition(applicationClientId, agentId).AgentCachePartition!;
-            Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-pair:" + partition));
-            Assert.DoesNotContain(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-pair:" + wrongPartition));
+            string partition = identityClientId.ToLowerInvariant();
+            string wrongPartition = applicationClientId.ToLowerInvariant();
+            Assert.Contains(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-blueprint:" + partition));
+            Assert.DoesNotContain(acquisition._applicationsByAuthorityClientId.Keys, key => key.Contains(":agent-blueprint:" + wrongPartition));
             Assert.Equal("StaleParent", tokenOptions.AuthenticationOptionsName);
             Assert.Equal(1, configurations);
             Assert.Equal(1, postConfigurations);
