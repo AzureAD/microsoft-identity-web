@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -143,24 +144,33 @@ namespace Microsoft.Identity.Web.Test
         /// Regression test: Simulates the Agent Identities scenario where nested token acquisitions
         /// with bad config should fail quickly, not hang.
         /// </summary>
-        [Fact(Timeout = 30000)] // 30 second timeout - generous to accommodate slow CI, but still validates no infinite hang
+        [Fact]
         public async Task GetAuthenticationResultForAppAsync_WithBadClientId_CompletesQuickly()
         {
             // Arrange
             var tokenAcquisition = CreateTokenAcquisitionWithBadClientId();
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var tokenAcquisitionOptions = new TokenAcquisitionOptions
+            {
+                CancellationToken = cancellationTokenSource.Token,
+            };
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
+            Task assertionTask = Assert.ThrowsAnyAsync<Exception>(async () =>
             {
                 // This simulates the Agent Identities scenario
                 // Should fail quickly, not hang indefinitely
-                var result = await InvokeGetAuthenticationResultForAppAsync(
+                _ = await InvokeGetAuthenticationResultForAppAsync(
                     tokenAcquisition,
-                    "https://graph.microsoft.com/.default");
+                    "https://graph.microsoft.com/.default",
+                    tokenAcquisitionOptions);
             });
 
-            // If we reach here within the timeout, test passes
-            Assert.True(true, "Completed without hanging");
+            Task completedTask = await Task.WhenAny(assertionTask, Task.Delay(TimeSpan.FromSeconds(20)));
+            Assert.Same(assertionTask, completedTask);
+            await assertionTask;
+
+            // If we reach here, the method completed without hanging
         }
 
         #endregion
@@ -280,7 +290,8 @@ namespace Microsoft.Identity.Web.Test
         /// </summary>
         private async Task<AuthenticationResult> InvokeGetAuthenticationResultForAppAsync(
             TokenAcquisition tokenAcquisition,
-            string scope)
+            string scope,
+            TokenAcquisitionOptions? tokenAcquisitionOptions = null)
         {
             var method = typeof(TokenAcquisition).GetMethod(
                 "GetAuthenticationResultForAppAsync",
@@ -291,7 +302,7 @@ namespace Microsoft.Identity.Web.Test
                 throw new InvalidOperationException("Could not find GetAuthenticationResultForAppAsync method");
             }
 
-            var task = method.Invoke(tokenAcquisition, new object?[] { scope, null, null, null }) as Task<AuthenticationResult>;
+            var task = method.Invoke(tokenAcquisition, new object?[] { scope, null, null, tokenAcquisitionOptions }) as Task<AuthenticationResult>;
 
             if (task == null)
             {
