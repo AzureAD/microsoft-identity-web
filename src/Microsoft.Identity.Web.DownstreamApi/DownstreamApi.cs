@@ -559,7 +559,7 @@ namespace Microsoft.Identity.Web
         {
             // Downstream API URI
             string apiUrl = effectiveOptions.GetApiUrl();
-            HttpResponseMessage downstreamApiResult;
+            HttpResponseMessage? downstreamApiResult = null;
             bool retry;
             bool hasRetried = false;
 
@@ -583,7 +583,25 @@ namespace Microsoft.Identity.Web
                     : (string.IsNullOrEmpty(serviceName) ? _httpClientFactory.CreateClient() : _httpClientFactory.CreateClient(serviceName!));
 
                 // Send the HTTP message
-                downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    downstreamApiResult = await client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (
+                    !hasRetried
+                    && requestResult?.BindingCertificate is not null
+                    && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                    && effectiveOptions.AcquireTokenOptions.ManagedIdentity is not null
+                    && MicrosoftIdentityMessageHandler.IsSchannelCredentialFailure(ex))
+                {
+                    Logger.TokenBindingCertificateRejected(_logger, ex);
+                    effectiveOptions = new DownstreamApiOptions(effectiveOptions);
+                    effectiveOptions.AcquireTokenOptions.ForceRefresh = true;
+                    retry = true;
+                    hasRetried = true;
+                    httpRequestMessage.Content = null;
+                    continue;
+                }
 
                 // Retry only if the resource sent 401 Unauthorized with WWW-Authenticate header and claims
                 if (downstreamApiResult.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -644,7 +662,7 @@ namespace Microsoft.Identity.Web
             }
             while (retry);
 
-            return downstreamApiResult;
+            return downstreamApiResult!;
         }
 
         [Obsolete("Replaced by UpdateRequestWithCertificateAsync")]

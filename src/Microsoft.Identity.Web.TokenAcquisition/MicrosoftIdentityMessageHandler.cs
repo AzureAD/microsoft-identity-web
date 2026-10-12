@@ -660,11 +660,16 @@ namespace Microsoft.Identity.Web
         /// through an mTLS-configured HTTP client with the binding certificate.
         /// </para>
         /// <para>
+        /// For managed identity token binding, a SCHANNEL <c>SEC_E_UNKNOWN_CREDENTIALS</c> failure
+        /// triggers one retry with force refresh so MSAL re-mints the MSI v2 binding certificate
+        /// and acquires a token bound to the replacement certificate.
+        /// </para>
+        /// <para>
         /// For pure mTLS scenarios, the <see cref="ICredentialsProvider"/> is notified of certificate
         /// usage on every send. On an auth-related failure, the method attempts a single bounded retry
-        /// with freshly-acquired credentials, giving the provider an opportunity to rotate the
-        /// certificate. Non-mTLS scenarios are not retried here (claims-challenge retries are
-        /// orchestrated by <see cref="SendAsync"/>).
+        /// with freshly-acquired credentials, giving the provider an opportunity to rotate the certificate.
+        /// Other scenarios are not retried here (claims-challenge retries are orchestrated by
+        /// <see cref="SendAsync"/>).
         /// </para>
         /// </remarks>
         private async Task<HttpResponseMessage> SendWithCertRetryAsync(
@@ -676,17 +681,39 @@ namespace Microsoft.Identity.Web
             const int MaxAttempts = 2;
             HttpRequestMessage currentRequest = request;
             HttpRequestMessage? clonedRequest = null;
+            MicrosoftIdentityMessageHandlerOptions effectiveOptions = options;
 
             try
             {
                 for (int attempt = 1; attempt <= MaxAttempts; attempt++)
                 {
-                    var artifacts = await AcquireAuthArtifactsAsync(options, scopes, cancellationToken).ConfigureAwait(false);
+                    var artifacts = await AcquireAuthArtifactsAsync(effectiveOptions, scopes, cancellationToken).ConfigureAwait(false);
 
-                    var response = await SendOnceAsync(currentRequest, scopes, artifacts, cancellationToken).ConfigureAwait(false);
+                    HttpResponseMessage response;
+                    try
+                    {
+                        response = await SendOnceAsync(currentRequest, scopes, artifacts, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (
+                        attempt < MaxAttempts
+                        && artifacts.BindingCertificate is not null
+                        && string.Equals(effectiveOptions.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase)
+                        && effectiveOptions.AcquireTokenOptions?.ManagedIdentity is not null
+                        && IsSchannelCredentialFailure(ex))
+                    {
+                        _logger?.LogInformation(
+                            ex,
+                            "The token-binding certificate was rejected by SCHANNEL. Force refreshing the managed identity token and certificate before retrying once.");
 
-                    // Cert-usage notifications and the cert-failure retry policy only apply to pure mTLS,
-                    // which is the only path that produces both a CredentialDescription and a BindingCertificate.
+                        effectiveOptions = CreateOptionsWithForceRefresh(effectiveOptions);
+                        clonedRequest?.Dispose();
+                        clonedRequest = await CloneHttpRequestMessageAsync(request).ConfigureAwait(false);
+                        currentRequest = clonedRequest;
+                        continue;
+                    }
+
+                    // Response-based cert-usage notifications and retries apply to pure mTLS, which is
+                    // the only path that produces both a CredentialDescription and a BindingCertificate.
                     if (_credentialsProvider is null
                         || artifacts.CredentialDescription is null
                         || artifacts.BindingCertificate is null)
@@ -740,6 +767,38 @@ namespace Microsoft.Identity.Web
             {
                 clonedRequest?.Dispose();
             }
+        }
+
+        internal static bool IsSchannelCredentialFailure(Exception exception)
+        {
+            const int SecEUnknownCredentials = unchecked((int)0x8009030D);
+
+            if (exception is OperationCanceledException)
+            {
+                return false;
+            }
+
+            for (Exception? current = exception; current is not null; current = current.InnerException)
+            {
+                if (current.HResult == SecEUnknownCredentials
+                    || current is System.ComponentModel.Win32Exception win32Exception
+                        && win32Exception.NativeErrorCode == SecEUnknownCredentials)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static MicrosoftIdentityMessageHandlerOptions CreateOptionsWithForceRefresh(
+            MicrosoftIdentityMessageHandlerOptions originalOptions)
+        {
+            var retryOptions = new MicrosoftIdentityMessageHandlerOptions(originalOptions);
+            retryOptions.AcquireTokenOptions ??= new AcquireTokenOptions();
+            retryOptions.AcquireTokenOptions.ForceRefresh = true;
+
+            return retryOptions;
         }
 
         /// <summary>
