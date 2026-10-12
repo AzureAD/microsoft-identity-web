@@ -1,0 +1,11 @@
+#nullable enable
+Microsoft.Identity.Web.AgentAcquisitionContext
+Microsoft.Identity.Web.AgentAcquisitionContext.AgentAcquisitionContext(string? agentClientId, Microsoft.Identity.Web.MergedOptions! blueprintOptions, Microsoft.Identity.Web.ITokenAcquisition! tokenAcquisition, string? authenticationScheme) -> void
+Microsoft.Identity.Web.AgentAcquisitionContext.AgentClientId.get -> string!
+Microsoft.Identity.Web.AgentAcquisitionContext.BlueprintClientId.get -> string!
+Microsoft.Identity.Web.AgentAcquisitionContext.BlueprintOptions.get -> Microsoft.Identity.Web.MergedOptions!
+Microsoft.Identity.Web.AgentAcquisitionContext.BlueprintTokenAcquirer.get -> Microsoft.Identity.Abstractions.ITokenAcquirer!
+Microsoft.Identity.Web.MergedOptions.AgentContext.get -> Microsoft.Identity.Web.AgentAcquisitionContext?
+Microsoft.Identity.Web.MergedOptions.WithAgentContext(Microsoft.Identity.Web.AgentAcquisitionContext! context) -> Microsoft.Identity.Web.MergedOptions!
+Microsoft.Identity.Web.TokenAcquirer.TokenAcquirer(Microsoft.Identity.Web.ITokenAcquisition! tokenAcquisition, string? authenticationScheme, bool hasExplicitApplicationOptions, Microsoft.Identity.Web.AgentAcquisitionContext? agentContext = null) -> void
+const Microsoft.Identity.Web.Constants.AgentAcquisitionContext = "IDWEB_AGENT_ACQUISITION_CONTEXT" -> string!

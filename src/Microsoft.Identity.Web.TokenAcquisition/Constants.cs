@@ -213,6 +213,7 @@ namespace Microsoft.Identity.Web
          * Treat as a public member.
          */
         internal const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
+        internal const string AgentAcquisitionContext = "IDWEB_AGENT_ACQUISITION_CONTEXT";
         /*
          * Used by Microsoft.Identity.Web.AgentIdentities
          * Any changes to this member (including removal) can cause runtime failures.
