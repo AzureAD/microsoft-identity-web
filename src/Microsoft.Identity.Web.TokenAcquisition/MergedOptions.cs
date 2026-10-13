@@ -34,6 +34,22 @@ namespace Microsoft.Identity.Web
         /// </summary>
         internal IdWebLogger.ILogger? Logger { get; set; }
 
+        internal AgentAcquisitionContext? AgentContext { get; private set; }
+
+        internal MergedOptions Clone()
+        {
+            var options = (MergedOptions)MemberwiseClone();
+            options._confidentialClientApplicationOptions = null;
+            return options;
+        }
+
+        internal MergedOptions WithAgentContext(AgentAcquisitionContext context)
+        {
+            var options = Clone();
+            options.AgentContext = Throws.IfNull(context);
+            return options;
+        }
+
         public ConfidentialClientApplicationOptions ConfidentialClientApplicationOptions
         {
             get

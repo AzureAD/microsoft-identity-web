@@ -89,16 +89,28 @@ Microsoft.Identity.Web creates and reuses the per-agent confidential clients req
 
 See the [credentials guide](../authentication/credentials/credentials-README.md) for certificate, managed identity, and other credential options.
 
+### Selecting a blueprint
+
+Set `AcquireTokenOptions.AuthenticationOptionsName` to select a named blueprint. The selection is resolved when tokens are acquired, not when `WithAgentIdentity` is called, so changing or clearing the name after creating the helper options takes effect on the next acquisition. Do not configure a second blueprint name in the helper's generated credential data.
+
+For direct `ITokenAcquisition` calls, an explicit `authenticationScheme` takes precedence over `AuthenticationOptionsName`. For a named `ITokenAcquirer`, the per-call name takes precedence over the factory's name. An acquirer created from explicit application options instead retains that application as the blueprint for agent requests.
+
+When neither the call nor its acquirer selects a blueprint, `WithAgentIdentity` defaults to `AzureAd`; `WithAgentUserIdentity` uses the host's default. An explicit empty name selects the host's default rather than the `AzureAd` fallback.
+
 ## How Microsoft.Identity.Web implements the flow
 
 Microsoft.Identity.Web hides the MSAL confidential-client and token-exchange plumbing:
 
 1. The configured **blueprint client** uses its credential to acquire an FMI token (T1) for the requested agent identity.
-2. Microsoft.Identity.Web creates or reuses an internal **agent client**, keyed by the agent identity's client ID. That client uses T1 as its assertion.
+2. Microsoft.Identity.Web creates or reuses an internal **agent client**, isolated by both blueprint and agent identity. That client uses T1 as its assertion.
 3. For an autonomous agent, the agent client acquires the downstream app-only token directly.
 4. For an agent user identity, the agent client first acquires an instance token (T2), then uses MSAL's User FIC API with T2 and the user's UPN or OID to acquire the delegated token.
 
 The FIC token-exchange audience used for T1 and T2 is resolved from the configured authority host, so applications should not hardcode `api://AzureADTokenExchange/.default`.
+
+The selected blueprint's options are resolved once per acquisition and shared with the assertion provider. MSAL already distinguishes agents by client ID; Microsoft.Identity.Web adds the normalized blueprint client ID to token-cache partitioning, including refresh tokens. This prevents tokens acquired through one blueprint from being reused through another while allowing configuration aliases for the same blueprint to reuse tokens. Client-object isolation is also required because assertion callbacks retain the selected blueprint's credentials.
+
+Agent cache entries from older partition formats are not reused. Expect fresh token acquisition after upgrading; there is no fallback to those entries.
 
 MSAL's User FIC API always performs a network request. Microsoft.Identity.Web first attempts `AcquireTokenSilent` using the account identifier it retained from an earlier successful request. It invokes the User FIC API only when no usable cached user token exists or when refresh is forced.
 
