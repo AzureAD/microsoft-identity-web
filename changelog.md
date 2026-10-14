@@ -1,3 +1,8 @@
+## 4.16.1
+
+### Security fixes
+- Security fixes and general reliability improvements. See [#4090](https://github.com/AzureAD/microsoft-identity-web/pull/4090).
+
 ## 4.15.0
 
 ### Federated credentials and proof of possession
