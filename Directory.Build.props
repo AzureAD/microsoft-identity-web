@@ -121,8 +121,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <NetNineRuntimeVersion>9.0.0</NetNineRuntimeVersion>
     <AspNetCoreNineRuntimeVersion>9.0.0</AspNetCoreNineRuntimeVersion>
-    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
-    <SystemSecurityCryptographyServicingVersion>9.0.18</SystemSecurityCryptographyServicingVersion>
+    <!--CVE: GHSA-2fmv-rv2c-59x7, GHSA-846f-f764-76mx, GHSA-7hqp-7c5m-4vq6, GHSA-c399-9853-6jmj, GHSA-r955-8q5j-3h83-->
+    <SystemSecurityCryptographyServicingVersion>9.0.21</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -133,7 +133,7 @@
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
-    <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>$(SystemSecurityCryptographyServicingVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
@@ -141,8 +141,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
-    <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, DataProtection requires 10.0.7 min instead of 10.0.6, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
-    <SystemSecurityCryptographyServicingVersion>10.0.10</SystemSecurityCryptographyServicingVersion>
+    <!--CVE: GHSA-2fmv-rv2c-59x7, GHSA-846f-f764-76mx, GHSA-7hqp-7c5m-4vq6, GHSA-c399-9853-6jmj, GHSA-r955-8q5j-3h83; DataProtection requires 10.0.7 min instead of 10.0.6-->
+    <SystemSecurityCryptographyServicingVersion>10.0.13</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
@@ -153,7 +153,7 @@
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
-    <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>$(SystemSecurityCryptographyServicingVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
@@ -163,9 +163,9 @@
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>8.0.0</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
-    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648: patched System.Security.Cryptography.Xml for net8.0 is 8.0.4 (advisory affects <=8.0.3; 8.0.29 is the .NET runtime patch, not this OOB package). Xml 8.0.4 depends on Pkcs 8.0.1, so pin Pkcs 8.0.1 to satisfy it without an NU1605 downgrade.-->
-    <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.4</SystemSecurityCryptographyXmlVersion>
+    <!--CVE: GHSA-2fmv-rv2c-59x7, GHSA-846f-f764-76mx, GHSA-7hqp-7c5m-4vq6, GHSA-c399-9853-6jmj, GHSA-r955-8q5j-3h83-->
+    <SystemSecurityCryptographyPkcsVersion>8.0.2</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.5</SystemSecurityCryptographyXmlVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
   </PropertyGroup>
 
