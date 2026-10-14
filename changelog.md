@@ -1,3 +1,8 @@
+3.16.0
+=======
+## Security fixes
+- Security fixes and general reliability improvements. See PR [#4091](https://github.com/AzureAD/microsoft-identity-web/pull/4091) for details.
+
 3.15.1
 =======
 ## Bug fixes
