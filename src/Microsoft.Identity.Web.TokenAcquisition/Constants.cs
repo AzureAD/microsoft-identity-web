@@ -31,6 +31,18 @@ namespace Microsoft.Identity.Web
         public const string Claims = "claims";
 
         /// <summary>
+        /// HomeAccountObjectIdCacheKey.
+        /// Request key for the home account object id (uid) from the redeemed token.
+        /// </summary>
+        internal const string HomeAccountObjectIdCacheKey = "Microsoft.Identity.Web.HomeAccountObjectId";
+
+        /// <summary>
+        /// HomeAccountTenantIdCacheKey.
+        /// Request key for the home account tenant id (utid) from the redeemed token.
+        /// </summary>
+        internal const string HomeAccountTenantIdCacheKey = "Microsoft.Identity.Web.HomeAccountTenantId";
+
+        /// <summary>
         /// Bearer.
         /// Predominant type of access token used with OAuth 2.0.
         /// </summary>

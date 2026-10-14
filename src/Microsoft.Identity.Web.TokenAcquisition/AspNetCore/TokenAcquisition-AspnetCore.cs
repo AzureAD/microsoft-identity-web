@@ -7,6 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Authentication;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -168,20 +170,68 @@ namespace Microsoft.Identity.Web
         {
             CheckParameters(context, scopes);
 
-            string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
             context.TokenEndpointRequest!.Parameters.TryGetValue(OAuthConstants.CodeVerifierKey, out string? codeVerifier);
             string authCode = context!.ProtocolMessage!.Code;
             string? userFlow = context.Principal?.GetUserFlowId();
 
-            AcquireTokenResult result = await AddAccountToCacheFromAuthorizationCodeAsync(new AuthCodeRedemptionParameters(
+            AuthCodeRedemptionResult redemption = await AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(new AuthCodeRedemptionParameters(
                 scopes,
                 authCode,
                 authenticationScheme,
-                clientInfo,
                 codeVerifier,
                 userFlow,
                 context!.ProtocolMessage.DomainHint)).ConfigureAwait(false);
-            context.HandleCodeRedemption(result.AccessToken!, result.IdToken!);
+
+            try
+            {
+                ApplyRedeemedHomeAccountId(context, redemption.HomeObjectId, redemption.HomeTenantId);
+            }
+            catch (AuthenticationException ex)
+            {
+                context.Fail(ex);
+                return;
+            }
+
+            context.HandleCodeRedemption(redemption.Result.AccessToken!, redemption.Result.IdToken!);
+        }
+
+        /// <summary>
+        /// Applies the home account identifier after authorization code redemption.
+        /// OpenID Connect events run in a different order depending on the flow:
+        /// <list type="bullet">
+        /// <item>Code-only (response_type=code): this runs before OnTokenValidated and no principal exists yet,
+        /// so the values are stashed on the request (HttpContext.Items is request-scoped and is not serialized
+        /// into the cookie) and stamped later in OnTokenValidated.</item>
+        /// <item>Hybrid (response_type=code id_token, used by B2C non-default user flows): OnTokenValidated has
+        /// already run and will not run again, so the values are stamped directly on the existing principal
+        /// that becomes the authentication ticket.</item>
+        /// </list>
+        /// </summary>
+        /// <exception cref="AuthenticationException">
+        /// Thrown when the principal carries a conflicting reserved uid/utid claim.
+        /// </exception>
+        internal static void ApplyRedeemedHomeAccountId(
+            AuthorizationCodeReceivedContext context,
+            string? homeObjectId,
+            string? homeTenantId)
+        {
+            if (string.IsNullOrEmpty(homeObjectId) || string.IsNullOrEmpty(homeTenantId))
+            {
+                return;
+            }
+
+            ClaimsIdentity? identity = context.Principal?.Identities.FirstOrDefault();
+            if (identity != null)
+            {
+                // Hybrid flow: stamp directly on the principal that becomes the authentication ticket.
+                HomeAccountIdentifierClaims.AddOrValidate(identity, homeObjectId, homeTenantId);
+            }
+            else
+            {
+                // Code-only flow: hand the values to the later OnTokenValidated event.
+                context.HttpContext.Items[Constants.HomeAccountObjectIdCacheKey] = homeObjectId;
+                context.HttpContext.Items[Constants.HomeAccountTenantIdCacheKey] = homeTenantId;
+            }
         }
 
         private void CheckParameters(

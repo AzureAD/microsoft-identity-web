@@ -173,10 +173,20 @@ namespace Microsoft.Identity.Web
         public async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters)
         {
+            AuthCodeRedemptionResult redemptionResult = await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
+            return redemptionResult.Result;
+        }
+
+#if NET6_0_OR_GREATER
+        [RequiresUnreferencedCode("Calls Microsoft.Identity.Web.ClientInfo.CreateFromJson(String)")]
+#endif
+        public async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(
+            AuthCodeRedemptionParameters authCodeRedemptionParameters)
+        {
             return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount: 0).ConfigureAwait(false);
         }
 
-        private async Task<AcquireTokenResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
+        private async Task<AuthCodeRedemptionResult> AddAccountToCacheFromAuthorizationCodeInternalAsync(
             AuthCodeRedemptionParameters authCodeRedemptionParameters,
             int retryCount)
         {
@@ -193,21 +203,10 @@ namespace Microsoft.Identity.Web
                 // case a further call to AcquireTokenByAuthorizationCodeAsync in the future is required for incremental consent (getting a code requesting more scopes)
                 // Share the ID token though
 
-                string? backUpAuthRoutingHint = string.Empty;
-                if (!string.IsNullOrEmpty(authCodeRedemptionParameters.ClientInfo))
-                {
-                    ClientInfo? clientInfoFromAuthorize = ClientInfo.CreateFromJson(authCodeRedemptionParameters.ClientInfo);
-                    if (clientInfoFromAuthorize != null && clientInfoFromAuthorize.UniqueTenantIdentifier != null && clientInfoFromAuthorize.UniqueObjectIdentifier != null)
-                    {
-                        backUpAuthRoutingHint = $"oid:{clientInfoFromAuthorize.UniqueObjectIdentifier}@{clientInfoFromAuthorize.UniqueTenantIdentifier}";
-                    }
-                }
-
                 var builder = application
                     .AcquireTokenByAuthorizationCode(authCodeRedemptionParameters.Scopes.Except(_scopesRequestedByMsal), authCodeRedemptionParameters.AuthCode)
                     .WithSendX5C(mergedOptions.SendX5C)
                     .WithPkceCodeVerifier(authCodeRedemptionParameters.CodeVerifier)
-                    .WithCcsRoutingHint(backUpAuthRoutingHint)
                     .WithSpaAuthorizationCode(mergedOptions.WithSpaAuthCode);
 
                 loaderParameters = new CredentialSourceLoaderParameters(application.AppConfig.ClientId, application.Authority)
@@ -247,7 +246,10 @@ namespace Microsoft.Identity.Web
                     true,
                     null);
 
-                return AcquireTokenResultFactory.FromMsal(result);
+                return new AuthCodeRedemptionResult(
+                    AcquireTokenResultFactory.FromMsal(result),
+                    result.Account?.HomeAccountId?.ObjectId,
+                    result.Account?.HomeAccountId?.TenantId);
             }
             catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
             {
