@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Security.Authentication;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
@@ -169,49 +167,34 @@ namespace Microsoft.Identity.Web
                            await codeReceivedHandler(context).ConfigureAwait(false);
                        };
 
-                       // Handling the token validated to get the client_info for cases where tenantId is not present (example: B2C)
+                       // Code-only flow stores these values before token validation. Hybrid flow applies
+                       // them during code redemption because token validation runs first.
                        var onTokenValidatedHandler = options.Events.OnTokenValidated;
                        options.Events.OnTokenValidated = async context =>
                        {
-                           string? clientInfo = context!.ProtocolMessage?.GetParameter(ClaimConstants.ClientInfo);
+                           string? uniqueObjectIdentifier = context!.HttpContext.Items.TryGetValue(Constants.HomeAccountObjectIdCacheKey, out var uniqueObjectIdentifierValue)
+                               ? uniqueObjectIdentifierValue as string
+                               : null;
+                           string? uniqueTenantIdentifier = context!.HttpContext.Items.TryGetValue(Constants.HomeAccountTenantIdCacheKey, out var uniqueTenantIdentifierValue)
+                               ? uniqueTenantIdentifierValue as string
+                               : null;
 
-                           if (!string.IsNullOrEmpty(clientInfo))
+                           context.HttpContext.Items.Remove(Constants.HomeAccountObjectIdCacheKey);
+                           context.HttpContext.Items.Remove(Constants.HomeAccountTenantIdCacheKey);
+
+                           try
                            {
-                               ClientInfo? clientInfoFromServer = ClientInfo.CreateFromJson(clientInfo);
-
-                               if (clientInfoFromServer != null)
-                               {
-                                   var identity = context!.Principal!.Identities.FirstOrDefault();
-                                   if (identity != null)
-                                   {
-                                       if (clientInfoFromServer.UniqueTenantIdentifier != null)
-                                       {
-                                           var uniqueTenantIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueTenantIdentifier);
-                                           if (uniqueTenantIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueTenantIdentifier, uniqueTenantIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                           {
-                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueTenantIdentifier)));
-                                               return;
-                                           }
-                                       }
-
-                                       if (clientInfoFromServer.UniqueObjectIdentifier != null)
-                                       {
-                                           var uniqueObjectIdentifierClaim = identity.FindFirst(c => c.Type == ClaimConstants.UniqueObjectIdentifier);
-                                           if (uniqueObjectIdentifierClaim != null && !string.Equals(clientInfoFromServer.UniqueObjectIdentifier, uniqueObjectIdentifierClaim.Value, StringComparison.OrdinalIgnoreCase))
-                                           {
-                                               context.Fail(new AuthenticationException(string.Format(CultureInfo.InvariantCulture, IDWebErrorMessage.InternalClaimDetected, ClaimConstants.UniqueObjectIdentifier)));
-                                               return;
-                                           }
-                                       }
-
-                                       if (clientInfoFromServer.UniqueTenantIdentifier != null && clientInfoFromServer.UniqueObjectIdentifier != null)
-                                       {
-                                           identity.AddClaim(new Claim(ClaimConstants.UniqueTenantIdentifier, clientInfoFromServer.UniqueTenantIdentifier));
-                                           identity.AddClaim(new Claim(ClaimConstants.UniqueObjectIdentifier, clientInfoFromServer.UniqueObjectIdentifier));
-                                       }
-                                   }
-                               }
+                               HomeAccountIdentifierClaims.AddOrValidate(
+                                   context!.Principal!.Identities.FirstOrDefault(),
+                                   uniqueObjectIdentifier,
+                                   uniqueTenantIdentifier);
                            }
+                           catch (AuthenticationException ex)
+                           {
+                               context.Fail(ex);
+                               return;
+                           }
+
                            await onTokenValidatedHandler(context).ConfigureAwait(false);
                        };
 

@@ -104,8 +104,9 @@
     <MicrosoftExtensionsCachingMemoryVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreNineRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
-    <SystemSecurityCryptographyPkcsVersion>9.0.15</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>9.0.15</SystemSecurityCryptographyXmlVersion>
+    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648-->
+    <SystemSecurityCryptographyPkcsVersion>9.0.18</SystemSecurityCryptographyPkcsVersion>
+    <SystemSecurityCryptographyXmlVersion>9.0.18</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
     <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
@@ -119,8 +120,9 @@
     <MicrosoftExtensionsCachingMemoryVersion>8.0.1</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>8.0.0</MicrosoftExtensionsHostingVersion>
     <MicrosoftAspNetCoreDataProtectionVersion>8.0.1</MicrosoftAspNetCoreDataProtectionVersion>
+    <!--CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648: Xml 8.0.4 depends on Pkcs 8.0.1.-->
     <SystemSecurityCryptographyPkcsVersion>8.0.1</SystemSecurityCryptographyPkcsVersion>
-    <SystemSecurityCryptographyXmlVersion>8.0.3</SystemSecurityCryptographyXmlVersion>
+    <SystemSecurityCryptographyXmlVersion>8.0.4</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextEncodingsWebVersion>8.0.0</SystemTextEncodingsWebVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>8.0.0</MicrosoftExtensionsConfigurationBinderVersion>
