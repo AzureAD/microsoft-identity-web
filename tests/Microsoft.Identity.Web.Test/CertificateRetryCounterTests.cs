@@ -2,30 +2,30 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web.Test.Common;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.TestOnly;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
 {
     /// <summary>
-    /// Tests for the certificate retry counter logic to prevent infinite retry loops.
-    /// This addresses the regression where misconfigured credentials (wrong ClientID/Secret) 
-    /// caused infinite retries when using WithAgentIdentities().
+    /// Tests certificate authentication error detection and bounded token acquisition retries.
     /// </summary>
     [Collection(nameof(TokenAcquirerFactorySingletonProtection))]
     public class CertificateRetryCounterTests
     {
         private const string InvalidClientErrorCode = "invalid_client";
-        private const int MaxCertificateRetries = 1;
+        private const string TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+        private const string TokenEndpoint = "https://login.microsoftonline.com/" + TenantId + "/oauth2/v2.0/token";
+        private const string TestScope = "https://graph.microsoft.com/.default";
 
         #region Certificate Error Detection Tests
 
@@ -72,95 +72,49 @@ namespace Microsoft.Identity.Web.Test
         #region Regression Test: Infinite Loop Prevention
 
         /// <summary>
-        /// Regression test: Verifies that bad certificate/config does NOT cause infinite retry loop.
-        /// This test simulates the exact scenario reported in the bug where .WithAgentIdentities()
-        /// with wrong ClientID caused the application to hang indefinitely.
+        /// Verifies that a bad client ID is surfaced without retrying the token request.
         /// </summary>
         [Fact]
-        public async Task GetAuthenticationResultForAppInternalAsync_DoesNotRetryInfinitelyOnBadConfig()
+        public async Task GetAuthenticationResultForAppAsync_WithBadClientId_DoesNotRetry()
         {
             // Arrange
-            var tokenAcquisition = CreateTokenAcquisition();
-
-            // Mock MSAL to always throw "Application Not Found" error
-            var mockMsalException = CreateMsalServiceException(
-                InvalidClientErrorCode,
-                "{\"error\":\"invalid_client\",\"error_description\":\"AADSTS700016: Application with identifier 'bad-client-id' was not found.\"}");
+            using var httpClientFactory = new MockHttpClientFactory();
+            MockHttpMessageHandler handler = httpClientFactory.AddMockHandler(
+                CreateInvalidClientHandler("AADSTS700016: Application with identifier 'bad-client-id' was not found."));
+            var tokenAcquisition = CreateTokenAcquisition("bad-client-id-does-not-exist", httpClientFactory);
 
             // Act & Assert
-            try
-            {
-                // This should NOT hang and should throw after MaxCertificateRetries
-                await Task.Run(async () =>
-                {
-                    // Use reflection to call GetAuthenticationResultForAppInternalAsync with retryCount = 0
-                    var method = typeof(TokenAcquisition).GetMethod(
-                        "GetAuthenticationResultForAppInternalAsync",
-                        BindingFlags.NonPublic | BindingFlags.Instance);
+            MsalServiceException exception = await Assert.ThrowsAsync<MsalServiceException>(
+                () => tokenAcquisition.GetAuthenticationResultForAppAsync(TestScope));
 
-                    if (method == null)
-                    {
-                        throw new InvalidOperationException("Could not find GetAuthenticationResultForAppInternalAsync method");
-                    }
-
-                    // This will throw because we don't have a real MSAL setup, but we're testing the retry logic
-                    // The test is mainly to verify it doesn't hang
-                    var task = method.Invoke(tokenAcquisition, new object?[] 
-                    { 
-                        "https://graph.microsoft.com/.default", 
-                        null, 
-                        null, 
-                        null,
-                        0  // Initial retryCount
-                    }) as Task<AuthenticationResult>;
-
-                    if (task != null)
-                    {
-                        await task;
-                    }
-                });
-
-                // If we get here without exception, something is wrong with the test setup
-                Assert.Fail("Expected an exception to be thrown");
-            }
-            catch (TargetInvocationException ex) when (ex.InnerException != null)
-            {
-                // Expected: should throw after max retries
-                // Verify it's not hanging and completes quickly
-                Assert.NotNull(ex.InnerException);
-                // The actual exception type depends on the implementation
-            }
-            catch (Exception ex)
-            {
-                // Also acceptable - any exception is fine as long as it doesn't hang
-                Assert.NotNull(ex);
-            }
-
-            // If we reach here, the method completed (didn't hang)
+            Assert.Equal(InvalidClientErrorCode, exception.ErrorCode);
+            Assert.NotNull(handler.ActualRequestMessage);
+            Assert.Equal(TokenEndpoint, handler.ActualRequestMessage.RequestUri!.AbsoluteUri);
         }
 
         /// <summary>
-        /// Regression test: Simulates the Agent Identities scenario where nested token acquisitions
-        /// with bad config should fail quickly, not hang.
+        /// Verifies that a retryable certificate error is attempted once and then surfaced.
         /// </summary>
-        [Fact(Timeout = 30000)] // 30 second timeout - generous to accommodate slow CI, but still validates no infinite hang
-        public async Task GetAuthenticationResultForAppAsync_WithBadClientId_CompletesQuickly()
+        [Fact]
+        public async Task GetAuthenticationResultForAppAsync_WithCertificateError_RetriesOnce()
         {
             // Arrange
-            var tokenAcquisition = CreateTokenAcquisitionWithBadClientId();
+            using var httpClientFactory = new MockHttpClientFactory();
+            MockHttpMessageHandler firstHandler = httpClientFactory.AddMockHandler(
+                CreateInvalidClientHandler("AADSTS700027: The certificate signature is invalid."));
+            MockHttpMessageHandler retryHandler = httpClientFactory.AddMockHandler(
+                CreateInvalidClientHandler("AADSTS700027: The certificate signature is invalid."));
+            var tokenAcquisition = CreateTokenAcquisition("certificate-retry-client-id", httpClientFactory);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-            {
-                // This simulates the Agent Identities scenario
-                // Should fail quickly, not hang indefinitely
-                var result = await InvokeGetAuthenticationResultForAppAsync(
-                    tokenAcquisition,
-                    "https://graph.microsoft.com/.default");
-            });
+            MsalServiceException exception = await Assert.ThrowsAsync<MsalServiceException>(
+                () => tokenAcquisition.GetAuthenticationResultForAppAsync(TestScope));
 
-            // If we reach here within the timeout, test passes
-            Assert.True(true, "Completed without hanging");
+            Assert.Equal(InvalidClientErrorCode, exception.ErrorCode);
+            Assert.NotNull(firstHandler.ActualRequestMessage);
+            Assert.NotNull(retryHandler.ActualRequestMessage);
+            Assert.Equal(TokenEndpoint, firstHandler.ActualRequestMessage.RequestUri!.AbsoluteUri);
+            Assert.Equal(TokenEndpoint, retryHandler.ActualRequestMessage.RequestUri!.AbsoluteUri);
         }
 
         #endregion
@@ -170,21 +124,28 @@ namespace Microsoft.Identity.Web.Test
         /// <summary>
         /// Creates a TokenAcquisition instance for testing.
         /// </summary>
-        private TokenAcquisition CreateTokenAcquisition()
+        private TokenAcquisition CreateTokenAcquisition(
+            string clientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca",
+            IMsalHttpClientFactory? httpClientFactory = null)
         {
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {
                 options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
-                options.ClientId = "idu773ld-e38d-jud3-45lk-d1b09a74a8ca";
+                options.TenantId = TenantId;
+                options.ClientId = clientId;
                 options.ClientCredentials = [new CredentialDescription()
                 {
                     SourceType = CredentialSource.ClientSecret,
                     ClientSecret = "someSecret"
                 }];
             });
+
+            if (httpClientFactory is not null)
+            {
+                tokenAcquirerFactory.Services.AddSingleton(httpClientFactory);
+            }
 
             var serviceProvider = tokenAcquirerFactory.Build();
 
@@ -198,35 +159,18 @@ namespace Microsoft.Identity.Web.Test
             return tokenAcquisition;
         }
 
-        /// <summary>
-        /// Creates a TokenAcquisition instance with a bad ClientID to simulate the regression scenario.
-        /// </summary>
-        private TokenAcquisition CreateTokenAcquisitionWithBadClientId()
+        private static MockHttpMessageHandler CreateInvalidClientHandler(string errorDescription)
         {
-            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
-            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
-            tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
+            return new MockHttpMessageHandler
             {
-                options.Instance = "https://login.microsoftonline.com/";
-                options.TenantId = "f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
-                options.ClientId = "bad-client-id-does-not-exist"; // Invalid ClientID
-                options.ClientCredentials = [new CredentialDescription()
+                ExpectedMethod = HttpMethod.Post,
+                ExpectedUrl = TokenEndpoint,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
                 {
-                    SourceType = CredentialSource.ClientSecret,
-                    ClientSecret = "someSecret"
-                }];
-            });
-
-            var serviceProvider = tokenAcquirerFactory.Build();
-
-            var tokenAcquisition = serviceProvider.GetService(typeof(ITokenAcquisitionInternal)) as TokenAcquisition;
-
-            if (tokenAcquisition == null)
-            {
-                throw new InvalidOperationException("Failed to create TokenAcquisition instance for testing");
-            }
-
-            return tokenAcquisition;
+                    Content = new StringContent(
+                        $"{{\"error\":\"{InvalidClientErrorCode}\",\"error_description\":\"{errorDescription}\"}}"),
+                },
+            };
         }
 
         /// <summary>
@@ -273,32 +217,6 @@ namespace Microsoft.Identity.Web.Test
 
             var result = method.Invoke(tokenAcquisition, new object[] { exception });
             return (bool)result!;
-        }
-
-        /// <summary>
-        /// Invokes GetAuthenticationResultForAppAsync using reflection for testing.
-        /// </summary>
-        private async Task<AuthenticationResult> InvokeGetAuthenticationResultForAppAsync(
-            TokenAcquisition tokenAcquisition,
-            string scope)
-        {
-            var method = typeof(TokenAcquisition).GetMethod(
-                "GetAuthenticationResultForAppAsync",
-                BindingFlags.Public | BindingFlags.Instance);
-
-            if (method == null)
-            {
-                throw new InvalidOperationException("Could not find GetAuthenticationResultForAppAsync method");
-            }
-
-            var task = method.Invoke(tokenAcquisition, new object?[] { scope, null, null, null }) as Task<AuthenticationResult>;
-
-            if (task == null)
-            {
-                throw new InvalidOperationException("Method did not return a Task<AuthenticationResult>");
-            }
-
-            return await task;
         }
 
         #endregion
