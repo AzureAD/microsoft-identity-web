@@ -1,4 +1,6 @@
 #nullable enable
+Microsoft.Identity.Web.IClientAssertionEnrichmentOptions
+Microsoft.Identity.Web.IClientAssertionEnrichmentOptions.OtelTagsEnricher.get -> System.Action<Microsoft.Identity.Client.Extensibility.ExecutionResult!, System.Collections.Generic.IList<System.Collections.Generic.KeyValuePair<string!, object!>>!>?
 abstract Microsoft.Identity.Web.ClientAssertionProviderBase.GetClientAssertionAsync(Microsoft.Identity.Client.AssertionRequestOptions? assertionRequestOptions) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.ClientAssertion!>!
 Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion
 Microsoft.Identity.Web.AzureIdentityForKubernetesClientAssertion.AzureIdentityForKubernetesClientAssertion(Microsoft.Extensions.Logging.ILogger? logger = null) -> void

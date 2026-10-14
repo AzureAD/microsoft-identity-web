@@ -1,3 +1,11 @@
+## 4.16.0
+
+### New features
+- Add OpenTelemetry enrichment for FIC app-token acquisition and assertion warm-up through `TokenAcquisitionExtensionOptions.DefaultAppTokenOtelTagsEnricher`, `ClientAssertionCredentialSourceLoaderParameters`, and `IClientAssertionEnrichmentOptions`. Per-request enrichment takes precedence and now flows through credential warm-up and assertion-cache hits; OIDC claims challenges are also forwarded to avoid reusing unsuitable cached assertions. See [#4072](https://github.com/AzureAD/microsoft-identity-web/pull/4072).
+
+### Dependencies updates
+- Update `Microsoft.Identity.Client` and `Microsoft.Identity.Client.KeyAttestation` to 4.90.1, Wilson `Microsoft.IdentityModel.*` to 8.23.0, and OWIN `Microsoft.IdentityModel.*` to 5.7.2. Applications with direct MSAL references must use at least 4.90.1 to avoid package-downgrade errors. See [#4074](https://github.com/AzureAD/microsoft-identity-web/pull/4074).
+
 ## 4.15.0
 
 ### Federated credentials and proof of possession
