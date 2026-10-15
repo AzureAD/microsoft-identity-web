@@ -926,7 +926,9 @@ namespace Microsoft.Identity.Web
                         tokenAcquisitionOptions.ManagedIdentity
                     );
 
-                    var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
+                    var miBuilder = managedIdApp
+                        .AcquireTokenForManagedIdentity(scope)
+                        .WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
 
                     if (isTokenBinding)
                     {

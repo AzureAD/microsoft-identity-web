@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -664,6 +666,114 @@ namespace Microsoft.Identity.Web.Test
             var client = httpClientFactory.CreateClient("MtlsClient");
 
             Assert.NotNull(client);
+        }
+
+        [Fact]
+        public async Task SendAsync_TokenBindingSchannelCredentialFailure_ForceRefreshesAndRetriesOnce()
+        {
+            // Arrange
+            using var originalCertificate = CreateTestCertificate();
+            using var refreshedCertificate = CreateTestCertificate();
+            var mockBoundProvider = Substitute.For<IAuthorizationHeaderProvider, IBoundAuthorizationHeaderProvider>();
+            var forceRefreshValues = new List<bool>();
+
+            ((IBoundAuthorizationHeaderProvider)mockBoundProvider)
+                .CreateBoundAuthorizationHeaderAsync(
+                    Arg.Any<DownstreamApiOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(
+                    callInfo =>
+                    {
+                        forceRefreshValues.Add(callInfo.ArgAt<DownstreamApiOptions>(0).AcquireTokenOptions.ForceRefresh);
+                        return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                            new AuthorizationHeaderInformation
+                            {
+                                AuthorizationHeaderValue = "MTLS_POP original-token",
+                                BindingCertificate = originalCertificate,
+                            });
+                    },
+                    callInfo =>
+                    {
+                        forceRefreshValues.Add(callInfo.ArgAt<DownstreamApiOptions>(0).AcquireTokenOptions.ForceRefresh);
+                        return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                            new AuthorizationHeaderInformation
+                            {
+                                AuthorizationHeaderValue = "MTLS_POP refreshed-token",
+                                BindingCertificate = refreshedCertificate,
+                            });
+                    });
+
+            var schannelFailure = new HttpRequestException(
+                "The SSL connection could not be established.",
+                new AuthenticationException(
+                    "Authentication failed.",
+                    new Win32Exception(unchecked((int)0x8009030D))));
+            using var failedClient = new HttpClient(new MockHttpMessageHandler
+            {
+                ExceptionToThrow = schannelFailure,
+            });
+            using var successfulClient = new HttpClient(new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+            });
+            var mockMtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mockMtlsFactory
+                .GetHttpClient(Arg.Is<X509Certificate2>(certificate => ReferenceEquals(certificate, originalCertificate)))
+                .Returns(failedClient);
+            mockMtlsFactory
+                .GetHttpClient(Arg.Is<X509Certificate2>(certificate => ReferenceEquals(certificate, refreshedCertificate)))
+                .Returns(successfulClient);
+
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                Scopes = { "api://test/.default" },
+                ProtocolScheme = "MTLS_POP",
+                RequestAppToken = true,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions(),
+                },
+            };
+            var handler = new MicrosoftIdentityMessageHandler(
+                mockBoundProvider,
+                options,
+                mockMtlsFactory,
+                _mockLogger)
+            {
+                InnerHandler = new MockHttpMessageHandler
+                {
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                },
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            using var response = await invoker.SendAsync(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(new[] { false, true }, forceRefreshValues);
+            Assert.False(options.AcquireTokenOptions.ForceRefresh);
+            mockMtlsFactory.Received(1)
+                .GetHttpClient(Arg.Is<X509Certificate2>(certificate => ReferenceEquals(certificate, originalCertificate)));
+            mockMtlsFactory.Received(1)
+                .GetHttpClient(Arg.Is<X509Certificate2>(certificate => ReferenceEquals(certificate, refreshedCertificate)));
+        }
+
+        [Fact]
+        public void IsSchannelCredentialFailure_GenericNetworkFailure_ReturnsFalse()
+        {
+            // Arrange
+            var exception = new HttpRequestException("The connection was reset.");
+
+            // Act
+            bool isSchannelCredentialFailure = MicrosoftIdentityMessageHandler.IsSchannelCredentialFailure(exception);
+
+            // Assert
+            Assert.False(isSchannelCredentialFailure);
         }
 
         /// <summary>
