@@ -44,22 +44,16 @@ namespace Microsoft.Identity.Web
                     _keyAttestationProvider);
             }
 
-            try
-            {
-                AssertionRequestOptions? assertionOptions =
-                    credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
-                        ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
-                        : null;
-                _ = await managedIdentityClientAssertion!
-                    .GetSignedAssertionAsync(assertionOptions)
-                    .ConfigureAwait(false);
-                credentialDescription.CachedValue = managedIdentityClientAssertion;
-            }
-            catch (MsalServiceException)
-            {
-                credentialDescription.Skip = true;
-                throw;
-            }
+            // Probe availability for credential fallback, but do not permanently skip this
+            // credential on failure: a later request may succeed after dependency recovery.
+            AssertionRequestOptions? assertionOptions =
+                credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                    ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                    : null;
+            _ = await managedIdentityClientAssertion!
+                .GetSignedAssertionAsync(assertionOptions)
+                .ConfigureAwait(false);
+            credentialDescription.CachedValue = managedIdentityClientAssertion;
         }
     }
 }

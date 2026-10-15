@@ -50,7 +50,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
 
                     if (cd.CredentialType == CredentialType.SignedAssertion)
                     {
-                        cd.Skip = true;  // mimic the credential loader
                         return Task.FromException(new Exception($"Failed to load credential with ID {cd.Id}"));
                     }
                     else
@@ -76,6 +75,167 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 null);
 
             Assert.Equal(credentialDescriptions[1], cd);
+            Assert.False(credentialDescriptions[0].Skip);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ManagedIdentityCredentialLoadingCanceled_PropagatesWithoutTryingFallbackAsync(bool taskCanceled)
+        {
+            // Arrange
+            var logger = Substitute.For<ILogger<CredentialsProvider>>();
+            var loader = Substitute.For<ICredentialsLoader>();
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                TokenExchangeUrl = "api://AzureADTokenExchangeUSGov",
+            };
+            var fallback = new CredentialDescription
+            {
+                SourceType = CredentialSource.ClientSecret,
+                ClientSecret = TestConstants.ClientSecret,
+            };
+            using var cancellation = new CancellationTokenSource();
+            await cancellation.CancelAsync();
+            OperationCanceledException failure = taskCanceled
+                ? new TaskCanceledException("Canceled by caller.", null, cancellation.Token)
+                : new OperationCanceledException(cancellation.Token);
+            loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
+                .ThrowsAsync(failure);
+            var provider = new CredentialsProvider(logger, loader, [], null);
+
+            // Act
+            var exception = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential, fallback } },
+                new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant"),
+                cancellation.Token));
+
+            // Assert
+            Assert.Same(failure, exception);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+            await loader.DidNotReceive().LoadCredentialsIfNeededAsync(fallback, Arg.Any<CredentialSourceLoaderParameters>());
+        }
+
+        [Fact]
+        public async Task ManagedIdentityCredentialLoadingTimedOut_FallsBackToNextCredentialAsync()
+        {
+            // Arrange: a TaskCanceledException without caller cancellation models an HttpClient timeout.
+            var loader = Substitute.For<ICredentialsLoader>();
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.SignedAssertionFromManagedIdentity,
+                TokenExchangeUrl = "api://AzureADTokenExchangeUSGov",
+            };
+            var fallback = new CredentialDescription
+            {
+                SourceType = CredentialSource.ClientSecret,
+                ClientSecret = TestConstants.ClientSecret,
+            };
+            using var cancellation = new CancellationTokenSource();
+            var timeout = new TaskCanceledException("The request timed out.");
+            loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
+                .ThrowsAsync(timeout);
+            var provider = new CredentialsProvider(Substitute.For<ILogger<CredentialsProvider>>(), loader, [], null);
+            var parameters = new CredentialSourceLoaderParameters("client", "https://login.microsoftonline.us/tenant");
+
+            // Act
+            CredentialDescription? selected = await provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential, fallback } },
+                parameters,
+                cancellation.Token);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential } },
+                parameters,
+                cancellation.Token));
+
+            // Assert
+            Assert.Same(fallback, selected);
+            Assert.StartsWith("IDW10109:", exception.Message, StringComparison.Ordinal);
+            Assert.Same(timeout, exception.InnerException);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+        }
+
+        [Theory]
+        [InlineData(CredentialSource.Certificate, false)]
+        [InlineData(CredentialSource.Certificate, true)]
+        [InlineData(CredentialSource.ClientSecret, false)]
+        [InlineData(CredentialSource.ClientSecret, true)]
+        [InlineData(CredentialSource.SignedAssertionFilePath, false)]
+        [InlineData(CredentialSource.SignedAssertionFilePath, true)]
+        [InlineData(CredentialSource.SignedAssertionFromVault, false)]
+        [InlineData(CredentialSource.SignedAssertionFromVault, true)]
+        [InlineData(CredentialSource.CustomSignedAssertion, false)]
+        [InlineData(CredentialSource.CustomSignedAssertion, true)]
+        public async Task NonManagedIdentityLoadingFailure_PreservesCredentialSelectionAsync(
+            CredentialSource source, bool canceled)
+        {
+            // Arrange
+            var loader = Substitute.For<ICredentialsLoader>();
+            using var certificate = source == CredentialSource.Certificate
+                ? Base64EncodedCertificateLoader.LoadFromBase64Encoded(TestConstants.CertificateX5c, X509KeyStorageFlags.DefaultKeySet)
+                : null;
+            var credential = new CredentialDescription
+            {
+                SourceType = source,
+                Certificate = certificate,
+                ClientSecret = TestConstants.ClientSecret,
+                CachedValue = new object(),
+            };
+            var fallback = new CredentialDescription { SourceType = CredentialSource.ClientSecret };
+            Exception failure = canceled
+                ? new OperationCanceledException()
+                : new InvalidOperationException("Credential load failed.");
+            loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
+                .ThrowsAsync(failure);
+            var provider = new CredentialsProvider(Substitute.For<ILogger<CredentialsProvider>>(), loader, []);
+
+            // Act
+            CredentialDescription? selected = await provider.GetCredentialAsync(
+                new MergedOptions { ClientCredentials = new[] { credential, fallback } }, null);
+
+            // Assert: non-MI credentials retain their existing loaded-value and Skip selection rules.
+            Assert.Same(credential, selected);
+            Assert.False(credential.Skip);
+            await loader.DidNotReceive().LoadCredentialsIfNeededAsync(fallback, Arg.Any<CredentialSourceLoaderParameters>());
+        }
+
+        [Theory]
+        [InlineData(CredentialSource.SignedAssertionFilePath, false)]
+        [InlineData(CredentialSource.SignedAssertionFilePath, true)]
+        [InlineData(CredentialSource.SignedAssertionFromVault, false)]
+        [InlineData(CredentialSource.SignedAssertionFromVault, true)]
+        [InlineData(CredentialSource.CustomSignedAssertion, false)]
+        [InlineData(CredentialSource.CustomSignedAssertion, true)]
+        public async Task NonManagedIdentityLoadingFailure_PreservesSkipAndErrorAsync(
+            CredentialSource source, bool canceled)
+        {
+            // Arrange
+            var credential = new CredentialDescription { SourceType = source };
+            var loader = Substitute.For<ICredentialsLoader>();
+            Exception failure = canceled
+                ? new OperationCanceledException()
+                : new InvalidOperationException("Credential load failed.");
+            loader.LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>())
+                .Returns(_ =>
+                {
+                    credential.Skip = true;
+                    return Task.FromException(failure);
+                });
+            var provider = new CredentialsProvider(Substitute.For<ILogger<CredentialsProvider>>(), loader, []);
+            var options = new MergedOptions { ClientCredentials = new[] { credential } };
+
+            // Act
+            var first = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(options, null));
+            var second = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(options, null));
+
+            // Assert
+            Assert.Same(failure, first.InnerException);
+            Assert.Null(second.InnerException);
+            Assert.True(credential.Skip);
+            await loader.Received(1).LoadCredentialsIfNeededAsync(credential, Arg.Any<CredentialSourceLoaderParameters>());
         }
 
         [Fact]
@@ -1015,12 +1175,7 @@ namespace Microsoft.Identity.Web.Test.Certificates
                 "AADSTS700027: Client assertion contains an invalid signature.");
 
             credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
-                .Returns(args =>
-                {
-                    var cd = (args[0] as CredentialDescription)!;
-                    cd.Skip = true;
-                    return Task.FromException(msalException);
-                });
+                .ThrowsAsync(msalException);
 
             CredentialsProvider provider = new CredentialsProvider(logger, credLoader, [], null);
 
@@ -1059,8 +1214,6 @@ namespace Microsoft.Identity.Web.Test.Certificates
             credLoader.LoadCredentialsIfNeededAsync(Arg.Any<CredentialDescription>(), Arg.Any<CredentialSourceLoaderParameters>())
                 .Returns(args =>
                 {
-                    var cd = (args[0] as CredentialDescription)!;
-                    cd.Skip = true;
                     return Task.FromException(callCount++ == 0 ? (Exception)msalException : certException);
                 });
 

@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Threading;
 using System.Threading.Tasks;
-using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -33,22 +31,14 @@ namespace Microsoft.Identity.Web
                         credentialDescription.TokenExchangeUrl,
                         _logger);
                 }
-                try
-                {
-                    // Given that managed identity can be not available locally, we need to try to get a
-                    // signed assertion, and if it fails, move to the next credentials
-                    AssertionRequestOptions? assertionOptions =
-                        credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
-                            ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
-                            : null;
-                    _ = await managedIdentityClientAssertion!.GetSignedAssertionAsync(assertionOptions);
-                    credentialDescription.CachedValue = managedIdentityClientAssertion;
-                }
-                catch (MsalServiceException)
-                {
-                    credentialDescription.Skip = true;
-                    throw;
-                }
+                // Probe availability for credential fallback, but do not permanently skip this
+                // credential on failure: a later request may succeed after dependency recovery.
+                AssertionRequestOptions? assertionOptions =
+                    credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                        ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                        : null;
+                _ = await managedIdentityClientAssertion!.GetSignedAssertionAsync(assertionOptions);
+                credentialDescription.CachedValue = managedIdentityClientAssertion;
             }
         }
     }

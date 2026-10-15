@@ -109,14 +109,28 @@ namespace Microsoft.Identity.Web
                     // Load the credentials and record error messages in case we need to fail at the end
                     try
                     {
-
                         await _credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
+                    }
+                    catch (OperationCanceledException) when (
+                        credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity
+                        && cancellationToken.IsCancellationRequested)
+                    {
+                        // Only caller-requested cancellation stops selection. Other cancellations
+                        // (e.g. HttpClient timeouts) fall through to the next credential below.
+                        throw;
                     }
                     catch (Exception ex)
                     {
                         LogMessages.AttemptToLoadCredentialsFailed(_logger, credential, ex);
                         errorMessage += $"Credential {credential.Id} failed because: {ex} \n";
                         (exceptions ??= []).Add(ex);
+                        if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
+                        {
+                            // MI failures are unusable for this attempt but remain eligible later.
+                            // Preserve the existing selection rules for all other credential sources.
+                            LogMessages.NotUsingManagedIdentity(_logger, errorMessage);
+                            continue;
+                        }
                     }
 
                     if (credential.CredentialType == CredentialType.SignedAssertion)
