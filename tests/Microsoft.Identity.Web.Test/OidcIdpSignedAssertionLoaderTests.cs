@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
@@ -391,9 +392,9 @@ namespace Microsoft.Identity.Web.Test
             Assert.False(credential.Skip);
         }
 
-        private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion")
+        private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion", ITokenAcquirer? acquirer = null)
         {
-            var acquirer = Substitute.For<ITokenAcquirer>();
+            acquirer ??= Substitute.For<ITokenAcquirer>();
             acquirer.GetTokenForAppAsync(
                     Arg.Any<string>(),
                     Arg.Any<AcquireTokenOptions>(),
@@ -422,6 +423,86 @@ namespace Microsoft.Identity.Web.Test
                     ["ConfigurationSection"] = "TestSection"
                 }
             };
+        }
+
+        [Fact]
+        public async Task LoadCredentialsIfNeededAsync_TokenFailure_RetriesWithoutReset()
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var failure = new MsalServiceException("temporarily_unavailable", "Inner token acquisition failed.");
+            acquirer.GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<AcquireTokenResult>(failure));
+            var defaultLoader = new DefaultCredentialsLoader(
+                customSignedAssertionProviders: [CreateLoader()], logger: null);
+            var credential = CreateOidcCredential();
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                defaultLoader.LoadCredentialsIfNeededAsync(credential));
+
+            // Assert
+            Assert.Same(failure, exception);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+
+            SetupInnerAcquirer("recovered-assertion", acquirer);
+            await defaultLoader.LoadCredentialsIfNeededAsync(credential);
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.Equal("recovered-assertion", await provider.GetSignedAssertionAsync(null));
+            await defaultLoader.LoadCredentialsIfNeededAsync(credential);
+            Assert.Same(provider, credential.CachedValue);
+            await acquirer.Received(2).GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            Assert.False(credential.Skip);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Selection_TokenFailure_RetriesWithoutReset(bool useRelyingAuthority)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var failure = new MsalServiceException("temporarily_unavailable", "Inner token acquisition failed.");
+            acquirer.GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<AcquireTokenResult>(failure));
+            var loader = new DefaultCredentialsLoader(customSignedAssertionProviders: [CreateLoader()], logger: null);
+            var provider = new CredentialsProvider(NullLogger<CredentialsProvider>.Instance, loader, [], null);
+            var credential = CreateOidcCredential();
+            var options = new MergedOptions { ClientCredentials = [credential] };
+            CredentialSourceLoaderParameters? parameters = useRelyingAuthority
+                ? new CredentialSourceLoaderParameters("relying-client", "https://login.microsoftonline.com/relying-tenant")
+                : null;
+
+            // Act
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(options, parameters));
+
+            // Assert
+            Assert.Same(failure, exception.InnerException);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+
+            SetupInnerAcquirer("recovered-assertion", acquirer);
+            CredentialDescription? selected = await provider.GetCredentialAsync(options, parameters);
+            Assert.NotNull(selected);
+            Assert.IsType<OidcIdpSignedAssertionProvider>(selected.CachedValue);
+            Assert.False(selected.Skip);
+            if (useRelyingAuthority)
+            {
+                Assert.NotSame(credential, selected);
+                Assert.Null(credential.CachedValue);
+            }
+            else
+            {
+                Assert.Same(credential, selected);
+            }
         }
 
         [Fact]

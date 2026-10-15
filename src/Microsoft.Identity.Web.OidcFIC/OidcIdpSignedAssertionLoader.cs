@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Web.OidcFic
             /// <param name="logger">ILogger.</param>
             /// <param name="providerName">Name of the provider.</param>
             /// <param name="message">Exception message.</param>
-            [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.")]
+            [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}.")]
             public static partial void SignedAssertionProviderFailed(ILogger logger, string providerName, string message);
 #else
             // Fallback implementation for older target frameworks
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 LoggerMessage.Define<string, string>(
                     LogLevel.Error,
                     new EventId(504, "OidcIdpSignedAssertionProviderFailed"),
-                    "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.");
+                    "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}.");
 
             /// <summary>
             /// Logger for when IConfiguration is not registered in the service collection.
@@ -252,7 +252,6 @@ namespace Microsoft.Identity.Web.OidcFic
             catch (Exception ex)
             {
                 Logger.SignedAssertionProviderFailed(_logger, credentialDescription.CustomSignedAssertionProviderName ?? "Unknown", ex.Message);
-                credentialDescription.Skip = true;
                 throw;
             }
         }

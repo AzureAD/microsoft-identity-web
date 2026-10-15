@@ -69,14 +69,16 @@ namespace Microsoft.Identity.Web
 
                 if (!credential.Skip)
                 {
-                    // The OIDC provider captures the relying application's authority when a CCA is built.
-                    // Keep that request-specific provider off the shared credential description so one
-                    // cloud's authority cannot leak into a CCA built for another cloud.
-                    if (credential.SourceType == CredentialSource.CustomSignedAssertion
+                    bool isOidcIdpSignedAssertion = credential.SourceType == CredentialSource.CustomSignedAssertion
                         && string.Equals(
                             credential.CustomSignedAssertionProviderName,
                             OidcIdpSignedAssertionProviderName,
-                            StringComparison.Ordinal)
+                            StringComparison.Ordinal);
+
+                    // The OIDC provider captures the relying application's authority when a CCA is built.
+                    // Keep that request-specific provider off the shared credential description so one
+                    // cloud's authority cannot leak into a CCA built for another cloud.
+                    if (isOidcIdpSignedAssertion
                         && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
                     {
                         credential = new CredentialDescription(originalCredential)
@@ -107,10 +109,11 @@ namespace Microsoft.Identity.Web
                     }
 
                     // Load the credentials and record error messages in case we need to fail at the end
+                    bool loadSucceeded = false;
                     try
                     {
-
                         await _credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
+                        loadSucceeded = true;
                     }
                     catch (Exception ex)
                     {
@@ -123,7 +126,7 @@ namespace Microsoft.Identity.Web
                     {
                         if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
                         {
-                            if (credential.Skip)
+                            if (credential.Skip || !loadSucceeded)
                             {
                                 LogMessages.NotUsingManagedIdentity(_logger, errorMessage);
                             }
@@ -135,7 +138,7 @@ namespace Microsoft.Identity.Web
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                         {
-                            if (!credential.Skip)
+                            if (!credential.Skip && loadSucceeded)
                             {
                                 LogMessages.UsingPodIdentityFile(_logger, credential.SignedAssertionFileDiskPath ?? "not found");
                                 return credential;
@@ -151,7 +154,7 @@ namespace Microsoft.Identity.Web
                         }
                         if (credential.SourceType == CredentialSource.CustomSignedAssertion)
                         {
-                            if (!credential.Skip)
+                            if (!credential.Skip && (loadSucceeded || !isOidcIdpSignedAssertion))
                             {
                                 LogMessages.UsingSignedAssertionFromCustomProvider(_logger, credential.CustomSignedAssertionProviderName ?? "undefined");
                                 return credential;
