@@ -35,7 +35,9 @@ public class BlazorAuthenticationChallengeHandler(
     /// </summary>
     public async Task<ClaimsPrincipal> GetUserAsync()
     {
+#pragma warning disable BL0013 // This method reads the current state on every call; it does not cache it.
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+#pragma warning restore BL0013
         return authState.User;
     }
 

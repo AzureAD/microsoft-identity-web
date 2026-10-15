@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.UI;
@@ -32,40 +33,45 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         private const string TestScheme = "OpenIdConnect";
         private const string CapturedRedirectHeader = "X-Captured-RedirectUri";
 
-        private static TestServer CreateServer()
+        private static IHost CreateHost()
         {
-            var builder = new WebHostBuilder()
-                .ConfigureServices(services =>
+            var builder = new HostBuilder()
+                .ConfigureWebHost(web =>
                 {
-                    services.AddControllersWithViews().AddMicrosoftIdentityUI();
+                    web.UseTestServer();
+                    web.ConfigureServices(services =>
+                    {
+                        services.AddControllersWithViews().AddMicrosoftIdentityUI();
 
-                    // AccountController resolves IOptionsMonitor<MicrosoftIdentityOptions>;
-                    // register an empty options entry so DI can satisfy the ctor.
-                    services.Configure<MicrosoftIdentityOptions>(TestScheme, _ => { });
+                        // AccountController resolves IOptionsMonitor<MicrosoftIdentityOptions>;
+                        // register an empty options entry so DI can satisfy the ctor.
+                        services.Configure<MicrosoftIdentityOptions>(TestScheme, _ => { });
 
-                    services.AddAuthentication(TestScheme)
-                        .AddScheme<AuthenticationSchemeOptions, CapturingChallengeHandler>(
-                            TestScheme, _ => { });
+                        services.AddAuthentication(TestScheme)
+                            .AddScheme<AuthenticationSchemeOptions, CapturingChallengeHandler>(
+                                TestScheme, _ => { });
 
-                    services.AddAuthorization();
-                })
-                .Configure(app =>
-                {
-                    app.UseRouting();
-                    app.UseAuthentication();
-                    app.UseAuthorization();
+                        services.AddAuthorization();
+                    });
+                    web.Configure(app =>
+                    {
+                        app.UseRouting();
+                        app.UseAuthentication();
+                        app.UseAuthorization();
 #pragma warning disable ASP0014 // UseEndpoints is intentional for clarity in test host
-                    app.UseEndpoints(endpoints => endpoints.MapControllers());
+                        app.UseEndpoints(endpoints => endpoints.MapControllers());
 #pragma warning restore ASP0014
+                    });
                 });
-            return new TestServer(builder);
+
+            return builder.Start();
         }
 
         private static async Task<(HttpStatusCode status, string? capturedRedirect)> ChallengeAsync(
-            TestServer server,
+            IHost host,
             string? redirectUri)
         {
-            using var client = server.CreateClient();
+            using var client = host.GetTestClient();
             var url = $"/MicrosoftIdentity/Account/Challenge/{TestScheme}";
             if (redirectUri != null)
             {
@@ -97,8 +103,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             string? input,
             string expectedRedirect)
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, input);
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, input);
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal(expectedRedirect, captured);
@@ -117,8 +123,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             string input,
             string expectedRedirect)
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, input);
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, input);
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal(expectedRedirect, captured);
@@ -131,8 +137,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         [InlineData("http://localhost:8080/page")]                // port mismatch
         public async Task Challenge_DifferentOrigin_FallsBackToRoot(string input)
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, input);
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, input);
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal("/", captured);
@@ -147,8 +153,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         [InlineData("http://localhost/\\evil.example.com")]       // slash+backslash
         public async Task Challenge_SameOriginWithProtocolRelativePath_Rejected(string input)
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, input);
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, input);
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal("/", captured);
@@ -170,8 +176,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         [InlineData("/%2F%2Fevil.example.com")]                    // case-insensitive hex
         public async Task Challenge_PercentEncodedSlashBypass_Rejected(string input)
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, input);
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, input);
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal("/", captured);
@@ -186,8 +192,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         [Fact]
         public async Task Challenge_UserinfoMisdirection_FallsBackToRoot()
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, "http://localhost@evil.example.com/x");
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, "http://localhost@evil.example.com/x");
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal("/", captured);
@@ -201,8 +207,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
         [Fact]
         public async Task Challenge_TripleSlashFileFallthrough_FallsBackToRoot()
         {
-            using var server = CreateServer();
-            var (status, captured) = await ChallengeAsync(server, "///evil.example.com/x");
+            using var host = CreateHost();
+            var (status, captured) = await ChallengeAsync(host, "///evil.example.com/x");
 
             Assert.Equal(HttpStatusCode.OK, status);
             Assert.Equal("/", captured);
@@ -220,8 +226,8 @@ namespace Microsoft.Identity.Web.UI.Test.Areas.MicrosoftIdentity.Controllers
             string input,
             string expectedRedirect)
         {
-            using var server = CreateServer();
-            using var client = server.CreateClient();
+            using var host = CreateHost();
+            using var client = host.GetTestClient();
             client.BaseAddress = new Uri("https://localhost/");
 
             var url = $"/MicrosoftIdentity/Account/Challenge/{TestScheme}?redirectUri="

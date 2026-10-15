@@ -26,7 +26,9 @@ namespace Microsoft.Identity.Web
 
         public override async Task OnCircuitOpenedAsync(Circuit circuit, CancellationToken cancellationToken)
         {
+#pragma warning disable BL0013 // Refreshing the cached circuit user is tracked in #4075.
             var state = await Provider.GetAuthenticationStateAsync().ConfigureAwait(false);
+#pragma warning restore BL0013
             Service.User = state.User;
             Service.IsBlazorServer = true;
             Service.BaseUri = Manager.BaseUri.TrimEnd('/');
