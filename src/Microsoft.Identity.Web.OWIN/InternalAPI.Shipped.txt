@@ -15,3 +15,7 @@ Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.Issuer.get -> s
 Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.OpenIdConnectCachingSecurityTokenProvider(string! metadataEndpoint) -> void
 Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider.SecurityKeys.get -> System.Collections.Generic.IEnumerable<Microsoft.IdentityModel.Tokens.SecurityKey!>?
 readonly Microsoft.Identity.Web.OpenIdConnectCachingSecurityTokenProvider._configManager -> Microsoft.IdentityModel.Protocols.ConfigurationManager<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration!>!
+static Microsoft.Identity.Web.AppBuilderExtension.AddHomeAccountIdentifierClaims(System.Security.Claims.ClaimsIdentity! identity, string? homeObjectId, string? homeTenantId) -> void
+static Microsoft.Identity.Web.AppBuilderExtension.ConfigureClaimsValidation(Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions! options, bool allowWebApiToBeAuthorizedByACL) -> void
+static Microsoft.Identity.Web.AppBuilderExtension.GetAndRemoveHomeAccountIdentifier(Microsoft.Owin.IOwinContext! owinContext, System.Web.HttpContextBase! httpContext) -> (string? homeObjectId, string? homeTenantId)
+static Microsoft.Identity.Web.AppBuilderExtension.StoreHomeAccountIdentifier(Microsoft.Owin.IOwinContext! owinContext, System.Web.HttpContextBase! httpContext, string? homeObjectId, string? homeTenantId) -> void

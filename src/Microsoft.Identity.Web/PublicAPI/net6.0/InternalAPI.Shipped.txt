@@ -12,6 +12,7 @@ const Microsoft.Identity.Web.AppServicesAuthenticationInformation.AppServicesAut
 const Microsoft.Identity.Web.AppServicesAuthenticationInformation.AppServicesAuthLogoutPathEnvironmentVariable = "WEBSITE_AUTH_LOGOUT_PATH" -> string!
 const Microsoft.Identity.Web.AppServicesAuthenticationInformation.AppServicesAuthOpenIdIssuerEnvironmentVariable = "WEBSITE_AUTH_OPENID_ISSUER" -> string!
 const Microsoft.Identity.Web.AppServicesAuthenticationInformation.AppServicesWebSiteAuthApiPrefix = "WEBSITE_AUTH_API_PREFIX" -> string!
+const Microsoft.Identity.Web.AzureADB2COpenIDConnectEventHandlers.MaxCacheEntries = 100 -> int
 Microsoft.Identity.Web.AppContextSwitches
 Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.Account
 Microsoft.Identity.Web.AppServicesAuthenticationTokenAcquisition.Account.Account(System.Security.Claims.ClaimsPrincipal! claimsPrincipal) -> void
