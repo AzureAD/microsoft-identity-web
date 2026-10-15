@@ -16,7 +16,7 @@ flowchart TD
     
     Config -->|"bound to MergedOptions"| Provider
 
-    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If loader throws → loader sets Skip=true on itself;<br/>&nbsp;&nbsp;&nbsp;CredentialsProvider catches, tries next credential<br/>4. First success → return credential"]
+    Provider["<b>CredentialsProvider</b> (Selection / Fallback)<br/><br/>For each CredentialDescription in ClientCredentials[]:<br/>1. Skip if credential.Skip == true<br/>2. Call DefaultCredentialsLoader.LoadCredentialsIfNeededAsync()<br/>3. If a built-in assertion loader throws → log failure;<br/>&nbsp;&nbsp;&nbsp;reject this attempt without setting Skip<br/>4. First usable credential → return credential"]
 
     Provider -->|"resolved CredentialDescription"| Wiring
 
@@ -62,15 +62,21 @@ flowchart TD
 flowchart LR
     Initial["<b>Initial</b><br/>CachedValue = null<br/>Skip = false<br/>Certificate = null"]
     Loaded["<b>Loaded</b><br/>CachedValue = cert/assertion<br/>Certificate = X509"]
-    Skipped["<b>Skipped</b><br/>Skip = true<br/>CachedValue = null<br/><i>CredentialsProvider moves to next</i>"]
+    Retryable["<b>Failed built-in assertion load</b><br/>CachedValue = null<br/>Skip = false<br/><i>Selection tries the next credential</i>"]
+    Skipped["<b>Explicitly skipped</b><br/>Skip = true<br/><i>Selection does not load this credential</i>"]
 
     Initial -->|"LoadIfNeededAsync() succeeds"| Loaded
-    Initial -->|"LoadIfNeededAsync() throws"| Skipped
+    Initial -->|"Built-in assertion loading throws"| Retryable
+    Retryable -->|"Next selection attempts loading again"| Initial
+    Initial -->|"Caller or custom-loader policy sets Skip"| Skipped
+    Skipped -->|"ResetCredentials()"| Initial
 ```
 
-**Architectural rule:** A loader may set `Skip = true` on *itself* (the credential it was asked to load)
-when it cannot operate (e.g., MI not available locally). A loader must NOT set `Skip` on
-other credentials in the collection — that is the orchestrator's responsibility.
+**Architectural rule:** Built-in MI, assertion-file, and OIDC FIC loaders leave failures
+retryable without setting `Skip`. They cache providers after successful warm-up, except
+for OIDC bound and FMI flows that defer acquisition until request options are available.
+`Skip` remains available for explicit opt-out and custom-loader policies; custom loaders
+must not set it on other credentials.
 
 ---
 
@@ -220,11 +226,14 @@ At runtime:
 2. Try KeyVault cert → works with network access ✅  
 3. Try client secret → dev fallback ✅
 
-First successful load wins. Failed credentials where the loader sets `Skip = true`
-remain skipped on subsequent requests (CredentialsProvider checks `if (!credential.Skip)`).
-To reset, call `ResetCredentials()` which clears both `CachedValue` and `Skip`.
-For credentials that failed without setting Skip (rare), the `CachedValue == null` check
-allows a natural retry on the next request.
+The first usable credential wins. Failed built-in assertion loads leave `CachedValue`
+empty and `Skip` unchanged, allowing the next selection to retry without a reset.
+Each unsuccessful selection can incur the source's acquisition latency or timeout.
+
+Successful CCA construction retains the selected source, including a fallback.
+Cached CCA requests do not reselect credentials; MSAL continues to cache and refresh
+tokens. `ResetCredentials()` clears `CachedValue` and `Skip`, but does not independently
+invalidate an existing CCA.
 
 ---
 
