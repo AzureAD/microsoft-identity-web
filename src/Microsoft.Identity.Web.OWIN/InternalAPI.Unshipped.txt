@@ -1,5 +1,1 @@
 #nullable enable
-static Microsoft.Identity.Web.AppBuilderExtension.ConfigureClaimsValidation(Microsoft.Owin.Security.OAuth.OAuthBearerAuthenticationOptions! options, bool allowWebApiToBeAuthorizedByACL) -> void
-static Microsoft.Identity.Web.AppBuilderExtension.AddHomeAccountIdentifierClaims(System.Security.Claims.ClaimsIdentity! identity, string? homeObjectId, string? homeTenantId) -> void
-static Microsoft.Identity.Web.AppBuilderExtension.GetAndRemoveHomeAccountIdentifier(Microsoft.Owin.IOwinContext! owinContext, System.Web.HttpContextBase! httpContext) -> (string? homeObjectId, string? homeTenantId)
-static Microsoft.Identity.Web.AppBuilderExtension.StoreHomeAccountIdentifier(Microsoft.Owin.IOwinContext! owinContext, System.Web.HttpContextBase! httpContext, string? homeObjectId, string? homeTenantId) -> void

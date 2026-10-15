@@ -21,6 +21,8 @@ const Microsoft.Identity.Web.Constants.ExtensionOptionsServiceProviderKey = "ID_
 const Microsoft.Identity.Web.Constants.FallbackAuthority = "https://login.microsoftonline.com/" -> string!
 const Microsoft.Identity.Web.Constants.FmiPathForClientAssertion = "IDWEB_FMI_PATH_FOR_CLIENT_ASSERTION" -> string!
 const Microsoft.Identity.Web.Constants.GraphBaseUrlV1 = "https://graph.microsoft.com/v1.0" -> string!
+const Microsoft.Identity.Web.Constants.HomeAccountObjectIdCacheKey = "Microsoft.Identity.Web.HomeAccountObjectId" -> string!
+const Microsoft.Identity.Web.Constants.HomeAccountTenantIdCacheKey = "Microsoft.Identity.Web.HomeAccountTenantId" -> string!
 const Microsoft.Identity.Web.Constants.IDWebSku = "IDWeb." -> string!
 const Microsoft.Identity.Web.Constants.InvalidClient = "invalid_client" -> string!
 const Microsoft.Identity.Web.Constants.InvalidKeyError = "AADSTS700027" -> string!
@@ -127,6 +129,7 @@ Microsoft.Identity.Web.AuthCodeRedemptionParameters
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCode.get -> string!
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCode.set -> void
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCodeRedemptionParameters(System.Collections.Generic.IEnumerable<string!>! scopes, string! authCode, string! authScheme, string? clientInfo, string? codeVerifier, string? userFlow, string? tenant) -> void
+Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthCodeRedemptionParameters(System.Collections.Generic.IEnumerable<string!>! scopes, string! authCode, string! authScheme, string? codeVerifier, string? userFlow, string? tenant) -> void
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthenticationScheme.get -> string!
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.AuthenticationScheme.set -> void
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.ClientInfo.get -> string?
@@ -139,6 +142,11 @@ Microsoft.Identity.Web.AuthCodeRedemptionParameters.Tenant.get -> string?
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.Tenant.set -> void
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.UserFlow.get -> string?
 Microsoft.Identity.Web.AuthCodeRedemptionParameters.UserFlow.set -> void
+Microsoft.Identity.Web.AuthCodeRedemptionResult
+Microsoft.Identity.Web.AuthCodeRedemptionResult.AuthCodeRedemptionResult(Microsoft.Identity.Abstractions.AcquireTokenResult! result, string? homeObjectId, string? homeTenantId) -> void
+Microsoft.Identity.Web.AuthCodeRedemptionResult.HomeObjectId.get -> string?
+Microsoft.Identity.Web.AuthCodeRedemptionResult.HomeTenantId.get -> string?
+Microsoft.Identity.Web.AuthCodeRedemptionResult.Result.get -> Microsoft.Identity.Abstractions.AcquireTokenResult!
 Microsoft.Identity.Web.CiamAuthorityHelper
 Microsoft.Identity.Web.CiamAuthorityHelper.CiamAuthorityHelper() -> void
 Microsoft.Identity.Web.ClientInfo
@@ -164,6 +172,7 @@ Microsoft.Identity.Web.DefaultTokenAcquirerFactoryImplementation.GetTokenAcquire
 Microsoft.Identity.Web.DefaultTokenAcquirerFactoryImplementation.GetTokenAcquirer(string! authenticationScheme = "") -> Microsoft.Identity.Abstractions.ITokenAcquirer!
 Microsoft.Identity.Web.DefaultTokenAcquirerFactoryImplementation.GetTokenAcquirer(string! authority, string! clientId, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, string? region = null) -> Microsoft.Identity.Abstractions.ITokenAcquirer!
 Microsoft.Identity.Web.ErrorCodes
+Microsoft.Identity.Web.HomeAccountIdentifierClaims
 Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost
 Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost.DefaultTokenAcquisitionHost(Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Web.MicrosoftIdentityOptions!>! optionsMonitor, Microsoft.Identity.Web.IMergedOptionsStore! mergedOptionsMonitor, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Client.ConfidentialClientApplicationOptions!>! ccaOptionsMonitor, Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.Identity.Abstractions.MicrosoftIdentityApplicationOptions!>! microsoftIdentityApplicationOptionsMonitor) -> void
 Microsoft.Identity.Web.Hosts.DefaultTokenAcquisitionHost.GetAuthenticatedUserAsync(System.Security.Claims.ClaimsPrincipal? user) -> System.Threading.Tasks.Task<System.Security.Claims.ClaimsPrincipal?>!
@@ -189,6 +198,7 @@ Microsoft.Identity.Web.ITokenAcquisitionHost.GetUserFromRequest() -> System.Secu
 Microsoft.Identity.Web.ITokenAcquisitionHost.SetHttpResponse(System.Net.HttpStatusCode statusCode, string! wwwAuthenticate) -> void
 Microsoft.Identity.Web.ITokenAcquisitionHost.SetSession(string! key, string! value) -> void
 Microsoft.Identity.Web.ITokenAcquisitionInternal
+Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.AuthCodeRedemptionResult!>!
 Microsoft.Identity.Web.ITokenAcquisitionInternal.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext! context, System.Collections.Generic.IEnumerable<string!>! scopes, string! authenticationScheme = "OpenIdConnect") -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.ITokenAcquisitionInternal.RemoveAccountAsync(System.Security.Claims.ClaimsPrincipal! user, string? authenticationScheme = null) -> System.Threading.Tasks.Task!
 Microsoft.Identity.Web.JwtBearerOptionsMerger
@@ -259,6 +269,7 @@ Microsoft.Identity.Web.TokenAcquirer
 Microsoft.Identity.Web.TokenAcquirer.TokenAcquirer(Microsoft.Identity.Web.ITokenAcquisition! tokenAcquisition, string? authenticationScheme) -> void
 Microsoft.Identity.Web.TokenAcquirerExtensions
 Microsoft.Identity.Web.TokenAcquisition
+Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Web.AuthCodeRedemptionResult!>!
 Microsoft.Identity.Web.TokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(Microsoft.Identity.Web.AuthCodeRedemptionParameters! authCodeRedemptionParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Abstractions.AcquireTokenResult!>!
 Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForAppAsync(string! scope, string? authenticationScheme = null, string? tenant = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
 Microsoft.Identity.Web.TokenAcquisition.GetAccessTokenForUserAsync(System.Collections.Generic.IEnumerable<string!>! scopes, string? authenticationScheme = null, string? tenantId = null, string? userFlow = null, System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.Identity.Web.TokenAcquisitionOptions? tokenAcquisitionOptions = null) -> System.Threading.Tasks.Task<string!>!
@@ -313,6 +324,7 @@ static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.Logg
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentials(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters! credentialSourceLoaderParameters) -> Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!
 static Microsoft.Identity.Web.ConfidentialClientApplicationBuilderExtension.WithClientCredentialsAsync(this Microsoft.Identity.Client.ConfidentialClientApplicationBuilder! builder, System.Collections.Generic.IEnumerable<Microsoft.Identity.Abstractions.CredentialDescription!>! clientCredentials, Microsoft.Extensions.Logging.ILogger! logger, Microsoft.Identity.Abstractions.ICredentialsLoader! credentialsLoader, Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters? credentialSourceLoaderParameters) -> System.Threading.Tasks.Task<Microsoft.Identity.Client.ConfidentialClientApplicationBuilder!>!
 static Microsoft.Identity.Web.DefaultTokenAcquirerFactoryImplementation.GetKey(string? authority, string? clientId, string? region) -> string!
+static Microsoft.Identity.Web.HomeAccountIdentifierClaims.AddOrValidate(System.Security.Claims.ClaimsIdentity? identity, string? uniqueObjectIdentifier, string? uniqueTenantIdentifier) -> void
 static Microsoft.Identity.Web.HttpContextExtensions.GetTokenUsedToCallWebAPI(this Microsoft.AspNetCore.Http.HttpContext! httpContext) -> Microsoft.IdentityModel.Tokens.SecurityToken?
 static Microsoft.Identity.Web.HttpContextExtensions.StoreTokenUsedToCallWebAPI(this Microsoft.AspNetCore.Http.HttpContext! httpContext, Microsoft.IdentityModel.Tokens.SecurityToken? token) -> void
 static Microsoft.Identity.Web.IdHelper.CreateTelemetryInfo() -> string!
@@ -333,6 +345,7 @@ static Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionError(Micr
 static Microsoft.Identity.Web.TokenAcquisition.Logger.TokenAcquisitionMsalAuthenticationResultTime(Microsoft.Extensions.Logging.ILogger! logger, long durationTotalInMs, long durationInHttpInMs, long durationInCacheInMs, string! tokenSource, string! correlationId, string! cacheRefreshReason, System.Exception? ex) -> void
 static Microsoft.Identity.Web.TokenAcquisition.MergeExtraQueryParameters(Microsoft.Identity.Web.MergedOptions! mergedOptions, Microsoft.Identity.Web.TokenAcquisitionOptions! tokenAcquisitionOptions) -> System.Collections.Generic.Dictionary<string!, string!>?
 static Microsoft.Identity.Web.TokenAcquisition.ResolveTenant(string? tenant, Microsoft.Identity.Web.MergedOptions! mergedOptions) -> string?
+static Microsoft.Identity.Web.TokenAcquisitionAspNetCore.ApplyRedeemedHomeAccountId(Microsoft.AspNetCore.Authentication.OpenIdConnect.AuthorizationCodeReceivedContext! context, string? homeObjectId, string? homeTenantId) -> void
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.Decode(string! arg) -> string?
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.DecodeBytes(string? str) -> byte[]?
 static Microsoft.Identity.Web.Util.Base64UrlHelpers.Encode(byte[]? inArray) -> string?
