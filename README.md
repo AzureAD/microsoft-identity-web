@@ -83,6 +83,8 @@ This library controls how users sign-in and access services. We recommend you al
 
 DataProtection and cryptography dependencies use minimum versions, not exact pins. For .NET 8, the cryptography minimums are `System.Security.Cryptography.Xml` 8.0.5 and `System.Security.Cryptography.Pkcs` 8.0.2; for .NET 9, both are 9.0.21; for .NET 10, both are 10.0.13, with DataProtection also at 10.0.13. These cryptography minimums align with MISE and allow consumers to resolve higher versions. Applications must also keep their .NET and ASP.NET Core runtimes patched; updating NuGet packages does not update an installed shared runtime.
 
+For .NET 10, the ASP.NET Core authentication and Microsoft.Extensions dependency minimums are also 10.0.13. Consumers with direct references to these packages may need to raise their versions to satisfy the new minimums and avoid NuGet downgrade errors. Dependency minimums for older target frameworks are unchanged.
+
 ## Security Reporting
 
 If you find a security issue with our libraries or services, please report it to [secure@microsoft.com](mailto:secure@microsoft.com) with as much detail as possible. Your submission may be eligible for a bounty through the [Microsoft Bounty](http://aka.ms/bugbounty) program. Please do not post security issues to GitHub Issues or any other public site. We will contact you shortly upon receiving the information. We encourage you to get notifications of when security incidents occur by visiting [this page](https://technet.microsoft.com/en-us/security/dd252948) and subscribing to Security Advisory Alerts.
