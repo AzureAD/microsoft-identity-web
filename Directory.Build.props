@@ -139,7 +139,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <NetTenRuntimeVersion>10.0.13</NetTenRuntimeVersion>
+    <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
     <AspNetCoreTenRuntimeVersion>10.0.13</AspNetCoreTenRuntimeVersion>
     <!--CVE: GHSA-2fmv-rv2c-59x7, GHSA-846f-f764-76mx, GHSA-7hqp-7c5m-4vq6, GHSA-c399-9853-6jmj, GHSA-r955-8q5j-3h83-->
     <SystemSecurityCryptographyServicingVersion>10.0.13</SystemSecurityCryptographyServicingVersion>
