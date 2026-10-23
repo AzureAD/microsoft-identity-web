@@ -644,5 +644,56 @@ namespace Microsoft.Identity.Web.Test
                     (bool)o.ExtraParameters["IsTokenBinding"] == true &&
                     (string)o.ExtraParameters["custom_param"] == "custom_value"));
         }
+
+        [Fact]
+        public async Task CreateAuthorizationHeaderAsync_PreservesClientAndServerClaims()
+        {
+            // Arrange
+            const string claimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""";
+            const string serverClaims = """{"access_token":{"server_challenge":{"essential":true}}}""";
+            var downstreamApiOptions = new DownstreamApiOptions
+            {
+                Scopes = new[] { "https://graph.microsoft.com/.default" },
+                RequestAppToken = true,
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    Claims = serverClaims,
+                    ClaimsFromClient = claimsFromClient,
+                },
+            };
+
+            _mockTokenAcquisition
+                .GetAuthenticationResultForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<TokenAcquisitionOptions>())
+                .Returns(Task.FromResult(new AuthenticationResult(
+                    "test_access_token",
+                    false,
+                    null,
+                    DateTimeOffset.UtcNow.AddHours(1),
+                    DateTimeOffset.UtcNow.AddHours(1),
+                    "test_tenant_id",
+                    null,
+                    null,
+                    new[] { "scope1" },
+                    Guid.NewGuid())));
+
+            // Act
+            await ((IBoundAuthorizationHeaderProvider)_provider).CreateBoundAuthorizationHeaderAsync(
+                downstreamApiOptions,
+                null,
+                CancellationToken.None);
+
+            // Assert
+            await _mockTokenAcquisition.Received(1).GetAuthenticationResultForAppAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Is<TokenAcquisitionOptions>(o =>
+                    o.Claims == serverClaims &&
+                    o.ClaimsFromClient == claimsFromClient));
+        }
     }
 }

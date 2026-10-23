@@ -82,7 +82,10 @@
     <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.23.0</MicrosoftIdentityModelVersion>
     <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.90.1</MicrosoftIdentityClientVersion>
     <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.90.1</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.7.0</MicrosoftIdentityAbstractionsVersion>
+    <!-- TEMPORARY: CI builds 12.7.1 from the pinned upstream commit in
+         build/template-bootstrap-client-claims-abstractions.yaml. Remove that bootstrap
+         after the official package is available and before this change is merged. -->
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.7.1</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>

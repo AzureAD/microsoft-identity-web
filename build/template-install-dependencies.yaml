@@ -50,6 +50,8 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: NuGet Authenticate
 
+- template: template-bootstrap-client-claims-abstractions.yaml
+
 - powershell: |
    $kvSecretBytes = [System.Convert]::FromBase64String('$(LabAuth)')
    $certCollection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection

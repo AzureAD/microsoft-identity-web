@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
@@ -69,6 +70,23 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(cachePartitionKeys, options.CachePartitionKeys);
             Assert.Equal("contoso", options.CachePartitionKeys!["tenant"]);
             Assert.Equal("alice", options.CachePartitionKeys["user"]);
+        }
+
+        [Fact]
+        public void Clone_PreservesClaimsFromClient()
+        {
+            // Arrange
+            const string claimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""";
+            var options = new TokenAcquisitionOptions
+            {
+                ClaimsFromClient = claimsFromClient,
+            };
+
+            // Act
+            TokenAcquisitionOptions clone = options.Clone();
+
+            // Assert
+            Assert.Equal(claimsFromClient, clone.ClaimsFromClient);
         }
 
         [Theory]
@@ -171,6 +189,155 @@ namespace Microsoft.Identity.Web.Test
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Bearer header.payload.signature", result);
+        }
+
+        [Fact]
+        public async Task ClaimsFromClient_AppToken_ForwardsRawValueAsync()
+        {
+            // Arrange
+            const string claimsFromClient = """{ "access_token": { "client_originated": { "essential": true } } }""";
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            MockHttpMessageHandler handler = mockHttpClient!.AddMockHandler(
+                MockHttpCreator.CreateHandlerToValidatePostData(
+                    HttpMethod.Post,
+                    new Dictionary<string, string>
+                    {
+                        ["claims"] = claimsFromClient,
+                    }));
+            ITokenAcquisition tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            // Act
+            await tokenAcquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default",
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ClaimsFromClient = claimsFromClient,
+                });
+
+            // Assert
+            Assert.Equal(claimsFromClient, handler.ActualRequestPostData["claims"]);
+        }
+
+        [Fact]
+        public async Task ClaimsFromClient_AppToken_CoexistsWithServerClaimsAsync()
+        {
+            // Arrange
+            const string claimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""";
+            const string serverClaims = """{"access_token":{"server_challenge":{"essential":true}}}""";
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            MockHttpMessageHandler handler = mockHttpClient!.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler());
+            ITokenAcquisition tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            // Act
+            await tokenAcquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default",
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    Claims = serverClaims,
+                    ClaimsFromClient = claimsFromClient,
+                });
+
+            // Assert
+            using JsonDocument claims = JsonDocument.Parse(handler.ActualRequestPostData["claims"]);
+            JsonElement accessTokenClaims = claims.RootElement.GetProperty("access_token");
+            Assert.True(accessTokenClaims.TryGetProperty("client_originated", out _));
+            Assert.True(accessTokenClaims.TryGetProperty("server_challenge", out _));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public async Task ClaimsFromClient_AppToken_NullEmptyOrWhitespace_UsesMsalNoOpSemanticsAsync(string? claimsFromClient)
+        {
+            // Arrange
+            var tokenAcquirerFactory = InitTokenAcquirerFactory();
+            IServiceProvider serviceProvider = tokenAcquirerFactory.Build();
+            var mockHttpClient = serviceProvider.GetRequiredService<IMsalHttpClientFactory>() as MockHttpClientFactory;
+            MockHttpMessageHandler handler = mockHttpClient!.AddMockHandler(
+                MockHttpCreator.CreateClientCredentialTokenHandler());
+            ITokenAcquisition tokenAcquisition = serviceProvider.GetRequiredService<ITokenAcquisition>();
+
+            // Act
+            await tokenAcquisition.GetAuthenticationResultForAppAsync(
+                "https://graph.microsoft.com/.default",
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ClaimsFromClient = claimsFromClient,
+                });
+
+            // Assert
+            Assert.DoesNotContain("claims", handler.ActualRequestPostData);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("""{"access_token":{"client_originated":{"value":"a"}}}""")]
+        public async Task ClaimsFromClient_AgentUserFic_WarmCache_HonorsChangedClaimsAsync(string? originalClaims)
+        {
+            // Arrange
+            const string claimsFromClient = """{ "access_token": { "client_originated": { "value": "b" } } }""";
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider provider = factory.Build();
+            var http = (MockHttpClientFactory)provider.GetRequiredService<IMsalHttpClientFactory>();
+            AddAgentUserFicMockHandlers(http, userAccessToken: "original-token");
+            var handler = http.AddMockHandler(CreateUserFicTokenHandler("claims-token"));
+            var acquisition = provider.GetRequiredService<ITokenAcquisition>();
+            var options = new TokenAcquisitionOptions
+            {
+                ExtraParameters = CreateAgentIdentityOptions(Guid.NewGuid().ToString("N")).AcquireTokenOptions.ExtraParameters,
+                ClaimsFromClient = originalClaims,
+            };
+            await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+
+            // Act
+            options.ClaimsFromClient = claimsFromClient;
+            var result = await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("claims-token", result.AccessToken);
+            Assert.Equal(claimsFromClient, handler.ActualRequestPostData["claims"]);
+            Assert.Equal("user_fic", handler.ActualRequestPostData["grant_type"]);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("""{"access_token":{"client_originated":{"value":"a"}}}""")]
+        public async Task ClaimsFromClient_Ropc_WarmCache_HonorsChangedClaimsAsync(string? originalClaims)
+        {
+            // Arrange
+            const string claimsFromClient = """{ "access_token": { "client_originated": { "value": "b" } } }""";
+            var factory = InitTokenAcquirerFactory();
+            IServiceProvider provider = factory.Build();
+            var http = (MockHttpClientFactory)provider.GetRequiredService<IMsalHttpClientFactory>();
+            http.AddMockHandler(CreateUserFicTokenHandler("original-token"));
+            var handler = http.AddMockHandler(CreateUserFicTokenHandler("claims-token"));
+            var acquisition = provider.GetRequiredService<ITokenAcquisition>();
+            var user = new ClaimsPrincipal(new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity(new[]
+            {
+                new Claim(ClaimConstants.Username, AgentTestUsername),
+                new Claim(ClaimConstants.Password, "test-only-password"),
+            }));
+            var options = new TokenAcquisitionOptions { ClaimsFromClient = originalClaims };
+            await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, user: user, tokenAcquisitionOptions: options);
+
+            // Act
+            options.ClaimsFromClient = claimsFromClient;
+            var result = await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, user: user, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("claims-token", result.AccessToken);
+            Assert.Equal(claimsFromClient, handler.ActualRequestPostData["claims"]);
+            Assert.Equal("password", handler.ActualRequestPostData["grant_type"]);
         }
 
         /// <summary>
