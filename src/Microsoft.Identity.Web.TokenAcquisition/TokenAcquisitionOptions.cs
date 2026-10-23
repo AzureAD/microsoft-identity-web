@@ -43,6 +43,7 @@ namespace Microsoft.Identity.Web
                 ExtraQueryParameters = ExtraQueryParameters,
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
+                ClaimsFromClient = ClaimsFromClient,
                 PoPConfiguration = PoPConfiguration,
                 PopPublicKey = PopPublicKey,
                 PopClaim = PopClaim,

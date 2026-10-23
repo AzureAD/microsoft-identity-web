@@ -574,6 +574,7 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)
                 {
@@ -752,6 +753,7 @@ namespace Microsoft.Identity.Web
             }
 
             leg3Builder.WithCachePartitionKey(AgentBlueprintCacheComponent, blueprintClientId, partitionRefreshToken: true);
+            leg3Builder.WithClaimsFromClient(tokenAcquisitionOptions!.ClaimsFromClient!);
             var result = await leg3Builder.ExecuteAsync().ConfigureAwait(false);
 
             Logger.AgentUserFicAcquisitionComplete(_logger, agentAppId!, result.AuthenticationResultMetadata.TokenSource.ToString());
@@ -1062,6 +1064,7 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
 
                 // Forward an MSAL OpenTelemetry tags enricher supplied via the ExtraParameters SDK-to-SDK
                 // channel (e.g. by Microsoft.Identity.Web.OidcFic on the inner FIC client-assertion leg) so
@@ -1966,6 +1969,7 @@ namespace Microsoft.Identity.Web
                     }
                     builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                     builder.WithClaims(tokenAcquisitionOptions.Claims);
+                    builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
                     var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                     if (clientClaims != null)
                     {

@@ -108,6 +108,29 @@ public class DownstreamApiOptionsMergeTests
         Assert.Equal("new-claims", result.AcquireTokenOptions.Claims);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("""{"access_token":{"client_originated":{"essential":true}}}""")]
+    public void MergeDownstreamApiOptionsOverrides_WithClientClaimsOverride_PreservesExactValue(string claimsFromClient)
+    {
+        // Arrange
+        var left = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions { ClaimsFromClient = "original-claims" }
+        };
+        var right = new DownstreamApiOptions
+        {
+            AcquireTokenOptions = new AcquireTokenOptions { ClaimsFromClient = claimsFromClient }
+        };
+
+        // Act
+        var result = DownstreamApiOptionsMerger.MergeOptions(left, right);
+
+        // Assert
+        Assert.Equal(claimsFromClient, result.AcquireTokenOptions.ClaimsFromClient);
+    }
+
     [Fact]
     public void MergeDownstreamApiOptionsOverrides_WithAuthenticationOptionsNameOverride_OverridesAuthenticationOptionsName()
     {

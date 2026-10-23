@@ -890,6 +890,7 @@ namespace Microsoft.Identity.Web.Test
 
             var tokenAcquisitionOptions = new TokenAcquisitionOptions
             {
+                ClaimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""",
                 ExtraParameters = new Dictionary<string, object>
                 {
                     { "IDWEB_CLIENT_ASSERTION_CLAIMS", JsonSerializer.Serialize(customClaims) }
@@ -932,6 +933,8 @@ namespace Microsoft.Identity.Web.Test
             var payloadJson = DecodeJwtPayload(capturingHandler.CapturedClientAssertion!);
             Assert.Contains("value_one", payloadJson, StringComparison.Ordinal);
             Assert.Contains("value_two", payloadJson, StringComparison.Ordinal);
+            Assert.DoesNotContain("client_originated", payloadJson, StringComparison.Ordinal);
+            Assert.Equal(tokenAcquisitionOptions.ClaimsFromClient, capturingHandler.CapturedClaims);
 
             // Second call should be served from cache: no new network request, no new assertion captured
             capturingHandler.ResetCapture();
@@ -1177,8 +1180,13 @@ namespace Microsoft.Identity.Web.Test
         {
             private readonly string _authorityBase;
             public string? CapturedClientAssertion {get; private set; }
+            public string? CapturedClaims { get; private set; }
             public CapturingHandler(string authorityBase) => _authorityBase = authorityBase.TrimEnd('/');
-            public void ResetCapture() => CapturedClientAssertion = null;
+            public void ResetCapture()
+            {
+                CapturedClientAssertion = null;
+                CapturedClaims = null;
+            }
             protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
                 var uri = request.RequestUri!.ToString();
@@ -1199,6 +1207,10 @@ namespace Microsoft.Identity.Web.Test
                         if (pair.Length == 2 && pair[0] == "client_assertion")
                         {
                             CapturedClientAssertion = Uri.UnescapeDataString(pair[1]);
+                        }
+                        else if (pair.Length == 2 && pair[0] == "claims")
+                        {
+                            CapturedClaims = Uri.UnescapeDataString(pair[1]);
                         }
                     }
                     var tokenResponse = "{ \"access_token\": \"at\", \"expires_in\": 3600, \"token_type\": \"Bearer\" }";
