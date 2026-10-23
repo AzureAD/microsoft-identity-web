@@ -92,7 +92,9 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
             {
                 var sub = path.Substring("AcquireTokenOptions.".Length);
                 var last = values.LastOrDefault();
-                if (string.IsNullOrEmpty(last)) continue;
+                if (string.IsNullOrEmpty(last)
+                    && !sub.Equals(nameof(AcquireTokenOptions.ClaimsFromClient), StringComparison.OrdinalIgnoreCase))
+                    continue;
 
                 switch (sub.ToLowerInvariant())
                 {
@@ -105,6 +107,9 @@ public class BindableDownstreamApiOptions : DownstreamApiOptions, IEndpointParam
                         break;
                     case "claims":
                         result.AcquireTokenOptions.Claims = last;
+                        break;
+                    case "claimsfromclient":
+                        result.AcquireTokenOptions.ClaimsFromClient = last;
                         break;
                     case "correlationid" when Guid.TryParse(last, out var corrId):
                         result.AcquireTokenOptions.CorrelationId = corrId;

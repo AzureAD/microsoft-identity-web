@@ -275,6 +275,71 @@ namespace Microsoft.Identity.Web.Test
             Assert.DoesNotContain("claims", handler.ActualRequestPostData);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("""{"access_token":{"client_originated":{"value":"a"}}}""")]
+        public async Task ClaimsFromClient_AgentUserFic_WarmCache_HonorsChangedClaimsAsync(string? originalClaims)
+        {
+            // Arrange
+            const string claimsFromClient = """{ "access_token": { "client_originated": { "value": "b" } } }""";
+            var factory = InitTokenAcquirerFactoryForAgent();
+            IServiceProvider provider = factory.Build();
+            var http = (MockHttpClientFactory)provider.GetRequiredService<IMsalHttpClientFactory>();
+            AddAgentUserFicMockHandlers(http, userAccessToken: "original-token");
+            var handler = http.AddMockHandler(CreateUserFicTokenHandler("claims-token"));
+            var acquisition = provider.GetRequiredService<ITokenAcquisition>();
+            var options = new TokenAcquisitionOptions
+            {
+                ExtraParameters = CreateAgentIdentityOptions(Guid.NewGuid().ToString("N")).AcquireTokenOptions.ExtraParameters,
+                ClaimsFromClient = originalClaims,
+            };
+            await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+
+            // Act
+            options.ClaimsFromClient = claimsFromClient;
+            var result = await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("claims-token", result.AccessToken);
+            Assert.Equal(claimsFromClient, handler.ActualRequestPostData["claims"]);
+            Assert.Equal("user_fic", handler.ActualRequestPostData["grant_type"]);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("""{"access_token":{"client_originated":{"value":"a"}}}""")]
+        public async Task ClaimsFromClient_Ropc_WarmCache_HonorsChangedClaimsAsync(string? originalClaims)
+        {
+            // Arrange
+            const string claimsFromClient = """{ "access_token": { "client_originated": { "value": "b" } } }""";
+            var factory = InitTokenAcquirerFactory();
+            IServiceProvider provider = factory.Build();
+            var http = (MockHttpClientFactory)provider.GetRequiredService<IMsalHttpClientFactory>();
+            http.AddMockHandler(CreateUserFicTokenHandler("original-token"));
+            var handler = http.AddMockHandler(CreateUserFicTokenHandler("claims-token"));
+            var acquisition = provider.GetRequiredService<ITokenAcquisition>();
+            var user = new ClaimsPrincipal(new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity(new[]
+            {
+                new Claim(ClaimConstants.Username, AgentTestUsername),
+                new Claim(ClaimConstants.Password, "test-only-password"),
+            }));
+            var options = new TokenAcquisitionOptions { ClaimsFromClient = originalClaims };
+            await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, user: user, tokenAcquisitionOptions: options);
+
+            // Act
+            options.ClaimsFromClient = claimsFromClient;
+            var result = await acquisition.GetAuthenticationResultForUserAsync(
+                new[] { "https://graph.microsoft.com/.default" }, user: user, tokenAcquisitionOptions: options);
+
+            // Assert
+            Assert.Equal("claims-token", result.AccessToken);
+            Assert.Equal(claimsFromClient, handler.ActualRequestPostData["claims"]);
+            Assert.Equal("password", handler.ActualRequestPostData["grant_type"]);
+        }
+
         /// <summary>
         /// Regression test for the in-memory cache short-circuit fix. With the default
         /// (UseFastUnboundedCache not set), acquiring an app token must flow through the

@@ -516,7 +516,10 @@ namespace Microsoft.Identity.Web
 
             bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
-            if (!forceRefresh && user != null && user.GetMsalAccountId() != null)
+            // AcquireTokenSilent cannot apply client-originated claims; use the confidential builder instead.
+            if (!forceRefresh
+                && string.IsNullOrWhiteSpace(tokenAcquisitionOptions?.ClaimsFromClient)
+                && user != null && user.GetMsalAccountId() != null)
             {
                 try
                 {
@@ -678,7 +681,9 @@ namespace Microsoft.Identity.Web
             // Account discovery and token retrieval must use the same blueprint-agent partition.
             string normalizedTenant = tenantId?.ToUpperInvariant() ?? string.Empty;
             string accountLookupKey = $"{blueprintClientId}:{agentAppId}:{userIdentifierForCacheKey}:{normalizedTenant}";
+            // AcquireTokenSilent cannot apply client-originated claims; use the User FIC builder instead.
             if (!forceRefresh
+                && string.IsNullOrWhiteSpace(tokenAcquisitionOptions?.ClaimsFromClient)
                 && _agentUserFicAccountIds.TryGetValue(accountLookupKey, out string? cachedAccountId)
                 && !string.IsNullOrEmpty(cachedAccountId))
             {

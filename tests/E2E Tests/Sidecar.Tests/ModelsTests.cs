@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Identity.Web.Sidecar;
 using Microsoft.Identity.Web.Sidecar.Models;
 using Xunit;
 
@@ -436,6 +437,31 @@ public class ModelsTests
         // Assert
         Assert.NotNull(result);
         Assert.False(result!.HasAny);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("""{ "access_token": { "client_originated": { "essential": true } } }""")]
+    public async Task BindableDownstreamApiOptions_ClaimsFromClient_PreservesOverride(string claimsFromClient)
+    {
+        // Arrange
+        var ctx = CreateHttpContext(QueryString.Create(
+            "optionsOverride.AcquireTokenOptions.ClaimsFromClient", claimsFromClient).Value!);
+        var configured = new Microsoft.Identity.Abstractions.DownstreamApiOptions
+        {
+            AcquireTokenOptions = new() { ClaimsFromClient = "configured-claims" },
+        };
+
+        // Act
+        var bound = await BindableDownstreamApiOptions.BindAsync(ctx, GetOptionsOverrideParameter());
+
+        // Assert
+        Assert.NotNull(bound);
+        Assert.True(bound.HasAny);
+        Assert.Equal(claimsFromClient, bound.AcquireTokenOptions.ClaimsFromClient);
+        var merged = DownstreamApiOptionsMerger.MergeOptions(configured, bound);
+        Assert.Equal(claimsFromClient, merged.AcquireTokenOptions.ClaimsFromClient);
     }
 
     private static class BindableDownstreamApiOptionsTestHelper
