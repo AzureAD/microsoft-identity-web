@@ -747,6 +747,7 @@ public class DownstreamApiOptionsMergeTests
         {
             "Tenant",
             "Claims",
+            "ClaimsFromClient",
             "AuthenticationOptionsName",
             "FmiPath",
             "LongRunningWebApiSessionKey",
