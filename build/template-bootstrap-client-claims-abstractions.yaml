@@ -1,0 +1,48 @@
+# TEMPORARY: Remove this template and its callers before this PR is marked ready
+# or merged, after Microsoft.Identity.Abstractions 12.7.1 is officially available.
+#
+# Until then, build the exact reviewed upstream commit so CI can compile against
+# AcquireTokenOptions.ClaimsFromClient without publishing or committing a package.
+
+steps:
+- powershell: |
+    $ErrorActionPreference = "Stop"
+
+    $abstractionsCommit = "9c281180b62a34f0ecfb842ef13f032f24d6102b"
+    $abstractionsVersion = "12.7.1"
+    $abstractionsRepository = "$(Agent.TempDirectory)\microsoft-identity-abstractions-for-dotnet"
+    $localFeed = "$(Agent.TempDirectory)\microsoft-identity-abstractions-feed"
+    $nugetConfig = "$(Build.SourcesDirectory)\NuGet.Config"
+
+    Remove-Item -Recurse -Force $abstractionsRepository, $localFeed -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $abstractionsRepository, $localFeed | Out-Null
+
+    git -C $abstractionsRepository init
+    git -C $abstractionsRepository remote add origin https://github.com/AzureAD/microsoft-identity-abstractions-for-dotnet.git
+    git -C $abstractionsRepository fetch --depth 1 origin $abstractionsCommit
+    git -C $abstractionsRepository checkout --detach FETCH_HEAD
+
+    $checkedOutCommit = git -C $abstractionsRepository rev-parse HEAD
+    if ($checkedOutCommit -ne $abstractionsCommit) {
+        throw "Expected Microsoft.Identity.Abstractions commit $abstractionsCommit but checked out $checkedOutCommit."
+    }
+
+    dotnet pack `
+      "$abstractionsRepository\src\Microsoft.Identity.Abstractions\Microsoft.Identity.Abstractions.csproj" `
+      --configuration Release `
+      --output $localFeed `
+      -p:MicrosoftIdentityAbstractionsVersion=$abstractionsVersion
+
+    $package = Join-Path $localFeed "Microsoft.Identity.Abstractions.$abstractionsVersion.nupkg"
+    if (-not (Test-Path $package)) {
+        throw "Expected package was not created: $package"
+    }
+
+    dotnet nuget remove source PinnedMicrosoftIdentityAbstractions --configfile $nugetConfig 2>$null
+    dotnet nuget add source $localFeed `
+      --name PinnedMicrosoftIdentityAbstractions `
+      --configfile $nugetConfig
+
+    Write-Host "Using Microsoft.Identity.Abstractions $abstractionsVersion built from $checkedOutCommit."
+  displayName: 'TEMP: Bootstrap pinned Microsoft.Identity.Abstractions'
+
