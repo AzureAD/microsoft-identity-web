@@ -144,6 +144,20 @@ You must choose **one** approach -- `Authority` or `Instance`/`TenantId`. Settin
 }
 ```
 
+### Issuer Validation for Multi-Tenant Authorities
+
+`common` and `organizations` are endpoint selectors, not tenant issuers. For example, `https://login.microsoftonline.com/common/v2.0` is used to discover endpoints that can authenticate users from multiple tenants; it is not the issuer expected in a token.
+
+The discovery document's issuer value `https://login.microsoftonline.com/{tenantid}/v2.0` is a tenant template. For a token, the issuer must identify that token's tenant, and the tenant in the issuer must match its `tid` claim. For example, a token with `tid` `aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee` has an issuer of `https://login.microsoftonline.com/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/v2.0`, not `.../common/v2.0`.
+
+Microsoft.Identity.Web's default issuer-validation behavior is:
+
+1. When issuer validation is enabled and no custom `IssuerValidator` is configured, use `Microsoft.IdentityModel.Validators.AadIssuerValidator`.
+2. Validate the token issuer against the trusted authority's issuer metadata, resolving `{tenantid}` with the tenant ID in the token and accounting for the token's protocol version.
+3. Reject a missing tenant ID or an issuer that does not match the metadata template and token tenant.
+
+This issuer check is separate from signature and audience validation, and it does not authorize every tenant in a multi-tenant application. Applications that accept only selected tenants must enforce that policy separately. Do not disable issuer validation or treat `common` as a token issuer to work around the metadata template. Microsoft.Identity.Web consumes the identity platform's discovery metadata; changing this library cannot change the response served by `login.microsoftonline.com`.
+
 ### Azure AD B2C
 
 **Recommended**: Use `Authority` including the policy path. Do NOT mix with `Instance`/`TenantId`.

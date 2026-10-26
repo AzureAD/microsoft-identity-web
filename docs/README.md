@@ -250,6 +250,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [Token Cache](./authentication/token-cache/token-cache-README.md) - Configure distributed caching
 - [Token Decryption](./authentication/credentials/token-decryption.md) - Decrypt encrypted tokens
 - [Authorization](./authentication/authorization.md) - Scope validation, authorization policies, tenant filtering
+- [Authority and issuer validation](./authority-configuration/README.md#issuer-validation-for-multi-tenant-authorities) - Understand multi-tenant authorities and tenant-specific token issuers
 
 ### Advanced Topics
 - [Customization](./advanced/customization.md) - Configure options, event handlers, login hints
