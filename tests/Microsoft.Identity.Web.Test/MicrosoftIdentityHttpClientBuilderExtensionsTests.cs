@@ -4,7 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -193,34 +197,39 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions()
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions()
         {
             // Arrange
             var configurationData = new Dictionary<string, string?>
             {
-                { "DownstreamApi:Scopes:0", "https://graph.microsoft.com/.default" },
-                { "DownstreamApi:Scopes:1", "User.Read" }
+                { "DownstreamApis:Scopes:0", "wrong.scope" },
+                { "DownstreamApis:MyApi:Scopes:0", "api.scope" }
             };
 
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configurationData)
                 .Build();
 
-            var services = new ServiceCollection();
-            services.AddSingleton(_mockHeaderProvider);
-            var builder = services.AddHttpClient("TestClient");
+            await AssertConfigurationBindsScopeAsync(
+                configuration.GetSection("DownstreamApis"),
+                "MyApi");
+        }
 
-            // Act
-            builder.AddMicrosoftIdentityMessageHandler(
-                configuration.GetSection("DownstreamApi"),
-                "DownstreamApi");
+        [Fact]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_DefaultSectionName_BindsConfigurationDirectly()
+        {
+            // Arrange
+            var configurationData = new Dictionary<string, string?>
+            {
+                { "Scopes:0", "api.scope" }
+            };
 
-            // Assert
-            var serviceProvider = services.BuildServiceProvider();
-            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-            var client = httpClientFactory.CreateClient("TestClient");
-            
-            Assert.NotNull(client);
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(configurationData)
+                .Build();
+
+            // Act and Assert
+            await AssertConfigurationBindsScopeAsync(configuration, sectionName: null);
         }
 
         [Fact]
@@ -340,9 +349,59 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(client2);
         }
 
+        private async Task AssertConfigurationBindsScopeAsync(
+            IConfiguration configuration,
+            string? sectionName)
+        {
+            var services = new ServiceCollection();
+            var headerProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            headerProvider.CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Any<AuthorizationHeaderProviderOptions?>(),
+                Arg.Any<ClaimsPrincipal?>(),
+                Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult("placeholder"));
+            services.AddSingleton(headerProvider);
+
+            var builder = services.AddHttpClient("TestClient")
+                .ConfigurePrimaryHttpMessageHandler(() => new TestHttpMessageHandler());
+
+            if (sectionName is null)
+            {
+                builder.AddMicrosoftIdentityMessageHandler(configuration);
+            }
+            else
+            {
+                builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName);
+            }
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            using var client = httpClientFactory.CreateClient("TestClient");
+
+            using var response = await client.GetAsync("https://example.com");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            await headerProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "api.scope" })),
+                Arg.Any<AuthorizationHeaderProviderOptions?>(),
+                Arg.Any<ClaimsPrincipal?>(),
+                Arg.Any<CancellationToken>());
+        }
+
         // Test helper class
         private class TestDelegatingHandler : DelegatingHandler
         {
+        }
+
+        private class TestHttpMessageHandler : HttpMessageHandler
+        {
+            protected override Task<HttpResponseMessage> SendAsync(
+                HttpRequestMessage request,
+                CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+            }
         }
     }
 }

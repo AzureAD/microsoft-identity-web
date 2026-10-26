@@ -25,7 +25,7 @@ namespace Microsoft.Identity.Web
     /// will automatically add authorization headers to outgoing HTTP requests based on the configured options.
     /// </para>
     /// <para>
-    /// Four overloads are provided to support different configuration scenarios:
+    /// Five overloads are provided to support different configuration scenarios:
     /// </para>
     /// <list type="bullet">
     /// <item><description>Parameterless: For scenarios where options are set per-request</description></item>
@@ -57,9 +57,7 @@ namespace Microsoft.Identity.Web
     /// // }
     ///
     /// services.AddHttpClient("GraphClient")
-    ///     .AddMicrosoftIdentityMessageHandler(
-    ///         configuration.GetSection("DownstreamApi"),
-    ///         "DownstreamApi");
+    ///     .AddMicrosoftIdentityMessageHandler(configuration, "DownstreamApi");
     /// </code>
     ///
     /// <para><strong>Parameterless for per-request configuration:</strong></para>
@@ -321,11 +319,30 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Adds a <see cref="MicrosoftIdentityMessageHandler"/> to the HTTP client pipeline with options bound from IConfiguration.
+        /// Adds a <see cref="MicrosoftIdentityMessageHandler"/> to the HTTP client pipeline with options bound
+        /// directly from the supplied configuration.
         /// </summary>
         /// <param name="builder">The <see cref="IHttpClientBuilder"/> to configure.</param>
         /// <param name="configuration">The configuration section containing the authentication options.</param>
-        /// <param name="sectionName">The name of the configuration section (used for diagnostics).</param>
+        /// <returns>The <see cref="IHttpClientBuilder"/> for method chaining.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="builder"/> or <paramref name="configuration"/> is <see langword="null"/>.
+        /// </exception>
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
+        public static IHttpClientBuilder AddMicrosoftIdentityMessageHandler(
+            this IHttpClientBuilder builder,
+            IConfiguration configuration)
+        {
+            return AddMicrosoftIdentityMessageHandler(builder, configuration, string.Empty);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="MicrosoftIdentityMessageHandler"/> to the HTTP client pipeline with options bound from IConfiguration.
+        /// </summary>
+        /// <param name="builder">The <see cref="IHttpClientBuilder"/> to configure.</param>
+        /// <param name="configuration">The configuration containing the authentication options.</param>
+        /// <param name="sectionName">The name of the configuration section containing the authentication options, or an empty string to bind directly from <paramref name="configuration"/>.</param>
         /// <returns>The <see cref="IHttpClientBuilder"/> for method chaining.</returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="builder"/>, <paramref name="configuration"/>, or <paramref name="sectionName"/> is <see langword="null"/>.
@@ -362,17 +379,13 @@ namespace Microsoft.Identity.Web
         /// {
         ///     client.BaseAddress = new Uri("https://api.example.com");
         /// })
-        /// .AddMicrosoftIdentityMessageHandler(
-        ///     configuration.GetSection("DownstreamApi"),
-        ///     "DownstreamApi");
+        ///         .AddMicrosoftIdentityMessageHandler(configuration, "DownstreamApi");
         ///
         /// services.AddHttpClient("GraphClient", client =>
         /// {
         ///     client.BaseAddress = new Uri("https://graph.microsoft.com");
         /// })
-        /// .AddMicrosoftIdentityMessageHandler(
-        ///     configuration.GetSection("GraphApi"),
-        ///     "GraphApi");
+        ///         .AddMicrosoftIdentityMessageHandler(configuration, "GraphApi");
         /// </code>
         ///
         /// <para><strong>Use the clients:</strong></para>
@@ -429,7 +442,10 @@ namespace Microsoft.Identity.Web
             return builder.AddHttpMessageHandler(sp =>
             {
                 var options = new MicrosoftIdentityMessageHandlerOptions();
-                configuration.Bind(options);
+                var configurationSection = string.IsNullOrEmpty(sectionName)
+                    ? configuration
+                    : configuration.GetSection(sectionName);
+                configurationSection.Bind(options);
 
                 return new MicrosoftIdentityMessageHandler(
                     sp.GetRequiredService<IAuthorizationHeaderProvider>(),
