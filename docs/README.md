@@ -2,7 +2,7 @@
 
 Microsoft.Identity.Web is a set of libraries that simplifies adding authentication and authorization support to services (confidential client applications) integrating with the Microsoft identity platform (formerly Azure AD v2.0). It supports:
 
-- **[.NET Aspire](./frameworks/aspire.md)** distributed applications ⭐ *Recommended for new ASP.NET Core projects*
+- **[Aspire](./frameworks/aspire.md)** distributed applications ⭐ *Recommended for new ASP.NET Core projects*
 - **ASP.NET Core** web applications and web APIs
 - **OWIN** applications on .NET Framework
 - **.NET** daemon applications and background services
@@ -265,7 +265,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
 
 ### Framework Integration
-- [.NET Aspire](./frameworks/aspire.md) ⭐ - **Recommended** for new ASP.NET Core distributed applications
+- [Aspire](./frameworks/aspire.md) ⭐ - **Recommended** for new ASP.NET Core distributed applications
 - [Entra ID sidecar](./sidecar/Sidecar.md) - Microsoft Entra Identity Sidecar documentation when you want to protect web APIs in other languages than .NET
 
 ## 🔗 External Resources
