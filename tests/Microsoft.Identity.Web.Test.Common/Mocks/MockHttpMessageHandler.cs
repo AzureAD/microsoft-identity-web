@@ -23,6 +23,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
         public HttpResponseMessage ResponseMessage { get; set; }
 
+        /// <summary>
+        /// Creates a response when an expected request is received, instead of during test setup.
+        /// </summary>
+        public Func<HttpResponseMessage>? ResponseFactory { get; set; }
+
         public string ExpectedUrl { get; set; }
 
         public HttpMethod ExpectedMethod { get; set; }
@@ -85,6 +90,11 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
 
             Assert.Equal(ExpectedMethod, request.Method);
             await ValidatePostDataAsync(request);
+
+            if (ResponseFactory is not null)
+            {
+                ResponseMessage = ResponseFactory();
+            }
 
             // Read the content of ResponseMessage.Content into a string variable
             ResponseString = await ResponseMessage.Content.ReadAsStringAsync();
