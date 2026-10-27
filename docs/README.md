@@ -2,7 +2,7 @@
 
 Microsoft.Identity.Web is a set of libraries that simplifies adding authentication and authorization support to services (confidential client applications) integrating with the Microsoft identity platform (formerly Azure AD v2.0). It supports:
 
-- **[.NET Aspire](./frameworks/aspire.md)** distributed applications ⭐ *Recommended for new ASP.NET Core projects*
+- **[Aspire](./frameworks/aspire.md)** distributed applications ⭐ *Recommended for new ASP.NET Core projects*
 - **ASP.NET Core** web applications and web APIs
 - **OWIN** applications on .NET Framework
 - **.NET** daemon applications and background services
@@ -38,7 +38,7 @@ Microsoft.Identity.Web makes it easy to call protected APIs without manually man
 - **Microsoft Graph** - Use `GraphServiceClient` with automatic token acquisition
 - **Azure SDKs** - Use `TokenCredential` implementations that integrate with Microsoft.Identity.Web
 - **Your Own APIs** - Use `IDownstreamApi` or `IAuthorizationHeaderProvider` for seamless API calls
-- **Agent Identity APIs** - Call APIs on behalf of managed identities or service principals with automatic credential handling
+- **Agent Identity APIs** - Call APIs as autonomous agents, interactive agents, or agent user identities
 
 Authentication headers are automatically added to your requests, and tokens are acquired and cached transparently. See the [Calling Downstream APIs documentation](./calling-downstream-apis/calling-downstream-apis-README.md) and [Daemon Applications](./getting-started/daemon-app.md) and [Agent Identities guide](./calling-downstream-apis/AgentIdentities-Readme.md) for complete details.
 
@@ -181,7 +181,7 @@ var result = await api.GetForAppAsync<IEnumerable<MyData>>("MyApi");
 **Supported Scenarios:**
 - **Standard Daemon** - Client credentials for app-only tokens
 - **Autonomous Agents** - Agent identities for app-only tokens with isolated identity.
-- **Agent User Identity** - Agent identities for user agent tokens without user interaction (Same thing)
+- **Agent User Identity** - Delegated tokens for a user identity assigned to an agent
 
 ⚠️ For agent scenarios, be sure to run them in a secure environment. That's a confidential client!
 
@@ -242,7 +242,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [Web Applications](./getting-started/quickstart-webapp.md) - Sign-in users, call APIs
 - [Web APIs](./getting-started/quickstart-webapi.md) - Protect APIs, call downstream services
 - [Daemon Applications](./getting-started/daemon-app.md) - Background services, autonomous agents, agent user identities
-- [Agent identities](./calling-downstream-apis/AgentIdentities-Readme.md) for protected web APIs interpersonating agent identities or validating tokens from agent identities.
+- [Agent identities](./calling-downstream-apis/AgentIdentities-Readme.md) - Acquire and validate tokens for autonomous agents, interactive agents, and agent user identities
 
 
 ### Authentication & Tokens
@@ -265,7 +265,7 @@ Microsoft.Identity.Web supports multiple ways to authenticate your application:
 - [OWIN Integration](./frameworks/owin.md) - ASP.NET MVC and Web API integration
 
 ### Framework Integration
-- [.NET Aspire](./frameworks/aspire.md) ⭐ - **Recommended** for new ASP.NET Core distributed applications
+- [Aspire](./frameworks/aspire.md) ⭐ - **Recommended** for new ASP.NET Core distributed applications
 - [Entra ID sidecar](./sidecar/Sidecar.md) - Microsoft Entra Identity Sidecar documentation when you want to protect web APIs in other languages than .NET
 
 ## 🔗 External Resources

@@ -32,7 +32,7 @@ public class SidecarOptionsIsolationTests : IDisposable
     private const string AgentIdentityKey = "IDWEB_AGENT_IDENTITY";
 
     [Fact]
-    public void Clone_IsShallow_OnSharedMutableCollections()
+    public void Clone_IsolatesSharedMutableCollections()
     {
         var original = new DownstreamApiOptions
         {
@@ -44,13 +44,16 @@ public class SidecarOptionsIsolationTests : IDisposable
 
         var clone = original.Clone();
 
+        // As of Microsoft.Identity.Abstractions 12.6.1, Clone() allocates independent
+        // containers for the mutable collections, so the clone can be overridden per
+        // request without mutating the original (shared) configuration instance.
         Assert.NotSame(original.AcquireTokenOptions, clone.AcquireTokenOptions);
-        Assert.Same(original.AcquireTokenOptions.ExtraParameters, clone.AcquireTokenOptions.ExtraParameters);
-        Assert.Same(original.ExtraHeaderParameters, clone.ExtraHeaderParameters);
-        Assert.Same(original.ExtraQueryParameters, clone.ExtraQueryParameters);
+        Assert.NotSame(original.AcquireTokenOptions.ExtraParameters, clone.AcquireTokenOptions.ExtraParameters);
+        Assert.NotSame(original.ExtraHeaderParameters, clone.ExtraHeaderParameters);
+        Assert.NotSame(original.ExtraQueryParameters, clone.ExtraQueryParameters);
 
         clone.AcquireTokenOptions.ExtraParameters!["k2"] = "v2";
-        Assert.True(original.AcquireTokenOptions.ExtraParameters!.ContainsKey("k2"));
+        Assert.False(original.AcquireTokenOptions.ExtraParameters!.ContainsKey("k2"));
     }
 
     /// <summary>

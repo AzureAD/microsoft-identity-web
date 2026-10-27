@@ -15,21 +15,26 @@ namespace Microsoft.Identity.Web
 {
     internal partial class CredentialsProvider : ICredentialsProvider
     {
+        private const string OidcIdpSignedAssertionProviderName = "OidcIdpSignedAssertion";
+
         private readonly ILogger _logger;
         private readonly ITokenAcquisitionHost? _tokenHost;
         private readonly ICredentialsLoader _credentialsLoader;
         private readonly IReadOnlyList<ICertificatesObserver> _certificatesObservers;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
 
         public CredentialsProvider(
             ILogger<CredentialsProvider> logger,
             ICredentialsLoader credentialsLoader,
             IEnumerable<ICertificatesObserver> certificatesObservers,
-            ITokenAcquisitionHost? tokenHost = null)
+            ITokenAcquisitionHost? tokenHost = null,
+            ICloudMetadataProvider? cloudMetadataProvider = null)
         {
             _logger = logger;
             _tokenHost = tokenHost;
             _credentialsLoader = credentialsLoader;
             _certificatesObservers = [.. certificatesObservers];
+            _cloudMetadataProvider = cloudMetadataProvider;
         }
 
         public Task<CredentialDescription?> GetCredentialAsync(
@@ -57,17 +62,58 @@ namespace Microsoft.Identity.Web
             string errorMessage = "\n";
             List<Exception>? exceptions = null;
 
-            foreach (CredentialDescription credential in clientCredentials)
+            foreach (CredentialDescription originalCredential in clientCredentials)
             {
+                CredentialDescription credential = originalCredential;
                 LogMessages.AttemptToLoadCredentials(_logger, credential);
 
                 if (!credential.Skip)
                 {
+                    bool isOidcIdpSignedAssertion = credential.SourceType == CredentialSource.CustomSignedAssertion
+                        && string.Equals(
+                            credential.CustomSignedAssertionProviderName,
+                            OidcIdpSignedAssertionProviderName,
+                            StringComparison.Ordinal);
+
+                    // The OIDC provider captures the relying application's authority when a CCA is built.
+                    // Keep that request-specific provider off the shared credential description so one
+                    // cloud's authority cannot leak into a CCA built for another cloud.
+                    if (isOidcIdpSignedAssertion
+                        && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
+                    {
+                        credential = new CredentialDescription(originalCredential)
+                        {
+                            CachedValue = null,
+                        };
+                    }
+
+                    // For the managed-identity FIC leg, resolve the cloud-specific token-exchange audience from
+                    // the request authority host when the caller did not set one explicitly. This lets sovereign
+                    // (public) and internal-only (via a registered ICloudMetadataProvider) clouds use the correct
+                    // audience instead of the public-cloud default. Resolve onto a per-request copy so we never
+                    // mutate the shared CredentialDescription (which is typically cached and reused across
+                    // requests): mutating it in place is not thread-safe and would leak one cloud's audience into
+                    // a subsequent request for a different cloud. Resolve only when empty so an explicit
+                    // TokenExchangeUrl always wins; the resolved value is deterministic per authority.
+                    if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity
+                        && string.IsNullOrEmpty(credential.TokenExchangeUrl)
+                        && !string.IsNullOrEmpty(credentialSourceLoaderParameters?.Authority))
+                    {
+                        credential = new CredentialDescription(originalCredential)
+                        {
+                            TokenExchangeUrl = FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                                credentialSourceLoaderParameters!.Authority,
+                                perCallOverride: null,
+                                _cloudMetadataProvider),
+                        };
+                    }
+
                     // Load the credentials and record error messages in case we need to fail at the end
+                    bool loadSucceeded = false;
                     try
                     {
-
                         await _credentialsLoader.LoadCredentialsIfNeededAsync(credential, credentialSourceLoaderParameters);
+                        loadSucceeded = true;
                     }
                     catch (Exception ex)
                     {
@@ -80,7 +126,7 @@ namespace Microsoft.Identity.Web
                     {
                         if (credential.SourceType == CredentialSource.SignedAssertionFromManagedIdentity)
                         {
-                            if (credential.Skip)
+                            if (credential.Skip || !loadSucceeded)
                             {
                                 LogMessages.NotUsingManagedIdentity(_logger, errorMessage);
                             }
@@ -92,7 +138,7 @@ namespace Microsoft.Identity.Web
                         }
                         if (credential.SourceType == CredentialSource.SignedAssertionFilePath)
                         {
-                            if (!credential.Skip)
+                            if (!credential.Skip && loadSucceeded)
                             {
                                 LogMessages.UsingPodIdentityFile(_logger, credential.SignedAssertionFileDiskPath ?? "not found");
                                 return credential;
@@ -108,7 +154,7 @@ namespace Microsoft.Identity.Web
                         }
                         if (credential.SourceType == CredentialSource.CustomSignedAssertion)
                         {
-                            if (!credential.Skip)
+                            if (!credential.Skip && (loadSucceeded || !isOidcIdpSignedAssertion))
                             {
                                 LogMessages.UsingSignedAssertionFromCustomProvider(_logger, credential.CustomSignedAssertionProviderName ?? "undefined");
                                 return credential;

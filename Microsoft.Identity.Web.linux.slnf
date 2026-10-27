@@ -4,6 +4,7 @@
     "projects": [
       "src/Microsoft.Identity.Web.Diagnostics/Microsoft.Identity.Web.Diagnostics.csproj",
       "src/Microsoft.Identity.Web.Certificateless/Microsoft.Identity.Web.Certificateless.csproj",
+      "src/Microsoft.Identity.Web.KeyAttestation/Microsoft.Identity.Web.KeyAttestation.csproj",
       "src/Microsoft.Identity.Web.Certificate/Microsoft.Identity.Web.Certificate.csproj",
       "src/Microsoft.Identity.Web.TokenCache/Microsoft.Identity.Web.TokenCache.csproj",
       "src/Microsoft.Identity.Web.TokenAcquisition/Microsoft.Identity.Web.TokenAcquisition.csproj",

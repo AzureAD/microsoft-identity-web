@@ -1,6 +1,6 @@
 # Manually add Entra ID authentication and authorization to an Aspire App
 
-This guide shows how to secure a **.NET Aspire** distributed application with **Microsoft Entra ID** (Azure AD) authentication and authorization. It covers:
+This guide shows how to secure an **Aspire** distributed application with **Microsoft Entra ID** (Azure AD) authentication and authorization. It covers:
 
 1. **Blazor Server frontend** (`MyService.Web`): User sign-in with OpenID Connect and token acquisition
 2. **Protected API backend** (`MyService.ApiService`): JWT validation using **Microsoft.Identity.Web**
@@ -35,10 +35,10 @@ aspire new aspire-starter --name MyService
 ## Prerequisites
 
 - **.NET 9 SDK** or later (or .NET 10+ for latest features)
-- **.NET Aspire CLI** - See [Install Aspire CLI](https://aspire.dev/get-started/install-cli/)
+- **Aspire CLI** - See [Install Aspire CLI](https://aspire.dev/get-started/install-cli/)
 - **Azure AD tenant** — See [App Registrations in Entra ID](#app-registrations-in-entra-id) section below for setup
 
-> 📚 **New to Aspire?** See [.NET Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
+> 📚 **New to Aspire?** See [Aspire Overview](https://aspire.dev/get-started/what-is-aspire/)
 
 ---
 
@@ -327,7 +327,7 @@ flowchart LR
 
 **Key Technologies:**
 - **Microsoft.Identity.Web** (Blazor & API): OIDC authentication, JWT validation, token acquisition
-- **.NET Aspire**: Service discovery (`https+http://apiservice`), orchestration, health checks
+- **Aspire**: Service discovery (`https+http://apiservice`), orchestration, health checks
 
 ### How the authentication flow works
 
@@ -357,7 +357,7 @@ client.BaseAddress = new("https+http://apiservice");
 - No hardcoded URLs needed
 - Works in local dev, Docker, Kubernetes, Azure Container Apps
 
-📚 [Aspire Service Discovery](https://learn.microsoft.com/dotnet/aspire/service-discovery/overview)
+📚 [Aspire Service Discovery](https://aspire.dev/fundamentals/service-discovery/)
 
 </details>
 
@@ -1544,11 +1544,11 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 </details>
 
 <details>
-<summary><strong>🚀 .NET Aspire</strong></summary>
+<summary><strong>🚀 Aspire</strong></summary>
 
-- 📘 [Aspire Overview](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview)
-- 🚀 [Build Your First Aspire App](https://learn.microsoft.com/dotnet/aspire/get-started/build-your-first-aspire-app)
-- 🔍 [Service Discovery](https://learn.microsoft.com/dotnet/aspire/service-discovery/overview)
+- 📘 [Aspire Overview](https://aspire.dev/get-started/what-is-aspire/)
+- 🚀 [Build Your First Aspire App](https://aspire.dev/get-started/first-app/?aspire-lang=csharp)
+- 🔍 [Service Discovery](https://aspire.dev/fundamentals/service-discovery/)
 
 </details>
 
@@ -1582,4 +1582,4 @@ See the [Skills README](../../.github/skills/README.md) for installation instruc
 ---
 
 **Last Updated:** February 2026
-**Solution:** MyService (.NET Aspire, Microsoft.Identity.Web)
+**Solution:** MyService (Aspire, Microsoft.Identity.Web)

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.Sidecar.Configuration;
 using Microsoft.Identity.Web.Sidecar.Endpoints;
+using Microsoft.Identity.Web.Sidecar.Pop;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Microsoft.Identity.Web.Sidecar;
@@ -23,23 +24,29 @@ public class Program
 #pragma warning restore IL3057
 #pragma warning restore IL2123
     {
-        var builder = WebApplication.CreateSlimBuilder(args);
+        var builder = CreateBuilder(args);
 
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
         });
+        // AddInboundShrPop additively registers a second "PoP" authentication handler plus a named authorization policy that only the /Validate endpoint opts into.
+        var authenticationBuilder = builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
-        builder.Services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        authenticationBuilder
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), subscribeToJwtBearerMiddlewareDiagnosticsEvents: true)
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
 
-        builder.Services.PostConfigure<MicrosoftIdentityOptions>(options =>
-        {
-            options.AllowWebApiToBeAuthorizedByACL = true;
-        });
+        authenticationBuilder.AddInboundShrPop();
+
+        // Default Bearer to ACL-based authorization while preserving an explicit AzureAd setting.
+        builder.Services.Configure<MicrosoftIdentityOptions>(
+            JwtBearerDefaults.AuthenticationScheme,
+            options => options.AllowWebApiToBeAuthorizedByACL =
+                builder.Configuration.GetValue<bool?>(
+                    $"AzureAd:{nameof(MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)}") ?? true);
 
         // Add the agent identities and downstream APIs
         builder.Services.AddAgentIdentities()
@@ -70,7 +77,8 @@ public class Program
 
         if (!app.Environment.IsDevelopment())
         {
-            // Loopback-only outside development; health endpoint excepted for probes.
+            // Outside development, restrict to loopback callers that use a local
+            // Host header; the health endpoint is excepted for probes.
             app.UseLocalCallerRestriction();
         }
 
@@ -94,6 +102,24 @@ public class Program
         app.SetNoCachingMiddleware();
 
         app.Run();
+    }
+
+    internal static WebApplicationBuilder CreateBuilder(string[] args)
+    {
+        var builder = WebApplication.CreateSlimBuilder(args);
+
+        if (!builder.Environment.IsDevelopment() &&
+            string.Equals(
+                builder.Configuration["ForwardedHeaders_Enabled"],
+                "true",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Forwarded headers cannot be enabled outside Development. " +
+                "Remove 'ForwardedHeaders_Enabled' or set it to 'false'.");
+        }
+
+        return builder;
     }
 
     private static void ConfigureAuthN(WebApplicationBuilder builder)

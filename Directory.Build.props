@@ -4,7 +4,7 @@
     <!-- This needs to be greater than or equal to the validation baseline version. The conditional logic around TargetNetNext is there
     to avoid NU5104 for packing a release version library with prerelease deps. By adding preview to it, that warning is avoided.
     -->
-    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.14.2</MicrosoftIdentityWebVersion>
+    <MicrosoftIdentityWebVersion Condition="'$(MicrosoftIdentityWebVersion)' == ''">4.16.2</MicrosoftIdentityWebVersion>
     <!--This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion-->
     <Version>$(MicrosoftIdentityWebVersion)</Version>
     <EnablePackageValidation>true</EnablePackageValidation>
@@ -79,10 +79,10 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Common dependency versions">
-    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.22.0</MicrosoftIdentityModelVersion>
-    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.87.0</MicrosoftIdentityClientVersion>
-    <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.87.0</MicrosoftIdentityClientKeyAttestationVersion>
-    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.6.0</MicrosoftIdentityAbstractionsVersion>
+    <MicrosoftIdentityModelVersion Condition="'$(MicrosoftIdentityModelVersion)' == ''">8.23.0</MicrosoftIdentityModelVersion>
+    <MicrosoftIdentityClientVersion Condition="'$(MicrosoftIdentityClientVersion)' == ''">4.90.1</MicrosoftIdentityClientVersion>
+    <MicrosoftIdentityClientKeyAttestationVersion Condition="'$(MicrosoftIdentityClientKeyAttestationVersion)' == ''">4.90.1</MicrosoftIdentityClientKeyAttestationVersion>
+    <MicrosoftIdentityAbstractionsVersion Condition="'$(MicrosoftIdentityAbstractionsVersion)' == ''">12.7.0</MicrosoftIdentityAbstractionsVersion>
     <FxCopAnalyzersVersion>3.3.0</FxCopAnalyzersVersion>
     <SystemTextEncodingsWebVersion>4.7.2</SystemTextEncodingsWebVersion>
     <AzureSecurityKeyVaultSecretsVersion>4.6.0</AzureSecurityKeyVaultSecretsVersion>
@@ -133,27 +133,28 @@
     <MicrosoftExtensionsLoggingVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
-    <SystemFormatsAsn1Version>$(NetNineRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>$(SystemSecurityCryptographyServicingVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetNineRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetNineRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <NetTenRuntimeVersion>10.0.0</NetTenRuntimeVersion>
-    <AspNetCoreTenRuntimeVersion>10.0.0</AspNetCoreTenRuntimeVersion>
+    <AspNetCoreTenRuntimeVersion>10.0.13</AspNetCoreTenRuntimeVersion>
     <!--CVE: GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf, CVE-2026-47302, CVE-2026-47304, CVE-2026-50525, CVE-2026-50648, CVE-2026-70162, CVE-2026-84008, CVE-2026-96958, CVE-2026-96959, CVE-2026-96960-->
     <SystemSecurityCryptographyServicingVersion>10.0.13</SystemSecurityCryptographyServicingVersion>
     <MicrosoftAspNetCoreAuthenticationJwtBearerVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationJwtBearerVersion>
     <MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreAuthenticationOpenIdConnectVersion>
     <MicrosoftExtensionsCachingMemoryVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsHostingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsHostingVersion>
-    <MicrosoftAspNetCoreDataProtectionVersion>10.0.7</MicrosoftAspNetCoreDataProtectionVersion>
+    <!-- This servicing release also requires the patched Crypto.Xml version. -->
+    <MicrosoftAspNetCoreDataProtectionVersion>$(AspNetCoreTenRuntimeVersion)</MicrosoftAspNetCoreDataProtectionVersion>
     <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemSecurityCryptographyXmlVersion>$(SystemSecurityCryptographyServicingVersion)</SystemSecurityCryptographyXmlVersion>
     <MicrosoftExtensionsLoggingVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingVersion>
     <MicrosoftExtensionsLoggingAbstractionsVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsLoggingAbstractionsVersion>
     <MicrosoftExtensionsConfigurationBinderVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsConfigurationBinderVersion>
-    <SystemFormatsAsn1Version>$(NetTenRuntimeVersion)</SystemFormatsAsn1Version>
+    <SystemFormatsAsn1Version>$(SystemSecurityCryptographyServicingVersion)</SystemFormatsAsn1Version>
     <SystemTextJsonVersion>$(NetTenRuntimeVersion)</SystemTextJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>$(NetTenRuntimeVersion)</MicrosoftExtensionsDependencyInjectionVersion>
   </PropertyGroup>

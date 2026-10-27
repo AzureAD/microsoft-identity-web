@@ -52,6 +52,7 @@ These packages support specialized authentication scenarios.
 | Package | Description |
 |---------|-------------|
 | **Microsoft.Identity.Web.Diagnostics** | Provides diagnostic and logging support for troubleshooting authentication issues in Microsoft.Identity.Web. |
+| **Microsoft.Identity.Web.KeyAttestation** | Optional Credential Guard key attestation support for managed identity mTLS proof-of-possession flows. Install this package only when attested keys are required. |
 | **Microsoft.Identity.Web.OidcFIC** | Implementation for Cloud Federation Identity Credential (FIC) credential provider. Enables cross-cloud authentication scenarios. |
 | **Microsoft.Identity.Web.AgentIdentities** | Helper methods for Agent identity blueprint to act as agent identities. Enables building autonomous agents and copilot scenarios. |
 

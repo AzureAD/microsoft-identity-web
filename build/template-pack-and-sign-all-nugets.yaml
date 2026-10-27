@@ -26,7 +26,6 @@ steps:
   inputs:
     InputType: Basic
     AnalyzeTargetGlob: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\**\bin\**\Microsoft.Identity.Web*.dll'
-    AnalyzeVerbose: true
     AnalyzeHashes: true
     toolVersion: Exact
 
@@ -132,6 +131,13 @@ steps:
     BuildConfiguration: ${{ parameters.BuildConfiguration }}
     ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.Azure'
     AssemblyName: 'Microsoft.Identity.Web.Azure*'
+
+# Pack Microsoft.Identity.Web.KeyAttestation
+- template: template-pack-nuget.yaml
+  parameters:
+    BuildConfiguration: ${{ parameters.BuildConfiguration }}
+    ProjectRootPath: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\Microsoft.Identity.Web.KeyAttestation'
+    AssemblyName: 'Microsoft.Identity.Web.KeyAttestation*'
 
 # Copy all packages out to staging
 - task: CopyFiles@2

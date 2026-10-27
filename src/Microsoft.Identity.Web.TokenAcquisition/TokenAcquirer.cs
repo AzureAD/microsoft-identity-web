@@ -13,11 +13,20 @@ namespace Microsoft.Identity.Web
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly string? _authenticationScheme;
+        private readonly bool _hasExplicitApplicationOptions;
+        private readonly AgentAcquisitionContext? _agentContext;
 
         public TokenAcquirer(ITokenAcquisition tokenAcquisition, string? authenticationScheme)
+            : this(tokenAcquisition, authenticationScheme, false)
+        {
+        }
+
+        internal TokenAcquirer(ITokenAcquisition tokenAcquisition, string? authenticationScheme, bool hasExplicitApplicationOptions, AgentAcquisitionContext? agentContext = null)
         {
             _tokenAcquisition = tokenAcquisition;
             _authenticationScheme = authenticationScheme;
+            _hasExplicitApplicationOptions = hasExplicitApplicationOptions;
+            _agentContext = agentContext;
         }
 
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForUserAsync(
@@ -26,7 +35,7 @@ namespace Microsoft.Identity.Web
             ClaimsPrincipal? user,
             CancellationToken cancellationToken)
         {
-            string? authenticationScheme = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme;
+            string? authenticationScheme = GetAuthenticationScheme(tokenAcquisitionOptions);
 
             var effectiveOptions = GetEffectiveTokenAcquisitionOptions(tokenAcquisitionOptions, authenticationScheme, cancellationToken);
             var result = await _tokenAcquisition.GetAuthenticationResultForUserAsync(
@@ -50,7 +59,7 @@ namespace Microsoft.Identity.Web
 
         async Task<AcquireTokenResult> ITokenAcquirer.GetTokenForAppAsync(string scope, AcquireTokenOptions? tokenAcquisitionOptions, CancellationToken cancellationToken)
         {
-            string? authenticationScheme = tokenAcquisitionOptions?.AuthenticationOptionsName ?? _authenticationScheme;
+            string? authenticationScheme = GetAuthenticationScheme(tokenAcquisitionOptions);
 
             var result = await _tokenAcquisition.GetAuthenticationResultForAppAsync(
                 scope,
@@ -62,14 +71,25 @@ namespace Microsoft.Identity.Web
             return AcquireTokenResultFactory.FromMsal(result);
         }
 
-        private static TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
+        private string? GetAuthenticationScheme(AcquireTokenOptions? options) =>
+            _hasExplicitApplicationOptions && options?.ExtraParameters?.ContainsKey(Constants.AgentIdentityKey) == true
+                ? _authenticationScheme
+                : options?.AuthenticationOptionsName ?? _authenticationScheme;
+
+        private TokenAcquisitionOptions? GetEffectiveTokenAcquisitionOptions(AcquireTokenOptions? tokenAcquisitionOptions, string? authenticationScheme, CancellationToken cancellationToken)
         {
-            return (tokenAcquisitionOptions == null) ? null : new TokenAcquisitionOptions
+            if (tokenAcquisitionOptions is null && _agentContext is null)
+            {
+                return null;
+            }
+
+            tokenAcquisitionOptions ??= new AcquireTokenOptions();
+            return new TokenAcquisitionOptions
             {
                 AuthenticationOptionsName = authenticationScheme,
                 CancellationToken = cancellationToken,
-                Claims = tokenAcquisitionOptions!.Claims,
-                CorrelationId = tokenAcquisitionOptions!.CorrelationId,
+                Claims = tokenAcquisitionOptions.Claims,
+                CorrelationId = tokenAcquisitionOptions.CorrelationId,
                 ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
                 ForceRefresh = tokenAcquisitionOptions.ForceRefresh,
                 LongRunningWebApiSessionKey = tokenAcquisitionOptions.LongRunningWebApiSessionKey,
@@ -77,7 +97,12 @@ namespace Microsoft.Identity.Web
                 UserFlow = tokenAcquisitionOptions.UserFlow,
                 PopPublicKey = tokenAcquisitionOptions.PopPublicKey,
                 PopClaim = tokenAcquisitionOptions.PopClaim,
-                ExtraParameters = tokenAcquisitionOptions.ExtraParameters,
+                ExtraParameters = _agentContext is null
+                    ? tokenAcquisitionOptions.ExtraParameters
+                    : new Dictionary<string, object>(tokenAcquisitionOptions.ExtraParameters ?? new Dictionary<string, object>())
+                    {
+                        [Constants.AgentAcquisitionContext] = _agentContext,
+                    },
                 ManagedIdentity = tokenAcquisitionOptions.ManagedIdentity,
                 FmiPath = tokenAcquisitionOptions.FmiPath
             };

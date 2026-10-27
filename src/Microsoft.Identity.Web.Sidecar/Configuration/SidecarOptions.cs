@@ -23,6 +23,13 @@ public class SidecarOptions
     /// from downstream APIs. Defaults to <c>false</c>.
     /// </summary>
     public bool AllowOutboundRedirects { get; set; }
+
+    /// <summary>
+    /// Gets or sets the tunable inbound SHR PoP validation flags, bound from the
+    /// <c>Sidecar:PopValidation</c> subsection. When the subsection is absent every flag keeps its
+    /// secure default, so PoP validation runs with method/URI/path/timestamp binding on.
+    /// </summary>
+    public PopValidationOptions PopValidation { get; set; } = new();
 }
 
 /// <summary>

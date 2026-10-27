@@ -472,7 +472,8 @@ namespace Microsoft.Identity.Web
                     GetLogger<CredentialsProvider>(services),
                     loader,
                     services.GetServices<ICertificatesObserver>() ?? [],
-                    services.GetService<ITokenAcquisitionHost>());
+                    services.GetService<ITokenAcquisitionHost>(),
+                    services.GetService<ICloudMetadataProvider>());
             }
 
             return null;

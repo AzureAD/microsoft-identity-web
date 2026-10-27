@@ -76,6 +76,7 @@ namespace TokenAcquirerTests
             // binding certificate flows from the inner MSI acquisition result.
             TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
             TokenAcquirerFactory tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            tokenAcquirerFactory.Services.AddMicrosoftIdentityWebKeyAttestation();
 
             tokenAcquirerFactory.Services.Configure<MicrosoftIdentityApplicationOptions>(options =>
             {

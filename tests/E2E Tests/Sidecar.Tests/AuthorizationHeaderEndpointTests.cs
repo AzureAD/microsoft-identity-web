@@ -3,8 +3,10 @@
 
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 using Moq;
 using Xunit;
 
@@ -105,6 +107,90 @@ public class AuthorizationHeaderEndpointTests(SidecarApiFactory factory) : IClas
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
         Assert.Contains("No scopes found for the API 'test-api'", content, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-a-guid")]
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public async Task AuthorizationHeader_WithInvalidSelectedAgentUserId_ReturnsBadRequestWithoutAcquiringTokenAsync(
+        string agentUserId)
+    {
+        // Arrange
+        var mockHeaderProvider = new Mock<IAuthorizationHeaderProvider>(MockBehavior.Strict);
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+                services.AddSingleton(mockHeaderProvider.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.GetAsync(
+            $"/AuthorizationHeader/test-api?AgentIdentity=agent-app-id&AgentUserId={agentUserId}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        string content = await response.Content.ReadAsStringAsync();
+        Assert.Contains("AgentUserId must be a non-empty GUID.", content, StringComparison.Ordinal);
+        if (agentUserId.Length > 0)
+        {
+            Assert.DoesNotContain(agentUserId, content, StringComparison.Ordinal);
+        }
+        mockHeaderProvider.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task AuthorizationHeader_WithAgentUserIdButNoAgentIdentity_IgnoresAgentUserIdAsync()
+    {
+        // Arrange
+        var mockHeaderProvider = new Mock<IAuthorizationHeaderProvider>();
+        mockHeaderProvider
+            .Setup(provider => provider.CreateAuthorizationHeaderAsync(
+                It.IsAny<IEnumerable<string>>(),
+                It.IsAny<AuthorizationHeaderProviderOptions>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("******");
+
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+                services.AddSingleton(mockHeaderProvider.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.GetAsync(
+            "/AuthorizationHeader/test-api?AgentUserId=not-a-guid");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        mockHeaderProvider.Verify(
+            provider => provider.CreateAuthorizationHeaderAsync(
+                It.IsAny<IEnumerable<string>>(),
+                It.IsAny<AuthorizationHeaderProviderOptions>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

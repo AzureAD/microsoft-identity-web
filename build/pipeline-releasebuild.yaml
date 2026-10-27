@@ -8,15 +8,16 @@ pr: none
 
  
 pool:
-  name: MwWilson1EsHostedPool
+  name: MISEManagedIdentity
   demands:
   - msbuild
   - visualstudio
   timeoutInMinutes: 360
- 
+
 variables:
   BuildPlatform: 'any cpu'
   BuildConfiguration: 'Release'
+  IDWEB_MI_UAMI_CLIENTID: '6325cd32-9911-41f3-819c-416cdf9104e7'
  
 steps:
 # Run pre-build code analysis (policheck, credscan, etc)

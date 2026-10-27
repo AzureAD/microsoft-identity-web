@@ -25,14 +25,6 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="$(MicrosoftIdentityClientVersion)" />
   </ItemGroup>
 
-  <!-- Microsoft.Identity.Client.KeyAttestation transitively depends on the native-only
-       Microsoft.Azure.Security.KeyGuardAttestation package, which ships no .NET Framework/netstandard
-       compatible assets and breaks NuGet restore for .NET Framework (packages.config) consumers (issue #3894).
-       Key attestation is only used on modern .NET, so the dependency is restricted to .NETCoreApp targets. -->
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
-    <PackageReference Include="Microsoft.Identity.Client.KeyAttestation" Version="$(MicrosoftIdentityClientKeyAttestationVersion)" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
     <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
   </ItemGroup>

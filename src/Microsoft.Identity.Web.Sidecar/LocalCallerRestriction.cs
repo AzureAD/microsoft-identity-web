@@ -2,14 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Net;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.Identity.Web.Sidecar;
 
 /// <summary>
-/// Restricts the sidecar to callers connecting over the loopback interface
-/// (the co-located application), responding with 403 to other callers. The
-/// health endpoint is exempt so liveness/readiness probes, which target the
-/// pod's routable address, continue to work.
+/// Restricts the sidecar to its co-located application. Outside Development a
+/// request must originate from the loopback interface (otherwise
+/// <c>403 Forbidden</c>) and carry a local host name in its <c>Host</c> header
+/// (otherwise <c>400 Bad Request</c>). The health endpoint is exempt from both
+/// checks so liveness/readiness probes, which target the pod's routable
+/// address, continue to work.
 /// </summary>
 public static class LocalCallerRestriction
 {
@@ -20,27 +23,57 @@ public static class LocalCallerRestriction
     public const string HealthEndpointPath = "/healthz";
 
     private static readonly PathString s_healthEndpoint = new(HealthEndpointPath);
+    private static readonly PathString s_healthEndpointWithSlash = new(HealthEndpointPath + "/");
+
+    // Local host names accepted in the Host header. HostString.MatchesAny
+    // preserves the framework's port, casing, and IPv6 matching behavior.
+    private static readonly StringSegment[] s_allowedHosts =
+        new StringSegment[] { "localhost", "127.0.0.1", "[::1]" };
 
     /// <summary>
-    /// Adds middleware that rejects, with <c>403 Forbidden</c>, any request
-    /// whose connection does not originate from the loopback interface, except
-    /// requests to the health endpoint.
+    /// Adds middleware that, for every request except the health endpoint,
+    /// rejects callers that do not connect over the loopback interface with
+    /// <c>403 Forbidden</c>, and requests whose <c>Host</c> header is not a
+    /// local host name with <c>400 Bad Request</c>.
     /// </summary>
     /// <param name="app">The application to configure.</param>
     public static void UseLocalCallerRestriction(this WebApplication app)
     {
         app.Use(static (context, next) =>
         {
-            if (IsLocal(context.Connection.RemoteIpAddress) ||
-                context.Request.Path.Equals(s_healthEndpoint, StringComparison.OrdinalIgnoreCase))
+            if (IsHealthEndpoint(context.Request.Path))
             {
                 return next(context);
             }
 
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return Task.CompletedTask;
+            if (!IsLocal(context.Connection.RemoteIpAddress))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+
+            if (!HasLocalHost(context.Request.Host))
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return Task.CompletedTask;
+            }
+
+            return next(context);
         });
     }
+
+    // Exempts the health endpoint, including the trailing-slash form that
+    // routing also accepts, but not arbitrary subpaths beneath it.
+    private static bool IsHealthEndpoint(PathString path) =>
+        path.Equals(s_healthEndpoint, StringComparison.OrdinalIgnoreCase) ||
+        path.Equals(s_healthEndpointWithSlash, StringComparison.OrdinalIgnoreCase);
+
+    // An absent Host header is allowed (parity with the framework's
+    // HostFilteringOptions.AllowEmptyHosts default); the loopback check above
+    // already gates access.
+    private static bool HasLocalHost(HostString host) =>
+        string.IsNullOrEmpty(host.Value) ||
+        HostString.MatchesAny(host.Value, s_allowedHosts);
 
     /// <summary>
     /// Determines whether a connection originates from the local host.

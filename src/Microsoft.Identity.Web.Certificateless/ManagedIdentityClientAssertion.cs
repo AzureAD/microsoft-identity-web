@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -9,9 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 using Microsoft.Identity.Client.Extensibility;
-#if NETCOREAPP
-using Microsoft.Identity.Client.KeyAttestation;
-#endif
+using Microsoft.Identity.Client.Instance.Discovery;
 using Microsoft.Identity.Web.Certificateless;
 using Microsoft.Identity.Web.TestOnly;
 using Microsoft.IdentityModel.LoggingExtensions;
@@ -21,11 +19,14 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// See https://aka.ms/ms-id-web/certificateless.
     /// </summary>
-    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase
+    public class ManagedIdentityClientAssertion : ClientAssertionProviderBase, IPerRequestClientAssertionProvider
     {
         private IManagedIdentityApplication _managedIdentityApplication;
-        private readonly string _tokenExchangeUrl;
+        private readonly string? _explicitTokenExchangeUrl;
+        private readonly string _defaultTokenExchangeUrl;
         private readonly ILogger? _logger;
+        private readonly IKeyAttestationProvider? _keyAttestationProvider;
+        private int _unattestedFlowLogged;
 
         /// <summary>
         /// See https://aka.ms/ms-id-web/certificateless.
@@ -41,8 +42,7 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
-        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
-        /// This value is different on clouds other than Azure Public</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. When omitted, the audience is auto-resolved from the calling confidential client's authority host (public cloud resolves to "api://AzureADTokenExchange"; sovereign/national clouds resolve to their own value), falling back to the public-cloud audience.</param>
         public ManagedIdentityClientAssertion(string? managedIdentityClientId, string? tokenExchangeUrl) :
             this(managedIdentityClientId, tokenExchangeUrl, null)
         {
@@ -52,8 +52,7 @@ namespace Microsoft.Identity.Web
         /// See https://aka.ms/ms-id-web/certificateless.
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
-        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
-        /// This value is different on clouds other than Azure Public</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. When omitted, the audience is auto-resolved from the calling confidential client's authority host (public cloud resolves to "api://AzureADTokenExchange"; sovereign/national clouds resolve to their own value), falling back to the public-cloud audience.</param>
         /// <param name="logger">A logger</param>
         public ManagedIdentityClientAssertion(
             string? managedIdentityClientId,
@@ -63,6 +62,28 @@ namespace Microsoft.Identity.Web
                 managedIdentityClientId,
                 tokenExchangeUrl,
                 logger,
+                keyAttestationProvider: null,
+                ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
+        {
+        }
+
+        /// <summary>
+        /// Creates a managed identity client assertion provider with optional key attestation support.
+        /// </summary>
+        /// <param name="managedIdentityClientId">Optional client ID of the managed identity.</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the managed identity token.</param>
+        /// <param name="logger">A logger.</param>
+        /// <param name="keyAttestationProvider">The provider that enables key attestation for bound token requests.</param>
+        public ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            IKeyAttestationProvider? keyAttestationProvider)
+            : this(
+                managedIdentityClientId,
+                tokenExchangeUrl,
+                logger,
+                keyAttestationProvider,
                 ManagedIdentityClientAssertionTestHook.HttpClientFactoryForTests)
         {
         }
@@ -73,8 +94,7 @@ namespace Microsoft.Identity.Web
         /// but allows injecting a custom MSAL HttpClient factory (used by tests).
         /// </summary>
         /// <param name="managedIdentityClientId">Optional ClientId of the Managed Identity</param>
-        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. Default value is "api://AzureADTokenExchange". 
-        /// This value is different on clouds other than Azure Public</param>
+        /// <param name="tokenExchangeUrl">Optional audience of the token to be requested from Managed Identity. When omitted, the audience is auto-resolved from the calling confidential client's authority host (public cloud resolves to "api://AzureADTokenExchange"; sovereign/national clouds resolve to their own value), falling back to the public-cloud audience.</param>
         /// <param name="logger">A logger.</param>
         /// <param name="testHttpClientFactory">Optional MSAL HttpClient factory.</param>
         internal ManagedIdentityClientAssertion(
@@ -82,9 +102,38 @@ namespace Microsoft.Identity.Web
             string? tokenExchangeUrl,
             ILogger? logger,
             IMsalHttpClientFactory? testHttpClientFactory)
+            : this(
+                managedIdentityClientId,
+                tokenExchangeUrl,
+                logger,
+                keyAttestationProvider: null,
+                testHttpClientFactory)
         {
-            _tokenExchangeUrl = tokenExchangeUrl ?? CertificatelessConstants.DefaultTokenExchangeUrl;
+        }
+
+        private ManagedIdentityClientAssertion(
+            string? managedIdentityClientId,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            IKeyAttestationProvider? keyAttestationProvider,
+            IMsalHttpClientFactory? testHttpClientFactory)
+        {
+            // Resolution precedence for the token-exchange audience (see ResolveTokenExchangeUrl):
+            //   1. An explicit tokenExchangeUrl passed here always wins.
+            //   2. Otherwise, resolve per-request from the calling confidential client's authority host
+            //      (so a sovereign/national cloud request auto-selects its own audience).
+            //   3. Otherwise, fall back to the public-cloud audience computed here.
+            // The default is taken from MSAL's cloud metadata for the public cloud (single source of
+            // truth), falling back to the documented constant if the table has no public entry.
+            _explicitTokenExchangeUrl = tokenExchangeUrl;
+            _defaultTokenExchangeUrl =
+                (KnownCloudMetadata.Default.GetByAuthorityHost(CertificatelessConstants.PublicCloudInstanceHost) is { } publicValues
+                    && publicValues.TryGetValue(CloudMetadataKeyNames.FederatedCredentialAudience, out string? publicAudience)
+                    && !string.IsNullOrEmpty(publicAudience))
+                        ? publicAudience!
+                        : CertificatelessConstants.DefaultTokenExchangeUrl;
             _logger = logger;
+            _keyAttestationProvider = keyAttestationProvider;
 
             var id = ManagedIdentityId.SystemAssigned;
             if (!string.IsNullOrEmpty(managedIdentityClientId))
@@ -102,7 +151,7 @@ namespace Microsoft.Identity.Web
             if (_logger != null)
             {
                 builder = builder.WithLogging(new IdentityLoggerAdapter(_logger), enablePiiLogging: false);
-                _logger.LogInformation($"ManagedIdentityClientAssertion with tokenExchangeUrl={_tokenExchangeUrl}");
+                _logger.LogInformation($"ManagedIdentityClientAssertion with tokenExchangeUrl={_explicitTokenExchangeUrl ?? _defaultTokenExchangeUrl}");
             }
 
             _managedIdentityApplication = builder
@@ -124,6 +173,14 @@ namespace Microsoft.Identity.Web
                 .ConfigureAwait(false);
 
             return new ClientAssertion(result.AccessToken, result.ExpiresOn);
+        }
+
+        async Task<string> IPerRequestClientAssertionProvider.GetSignedAssertionForRequestAsync(
+            AssertionRequestOptions? assertionRequestOptions)
+        {
+            ClientAssertion assertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
+
+            return assertion.SignedAssertion;
         }
 
         /// <summary>
@@ -173,16 +230,22 @@ namespace Microsoft.Identity.Web
             CancellationToken cancellationToken)
         {
             var miBuilder = _managedIdentityApplication
-                .AcquireTokenForManagedIdentity(_tokenExchangeUrl);
+                .AcquireTokenForManagedIdentity(ResolveTokenExchangeUrl(assertionRequestOptions));
 
             if (bindToCertificate)
             {
                 miBuilder = miBuilder.WithMtlsProofOfPossession();
-#if NETCOREAPP
-                // Key attestation is only available on modern .NET; on .NET Framework/netstandard the
-                // KeyAttestation dependency is intentionally absent (issue #3894).
-                miBuilder = miBuilder.WithAttestationSupport();
-#endif
+                if (_keyAttestationProvider is not null)
+                {
+                    miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
+                }
+                else if (Interlocked.Exchange(ref _unattestedFlowLogged, 1) == 0)
+                {
+                    _logger?.LogInformation(
+                        "Managed identity mTLS proof-of-possession is using an unattested binding. " +
+                        "Install Microsoft.Identity.Web.KeyAttestation and call " +
+                        "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
+                }
             }
 
             // Propagate claims into the MI token request.
@@ -205,6 +268,50 @@ namespace Microsoft.Identity.Web
             return await miBuilder
                 .ExecuteAsync(effectiveCancellationToken)
                 .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Resolves the token-exchange audience for a given assertion request.
+        /// Precedence: an explicit tokenExchangeUrl supplied to the constructor always wins; otherwise the
+        /// audience is auto-resolved from the calling confidential client's authority host (so a
+        /// sovereign/national cloud request selects its own audience); otherwise the public-cloud default
+        /// is used. Because the resolution keys off the request authority, a single instance shared across
+        /// clouds still emits the correct per-cloud audience.
+        /// </summary>
+        private string ResolveTokenExchangeUrl(AssertionRequestOptions? assertionRequestOptions)
+        {
+            if (!string.IsNullOrEmpty(_explicitTokenExchangeUrl))
+            {
+                return _explicitTokenExchangeUrl!;
+            }
+
+            string? host = TryGetHost(assertionRequestOptions?.Authority);
+            if (!string.IsNullOrEmpty(host) &&
+                KnownCloudMetadata.Default.GetByAuthorityHost(host) is { } values &&
+                values.TryGetValue(CloudMetadataKeyNames.FederatedCredentialAudience, out string? audience) &&
+                !string.IsNullOrEmpty(audience))
+            {
+                return audience!;
+            }
+
+            return _defaultTokenExchangeUrl;
+        }
+
+        /// <summary>
+        /// Extracts the host from an authority string. Accepts either a full authority URI
+        /// (e.g. "https://login.microsoftonline.us/tenant") or a bare host, returning the input
+        /// unchanged when it is not a parseable absolute URI.
+        /// </summary>
+        private static string? TryGetHost(string? authority)
+        {
+            if (string.IsNullOrEmpty(authority))
+            {
+                return null;
+            }
+
+            return Uri.TryCreate(authority, UriKind.Absolute, out Uri? uri)
+                ? uri.Host
+                : authority;
         }
 
     }

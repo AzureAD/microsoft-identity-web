@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Microsoft Identity Web Key Attestation</Title>
+    <Product>Microsoft Identity Web Key Attestation</Product>
+    <Description>Optional key attestation support for managed identity mTLS proof-of-possession flows.</Description>
+    <ProjectGuid>{4E6707E4-3B6E-4B12-9B76-D6978B4DAF3D}</ProjectGuid>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.Certificateless\Microsoft.Identity.Web.Certificateless.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Abstractions" Version="$(MicrosoftIdentityAbstractionsVersion)" />
+    <PackageReference Include="Microsoft.Identity.Client.KeyAttestation" Version="$(MicrosoftIdentityClientKeyAttestationVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI\PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

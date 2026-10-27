@@ -46,11 +46,11 @@ steps:
   displayName: 'TSA upload to Codebase: Microsoft Identity Web .NET Stamp: Azure'
   condition: and(succeeded(), eq(variables['PipelineType'], 'Legacy'))
   inputs:
-    GdnPublishTsaOnboard: false 
+    GdnPublishTsaOnboard: false
     GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/tsaConfig.json'
   continueOnError: true
 
-- task: BuildQualityChecks@9
+- task: BuildQualityChecks@10
   displayName: 'Check Warnings'
   inputs:
     checkWarnings: true
