@@ -13,14 +13,21 @@ namespace Microsoft.Identity.Web.Test
 {
     public class TokenAcquirerExtensionsTests
     {
-        [Fact]
-        public async Task GetFicTokenAsync_WithUnknownDictionary_CopiesContentsWithoutModifyingCaller()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task GetFicTokenAsync_PreservesDictionaryComparerWithoutModifyingCaller(int dictionaryKind)
         {
             // Arrange
-            var callerExtraParameters = new SortedDictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            IDictionary<string, object> callerExtraParameters = dictionaryKind switch
             {
-                ["Configured"] = "value"
+                0 => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase),
+                1 => new SortedDictionary<string, object>(StringComparer.OrdinalIgnoreCase),
+                2 => new SortedList<string, object>(StringComparer.OrdinalIgnoreCase),
+                _ => throw new ArgumentOutOfRangeException(nameof(dictionaryKind))
             };
+            callerExtraParameters["Configured"] = "value";
             var callerOptions = new AcquireTokenOptions
             {
                 ExtraParameters = callerExtraParameters
@@ -42,10 +49,9 @@ namespace Microsoft.Identity.Web.Test
             await tokenAcquirer.GetFicTokenAsync(callerOptions, "request-assertion");
 
             // Assert
-            Dictionary<string, object> copiedExtraParameters =
-                Assert.IsType<Dictionary<string, object>>(capturedOptions!.ExtraParameters);
-            Assert.Equal("value", copiedExtraParameters["Configured"]);
-            Assert.False(copiedExtraParameters.ContainsKey("CONFIGURED"));
+            IDictionary<string, object> copiedExtraParameters = capturedOptions!.ExtraParameters!;
+            Assert.NotSame(callerExtraParameters, copiedExtraParameters);
+            Assert.Equal("value", copiedExtraParameters["CONFIGURED"]);
             Assert.Equal("request-assertion", copiedExtraParameters[Constants.ClientAssertion]);
             Assert.Single(callerExtraParameters);
             Assert.False(callerExtraParameters.ContainsKey(Constants.ClientAssertion));

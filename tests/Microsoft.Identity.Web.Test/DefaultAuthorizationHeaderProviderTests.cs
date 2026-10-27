@@ -154,10 +154,21 @@ namespace Microsoft.Identity.Web.Test
             Assert.Single(configuredExtraParameters);
         }
 
-        [Fact]
-        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithMtlsProtocolAndAppFlow_ReturnsValidResult()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task CreateAuthorizationHeaderAsync_ForBoundHeaderProviderWithMtlsProtocolAndAppFlow_ReturnsValidResult(int dictionaryKind)
         {
             // Arrange
+            IDictionary<string, object> extraParameters = dictionaryKind switch
+            {
+                0 => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase),
+                1 => new SortedDictionary<string, object>(StringComparer.OrdinalIgnoreCase),
+                2 => new SortedList<string, object>(StringComparer.OrdinalIgnoreCase),
+                _ => throw new ArgumentOutOfRangeException(nameof(dictionaryKind))
+            };
+            extraParameters["Configured"] = "value";
             var downstreamApiOptions = new DownstreamApiOptions
             {
                 Scopes = new[] { "https://graph.microsoft.com/.default" },
@@ -165,10 +176,7 @@ namespace Microsoft.Identity.Web.Test
                 RequestAppToken = true,
                 AcquireTokenOptions = new AcquireTokenOptions
                 {
-                    ExtraParameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["Configured"] = "value"
-                    }
+                    ExtraParameters = extraParameters
                 }
             };
 
@@ -212,6 +220,7 @@ namespace Microsoft.Identity.Web.Test
                 null,
                 Arg.Is<TokenAcquisitionOptions>(o =>
                     o.ExtraParameters != null &&
+                    (string)o.ExtraParameters["CONFIGURED"] == "value" &&
                     o.ExtraParameters.ContainsKey("IsTokenBinding") &&
                     o.ExtraParameters["IsTokenBinding"] is bool &&
                     (bool)o.ExtraParameters["IsTokenBinding"] == true));
