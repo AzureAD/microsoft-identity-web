@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
+using AssertionRequestOptions = Microsoft.Identity.Client.AssertionRequestOptions;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
@@ -77,7 +78,7 @@ namespace Microsoft.Identity.Web.OidcFic
             /// <param name="logger">ILogger.</param>
             /// <param name="providerName">Name of the provider.</param>
             /// <param name="message">Exception message.</param>
-            [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.")]
+            [LoggerMessageAttribute(EventId = 504, Level = LogLevel.Error, Message = "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}.")]
             public static partial void SignedAssertionProviderFailed(ILogger logger, string providerName, string message);
 #else
             // Fallback implementation for older target frameworks
@@ -109,7 +110,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 LoggerMessage.Define<string, string>(
                     LogLevel.Error,
                     new EventId(504, "OidcIdpSignedAssertionProviderFailed"),
-                    "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}. Setting skip to true.");
+                    "[MsIdWeb] Failed to get signed assertion from {ProviderName}. Exception occurred: {Message}.");
 
             /// <summary>
             /// Logger for when IConfiguration is not registered in the service collection.
@@ -169,34 +170,50 @@ namespace Microsoft.Identity.Web.OidcFic
                     throw new InvalidOperationException("CustomSignedAssertionProviderData is null");
                 }
 
-                string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
-                if (sectionName == null)
+                if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue(Constants.AgentAcquisitionContext, out object? context)
+                    && context is AgentAcquisitionContext agentContext)
                 {
-                    Logger.ConfigurationSectionNull(_logger);
-                    throw new InvalidOperationException("ConfigurationSection is null");
+                    signedAssertion = new OidcIdpSignedAssertionProvider(
+                        agentContext, credentialDescription.TokenExchangeUrl,
+                        _logger, _serviceProvider.GetService<ICloudMetadataProvider>(), parameters?.Authority);
                 }
-
-                MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
-                
-                if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
+                else
                 {
-                    // Get IConfiguration from service provider just-in-time
-                    IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
-                    if (configuration == null)
+                    string? sectionName = credentialDescription.CustomSignedAssertionProviderData["ConfigurationSection"] as string;
+                    if (sectionName == null)
                     {
-                        const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
-                        Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
-                        throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
-                            $"Please register IConfiguration in the service collection or configure MicrosoftIdentityOptions with named options '{sectionName}'. see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
+                        Logger.ConfigurationSectionNull(_logger);
+                        throw new InvalidOperationException("ConfigurationSection is null");
                     }
-                    
-                    Logger.ConfigurationBinding(_logger, sectionName);
-                    configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
-                }
 
-                // Special case for Signed assertions with an FmiPath.
-                // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
-                signedAssertion = new OidcIdpSignedAssertionProvider(_tokenAcquirerFactory, microsoftIdentityApplicationOptions, credentialDescription.TokenExchangeUrl, _logger);
+                    MicrosoftIdentityApplicationOptions microsoftIdentityApplicationOptions = _options.Get(sectionName);
+
+                    if (string.IsNullOrEmpty(microsoftIdentityApplicationOptions.Instance) && microsoftIdentityApplicationOptions.Authority == "//v2.0")
+                    {
+                        // Get IConfiguration from service provider just-in-time
+                        IConfiguration? configuration = _serviceProvider.GetService<IConfiguration>();
+                        if (configuration == null)
+                        {
+                            const string troubleshootingLink = "https://aka.ms/ms-id-web/fic-oidc/troubleshoot";
+                            Logger.ConfigurationNotRegistered(_logger, troubleshootingLink);
+                            throw new InvalidOperationException("IConfiguration is not registered in the service collection. " +
+                                $"Please register IConfiguration in the service collection or configure MicrosoftIdentityOptions with named options '{sectionName}'. see https://aka.ms/ms-id-web/fic-oidc/troubleshoot for more information.");
+                        }
+
+                        Logger.ConfigurationBinding(_logger, sectionName);
+                        configuration.GetSection(sectionName).Bind(microsoftIdentityApplicationOptions);
+                    }
+
+                    // Special case for Signed assertions with an FmiPath.
+                    // The provider needs to postpone getting the signed assertion until the first call, when ClientAssertionFmiPath will be provided.
+                    signedAssertion = new OidcIdpSignedAssertionProvider(
+                        _tokenAcquirerFactory,
+                        microsoftIdentityApplicationOptions,
+                        credentialDescription.TokenExchangeUrl,
+                        _logger,
+                        _serviceProvider.GetService<ICloudMetadataProvider>(),
+                        parameters?.Authority);
+                }
                 if (credentialDescription.CustomSignedAssertionProviderData.TryGetValue("RequiresSignedAssertionFmiPath", out object? requiresSignedAssertionFmiPathObj) && requiresSignedAssertionFmiPathObj is bool requiresSignedAssertionFmiPathBool && requiresSignedAssertionFmiPathBool)
                 {
                     signedAssertion.RequiresSignedAssertionFmiPath = true;
@@ -223,14 +240,18 @@ namespace Microsoft.Identity.Web.OidcFic
 
             try
             {
-                // Try to get a signed assertion, and if it fails, move to the next credentials
-                _ = await signedAssertion!.GetSignedAssertionAsync(null);
+                // Preserve FMI warm-up deferral when only enrichment is available.
+                AssertionRequestOptions? assertionOptions =
+                    !signedAssertion!.RequiresSignedAssertionFmiPath &&
+                    parameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                        ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                        : null;
+                _ = await signedAssertion.GetSignedAssertionAsync(assertionOptions);
                 credentialDescription.CachedValue = signedAssertion;
             }
             catch (Exception ex)
             {
                 Logger.SignedAssertionProviderFailed(_logger, credentialDescription.CustomSignedAssertionProviderName ?? "Unknown", ex.Message);
-                credentialDescription.Skip = true;
                 throw;
             }
         }

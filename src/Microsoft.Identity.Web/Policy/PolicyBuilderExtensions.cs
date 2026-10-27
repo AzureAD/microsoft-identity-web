@@ -55,11 +55,12 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Adds a <see cref="ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance which requires
-        /// that the current user has the specified claim and that the claim value must be one of the allowed values.
+        /// Adds a <see cref="ScopeOrAppPermissionAuthorizationRequirement"/> to the current instance.
+        /// Authorization succeeds when a scope claim contains an allowed scope value or a role claim contains an
+        /// allowed app permission value.
         /// </summary>
         /// <param name="authorizationPolicyBuilder">Used for building policies during application startup.</param>
-        /// <param name="allowedScopeValues">scopes (the value of scope or scp) accepted by this app.</param>
+        /// <param name="allowedScopeValues">Scopes accepted by this app from the <c>scp</c> or mapped scope claim.</param>
         /// <param name="allowedAppPermissionValues">App permission (in role claim) that this app accepts.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static AuthorizationPolicyBuilder RequireScopeOrAppPermission(

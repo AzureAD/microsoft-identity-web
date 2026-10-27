@@ -22,6 +22,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetAuthorizationHeaderProvider2(System.Web.Http.ApiController)">
+            <summary>
+            Get the authorization header provider, exposing the richer <see cref="T:Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2"/> surface.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Microsoft.Identity.Web.ApiControllerExtensions.GetDownstreamApi(System.Web.Http.ApiController)">
             <summary>
             Get the downstream API service from an ApiController.
@@ -44,7 +50,7 @@
             <param name="configurationSection">Configuration section in which to read the options.</param>
             <returns>The app builder to chain.</returns>
             <remarks>
-            By default, bearer tokens must contain a scope or role claim. Set
+            By default, bearer tokens must contain a recognized scope or role claim with a non-whitespace value. Set
             <see cref="P:Microsoft.Identity.Abstractions.IdentityApplicationOptions.AllowWebApiToBeAuthorizedByACL"/> to
             <c>true</c> when the application uses ACL-based authorization instead.
             </remarks>
@@ -72,6 +78,36 @@
             <param name="claimValue">The claim value</param>
             <exception cref="T:System.Security.Authentication.AuthenticationException">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> contains internal claims that are used internal use by this library</exception>
         </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.StoreHomeAccountIdentifier(Microsoft.Owin.IOwinContext,System.Web.HttpContextBase,System.String,System.String)">
+            <summary>
+            Stashes the home account identifier (uid/utid) taken from the token that was actually
+            redeemed, so that the account-identifier claims can later be stamped from a value that is
+            consistent with the acquired token. Nothing is stored when either value is absent.
+            </summary>
+            <param name="owinContext">The current OWIN context.</param>
+            <param name="httpContext">The current <see cref="T:System.Web.HttpContextBase"/>.</param>
+            <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+            <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.GetAndRemoveHomeAccountIdentifier(Microsoft.Owin.IOwinContext,System.Web.HttpContextBase)">
+            <summary>
+            Reads and removes the home account identifier (uid/utid) previously stashed during
+            authorization-code redemption, from the OWIN context (no session) or the session.
+            </summary>
+            <param name="owinContext">The current OWIN context.</param>
+            <param name="httpContext">The current <see cref="T:System.Web.HttpContextBase"/>.</param>
+            <returns>The home account object identifier and tenant identifier, either of which can be <see langword="null"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.AppBuilderExtension.AddHomeAccountIdentifierClaims(System.Security.Claims.ClaimsIdentity,System.String,System.String)">
+            <summary>
+            Stamps the home account identifier claims (uid/utid) on the identity, first ensuring they do
+            not conflict with same-named claims the app may have injected (see issue 2968). Both claims are
+            added only when both values are present.
+            </summary>
+            <param name="identity">The <see cref="T:System.Security.Claims.ClaimsIdentity"/> associated to the logged-in user.</param>
+            <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
+            <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
+        </member>
         <member name="T:Microsoft.Identity.Web.ControllerBaseExtensions">
             <summary>
             Extension methods to retrieve a Graph service client and interfaces used
@@ -87,6 +123,12 @@
         <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider(System.Web.Mvc.ControllerBase)">
             <summary>
             Get the authorization header provider.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Identity.Web.ControllerBaseExtensions.GetAuthorizationHeaderProvider2(System.Web.Mvc.ControllerBase)">
+            <summary>
+            Get the authorization header provider, exposing the richer <see cref="T:Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider2"/> surface.
             </summary>
             <returns></returns>
         </member>

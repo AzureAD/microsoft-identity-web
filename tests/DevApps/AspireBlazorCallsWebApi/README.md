@@ -1,6 +1,6 @@
 # Aspire Blazor Calls Web API
 
-This sample demonstrates how to use Microsoft.Identity.Web with Blazor Server and .NET Aspire to:
+This sample demonstrates how to use Microsoft.Identity.Web with Blazor Server and Aspire to:
 - Authenticate users with Microsoft Entra ID
 - Call a protected Web API with token acquisition
 - Handle incremental consent and Conditional Access scenarios
@@ -184,6 +184,6 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 ## Learn More
 
 - [Microsoft.Identity.Web Documentation](https://aka.ms/ms-id-web)
-- [.NET Aspire Documentation](https://learn.microsoft.com/dotnet/aspire)
+- [Aspire Documentation](https://aspire.dev/docs/)
 - [Blazor Server Authentication](https://learn.microsoft.com/aspnet/core/blazor/security/server)
 - [Incremental Consent and Conditional Access](https://aka.ms/ms-id-web/incremental-consent)

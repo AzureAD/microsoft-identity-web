@@ -44,12 +44,13 @@ This guide focuses on **#4 - validating scopes and app permissions**.
 
 **Used when:** A user delegates permission to an app to act on their behalf.
 
-**Token claim:** `scp` or `scope` for the client app
+**JWT claim:** `scp` for the client app
 **Example values:** `"access_as_user"`, `"User.Read"`, `"Files.ReadWrite"`
 
-**Token claim:** `roles`
+**JWT claim:** `roles`
 **Example values:** `"admin"`, `"SimpleUser"` for the  user.
 
+Delegated tokens can contain `roles` claims when app roles are assigned to the user or a group.
 
 **Scenario:** Web API on behalf of signed-in user.
 
@@ -57,10 +58,12 @@ This guide focuses on **#4 - validating scopes and app permissions**.
 
 **Used when:** Web API called by an app acting as itself (no user context), like a daemon/background service.
 
-**Token claim:** `roles`
+**JWT claim:** `roles`
 **Example values:** `"Mail.Read.All"`, `"User.Read.All"`
 
 **Scenario:** Daemon app calls web API using client credentials.
+
+Microsoft.Identity.Web authorization handlers accept `scp` or its mapped scope claim type, and `roles` or mapped `ClaimTypes.Role`, depending on inbound claim mapping.
 
 ---
 
@@ -203,7 +206,7 @@ public class TodoListController : ControllerBase
 When a request arrives:
 
 1. ASP.NET Core authentication middleware validates the token
-2. `RequiredScope` attribute checks for the `scp` or `scope` claim
+2. `RequiredScope` attribute checks for the `scp` or mapped scope claim
 3. If token contains at least one matching scope → ✅ Request proceeds
 4. If no matching scope found → ❌ 403 Forbidden response
 
@@ -219,7 +222,9 @@ When a request arrives:
 
 ## App Permissions with RequiredScopeOrAppPermission
 
-The `RequiredScopeOrAppPermission` attribute validates either **scopes** (delegated) OR **app permissions** (application).
+The `RequiredScopeOrAppPermission` attribute uses OR semantics: authorization succeeds when an accepted scope is present in an `scp` or mapped scope claim type, or when an accepted app-permission value is present in a `roles` or mapped `ClaimTypes.Role` claim.
+
+Matching a role value does not by itself prove that the token is app-only because delegated tokens can also contain roles assigned to users or groups.
 
 ### When to Use
 
@@ -229,6 +234,20 @@ The `RequiredScopeOrAppPermission` attribute validates either **scopes** (delega
 
 **❌ Use `RequiredScope` when:**
 - Your API only serves user-delegated requests
+
+### Requiring App-Only Callers
+
+A matching role value does not identify an app-only token. When a role is intended
+only for application callers, configure the app role with **Applications** as its
+allowed member type and use a different value from roles assigned to users or
+groups.
+
+If an endpoint must reject delegated callers regardless of its role configuration,
+combine role validation with a separate token-type policy based on claims guaranteed
+and validated by the trusted issuer and token profile. For Microsoft Entra access
+tokens configured to include the optional `idtyp` claim, require `idtyp=app`. Do not
+infer an app-only caller from a `roles` claim, from the absence of `scp`, or from
+`azp`, `appid`, or `sub` alone.
 
 ### Quick Start
 
@@ -246,8 +265,8 @@ public class TodoListController : ControllerBase
     public IActionResult GetTodos()
     {
         // Accessible with EITHER:
-        // - User-delegated token with "access_as_user" scope, OR
-        // - App-only token with "TodoList.ReadWrite.All" app permission
+        // - A token with the "access_as_user" scope, OR
+        // - A token with the "TodoList.ReadWrite.All" role value
         return Ok(todos);
     }
 }
@@ -283,9 +302,9 @@ public class TodoListController : ControllerBase
 
 ### Token Claim Differences
 
-| Token Type | Claim | Example Value |
-|------------|-------|---------------|
-| **User-delegated** | `scp` or `scope` | `"access_as_user User.Read"` |
+| Token Type | JWT Wire Claim | Example Value |
+|------------|----------------|---------------|
+| **User-delegated** | `scp`; may also contain `roles` | `"access_as_user User.Read"` |
 | **App-only** | `roles` | `["TodoList.ReadWrite.All"]` |
 
 **Example: User-delegated token:**
@@ -623,7 +642,7 @@ Configure appropriate logging levels and error handling for production environme
 
 **Diagnosis:**
 1. Decode token at [jwt.ms](https://jwt.ms)
-2. Check `scp` or `scope` claim
+2. Check the `scp` or mapped scope claim
 3. Verify it matches your `RequiredScope` attribute
 
 **Solution:**

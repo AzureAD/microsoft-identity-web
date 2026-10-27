@@ -44,18 +44,14 @@ namespace Microsoft.Identity.Web
                     _keyAttestationProvider);
             }
 
-            try
-            {
-                _ = await managedIdentityClientAssertion!
-                    .GetSignedAssertionAsync(null)
-                    .ConfigureAwait(false);
-                credentialDescription.CachedValue = managedIdentityClientAssertion;
-            }
-            catch (MsalServiceException)
-            {
-                credentialDescription.Skip = true;
-                throw;
-            }
+            AssertionRequestOptions? assertionOptions =
+                credentialSourceLoaderParameters is IClientAssertionEnrichmentOptions { OtelTagsEnricher: { } enricher }
+                    ? new AssertionRequestOptions { OtelTagsEnricher = enricher }
+                    : null;
+            _ = await managedIdentityClientAssertion!
+                .GetSignedAssertionAsync(assertionOptions)
+                .ConfigureAwait(false);
+            credentialDescription.CachedValue = managedIdentityClientAssertion;
         }
     }
 }
