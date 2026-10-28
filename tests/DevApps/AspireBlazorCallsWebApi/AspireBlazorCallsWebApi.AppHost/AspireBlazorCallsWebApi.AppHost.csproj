@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Force patched MessagePack to resolve CVE-2026-48109 (transitive via Aspire.Hosting → StackExchange.Redis) -->
-    <PackageReference Include="MessagePack" Version="2.5.301" />
+    <!-- Force patched MessagePack to resolve CVE-2026-48109 and CVE-2026-92707 (transitive via Aspire.Hosting → StackExchange.Redis) -->
+    <PackageReference Include="MessagePack" Version="2.5.303" />
   </ItemGroup>
 
   <ItemGroup>
