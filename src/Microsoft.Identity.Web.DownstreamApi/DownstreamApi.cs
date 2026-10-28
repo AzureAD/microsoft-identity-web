@@ -382,6 +382,7 @@ namespace Microsoft.Identity.Web
             }
 
             DownstreamApiOptions clonedOptions = new DownstreamApiOptions(options);
+            CopyMutableDictionaries(options, clonedOptions);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
         }
@@ -408,8 +409,16 @@ namespace Microsoft.Identity.Web
             }
 
             DownstreamApiOptionsReadOnlyHttpMethod clonedOptions = new DownstreamApiOptionsReadOnlyHttpMethod(options, httpMethod.ToString());
+            CopyMutableDictionaries(options, clonedOptions);
             calledApiOptionsOverride?.Invoke(clonedOptions);
             return clonedOptions;
+        }
+
+        private static void CopyMutableDictionaries(DownstreamApiOptions source, DownstreamApiOptions target)
+        {
+            OptionsDictionaryCloner.Copy(source.AcquireTokenOptions, target.AcquireTokenOptions);
+            target.ExtraHeaderParameters = OptionsDictionaryCloner.Clone(source.ExtraHeaderParameters);
+            target.ExtraQueryParameters = OptionsDictionaryCloner.Clone(source.ExtraQueryParameters);
         }
 
         [RequiresUnreferencedCode("Calls JsonSerializer.Serialize<TInput>")]
