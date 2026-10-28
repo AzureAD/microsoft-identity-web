@@ -409,8 +409,7 @@ services.AddHttpClient("SecureApiClient", client =>
     client.BaseAddress = new Uri("https://secure-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("DownstreamApis:SecureApi"),
-    "SecureApi");
+    configuration.GetRequiredSection("DownstreamApis:SecureApi"));
 ```
 
 #### Per-Request Token Binding

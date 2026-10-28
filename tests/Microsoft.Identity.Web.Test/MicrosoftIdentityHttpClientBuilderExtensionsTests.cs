@@ -155,20 +155,29 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(client);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullBuilder_ThrowsArgumentNullException()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullBuilder_ThrowsArgumentNullException(bool useLegacyOverload)
         {
             // Arrange
             IHttpClientBuilder? builder = null;
             var configuration = new ConfigurationBuilder().Build();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
-                builder!.AddMicrosoftIdentityMessageHandler(configuration, "TestSection"));
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                useLegacyOverload
+                    ? builder!.AddMicrosoftIdentityMessageHandler(configuration, "TestSection")
+                    : builder!.AddMicrosoftIdentityMessageHandler(configuration));
+#pragma warning restore CS0618
+            Assert.Equal("builder", exception.ParamName);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullConfiguration_ThrowsArgumentNullException()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullConfiguration_ThrowsArgumentNullException(bool useLegacyOverload)
         {
             // Arrange
             var services = new ServiceCollection();
@@ -177,8 +186,13 @@ namespace Microsoft.Identity.Web.Test
             IConfiguration? configuration = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
-                builder.AddMicrosoftIdentityMessageHandler(configuration!, "TestSection"));
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                useLegacyOverload
+                    ? builder.AddMicrosoftIdentityMessageHandler(configuration!, "TestSection")
+                    : builder.AddMicrosoftIdentityMessageHandler(configuration!));
+#pragma warning restore CS0618
+            Assert.Equal("configuration", exception.ParamName);
         }
 
         [Fact]
@@ -192,12 +206,21 @@ namespace Microsoft.Identity.Web.Test
             string? sectionName = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
+            var exception = Assert.Throws<ArgumentNullException>(() =>
                 builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName!));
+#pragma warning restore CS0618
+            Assert.Equal("sectionName", exception.ParamName);
         }
 
-        [Fact]
-        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions()
+        [Theory]
+        [InlineData("MyApi", false)]
+        [InlineData("MyApi", true)]
+        [InlineData("anything", false)]
+        [InlineData("", false)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions(
+            string sectionName,
+            bool hasNamedChild)
         {
             // Arrange
             var configurationData = new Dictionary<string, string?>
@@ -206,22 +229,32 @@ namespace Microsoft.Identity.Web.Test
                 { "DownstreamApis:MyApi:Scopes:0", "api.scope" }
             };
 
+            if (hasNamedChild)
+            {
+                configurationData.Add("DownstreamApis:MyApi:MyApi:Scopes:0", "wrong.child.scope");
+            }
+
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configurationData)
                 .Build();
 
+            // Act and Assert
             await AssertConfigurationBindsScopeAsync(
-                configuration.GetSection("DownstreamApis"),
-                "MyApi");
+                configuration.GetSection("DownstreamApis:MyApi"),
+                sectionName);
         }
 
-        [Fact]
-        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_DefaultSectionName_BindsConfigurationDirectly()
+        [Theory]
+        [InlineData("")]
+        [InlineData("DownstreamApis:MyApi")]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_BindsConfigurationDirectly(string sectionPath)
         {
             // Arrange
             var configurationData = new Dictionary<string, string?>
             {
-                { "Scopes:0", "api.scope" }
+                { "Scopes:0", "api.scope" },
+                { "DownstreamApis:MyApi:Scopes:0", "api.scope" },
+                { "DownstreamApis:MyApi:MyApi:Scopes:0", "wrong.child.scope" }
             };
 
             var configuration = new ConfigurationBuilder()
@@ -229,7 +262,25 @@ namespace Microsoft.Identity.Web.Test
                 .Build();
 
             // Act and Assert
-            await AssertConfigurationBindsScopeAsync(configuration, sectionName: null);
+            await AssertConfigurationBindsScopeAsync(
+                string.IsNullOrEmpty(sectionPath) ? configuration : configuration.GetRequiredSection(sectionPath),
+                sectionName: null);
+        }
+
+        [Fact]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_DoesNotSelectChildImplicitly()
+        {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    { "DownstreamApis:MyApi:Scopes:0", "api.scope" }
+                })
+                .Build();
+
+            // Act and Assert
+            await Assert.ThrowsAsync<MicrosoftIdentityAuthenticationException>(() =>
+                AssertConfigurationBindsScopeAsync(configuration.GetSection("DownstreamApis"), sectionName: null));
         }
 
         [Fact]
@@ -305,9 +356,11 @@ namespace Microsoft.Identity.Web.Test
             var builder = services.AddHttpClient("TestClient");
 
             // Act
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
             builder.AddMicrosoftIdentityMessageHandler(
                 configuration.GetSection("NonExistent"),
                 "NonExistent");
+#pragma warning restore CS0618
 
             // Assert
             var serviceProvider = services.BuildServiceProvider();
@@ -372,7 +425,9 @@ namespace Microsoft.Identity.Web.Test
             }
             else
             {
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
                 builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName);
+#pragma warning restore CS0618
             }
 
             using var serviceProvider = services.BuildServiceProvider();

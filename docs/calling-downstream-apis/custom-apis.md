@@ -346,7 +346,16 @@ services.AddHttpClient("MyApiClient", client =>
 
 #### 4. IConfiguration Overload (Configuration from appsettings.json)
 
-Use this to configure from appsettings.json:
+Pass the configuration section containing the authentication options directly. Use
+`GetRequiredSection` to select it explicitly and fail during registration if the section is missing.
+The handler does not search for child sections or fall back to another section.
+
+The overload accepting both `IConfiguration` and `sectionName` is deprecated with a compiler
+warning. Its runtime behavior is unchanged: it binds the supplied configuration and ignores
+`sectionName`. If you already pass the correct section, remove the name argument. If you have
+a parent section, explicitly select the child with `GetRequiredSection(name)` first.
+Builds treating warnings as errors must migrate these calls or temporarily suppress `CS0618`
+at the affected call sites. An existing section still needs valid authentication options.
 
 **appsettings.json:**
 ```json
@@ -367,16 +376,14 @@ services.AddHttpClient("DownstreamApiClient", client =>
     client.BaseAddress = new Uri("https://api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("DownstreamApi"),
-    "DownstreamApi");
+    configuration.GetRequiredSection("DownstreamApi"));
 
 services.AddHttpClient("GraphClient", client =>
 {
     client.BaseAddress = new Uri("https://graph.microsoft.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("GraphApi"),
-    "GraphApi");
+    configuration.GetRequiredSection("GraphApi"));
 ```
 
 ### Configuration Examples
@@ -479,24 +486,21 @@ services.AddHttpClient("CustomerApiClient", client =>
     client.BaseAddress = new Uri("https://customer-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("CustomerApi"),
-    "CustomerApi");
+    downstreamApis.GetRequiredSection("CustomerApi"));
 
 services.AddHttpClient("OrderApiClient", client =>
 {
     client.BaseAddress = new Uri("https://order-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("OrderApi"),
-    "OrderApi");
+    downstreamApis.GetRequiredSection("OrderApi"));
 
 services.AddHttpClient("InventoryApiClient", client =>
 {
     client.BaseAddress = new Uri("https://inventory-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("InventoryApi"),
-    "InventoryApi");
+    downstreamApis.GetRequiredSection("InventoryApi"));
 ```
 
 ### Per-Request Options
@@ -614,8 +618,7 @@ services.AddHttpClient("SecureApiClient", client =>
     client.BaseAddress = new Uri("https://secure-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("DownstreamApis:SecureApi"),
-    "SecureApi");
+    configuration.GetRequiredSection("DownstreamApis:SecureApi"));
 ```
 
 ##### Inline Configuration

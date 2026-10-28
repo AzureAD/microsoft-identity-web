@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Web
     /// // }
     ///
     /// services.AddHttpClient("GraphClient")
-    ///     .AddMicrosoftIdentityMessageHandler(configuration, "DownstreamApi");
+    ///     .AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection("DownstreamApi"));
     /// </code>
     ///
     /// <para><strong>Parameterless for per-request configuration:</strong></para>
@@ -328,26 +328,62 @@ namespace Microsoft.Identity.Web
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="builder"/> or <paramref name="configuration"/> is <see langword="null"/>.
         /// </exception>
+        /// <remarks>
+        /// The supplied configuration is bound directly; no child section is selected automatically.
+        /// Use <c>GetRequiredSection</c> to explicitly select a section and fail immediately if it does not exist.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// services.AddHttpClient("MyApi")
+        ///     .AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection("DownstreamApis:MyApi"));
+        /// </code>
+        /// </example>
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static IHttpClientBuilder AddMicrosoftIdentityMessageHandler(
             this IHttpClientBuilder builder,
             IConfiguration configuration)
         {
-            return AddMicrosoftIdentityMessageHandler(builder, configuration, string.Empty);
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            return builder.AddHttpMessageHandler(sp =>
+            {
+                var options = new MicrosoftIdentityMessageHandlerOptions();
+                configuration.Bind(options);
+
+                return new MicrosoftIdentityMessageHandler(
+                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
+                    options,
+                    GetMsalMtlsHttpClientFactory(sp),
+                    GetCredentialsProvider(sp),
+                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
+            });
         }
 
         /// <summary>
         /// Adds a <see cref="MicrosoftIdentityMessageHandler"/> to the HTTP client pipeline with options bound from IConfiguration.
         /// </summary>
         /// <param name="builder">The <see cref="IHttpClientBuilder"/> to configure.</param>
-        /// <param name="configuration">The configuration containing the authentication options.</param>
-        /// <param name="sectionName">The name of the configuration section containing the authentication options, or an empty string to bind directly from <paramref name="configuration"/>.</param>
+        /// <param name="configuration">The configuration section containing the authentication options.</param>
+        /// <param name="sectionName">Retained for compatibility. This parameter is not used to select a configuration section.</param>
         /// <returns>The <see cref="IHttpClientBuilder"/> for method chaining.</returns>
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="builder"/>, <paramref name="configuration"/>, or <paramref name="sectionName"/> is <see langword="null"/>.
         /// </exception>
         /// <remarks>
+        /// <para>
+        /// This overload is obsolete. Use <see cref="AddMicrosoftIdentityMessageHandler(IHttpClientBuilder, IConfiguration)"/>
+        /// with the desired configuration section instead. The supplied configuration is still bound directly,
+        /// regardless of <paramref name="sectionName"/>, preserving existing behavior.
+        /// </para>
         /// <para>
         /// This overload is useful when you want to configure authentication options from appsettings.json
         /// or other configuration sources. The configuration section is bound to a new
@@ -379,13 +415,13 @@ namespace Microsoft.Identity.Web
         /// {
         ///     client.BaseAddress = new Uri("https://api.example.com");
         /// })
-        ///         .AddMicrosoftIdentityMessageHandler(configuration, "DownstreamApi");
+        /// .AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection("DownstreamApi"));
         ///
         /// services.AddHttpClient("GraphClient", client =>
         /// {
         ///     client.BaseAddress = new Uri("https://graph.microsoft.com");
         /// })
-        ///         .AddMicrosoftIdentityMessageHandler(configuration, "GraphApi");
+        /// .AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection("GraphApi"));
         /// </code>
         ///
         /// <para><strong>Use the clients:</strong></para>
@@ -417,6 +453,7 @@ namespace Microsoft.Identity.Web
         /// }
         /// </code>
         /// </example>
+        [Obsolete("This overload binds configuration directly; sectionName does not select a child. Use AddMicrosoftIdentityMessageHandler(configuration) with the desired section, or AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection(sectionName)).", false)]
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static IHttpClientBuilder AddMicrosoftIdentityMessageHandler(
@@ -439,21 +476,7 @@ namespace Microsoft.Identity.Web
                 throw new ArgumentNullException(nameof(sectionName));
             }
 
-            return builder.AddHttpMessageHandler(sp =>
-            {
-                var options = new MicrosoftIdentityMessageHandlerOptions();
-                var configurationSection = string.IsNullOrEmpty(sectionName)
-                    ? configuration
-                    : configuration.GetSection(sectionName);
-                configurationSection.Bind(options);
-
-                return new MicrosoftIdentityMessageHandler(
-                    sp.GetRequiredService<IAuthorizationHeaderProvider>(),
-                    options,
-                    GetMsalMtlsHttpClientFactory(sp),
-                    GetCredentialsProvider(sp),
-                    GetLogger<MicrosoftIdentityMessageHandler>(sp));
-            });
+            return AddMicrosoftIdentityMessageHandler(builder, configuration);
         }
 
         private static IMsalMtlsHttpClientFactory? GetMsalMtlsHttpClientFactory(IServiceProvider services)
