@@ -27,8 +27,6 @@ steps:
   inputs:
     useGlobalJson: true
 
-- template: template-bootstrap-client-claims-abstractions.yaml
-
 - template: template-build-test-project.yaml
   parameters:
     Project: 'tests/E2E Tests/TokenAcquirerTests/TokenAcquirerTests.csproj'

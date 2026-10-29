@@ -20,8 +20,6 @@ steps:
   inputs:
     command: 'restore'
     projects: '${{ parameters.Project }}'
-    feedsToUse: 'config'
-    nugetConfigPath: 'NuGet.Config'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build ${{ parameters.Project }} (${{ parameters.TargetFramework }})'
