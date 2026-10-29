@@ -367,16 +367,14 @@ services.AddHttpClient("DownstreamApiClient", client =>
     client.BaseAddress = new Uri("https://api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("DownstreamApi"),
-    "DownstreamApi");
+    configuration.GetSection("DownstreamApi"));
 
 services.AddHttpClient("GraphClient", client =>
 {
     client.BaseAddress = new Uri("https://graph.microsoft.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("GraphApi"),
-    "GraphApi");
+    configuration.GetSection("GraphApi"));
 ```
 
 ### Configuration Examples
@@ -479,24 +477,21 @@ services.AddHttpClient("CustomerApiClient", client =>
     client.BaseAddress = new Uri("https://customer-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("CustomerApi"),
-    "CustomerApi");
+    downstreamApis.GetSection("CustomerApi"));
 
 services.AddHttpClient("OrderApiClient", client =>
 {
     client.BaseAddress = new Uri("https://order-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("OrderApi"),
-    "OrderApi");
+    downstreamApis.GetSection("OrderApi"));
 
 services.AddHttpClient("InventoryApiClient", client =>
 {
     client.BaseAddress = new Uri("https://inventory-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    downstreamApis.GetSection("InventoryApi"),
-    "InventoryApi");
+    downstreamApis.GetSection("InventoryApi"));
 ```
 
 ### Per-Request Options
@@ -614,8 +609,7 @@ services.AddHttpClient("SecureApiClient", client =>
     client.BaseAddress = new Uri("https://secure-api.example.com");
 })
 .AddMicrosoftIdentityMessageHandler(
-    configuration.GetSection("DownstreamApis:SecureApi"),
-    "SecureApi");
+    configuration.GetSection("DownstreamApis:SecureApi"));
 ```
 
 ##### Inline Configuration
