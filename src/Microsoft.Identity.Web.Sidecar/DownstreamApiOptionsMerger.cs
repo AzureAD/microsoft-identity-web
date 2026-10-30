@@ -89,6 +89,11 @@ public static class DownstreamApiOptionsMerger
             res.AcquireTokenOptions.Claims = right.AcquireTokenOptions.Claims;
         }
 
+        if (right.AcquireTokenOptions.ClaimsFromClient is not null)
+        {
+            res.AcquireTokenOptions.ClaimsFromClient = right.AcquireTokenOptions.ClaimsFromClient;
+        }
+
         if (!string.IsNullOrEmpty(right.AcquireTokenOptions.AuthenticationOptionsName))
         {
             res.AcquireTokenOptions.AuthenticationOptionsName = right.AcquireTokenOptions.AuthenticationOptionsName;
