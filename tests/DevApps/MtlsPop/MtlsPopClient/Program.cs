@@ -28,8 +28,7 @@ namespace MtlsPopSample
                     tokenAcquirerFactory.Configuration.GetSection("WebApi")["BaseUrl"]!);
             })
             .AddMicrosoftIdentityMessageHandler(
-                tokenAcquirerFactory.Configuration.GetSection("WebApi"),
-                "WebApi");
+                tokenAcquirerFactory.Configuration.GetSection("WebApi"));
 
             tokenAcquirerFactory.Services.AddMicrosoftGraph();
 
