@@ -77,7 +77,8 @@ namespace Microsoft.Identity.Web.Test
 
             using var http = new MockHttpClientFactory();
             using var miHttp = new MockHttpClientFactory();
-            int expiresIn = shortLivedAssertion ? 1 : 3599;
+            // Stay inside MSAL's five-minute refresh buffer without racing a one-second expiry.
+            int expiresIn = shortLivedAssertion ? 60 : 3599;
             MockHttpMessageHandler innerHandler = managedIdentity
                 ? miHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("inner-assertion", "api://AzureADTokenExchange", expiresIn))
                 : http.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler("inner-assertion", expiresIn: expiresIn));

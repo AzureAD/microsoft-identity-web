@@ -277,7 +277,9 @@ namespace Microsoft.Identity.Web
         /// <returns>A dictionary containing extra parameters to be sent during token acquisition or null.</returns>
         private static IDictionary<string, object>? GetExtraParameters(AuthorizationHeaderProviderOptions? downstreamApiOptions)
         {
-            var extraParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraParameters;
+            IDictionary<string, object>? extraParameters =
+                OptionsDictionaryCloner.Clone(downstreamApiOptions?.AcquireTokenOptions.ExtraParameters);
+
             if (string.Equals(downstreamApiOptions?.ProtocolScheme, TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase))
             {
                 extraParameters ??= new Dictionary<string, object>();

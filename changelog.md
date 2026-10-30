@@ -1,3 +1,15 @@
+## 4.17.0
+
+### New features
+- Add an `AddMicrosoftIdentityMessageHandler(IConfiguration)` overload so callers can bind authentication options directly from a configuration section without supplying a redundant section name. The existing overload remains supported. See [#4124](https://github.com/AzureAD/microsoft-identity-web/pull/4124).
+
+### Bug fixes
+- Allow built-in managed-identity, assertion-file, and OIDC federated credentials to recover after a failed load instead of being permanently skipped. Explicit skip settings and successful credential and token caching are preserved. See [#4100](https://github.com/AzureAD/microsoft-identity-web/pull/4100).
+- Isolate mutable token-acquisition request options so request-specific parameters do not modify shared Downstream API, authorization-header, FIC, or Graph configuration. Preserve custom Graph option cloning and long-running session-key output. See [#4013](https://github.com/AzureAD/microsoft-identity-web/pull/4013).
+
+### Dependencies updates
+- Raise the .NET 10 ASP.NET Core authentication and Data Protection dependency minimums to 10.0.13. See [#4107](https://github.com/AzureAD/microsoft-identity-web/pull/4107).
+
 ## 4.16.1
 
 ### Security fixes

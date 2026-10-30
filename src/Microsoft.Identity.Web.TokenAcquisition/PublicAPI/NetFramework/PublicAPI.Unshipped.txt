@@ -1,1 +1,2 @@
 #nullable enable
+static Microsoft.Identity.Web.MicrosoftIdentityHttpClientBuilderExtensions.AddMicrosoftIdentityMessageHandler(this Microsoft.Extensions.DependencyInjection.IHttpClientBuilder! builder, Microsoft.Extensions.Configuration.IConfiguration! configuration) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
