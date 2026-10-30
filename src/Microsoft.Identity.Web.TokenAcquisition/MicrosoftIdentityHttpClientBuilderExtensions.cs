@@ -431,8 +431,10 @@ namespace Microsoft.Identity.Web
         /// </exception>
         /// <remarks>
         /// The supplied <paramref name="configuration"/> is bound directly; <paramref name="sectionName"/> does not select a section or name options.
-        /// Prefer <see cref="AddMicrosoftIdentityMessageHandler(IHttpClientBuilder, IConfiguration)"/> for new code.
+        /// This overload is obsolete. Use <see cref="AddMicrosoftIdentityMessageHandler(IHttpClientBuilder, IConfiguration)"/>
+        /// with the desired configuration section instead. Existing runtime behavior is unchanged.
         /// </remarks>
+        [Obsolete("This overload binds configuration directly; sectionName does not select a child. Use AddMicrosoftIdentityMessageHandler(configuration) with the desired section, or AddMicrosoftIdentityMessageHandler(configuration.GetRequiredSection(sectionName)).", false)]
         [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(IConfiguration, Object).")]
         public static IHttpClientBuilder AddMicrosoftIdentityMessageHandler(

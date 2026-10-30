@@ -346,7 +346,14 @@ services.AddHttpClient("MyApiClient", client =>
 
 #### 4. IConfiguration Overload (Configuration from appsettings.json)
 
-Use this to configure from appsettings.json:
+Pass the configuration section containing the authentication options directly.
+
+The overload accepting both `IConfiguration` and `sectionName` is deprecated with a compiler
+warning. Its runtime behavior is unchanged: it binds the supplied configuration and ignores
+`sectionName`. If you already pass the correct section, remove the name argument. If you have
+a parent section, explicitly select the child with `GetRequiredSection(name)` first.
+Builds treating warnings as errors must migrate these calls or temporarily suppress `CS0618`
+at the affected call sites. No removal version is scheduled.
 
 **appsettings.json:**
 ```json

@@ -165,10 +165,12 @@ namespace Microsoft.Identity.Web.Test
             var configuration = new ConfigurationBuilder().Build();
 
             // Act & Assert
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 useLegacyOverload
                     ? builder!.AddMicrosoftIdentityMessageHandler(configuration, "TestSection")
                     : builder!.AddMicrosoftIdentityMessageHandler(configuration));
+#pragma warning restore CS0618
             Assert.Equal("builder", exception.ParamName);
         }
 
@@ -184,10 +186,12 @@ namespace Microsoft.Identity.Web.Test
             IConfiguration? configuration = null;
 
             // Act & Assert
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 useLegacyOverload
                     ? builder.AddMicrosoftIdentityMessageHandler(configuration!, "TestSection")
                     : builder.AddMicrosoftIdentityMessageHandler(configuration!));
+#pragma warning restore CS0618
             Assert.Equal("configuration", exception.ParamName);
         }
 
@@ -202,8 +206,10 @@ namespace Microsoft.Identity.Web.Test
             string? sectionName = null;
 
             // Act & Assert
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
             var exception = Assert.Throws<ArgumentNullException>(() =>
                 builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName!));
+#pragma warning restore CS0618
             Assert.Equal("sectionName", exception.ParamName);
         }
 
@@ -244,9 +250,11 @@ namespace Microsoft.Identity.Web.Test
                         }
                     });
                 var section = configuration.GetSection($"DownstreamApis:{name}");
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
                 var result = useLegacyOverload
                     ? builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName")
                     : builder.AddMicrosoftIdentityMessageHandler(section);
+#pragma warning restore CS0618
                 Assert.Same(builder, result);
             }
 
@@ -296,7 +304,9 @@ namespace Microsoft.Identity.Web.Test
             // Act
             if (useLegacyOverload)
             {
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
                 builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName");
+#pragma warning restore CS0618
             }
             else
             {
@@ -395,9 +405,11 @@ namespace Microsoft.Identity.Web.Test
 
             // Act
             var section = configuration.GetSection("NonExistent");
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
             var result = useLegacyOverload
                 ? builder.AddMicrosoftIdentityMessageHandler(section, "NonExistent")
                 : builder.AddMicrosoftIdentityMessageHandler(section);
+#pragma warning restore CS0618
 
             // Assert
             var serviceProvider = services.BuildServiceProvider();
