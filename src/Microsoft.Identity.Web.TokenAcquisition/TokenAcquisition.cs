@@ -916,6 +916,26 @@ namespace Microsoft.Identity.Web
                 && isTokenBindingObject is bool isTokenBindingValue
                 && isTokenBindingValue;
 
+            bool requestOverMtls = false;
+            if (tokenAcquisitionOptions?.ExtraParameters?.TryGetValue("RequestOverMtls", out object? requestOverMtlsValue) == true)
+            {
+                if (requestOverMtlsValue is bool enabled)
+                {
+                    requestOverMtls = enabled;
+                }
+                else if (requestOverMtlsValue is not string text || !bool.TryParse(text, out requestOverMtls))
+                {
+                    throw new ArgumentException("ExtraParameters[\"RequestOverMtls\"] must be a Boolean.", nameof(tokenAcquisitionOptions));
+                }
+            }
+
+            if (requestOverMtls && (tokenAcquisitionOptions?.ManagedIdentity is null || isTokenBinding))
+            {
+                throw new ArgumentException(
+                    "RequestOverMtls requires managed identity and cannot be combined with MTLS_POP.",
+                    nameof(tokenAcquisitionOptions));
+            }
+
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
@@ -928,9 +948,11 @@ namespace Microsoft.Identity.Web
 
                     var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
 
-                    if (isTokenBinding)
+                    if (isTokenBinding || requestOverMtls)
                     {
-                        miBuilder = miBuilder.WithMtlsProofOfPossession();
+                        miBuilder = requestOverMtls
+                            ? miBuilder.WithRequestOverMtls()
+                            : miBuilder.WithMtlsProofOfPossession();
                         if (_keyAttestationProvider is not null)
                         {
                             miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
@@ -938,7 +960,7 @@ namespace Microsoft.Identity.Web
                         else if (Interlocked.Exchange(ref _unattestedManagedIdentityFlowLogged, 1) == 0)
                         {
                             _logger.LogInformation(
-                                "Managed identity mTLS proof-of-possession is using an unattested binding. " +
+                                "Managed identity token acquisition over mTLS is using an unattested credential. " +
                                 "Install Microsoft.Identity.Web.KeyAttestation and call " +
                                 "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
                         }

@@ -34,3 +34,32 @@ Remove the `UserAssignedClientId` field from `appsettings.json`:
     "ManagedIdentity": { }
 }
 ```
+
+## Acquire a Bearer token over mTLS
+
+To use mTLS for managed identity token acquisition without binding the returned token,
+use `Bearer` instead of `MTLS_POP` and opt in through `ExtraParameters`:
+
+```json
+{
+  "ProtocolScheme": "Bearer",
+  "RequestAppToken": true,
+  "AcquireTokenOptions": {
+    "ManagedIdentity": { "UserAssignedClientId": "" },
+    "ExtraParameters": {
+      "RequestOverMtls": true
+    }
+  }
+}
+```
+
+Keep `UserAssignedClientId` empty for system-assigned identity, or set it to the
+user-assigned identity's client ID. Include the field so configuration binding creates
+the managed identity options.
+This requires a supported Windows IMDSv2 host. To enable Credential Guard key attestation,
+reference `Microsoft.Identity.Web.KeyAttestation` and register
+`services.AddMicrosoftIdentityWebKeyAttestation()`.
+
+The result is a standard Bearer token with no binding certificate; the downstream API
+call does not use the managed identity certificate. `RequestOverMtls` and `MTLS_POP`
+are mutually exclusive. Omitting the flag preserves the existing behavior.

@@ -41,6 +41,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationOptionsName = AuthenticationOptionsName,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
+                ExtraParameters = OptionsDictionaryCloner.Clone(ExtraParameters),
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
                 PoPConfiguration = PoPConfiguration,
