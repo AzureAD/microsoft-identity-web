@@ -4,10 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using NSubstitute;
 using Xunit;
 
@@ -151,20 +155,27 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(client);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullBuilder_ThrowsArgumentNullException()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullBuilder_ThrowsArgumentNullException(bool useLegacyOverload)
         {
             // Arrange
             IHttpClientBuilder? builder = null;
             var configuration = new ConfigurationBuilder().Build();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
-                builder!.AddMicrosoftIdentityMessageHandler(configuration, "TestSection"));
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                useLegacyOverload
+                    ? builder!.AddMicrosoftIdentityMessageHandler(configuration, "TestSection")
+                    : builder!.AddMicrosoftIdentityMessageHandler(configuration));
+            Assert.Equal("builder", exception.ParamName);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullConfiguration_ThrowsArgumentNullException()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_WithNullConfiguration_ThrowsArgumentNullException(bool useLegacyOverload)
         {
             // Arrange
             var services = new ServiceCollection();
@@ -173,8 +184,11 @@ namespace Microsoft.Identity.Web.Test
             IConfiguration? configuration = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
-                builder.AddMicrosoftIdentityMessageHandler(configuration!, "TestSection"));
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                useLegacyOverload
+                    ? builder.AddMicrosoftIdentityMessageHandler(configuration!, "TestSection")
+                    : builder.AddMicrosoftIdentityMessageHandler(configuration!));
+            Assert.Equal("configuration", exception.ParamName);
         }
 
         [Fact]
@@ -188,18 +202,24 @@ namespace Microsoft.Identity.Web.Test
             string? sectionName = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => 
+            var exception = Assert.Throws<ArgumentNullException>(() =>
                 builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName!));
+            Assert.Equal("sectionName", exception.ParamName);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions(bool useLegacyOverload)
         {
             // Arrange
             var configurationData = new Dictionary<string, string?>
             {
-                { "DownstreamApi:Scopes:0", "https://graph.microsoft.com/.default" },
-                { "DownstreamApi:Scopes:1", "User.Read" }
+                { "DownstreamApis:Graph:Scopes:0", "https://graph.microsoft.com/.default" },
+                { "DownstreamApis:Graph:Scopes:1", "User.Read" },
+                { "DownstreamApis:Graph:RequestAppToken", "false" },
+                { "DownstreamApis:Other:Scopes:0", "https://api.example.com/.default" },
+                { "DownstreamApis:Other:RequestAppToken", "true" }
             };
 
             var configuration = new ConfigurationBuilder()
@@ -208,19 +228,95 @@ namespace Microsoft.Identity.Web.Test
 
             var services = new ServiceCollection();
             services.AddSingleton(_mockHeaderProvider);
-            var builder = services.AddHttpClient("TestClient");
+            _mockHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>())
+                .ReturnsForAnyArgs("Bearer test-token");
 
             // Act
-            builder.AddMicrosoftIdentityMessageHandler(
-                configuration.GetSection("DownstreamApi"),
-                "DownstreamApi");
+            foreach (var name in new[] { "Graph", "Other" })
+            {
+                var builder = services.AddHttpClient(name)
+                    .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler
+                    {
+                        ExpectedMethod = HttpMethod.Get,
+                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(string.Empty)
+                        }
+                    });
+                var section = configuration.GetSection($"DownstreamApis:{name}");
+                var result = useLegacyOverload
+                    ? builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName")
+                    : builder.AddMicrosoftIdentityMessageHandler(section);
+                Assert.Same(builder, result);
+            }
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            foreach (var name in new[] { "Graph", "Other" })
+            {
+                using var client = httpClientFactory.CreateClient(name);
+                using var response = await client.GetAsync("https://example.com");
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
 
             // Assert
-            var serviceProvider = services.BuildServiceProvider();
-            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-            var client = httpClientFactory.CreateClient("TestClient");
-            
-            Assert.NotNull(client);
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "https://graph.microsoft.com/.default", "User.Read" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => !options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "https://api.example.com/.default" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_BindsOptionsWhenHandlerIsCreated(bool useLegacyOverload)
+        {
+            // Arrange
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            var services = new ServiceCollection();
+            services.AddSingleton(_mockHeaderProvider);
+            _mockHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>())
+                .ReturnsForAnyArgs("******");
+
+            var builder = services.AddHttpClient("TestClient")
+                .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler
+                {
+                    ExpectedMethod = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(string.Empty)
+                    }
+                });
+            var section = configuration.GetSection("MutableApi");
+
+            // Act
+            if (useLegacyOverload)
+            {
+                builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName");
+            }
+            else
+            {
+                builder.AddMicrosoftIdentityMessageHandler(section);
+            }
+
+            configuration["MutableApi:Scopes:0"] = "updated-scope";
+            configuration["MutableApi:RequestAppToken"] = "true";
+
+            using var serviceProvider = services.BuildServiceProvider();
+            using var client = serviceProvider.GetRequiredService<IHttpClientFactory>()
+                .CreateClient("TestClient");
+            using var response = await client.GetAsync("https://example.com");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "updated-scope" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -286,8 +382,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(builder, result);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_EmptyConfiguration_RegistersHandlerWithEmptyOptions()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_EmptyConfiguration_RegistersHandlerWithEmptyOptions(bool useLegacyOverload)
         {
             // Arrange
             var configuration = new ConfigurationBuilder().Build();
@@ -296,9 +394,10 @@ namespace Microsoft.Identity.Web.Test
             var builder = services.AddHttpClient("TestClient");
 
             // Act
-            builder.AddMicrosoftIdentityMessageHandler(
-                configuration.GetSection("NonExistent"),
-                "NonExistent");
+            var section = configuration.GetSection("NonExistent");
+            var result = useLegacyOverload
+                ? builder.AddMicrosoftIdentityMessageHandler(section, "NonExistent")
+                : builder.AddMicrosoftIdentityMessageHandler(section);
 
             // Assert
             var serviceProvider = services.BuildServiceProvider();
@@ -306,6 +405,7 @@ namespace Microsoft.Identity.Web.Test
             var client = httpClientFactory.CreateClient("TestClient");
             
             Assert.NotNull(client);
+            Assert.Same(builder, result);
         }
 
         [Fact]
