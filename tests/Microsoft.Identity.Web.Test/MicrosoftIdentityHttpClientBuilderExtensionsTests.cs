@@ -270,6 +270,55 @@ namespace Microsoft.Identity.Web.Test
                 cancellationToken: Arg.Any<CancellationToken>());
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_BindsOptionsWhenHandlerIsCreated(bool useLegacyOverload)
+        {
+            // Arrange
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            var services = new ServiceCollection();
+            services.AddSingleton(_mockHeaderProvider);
+            _mockHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>())
+                .ReturnsForAnyArgs("******");
+
+            var builder = services.AddHttpClient("TestClient")
+                .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler
+                {
+                    ExpectedMethod = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(string.Empty)
+                    }
+                });
+            var section = configuration.GetSection("MutableApi");
+
+            // Act
+            if (useLegacyOverload)
+            {
+                builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName");
+            }
+            else
+            {
+                builder.AddMicrosoftIdentityMessageHandler(section);
+            }
+
+            configuration["MutableApi:Scopes:0"] = "updated-scope";
+            configuration["MutableApi:RequestAppToken"] = "true";
+
+            using var serviceProvider = services.BuildServiceProvider();
+            using var client = serviceProvider.GetRequiredService<IHttpClientFactory>()
+                .CreateClient("TestClient");
+            using var response = await client.GetAsync("https://example.com");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "updated-scope" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
+        }
+
         [Fact]
         public void AddMicrosoftIdentityMessageHandler_ServiceResolution_ResolvesAuthorizationHeaderProvider()
         {
