@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web.Test.Common.Mocks;
 using NSubstitute;
 using Xunit;
 
@@ -214,73 +214,119 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Theory]
-        [InlineData("MyApi", false)]
-        [InlineData("MyApi", true)]
-        [InlineData("anything", false)]
-        [InlineData("", false)]
-        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions(
-            string sectionName,
-            bool hasNamedChild)
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_RegistersHandlerWithBoundOptions(bool useLegacyOverload)
         {
             // Arrange
             var configurationData = new Dictionary<string, string?>
             {
-                { "DownstreamApis:Scopes:0", "wrong.scope" },
-                { "DownstreamApis:MyApi:Scopes:0", "api.scope" }
+                { "DownstreamApis:Graph:Scopes:0", "https://graph.microsoft.com/.default" },
+                { "DownstreamApis:Graph:Scopes:1", "User.Read" },
+                { "DownstreamApis:Graph:RequestAppToken", "false" },
+                { "DownstreamApis:Other:Scopes:0", "https://api.example.com/.default" },
+                { "DownstreamApis:Other:RequestAppToken", "true" }
             };
-
-            if (hasNamedChild)
-            {
-                configurationData.Add("DownstreamApis:MyApi:MyApi:Scopes:0", "wrong.child.scope");
-            }
 
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configurationData)
                 .Build();
 
-            // Act and Assert
-            await AssertConfigurationBindsScopeAsync(
-                configuration.GetSection("DownstreamApis:MyApi"),
-                sectionName);
+            var services = new ServiceCollection();
+            services.AddSingleton(_mockHeaderProvider);
+            _mockHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>())
+                .ReturnsForAnyArgs("Bearer test-token");
+
+            // Act
+            foreach (var name in new[] { "Graph", "Other" })
+            {
+                var builder = services.AddHttpClient(name)
+                    .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler
+                    {
+                        ExpectedMethod = HttpMethod.Get,
+                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(string.Empty)
+                        }
+                    });
+                var section = configuration.GetSection($"DownstreamApis:{name}");
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
+                var result = useLegacyOverload
+                    ? builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName")
+                    : builder.AddMicrosoftIdentityMessageHandler(section);
+#pragma warning restore CS0618
+                Assert.Same(builder, result);
+            }
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            foreach (var name in new[] { "Graph", "Other" })
+            {
+                using var client = httpClientFactory.CreateClient(name);
+                using var response = await client.GetAsync("https://example.com");
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            // Assert
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "https://graph.microsoft.com/.default", "User.Read" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => !options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "https://api.example.com/.default" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("DownstreamApis:MyApi")]
-        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_BindsConfigurationDirectly(string sectionPath)
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_BindsOptionsWhenHandlerIsCreated(bool useLegacyOverload)
         {
             // Arrange
-            var configurationData = new Dictionary<string, string?>
-            {
-                { "Scopes:0", "api.scope" },
-                { "DownstreamApis:MyApi:Scopes:0", "api.scope" },
-                { "DownstreamApis:MyApi:MyApi:Scopes:0", "wrong.child.scope" }
-            };
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
+            var services = new ServiceCollection();
+            services.AddSingleton(_mockHeaderProvider);
+            _mockHeaderProvider.CreateAuthorizationHeaderAsync(Enumerable.Empty<string>())
+                .ReturnsForAnyArgs("******");
 
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(configurationData)
-                .Build();
-
-            // Act and Assert
-            await AssertConfigurationBindsScopeAsync(
-                string.IsNullOrEmpty(sectionPath) ? configuration : configuration.GetRequiredSection(sectionPath),
-                sectionName: null);
-        }
-
-        [Fact]
-        public async Task AddMicrosoftIdentityMessageHandler_WithConfiguration_DoesNotSelectChildImplicitly()
-        {
-            // Arrange
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?>
+            var builder = services.AddHttpClient("TestClient")
+                .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler
                 {
-                    { "DownstreamApis:MyApi:Scopes:0", "api.scope" }
-                })
-                .Build();
+                    ExpectedMethod = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(string.Empty)
+                    }
+                });
+            var section = configuration.GetSection("MutableApi");
 
-            // Act and Assert
-            await Assert.ThrowsAsync<MicrosoftIdentityAuthenticationException>(() =>
-                AssertConfigurationBindsScopeAsync(configuration.GetSection("DownstreamApis"), sectionName: null));
+            // Act
+            if (useLegacyOverload)
+            {
+#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
+                builder.AddMicrosoftIdentityMessageHandler(section, "UnusedSectionName");
+#pragma warning restore CS0618
+            }
+            else
+            {
+                builder.AddMicrosoftIdentityMessageHandler(section);
+            }
+
+            configuration["MutableApi:Scopes:0"] = "updated-scope";
+            configuration["MutableApi:RequestAppToken"] = "true";
+
+            using var serviceProvider = services.BuildServiceProvider();
+            using var client = serviceProvider.GetRequiredService<IHttpClientFactory>()
+                .CreateClient("TestClient");
+            using var response = await client.GetAsync("https://example.com");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            await _mockHeaderProvider.Received(1).CreateAuthorizationHeaderAsync(
+                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "updated-scope" })),
+                Arg.Is<AuthorizationHeaderProviderOptions>(options => options.RequestAppToken),
+                cancellationToken: Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -346,8 +392,10 @@ namespace Microsoft.Identity.Web.Test
             Assert.Same(builder, result);
         }
 
-        [Fact]
-        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_EmptyConfiguration_RegistersHandlerWithEmptyOptions()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityMessageHandler_WithConfiguration_EmptyConfiguration_RegistersHandlerWithEmptyOptions(bool useLegacyOverload)
         {
             // Arrange
             var configuration = new ConfigurationBuilder().Build();
@@ -356,10 +404,11 @@ namespace Microsoft.Identity.Web.Test
             var builder = services.AddHttpClient("TestClient");
 
             // Act
+            var section = configuration.GetSection("NonExistent");
 #pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
-            builder.AddMicrosoftIdentityMessageHandler(
-                configuration.GetSection("NonExistent"),
-                "NonExistent");
+            var result = useLegacyOverload
+                ? builder.AddMicrosoftIdentityMessageHandler(section, "NonExistent")
+                : builder.AddMicrosoftIdentityMessageHandler(section);
 #pragma warning restore CS0618
 
             // Assert
@@ -368,6 +417,7 @@ namespace Microsoft.Identity.Web.Test
             var client = httpClientFactory.CreateClient("TestClient");
             
             Assert.NotNull(client);
+            Assert.Same(builder, result);
         }
 
         [Fact]
@@ -402,61 +452,9 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(client2);
         }
 
-        private async Task AssertConfigurationBindsScopeAsync(
-            IConfiguration configuration,
-            string? sectionName)
-        {
-            var services = new ServiceCollection();
-            var headerProvider = Substitute.For<IAuthorizationHeaderProvider>();
-            headerProvider.CreateAuthorizationHeaderAsync(
-                Arg.Any<IEnumerable<string>>(),
-                Arg.Any<AuthorizationHeaderProviderOptions?>(),
-                Arg.Any<ClaimsPrincipal?>(),
-                Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult("placeholder"));
-            services.AddSingleton(headerProvider);
-
-            var builder = services.AddHttpClient("TestClient")
-                .ConfigurePrimaryHttpMessageHandler(() => new TestHttpMessageHandler());
-
-            if (sectionName is null)
-            {
-                builder.AddMicrosoftIdentityMessageHandler(configuration);
-            }
-            else
-            {
-#pragma warning disable CS0618 // Verify compatibility of the obsolete overload.
-                builder.AddMicrosoftIdentityMessageHandler(configuration, sectionName);
-#pragma warning restore CS0618
-            }
-
-            using var serviceProvider = services.BuildServiceProvider();
-            var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
-            using var client = httpClientFactory.CreateClient("TestClient");
-
-            using var response = await client.GetAsync("https://example.com");
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            await headerProvider.Received(1).CreateAuthorizationHeaderAsync(
-                Arg.Is<IEnumerable<string>>(scopes => scopes.SequenceEqual(new[] { "api.scope" })),
-                Arg.Any<AuthorizationHeaderProviderOptions?>(),
-                Arg.Any<ClaimsPrincipal?>(),
-                Arg.Any<CancellationToken>());
-        }
-
         // Test helper class
         private class TestDelegatingHandler : DelegatingHandler
         {
-        }
-
-        private class TestHttpMessageHandler : HttpMessageHandler
-        {
-            protected override Task<HttpResponseMessage> SendAsync(
-                HttpRequestMessage request,
-                CancellationToken cancellationToken)
-            {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-            }
         }
     }
 }
