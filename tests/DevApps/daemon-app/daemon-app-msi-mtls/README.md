@@ -13,9 +13,13 @@ access token with **mTLS Proof-of-Possession** (PoP).
 
 ## Prerequisites
 
-- Azure VM, Arc-enabled server, or any host that exposes the V2 managed identity credential
-  endpoint (returns a binding certificate alongside the access token).
+- Supported Windows IMDSv2 host with Credential Guard/KeyGuard available for attestation.
 - MI principal granted **Key Vault Secrets User** (or higher) on the target vault.
+- Key attestation is required by default for managed identity mTLS acquisition. Reference
+  `Microsoft.Identity.Web.KeyAttestation` and register
+  `services.AddMicrosoftIdentityWebKeyAttestation()`, or explicitly set
+  `"KeyAttestation": "Disabled"` inside `AcquireTokenOptions` to opt out.
+  This sample already references and registers the attestation provider.
 
 ## Run
 
@@ -27,18 +31,19 @@ Expected output: `Secret retrieved successfully via MSI mTLS PoP.`
 
 ## Switching to system-assigned MI
 
-Remove the `UserAssignedClientId` field from `appsettings.json`:
+Set `UserAssignedClientId` to an empty value so configuration binding constructs the
+managed identity options:
 
 ```json
 "AcquireTokenOptions": {
-    "ManagedIdentity": { }
+    "ManagedIdentity": { "UserAssignedClientId": "" }
 }
 ```
 
 ## Acquire a Bearer token over mTLS
 
 To use mTLS for managed identity token acquisition without binding the returned token,
-use `Bearer` instead of `MTLS_POP` and opt in through `ExtraParameters`:
+use `Bearer` instead of `MTLS_POP` and set the typed `RequestOverMtls` option:
 
 ```json
 {
@@ -46,9 +51,7 @@ use `Bearer` instead of `MTLS_POP` and opt in through `ExtraParameters`:
   "RequestAppToken": true,
   "AcquireTokenOptions": {
     "ManagedIdentity": { "UserAssignedClientId": "" },
-    "ExtraParameters": {
-      "RequestOverMtls": true
-    }
+    "RequestOverMtls": true
   }
 }
 ```
@@ -56,10 +59,19 @@ use `Bearer` instead of `MTLS_POP` and opt in through `ExtraParameters`:
 Keep `UserAssignedClientId` empty for system-assigned identity, or set it to the
 user-assigned identity's client ID. Include the field so configuration binding creates
 the managed identity options.
-This requires a supported Windows IMDSv2 host. To enable Credential Guard key attestation,
-reference `Microsoft.Identity.Web.KeyAttestation` and register
-`services.AddMicrosoftIdentityWebKeyAttestation()`.
+This requires a supported Windows IMDSv2 host. Attestation defaults to `Required` for
+both bearer-over-mTLS and mTLS PoP. Missing registration or an attestation failure
+fails acquisition instead of falling back to an unattested request.
+
+For either mode, explicitly add `"KeyAttestation": "Disabled"` to skip attestation,
+even when the attestation provider is registered. This does not relax MSAL's platform
+or the service's policy requirements.
 
 The result is a standard Bearer token with no binding certificate; the downstream API
 call does not use the managed identity certificate. `RequestOverMtls` and `MTLS_POP`
-are mutually exclusive. Omitting the flag preserves the existing behavior.
+are mutually exclusive. Ordinary bearer acquisition remains unchanged when the flag
+is omitted or false. Attested and unattested mTLS requests use separate token-cache
+partitions.
+
+These typed options depend on Abstractions PR #279 and its unreleased 12.8.1 package.
+The normal restore/build remains blocked until that contract is published.

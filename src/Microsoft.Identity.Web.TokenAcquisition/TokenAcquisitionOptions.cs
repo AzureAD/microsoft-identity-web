@@ -50,6 +50,8 @@ namespace Microsoft.Identity.Web
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
+                RequestOverMtls = RequestOverMtls,
+                KeyAttestation = KeyAttestation,
                 FmiPath = FmiPath,
                 CachePartitionKeys = CachePartitionKeys != null
                     ? new Dictionary<string, string>(CachePartitionKeys)

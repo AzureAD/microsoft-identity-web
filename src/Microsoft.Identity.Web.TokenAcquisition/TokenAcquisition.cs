@@ -104,7 +104,6 @@ namespace Microsoft.Identity.Web
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
         private readonly IKeyAttestationProvider? _keyAttestationProvider;
-        private int _unattestedManagedIdentityFlowLogged;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsProvider _credentialsProvider;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
@@ -916,18 +915,7 @@ namespace Microsoft.Identity.Web
                 && isTokenBindingObject is bool isTokenBindingValue
                 && isTokenBindingValue;
 
-            bool requestOverMtls = false;
-            if (tokenAcquisitionOptions?.ExtraParameters?.TryGetValue("RequestOverMtls", out object? requestOverMtlsValue) == true)
-            {
-                if (requestOverMtlsValue is bool enabled)
-                {
-                    requestOverMtls = enabled;
-                }
-                else if (requestOverMtlsValue is not string text || !bool.TryParse(text, out requestOverMtls))
-                {
-                    throw new ArgumentException("ExtraParameters[\"RequestOverMtls\"] must be a Boolean.", nameof(tokenAcquisitionOptions));
-                }
-            }
+            bool requestOverMtls = tokenAcquisitionOptions?.RequestOverMtls == true;
 
             if (requestOverMtls && (tokenAcquisitionOptions?.ManagedIdentity is null || isTokenBinding))
             {
@@ -950,20 +938,36 @@ namespace Microsoft.Identity.Web
 
                     if (isTokenBinding || requestOverMtls)
                     {
+                        KeyAttestationMode keyAttestation = tokenAcquisitionOptions.KeyAttestation;
+                        if (keyAttestation is not KeyAttestationMode.Required and not KeyAttestationMode.Disabled)
+                        {
+                            throw new ArgumentOutOfRangeException(
+                                nameof(tokenAcquisitionOptions.KeyAttestation),
+                                keyAttestation,
+                                "Unsupported managed identity key attestation policy.");
+                        }
+
                         miBuilder = requestOverMtls
                             ? miBuilder.WithRequestOverMtls()
                             : miBuilder.WithMtlsProofOfPossession();
-                        if (_keyAttestationProvider is not null)
+                        if (keyAttestation == KeyAttestationMode.Required)
                         {
+                            if (_keyAttestationProvider is null)
+                            {
+                                throw new InvalidOperationException(
+                                    "Managed identity token acquisition over mTLS requires key attestation. " +
+                                    "Install Microsoft.Identity.Web.KeyAttestation and call " +
+                                    "AddMicrosoftIdentityWebKeyAttestation(), or explicitly set " +
+                                    "KeyAttestation to Disabled to opt out.");
+                            }
+
                             miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
                         }
-                        else if (Interlocked.Exchange(ref _unattestedManagedIdentityFlowLogged, 1) == 0)
-                        {
-                            _logger.LogInformation(
-                                "Managed identity token acquisition over mTLS is using an unattested credential. " +
-                                "Install Microsoft.Identity.Web.KeyAttestation and call " +
-                                "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
-                        }
+
+                        // Neither plain bearer nor an unattested request may satisfy an attested cache lookup.
+                        miBuilder.WithCachePartitionKey(
+                            "idweb_mi_mtls",
+                            $"{(requestOverMtls ? "bearer" : "pop")}:{keyAttestation}");
                     }
 
                     if (!string.IsNullOrEmpty(tokenAcquisitionOptions.Claims))

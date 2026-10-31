@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -40,7 +39,7 @@ namespace TokenAcquirerTests
             var options = new AcquireTokenOptions
             {
                 ManagedIdentity = new ManagedIdentityOptions { UserAssignedClientId = managedIdentityClientId },
-                ExtraParameters = new Dictionary<string, object> { ["RequestOverMtls"] = true },
+                RequestOverMtls = true,
             };
 
             AcquireTokenResult result = await tokenAcquirer.GetTokenForAppAsync(
