@@ -1,0 +1,23 @@
+name: Performance benchmarks (Azure Pipelines)
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  benchmark:
+    name: Open Azure Pipelines performance benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show benchmark instructions
+        shell: bash
+        run: |
+          {
+            echo '## Performance benchmarks run in Azure Pipelines'
+            echo ''
+            echo 'Queue the [Azure Pipelines build](https://identitydivision.visualstudio.com/a7934fdd-dcde-4492-a406-7fad6ac00e17/_build?definitionId=3100) manually and select **Performance (.NET 8, certificate)**.'
+            echo 'Other stages can be deselected when only running benchmarks.'
+            echo ''
+            echo 'Reports and logs are published in the build summary and the **token-acquisition-benchmarks** artifact.'
+            echo 'This GitHub workflow only shows these instructions; it does not run benchmarks or access credentials.'
+          } >> "$GITHUB_STEP_SUMMARY"

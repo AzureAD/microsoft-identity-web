@@ -63,7 +63,9 @@ When rotating the certificate, update both the app registration and this thumbpr
 No Entra client secret is needed.
 
 Reports appear in the build summary and the `token-acquisition-benchmarks`
-pipeline artifact, including BenchmarkDotNet logs when execution fails. This
-replaces the GitHub benchmark workflow; the existing public chart is no longer
-updated. Automatic regression comparison is deferred until an ADO baseline is
-established, so these runs do not enforce the previous 130% threshold.
+pipeline artifact, including BenchmarkDotNet logs when execution fails. The
+GitHub benchmark workflow is a manual-only entry point with instructions for
+queuing the ADO stage; it does not run benchmarks or access credentials. The
+existing public chart is no longer updated. Automatic regression comparison is
+deferred until an ADO baseline is established, so these runs do not enforce the
+previous 130% threshold.
