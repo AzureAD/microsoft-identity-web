@@ -48,3 +48,22 @@
   - Publish Security Analysis Logs'
   - 'TSA upload to Codebase: Microsoft Identity Web .NET Stamp: Azure'
   - 'Clean Agent Directories'
+
+## Certificate-backed performance benchmarks
+
+The `Performance` stage in `azure-pipelines.yml` runs the two token acquisition
+benchmarks on .NET 8 for `master` builds and manually queued builds. It does not
+run for pull requests.
+
+The stage reuses `template-install-dependencies.yaml` to install the `LabAuth`
+certificate from Key Vault into `LocalMachine/My`. It selects the certificate
+using `BenchmarkCertificateThumbprint` and fails before running benchmarks if
+the certificate is missing, lacks a private key, or is outside its validity period.
+When rotating the certificate, update both the app registration and this thumbprint.
+No Entra client secret is needed.
+
+Reports appear in the build summary and the `token-acquisition-benchmarks`
+pipeline artifact, including BenchmarkDotNet logs when execution fails. This
+replaces the GitHub benchmark workflow; the existing public chart is no longer
+updated. Automatic regression comparison is deferred until an ADO baseline is
+established, so these runs do not enforce the previous 130% threshold.
