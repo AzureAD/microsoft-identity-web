@@ -1,1 +1,16 @@
 #nullable enable
+Microsoft.Identity.Web.AuthenticationRetryContext
+Microsoft.Identity.Web.AuthenticationRetryContext.AuthenticationRetryContext() -> void
+Microsoft.Identity.Web.AuthenticationRetryContext.Certificate.get -> System.Security.Cryptography.X509Certificates.X509Certificate2?
+Microsoft.Identity.Web.AuthenticationRetryContext.Certificate.set -> void
+Microsoft.Identity.Web.AuthenticationRetryContext.CredentialDescription.get -> Microsoft.Identity.Abstractions.CredentialDescription?
+Microsoft.Identity.Web.AuthenticationRetryContext.CredentialDescription.set -> void
+Microsoft.Identity.Web.AuthenticationRetryContext.CredentialSourceLoaderParameters.get -> Microsoft.Identity.Abstractions.CredentialSourceLoaderParameters?
+Microsoft.Identity.Web.AuthenticationRetryContext.CredentialSourceLoaderParameters.set -> void
+Microsoft.Identity.Web.AuthenticationRetryContext.Response.get -> System.Net.Http.HttpResponseMessage?
+Microsoft.Identity.Web.AuthenticationRetryContext.Response.set -> void
+Microsoft.Identity.Web.AuthenticationRetryContext.ThrownException.get -> System.Exception?
+Microsoft.Identity.Web.AuthenticationRetryContext.ThrownException.set -> void
+Microsoft.Identity.Web.IAuthenticationRetryPolicy
+Microsoft.Identity.Web.IAuthenticationRetryPolicy.ShouldRetry(Microsoft.Identity.Web.AuthenticationRetryContext! context) -> bool
+Microsoft.Identity.Web.MicrosoftIdentityMessageHandler.MicrosoftIdentityMessageHandler(Microsoft.Identity.Abstractions.IAuthorizationHeaderProvider! headerProvider, Microsoft.Identity.Web.MicrosoftIdentityMessageHandlerOptions? defaultOptions, Microsoft.Identity.Client.IMsalMtlsHttpClientFactory? mtlsHttpClientFactory, Microsoft.Identity.Web.ICredentialsProvider? credentialsProvider, Microsoft.Identity.Web.IAuthenticationRetryPolicy? authenticationRetryPolicy, Microsoft.Extensions.Logging.ILogger<Microsoft.Identity.Web.MicrosoftIdentityMessageHandler!>? logger = null) -> void

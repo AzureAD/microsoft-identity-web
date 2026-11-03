@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -32,15 +34,15 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData("AADSTS700016")] // Application not found (wrong ClientID)
         [InlineData("AADSTS7000215")] // Invalid client secret
-        public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsFalseForNonRetryableConfigErrors(string errorCode)
+        public void ShouldRetry_ReturnsFalseForNonRetryableConfigErrors(string errorCode)
         {
             // Arrange
-            var tokenAcquisition = CreateTokenAcquisition();
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
             var responseBody = $"{{\"error\":\"invalid_client\",\"error_description\":\"Error {errorCode}: Config error\"}}";
             var exception = CreateMsalServiceException(InvalidClientErrorCode, responseBody);
 
             // Act
-            bool result = InvokeIsInvalidClientCertificateOrSignedAssertionError(tokenAcquisition, exception);
+            bool result = retryPolicy.ShouldRetry(new AuthenticationRetryContext { ThrownException = exception });
 
             // Assert
             Assert.False(result, $"Should NOT retry for non-retryable config error: {errorCode}");
@@ -53,18 +55,134 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("AADSTS1000502")] // CertificateIsOutsideValidityWindow
         [InlineData("AADSTS7000274")] // ClientAssertionContainsInvalidSignature
         [InlineData("AADSTS7000277")] // CertificateWasRevoked
-        public void IsInvalidClientCertificateOrSignedAssertionError_ReturnsTrueForCertificateErrors(string errorCode)
+        public void ShouldRetry_ReturnsTrueForCertificateErrors(string errorCode)
         {
             // Arrange
-            var tokenAcquisition = CreateTokenAcquisition();
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
             var responseBody = $"{{\"error\":\"invalid_client\",\"error_description\":\"Error {errorCode}: Cert error\"}}";
             var exception = CreateMsalServiceException(InvalidClientErrorCode, responseBody);
 
             // Act
-            bool result = InvokeIsInvalidClientCertificateOrSignedAssertionError(tokenAcquisition, exception);
+            bool result = retryPolicy.ShouldRetry(new AuthenticationRetryContext { ThrownException = exception });
 
             // Assert
             Assert.True(result, $"Should retry for certificate error: {errorCode}");
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.BadRequest, true)]
+        [InlineData(HttpStatusCode.Unauthorized, true)]
+        [InlineData(HttpStatusCode.Forbidden, true)]
+        [InlineData((HttpStatusCode)495, true)]
+        [InlineData((HttpStatusCode)496, true)]
+        [InlineData(HttpStatusCode.OK, false)]
+        [InlineData(HttpStatusCode.NotFound, false)]
+        [InlineData(HttpStatusCode.InternalServerError, false)]
+        public void ShouldRetry_ForMtls_UsesCertificateFailureStatusCodes(HttpStatusCode statusCode, bool expected)
+        {
+            // Arrange
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
+            using var response = new HttpResponseMessage(statusCode);
+            var context = new AuthenticationRetryContext
+            {
+                CredentialSourceLoaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                {
+                    Protocol = Constants.MtlsProtocolScheme
+                },
+                Response = response
+            };
+
+            // Act
+            bool result = retryPolicy.ShouldRetry(context);
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(Constants.MtlsProtocolScheme)]
+        [InlineData("Bearer")]
+        [InlineData(null)]
+        public void ShouldRetry_WithoutApplicableFailure_ReturnsFalse(string? protocol)
+        {
+            // Arrange
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
+            var context = new AuthenticationRetryContext
+            {
+                CredentialSourceLoaderParameters = protocol is null ? null : new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                {
+                    Protocol = protocol
+                },
+                ThrownException = new InvalidOperationException("Not an authentication failure")
+            };
+
+            // Act
+            bool result = retryPolicy.ShouldRetry(context);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData("invalid_client", "aadsts700027", true)]
+        [InlineData("INVALID_CLIENT", "AADSTS700027", true)]
+        [InlineData("invalid_grant", "AADSTS700027", false)]
+        [InlineData("invalid_client", "", false)]
+        public void ShouldRetry_ForMsalFailure_RequiresInvalidClientAndCertificateError(
+            string errorCode, string responseBody, bool expected)
+        {
+            // Arrange
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
+            var exception = CreateMsalServiceException(errorCode, responseBody);
+
+            // Act
+            bool result = retryPolicy.ShouldRetry(new AuthenticationRetryContext { ThrownException = exception });
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData(Constants.MtlsProtocolScheme)]
+        [InlineData("Bearer")]
+        public void ShouldRetry_DoesNotApplyFailureFromAnotherProtocol(string protocol)
+        {
+            // Arrange
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
+            using var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            var context = new AuthenticationRetryContext
+            {
+                CredentialSourceLoaderParameters = new CredentialSourceLoaderParameters(string.Empty, string.Empty)
+                {
+                    Protocol = protocol
+                },
+                Response = protocol == "Bearer" ? response : null,
+                ThrownException = protocol == Constants.MtlsProtocolScheme
+                    ? CreateMsalServiceException(InvalidClientErrorCode, "AADSTS700027")
+                    : null
+            };
+
+            // Act
+            bool result = retryPolicy.ShouldRetry(context);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void ShouldRetry_ForMsalFailureWithoutResponseBody_ReturnsFalse(string? responseBody)
+        {
+            // Arrange
+            var retryPolicy = new DefaultAuthenticationRetryPolicy();
+            var exception = CreateMsalServiceException(InvalidClientErrorCode, responseBody);
+
+            // Act
+            bool result = retryPolicy.ShouldRetry(new AuthenticationRetryContext { ThrownException = exception });
+
+            // Assert
+            Assert.False(result);
         }
 
         #endregion
@@ -232,7 +350,7 @@ namespace Microsoft.Identity.Web.Test
         /// <summary>
         /// Creates a MsalServiceException for testing.
         /// </summary>
-        private MsalServiceException CreateMsalServiceException(string errorCode, string responseBody)
+        private MsalServiceException CreateMsalServiceException(string errorCode, string? responseBody)
         {
             var exception = new MsalServiceException(errorCode, $"Test exception: {errorCode}");
 
@@ -253,26 +371,6 @@ namespace Microsoft.Identity.Web.Test
             }
 
             return exception;
-        }
-
-        /// <summary>
-        /// Invokes the private IsInvalidClientCertificateOrSignedAssertionError method using reflection.
-        /// </summary>
-        private bool InvokeIsInvalidClientCertificateOrSignedAssertionError(
-            TokenAcquisition tokenAcquisition,
-            MsalServiceException exception)
-        {
-            var method = typeof(TokenAcquisition).GetMethod(
-                "IsInvalidClientCertificateOrSignedAssertionError",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (method == null)
-            {
-                throw new InvalidOperationException("Could not find IsInvalidClientCertificateOrSignedAssertionError method");
-            }
-
-            var result = method.Invoke(tokenAcquisition, new object[] { exception });
-            return (bool)result!;
         }
 
         /// <summary>

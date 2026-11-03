@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Abstractions;
@@ -819,6 +820,172 @@ namespace Microsoft.Identity.Web.Test
             await mockCredentialsProvider.Received(2).GetCredentialAsync(
                 Arg.Any<CredentialSourceLoaderParameters?>(),
                 Arg.Any<CancellationToken>());
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.Unauthorized, false, 1)]
+        [InlineData(HttpStatusCode.InternalServerError, true, 2)]
+        [InlineData(HttpStatusCode.Unauthorized, true, 2)]
+        public async Task SendAsync_MtlsOnly_CustomRetryPolicyControlsBoundedRetries(
+            HttpStatusCode statusCode, bool shouldRetry, int expectedAttempts)
+        {
+            // Arrange
+            var headerProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            var credentialsProvider = Substitute.For<ICredentialsProvider>();
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            using var certificate = CreateTestCertificate();
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.Certificate,
+                Certificate = certificate
+            };
+            credentialsProvider.GetCredentialAsync(
+                Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>())
+                .Returns(credential);
+
+            var retryContexts = new List<AuthenticationRetryContext>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(call =>
+            {
+                retryContexts.Add(call.Arg<AuthenticationRetryContext>());
+                return shouldRetry;
+            });
+
+            var responses = new List<HttpResponseMessage>();
+            using var mtlsClient = new HttpClient(new CapturingTestHandler(_ =>
+            {
+                var response = new HttpResponseMessage(statusCode);
+                responses.Add(response);
+                return response;
+            }));
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(certificate).Returns(mtlsClient);
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                ProtocolScheme = Constants.MtlsProtocolScheme,
+                BaseUrl = "https://test.example",
+                RelativePath = "/api"
+            };
+            using var client = new HttpClient(new MicrosoftIdentityMessageHandler(
+                headerProvider, options, mtlsFactory, credentialsProvider, retryPolicy, _mockLogger));
+
+            // Act
+            using var result = await client.GetAsync("https://test.example/api");
+
+            // Assert
+            Assert.Equal(statusCode, result.StatusCode);
+            Assert.Equal(expectedAttempts, responses.Count);
+            Assert.Equal(expectedAttempts, retryContexts.Count);
+            for (int i = 0; i < retryContexts.Count; i++)
+            {
+                Assert.Same(certificate, retryContexts[i].Certificate);
+                Assert.Same(credential, retryContexts[i].CredentialDescription);
+                Assert.Same(responses[i], retryContexts[i].Response);
+                Assert.Null(retryContexts[i].ThrownException);
+                Assert.Equal(Constants.MtlsProtocolScheme, retryContexts[i].CredentialSourceLoaderParameters!.Protocol);
+                Assert.Equal("https://test.example/api", retryContexts[i].CredentialSourceLoaderParameters!.ApiUrl);
+            }
+
+            await credentialsProvider.Received(expectedAttempts).GetCredentialAsync(
+                Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>());
+            credentialsProvider.Received(shouldRetry ? expectedAttempts : 0).NotifyCertificateUsed(
+                Arg.Any<CredentialSourceLoaderParameters?>(), credential, certificate, false, Arg.Any<Exception?>());
+        }
+
+        [Theory]
+        [InlineData("Parameterless", false)]
+        [InlineData("Options", false)]
+        [InlineData("Delegate", false)]
+        [InlineData("Configuration", false)]
+        [InlineData("Parameterless", true)]
+        [InlineData("Options", true)]
+        [InlineData("Delegate", true)]
+        [InlineData("Configuration", true)]
+        public async Task ExtensionMethods_MtlsOnly_UseRegisteredRetryPolicy(string overload, bool shouldRetry)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton(Substitute.For<IAuthorizationHeaderProvider>());
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(shouldRetry);
+            services.AddSingleton<IAuthenticationRetryPolicy>(retryPolicy);
+
+            using var certificate = CreateTestCertificate();
+            var credential = new CredentialDescription
+            {
+                SourceType = CredentialSource.Certificate,
+                Certificate = certificate
+            };
+            var credentialsProvider = Substitute.For<ICredentialsProvider>();
+            credentialsProvider.GetCredentialAsync(
+                Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>())
+                .Returns(credential);
+            services.AddSingleton<ICredentialsProvider>(credentialsProvider);
+
+            int attempts = 0;
+            HttpStatusCode statusCode = shouldRetry ? HttpStatusCode.InternalServerError : HttpStatusCode.Forbidden;
+            using var mtlsClient = new HttpClient(new CapturingTestHandler(_ =>
+            {
+                attempts++;
+                return new HttpResponseMessage(statusCode);
+            }));
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(certificate).Returns(mtlsClient);
+            services.AddSingleton<IMsalMtlsHttpClientFactory>(mtlsFactory);
+
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                ProtocolScheme = Constants.MtlsProtocolScheme,
+                BaseUrl = "https://test.example",
+                RelativePath = "/api"
+            };
+            var builder = services.AddHttpClient("RetryPolicyClient");
+            switch (overload)
+            {
+                case "Parameterless":
+                    builder.AddMicrosoftIdentityMessageHandler();
+                    break;
+                case "Options":
+                    builder.AddMicrosoftIdentityMessageHandler(options);
+                    break;
+                case "Delegate":
+                    builder.AddMicrosoftIdentityMessageHandler(o =>
+                    {
+                        o.ProtocolScheme = options.ProtocolScheme;
+                        o.BaseUrl = options.BaseUrl;
+                        o.RelativePath = options.RelativePath;
+                    });
+                    break;
+                case "Configuration":
+                    var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        [nameof(options.ProtocolScheme)] = options.ProtocolScheme,
+                        [nameof(options.BaseUrl)] = options.BaseUrl,
+                        [nameof(options.RelativePath)] = options.RelativePath
+                    }).Build();
+                    builder.AddMicrosoftIdentityMessageHandler(configuration, "RetryPolicy");
+                    break;
+                default:
+                    throw new ArgumentException("Unknown builder overload", nameof(overload));
+            }
+
+            using var serviceProvider = services.BuildServiceProvider();
+            using var client = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("RetryPolicyClient");
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://test.example/api");
+            if (overload == "Parameterless")
+            {
+                request.WithAuthenticationOptions(options);
+            }
+
+            // Act
+            using var response = await client.SendAsync(request);
+
+            // Assert
+            int expectedAttempts = shouldRetry ? 2 : 1;
+            Assert.Equal(statusCode, response.StatusCode);
+            Assert.Equal(expectedAttempts, attempts);
+            retryPolicy.Received(expectedAttempts).ShouldRetry(Arg.Any<AuthenticationRetryContext>());
+            await credentialsProvider.Received(expectedAttempts).GetCredentialAsync(
+                Arg.Any<CredentialSourceLoaderParameters?>(), Arg.Any<CancellationToken>());
         }
 
         private sealed class CapturingTestHandler : HttpMessageHandler
