@@ -36,9 +36,39 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("/%5csome.example", false)]
         [InlineData("/%2f%2fsome.example/x", false)]
         [InlineData("/%2F%5Csome.example", false)]
+        // Control characters — rejected (browsers strip tab/CR/LF per the WHATWG URL spec,
+        // resolving "/\t/evil.example" to a protocol-relative URL).
+        [InlineData("/\t/some.example", false)]
+        [InlineData("/\r/some.example", false)]
+        [InlineData("/\n/some.example", false)]
+        [InlineData("/\t\tsome.example", false)]
+        [InlineData("/home\t", false)]
+        [InlineData("/home\u0000", false)]
+        [InlineData("/home\u007F", false)]
+        [InlineData("\t//some.example", false)]
         public void IsLocalUrl_ValidatesCorrectly(string? input, bool expected)
         {
             Assert.Equal(expected, RedirectUriHelper.IsLocalUrl(input));
+        }
+
+        [Theory]
+        // Control characters present — detected.
+        [InlineData("/\tsome.example", true)]
+        [InlineData("/\rsome.example", true)]
+        [InlineData("/\nsome.example", true)]
+        [InlineData("/home\u0000", true)]
+        [InlineData("/home\u001F", true)]
+        [InlineData("/home\u007F", true)]
+        [InlineData("\u0000", true)]
+        // No control characters — not detected. Space (U+0020) is not a control character.
+        [InlineData("/home", false)]
+        [InlineData("/home?query=1 2", false)]
+        [InlineData("/a/b/c", false)]
+        [InlineData("/", false)]
+        [InlineData("", false)]
+        public void HasControlCharacter_DetectsControlCharacters(string input, bool expected)
+        {
+            Assert.Equal(expected, RedirectUriHelper.HasControlCharacter(input));
         }
 
         [Theory]

@@ -97,7 +97,7 @@ public class AgentOverrideGatingTests : IClassFixture<SidecarApiFactory>
         AddBearer(client);
 
         var response = await client.GetAsync(
-            "/AuthorizationHeader/test-api?AgentIdentity=agent-app-id&AgentUsername=testuser@contoso.com");
+            "/AuthorizationHeader/test-api?AgentIdentity=agent-app-id&AgentUserId=not-a-guid");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(capture.LastOptions);
@@ -118,7 +118,7 @@ public class AgentOverrideGatingTests : IClassFixture<SidecarApiFactory>
         var client = CreateClient(new Dictionary<string, string?>(), capture);
 
         var response = await client.GetAsync(
-            "/AuthorizationHeaderUnauthenticated/test-api?AgentIdentity=agent-app-id&AgentUsername=testuser@contoso.com");
+            "/AuthorizationHeaderUnauthenticated/test-api?AgentIdentity=agent-app-id&AgentUserId=not-a-guid");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(capture.LastOptions);
@@ -183,7 +183,7 @@ public class AgentOverrideGatingTests : IClassFixture<SidecarApiFactory>
         AddBearer(client);
 
         var response = await client.PostAsync(
-            "/DownstreamApi/test-api?AgentIdentity=agent-app-id&AgentUsername=testuser@contoso.com",
+            "/DownstreamApi/test-api?AgentIdentity=agent-app-id&AgentUserId=not-a-guid",
             content: null);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -225,7 +225,7 @@ public class AgentOverrideGatingTests : IClassFixture<SidecarApiFactory>
         }).CreateClient();
 
         var response = await client.PostAsync(
-            "/DownstreamApiUnauthenticated/test-api?AgentIdentity=agent-app-id&AgentUsername=testuser@contoso.com",
+            "/DownstreamApiUnauthenticated/test-api?AgentIdentity=agent-app-id&AgentUserId=not-a-guid",
             content: null);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

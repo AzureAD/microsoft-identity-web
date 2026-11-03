@@ -39,7 +39,20 @@ def parse_args() -> argparse.Namespace:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("validate", help="Validate an authorization header using the /Validate endpoint.")
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate a Bearer or PoP (SHR) authorization header using the /Validate endpoint.",
+    )
+    validate_parser.add_argument(
+        "--original-method",
+        dest="original_method",
+        help="For PoP (SHR) tokens: the signed HTTP method, sent as the 'original-method' header.",
+    )
+    validate_parser.add_argument(
+        "--original-uri",
+        dest="original_uri",
+        help="For PoP (SHR) tokens: the signed absolute request URI, sent as the 'original-uri' header.",
+    )
 
     auth_header_parser = subparsers.add_parser(
         "get-auth-header",
@@ -261,7 +274,11 @@ def main() -> None:
         with MicrosoftIdentityWebSidecarClient(args.base_url) as client:
             if args.command == "validate":
                 authorization_header = ensure_authorization_header(args)
-                result = client.validate_authorization_header(authorization_header)
+                result = client.validate_authorization_header(
+                    authorization_header,
+                    original_method=getattr(args, "original_method", None),
+                    original_uri=getattr(args, "original_uri", None),
+                )
                 _print_json({
                     "protocol": result.protocol,
                     "token": result.token,

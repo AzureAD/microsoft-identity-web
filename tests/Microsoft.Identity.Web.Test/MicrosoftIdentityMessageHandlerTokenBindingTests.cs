@@ -896,10 +896,12 @@ namespace Microsoft.Identity.Web.Test
         [InlineData("Options", false)]
         [InlineData("Delegate", false)]
         [InlineData("Configuration", false)]
+        [InlineData("LegacyConfiguration", false)]
         [InlineData("Parameterless", true)]
         [InlineData("Options", true)]
         [InlineData("Delegate", true)]
         [InlineData("Configuration", true)]
+        [InlineData("LegacyConfiguration", true)]
         public async Task ExtensionMethods_MtlsOnly_UseRegisteredRetryPolicy(string overload, bool shouldRetry)
         {
             // Arrange
@@ -956,13 +958,21 @@ namespace Microsoft.Identity.Web.Test
                     });
                     break;
                 case "Configuration":
+                case "LegacyConfiguration":
                     var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
                     {
                         [nameof(options.ProtocolScheme)] = options.ProtocolScheme,
                         [nameof(options.BaseUrl)] = options.BaseUrl,
                         [nameof(options.RelativePath)] = options.RelativePath
                     }).Build();
-                    builder.AddMicrosoftIdentityMessageHandler(configuration, "RetryPolicy");
+                    if (overload == "Configuration")
+                    {
+                        builder.AddMicrosoftIdentityMessageHandler(configuration);
+                    }
+                    else
+                    {
+                        builder.AddMicrosoftIdentityMessageHandler(configuration, "RetryPolicy");
+                    }
                     break;
                 default:
                     throw new ArgumentException("Unknown builder overload", nameof(overload));

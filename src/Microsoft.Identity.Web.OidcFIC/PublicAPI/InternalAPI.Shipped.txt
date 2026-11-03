@@ -1,0 +1,2 @@
+#nullable enable
+Microsoft.Identity.Web.OidcFic.OidcIdpSignedAssertionProvider.OidcIdpSignedAssertionProvider(Microsoft.Identity.Web.AgentAcquisitionContext! agentContext, string? tokenExchangeUrl, Microsoft.Extensions.Logging.ILogger? logger, Microsoft.Identity.Abstractions.ICloudMetadataProvider? cloudMetadataProvider, string? relyingApplicationAuthority) -> void

@@ -1,1 +1,2 @@
 #nullable enable
+override Microsoft.Identity.Web.GraphServiceClientOptions.CloneInternal() -> Microsoft.Identity.Abstractions.AuthorizationHeaderProviderOptions!

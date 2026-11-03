@@ -107,11 +107,10 @@ namespace Microsoft.Identity.Web
         {
             options.ExtraParameters ??= new Dictionary<string, object>();
 
+            options.ExtraParameters[Constants.AgentIdentityKey] = agentApplicationId;
+
             // Until it makes it way through Abstractions
             options.ExtraParameters[Constants.FmiPathForClientAssertion] = agentApplicationId;
-
-            // Use the developer's AuthenticationOptionsName if set, otherwise default to "AzureAd"
-            string configurationSection = options.AuthenticationOptionsName ?? "AzureAd";
 
             options.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] = new MicrosoftEntraApplicationOptions
             {
@@ -120,7 +119,6 @@ namespace Microsoft.Identity.Web
                     SourceType = CredentialSource.CustomSignedAssertion,
                     CustomSignedAssertionProviderName = "OidcIdpSignedAssertion",
                     CustomSignedAssertionProviderData = new Dictionary<string, object> {
-                        { "ConfigurationSection", configurationSection }, // Use the developer's choice or default to "AzureAd"
                         { "RequiresSignedAssertionFmiPath", true }, // The OidcIdpSignedAssertionProvider will require the fmiPath to be provided in the assertionRequestOptions.
                     }
                 }]

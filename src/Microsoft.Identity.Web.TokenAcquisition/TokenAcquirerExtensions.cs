@@ -47,6 +47,10 @@ namespace Microsoft.Identity.Web
             if (clientAssertion != null)
             {
                 tokenAcquisitionOptions = options != null ? options.Clone() : new AcquireTokenOptions();
+                if (options is not null)
+                {
+                    OptionsDictionaryCloner.Copy(options, tokenAcquisitionOptions);
+                }
                 tokenAcquisitionOptions.WithClientAssertion(clientAssertion);
             }
             else

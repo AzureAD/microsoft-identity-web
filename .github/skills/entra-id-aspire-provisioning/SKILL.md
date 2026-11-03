@@ -1,14 +1,14 @@
 ---
 name: entra-id-aspire-provisioning
 description: |
-  Provision Entra ID (Azure AD) app registrations for .NET Aspire applications and update configuration.
+  Provision Entra ID (Azure AD) app registrations for Aspire applications and update configuration.
   Use after adding Microsoft.Identity.Web authentication code to create or update app registrations,
   configure scopes, credentials, and update appsettings.json files.
   Triggers: "provision entra id", "create app registration", "register azure ad app", 
   "configure entra id apps", "set up authentication apps".
 ---
 
-# Entra ID Provisioning for .NET Aspire
+# Entra ID Provisioning for Aspire
 
 Provision Entra ID app registrations for Aspire solutions and update `appsettings.json` configuration.
 

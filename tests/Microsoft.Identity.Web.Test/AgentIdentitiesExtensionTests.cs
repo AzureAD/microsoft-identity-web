@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Web.Test
         private const string TestAgentApplicationId = "test-agent-app-id";
 
         [Fact]
-        public void WithAgentIdentity_WithDefaultAuthenticationOptionsName_UsesAzureAdConfigurationSection()
+        public void WithAgentIdentity_WithDefaultAuthenticationOptionsName_DefersBlueprintResolution()
         {
             // Arrange
             var options = new AuthorizationHeaderProviderOptions();
@@ -32,17 +32,17 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(microsoftIdentityOptions);
             Assert.Equal(TestAgentApplicationId, microsoftIdentityOptions.ClientId);
 
-            // Verify the ConfigurationSection is set to "AzureAd" when AuthenticationOptionsName is not set
             var clientCredential = Assert.Single(microsoftIdentityOptions.ClientCredentials!);
             Assert.Equal(CredentialSource.CustomSignedAssertion, clientCredential.SourceType);
             Assert.Equal("OidcIdpSignedAssertion", clientCredential.CustomSignedAssertionProviderName);
             Assert.NotNull(clientCredential.CustomSignedAssertionProviderData);
-            Assert.True(clientCredential.CustomSignedAssertionProviderData.TryGetValue("ConfigurationSection", out var configSection));
-            Assert.Equal("AzureAd", configSection);
+            Assert.Null(options.AcquireTokenOptions.AuthenticationOptionsName);
+            Assert.False(clientCredential.CustomSignedAssertionProviderData.ContainsKey("ConfigurationSection"));
+            Assert.False(options.AcquireTokenOptions.ExtraParameters.ContainsKey(Constants.AgentAcquisitionContext));
         }
 
         [Fact]
-        public void WithAgentIdentity_WithCustomAuthenticationOptionsName_UsesCustomConfigurationSection()
+        public void WithAgentIdentity_WithCustomAuthenticationOptionsName_KeepsSingleBlueprintSelection()
         {
             // Arrange
             var options = new AuthorizationHeaderProviderOptions
@@ -64,18 +64,17 @@ namespace Microsoft.Identity.Web.Test
             var microsoftIdentityOptions = options.AcquireTokenOptions.ExtraParameters[Constants.MicrosoftIdentityOptionsParameter] as MicrosoftEntraApplicationOptions;
             Assert.NotNull(microsoftIdentityOptions);
 
-            // Verify the ConfigurationSection respects the custom AuthenticationOptionsName
             var clientCredential = Assert.Single(microsoftIdentityOptions.ClientCredentials!);
             Assert.NotNull(clientCredential.CustomSignedAssertionProviderData);
-            Assert.True(clientCredential.CustomSignedAssertionProviderData.TryGetValue("ConfigurationSection", out var configSection));
-            Assert.Equal("MyEntraId", configSection);
+            Assert.False(clientCredential.CustomSignedAssertionProviderData.ContainsKey("ConfigurationSection"));
+            Assert.Equal("MyEntraId", options.AcquireTokenOptions.AuthenticationOptionsName);
         }
 
         [Theory]
         [InlineData("EntraId")]
         [InlineData("CustomSection")]
         [InlineData("AzureAD_Prod")]
-        public void WithAgentIdentity_WithVariousCustomAuthenticationOptionsNames_UsesCorrectConfigurationSection(string authenticationOptionsName)
+        public void WithAgentIdentity_WithVariousCustomAuthenticationOptionsNames_PreservesSelection(string authenticationOptionsName)
         {
             // Arrange
             var options = new AuthorizationHeaderProviderOptions
@@ -94,12 +93,12 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(microsoftIdentityOptions);
 
             var clientCredential = Assert.Single(microsoftIdentityOptions.ClientCredentials!);
-            Assert.True(clientCredential.CustomSignedAssertionProviderData!.TryGetValue("ConfigurationSection", out var configSection));
-            Assert.Equal(authenticationOptionsName, configSection);
+            Assert.False(clientCredential.CustomSignedAssertionProviderData!.ContainsKey("ConfigurationSection"));
+            Assert.Equal(authenticationOptionsName, options.AcquireTokenOptions.AuthenticationOptionsName);
         }
 
         [Fact]
-        public void WithAgentIdentity_WithNullOptions_CreatesNewOptionsAndUsesAzureAdDefault()
+        public void WithAgentIdentity_WithNullOptions_CreatesNewOptionsAndDefersBlueprintResolution()
         {
             // Arrange
             AuthorizationHeaderProviderOptions? options = null;
@@ -116,8 +115,8 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(microsoftIdentityOptions);
 
             var clientCredential = Assert.Single(microsoftIdentityOptions.ClientCredentials!);
-            Assert.True(clientCredential.CustomSignedAssertionProviderData!.TryGetValue("ConfigurationSection", out var configSection));
-            Assert.Equal("AzureAd", configSection);
+            Assert.False(clientCredential.CustomSignedAssertionProviderData!.ContainsKey("ConfigurationSection"));
+            Assert.Null(result.AcquireTokenOptions.AuthenticationOptionsName);
         }
 
         [Fact]

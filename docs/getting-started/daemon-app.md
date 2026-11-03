@@ -305,9 +305,10 @@ Microsoft Identity Web proposes to call downstream APIs.
 
 ## Autonomous Agents (Agent Identity)
 
-**Autonomous agents** use **agent identities** to obtain app-only tokens. This is useful for Copilot scenarios, autonomous services.
+**Autonomous agents** use **agent identities** to obtain app-only tokens. This is useful for Copilot scenarios and autonomous services.
 
-⚠️ Microsoft recommends that agents calling downstream APIs happens in protected  web APIs even if these autonomous agents will acquire an app token
+> [!IMPORTANT]
+> Host agents that call downstream APIs in a secure confidential-client environment, such as a protected web API.
 
 
 ### Configuration
@@ -326,6 +327,7 @@ var configuration = new ConfigurationBuilder()
         ["AzureAd:Instance"] = "https://login.microsoftonline.com/",
         ["AzureAd:TenantId"] = "your-tenant-id",
         ["AzureAd:ClientId"] = "your-agent-app-client-id",
+        ["AzureAd:SendX5C"] = "true",
         ["AzureAd:ClientCredentials:0:SourceType"] = "StoreWithDistinguishedName",
         ["AzureAd:ClientCredentials:0:CertificateStorePath"] = "CurrentUser/My",
         ["AzureAd:ClientCredentials:0:CertificateDistinguishedName"] = "CN=YourCert"
@@ -378,6 +380,7 @@ var applications = await graphClient.Applications.GetAsync(request =>
     request.Options.WithAuthenticationOptions(authOptions =>
     {
         authOptions.WithAgentIdentity(agentIdentityId);
+        authOptions.RequestAppToken = true;
     });
 });
 ```
@@ -423,6 +426,7 @@ public class AutonomousAgentService
             request.Options.WithAuthenticationOptions(options =>
             {
                 options.WithAgentIdentity(_agentIdentityId);
+                options.RequestAppToken = true;
             });
         });
 
@@ -458,6 +462,7 @@ services.Configure<MicrosoftIdentityApplicationOptions>(options =>
     options.Instance = "https://login.microsoftonline.com/";
     options.TenantId = "your-tenant-id";
     options.ClientId = "your-agent-app-client-id";
+    options.SendX5C = true;
 
     // Use certificate for agent authentication
     options.ClientCredentials = new[]
@@ -538,31 +543,22 @@ var me = await graphClient.Me.GetAsync(request =>
 });
 ```
 
-### Token Caching with ClaimsPrincipal
+### Token Caching
 
-For better performance, cache user tokens using `ClaimsPrincipal`:
+Agent user identity flows use MSAL's native User FIC API. Microsoft.Identity.Web tracks the account identifier needed for silent acquisition, so callers do not need to create or reuse a synthetic `ClaimsPrincipal`.
 
 ```csharp
-using System.Security.Claims;
-using Microsoft.Identity.Abstractions;
+var options = new AuthorizationHeaderProviderOptions()
+    .WithAgentUserIdentity(agentIdentityId, userUpn);
 
-// First call - creates cache entry
-ClaimsPrincipal userPrincipal = new ClaimsPrincipal();
-
-string authHeader = await authProvider.CreateAuthorizationHeaderForUserAsync(
+string firstHeader = await authProvider.CreateAuthorizationHeaderForUserAsync(
     scopes: new[] { "https://graph.microsoft.com/.default" },
-    options,
-    userPrincipal);
+    options);
 
-// ClaimsPrincipal now has uid and utid claims for caching
-bool hasUserId = userPrincipal.HasClaim(c => c.Type == "uid");
-bool hasTenantId = userPrincipal.HasClaim(c => c.Type == "utid");
-
-// Subsequent calls - uses cache
-authHeader = await authProvider.CreateAuthorizationHeaderForUserAsync(
+// Reuses the cached token when the agent, user, tenant, and scopes match.
+string secondHeader = await authProvider.CreateAuthorizationHeaderForUserAsync(
     scopes: new[] { "https://graph.microsoft.com/.default" },
-    options,
-    userPrincipal); // Reuse the same principal
+    options);
 ```
 
 ### Tenant Override
@@ -597,7 +593,6 @@ var me = await graphClient.Me.GetAsync(request =>
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Identity.Abstractions;
-using System.Security.Claims;
 
 public class AgentUserService
 {
@@ -636,17 +631,14 @@ public class AgentUserService
         return me!;
     }
 
-    public async Task<string> GetAuthHeaderForUserAsync(
-        string userUpn,
-        ClaimsPrincipal? cachedPrincipal = null)
+    public async Task<string> GetAuthHeaderForUserAsync(string userUpn)
     {
         var options = new AuthorizationHeaderProviderOptions()
             .WithAgentUserIdentity(_agentIdentityId, userUpn);
 
         return await _authProvider.CreateAuthorizationHeaderForUserAsync(
             scopes: new[] { "https://graph.microsoft.com/.default" },
-            options,
-            cachedPrincipal ?? new ClaimsPrincipal());
+            options);
     }
 }
 ```
@@ -972,7 +964,8 @@ Both approaches are fully supported and production-ready. Choose based on your a
 
 **Solution:**
 - For **app-only tokens**: Use `CreateAuthorizationHeaderForAppAsync` with `WithAgentIdentity`
-- For **delegated tokens**: Use `CreateAuthorizationHeaderForUserAsync` with `WithAgentUserIdentity`
+- For an **interactive agent acting for a signed-in user**: Use `CreateAuthorizationHeaderForUserAsync` with `WithAgentIdentity`
+- For an **agent user identity**: Use `CreateAuthorizationHeaderForUserAsync` with `WithAgentUserIdentity`
 - Ensure API permissions match token type (application vs. delegated)
 
 ### Token Caching Issues
@@ -980,8 +973,11 @@ Both approaches are fully supported and production-ready. Choose based on your a
 **Problem:** Tokens not cached, forcing new acquisition each time.
 
 **Solution:**
-- For agent user identity: Reuse the same `ClaimsPrincipal` instance across calls
-- Verify distributed cache connection (if using Redis/SQL)
+- For agent user identity, do not create a synthetic `ClaimsPrincipal`; Microsoft.Identity.Web tracks the MSAL account internally
+- Reuse the registered Microsoft.Identity.Web services instead of building a service provider for each request
+- Keep the agent identity, user identifier, tenant, and scopes consistent between calls
+- Check whether `ForceRefresh` is enabled
+- For standard daemon flows that use a distributed cache, verify the Redis/SQL connection
 - Enable debug logging to see cache operations
 
 **Detailed diagnostics:** [Logging & Diagnostics Guide](../advanced/logging.md)

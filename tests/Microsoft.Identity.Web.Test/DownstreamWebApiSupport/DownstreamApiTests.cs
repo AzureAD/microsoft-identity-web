@@ -65,6 +65,65 @@ namespace Microsoft.Identity.Web.Tests
              credentialsProvider: _provider);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void MergeOptions_WithAgentIdentityOverride_PreservesComparersAndConfiguration(bool useHttpMethodOverride)
+        {
+            // Arrange
+            var configuredExtraParameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Configured"] = "value"
+            };
+            var configuredOptions = new DownstreamApiOptions
+            {
+                ExtraHeaderParameters = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Configured"] = "header"
+                },
+                ExtraQueryParameters = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Configured"] = "query"
+                },
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ExtraParameters = configuredExtraParameters
+                }
+            };
+            var optionsMonitor = Substitute.For<IOptionsMonitor<DownstreamApiOptions>>();
+            optionsMonitor.Get("api").Returns(configuredOptions);
+            var downstreamApi = new DownstreamApi(
+                _authorizationHeaderProvider,
+                optionsMonitor,
+                _httpClientFactory,
+                _logger,
+                msalHttpClientFactory: null,
+                credentialsProvider: _provider);
+
+            // Act
+            DownstreamApiOptions mergedOptions = useHttpMethodOverride
+                ? downstreamApi.MergeOptions("api", options => options.WithAgentIdentity("request-agent"), HttpMethod.Post)
+                : downstreamApi.MergeOptions("api", options => options.WithAgentIdentity("request-agent"));
+
+            // Assert
+            Assert.Same(configuredExtraParameters, configuredOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.Single(configuredExtraParameters);
+            Assert.False(configuredExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
+            Dictionary<string, object> requestExtraParameters =
+                Assert.IsType<Dictionary<string, object>>(mergedOptions.AcquireTokenOptions.ExtraParameters);
+            Assert.Same(StringComparer.OrdinalIgnoreCase, requestExtraParameters.Comparer);
+            Assert.Equal("value", requestExtraParameters["CONFIGURED"]);
+            Assert.True(requestExtraParameters.ContainsKey(Constants.FmiPathForClientAssertion));
+            Assert.Equal("header", mergedOptions.ExtraHeaderParameters!["CONFIGURED"]);
+            Assert.Equal("query", mergedOptions.ExtraQueryParameters!["CONFIGURED"]);
+            mergedOptions.ExtraHeaderParameters["CONFIGURED"] = "request-header";
+            mergedOptions.ExtraQueryParameters["CONFIGURED"] = "request-query";
+            Assert.Single(mergedOptions.ExtraHeaderParameters);
+            Assert.Single(mergedOptions.ExtraQueryParameters);
+            Assert.Equal("header", configuredOptions.ExtraHeaderParameters["Configured"]);
+            Assert.Equal("query", configuredOptions.ExtraQueryParameters["Configured"]);
+        }
+
         [Fact]
         public async Task UpdateRequestAsync_WithContent_AddsContentToRequestAsync()
         {

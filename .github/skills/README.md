@@ -18,7 +18,7 @@ Skills work with multiple AI coding assistants that support the open skills form
 
 | Skill | Description | Full Guide |
 |-------|-------------|------------|
-| [entra-id-aspire-authentication](./entra-id-aspire-authentication/SKILL.md) | Adding Microsoft Entra ID authentication to .NET Aspire applications | [Aspire Integration Guide](../../docs/frameworks/aspire.md) |
+| [entra-id-aspire-authentication](./entra-id-aspire-authentication/SKILL.md) | Adding Microsoft Entra ID authentication to Aspire applications | [Aspire Integration Guide](../../docs/frameworks/aspire.md) |
 | [entra-id-aspire-provisioning](./entra-id-aspire-provisioning/SKILL.md) | Provisioning Entra ID app registrations for Aspire apps using Microsoft Graph PowerShell | [Aspire Integration Guide](../../docs/frameworks/aspire.md) |
 | [boundcredentials](./boundcredentials/SKILL.md) | Configuring mTLS Proof-of-Possession with Managed Identity for Azure Key Vault and other resources | [daemon-app-msi-mtls sample](../../tests/DevApps/daemon-app/daemon-app-msi-mtls/) |
 

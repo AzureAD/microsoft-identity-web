@@ -173,6 +173,47 @@ public class DownstreamApiEndpointTests(SidecarApiFactory factory) : IClassFixtu
         Assert.Contains("An unexpected error occurred", content, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-a-guid")]
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public async Task DownstreamApi_WithInvalidSelectedAgentUserId_ReturnsBadRequestWithoutCallingApiAsync(
+        string agentUserId)
+    {
+        // Arrange
+        var mockDownstreamApi = new Mock<IDownstreamApi>(MockBehavior.Strict);
+        var client = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                TestAuthenticationHandler.AddAlwaysSucceedTestAuthentication(services);
+                services.Configure<DownstreamApiOptions>("test-api", options =>
+                {
+                    options.BaseUrl = "https://api.example.com";
+                    options.Scopes = ["user.read"];
+                });
+                services.AddSingleton(mockDownstreamApi.Object);
+            });
+        }).CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
+
+        // Act
+        var response = await client.PostAsync(
+            $"/DownstreamApi/test-api?AgentIdentity=agent-app-id&AgentUserId={agentUserId}",
+            null);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        string content = await response.Content.ReadAsStringAsync();
+        Assert.Contains("AgentUserId must be a non-empty GUID.", content, StringComparison.Ordinal);
+        if (agentUserId.Length > 0)
+        {
+            Assert.DoesNotContain(agentUserId, content, StringComparison.Ordinal);
+        }
+        mockDownstreamApi.VerifyNoOtherCalls();
+    }
+
     [Fact]
     public async Task DownstreamApi_WithSuccessfulCall_ReturnsOkWithDownstreamApiResultAsync()
     {
@@ -450,7 +491,7 @@ public class DownstreamApiEndpointTests(SidecarApiFactory factory) : IClassFixtu
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
 
         var agentIdentity = "test-agent-id";
-        var agentUserId = "d75c4739-595d-44ed-a0b8-5176ca033c23";
+        var agentUserId = "d75c4739595d44eda0b85176ca033c23";
 
         // Act
         var response = await client.PostAsync($"/DownstreamApi/test-api?agentidentity={agentIdentity}&agentUserId={agentUserId}", null);
@@ -500,7 +541,7 @@ public class DownstreamApiEndpointTests(SidecarApiFactory factory) : IClassFixtu
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "valid-token");
 
         var agentIdentity = "test-agent-id";
-        var agentUserId = "d75c4739-595d-44ed-a0b8-5176ca033c23";
+        var agentUserId = "not-a-guid";
         var agentUsername = "test-user@example.com";
 
         // Act

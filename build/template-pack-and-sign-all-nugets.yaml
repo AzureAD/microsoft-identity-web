@@ -26,7 +26,6 @@ steps:
   inputs:
     InputType: Basic
     AnalyzeTargetGlob: '$(Build.SourcesDirectory)\$(IdWebSourceDir)src\**\bin\**\Microsoft.Identity.Web*.dll'
-    AnalyzeVerbose: true
     AnalyzeHashes: true
     toolVersion: Exact
 

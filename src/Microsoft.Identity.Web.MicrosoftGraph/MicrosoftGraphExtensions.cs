@@ -89,9 +89,12 @@ namespace Microsoft.Identity.Web
             {
                 IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
+                var authenticationProvider = new TokenAcquisitionAuthenticationProvider(
                     authorizationHeaderProvider,
-                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() }));
+                    new TokenAcquisitionAuthenticationProviderOption() { Scopes = initialScopes.ToArray() });
+                GraphServiceClient graphServiceClient = Throws.IfNull(graphServiceClientFactory(authenticationProvider));
+                authenticationProvider.BindBaseUrl(graphServiceClient.BaseUrl);
+                return graphServiceClient;
             });
             return builder;
         }
@@ -112,9 +115,12 @@ namespace Microsoft.Identity.Web
             {
                 IAuthorizationHeaderProvider authorizationHeaderProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
 
-                return graphServiceClientFactory(new TokenAcquisitionAuthenticationProvider(
+                var authenticationProvider = new TokenAcquisitionAuthenticationProvider(
                     authorizationHeaderProvider,
-                    new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true }));
+                    new TokenAcquisitionAuthenticationProviderOption() { AppOnly = true });
+                GraphServiceClient graphServiceClient = Throws.IfNull(graphServiceClientFactory(authenticationProvider));
+                authenticationProvider.BindBaseUrl(graphServiceClient.BaseUrl);
+                return graphServiceClient;
             });
             return builder;
         }

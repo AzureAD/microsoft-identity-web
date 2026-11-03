@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.OidcFic;
 using NSubstitute;
 using Xunit;
@@ -31,6 +34,59 @@ namespace Microsoft.Identity.Web.Test
             _serviceProvider = Substitute.For<IServiceProvider>();
             _tokenAcquirerFactory = Substitute.For<ITokenAcquirerFactory>();
             _options = new MicrosoftIdentityApplicationOptions();
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void CompatibilityRepair_NamedCodeOptions_DoNotInheritUnrequestedJson(bool configureBefore, bool invalidJson)
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Inner:Instance"] = "https://login.microsoftonline.us/",
+                    ["Inner:TenantId"] = "json-tenant",
+                    ["Inner:ClientId"] = "json-client",
+                    ["Inner:ExtraQueryParameters:dc"] = "json-routing-hint",
+                    ["Inner:SendX5C"] = invalidJson ? "not-a-boolean" : "true",
+                }).Build());
+            void ConfigureOptions() => services.Configure<MicrosoftIdentityApplicationOptions>("Inner", options =>
+            {
+                options.Instance = "https://login.microsoftonline.com/";
+                options.TenantId = "code-tenant";
+                options.ClientId = "code-client";
+                options.SendX5C = false;
+                options.ClientCredentials = [new CredentialDescription
+                {
+                    SourceType = CredentialSource.ClientSecret,
+                    ClientSecret = "test-only-secret",
+                }];
+            });
+            if (configureBefore)
+            {
+                ConfigureOptions();
+            }
+            services.AddOidcFic();
+            if (!configureBefore)
+            {
+                ConfigureOptions();
+            }
+            using var provider = services.BuildServiceProvider();
+
+            // Act
+            var options = provider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityApplicationOptions>>().Get("Inner");
+
+            // Assert
+            Assert.Equal("code-client", options.ClientId);
+            Assert.Equal("code-tenant", options.TenantId);
+            Assert.Equal("https://login.microsoftonline.com/", options.Instance);
+            Assert.False(options.SendX5C);
+            Assert.Null(options.ExtraQueryParameters);
         }
 
         [Fact]
@@ -60,6 +116,36 @@ namespace Microsoft.Identity.Web.Test
 
             Assert.Contains("IConfiguration is not registered in the service collection", exception.Message, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("https://aka.ms/ms-id-web/fic-oidc/troubleshoot", exception.Message, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task CompatibilityRepair_OrdinaryLoader_BindsMissingSectionOnDemand()
+        {
+            // Arrange
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["TestSection:Instance"] = "https://login.microsoftonline.com/",
+                ["TestSection:TenantId"] = "json-tenant",
+                ["TestSection:ClientId"] = "json-client",
+                ["TestSection:ClientCredentials:0:SourceType"] = "ClientSecret",
+                ["TestSection:ClientCredentials:0:ClientSecret"] = "test-only-secret",
+            }).Build();
+            _serviceProvider.GetService(typeof(IConfiguration)).Returns(configuration);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential();
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential);
+
+            // Assert
+            _tokenAcquirerFactory.Received(1).GetTokenAcquirer(
+                Arg.Is<IdentityApplicationOptions>(options => options.ClientId == "json-client"
+                    && options.Authority == "https://login.microsoftonline.com/json-tenant/v2.0"));
+            await acquirer.Received(1).GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.False(credential.Skip);
         }
 
         [Fact]
@@ -185,12 +271,130 @@ namespace Microsoft.Identity.Web.Test
 
         #region Token-binding (bound signed assertion) loader tests
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_EnrichmentContext_PreservesFmiDeferral(bool requiresFmiPath)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential();
+            credential.CustomSignedAssertionProviderData!["RequiresSignedAssertionFmiPath"] = requiresFmiPath;
+            Action<ExecutionResult, IList<KeyValuePair<string, object>>> enricher = (_, _) => { };
+            var parameters = new ClientAssertionCredentialSourceLoaderParameters(
+                "outer", "https://login.microsoftonline.com/tenant", enricher);
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential, parameters);
+
+            // Assert
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.False(credential.Skip);
+            if (requiresFmiPath)
+            {
+                await acquirer.DidNotReceive().GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            }
+            else
+            {
+                await acquirer.Received(1).GetTokenForAppAsync(
+                    Arg.Any<string>(),
+                    Arg.Is<AcquireTokenOptions?>(options => options != null &&
+                        options.ExtraParameters != null &&
+                        ReferenceEquals(options.ExtraParameters[Constants.OtelTagsEnricherKey], enricher)),
+                    Arg.Any<CancellationToken>());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_EnrichmentContext_DoesNotEnableBoundWarmup(bool useBoundCredential)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var credential = CreateOidcCredential(useBoundCredential);
+            var parameters = new ClientAssertionCredentialSourceLoaderParameters(
+                "outer", "https://login.microsoftonline.com/tenant", (_, _) => { })
+            {
+                Protocol = useBoundCredential ? "Bearer" : "MTLS_POP",
+            };
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential, parameters);
+
+            // Assert
+            Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            await acquirer.DidNotReceive().GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+        }
+
         private OidcIdpSignedAssertionLoader CreateLoader() =>
             new OidcIdpSignedAssertionLoader(_logger, _optionsMonitor, _serviceProvider, _tokenAcquirerFactory);
 
-        private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion")
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LoadIfNeededAsync_ResolvedAgentContext_DoesNotResolveConfigurationAgain(bool hasStaleSection)
         {
-            var acquirer = Substitute.For<ITokenAcquirer>();
+            // Arrange
+            const string agentId = "agent-client-id";
+            var acquisition = Substitute.For<ITokenAcquisition>();
+            var blueprint = new MergedOptions
+            {
+                ClientId = "blueprint-client-id",
+                Instance = "https://login.microsoftonline.com/",
+            };
+            var context = new AgentAcquisitionContext(agentId, blueprint, acquisition, "Blueprint");
+            var credential = CreateOidcCredential();
+            credential.CustomSignedAssertionProviderData = new Dictionary<string, object>
+            {
+                [Constants.AgentAcquisitionContext] = context,
+                ["RequiresSignedAssertionFmiPath"] = true,
+            };
+            if (hasStaleSection)
+            {
+                credential.CustomSignedAssertionProviderData["ConfigurationSection"] = "UnregisteredSection";
+            }
+            TokenAcquisitionOptions? capturedOptions = null;
+            acquisition.GetAuthenticationResultForAppAsync(
+                "api://AzureADTokenExchange/.default", "Blueprint", "tenant", Arg.Any<TokenAcquisitionOptions>())
+                .Returns(call =>
+                {
+                    capturedOptions = call.ArgAt<TokenAcquisitionOptions>(3);
+                    return new AuthenticationResult(
+                        "blueprint-assertion", false, "unused", DateTimeOffset.UtcNow.AddHours(1),
+                        DateTimeOffset.UtcNow.AddHours(1), "tenant", null, "unused",
+                        new[] { "api://AzureADTokenExchange/.default" }, Guid.NewGuid());
+                });
+
+            // Act
+            await CreateLoader().LoadIfNeededAsync(credential);
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            var assertion = await provider.GetSignedAssertionAsync(new AssertionRequestOptions
+            {
+                ClientAssertionFmiPath = agentId,
+                TokenEndpoint = "https://login.microsoftonline.com/tenant/oauth2/v2.0/token",
+            });
+
+            // Assert
+            Assert.Equal("blueprint-assertion", assertion);
+            Assert.NotNull(capturedOptions);
+            Assert.Equal(agentId, capturedOptions.FmiPath);
+            Assert.Same(context, capturedOptions.ExtraParameters![Constants.AgentAcquisitionContext]);
+            _optionsMonitor.DidNotReceive().Get(Arg.Any<string>());
+            _tokenAcquirerFactory.DidNotReceive().GetTokenAcquirer(Arg.Any<IdentityApplicationOptions>());
+            _serviceProvider.DidNotReceive().GetService(typeof(IConfiguration));
+            Assert.False(credential.Skip);
+        }
+
+        private ITokenAcquirer SetupInnerAcquirer(string accessToken = "inner-assertion", ITokenAcquirer? acquirer = null)
+        {
+            acquirer ??= Substitute.For<ITokenAcquirer>();
             acquirer.GetTokenForAppAsync(
                     Arg.Any<string>(),
                     Arg.Any<AcquireTokenOptions>(),
@@ -219,6 +423,86 @@ namespace Microsoft.Identity.Web.Test
                     ["ConfigurationSection"] = "TestSection"
                 }
             };
+        }
+
+        [Fact]
+        public async Task LoadCredentialsIfNeededAsync_TokenFailure_RetriesWithoutReset()
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var failure = new MsalServiceException("temporarily_unavailable", "Inner token acquisition failed.");
+            acquirer.GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<AcquireTokenResult>(failure));
+            var defaultLoader = new DefaultCredentialsLoader(
+                customSignedAssertionProviders: [CreateLoader()], logger: null);
+            var credential = CreateOidcCredential();
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                defaultLoader.LoadCredentialsIfNeededAsync(credential));
+
+            // Assert
+            Assert.Same(failure, exception);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+
+            SetupInnerAcquirer("recovered-assertion", acquirer);
+            await defaultLoader.LoadCredentialsIfNeededAsync(credential);
+            var provider = Assert.IsType<OidcIdpSignedAssertionProvider>(credential.CachedValue);
+            Assert.Equal("recovered-assertion", await provider.GetSignedAssertionAsync(null));
+            await defaultLoader.LoadCredentialsIfNeededAsync(credential);
+            Assert.Same(provider, credential.CachedValue);
+            await acquirer.Received(2).GetTokenForAppAsync(
+                Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>());
+            Assert.False(credential.Skip);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Selection_TokenFailure_RetriesWithoutReset(bool useRelyingAuthority)
+        {
+            // Arrange
+            _options.Instance = "https://login.microsoftonline.com/";
+            _optionsMonitor.Get("TestSection").Returns(_options);
+            var acquirer = SetupInnerAcquirer();
+            var failure = new MsalServiceException("temporarily_unavailable", "Inner token acquisition failed.");
+            acquirer.GetTokenForAppAsync(
+                    Arg.Any<string>(), Arg.Any<AcquireTokenOptions?>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromException<AcquireTokenResult>(failure));
+            var loader = new DefaultCredentialsLoader(customSignedAssertionProviders: [CreateLoader()], logger: null);
+            var provider = new CredentialsProvider(NullLogger<CredentialsProvider>.Instance, loader, [], null);
+            var credential = CreateOidcCredential();
+            var options = new MergedOptions { ClientCredentials = [credential] };
+            CredentialSourceLoaderParameters? parameters = useRelyingAuthority
+                ? new CredentialSourceLoaderParameters("relying-client", "https://login.microsoftonline.com/relying-tenant")
+                : null;
+
+            // Act
+            var exception = await Assert.ThrowsAsync<ArgumentException>(() => provider.GetCredentialAsync(options, parameters));
+
+            // Assert
+            Assert.Same(failure, exception.InnerException);
+            Assert.False(credential.Skip);
+            Assert.Null(credential.CachedValue);
+
+            SetupInnerAcquirer("recovered-assertion", acquirer);
+            CredentialDescription? selected = await provider.GetCredentialAsync(options, parameters);
+            Assert.NotNull(selected);
+            Assert.IsType<OidcIdpSignedAssertionProvider>(selected.CachedValue);
+            Assert.False(selected.Skip);
+            if (useRelyingAuthority)
+            {
+                Assert.NotSame(credential, selected);
+                Assert.Null(credential.CachedValue);
+            }
+            else
+            {
+                Assert.Same(credential, selected);
+            }
         }
 
         [Fact]

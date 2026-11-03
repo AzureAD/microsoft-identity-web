@@ -46,6 +46,14 @@ namespace Microsoft.Identity.Web.Test
             Assert.NotNull(_testCacheAdapter._memoryCache);
             Assert.Equal(1, _testCacheAdapter._memoryCache.Count);
             Assert.NotEqual(cache.SequenceEqual(GetFirstCacheValue(_testCacheAdapter._memoryCache)), isEncrypted);
+
+            // A fresh adapter bypasses L1 and reads the persisted cache through DataProtection.
+            var reader = ActivatorUtilities.CreateInstance<TestMsalDistributedTokenCacheAdapter>(_provider!);
+            TestTokenCache reloadedTokenCache = new TestTokenCache();
+            await reader.InitializeAsync(reloadedTokenCache);
+            await reloadedTokenCache._beforeAccess(InstantiateTokenCacheNotificationArgs(reloadedTokenCache));
+
+            Assert.Equal(cache, reloadedTokenCache.cache);
         }
 
         private byte[] GetFirstCacheValue(MemoryCache memoryCache)

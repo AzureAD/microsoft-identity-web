@@ -21,6 +21,7 @@ using Microsoft.Identity.Client.Extensibility;
 using Microsoft.Identity.Web.Test.Common.Mocks;
 using Microsoft.Identity.Web.Test.Common.TestHelpers;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using NSubstitute;
 using Xunit;
 using TC = Microsoft.Identity.Web.Test.Common.TestConstants;
 
@@ -388,6 +389,58 @@ namespace Microsoft.Identity.Web.Test
                     },
                 },
             };
+        }
+
+        [Fact]
+        public void GetApplicationKey_AgentCachePartitions_DoNotMutateOriginalOptions()
+        {
+            // Arrange
+            const string parentAId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+            const string parentBId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+            const string agentAId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+            const string agentBId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+            MergedOptions original = CreateOptionsWithOidcSignedAssertion(useBoundCredential: false);
+            original.ClientId = agentAId;
+            string originalKey = TokenAcquisition.GetApplicationKey(original, isTokenBinding: false);
+            var originalCcaOptions = original.ConfidentialClientApplicationOptions;
+            var acquisition = Substitute.For<ITokenAcquisition>();
+            AgentAcquisitionContext CreateContext(string blueprintId, string agentId) =>
+                new(agentId, new MergedOptions { ClientId = blueprintId }, acquisition, "Blueprint");
+
+            // Act
+            MergedOptions parentA = original.WithAgentContext(CreateContext(parentAId, agentAId));
+            MergedOptions parentB = original.WithAgentContext(CreateContext(parentBId, agentAId));
+            MergedOptions agentB = original.WithAgentContext(CreateContext(parentAId, agentBId));
+            agentB.ClientId = agentBId;
+            MergedOptions aliasA = original.WithAgentContext(CreateContext(parentAId.ToUpperInvariant(), agentAId));
+
+            // Assert
+            Assert.Null(original.AgentContext);
+            Assert.Equal(originalKey, TokenAcquisition.GetApplicationKey(original, isTokenBinding: false));
+            Assert.NotSame(originalCcaOptions, parentA.ConfidentialClientApplicationOptions);
+            Assert.Same(originalCcaOptions, original.ConfidentialClientApplicationOptions);
+            Assert.Equal(original.ClientId, parentA.ClientId);
+            Assert.Same(original.ClientCredentials, parentA.ClientCredentials);
+            Assert.Equal(parentAId, parentA.AgentContext!.BlueprintClientId);
+            Assert.Equal(parentAId, aliasA.AgentContext!.BlueprintClientId);
+            Assert.NotEqual(parentA.AgentContext.BlueprintClientId, parentB.AgentContext!.BlueprintClientId);
+            Assert.Equal(parentA.AgentContext.BlueprintClientId, agentB.AgentContext!.BlueprintClientId);
+            Assert.Equal(originalKey + ":agent-blueprint:" + parentAId, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.Equal(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(aliasA, isTokenBinding: false));
+            Assert.NotEqual(originalKey, TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false));
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(parentB, isTokenBinding: false));
+            Assert.NotEqual(
+                TokenAcquisition.GetApplicationKey(parentA, isTokenBinding: false),
+                TokenAcquisition.GetApplicationKey(agentB, isTokenBinding: false));
+            Assert.Throws<ArgumentNullException>(() => CreateContext(null!, agentAId));
+            Assert.Throws<ArgumentNullException>(() => CreateContext(parentAId, null!));
+            Assert.Throws<ArgumentException>(() => CreateContext(string.Empty, agentAId));
+            Assert.Throws<ArgumentException>(() => CreateContext(parentAId, " "));
+            Assert.Throws<ArgumentNullException>(() => original.WithAgentContext(null!));
         }
 
         /// <summary>

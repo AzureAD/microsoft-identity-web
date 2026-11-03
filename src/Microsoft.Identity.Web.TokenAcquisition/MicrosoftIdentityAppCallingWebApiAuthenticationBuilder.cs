@@ -33,7 +33,7 @@ namespace Microsoft.Identity.Web
         /// </summary>
         /// <param name="configureOptions"><see cref="MsalMemoryTokenCacheOptions"/> to configure.</param>
         /// <param name="memoryCacheOptions"><see cref="MemoryCacheOptions"/> to configure.</param>
-        /// <returns>the service collection.</returns>
+        /// <returns>The authentication builder to chain.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddInMemoryTokenCaches(
         Action<MsalMemoryTokenCacheOptions>? configureOptions = null,
         Action<MemoryCacheOptions>? memoryCacheOptions = null)
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Web
         /// <summary>
         /// Add distributed token caches.
         /// </summary>
-        /// <returns>the service collection.</returns>
+        /// <returns>The authentication builder to chain.</returns>
         public MicrosoftIdentityAppCallsWebApiAuthenticationBuilder AddDistributedTokenCaches()
         {
             Services.AddDistributedTokenCaches();

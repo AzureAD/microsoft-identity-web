@@ -14,11 +14,8 @@ using Microsoft.Identity.Web;
 
 namespace Microsoft.Identity.Web.OidcFic
 {
-    internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase
+    internal class OidcIdpSignedAssertionProvider : ClientAssertionProviderBase, IPerRequestClientAssertionProvider
     {
-        private const string DefaultTokenExchangeUrl = "api://AzureADTokenExchange";
-        private const string DotDefaultSuffix = "/.default";
-
         // Signals the inner token acquisition to bind the assertion to an mTLS PoP certificate.
         // Kept in sync with the internal constant used by the token-acquisition pipeline.
         private const string TokenBindingParameterName = "IsTokenBinding";
@@ -33,10 +30,13 @@ namespace Microsoft.Identity.Web.OidcFic
             "(for example SignedAssertionFromManagedIdentity or a certificate).";
 
         private ITokenAcquirer? _tokenAcquirer = null;
-        private readonly ITokenAcquirerFactory _tokenAcquirerFactory;
-        private readonly MicrosoftIdentityApplicationOptions _options;
+        private readonly ITokenAcquirerFactory? _tokenAcquirerFactory;
+        private readonly MicrosoftIdentityApplicationOptions? _options;
+        private readonly AgentAcquisitionContext? _agentContext;
         private readonly string? _tokenExchangeUrl;
         private readonly ILogger? _logger;
+        private readonly ICloudMetadataProvider? _cloudMetadataProvider;
+        private readonly string? _relyingApplicationAuthority;
 
         public bool RequiresSignedAssertionFmiPath { get; internal set; }
 
@@ -50,11 +50,39 @@ namespace Microsoft.Identity.Web.OidcFic
         public override bool SupportsTokenBinding => true;
 
         public OidcIdpSignedAssertionProvider(ITokenAcquirerFactory tokenAcquirerFactory, MicrosoftIdentityApplicationOptions options, string? tokenExchangeUrl, ILogger? logger)
+            : this(tokenAcquirerFactory, options, tokenExchangeUrl, logger, cloudMetadataProvider: null)
+        {
+        }
+
+        internal OidcIdpSignedAssertionProvider(
+            ITokenAcquirerFactory tokenAcquirerFactory,
+            MicrosoftIdentityApplicationOptions options,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            ICloudMetadataProvider? cloudMetadataProvider,
+            string? relyingApplicationAuthority = null)
         {
             _tokenAcquirerFactory = tokenAcquirerFactory;
             _options = options;
             _tokenExchangeUrl = tokenExchangeUrl;
             _logger = logger;
+            _cloudMetadataProvider = cloudMetadataProvider;
+            _relyingApplicationAuthority = relyingApplicationAuthority;
+        }
+
+        internal OidcIdpSignedAssertionProvider(
+            AgentAcquisitionContext agentContext,
+            string? tokenExchangeUrl,
+            ILogger? logger,
+            ICloudMetadataProvider? cloudMetadataProvider,
+            string? relyingApplicationAuthority)
+        {
+            _tokenAcquirer = agentContext.BlueprintTokenAcquirer;
+            _agentContext = agentContext;
+            _tokenExchangeUrl = tokenExchangeUrl;
+            _logger = logger;
+            _cloudMetadataProvider = cloudMetadataProvider;
+            _relyingApplicationAuthority = relyingApplicationAuthority;
         }
 
         protected override async Task<ClientAssertion> GetClientAssertionAsync(AssertionRequestOptions? assertionRequestOptions)
@@ -89,6 +117,14 @@ namespace Microsoft.Identity.Web.OidcFic
                 clientAssertion = null!;
             }
             return clientAssertion;
+        }
+
+        async Task<string> IPerRequestClientAssertionProvider.GetSignedAssertionForRequestAsync(
+            AssertionRequestOptions? assertionRequestOptions)
+        {
+            ClientAssertion assertion = await GetClientAssertionAsync(assertionRequestOptions).ConfigureAwait(false);
+
+            return assertion.SignedAssertion;
         }
 
         /// <summary>
@@ -149,12 +185,28 @@ namespace Microsoft.Identity.Web.OidcFic
             bool requestTokenBinding,
             CancellationToken cancellationToken)
         {
-            _tokenAcquirer ??= _tokenAcquirerFactory.GetTokenAcquirer(_options);
+            _tokenAcquirer ??= _tokenAcquirerFactory!.GetTokenAcquirer(_options!);
 
-            string tokenExchangeUrl = _tokenExchangeUrl ?? DefaultTokenExchangeUrl;
-            string effectiveTokenExchangeUrl = tokenExchangeUrl.EndsWith(DotDefaultSuffix, StringComparison.OrdinalIgnoreCase)
-                ? tokenExchangeUrl
-                : tokenExchangeUrl + DotDefaultSuffix;
+            // Precedence: an explicitly configured TokenExchangeUrl wins (as a per-call override); otherwise
+            // resolve the cloud-specific exchange audience from the layered resolver — a caller's
+            // ICloudMetadataProvider (from DI) over MSAL's public baseline — keyed by the outer relying
+            // application's authority. The outer app owns the FIC registration that validates the assertion
+            // audience; using the inner assertion issuer's cloud would select the wrong audience in a
+            // cross-cloud flow. For eager acquisition, use the authority captured by the credential loader;
+            // fall back to the inner instance only when direct/legacy callers provide neither source of outer
+            // request context. The scope form (/.default) is applied via MSAL's TokenExchangeScope because
+            // this is a client-credentials / app-token acquisition.
+            string? assertionRequestAuthority = assertionRequestOptions?.Authority;
+            string effectiveTokenExchangeUrl = Microsoft.Identity.Client.Instance.Discovery.TokenExchangeScope.FromAudience(
+                FederatedCredentialAudienceResolver.ResolveTokenExchangeAudience(
+                    !string.IsNullOrEmpty(_relyingApplicationAuthority)
+                        ? _relyingApplicationAuthority
+                        : !string.IsNullOrEmpty(assertionRequestAuthority)
+                            ? assertionRequestAuthority
+                            : _options is null ? _agentContext?.BlueprintOptions.Instance
+                                : string.IsNullOrEmpty(_options.Instance) ? _options.Authority : _options.Instance,
+                    perCallOverride: _tokenExchangeUrl,
+                    _cloudMetadataProvider));
 
             string? fmiPath = assertionRequestOptions?.ClientAssertionFmiPath;
 
@@ -170,10 +222,12 @@ namespace Microsoft.Identity.Web.OidcFic
                 : null;
 
             Guid correlationId = assertionRequestOptions?.CorrelationId ?? Guid.Empty;
+            string? claims = assertionRequestOptions?.Claims;
 
             AcquireTokenOptions? acquireTokenOptions = null;
             if (!string.IsNullOrEmpty(fmiPath)
                 || !string.IsNullOrEmpty(tenant)
+                || !string.IsNullOrEmpty(claims)
                 || requestTokenBinding
                 || correlationId != Guid.Empty)
             {
@@ -194,6 +248,11 @@ namespace Microsoft.Identity.Web.OidcFic
                     acquireTokenOptions.CorrelationId = correlationId;
                 }
 
+                if (!string.IsNullOrEmpty(claims))
+                {
+                    acquireTokenOptions.Claims = claims;
+                }
+
                 if (requestTokenBinding)
                 {
                     acquireTokenOptions.ExtraParameters ??= new Dictionary<string, object>();
@@ -212,7 +271,7 @@ namespace Microsoft.Identity.Web.OidcFic
 
             if (_logger != null)
             {
-                _logger.AcquiringToken(tokenExchangeUrl, acquireTokenOptions?.FmiPath);
+                _logger.AcquiringToken(effectiveTokenExchangeUrl, acquireTokenOptions?.FmiPath);
             }
 
             CancellationToken effectiveCancellationToken = cancellationToken != default
@@ -250,7 +309,7 @@ namespace Microsoft.Identity.Web.OidcFic
             // https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token.
             string? tenant = ExtractTenantFromTokenEndpointIfSameInstance(
                 assertionRequestOptions.TokenEndpoint,
-                _options.Instance);
+                _options?.Instance ?? _agentContext?.BlueprintOptions.Instance);
             if (!string.IsNullOrEmpty(tenant))
             {
                 return tenant;
@@ -264,7 +323,7 @@ namespace Microsoft.Identity.Web.OidcFic
                 && IsSameCloudInstance(
                     assertionRequestOptions.Authority,
                     assertionRequestOptions.TokenEndpoint,
-                    _options.Instance))
+                    _options?.Instance ?? _agentContext?.BlueprintOptions.Instance))
             {
                 return assertionRequestOptions.TenantId;
             }

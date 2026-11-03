@@ -1,15 +1,15 @@
 ---
 name: entra-id-aspire-authentication
 description: |
-  Guide for adding Microsoft Entra ID (Azure AD) authentication to .NET Aspire applications.
+  Guide for adding Microsoft Entra ID (Azure AD) authentication to Aspire applications.
   Use this when asked to add authentication, Entra ID, Azure AD, OIDC, or identity to an Aspire app,
   or when working with Microsoft.Identity.Web in Aspire projects.
 license: MIT
 ---
 
-# Entra ID Authentication for .NET Aspire Applications
+# Entra ID Authentication for Aspire Applications
 
-This skill helps you integrate **Microsoft Entra ID** (Azure AD) authentication into **.NET Aspire** distributed applications using **Microsoft.Identity.Web**.
+This skill helps you integrate **Microsoft Entra ID** (Azure AD) authentication into **Aspire** distributed applications using **Microsoft.Identity.Web**.
 
 ## When to Use This Skill
 
@@ -118,7 +118,7 @@ Get-ChildItem -Recurse -Filter "Program.cs" | ForEach-Object {
 
 ### Prerequisites
 
-1. .NET Aspire solution with API and Web (Blazor) projects
+1. Aspire solution with API and Web (Blazor) projects
 2. Azure AD tenant
 
 > **Two-phase workflow:**
@@ -538,5 +538,5 @@ else
 - 📖 **[Full Aspire Integration Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/frameworks/aspire.md)** - Comprehensive documentation with diagrams, detailed explanations, and advanced scenarios
 - [Microsoft.Identity.Web Documentation](https://github.com/AzureAD/microsoft-identity-web/tree/master/docs)
 - [MicrosoftIdentityMessageHandler Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/calling-downstream-apis/custom-apis.md#microsoftidentitymessagehandler---for-httpclient-integration)
-- [.NET Aspire Service Discovery](https://learn.microsoft.com/dotnet/aspire/service-discovery/overview)
+- [Aspire Service Discovery](https://aspire.dev/fundamentals/service-discovery/)
 - [Credentials Guide](https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/authentication/credentials/credentials-README.md)

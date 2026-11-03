@@ -1,0 +1,4 @@
+#nullable enable
+Microsoft.Identity.Web.DefaultAuthenticationRetryPolicy
+Microsoft.Identity.Web.DefaultAuthenticationRetryPolicy.DefaultAuthenticationRetryPolicy() -> void
+Microsoft.Identity.Web.DefaultAuthenticationRetryPolicy.ShouldRetry(Microsoft.Identity.Web.AuthenticationRetryContext! context) -> bool

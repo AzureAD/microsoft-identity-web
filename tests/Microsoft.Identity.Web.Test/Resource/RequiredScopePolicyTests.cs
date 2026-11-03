@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -114,6 +116,50 @@ namespace Microsoft.Identity.Web.Test.Resource
 
             // Assert
             Assert.True(allowed.Succeeded);
+        }
+
+        [Fact]
+        public async Task RequirementConfigurationKeyWithoutValue_FailsAsync()
+        {
+            // Arrange
+            var requirement = new ScopeAuthorizationRequirement(new[] { SingleScope })
+            {
+                RequiredScopesConfigurationKey = $"{ConfigSectionName}:MissingScope",
+            };
+            var user = new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[] { new Claim(ClaimConstants.Scp, SingleScope) }));
+            var context = new AuthorizationHandlerContext(new[] { requirement }, user, resource: null);
+            var handler = new ScopeAuthorizationHandler(new ConfigurationBuilder().Build());
+
+            // Act
+            await handler.HandleAsync(context);
+
+            // Assert
+            Assert.False(context.HasSucceeded);
+        }
+
+        [Fact]
+        public async Task EndpointConfigurationKeyWithoutValue_FailsAsync()
+        {
+            // Arrange
+            var requirement = new ScopeAuthorizationRequirement();
+            var user = new ClaimsPrincipal(
+                new CaseSensitiveClaimsIdentity(new[] { new Claim(ClaimConstants.Scp, SingleScope) }));
+            var endpoint = new Endpoint(
+                _ => Task.CompletedTask,
+                new EndpointMetadataCollection(new RequiredScopeAttribute
+                {
+                    RequiredScopesConfigurationKey = $"{ConfigSectionName}:MissingScope",
+                }),
+                displayName: null);
+            var context = new AuthorizationHandlerContext(new[] { requirement }, user, endpoint);
+            var handler = new ScopeAuthorizationHandler(new ConfigurationBuilder().Build());
+
+            // Act
+            await handler.HandleAsync(context);
+
+            // Assert
+            Assert.False(context.HasSucceeded);
         }
 
         [Fact]

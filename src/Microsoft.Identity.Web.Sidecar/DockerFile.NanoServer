@@ -5,5 +5,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-nanoserver-ltsc2022 AS base
 WORKDIR /app
 
 COPY app/publish .
-USER app
+USER ContainerUser
 ENTRYPOINT ["dotnet", "Microsoft.Identity.Web.Sidecar.dll"]

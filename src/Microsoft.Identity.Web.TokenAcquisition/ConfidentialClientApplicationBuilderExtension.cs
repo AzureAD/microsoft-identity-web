@@ -79,7 +79,9 @@ namespace Microsoft.Identity.Web
                         return WithBoundClientAssertion(builder, signedAssertionProvider);
                     }
 
-                    return builder.WithClientAssertion(signedAssertionProvider!.GetSignedAssertionAsync);
+                    return signedAssertionProvider is IPerRequestClientAssertionProvider perRequestProvider
+                        ? builder.WithClientAssertion(perRequestProvider.GetSignedAssertionForRequestAsync)
+                        : builder.WithClientAssertion(signedAssertionProvider!.GetSignedAssertionAsync);
                 case CredentialType.Certificate:
                     if (credential.UseBoundCredential && credential.Certificate is not null)
                     {

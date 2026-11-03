@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -135,17 +136,36 @@ public class SidecarIntegrationTests(SidecarApiFactory factory) : IClassFixture<
         Assert.NotNull(downstreamApiSection);
     }
 
-    [Fact]
-    public void MicrosoftIdentityOptions_AllowWebApiToBeAuthorizedByACL_IsSetToTrue()
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("true", true)]
+    [InlineData("false", false)]
+    public void MicrosoftIdentityOptions_BearerScheme_DefaultsToAclAuthorization_AndHonorsExplicitValue(
+        string? configuredValue,
+        bool expectedValue)
     {
         // Arrange
-        using var scope = _factory.Services.CreateScope();
+        using var factory = _factory.WithWebHostBuilder(builder =>
+        {
+            if (configuredValue is not null)
+            {
+                builder.ConfigureAppConfiguration((_, configuration) =>
+                    configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        {
+                            $"AzureAd:{nameof(MicrosoftIdentityOptions.AllowWebApiToBeAuthorizedByACL)}",
+                            configuredValue
+                        }
+                    }));
+            }
+        });
+        using var scope = factory.Services.CreateScope();
         var optionsMonitor = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<MicrosoftIdentityOptions>>();
 
         // Act
-        var options = optionsMonitor.CurrentValue;
+        var bearerOptions = optionsMonitor.Get(JwtBearerDefaults.AuthenticationScheme);
 
         // Assert
-        Assert.True(options.AllowWebApiToBeAuthorizedByACL);
+        Assert.Equal(expectedValue, bearerOptions.AllowWebApiToBeAuthorizedByACL);
     }
 }

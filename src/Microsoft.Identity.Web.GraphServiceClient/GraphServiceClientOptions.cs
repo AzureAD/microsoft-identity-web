@@ -35,5 +35,15 @@ namespace Microsoft.Identity.Web
         /// user on whose behalf the call is made.
         /// </summary>
         public ClaimsPrincipal? User { get; set; }
+
+        /// <inheritdoc/>
+        protected override AuthorizationHeaderProviderOptions CloneInternal()
+        {
+            var clone = (GraphServiceClientOptions)MemberwiseClone();
+            clone.AcquireTokenOptions = AcquireTokenOptions.Clone();
+            OptionsDictionaryCloner.Copy(AcquireTokenOptions, clone.AcquireTokenOptions);
+
+            return clone;
+        }
     }
 }

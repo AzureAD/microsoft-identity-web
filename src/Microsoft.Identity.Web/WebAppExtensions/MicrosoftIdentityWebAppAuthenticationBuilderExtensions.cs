@@ -402,7 +402,6 @@ namespace Microsoft.Identity.Web
                             context.Properties.Parameters.Remove(OpenIdConnectParameterNames.DomainHint);
                         }
 
-                        context.ProtocolMessage.SetParameter(Constants.ClientInfo, Constants.One);
                         context.ProtocolMessage.SetParameter(Constants.TelemetryHeaderKey, IdHelper.CreateTelemetryInfo());
 
                         // Additional claims

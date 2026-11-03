@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
@@ -22,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOidcFic(this IServiceCollection services)
         {
             services.AddTokenAcquisition(true);
+            services.TryAddSingleton<TokenAcquisition.AgentBlueprintOptionsBinder>(_ => (section, options) => section.Bind(options));
             services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomSignedAssertionProvider, OidcIdpSignedAssertionLoader>());
             return services;
         }

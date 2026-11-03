@@ -20,13 +20,14 @@ namespace Microsoft.Identity.Web.Resource
     public static class RolesRequiredHttpContextExtensions
     {
         /// <summary>
-        /// When applied to an <see cref="HttpContext"/>, verifies that the application
-        /// has the expected roles.
+        /// When applied to an <see cref="HttpContext"/>, verifies that the current principal
+        /// has one of the expected role values. This validates a role claim and value, not whether
+        /// the caller is an application.
         /// </summary>
         /// <param name="context">HttpContext (from the controller).</param>
         /// <param name="acceptedRoles">Roles accepted by this web API.</param>
         /// <remarks>When the roles don't match, the response is a 403 (Forbidden),
-        /// because the app does not have the expected roles.</remarks>
+        /// because the principal does not have the expected roles.</remarks>
         public static void ValidateAppRole(this HttpContext context, params string[] acceptedRoles)
         {
             _ = Throws.IfNull(acceptedRoles);
