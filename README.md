@@ -58,7 +58,7 @@ Understanding how to properly configure authentication authorities is crucial fo
 - **[Migration Guide](docs/authority-configuration/migration-authority-vs-instance.md)** - Upgrade path for existing applications and resolving configuration conflicts
 - **[Authority FAQ](docs/authority-configuration/faq-authority-precedence.md)** - Common questions and troubleshooting tips
 
-## Where do I file issues
+## Where do I file issues?
 
 
 This is the correct repo to file [issues](https://github.com/AzureAD/microsoft-identity-web/issues).
