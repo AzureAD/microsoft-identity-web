@@ -8,11 +8,10 @@ using Microsoft.Identity.Web;
 using System.Net;
 
 // Pure Managed Identity with mTLS Proof-of-Possession.
-// Requires an Azure VM / Arc-enabled server that exposes the V2 managed identity
-// credential endpoint (returns a binding certificate alongside the access token).
+// Requires a supported Windows IMDSv2 host with Credential Guard/KeyGuard for attestation.
 //
-// Trigger: AuthorizationHeaderProviderOptions.ProtocolScheme = "MTLS_POP" in appsettings.json
-//          (under AcquireTokenOptions, with RequestAppToken = true).
+// Select ProtocolScheme = "MTLS_POP" with RequestAppToken = true in appsettings.json.
+// AcquireTokenOptions.MinimumTokenBindingStrength explicitly requires KeyGuard in this sample.
 //
 // Important: Azure Key Vault requires "x-ms-tokenboundauth": "true" header on mTLS PoP
 // requests to trigger TLS renegotiation for client cert binding. This is configured via
@@ -21,6 +20,7 @@ using System.Net;
 var factory = TokenAcquirerFactory.GetDefaultInstance();
 
 factory.Services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
+factory.Services.AddMicrosoftIdentityWebKeyAttestation();
 
 factory.Services.AddDownstreamApi(
     "AzureKeyVault",

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Web.KeyAttestation\Microsoft.Identity.Web.KeyAttestation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

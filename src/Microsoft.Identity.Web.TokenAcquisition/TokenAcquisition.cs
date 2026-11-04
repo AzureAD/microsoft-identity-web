@@ -30,6 +30,8 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.LoggingExtensions;
 using Microsoft.IdentityModel.Tokens;
+using MsalMtlsBindingStrength = Microsoft.Identity.Client.AppConfig.MtlsBindingStrength;
+using MsalPoPOptions = Microsoft.Identity.Client.AppConfig.PoPOptions;
 
 namespace Microsoft.Identity.Web
 {
@@ -104,7 +106,6 @@ namespace Microsoft.Identity.Web
         protected readonly ILogger _logger;
         protected readonly IServiceProvider _serviceProvider;
         private readonly IKeyAttestationProvider? _keyAttestationProvider;
-        private int _unattestedManagedIdentityFlowLogged;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsProvider _credentialsProvider;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
@@ -382,6 +383,14 @@ namespace Microsoft.Identity.Web
             int retryCount)
         {
             _ = Throws.IfNull(scopes);
+
+            if (tokenAcquisitionOptions?.RequestOverMtls == true ||
+                (tokenAcquisitionOptions?.MinimumTokenBindingStrength ?? MtlsBindingStrength.None) != MtlsBindingStrength.None)
+            {
+                throw new ArgumentException(
+                    "RequestOverMtls and MinimumTokenBindingStrength apply only to direct managed identity app token acquisition.",
+                    nameof(tokenAcquisitionOptions));
+            }
 
             MergedOptions mergedOptions = GetMergedOptions(authenticationScheme, tokenAcquisitionOptions);
             user ??= await _tokenAcquisitionHost.GetAuthenticatedUserAsync(user).ConfigureAwait(false);
@@ -916,6 +925,34 @@ namespace Microsoft.Identity.Web
                 && isTokenBindingObject is bool isTokenBindingValue
                 && isTokenBindingValue;
 
+            bool requestOverMtls = tokenAcquisitionOptions?.RequestOverMtls == true;
+            MtlsBindingStrength minimumStrength = tokenAcquisitionOptions?.MinimumTokenBindingStrength ?? MtlsBindingStrength.None;
+            MsalMtlsBindingStrength msalMinimumStrength = minimumStrength switch
+            {
+                MtlsBindingStrength.None => MsalMtlsBindingStrength.None,
+                MtlsBindingStrength.Software => MsalMtlsBindingStrength.Software,
+                MtlsBindingStrength.KeyGuard => MsalMtlsBindingStrength.KeyGuard,
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(AcquireTokenOptions.MinimumTokenBindingStrength),
+                    minimumStrength,
+                    "Unsupported managed identity minimum token binding strength."),
+            };
+
+            if (requestOverMtls && (tokenAcquisitionOptions?.ManagedIdentity is null || isTokenBinding))
+            {
+                throw new ArgumentException(
+                    "RequestOverMtls requires managed identity and cannot be combined with MTLS_POP.",
+                    nameof(tokenAcquisitionOptions));
+            }
+
+            if (minimumStrength != MtlsBindingStrength.None &&
+                (tokenAcquisitionOptions?.ManagedIdentity is null || !isTokenBinding))
+            {
+                throw new ArgumentException(
+                    "MinimumTokenBindingStrength requires direct managed identity MTLS_POP acquisition and does not apply to bearer tokens.",
+                    nameof(AcquireTokenOptions.MinimumTokenBindingStrength));
+            }
+
             // If using managed identity 
             if (tokenAcquisitionOptions != null && tokenAcquisitionOptions.ManagedIdentity != null)
             {
@@ -928,19 +965,23 @@ namespace Microsoft.Identity.Web
 
                     var miBuilder = managedIdApp.AcquireTokenForManagedIdentity(scope);
 
-                    if (isTokenBinding)
+                    if (isTokenBinding || requestOverMtls)
                     {
-                        miBuilder = miBuilder.WithMtlsProofOfPossession();
+                        if (minimumStrength == MtlsBindingStrength.KeyGuard && _keyAttestationProvider is null)
+                        {
+                            throw new InvalidOperationException(
+                                "MinimumTokenBindingStrength KeyGuard requires key attestation. " +
+                                "Install Microsoft.Identity.Web.KeyAttestation and call " +
+                                "AddMicrosoftIdentityWebKeyAttestation().");
+                        }
+
+                        // MSAL partitions mTLS tokens by transport, attestation support, and the PoP minimum strength.
+                        miBuilder = requestOverMtls
+                            ? miBuilder.WithRequestOverMtls()
+                            : miBuilder.WithMtlsProofOfPossession(new MsalPoPOptions { MinStrength = msalMinimumStrength });
                         if (_keyAttestationProvider is not null)
                         {
                             miBuilder = _keyAttestationProvider.EnableAttestation(miBuilder);
-                        }
-                        else if (Interlocked.Exchange(ref _unattestedManagedIdentityFlowLogged, 1) == 0)
-                        {
-                            _logger.LogInformation(
-                                "Managed identity mTLS proof-of-possession is using an unattested binding. " +
-                                "Install Microsoft.Identity.Web.KeyAttestation and call " +
-                                "AddMicrosoftIdentityWebKeyAttestation() to enable Credential Guard attestation.");
                         }
                     }
 

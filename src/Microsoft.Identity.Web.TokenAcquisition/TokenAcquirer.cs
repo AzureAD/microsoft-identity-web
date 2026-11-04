@@ -104,6 +104,8 @@ namespace Microsoft.Identity.Web
                         [Constants.AgentAcquisitionContext] = _agentContext,
                     },
                 ManagedIdentity = tokenAcquisitionOptions.ManagedIdentity,
+                RequestOverMtls = tokenAcquisitionOptions.RequestOverMtls,
+                MinimumTokenBindingStrength = tokenAcquisitionOptions.MinimumTokenBindingStrength,
                 FmiPath = tokenAcquisitionOptions.FmiPath
             };
         }
