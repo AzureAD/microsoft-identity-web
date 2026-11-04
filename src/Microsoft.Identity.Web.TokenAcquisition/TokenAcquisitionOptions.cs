@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Web
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
                 RequestOverMtls = RequestOverMtls,
-                KeyAttestation = KeyAttestation,
+                MinimumTokenBindingStrength = MinimumTokenBindingStrength,
                 FmiPath = FmiPath,
                 CachePartitionKeys = CachePartitionKeys != null
                     ? new Dictionary<string, string>(CachePartitionKeys)

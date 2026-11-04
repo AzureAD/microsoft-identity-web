@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Web
                     },
                 ManagedIdentity = tokenAcquisitionOptions.ManagedIdentity,
                 RequestOverMtls = tokenAcquisitionOptions.RequestOverMtls,
-                KeyAttestation = tokenAcquisitionOptions.KeyAttestation,
+                MinimumTokenBindingStrength = tokenAcquisitionOptions.MinimumTokenBindingStrength,
                 FmiPath = tokenAcquisitionOptions.FmiPath
             };
         }
