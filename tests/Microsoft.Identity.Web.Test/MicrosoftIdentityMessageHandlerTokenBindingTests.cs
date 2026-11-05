@@ -7,7 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +32,230 @@ namespace Microsoft.Identity.Web.Test
         public MicrosoftIdentityMessageHandlerTokenBindingTests()
         {
             _mockLogger = Substitute.For<ILogger<MicrosoftIdentityMessageHandler>>();
+        }
+
+        [Theory]
+        [InlineData("CustomBound", true)]
+        [InlineData("MTLS_POP", true)]
+        [InlineData("Bearer", true)]
+        [InlineData("CustomCertificate", false)]
+        public async Task SendAsync_RichProvider_UsesReturnedCertificateForAnyScheme(
+            string protocolScheme,
+            bool includeHeader)
+        {
+            // Arrange
+            using var certificate = CreateTestCertificate();
+            var provider = Substitute.For<IAuthorizationHeaderProvider2, IBoundAuthorizationHeaderProvider>();
+            var information = new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = includeHeader ? $"{protocolScheme} rich-token" : null,
+                BindingCertificate = certificate,
+            };
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(information));
+            string? capturedHeader = null;
+            using var mtlsClient = new HttpClient(new CapturingTestHandler(request =>
+            {
+                capturedHeader = request.Headers.Authorization?.ToString();
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }));
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(certificate).Returns(mtlsClient);
+            var innerHandler = new CapturingTestHandler(_ => throw new InvalidOperationException("Unbound transport was used."));
+            var options = new MicrosoftIdentityMessageHandlerOptions
+            {
+                ProtocolScheme = protocolScheme,
+                Scopes = { "api://test/.default" },
+                RequestAppToken = true,
+            };
+            using var handler = new MicrosoftIdentityMessageHandler(provider, options, mtlsFactory, _mockLogger)
+            {
+                InnerHandler = innerHandler,
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            using var response = await invoker.SendAsync(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(information.AuthorizationHeaderValue, capturedHeader);
+            mtlsFactory.Received(1).GetHttpClient(certificate);
+            await provider.Received(1).CreateAuthorizationHeaderInformationAsync(
+                Arg.Any<IEnumerable<string>>(),
+                Arg.Is<AuthorizationHeaderProviderOptions>(o => o.ProtocolScheme == protocolScheme && o.RequestAppToken),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+            await provider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+            await ((IBoundAuthorizationHeaderProvider)provider).DidNotReceive().CreateBoundAuthorizationHeaderAsync(
+                Arg.Any<DownstreamApiOptions>(), Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task SendAsync_UnboundRichResult_UsesInnerPipelineWithoutMtlsFactory()
+        {
+            // Arrange
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderInformation { AuthorizationHeaderValue = "Bearer rich-token" }));
+            string? capturedHeader = null;
+            using var handler = new MicrosoftIdentityMessageHandler(provider, new MicrosoftIdentityMessageHandlerOptions
+            {
+                Scopes = { "scope" },
+            }, _mockLogger)
+            {
+                InnerHandler = new CapturingTestHandler(request =>
+                {
+                    capturedHeader = request.Headers.Authorization?.ToString();
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }),
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            using var response = await invoker.SendAsync(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Bearer rich-token", capturedHeader);
+            await provider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task SendAsync_RichFailure_PreservesDiagnosticsWithoutLegacyFallback()
+        {
+            // Arrange
+            var cause = new InvalidOperationException("acquisition failure");
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderError("custom_failure", "custom failure", cause)));
+            using var handler = new MicrosoftIdentityMessageHandler(provider, new MicrosoftIdentityMessageHandlerOptions
+            {
+                Scopes = { "scope" },
+                ProtocolScheme = "CustomBound",
+            }, _mockLogger)
+            {
+                InnerHandler = new CapturingTestHandler(_ => throw new InvalidOperationException("Transport must not be used.")),
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MicrosoftIdentityAuthenticationException>(
+                () => invoker.SendAsync(request, CancellationToken.None));
+
+            // Assert
+            Assert.Contains("custom failure", exception.Message, StringComparison.Ordinal);
+            Assert.Same(cause, exception.InnerException);
+            await provider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task SendAsync_EmptyRichArtifacts_DoesNotSendAnUnauthenticatedRequest()
+        {
+            // Arrange
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderInformation()));
+            using var handler = new MicrosoftIdentityMessageHandler(provider, new MicrosoftIdentityMessageHandlerOptions
+            {
+                Scopes = { "scope" },
+                ProtocolScheme = "CustomBound",
+            }, _mockLogger)
+            {
+                InnerHandler = new CapturingTestHandler(_ => throw new InvalidOperationException("Unbound transport was used.")),
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MicrosoftIdentityAuthenticationException>(
+                () => invoker.SendAsync(request, CancellationToken.None));
+
+            // Assert
+            Assert.Contains("neither a header nor a binding certificate", exception.Message, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task SendAsync_RichClaimsRetry_UsesNewHeadersBindingCertificate()
+        {
+            // Arrange
+            using var firstCertificate = CreateTestCertificate();
+            using var secondCertificate = CreateCustomProtocolCertificate();
+            const string claims = "{\"access_token\":{\"custom\":{\"essential\":true}}}";
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            var capturedClaims = new List<string?>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(call =>
+                {
+                    capturedClaims.Add(call.ArgAt<AuthorizationHeaderProviderOptions>(1).AcquireTokenOptions.Claims);
+                    var isRetry = capturedClaims.Count == 2;
+                    return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                        new AuthorizationHeaderInformation
+                        {
+                            AuthorizationHeaderValue = isRetry ? "CustomBound second-token" : "CustomBound first-token",
+                            BindingCertificate = isRetry ? secondCertificate : firstCertificate,
+                        });
+                });
+            var observedHeaders = new List<string?>();
+            using var firstClient = new HttpClient(new CapturingTestHandler(request =>
+            {
+                observedHeaders.Add(request.Headers.Authorization?.ToString());
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                response.Headers.TryAddWithoutValidation(
+                    "WWW-Authenticate",
+                    $"Bearer error=\"insufficient_claims\", claims=\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(claims))}\"");
+                return response;
+            }));
+            using var secondClient = new HttpClient(new CapturingTestHandler(request =>
+            {
+                observedHeaders.Add(request.Headers.Authorization?.ToString());
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }));
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(firstCertificate).Returns(firstClient);
+            mtlsFactory.GetHttpClient(secondCertificate).Returns(secondClient);
+            using var handler = new MicrosoftIdentityMessageHandler(provider, new MicrosoftIdentityMessageHandlerOptions
+            {
+                Scopes = { "scope" },
+                ProtocolScheme = "CustomBound",
+                RequestAppToken = true,
+            }, mtlsFactory, _mockLogger)
+            {
+                InnerHandler = new CapturingTestHandler(_ => throw new InvalidOperationException("Unbound transport was used.")),
+            };
+            using var invoker = new HttpMessageInvoker(handler);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example.com/data");
+
+            // Act
+            using var response = await invoker.SendAsync(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(new string?[] { null, claims }, capturedClaims);
+            Assert.Equal(new[] { "CustomBound first-token", "CustomBound second-token" }, observedHeaders);
+            mtlsFactory.Received(1).GetHttpClient(firstCertificate);
+            mtlsFactory.Received(1).GetHttpClient(secondCertificate);
         }
 
         [Fact]
@@ -761,7 +987,7 @@ namespace Microsoft.Identity.Web.Test
         public async Task SendAsync_MtlsOnly_PersistentUnauthorizedWithClaims_DoesNotComposeRetries()
         {
             // Arrange
-            var mockHeaderProvider = Substitute.For<IAuthorizationHeaderProvider>();
+            var mockHeaderProvider = Substitute.For<IAuthorizationHeaderProvider2>();
             var mockCredentialsProvider = Substitute.For<ICredentialsProvider>();
 
             using var cert = CreateTestCertificate();
@@ -820,6 +1046,9 @@ namespace Microsoft.Identity.Web.Test
             await mockCredentialsProvider.Received(2).GetCredentialAsync(
                 Arg.Any<CredentialSourceLoaderParameters?>(),
                 Arg.Any<CancellationToken>());
+            await mockHeaderProvider.DidNotReceive().CreateAuthorizationHeaderInformationAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
         }
 
         [Theory]
@@ -1011,6 +1240,14 @@ namespace Microsoft.Identity.Web.Test
             {
                 return Task.FromResult(_responder(request));
             }
+        }
+
+        private static X509Certificate2 CreateCustomProtocolCertificate()
+        {
+            using var key = RSA.Create(2048);
+            var request = new CertificateRequest(
+                "CN=CustomProtocolRotation", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            return request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddHours(1));
         }
 
         private static X509Certificate2 CreateTestCertificate()

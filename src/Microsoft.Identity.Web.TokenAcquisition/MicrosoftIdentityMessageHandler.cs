@@ -543,29 +543,42 @@ namespace Microsoft.Identity.Web
         {
             try
             {
-                // mTLS PoP (Proof-of-Possession) token binding: bound bearer header + binding certificate.
-                // Prefer the IAuthorizationHeaderProvider2 surface (Abstractions 12.3.0+); fall back to the
-                // legacy IBoundAuthorizationHeaderProvider for custom providers that haven't been updated yet.
+                // Pure mTLS uses the credential loader below. Token-bearing protocols can supply binding
+                // metadata through the rich provider without using the native mTLS PoP scheme name.
+                bool isCertificateOnly = string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase);
                 bool isTokenBinding = string.Equals(options.ProtocolScheme, Constants.TokenBindingProtocolScheme, StringComparison.OrdinalIgnoreCase);
-                if (isTokenBinding
-                    && _headerProvider is IAuthorizationHeaderProvider2 boundProviderV2)
+                if (!isCertificateOnly && _headerProvider is IAuthorizationHeaderProvider2 headerProviderV2)
                 {
                     var downstreamApiOptions = CreateDownstreamApiOptions(options, scopes);
-                    var boundResult = await boundProviderV2.CreateAuthorizationHeaderInformationAsync(
+                    var headerResult = await headerProviderV2.CreateAuthorizationHeaderInformationAsync(
                         downstreamApiOptions.Scopes ?? Enumerable.Empty<string>(),
                         downstreamApiOptions,
                         claimsPrincipal: null,
                         cancellationToken).ConfigureAwait(false);
 
-                    if (!boundResult.Succeeded)
+                    if (!headerResult.Succeeded || headerResult.Result is null)
+                    {
+                        string message = isTokenBinding
+                            ? "Failed to acquire bound authorization header for mTLS PoP."
+                            : $"Failed to acquire authorization header information: {headerResult.Error?.Message}";
+                        if (headerResult.Error?.Exception is Exception exception)
+                        {
+                            throw new MicrosoftIdentityAuthenticationException(message, exception);
+                        }
+
+                        throw new MicrosoftIdentityAuthenticationException(message);
+                    }
+
+                    var headerInformation = headerResult.Result;
+                    if (string.IsNullOrEmpty(headerInformation.AuthorizationHeaderValue) && headerInformation.BindingCertificate is null)
                     {
                         throw new MicrosoftIdentityAuthenticationException(
-                            "Failed to acquire bound authorization header for mTLS PoP.");
+                            "The authorization header provider returned neither a header nor a binding certificate.");
                     }
 
                     return new AuthArtifacts(
-                        authHeader: boundResult.Result?.AuthorizationHeaderValue!,
-                        bindingCertificate: boundResult.Result?.BindingCertificate,
+                        authHeader: headerInformation.AuthorizationHeaderValue,
+                        bindingCertificate: headerInformation.BindingCertificate,
                         loaderParameters: null,
                         credentialDescription: null);
                 }
@@ -592,7 +605,7 @@ namespace Microsoft.Identity.Web
                 }
 
                 // Pure mTLS: client certificate only, no bearer header.
-                if (string.Equals(options.ProtocolScheme, Constants.MtlsProtocolScheme, StringComparison.OrdinalIgnoreCase))
+                if (isCertificateOnly)
                 {
                     if (_credentialsProvider is null)
                     {
@@ -714,10 +727,10 @@ namespace Microsoft.Identity.Web
         /// <exception cref="MicrosoftIdentityAuthenticationException">Thrown when token acquisition fails.</exception>
         /// <remarks>
         /// <para>
-        /// When token binding (mTLS PoP) is configured via <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>,
-        /// uses <see cref="IAuthorizationHeaderProvider2"/> (or, as a fallback, the legacy
-        /// <see cref="IBoundAuthorizationHeaderProvider"/>) to acquire a bound token and sends the request
-        /// through an mTLS-configured HTTP client with the binding certificate.
+        /// Uses <see cref="IAuthorizationHeaderProvider2"/> when available and sends through an
+        /// mTLS-configured HTTP client whenever the result contains a binding certificate, including
+        /// for custom protocol schemes. The legacy <see cref="IBoundAuthorizationHeaderProvider"/>
+        /// remains a fallback for the native mTLS PoP scheme.
         /// </para>
         /// <para>
         /// For pure mTLS scenarios, the <see cref="ICredentialsProvider"/> is notified of certificate

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
@@ -122,6 +123,279 @@ namespace Microsoft.Identity.Web.Tests
             Assert.Single(mergedOptions.ExtraQueryParameters);
             Assert.Equal("header", configuredOptions.ExtraHeaderParameters["Configured"]);
             Assert.Equal("query", configuredOptions.ExtraQueryParameters["Configured"]);
+        }
+
+        [Theory]
+        [InlineData("CustomBound", true)]
+        [InlineData("MTLS_POP", true)]
+        [InlineData("Bearer", true)]
+        [InlineData("CustomCertificate", false)]
+        public async Task CallApiInternalAsync_RichProvider_UsesReturnedCertificateForAnyScheme(
+            string protocolScheme,
+            bool includeHeader)
+        {
+            // Arrange
+            using var certificate = CreateTestCertificate();
+            var provider = Substitute.For<IAuthorizationHeaderProvider2, IBoundAuthorizationHeaderProvider>();
+            var information = new AuthorizationHeaderInformation
+            {
+                AuthorizationHeaderValue = includeHeader ? $"{protocolScheme} rich-token" : null,
+                BindingCertificate = certificate,
+            };
+            var content = new FormUrlEncodedContent(new Dictionary<string, string> { ["key"] = "value" });
+            HttpRequestMessage? capturedRequest = null;
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(),
+                    Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(),
+                    Arg.Any<CancellationToken>())
+                .Returns(call =>
+                {
+                    capturedRequest = call.ArgAt<AuthorizationHeaderProviderOptions>(1)
+                        .AcquireTokenOptions.GetHttpRequestMessage();
+                    Assert.NotNull(capturedRequest);
+                    Assert.Same(content, capturedRequest.Content);
+                    Assert.Null(capturedRequest.Headers.Authorization);
+                    return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(information);
+                });
+            var transport = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") },
+            };
+            using var client = new HttpClient(transport);
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(certificate).Returns(client);
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger, _provider, mtlsFactory);
+            var options = new DownstreamApiOptions
+            {
+                BaseUrl = "https://api.example.com/data",
+                Scopes = ["api://test/.default"],
+                ProtocolScheme = protocolScheme,
+                HttpMethod = "POST",
+                OnBeforeAuthHeaderCreation = request => request.Headers.Add("X-Prepared", "true"),
+            };
+
+            // Act
+            using var response = await downstreamApi.CallApiInternalAsync(
+                "custom-api", options, true, content: content, cancellationToken: CancellationToken.None);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Same(capturedRequest, transport.ActualRequestMessage);
+            Assert.True(transport.ActualRequestMessage.Headers.Contains("X-Prepared"));
+            Assert.Equal(information.AuthorizationHeaderValue, transport.ActualRequestMessage.Headers.Authorization?.ToString());
+            mtlsFactory.Received(1).GetHttpClient(certificate);
+            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
+            await provider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+            await ((IBoundAuthorizationHeaderProvider)provider).DidNotReceive().CreateBoundAuthorizationHeaderAsync(
+                Arg.Any<DownstreamApiOptions>(), Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_UnboundRichResult_UsesNamedClient()
+        {
+            // Arrange
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderInformation { AuthorizationHeaderValue = "Bearer rich-token" }));
+            var transport = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") },
+            };
+            using var client = new HttpClient(transport);
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            ordinaryFactory.CreateClient("custom-api").Returns(client);
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger, _provider, mtlsFactory);
+
+            // Act
+            using var response = await downstreamApi.CallApiInternalAsync(
+                "custom-api",
+                new DownstreamApiOptions { BaseUrl = "https://api.example.com", Scopes = ["scope"] },
+                false);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("Bearer rich-token", transport.ActualRequestMessage.Headers.Authorization?.ToString());
+            ordinaryFactory.Received(1).CreateClient("custom-api");
+            mtlsFactory.DidNotReceive().GetHttpClient(Arg.Any<X509Certificate2>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_RichFailure_DoesNotFallBackToStringProvider()
+        {
+            // Arrange
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            var cause = new InvalidOperationException("acquisition failure");
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderError("custom_failure", "custom failure", cause)));
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger);
+
+            // Act
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                downstreamApi.CallApiInternalAsync(
+                    null,
+                    new DownstreamApiOptions
+                    {
+                        BaseUrl = "https://api.example.com",
+                        Scopes = ["scope"],
+                        ProtocolScheme = "CustomBound",
+                    },
+                    true));
+
+            // Assert
+            Assert.Contains("custom failure", exception.Message, StringComparison.Ordinal);
+            Assert.Same(cause, exception.InnerException);
+            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
+            await provider.DidNotReceive().CreateAuthorizationHeaderAsync(
+                Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_BindingCertificateWithoutMtlsFactory_DoesNotSendUnbound()
+        {
+            // Arrange
+            using var certificate = CreateTestCertificate();
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderInformation
+                    {
+                        AuthorizationHeaderValue = "CustomBound token",
+                        BindingCertificate = certificate,
+                    }));
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger,
+                Substitute.For<IMsalHttpClientFactory>());
+
+            // Act
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                downstreamApi.CallApiInternalAsync(
+                    null,
+                    new DownstreamApiOptions
+                    {
+                        BaseUrl = "https://api.example.com",
+                        Scopes = ["scope"],
+                        ProtocolScheme = "CustomBound",
+                    },
+                    true));
+
+            // Assert
+            Assert.Contains(nameof(IMsalMtlsHttpClientFactory), exception.Message, StringComparison.Ordinal);
+            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_EmptyRichArtifacts_DoesNotSendAnUnauthenticatedRequest()
+        {
+            // Arrange
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                    new AuthorizationHeaderInformation()));
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger);
+
+            // Act
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                downstreamApi.CallApiInternalAsync(
+                    null,
+                    new DownstreamApiOptions
+                    {
+                        BaseUrl = "https://api.example.com",
+                        Scopes = ["scope"],
+                        ProtocolScheme = "CustomBound",
+                    },
+                    true));
+
+            // Assert
+            Assert.Contains("neither a header nor a binding certificate", exception.Message, StringComparison.Ordinal);
+            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
+        }
+
+        [Fact]
+        public async Task CallApiInternalAsync_ClaimsRetry_UsesNewHeadersBindingCertificate()
+        {
+            // Arrange
+            using var firstCertificate = CreateTestCertificate();
+            using var secondCertificate = CreateCustomProtocolCertificate();
+            const string claims = "{\"access_token\":{\"custom\":{\"essential\":true}}}";
+            var challenge = new HttpResponseMessage(HttpStatusCode.Unauthorized) { Content = new StringContent("challenge") };
+            challenge.Headers.TryAddWithoutValidation(
+                "WWW-Authenticate",
+                $"Bearer error=\"insufficient_claims\", claims=\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(claims))}\"");
+            var firstTransport = new MockHttpMessageHandler { ExpectedMethod = HttpMethod.Get, ResponseMessage = challenge };
+            var secondTransport = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") },
+            };
+            using var firstClient = new HttpClient(firstTransport);
+            using var secondClient = new HttpClient(secondTransport);
+            var mtlsFactory = Substitute.For<IMsalMtlsHttpClientFactory>();
+            mtlsFactory.GetHttpClient(firstCertificate).Returns(firstClient);
+            mtlsFactory.GetHttpClient(secondCertificate).Returns(secondClient);
+            var provider = Substitute.For<IAuthorizationHeaderProvider2>();
+            var capturedClaims = new List<string?>();
+            provider.CreateAuthorizationHeaderInformationAsync(
+                    Arg.Any<IEnumerable<string>>(), Arg.Any<AuthorizationHeaderProviderOptions>(),
+                    Arg.Any<ClaimsPrincipal>(), Arg.Any<CancellationToken>())
+                .Returns(call =>
+                {
+                    capturedClaims.Add(call.ArgAt<AuthorizationHeaderProviderOptions>(1).AcquireTokenOptions.Claims);
+                    var isRetry = capturedClaims.Count == 2;
+                    return new OperationResult<AuthorizationHeaderInformation, AuthorizationHeaderError>(
+                        new AuthorizationHeaderInformation
+                        {
+                            AuthorizationHeaderValue = isRetry ? "CustomBound second-token" : "CustomBound first-token",
+                            BindingCertificate = isRetry ? secondCertificate : firstCertificate,
+                        });
+                });
+            var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            var downstreamApi = new DownstreamApi(
+                provider, _namedDownstreamApiOptions, ordinaryFactory, _logger, _provider, mtlsFactory);
+
+            // Act
+            using var response = await downstreamApi.CallApiInternalAsync(
+                null,
+                new DownstreamApiOptions
+                {
+                    BaseUrl = "https://api.example.com",
+                    Scopes = ["scope"],
+                    ProtocolScheme = "CustomBound",
+                },
+                true);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(new string?[] { null, claims }, capturedClaims);
+            Assert.Equal("CustomBound first-token", firstTransport.ActualRequestMessage.Headers.Authorization?.ToString());
+            Assert.Equal("CustomBound second-token", secondTransport.ActualRequestMessage.Headers.Authorization?.ToString());
+            mtlsFactory.Received(1).GetHttpClient(firstCertificate);
+            mtlsFactory.Received(1).GetHttpClient(secondCertificate);
+            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
         }
 
         [Fact]
@@ -1446,6 +1720,14 @@ namespace Microsoft.Identity.Web.Tests
 
             // Verify regular HTTP client factory was NOT used
             ((IHttpClientFactory)mockMtlsHttpClientFactory).DidNotReceive().CreateClient(Arg.Any<string>());
+        }
+
+        private static X509Certificate2 CreateCustomProtocolCertificate()
+        {
+            using var key = RSA.Create(2048);
+            var request = new CertificateRequest(
+                "CN=CustomProtocolRotation", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            return request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddHours(1));
         }
 
         private static X509Certificate2 CreateTestCertificate()
