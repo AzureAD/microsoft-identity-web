@@ -127,3 +127,66 @@ stages:
     condition: and(succeeded(), eq(variables['RunManagedIdentityWebAppDeploy'], 'true'))
     steps:
       - template: build/template-deploy-managed-identity-webapp-and-test.yaml
+
+# Live benchmarks use lab credentials and must not run on pull-request builds.
+- stage: Performance
+  displayName: 'Performance (.NET 8, certificate)'
+  dependsOn: []
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.Reason'], 'Manual')))
+  jobs:
+  - job: TokenAcquisitionBenchmark
+    variables:
+      BenchmarkCertificateThumbprint: '51D8BA89C6570E54926BD9812C2E127BB8F862C7'
+    pool:
+      vmImage: 'windows-2022'
+    steps:
+      - template: build/template-install-dependencies.yaml
+      - powershell: |
+          $ErrorActionPreference = 'Stop'
+          $certificate = Get-Item -LiteralPath "Cert:\LocalMachine\My\$env:BENCHMARK_CERTIFICATE_THUMBPRINT"
+          if (-not $certificate.HasPrivateKey) {
+              throw 'The benchmark certificate does not have a private key.'
+          }
+          $now = [DateTime]::UtcNow
+          if ($certificate.NotBefore.ToUniversalTime() -gt $now -or $certificate.NotAfter.ToUniversalTime() -le $now) {
+              throw 'The benchmark certificate is not currently valid.'
+          }
+          Write-Host "Using benchmark certificate $($certificate.Thumbprint), expires $($certificate.NotAfter.ToUniversalTime().ToString('o'))."
+        displayName: 'Validate benchmark certificate'
+        env:
+          BENCHMARK_CERTIFICATE_THUMBPRINT: $(BenchmarkCertificateThumbprint)
+      - powershell: |
+          $ErrorActionPreference = 'Stop'
+          $artifactsDirectory = Join-Path (Get-Location) 'BenchmarkDotNet.Artifacts'
+          New-Item -ItemType Directory -Path $artifactsDirectory -Force | Out-Null
+          Write-Host '##vso[task.setvariable variable=BenchmarkStarted]true'
+
+          dotnet run --configuration Release --framework net8.0 -- --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json
+          if ($LASTEXITCODE -ne 0) {
+              throw "Token acquisition benchmarks failed with exit code $LASTEXITCODE."
+          }
+
+          $reportPath = Join-Path $artifactsDirectory 'results\Benchmarks.TokenAcquisitionBenchmark-report-full-compressed.json'
+          $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+          $results = @($report.Benchmarks)
+          if ($results.Count -ne 2 -or @($results | Where-Object { $null -eq $_.Statistics -or $_.Statistics.N -le 0 -or $_.Statistics.Mean -le 0 }).Count -ne 0) {
+              throw 'Both token acquisition benchmarks must produce measurements.'
+          }
+
+          $summaryPath = Join-Path $artifactsDirectory 'results\Benchmarks.TokenAcquisitionBenchmark-report-github.md'
+          if (-not (Test-Path -LiteralPath $summaryPath)) {
+              throw 'The benchmark summary report was not generated.'
+          }
+          Write-Host "##vso[task.uploadsummary]$summaryPath"
+        displayName: 'Run token acquisition benchmarks'
+        workingDirectory: '$(Build.SourcesDirectory)\benchmark'
+        env:
+          AzureAd__ClientCredentials__0__SourceType: StoreWithThumbprint
+          AzureAd__ClientCredentials__0__CertificateStorePath: LocalMachine/My
+          AzureAd__ClientCredentials__0__CertificateThumbprint: $(BenchmarkCertificateThumbprint)
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish benchmark reports and logs'
+        condition: and(succeededOrFailed(), eq(variables['BenchmarkStarted'], 'true'))
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)\benchmark\BenchmarkDotNet.Artifacts'
+          artifact: 'token-acquisition-benchmarks'

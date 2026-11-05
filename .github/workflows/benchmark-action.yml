@@ -1,49 +1,23 @@
-name: Run benchmark
+name: Performance benchmarks (Azure Pipelines)
 on:
-  workflow_dispatch: # Allows manual triggering of workflow
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
-permissions:
-  # Deployments permission to deploy GitHub pages website
-  deployments: write
-  # Contents permission to update benchmark contents in gh-pages branch
-  contents: write
+permissions: {}
 
 jobs:
   benchmark:
-    name: Performance regression check
+    name: Open Azure Pipelines performance benchmarks
     runs-on: ubuntu-latest
-    env:
-      AzureAd__ClientCredentials__0__SourceType: "ClientSecret"
-      AzureAd__ClientCredentials__0__ClientSecret: ${{secrets.ClientSecret}}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: '8.x'
-      - name: Run benchmark
-        run: cd benchmark && dotnet run -c release -f net8.0 --filter 'Benchmarks.TokenAcquisitionBenchmark.*' --exporters json 
-
-      - name: Download previous benchmark data
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark
-
-      - name: Store TokenAcquisitionBenchmark benchmark results
-        uses: benchmark-action/github-action-benchmark@4322e5726e6334590d251fc4f92bec0efafc45dc # v1.22.2
-        with:
-          name: TokenAcquisitionBenchmarks
-          tool: 'benchmarkdotnet'
-          output-file-path: benchmark/BenchmarkDotNet.Artifacts/results/Benchmarks.TokenAcquisitionBenchmark-report-full-compressed.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-          # Show alert with commit comment on detecting possible performance regression
-          alert-threshold: '130%'
-          comment-on-alert: true
-          fail-on-alert: true
-          summary-always: true
-          gh-pages-branch: gh-pages
-          benchmark-data-dir-path: benchmarks
+      - name: Show benchmark instructions
+        shell: bash
+        run: |
+          {
+            echo '## Performance benchmarks run in Azure Pipelines'
+            echo ''
+            echo 'Queue the [Azure Pipelines build](https://identitydivision.visualstudio.com/a7934fdd-dcde-4492-a406-7fad6ac00e17/_build?definitionId=3100) manually and select **Performance (.NET 8, certificate)**.'
+            echo 'Other stages can be deselected when only running benchmarks.'
+            echo ''
+            echo 'Reports and logs are published in the build summary and the **token-acquisition-benchmarks** artifact.'
+            echo 'This GitHub workflow only shows these instructions; it does not run benchmarks or access credentials.'
+          } >> "$GITHUB_STEP_SUMMARY"
