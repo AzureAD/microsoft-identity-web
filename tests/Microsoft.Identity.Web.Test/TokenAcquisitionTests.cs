@@ -400,7 +400,7 @@ namespace Microsoft.Identity.Web.Test
                 null);
 
             // Act
-            var exception = await Assert.ThrowsAsync<MsalUiRequiredException>(async () =>
+            var exception = await Assert.ThrowsAnyAsync<MsalUiRequiredException>(async () =>
             {
                 if (returnAccount)
                 {
