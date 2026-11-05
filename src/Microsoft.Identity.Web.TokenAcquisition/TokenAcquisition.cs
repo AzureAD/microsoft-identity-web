@@ -254,7 +254,7 @@ namespace Microsoft.Identity.Web
                     result.Account?.HomeAccountId?.ObjectId,
                     result.Account?.HomeAccountId?.TenantId);
             }
-            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries)
+            catch (MsalServiceException exMsal) when (exMsal is not MsalUiRequiredException && retryCount < MaxCertificateRetries)
             {
                 X509Certificate2? selectedCertificate = application?.AppConfig.ClientCredentialCertificate;
                 CredentialDescription? description = selectedCertificate is null

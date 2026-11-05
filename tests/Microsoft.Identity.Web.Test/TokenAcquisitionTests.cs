@@ -361,6 +361,68 @@ namespace Microsoft.Identity.Web.Test
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        public async Task AuthCodeRedemption_DoesNotRetry_WhenMsalUiRequiredExceptionIsThrown(bool returnAccount)
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactory();
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(true);
+            factory.Services.AddSingleton<IAuthenticationRetryPolicy>(retryPolicy);
+            IServiceProvider serviceProvider = factory.Build();
+            var httpClientFactory = (MockHttpClientFactory)serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+            const string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"policy\"]}}}";
+            var handler = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["grant_type"] = "authorization_code",
+                    ["code"] = "auth-code"
+                },
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        error = "invalid_grant",
+                        error_description = "Claims challenge requires user interaction",
+                        claims
+                    }))
+                }
+            };
+            httpClientFactory.AddMockHandler(handler);
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+            var parameters = new AuthCodeRedemptionParameters(
+                new[] { "https://graph.microsoft.com/.default" },
+                "auth-code",
+                string.Empty,
+                null,
+                null,
+                null);
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MsalUiRequiredException>(async () =>
+            {
+                if (returnAccount)
+                {
+                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(parameters);
+                }
+                else
+                {
+                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(parameters);
+                }
+            });
+
+            // Assert
+            Assert.NotNull(handler.ActualRequestPostData);
+            Assert.Equal("invalid_grant", exception.ErrorCode);
+            Assert.Equal(claims, exception.Claims);
+            Assert.Contains("Claims challenge requires user interaction", exception.Message, StringComparison.Ordinal);
+            retryPolicy.DidNotReceive().ShouldRetry(Arg.Any<AuthenticationRetryContext>());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public async Task GetAuthenticationResultForAppAsync_CustomRetryPolicyControlsBoundedRetries(bool shouldRetry)
         {
             // Arrange
