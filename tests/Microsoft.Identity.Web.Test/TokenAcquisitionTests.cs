@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
@@ -311,11 +312,20 @@ namespace Microsoft.Identity.Web.Test
         /// since MSAL.NET already logs it. Re-logging produced duplicate log entries.
         /// This addresses issue #3528.
         /// </summary>
-        [Fact]
-        public async Task GetAuthenticationResultForUserAsync_DoesNotDuplicateLog_WhenMsalUiRequiredExceptionIsThrown()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetAuthenticationResultForUserAsync_DoesNotDuplicateLog_WhenMsalUiRequiredExceptionIsThrown(bool useCustomRetryPolicy)
         {
             // Arrange
             var tokenAcquirerFactory = InitTokenAcquirerFactory();
+
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(true);
+            if (useCustomRetryPolicy)
+            {
+                tokenAcquirerFactory.Services.AddSingleton<IAuthenticationRetryPolicy>(retryPolicy);
+            }
 
             var innerLogger = Substitute.For<ILogger<TokenAcquisition>>();
             innerLogger.IsEnabled(Arg.Any<Microsoft.Extensions.Logging.LogLevel>()).Returns(true);
@@ -330,11 +340,15 @@ namespace Microsoft.Identity.Web.Test
             var user = new ClaimsPrincipal(new Microsoft.IdentityModel.Tokens.CaseSensitiveClaimsIdentity());
 
             // Act & Assert
-            await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() =>
+            var exception = await Assert.ThrowsAsync<MicrosoftIdentityWebChallengeUserException>(() =>
                 authorizationHeaderProvider.CreateAuthorizationHeaderForUserAsync(
                     new[] { "https://graph.microsoft.com/.default" },
                     authorizationHeaderProviderOptions: null,
                     claimsPrincipal: user));
+
+            Assert.IsType<MsalUiRequiredException>(exception.MsalUiRequiredException);
+            Assert.Equal(new[] { "https://graph.microsoft.com/.default" }, exception.Scopes);
+            retryPolicy.DidNotReceive().ShouldRetry(Arg.Any<AuthenticationRetryContext>());
 
             innerLogger.DidNotReceive().Log(
                 Microsoft.Extensions.Logging.LogLevel.Information,
@@ -342,6 +356,147 @@ namespace Microsoft.Identity.Web.Test
                 Arg.Any<object>(),
                 Arg.Any<Exception?>(),
                 Arg.Any<Func<object, Exception?, string>>());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AuthCodeRedemption_DoesNotRetry_WhenMsalUiRequiredExceptionIsThrown(bool returnAccount)
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactory();
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(true);
+            factory.Services.AddSingleton<IAuthenticationRetryPolicy>(retryPolicy);
+            IServiceProvider serviceProvider = factory.Build();
+            var httpClientFactory = (MockHttpClientFactory)serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+            const string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"policy\"]}}}";
+            var handler = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Post,
+                ExpectedPostData = new Dictionary<string, string>
+                {
+                    ["grant_type"] = "authorization_code",
+                    ["code"] = "auth-code"
+                },
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        error = "invalid_grant",
+                        error_description = "Claims challenge requires user interaction",
+                        claims
+                    }))
+                }
+            };
+            httpClientFactory.AddMockHandler(handler);
+            var tokenAcquisition = (TokenAcquisition)serviceProvider.GetRequiredService<ITokenAcquisition>();
+            var parameters = new AuthCodeRedemptionParameters(
+                new[] { "https://graph.microsoft.com/.default" },
+                "auth-code",
+                string.Empty,
+                null,
+                null,
+                null);
+
+            // Act
+            var exception = await Assert.ThrowsAnyAsync<MsalUiRequiredException>(async () =>
+            {
+                if (returnAccount)
+                {
+                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAndGetAccountAsync(parameters);
+                }
+                else
+                {
+                    await tokenAcquisition.AddAccountToCacheFromAuthorizationCodeAsync(parameters);
+                }
+            });
+
+            // Assert
+            Assert.NotNull(handler.ActualRequestPostData);
+            Assert.Equal("invalid_grant", exception.ErrorCode);
+            Assert.Equal(claims, exception.Claims);
+            Assert.Contains("Claims challenge requires user interaction", exception.Message, StringComparison.Ordinal);
+            retryPolicy.DidNotReceive().ShouldRetry(Arg.Any<AuthenticationRetryContext>());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetAuthenticationResultForAppAsync_CustomRetryPolicyControlsBoundedRetries(bool shouldRetry)
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactory();
+            string clientId = Guid.NewGuid().ToString();
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(options => options.ClientId = clientId);
+            var retryPolicy = Substitute.For<IAuthenticationRetryPolicy>();
+            var retryContexts = new List<AuthenticationRetryContext>();
+            retryPolicy.ShouldRetry(Arg.Any<AuthenticationRetryContext>()).Returns(call =>
+            {
+                retryContexts.Add(call.Arg<AuthenticationRetryContext>());
+                return shouldRetry;
+            });
+            factory.Services.AddSingleton<IAuthenticationRetryPolicy>(retryPolicy);
+            IServiceProvider serviceProvider = factory.Build();
+            var httpClientFactory = (MockHttpClientFactory)serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+            var handlers = new List<MockHttpMessageHandler>();
+            int expectedAttempts = shouldRetry ? 2 : 1;
+            for (int i = 0; i < expectedAttempts; i++)
+            {
+                var handler = new MockHttpMessageHandler
+                {
+                    ExpectedMethod = HttpMethod.Post,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent("{\"error\":\"custom_error\",\"error_description\":\"Custom retry policy failure\"}")
+                    }
+                };
+                handlers.Add(handler);
+                httpClientFactory.AddMockHandler(handler);
+            }
+            var headerProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                headerProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default"));
+
+            // Assert
+            Assert.Equal("custom_error", exception.ErrorCode);
+            Assert.All(handlers, handler => Assert.NotNull(handler.ActualRequestPostData));
+            var retryContext = Assert.Single(retryContexts);
+            Assert.IsType<MsalServiceException>(retryContext.ThrownException);
+            Assert.Null(retryContext.Certificate);
+            Assert.Null(retryContext.CredentialDescription);
+            Assert.Null(retryContext.Response);
+            Assert.Equal("Bearer", retryContext.CredentialSourceLoaderParameters!.Protocol);
+            if (!shouldRetry)
+            {
+                Assert.Same(exception, retryContext.ThrownException);
+            }
+        }
+
+        [Fact]
+        public async Task GetAuthenticationResultForAppAsync_FailureWithoutResponseBody_PreservesOriginalException()
+        {
+            // Arrange
+            var factory = InitTokenAcquirerFactory();
+            string clientId = Guid.NewGuid().ToString();
+            factory.Services.Configure<MicrosoftIdentityApplicationOptions>(options => options.ClientId = clientId);
+            IServiceProvider serviceProvider = factory.Build();
+            var httpClientFactory = (MockHttpClientFactory)serviceProvider.GetRequiredService<IMsalHttpClientFactory>();
+            var expectedException = new MsalServiceException("invalid_client", "Client assertion failed");
+            httpClientFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                ExceptionToThrow = expectedException
+            });
+            var headerProvider = serviceProvider.GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            var exception = await Assert.ThrowsAsync<MsalServiceException>(() =>
+                headerProvider.CreateAuthorizationHeaderForAppAsync("https://graph.microsoft.com/.default"));
+
+            // Assert
+            Assert.Same(expectedException, exception);
         }
 
         private TokenAcquirerFactory InitTokenAcquirerFactory()
