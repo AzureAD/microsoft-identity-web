@@ -516,7 +516,10 @@ namespace Microsoft.Identity.Web
 
             bool forceRefresh = tokenAcquisitionOptions?.ForceRefresh ?? false;
 
-            if (!forceRefresh && user != null && user.GetMsalAccountId() != null)
+            // AcquireTokenSilent cannot apply client-originated claims; use the confidential builder instead.
+            if (!forceRefresh
+                && string.IsNullOrWhiteSpace(tokenAcquisitionOptions?.ClaimsFromClient)
+                && user != null && user.GetMsalAccountId() != null)
             {
                 try
                 {
@@ -574,6 +577,7 @@ namespace Microsoft.Identity.Web
                     builder.WithCorrelationId(tokenAcquisitionOptions.CorrelationId.Value);
                 }
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
                 var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                 if (clientClaims != null)
                 {
@@ -677,7 +681,9 @@ namespace Microsoft.Identity.Web
             // Account discovery and token retrieval must use the same blueprint-agent partition.
             string normalizedTenant = tenantId?.ToUpperInvariant() ?? string.Empty;
             string accountLookupKey = $"{blueprintClientId}:{agentAppId}:{userIdentifierForCacheKey}:{normalizedTenant}";
+            // AcquireTokenSilent cannot apply client-originated claims; use the User FIC builder instead.
             if (!forceRefresh
+                && string.IsNullOrWhiteSpace(tokenAcquisitionOptions?.ClaimsFromClient)
                 && _agentUserFicAccountIds.TryGetValue(accountLookupKey, out string? cachedAccountId)
                 && !string.IsNullOrEmpty(cachedAccountId))
             {
@@ -752,6 +758,7 @@ namespace Microsoft.Identity.Web
             }
 
             leg3Builder.WithCachePartitionKey(AgentBlueprintCacheComponent, blueprintClientId, partitionRefreshToken: true);
+            leg3Builder.WithClaimsFromClient(tokenAcquisitionOptions!.ClaimsFromClient!);
             var result = await leg3Builder.ExecuteAsync().ConfigureAwait(false);
 
             Logger.AgentUserFicAcquisitionComplete(_logger, agentAppId!, result.AuthenticationResultMetadata.TokenSource.ToString());
@@ -1062,6 +1069,7 @@ namespace Microsoft.Identity.Web
                 }
                 builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                 builder.WithClaims(tokenAcquisitionOptions.Claims);
+                builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
 
                 // Forward an MSAL OpenTelemetry tags enricher supplied via the ExtraParameters SDK-to-SDK
                 // channel (e.g. by Microsoft.Identity.Web.OidcFic on the inner FIC client-assertion leg) so
@@ -1966,6 +1974,7 @@ namespace Microsoft.Identity.Web
                     }
                     builder.WithForceRefresh(tokenAcquisitionOptions.ForceRefresh);
                     builder.WithClaims(tokenAcquisitionOptions.Claims);
+                    builder.WithClaimsFromClient(tokenAcquisitionOptions.ClaimsFromClient!);
                     var clientClaims = GetClientClaimsIfExist(tokenAcquisitionOptions);
                     if (clientClaims != null)
                     {

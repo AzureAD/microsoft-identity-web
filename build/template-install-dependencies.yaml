@@ -62,4 +62,3 @@ steps:
    Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\LocalMachine\My
    
   displayName: 'Install Keyvault Secrets'
-
