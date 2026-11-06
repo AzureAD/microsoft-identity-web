@@ -153,6 +153,48 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
         }
 
         [Fact]
+        public async Task ManagedIdentity_WithForceRefresh_BypassesCache()
+        {
+            // Arrange
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            var mockedHttp = new MockHttpClientFactory();
+
+            mockedHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token1"));
+            mockedHttp.AddMockHandler(MockHttpCreator.CreateMsiTokenHandler("token2"));
+
+            tokenAcquirerFactory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockedHttp));
+
+            var tokens = tokenAcquirerFactory.Build()
+                .GetRequiredService<ITokenAcquisition>();
+            var managedIdentity = new ManagedIdentityOptions
+            {
+                UserAssignedClientId = "force-refresh-uami"
+            };
+
+            // Act
+            var initial = await tokens.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ManagedIdentity = managedIdentity,
+                });
+            var refreshed = await tokens.GetAuthenticationResultForAppAsync(
+                Scope,
+                tokenAcquisitionOptions: new TokenAcquisitionOptions
+                {
+                    ManagedIdentity = managedIdentity,
+                    ForceRefresh = true,
+                });
+
+            // Assert
+            Assert.Equal("token1", initial.AccessToken);
+            Assert.Equal("token2", refreshed.AccessToken);
+            Assert.Equal(TokenSource.IdentityProvider, refreshed.AuthenticationResultMetadata.TokenSource);
+        }
+
+        [Fact]
         public async Task UserAssigned_MI_Caching_and_Claims()
         {
             // Arrange
