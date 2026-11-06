@@ -1,3 +1,8 @@
+## Unreleased
+
+### Deprecations
+- Soft-deprecate `AddMicrosoftIdentityMessageHandler(IHttpClientBuilder, IConfiguration, string)` with a compiler warning while preserving its direct-binding behavior. Use the new overload without `sectionName`, passing the desired section explicitly (for example, `configuration.GetRequiredSection("DownstreamApis:MyApi")`). Builds treating warnings as errors must migrate affected calls or temporarily suppress `CS0618` at those call sites. No automatic child selection or fallback is introduced. See [#4115](https://github.com/AzureAD/microsoft-identity-web/pull/4115).
+
 ## 4.17.0
 
 ### New features
