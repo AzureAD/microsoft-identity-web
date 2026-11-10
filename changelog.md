@@ -1,3 +1,8 @@
+## 4.18.0
+
+### New features
+- Add `IAuthenticationRetryPolicy` and `AuthenticationRetryContext` so applications can customize retry decisions for token acquisition and mTLS requests, including service-specific certificate failures. See [#4129](https://github.com/AzureAD/microsoft-identity-web/pull/4129).
+
 ## 4.17.0
 
 ### New features
