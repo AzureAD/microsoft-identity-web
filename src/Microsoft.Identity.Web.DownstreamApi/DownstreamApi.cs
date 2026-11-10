@@ -660,12 +660,10 @@ namespace Microsoft.Identity.Web
         {
             if (headerInformation?.BindingCertificate is X509Certificate2 certificate)
             {
-                if (_msalHttpClientFactory is not IMsalMtlsHttpClientFactory mtlsHttpClientFactory)
+                if (_msalHttpClientFactory is IMsalMtlsHttpClientFactory mtlsHttpClientFactory)
                 {
-                    throw new InvalidOperationException($"Certificate-bound authorization requires an {nameof(IMsalMtlsHttpClientFactory)}.");
+                    return mtlsHttpClientFactory.GetHttpClient(certificate);
                 }
-
-                return mtlsHttpClientFactory.GetHttpClient(certificate);
             }
 
             return string.IsNullOrEmpty(serviceName)

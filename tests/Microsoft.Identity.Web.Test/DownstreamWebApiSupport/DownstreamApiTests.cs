@@ -268,7 +268,7 @@ namespace Microsoft.Identity.Web.Tests
         }
 
         [Fact]
-        public async Task CallApiInternalAsync_BindingCertificateWithoutMtlsFactory_DoesNotSendUnbound()
+        public async Task CallApiInternalAsync_BindingCertificateWithoutMtlsFactory_UsesNamedClient()
         {
             // Arrange
             using var certificate = CreateTestCertificate();
@@ -282,26 +282,33 @@ namespace Microsoft.Identity.Web.Tests
                         AuthorizationHeaderValue = "CustomBound token",
                         BindingCertificate = certificate,
                     }));
+            var transport = new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") },
+            };
+            using var client = new HttpClient(transport);
             var ordinaryFactory = Substitute.For<IHttpClientFactory>();
+            ordinaryFactory.CreateClient("custom-api").Returns(client);
             var downstreamApi = new DownstreamApi(
                 provider, _namedDownstreamApiOptions, ordinaryFactory, _logger,
                 Substitute.For<IMsalHttpClientFactory>());
 
             // Act
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                downstreamApi.CallApiInternalAsync(
-                    null,
-                    new DownstreamApiOptions
-                    {
-                        BaseUrl = "https://api.example.com",
-                        Scopes = ["scope"],
-                        ProtocolScheme = "CustomBound",
-                    },
-                    true));
+            using var response = await downstreamApi.CallApiInternalAsync(
+                "custom-api",
+                new DownstreamApiOptions
+                {
+                    BaseUrl = "https://api.example.com",
+                    Scopes = ["scope"],
+                    ProtocolScheme = "CustomBound",
+                },
+                true);
 
             // Assert
-            Assert.Contains(nameof(IMsalMtlsHttpClientFactory), exception.Message, StringComparison.Ordinal);
-            ordinaryFactory.DidNotReceive().CreateClient(Arg.Any<string>());
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("CustomBound token", transport.ActualRequestMessage.Headers.Authorization?.ToString());
+            ordinaryFactory.Received(1).CreateClient("custom-api");
         }
 
         [Fact]
