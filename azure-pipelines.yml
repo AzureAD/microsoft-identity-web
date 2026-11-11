@@ -136,25 +136,32 @@ stages:
   jobs:
   - job: TokenAcquisitionBenchmark
     variables:
-      BenchmarkCertificateThumbprint: '51D8BA89C6570E54926BD9812C2E127BB8F862C7'
+      BenchmarkCertificateSubject: 'CN=LabAuth.MSIDLab.com'
     pool:
       vmImage: 'windows-2022'
     steps:
       - template: build/template-install-dependencies.yaml
       - powershell: |
           $ErrorActionPreference = 'Stop'
-          $certificate = Get-Item -LiteralPath "Cert:\LocalMachine\My\$env:BENCHMARK_CERTIFICATE_THUMBPRINT"
+          $now = [DateTime]::UtcNow
+          $certificate = Get-ChildItem -Path 'Cert:\LocalMachine\My' |
+              Where-Object {
+                  $_.Subject -eq $env:BENCHMARK_CERTIFICATE_SUBJECT -and
+                  $_.NotBefore.ToUniversalTime() -le $now -and
+                  $_.NotAfter.ToUniversalTime() -gt $now
+              } |
+              Sort-Object -Property NotBefore -Descending |
+              Select-Object -First 1
+          if ($null -eq $certificate) {
+              throw "No currently valid benchmark certificate with subject '$env:BENCHMARK_CERTIFICATE_SUBJECT' was found."
+          }
           if (-not $certificate.HasPrivateKey) {
               throw 'The benchmark certificate does not have a private key.'
           }
-          $now = [DateTime]::UtcNow
-          if ($certificate.NotBefore.ToUniversalTime() -gt $now -or $certificate.NotAfter.ToUniversalTime() -le $now) {
-              throw 'The benchmark certificate is not currently valid.'
-          }
-          Write-Host "Using benchmark certificate $($certificate.Thumbprint), expires $($certificate.NotAfter.ToUniversalTime().ToString('o'))."
+          Write-Host "Using benchmark certificate $($certificate.Subject), expires $($certificate.NotAfter.ToUniversalTime().ToString('o'))."
         displayName: 'Validate benchmark certificate'
         env:
-          BENCHMARK_CERTIFICATE_THUMBPRINT: $(BenchmarkCertificateThumbprint)
+          BENCHMARK_CERTIFICATE_SUBJECT: $(BenchmarkCertificateSubject)
       - powershell: |
           $ErrorActionPreference = 'Stop'
           $artifactsDirectory = Join-Path (Get-Location) 'BenchmarkDotNet.Artifacts'
@@ -181,9 +188,9 @@ stages:
         displayName: 'Run token acquisition benchmarks'
         workingDirectory: '$(Build.SourcesDirectory)\benchmark'
         env:
-          AzureAd__ClientCredentials__0__SourceType: StoreWithThumbprint
+          AzureAd__ClientCredentials__0__SourceType: StoreWithDistinguishedName
           AzureAd__ClientCredentials__0__CertificateStorePath: LocalMachine/My
-          AzureAd__ClientCredentials__0__CertificateThumbprint: $(BenchmarkCertificateThumbprint)
+          AzureAd__ClientCredentials__0__CertificateDistinguishedName: $(BenchmarkCertificateSubject)
       - task: PublishPipelineArtifact@1
         displayName: 'Publish benchmark reports and logs'
         condition: and(succeededOrFailed(), eq(variables['BenchmarkStarted'], 'true'))
