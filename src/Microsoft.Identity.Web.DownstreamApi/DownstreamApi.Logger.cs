@@ -42,6 +42,12 @@ namespace Microsoft.Identity.Web
                     DownstreamApiLoggingEventId.DuplicateHeaderIgnored,
                     "[MsIdWeb] Header '{HeaderName}' supplied through ExtraHeaderParameters was ignored because the request already carries a value for it.");
 
+            private static readonly Action<ILogger, Exception?> s_tokenBindingCertificateRejected =
+                LoggerMessage.Define(
+                    LogLevel.Information,
+                    DownstreamApiLoggingEventId.TokenBindingCertificateRejected,
+                    "[MsIdWeb] The token-binding certificate was rejected by SCHANNEL. Force refreshing the managed identity token and certificate before retrying once.");
+
             /// <summary>
             /// Logger for handling options exceptions in DownstreamApi.
             /// </summary>
@@ -88,6 +94,16 @@ namespace Microsoft.Identity.Web
             public static void DuplicateHeaderIgnored(
                 ILogger logger,
                 string headerName) => s_duplicateHeaderIgnored(logger, headerName, null);
+
+            /// <summary>
+            /// Logs that a token-bound downstream request is being retried after SCHANNEL rejected
+            /// the cached binding certificate.
+            /// </summary>
+            /// <param name="logger">Logger.</param>
+            /// <param name="exception">SCHANNEL exception that triggered the retry.</param>
+            public static void TokenBindingCertificateRejected(
+                ILogger logger,
+                Exception exception) => s_tokenBindingCertificateRejected(logger, exception);
         }
     }
 }
