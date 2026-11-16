@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -218,9 +217,7 @@ namespace Microsoft.Identity.Web
 
                     SecurityTokenValidated = (context) =>
                     {
-                        HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
-
-                        (string? homeObjectId, string? homeTenantId) = GetAndRemoveHomeAccountIdentifier(context.OwinContext, httpContext);
+                        (string? homeObjectId, string? homeTenantId) = GetAndRemoveHomeAccountIdentifier(context.OwinContext);
                         AddHomeAccountIdentifierClaims(context.AuthenticationTicket.Identity, homeObjectId, homeTenantId);
 
                         Claim? nameClaim = context.AuthenticationTicket.Identity.FindFirst("preferred_username")
@@ -230,7 +227,7 @@ namespace Microsoft.Identity.Web
                         {
                             context.AuthenticationTicket.Identity.AddClaim(new Claim(ClaimTypes.Name, nameClaim?.Value, string.Empty));
                         }
-                        
+
                         return Task.CompletedTask;
                     },
                 }
@@ -251,8 +248,11 @@ namespace Microsoft.Identity.Web
                     codeVerifier,
                     msIdentityOptions?.Value.DefaultUserFlow,
                     context.ProtocolMessage.DomainHint))).ConfigureAwait(false);
-                HttpContextBase httpContext = context.OwinContext.Get<HttpContextBase>(typeof(HttpContextBase).FullName);
-                StoreHomeAccountIdentifier(context.OwinContext, httpContext, redemption.HomeObjectId, redemption.HomeTenantId);
+                ApplyRedeemedHomeAccountId(
+                    context.OwinContext,
+                    context.AuthenticationTicket?.Identity,
+                    redemption.HomeObjectId,
+                    redemption.HomeTenantId);
                 context.HandleCodeRedemption(redemption.Result.AccessToken, redemption.Result.IdToken);
             };
 
@@ -278,59 +278,43 @@ namespace Microsoft.Identity.Web
         }
 
         /// <summary>
-        /// Stashes the home account identifier (uid/utid) taken from the token that was actually
-        /// redeemed, so that the account-identifier claims can later be stamped from a value that is
-        /// consistent with the acquired token. Nothing is stored when either value is absent.
+        /// Applies redeemed account identifiers to the current hybrid-flow ticket, or hands them
+        /// to the later code-only validation event through request-local OWIN state.
         /// </summary>
         /// <param name="owinContext">The current OWIN context.</param>
-        /// <param name="httpContext">The current <see cref="HttpContextBase"/>.</param>
+        /// <param name="identity">The current ticket identity, if validation has already run.</param>
         /// <param name="homeObjectId">Home account object identifier ("uid") from the redeemed token.</param>
         /// <param name="homeTenantId">Home account tenant identifier ("utid") from the redeemed token.</param>
-        internal static void StoreHomeAccountIdentifier(IOwinContext owinContext, HttpContextBase httpContext, string? homeObjectId, string? homeTenantId)
+        internal static void ApplyRedeemedHomeAccountId(IOwinContext owinContext, ClaimsIdentity? identity, string? homeObjectId, string? homeTenantId)
         {
             if (string.IsNullOrEmpty(homeObjectId) || string.IsNullOrEmpty(homeTenantId))
             {
                 return;
             }
 
-            if (httpContext.Session is null)
+            if (identity is null)
             {
                 owinContext.Set(Constants.HomeAccountObjectIdCacheKey, homeObjectId);
                 owinContext.Set(Constants.HomeAccountTenantIdCacheKey, homeTenantId);
             }
             else
             {
-                httpContext.Session[Constants.HomeAccountObjectIdCacheKey] = homeObjectId;
-                httpContext.Session[Constants.HomeAccountTenantIdCacheKey] = homeTenantId;
+                AddHomeAccountIdentifierClaims(identity, homeObjectId, homeTenantId);
             }
         }
 
         /// <summary>
         /// Reads and removes the home account identifier (uid/utid) previously stashed during
-        /// authorization-code redemption, from the OWIN context (no session) or the session.
+        /// authorization-code redemption from the current request's OWIN context.
         /// </summary>
         /// <param name="owinContext">The current OWIN context.</param>
-        /// <param name="httpContext">The current <see cref="HttpContextBase"/>.</param>
         /// <returns>The home account object identifier and tenant identifier, either of which can be <see langword="null"/>.</returns>
-        internal static (string? homeObjectId, string? homeTenantId) GetAndRemoveHomeAccountIdentifier(IOwinContext owinContext, HttpContextBase httpContext)
+        internal static (string? homeObjectId, string? homeTenantId) GetAndRemoveHomeAccountIdentifier(IOwinContext owinContext)
         {
-            string? homeObjectId;
-            string? homeTenantId;
-
-            if (httpContext.Session is null)
-            {
-                homeObjectId = owinContext.Get<string>(Constants.HomeAccountObjectIdCacheKey);
-                homeTenantId = owinContext.Get<string>(Constants.HomeAccountTenantIdCacheKey);
-                owinContext.Environment.Remove(Constants.HomeAccountObjectIdCacheKey);
-                owinContext.Environment.Remove(Constants.HomeAccountTenantIdCacheKey);
-            }
-            else
-            {
-                homeObjectId = httpContext.Session[Constants.HomeAccountObjectIdCacheKey] as string;
-                homeTenantId = httpContext.Session[Constants.HomeAccountTenantIdCacheKey] as string;
-                httpContext.Session.Remove(Constants.HomeAccountObjectIdCacheKey);
-                httpContext.Session.Remove(Constants.HomeAccountTenantIdCacheKey);
-            }
+            string? homeObjectId = owinContext.Get<string>(Constants.HomeAccountObjectIdCacheKey);
+            string? homeTenantId = owinContext.Get<string>(Constants.HomeAccountTenantIdCacheKey);
+            owinContext.Environment.Remove(Constants.HomeAccountObjectIdCacheKey);
+            owinContext.Environment.Remove(Constants.HomeAccountTenantIdCacheKey);
 
             return (homeObjectId, homeTenantId);
         }
