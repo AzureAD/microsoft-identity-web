@@ -144,6 +144,7 @@ namespace Microsoft.Identity.Web
                     defaultOptions: null,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
+                    sp.GetService<IAuthenticationRetryPolicy>(),
                     GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
@@ -224,6 +225,7 @@ namespace Microsoft.Identity.Web
                     options,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
+                    sp.GetService<IAuthenticationRetryPolicy>(),
                     GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }
@@ -315,6 +317,7 @@ namespace Microsoft.Identity.Web
                     options,
                     GetMsalMtlsHttpClientFactory(sp),
                     GetCredentialsProvider(sp),
+                    sp.GetService<IAuthenticationRetryPolicy>(),
                     GetLogger<MicrosoftIdentityMessageHandler>(sp));
             });
         }

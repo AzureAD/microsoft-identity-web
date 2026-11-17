@@ -121,14 +121,20 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
         public static MockHttpMessageHandler CreateMsiTokenHandler(
             string accessToken,
             string resource = "https://management.azure.com/",
-            int expiresIn = 3599)
+            int expiresIn = 3599,
+            Func<DateTimeOffset>? getUtcNow = null)
         {
-            string expiresOn = DateTimeOffset.UtcNow
-                               .AddSeconds(expiresIn)
-                               .ToUnixTimeSeconds()
-                               .ToString(CultureInfo.InvariantCulture);
+            return new MockHttpMessageHandler
+            {
+                ExpectedMethod = HttpMethod.Get,
+                ResponseFactory = () =>
+                {
+                    string expiresOn = (getUtcNow?.Invoke() ?? DateTimeOffset.UtcNow)
+                        .AddSeconds(expiresIn)
+                        .ToUnixTimeSeconds()
+                        .ToString(CultureInfo.InvariantCulture);
 
-            string json = $@"{{
+                    string json = $@"{{
               ""access_token"": ""{accessToken}"",
               ""expires_in""  : ""{expiresIn}"",
               ""expires_on""  : ""{expiresOn}"",
@@ -137,10 +143,8 @@ namespace Microsoft.Identity.Web.Test.Common.Mocks
               ""client_id""   : ""client_id""
             }}";
 
-            return new MockHttpMessageHandler
-            {
-                ExpectedMethod = HttpMethod.Get,
-                ResponseMessage = CreateSuccessResponseMessage(json)
+                    return CreateSuccessResponseMessage(json);
+                }
             };
         }
     }

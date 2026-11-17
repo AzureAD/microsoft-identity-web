@@ -107,6 +107,7 @@ namespace Microsoft.Identity.Web
         private int _unattestedManagedIdentityFlowLogged;
         protected readonly ITokenAcquisitionHost _tokenAcquisitionHost;
         protected readonly ICredentialsProvider _credentialsProvider;
+        protected readonly IAuthenticationRetryPolicy _authenticationRetryPolicy;
         protected readonly IOptionsMonitor<TokenAcquisitionExtensionOptions>? tokenAcquisitionExtensionOptionsMonitor;
 
         /// <summary>
@@ -164,6 +165,8 @@ namespace Microsoft.Identity.Web
             }
 
             _credentialsProvider = credentialsProvider;
+
+            _authenticationRetryPolicy = serviceProvider.GetService<IAuthenticationRetryPolicy>() ?? new DefaultAuthenticationRetryPolicy();
             _cloudMetadataProvider = serviceProvider.GetService<ICloudMetadataProvider>();
         }
 
@@ -251,15 +254,35 @@ namespace Microsoft.Identity.Web
                     result.Account?.HomeAccountId?.ObjectId,
                     result.Account?.HomeAccountId?.TenantId);
             }
-            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (exMsal is not MsalUiRequiredException && retryCount < MaxCertificateRetries)
             {
+                X509Certificate2? selectedCertificate = application?.AppConfig.ClientCredentialCertificate;
+                CredentialDescription? description = selectedCertificate is null
+                    ? null
+                    : mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate);
+
+                if (!ShouldRetry(exMsal, selectedCertificate, description, loaderParameters))
+                {
+                    Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, exMsal);
+                    throw;
+                }
+
                 Logger.TokenAcquisitionError(
                     _logger,
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
+                if (selectedCertificate != null && description != null)
+                {
+                    _credentialsProvider.NotifyCertificateUsed(
+                        loaderParameters,
+                        description,
+                        selectedCertificate,
+                        false,
+                        exMsal);
+                }
+
                 string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
-                NotifyCertificateSelection(loaderParameters, mergedOptions, application!, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -459,15 +482,35 @@ namespace Microsoft.Identity.Web
                 LogAuthResult(authenticationResult);
                 return authenticationResult;
             }
-            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (exMsal is not MsalUiRequiredException && retryCount < MaxCertificateRetries)
             {
+                X509Certificate2? selectedCertificate = application?.AppConfig.ClientCredentialCertificate;
+                CredentialDescription? description = selectedCertificate is null
+                    ? null
+                    : mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate);
+
+                if (!ShouldRetry(exMsal, selectedCertificate, description, loaderParameters))
+                {
+                    Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, exMsal);
+                    throw;
+                }
+
                 Logger.TokenAcquisitionError(
                     _logger,
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
+                if (selectedCertificate != null && description != null)
+                {
+                    _credentialsProvider.NotifyCertificateUsed(
+                        loaderParameters,
+                        description,
+                        selectedCertificate,
+                        false,
+                        exMsal);
+                }
+
                 string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding: false);
-                NotifyCertificateSelection(loaderParameters, mergedOptions, application, false, exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -1140,28 +1183,45 @@ namespace Microsoft.Identity.Web
                     null);
                 return result;
             }
-            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries && IsInvalidClientCertificateOrSignedAssertionError(exMsal))
+            catch (MsalServiceException exMsal) when (retryCount < MaxCertificateRetries)
             {
+                var loaderParameters = new CredentialSourceLoaderParameters(
+                    mergedOptions.ClientId ?? string.Empty,
+                    mergedOptions.Authority ?? string.Empty)
+                {
+                    Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
+                };
+
+                X509Certificate2? selectedCertificate = application?.AppConfig.ClientCredentialCertificate;
+                CredentialDescription? description = selectedCertificate is null
+                    ? null
+                    : mergedOptions.ClientCredentials?.FirstOrDefault(c => c.Certificate == selectedCertificate);
+
+                if (!ShouldRetry(exMsal, selectedCertificate, description, loaderParameters))
+                {
+                    Logger.TokenAcquisitionError(_logger, LogMessages.ExceptionOccurredWhenAddingAnAccountToTheCacheFromAuthCode, exMsal);
+                    throw;
+                }
+
                 Logger.TokenAcquisitionError(
                     _logger,
                     $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
                     exMsal);
 
+                if (selectedCertificate != null && description != null)
+                {
+                    _credentialsProvider.NotifyCertificateUsed(
+                        loaderParameters,
+                        description,
+                        selectedCertificate,
+                        false,
+                        exMsal);
+                }
+
                 // Invalidate the cache entry for the ACTUAL request mode (bearer vs mTLS PoP),
                 // so a failed token-binding acquisition invalidates the token-binding CCA key
                 // rather than always the Bearer key.
                 string applicationKey = GetApplicationKey(mergedOptions, isTokenBinding);
-                NotifyCertificateSelection(
-                    new CredentialSourceLoaderParameters(
-                        mergedOptions.ClientId ?? string.Empty,
-                        mergedOptions.Authority ?? string.Empty)
-                    {
-                        Protocol = isTokenBinding ? ProtocolNames.MtlsPop : ProtocolNames.Bearer,
-                    },
-                    mergedOptions,
-                    application,
-                    false,
-                    exMsal);
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
@@ -1471,35 +1531,19 @@ namespace Microsoft.Identity.Web
             }
         }
 
-        private bool IsInvalidClientCertificateOrSignedAssertionError(MsalServiceException exMsal)
+        private bool ShouldRetry(
+            MsalServiceException exMsal,
+            X509Certificate2? certificate,
+            CredentialDescription? credentialDescription,
+            CredentialSourceLoaderParameters? credentialSourceLoaderParameters)
         {
-            // Only check invalid_client errors
-            if (!string.Equals(exMsal.ErrorCode, Constants.InvalidClient, StringComparison.OrdinalIgnoreCase))
+            return _authenticationRetryPolicy.ShouldRetry(new AuthenticationRetryContext
             {
-                return false;
-            }
-
-            string responseBody = exMsal.ResponseBody;
-
-#if NET6_0_OR_GREATER
-            foreach (var errorCode in Constants.CertificateAuthFailureStsErrorCodes)
-            {
-                if (responseBody.Contains(errorCode, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-            return false;
-#else
-            foreach (var errorCode in Constants.CertificateAuthFailureStsErrorCodes)
-            {
-                if (responseBody.IndexOf(errorCode, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-#endif
+                ThrownException = exMsal,
+                Certificate = certificate,
+                CredentialDescription = credentialDescription,
+                CredentialSourceLoaderParameters = credentialSourceLoaderParameters
+            });
         }
 
         private static string? GetClientClaimsIfExist(TokenAcquisitionOptions? tokenAcquisitionOptions)

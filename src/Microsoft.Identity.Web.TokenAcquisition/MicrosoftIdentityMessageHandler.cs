@@ -158,6 +158,7 @@ namespace Microsoft.Identity.Web
         private readonly MicrosoftIdentityMessageHandlerOptions? _defaultOptions;
         private readonly ICredentialsProvider? _credentialsProvider;
         private readonly IMsalMtlsHttpClientFactory? _mtlsHttpClientFactory;
+        private readonly IAuthenticationRetryPolicy _authenticationRetryPolicy;
         private readonly ILogger<MicrosoftIdentityMessageHandler>? _logger;
 
         /// <summary>
@@ -328,15 +329,74 @@ namespace Microsoft.Identity.Web
             IMsalMtlsHttpClientFactory? mtlsHttpClientFactory,
             ICredentialsProvider? credentialsProvider,
             ILogger<MicrosoftIdentityMessageHandler>? logger = null)
+            : this(headerProvider, defaultOptions, mtlsHttpClientFactory, credentialsProvider, authenticationRetryPolicy: null, logger)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MicrosoftIdentityMessageHandler"/> class with mTLS and mTLS_Pop support.
+        /// </summary>
+        /// <param name="headerProvider">
+        /// The <see cref="IAuthorizationHeaderProvider"/> used to acquire authorization headers for outgoing requests.
+        /// This is typically obtained from the dependency injection container.
+        /// </param>
+        /// <param name="defaultOptions">
+        /// Default authentication options that will be used for all requests unless overridden per-request.
+        /// If <see langword="null"/>, each request must specify its own authentication options or an exception will be thrown.
+        /// </param>
+        /// <param name="mtlsHttpClientFactory">
+        /// Optional factory for creating HTTP clients configured with mTLS client certificates for token binding
+        /// (mTLS PoP) scenarios. When provided and the <see cref="AuthorizationHeaderProviderOptions.ProtocolScheme"/>
+        /// is set to <c>"MTLS_POP"</c>, the handler will use this factory to create an HTTP client with the binding
+        /// certificate and send requests through it.
+        /// </param>
+        /// <param name="credentialsProvider">
+        /// Optional provider for certificates. This is required for mTLS-only authentication purposes.
+        /// </param>
+        /// <param name="authenticationRetryPolicy">
+        /// The policy for retrying failed mTLS HTTP responses. If null, the default certificate-failure
+        /// policy is used. Token acquisition retry decisions are handled by the token acquisition service.
+        /// </param>
+        /// <param name="logger">
+        /// Optional logger for debugging and monitoring authentication operations.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="headerProvider"/> is <see langword="null"/>.
+        /// </exception>
+        /// <remarks>
+        /// <para>
+        /// mTLS PoP (Mutual TLS Proof-of-Possession) token binding, as described in
+        /// <see href="https://datatracker.ietf.org/doc/html/rfc8705">RFC 8705</see>,
+        /// cryptographically binds access tokens to a specific X.509 certificate. When enabled,
+        /// the handler acquires a bound token with the certificate thumbprint in the <c>cnf</c> claim,
+        /// creates an mTLS HTTP client with the binding certificate, and sends requests through the mTLS channel.
+        /// </para>
+        /// <para>
+        /// Token binding currently supports only application (app-only) tokens. Set
+        /// <see cref="AuthorizationHeaderProviderOptions.RequestAppToken"/> to <see langword="true"/>.
+        /// </para>
+        /// <para>
+        /// Prefer using the <see cref="MicrosoftIdentityHttpClientBuilderExtensions"/> extension methods
+        /// to configure this handler through dependency injection rather than instantiating it directly.
+        /// </para>
+        /// </remarks>
+        public MicrosoftIdentityMessageHandler(
+            IAuthorizationHeaderProvider headerProvider,
+            MicrosoftIdentityMessageHandlerOptions? defaultOptions,
+            IMsalMtlsHttpClientFactory? mtlsHttpClientFactory,
+            ICredentialsProvider? credentialsProvider,
+            IAuthenticationRetryPolicy? authenticationRetryPolicy,
+            ILogger<MicrosoftIdentityMessageHandler>? logger = null)
         {
             _headerProvider = headerProvider ?? throw new ArgumentNullException(nameof(headerProvider));
             _defaultOptions = defaultOptions;
             _credentialsProvider = credentialsProvider;
+            _authenticationRetryPolicy = authenticationRetryPolicy ?? new DefaultAuthenticationRetryPolicy();
             _logger = logger;
 
             // If no factory is provided, create a default that can only handle mTLS.
             // This instance should never need non-mTLS calls as it is attached to an HttpClient instance that is expected to be used for non-mTLS scenarios.
-            _mtlsHttpClientFactory = mtlsHttpClientFactory ?? MsalMtlsHttpClientFactory.CreateMtlsOnly(); 
+            _mtlsHttpClientFactory = mtlsHttpClientFactory ?? MsalMtlsHttpClientFactory.CreateMtlsOnly();
 
         }
 
@@ -705,9 +765,15 @@ namespace Microsoft.Identity.Web
                         return response;
                     }
 
-                    if (!Constants.AuthFailureHttpStatusCodes.Contains(response.StatusCode))
+                    if (!_authenticationRetryPolicy.ShouldRetry(
+                        new()
+                        {
+                            Certificate = artifacts.BindingCertificate,
+                            CredentialDescription = artifacts.CredentialDescription,
+                            CredentialSourceLoaderParameters = artifacts.LoaderParameters,
+                            Response = response
+                        }))
                     {
-                        // Non-auth failure: don't blame the certificate, don't retry.
                         return response;
                     }
 
