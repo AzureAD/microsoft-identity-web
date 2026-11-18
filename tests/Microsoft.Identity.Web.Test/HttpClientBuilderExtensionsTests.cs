@@ -16,17 +16,18 @@ namespace Microsoft.Identity.Web.Test
     public class HttpClientBuilderExtensionsTests
     {
         private const string HttpClientName = "test-client";
-        private const string ServiceName = "test-service";
 
         private readonly IConfigurationSection _configSection;
 
         public HttpClientBuilderExtensionsTests()
         {
-            _configSection = GetConfigSection(ServiceName);
+            _configSection = GetConfigSection();
         }
 
-        private IConfigurationSection GetConfigSection(string key)
+        private IConfigurationSection GetConfigSection()
         {
+            var key = "test-service";
+
             var builder = new ConfigurationBuilder();
             builder.AddInMemoryCollection(
                 new Dictionary<string, string?>()
@@ -62,6 +63,13 @@ namespace Microsoft.Identity.Web.Test
             }
         }
 
+        protected internal class TypedClient
+        {
+            public TypedClient(HttpClient client)
+            {
+            }
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -74,12 +82,12 @@ namespace Microsoft.Identity.Web.Test
             if (useApp)
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityAppAuthenticationHandler(ServiceName, _configSection);
+                    .AddMicrosoftIdentityAppAuthenticationHandler(_configSection);
             }
             else
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityUserAuthenticationHandler(ServiceName, _configSection);
+                    .AddMicrosoftIdentityUserAuthenticationHandler(_configSection);
             }
 
             // assert
@@ -88,11 +96,11 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptionsSnapshot<MicrosoftIdentityAuthenticationMessageHandlerOptions>>();
 
-            Assert.Equal(TestConstants.Scopes, options.Get(ServiceName).Scopes);
-            Assert.Equal(TestConstants.TenantIdAsGuid, options.Get(ServiceName).Tenant);
-            Assert.Equal(TestConstants.B2CSignUpSignInUserFlow, options.Get(ServiceName).UserFlow);
-            Assert.False(options.Get(ServiceName).IsProofOfPossessionRequest);
-            Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(ServiceName).AuthenticationScheme);
+            Assert.Equal(TestConstants.Scopes, options.Get(HttpClientName).Scopes);
+            Assert.Equal(TestConstants.TenantIdAsGuid, options.Get(HttpClientName).Tenant);
+            Assert.Equal(TestConstants.B2CSignUpSignInUserFlow, options.Get(HttpClientName).UserFlow);
+            Assert.False(options.Get(HttpClientName).IsProofOfPossessionRequest);
+            Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(HttpClientName).AuthenticationScheme);
         }
 
         [Theory]
@@ -115,12 +123,12 @@ namespace Microsoft.Identity.Web.Test
             if (useApp)
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityAppAuthenticationHandler(ServiceName, configureOptions);
+                    .AddMicrosoftIdentityAppAuthenticationHandler(configureOptions);
             }
             else
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityUserAuthenticationHandler(ServiceName, configureOptions);
+                    .AddMicrosoftIdentityUserAuthenticationHandler(configureOptions);
             }
 
             // assert
@@ -129,11 +137,53 @@ namespace Microsoft.Identity.Web.Test
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptionsSnapshot<MicrosoftIdentityAuthenticationMessageHandlerOptions>>();
 
-            Assert.Equal(TestConstants.GraphScopes, options.Get(ServiceName).Scopes);
-            Assert.Equal(TestConstants.TenantIdAsGuid, options.Get(ServiceName).Tenant);
-            Assert.Equal(TestConstants.B2CResetPasswordUserFlow, options.Get(ServiceName).UserFlow);
-            Assert.True(options.Get(ServiceName).IsProofOfPossessionRequest);
-            Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(ServiceName).AuthenticationScheme);
+            Assert.Equal(TestConstants.GraphScopes, options.Get(HttpClientName).Scopes);
+            Assert.Equal(TestConstants.TenantIdAsGuid, options.Get(HttpClientName).Tenant);
+            Assert.Equal(TestConstants.B2CResetPasswordUserFlow, options.Get(HttpClientName).UserFlow);
+            Assert.True(options.Get(HttpClientName).IsProofOfPossessionRequest);
+            Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(HttpClientName).AuthenticationScheme);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AddMicrosoftIdentityAuthenticationHandler_WithTypedHttpClient(bool useApp)
+        {
+            // arrange
+            var clientName = typeof(TypedClient).Name;
+            var services = new ServiceCollection();
+            Action<MicrosoftIdentityAuthenticationMessageHandlerOptions> configureOptions = options =>
+            {
+                options.Scopes = TestConstants.GraphScopes;
+                options.Tenant = TestConstants.TenantIdAsGuid;
+                options.UserFlow = TestConstants.B2CResetPasswordUserFlow;
+                options.IsProofOfPossessionRequest = true;
+                options.AuthenticationScheme = JwtBearerDefaults.AuthenticationScheme;
+            };
+
+            // act
+            if (useApp)
+            {
+                services.AddHttpClient<TypedClient>()
+                    .AddMicrosoftIdentityAppAuthenticationHandler(configureOptions);
+            }
+            else
+            {
+                services.AddHttpClient<TypedClient>()
+                    .AddMicrosoftIdentityUserAuthenticationHandler(configureOptions);
+            }
+
+            // assert
+            Assert.Contains(services, s => s.ServiceType == typeof(IConfigureOptions<MicrosoftIdentityAuthenticationMessageHandlerOptions>));
+
+            var provider = services.BuildServiceProvider();
+            var options = provider.GetRequiredService<IOptionsSnapshot<MicrosoftIdentityAuthenticationMessageHandlerOptions>>();
+
+            Assert.Equal(TestConstants.GraphScopes, options.Get(clientName).Scopes);
+            Assert.Equal(TestConstants.TenantIdAsGuid, options.Get(clientName).Tenant);
+            Assert.Equal(TestConstants.B2CResetPasswordUserFlow, options.Get(clientName).UserFlow);
+            Assert.True(options.Get(clientName).IsProofOfPossessionRequest);
+            Assert.Equal(JwtBearerDefaults.AuthenticationScheme, options.Get(clientName).AuthenticationScheme);
         }
 
         [Theory]
@@ -158,12 +208,12 @@ namespace Microsoft.Identity.Web.Test
             if (useApp)
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityAppAuthenticationHandler(ServiceName, configureOptions);
+                    .AddMicrosoftIdentityAppAuthenticationHandler(configureOptions);
             }
             else
             {
                 services.AddHttpClient(HttpClientName)
-                    .AddMicrosoftIdentityUserAuthenticationHandler(ServiceName, configureOptions);
+                    .AddMicrosoftIdentityUserAuthenticationHandler(configureOptions);
             }
 
             // assert
