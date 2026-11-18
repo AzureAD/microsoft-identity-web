@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>aff9ebf2-c0d0-4128-b3dd-5e0653a6471d</UserSecretsId>
+    <!-- The sample intentionally uses SDK-provided Dashboard and orchestration packages, not the CLI bundle. -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
