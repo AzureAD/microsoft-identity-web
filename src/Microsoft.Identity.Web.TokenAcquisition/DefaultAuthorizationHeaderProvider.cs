@@ -249,6 +249,8 @@ namespace Microsoft.Identity.Web
                 ForceRefresh = downstreamApiOptions?.AcquireTokenOptions.ForceRefresh ?? false,
                 LongRunningWebApiSessionKey = downstreamApiOptions?.AcquireTokenOptions.LongRunningWebApiSessionKey,
                 ManagedIdentity = downstreamApiOptions?.AcquireTokenOptions.ManagedIdentity,
+                RequestOverMtls = downstreamApiOptions?.AcquireTokenOptions.RequestOverMtls ?? false,
+                MinimumTokenBindingStrength = downstreamApiOptions?.AcquireTokenOptions.MinimumTokenBindingStrength ?? MtlsBindingStrength.None,
                 Tenant = downstreamApiOptions?.AcquireTokenOptions.Tenant,
                 UserFlow = downstreamApiOptions?.AcquireTokenOptions.UserFlow,
                 PopPublicKey = downstreamApiOptions?.AcquireTokenOptions.PopPublicKey,
