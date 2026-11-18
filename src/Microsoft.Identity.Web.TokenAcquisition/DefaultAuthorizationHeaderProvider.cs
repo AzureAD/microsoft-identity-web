@@ -242,6 +242,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationOptionsName = downstreamApiOptions?.AcquireTokenOptions.AuthenticationOptionsName,
                 CancellationToken = cancellationToken,
                 Claims = downstreamApiOptions?.AcquireTokenOptions.Claims,
+                ClaimsFromClient = downstreamApiOptions?.AcquireTokenOptions.ClaimsFromClient,
                 CorrelationId = downstreamApiOptions?.AcquireTokenOptions.CorrelationId ?? Guid.Empty,
                 ExtraHeadersParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraHeadersParameters,
                 ExtraQueryParameters = downstreamApiOptions?.AcquireTokenOptions.ExtraQueryParameters,

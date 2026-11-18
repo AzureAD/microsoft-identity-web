@@ -45,6 +45,7 @@ internal static class OpenApiDescriptions
         AddAcquireTokenOption(op, "Tenant", JsonSchemaType.String, "Override tenant (GUID or 'common').");
         AddAcquireTokenOption(op, "ForceRefresh", JsonSchemaType.Boolean, "true = bypass token cache.");
         AddAcquireTokenOption(op, "Claims", JsonSchemaType.String, "JSON claims challenge or extra claims.");
+        AddAcquireTokenOption(op, "ClaimsFromClient", JsonSchemaType.String, "Client-originated claims JSON, preserved unchanged and distinct from server Claims challenges. An empty value clears configured client claims.");
         AddAcquireTokenOption(op, "CorrelationId", JsonSchemaType.String, "GUID correlation id for token acquisition.");
         AddAcquireTokenOption(op, "LongRunningWebApiSessionKey", JsonSchemaType.String, "Session key for long running OBO flows.");
         AddAcquireTokenOption(op, "FmiPath", JsonSchemaType.String, "Federated Managed Identity path (if using FMI).");

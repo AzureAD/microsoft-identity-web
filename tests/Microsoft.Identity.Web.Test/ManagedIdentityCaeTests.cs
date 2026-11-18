@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -150,6 +151,41 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                     }
                 });
             Assert.Equal("Bearer token2", header2);
+        }
+
+        [Fact]
+        public async Task ManagedIdentity_WithClaimsFromClient_DoesNotForwardClientClaims()
+        {
+            // Arrange
+            const string claimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""";
+            string managedIdentityClientId = Guid.NewGuid().ToString();
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var tokenAcquirerFactory = TokenAcquirerFactory.GetDefaultInstance();
+            var mockedHttp = new MockHttpClientFactory();
+            MockHttpMessageHandler handler = mockedHttp.AddMockHandler(
+                MockHttpCreator.CreateMsiTokenHandler(MockToken));
+
+            tokenAcquirerFactory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockedHttp));
+
+            var headerProvider = tokenAcquirerFactory.Build()
+                .GetRequiredService<IAuthorizationHeaderProvider>();
+
+            // Act
+            await headerProvider.CreateAuthorizationHeaderForAppAsync(
+                Scope,
+                new AuthorizationHeaderProviderOptions
+                {
+                    AcquireTokenOptions = new AcquireTokenOptions
+                    {
+                        ClaimsFromClient = claimsFromClient,
+                        ManagedIdentity = new ManagedIdentityOptions { UserAssignedClientId = managedIdentityClientId },
+                    }
+                });
+
+            // Assert
+            Assert.DoesNotContain("client_originated", handler.ActualRequestMessage.RequestUri!.AbsoluteUri, StringComparison.Ordinal);
+            Assert.Null(handler.ActualRequestMessage.Content);
         }
 
         [Fact]
