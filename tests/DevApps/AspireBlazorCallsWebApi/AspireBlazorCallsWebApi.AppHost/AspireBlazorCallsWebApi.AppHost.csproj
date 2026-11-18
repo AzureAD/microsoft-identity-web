@@ -9,8 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.6.5" />
     <!-- Force patched MessagePack to resolve CVE-2026-48109 and CVE-2026-92707 (transitive via Aspire.Hosting → StackExchange.Redis) -->
-    <PackageReference Include="MessagePack" Version="2.5.303" />
+    <PackageReference Include="MessagePack" Version="2.5.307" />
   </ItemGroup>
 
   <ItemGroup>
