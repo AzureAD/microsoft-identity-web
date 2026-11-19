@@ -163,7 +163,6 @@ namespace Microsoft.Identity.Web.Test
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TC.AadInstance,
                 RedirectUri = redirectUri,
                 ClientSecret = TC.ClientSecret,
             });
@@ -231,7 +230,6 @@ namespace Microsoft.Identity.Web.Test
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TC.AadInstance,
                 RedirectUri = "http://localhost:1729/",
                 ClientSecret = TC.ClientSecret,
             });
@@ -279,7 +277,6 @@ namespace Microsoft.Identity.Web.Test
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TC.AadInstance,
                 RedirectUri = "http://localhost:1729/",
                 ClientSecret = TC.ClientSecret,
             });
@@ -323,7 +320,6 @@ namespace Microsoft.Identity.Web.Test
 
             _applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
             {
-                Instance = TC.AadInstance,
                 RedirectUri = "http://localhost:1729/",
                 ClientSecret = TC.ClientSecret,
             });

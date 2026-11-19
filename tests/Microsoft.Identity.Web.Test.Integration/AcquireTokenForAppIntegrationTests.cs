@@ -263,6 +263,56 @@ namespace Microsoft.Identity.Web.Test.Integration
             Assert.NotNull(serviceProvider);
         }
 
+        // NOTE: This intentionally duplicates the coverage in the MergedOptionsAuthorityConflictTests
+        // unit tests. It is kept at the integration layer on purpose: it exercises the full
+        // options-merge + TokenAcquisitionAspnetCoreHost.GetOptions path (the same path the other
+        // integration tests hit during setup) to guarantee that a configuration setting BOTH
+        // Authority AND Instance/TenantId is rejected end-to-end, not just in the isolated unit.
+        [Fact]
+        public void GetOptions_WhenAuthorityAndInstanceTenantIdBothConfigured_ThrowsConflict()
+        {
+            // Arrange: Authority from MicrosoftIdentityOptions, Instance/TenantId from CCA options.
+            var microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
+            {
+                Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                CallbackPath = string.Empty,
+            });
+            var applicationOptionsMonitor = new TestOptionsMonitor<ConfidentialClientApplicationOptions>(new ConfidentialClientApplicationOptions
+            {
+                Instance = TestConstants.AadInstance,
+                TenantId = TestConstants.ConfidentialClientLabTenant,
+                ClientId = TestConstants.ConfidentialClientId,
+                ClientSecret = _ccaSecret,
+            });
+
+            var services = new ServiceCollection();
+            services.AddTokenAcquisition();
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme);
+            services.AddTransient(provider => microsoftIdentityOptionsMonitor);
+            services.AddTransient(provider => applicationOptionsMonitor);
+            services.Configure<MergedOptions>(OpenIdConnectDefaults.AuthenticationScheme, options => { });
+            services.AddLogging();
+            services.AddInMemoryTokenCaches();
+            services.AddHttpClient();
+            using var provider = services.BuildServiceProvider();
+
+            MergedOptions mergedOptions = provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
+            MergedOptions.UpdateMergedOptionsFromMicrosoftIdentityOptions(microsoftIdentityOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+            MergedOptions.UpdateMergedOptionsFromConfidentialClientApplicationOptions(applicationOptionsMonitor.Get(OpenIdConnectDefaults.AuthenticationScheme), mergedOptions);
+
+            var host = new TokenAcquisitionAspnetCoreHost(
+                MockHttpContextAccessor.CreateMockHttpContextAccessor(),
+                provider.GetService<IMergedOptionsStore>()!,
+                provider);
+
+            // Act & Assert
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(
+                () => host.GetOptions(OpenIdConnectDefaults.AuthenticationScheme, out _));
+            Assert.Contains("Authority", ex.Message, StringComparison.Ordinal);
+            Assert.Contains("Instance", ex.Message, StringComparison.Ordinal);
+        }
+
         private void InitializeTokenAcquisitionObjects()
         {
             MergedOptions mergedOptions = Provider.GetRequiredService<IMergedOptionsStore>().Get(OpenIdConnectDefaults.AuthenticationScheme);
@@ -296,9 +346,10 @@ namespace Microsoft.Identity.Web.Test.Integration
 
         private void BuildTheRequiredServices()
         {
+            // Configure Instance/TenantId only (via ConfidentialClientApplicationOptions below).
+            // Do not also set Authority here: Authority + Instance/TenantId is a conflict and now throws.
             _microsoftIdentityOptionsMonitor = new TestOptionsMonitor<MicrosoftIdentityOptions>(new MicrosoftIdentityOptions
             {
-                Authority = TestConstants.AadInstance + "/" + TestConstants.ConfidentialClientLabTenant,
                 ClientId = TestConstants.ConfidentialClientId,
                 CallbackPath = string.Empty,
             });
