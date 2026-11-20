@@ -11,6 +11,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// The default implementation of <see cref="IMicrosoftIdentityAuthenticationDelegatingHandlerFactory"/>.
     /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
     internal class DefaultMicrosoftIdentityAuthenticationDelegatingHandlerFactory : IMicrosoftIdentityAuthenticationDelegatingHandlerFactory
     {
         private readonly IServiceProvider _serviceProvider;
@@ -46,3 +47,4 @@ namespace Microsoft.Identity.Web
         }
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete
