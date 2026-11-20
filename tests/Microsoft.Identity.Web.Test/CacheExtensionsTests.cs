@@ -2,20 +2,21 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Cache;
 using Microsoft.Identity.Web.Test.Common;
 using Microsoft.Identity.Web.Test.Common.Mocks;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.IdentityModel.Abstractions;
+using NSubstitute;
 using Xunit;
 
 namespace Microsoft.Identity.Web.Test
@@ -33,43 +34,99 @@ namespace Microsoft.Identity.Web.Test
         }
 
         [Fact]
-        public async Task CacheExtensions_CcaAlreadyExists_TestsAsync()
+        public async Task ParameterlessInMemoryCache_ReusesCacheAcrossApplicationsAsync()
         {
-            AuthenticationResult result;
-            // new InMemory serializer and new cca
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory);
+            AuthenticationResult result = await CreateAppAndGetTokenAsync();
             Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.None);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.InMemory, addTokenMock: false);
-            Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(result, CacheLevel.L1Cache);
-
-            //Resetting token caches due to potential collision with other tests
-            TokenCacheExtensions.s_serviceProviderFromAction.Clear();
-
-            // new DistributedInMemory and same cca
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory);
-            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(result, CacheLevel.None);
-
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false);
+            result = await CreateAppAndGetTokenAsync(addTokenMock: false);
             Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
             AssertCacheTelemetry(result, CacheLevel.L1Cache);
         }
 
         [Fact]
-        public async Task CacheExtensions_CcaAlreadyExistsL2_TestsAsync()
+        public async Task ConfiguredDistributedCaches_UseDistinctProvidersAndBackendsAsync()
         {
-            AuthenticationResult result;
-            // new DistributedInMemory serializer with L1 cache disabled
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, disableL1Cache: true);
-            Assert.Equal(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(result, CacheLevel.None);
+            using MockHttpClientFactory firstHttpClient = new MockHttpClientFactory();
+            using MockHttpClientFactory secondHttpClient = new MockHttpClientFactory();
+            using MockHttpMessageHandler firstHandler = firstHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            using MockHttpMessageHandler secondHandler = secondHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler());
+            IConfidentialClientApplication firstApp = CreateCca("first-client", firstHttpClient);
+            IConfidentialClientApplication secondApp = CreateCca("second-client", secondHttpClient);
+            var firstCache = new TestDistributedCache();
+            var secondCache = new TestDistributedCache();
+            var caches = new Queue<TestDistributedCache>(new[] { firstCache, secondCache });
+            var providers = new List<IMsalTokenCacheProvider>();
+            Action<IServiceCollection> configure = services =>
+            {
+                services.AddSingleton<IDistributedCache>(caches.Dequeue());
+                services.AddSingleton<IMsalTokenCacheProvider>(serviceProvider =>
+                {
+                    IMsalTokenCacheProvider provider =
+                        ActivatorUtilities.CreateInstance<MsalDistributedTokenCacheAdapter>(serviceProvider);
+                    providers.Add(provider);
 
-            result = await CreateAppAndGetTokenAsync(CacheType.DistributedInMemory, addTokenMock: false, disableL1Cache: true);
-            Assert.Equal(TokenSource.Cache, result.AuthenticationResultMetadata.TokenSource);
-            AssertCacheTelemetry(result, CacheLevel.L2Cache);
+                    return provider;
+                });
+            };
+
+            firstApp.AddDistributedTokenCache(configure);
+            secondApp.AddDistributedTokenCache(configure);
+
+            AuthenticationResult firstResult = await firstApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp }).ExecuteAsync();
+            AuthenticationResult secondResult = await secondApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp }).ExecuteAsync();
+
+            Assert.Equal(2, providers.Count);
+            Assert.NotSame(providers[0], providers[1]);
+            Assert.Equal(TokenSource.IdentityProvider, firstResult.AuthenticationResultMetadata.TokenSource);
+            Assert.Equal(TokenSource.IdentityProvider, secondResult.AuthenticationResultMetadata.TokenSource);
+            Assert.Single(firstCache._dict);
+            Assert.Single(secondCache._dict);
+        }
+
+        [Fact]
+        public void ConfiguredInMemoryCaches_UseDistinctProvidersAndOptions()
+        {
+            IConfidentialClientApplication firstApp = CreateCca();
+            IConfidentialClientApplication secondApp = CreateCca();
+            TimeSpan firstExpiration = TimeSpan.FromMinutes(1);
+            TimeSpan secondExpiration = TimeSpan.FromMinutes(2);
+            var expirations = new Queue<TimeSpan>(new[] { firstExpiration, secondExpiration });
+            var providers = new List<MsalMemoryTokenCacheProvider>();
+            Action<IServiceCollection> configure = services =>
+            {
+                TimeSpan expiration = expirations.Dequeue();
+                services.Configure<MsalMemoryTokenCacheOptions>(
+                    options => options.AbsoluteExpirationRelativeToNow = expiration);
+                services.AddSingleton<IMsalTokenCacheProvider>(serviceProvider =>
+                {
+                    var provider = ActivatorUtilities.CreateInstance<MsalMemoryTokenCacheProvider>(serviceProvider);
+                    providers.Add(provider);
+
+                    return provider;
+                });
+            };
+
+            firstApp.AddInMemoryTokenCache(configure);
+            secondApp.AddInMemoryTokenCache(configure);
+
+            Assert.Equal(2, providers.Count);
+            Assert.NotSame(providers[0], providers[1]);
+            Assert.Equal(firstExpiration, providers[0].DetermineCacheEntryExpiry(new CacheSerializerHints()));
+            Assert.Equal(secondExpiration, providers[1].DetermineCacheEntryExpiry(new CacheSerializerHints()));
+        }
+
+        [Fact]
+        public void ConfiguredCache_InitializesAppAndUserCaches()
+        {
+            IConfidentialClientApplication app = CreateCca();
+            IMsalTokenCacheProvider provider = Substitute.For<IMsalTokenCacheProvider>();
+
+            app.AddInMemoryTokenCache(services => services.AddSingleton(provider));
+
+            provider.Received(1).Initialize(app.UserTokenCache);
+            provider.Received(1).Initialize(app.AppTokenCache);
         }
 
         [Fact]
@@ -156,9 +213,6 @@ namespace Microsoft.Identity.Web.Test
             var tenantId2 = "tenant2";
             var cacheKey1 = $"{TestConstants.ClientId}_{tenantId1}_AppTokenCache";
             var cacheKey2 = $"{TestConstants.ClientId}_{tenantId2}_AppTokenCache";
-
-            //Resetting token caches due to potential collision with other tests
-            TokenCacheExtensions.s_serviceProviderFromAction.Clear();
 
             using MockHttpClientFactory mockHttpClient = new MockHttpClientFactory();
             using (mockHttpClient.AddMockHandler(MockHttpCreator.CreateClientCredentialTokenHandler()))
@@ -298,16 +352,8 @@ namespace Microsoft.Identity.Web.Test
             result = await GetTokensAssociatedWithKeyAsync(null, expectCacheHit: true);
         }
 
-        private enum CacheType
-        {
-            InMemory,
-            DistributedInMemory,
-        }
-
         private static async Task<AuthenticationResult> CreateAppAndGetTokenAsync(
-            CacheType cacheType,
-            bool addTokenMock = true,
-            bool disableL1Cache = false)
+            bool addTokenMock = true)
         {
             using MockHttpClientFactory mockHttp = new MockHttpClientFactory();
             using var tokenHandler = MockHttpCreator.CreateClientCredentialTokenHandler();
@@ -325,29 +371,7 @@ namespace Microsoft.Identity.Web.Test
                            .WithClientSecret(TestConstants.ClientSecret)
                            .Build();
 
-            switch (cacheType)
-            {
-                case CacheType.InMemory:
-                    confidentialApp.AddInMemoryTokenCache();
-                    break;
-
-                case CacheType.DistributedInMemory:
-                    confidentialApp.AddDistributedTokenCache(services =>
-                    {
-                        services.AddDistributedMemoryCache();
-                        services.AddLogging(configure => configure.AddConsole())
-                        .Configure<LoggerFilterOptions>(options => options.MinLevel = Microsoft.Extensions.Logging.LogLevel.Warning);
-
-                        if (disableL1Cache)
-                        {
-                            services.Configure<MsalDistributedTokenCacheAdapterOptions>(options =>
-                            {
-                                options.DisableL1Cache = true;
-                            });
-                        }
-                    });
-                    break;
-            }
+            confidentialApp.AddInMemoryTokenCache();
 
             var result = await confidentialApp.AcquireTokenForClient(new[] { TestConstants.s_scopeForApp })
                 .ExecuteAsync();
@@ -364,6 +388,17 @@ namespace Microsoft.Identity.Web.Test
                         ConfidentialClientApplicationBuilder
                            .Create(TestConstants.ClientId)
                            .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithClientSecret(TestConstants.ClientSecret)
+                           .Build();
+
+        private static IConfidentialClientApplication CreateCca(
+            string clientId,
+            IMsalHttpClientFactory httpClientFactory) =>
+                        ConfidentialClientApplicationBuilder
+                           .Create(clientId)
+                           .WithAuthority(TestConstants.AuthorityCommonTenant)
+                           .WithHttpClientFactory(httpClientFactory)
+                           .WithInstanceDiscovery(false)
                            .WithClientSecret(TestConstants.ClientSecret)
                            .Build();
     }
