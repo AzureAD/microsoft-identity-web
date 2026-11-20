@@ -13,6 +13,7 @@ namespace Microsoft.Identity.Web
         public static readonly EventId UnauthenticatedApiCall = new(101, "UnauthenticatedApiCall");
         public static readonly EventId ReservedHeaderIgnored = new(102, "ReservedHeaderIgnored");
         public static readonly EventId DuplicateHeaderIgnored = new(103, "DuplicateHeaderIgnored");
+        public static readonly EventId TokenBindingCertificateRejected = new(104, "TokenBindingCertificateRejected");
 #pragma warning restore IDE1006 // Naming styles
     }
 }
