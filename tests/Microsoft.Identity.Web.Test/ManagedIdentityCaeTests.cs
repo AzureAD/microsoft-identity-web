@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Abstractions;
@@ -68,6 +69,63 @@ namespace Microsoft.Identity.Web.Tests.Certificateless
                                 });
 
             Assert.Equal($"Bearer {MockToken}", header);
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public async Task ManagedIdentity_ForceRefresh_BypassesCacheAndCachesEndpointResponse(
+            bool userAssigned,
+            bool endpointReturnsSameToken)
+        {
+            TokenAcquirerFactoryTesting.ResetTokenAcquirerFactoryInTest();
+            var factory = TokenAcquirerFactory.GetDefaultInstance();
+            var mockHttp = new MockHttpClientFactory();
+            string resource = $"https://mi-force-refresh-{Guid.NewGuid():N}.test/";
+            string scope = $"{resource}.default";
+            string refreshedToken = endpointReturnsSameToken ? FirstToken : SecondToken;
+            var firstHandler = mockHttp.AddMockHandler(
+                MockHttpCreator.CreateMsiTokenHandler(FirstToken, resource, expiresIn: 36000));
+
+            factory.Services.AddSingleton<IManagedIdentityTestHttpClientFactory>(
+                _ => new TestManagedIdentityHttpFactory(mockHttp));
+
+            var headerProvider = factory.Build().GetRequiredService<IAuthorizationHeaderProvider>();
+            var options = new AuthorizationHeaderProviderOptions
+            {
+                AcquireTokenOptions = new AcquireTokenOptions
+                {
+                    ManagedIdentity = new ManagedIdentityOptions
+                    {
+                        UserAssignedClientId = userAssigned ? Guid.NewGuid().ToString() : null,
+                    },
+                },
+            };
+
+            string firstHeader = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, options);
+            Assert.Equal($"Bearer {FirstToken}", firstHeader);
+            Assert.NotNull(firstHandler.ActualRequestMessage);
+
+            string cachedHeader = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, options);
+            Assert.Equal(firstHeader, cachedHeader);
+
+            var refreshHandler = mockHttp.AddMockHandler(
+                MockHttpCreator.CreateMsiTokenHandler(
+                    refreshedToken,
+                    resource,
+                    expiresIn: endpointReturnsSameToken ? 36000 : 86400));
+            options.AcquireTokenOptions.ForceRefresh = true;
+
+            string refreshedHeader = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, options);
+
+            Assert.NotNull(refreshHandler.ActualRequestMessage);
+            Assert.Equal($"Bearer {refreshedToken}", refreshedHeader);
+
+            options.AcquireTokenOptions.ForceRefresh = false;
+            string cachedRefreshedHeader = await headerProvider.CreateAuthorizationHeaderForAppAsync(scope, options);
+            Assert.Equal(refreshedHeader, cachedRefreshedHeader);
         }
 
         [Fact]
