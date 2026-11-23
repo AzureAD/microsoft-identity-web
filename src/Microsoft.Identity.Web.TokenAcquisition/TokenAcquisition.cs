@@ -1732,7 +1732,7 @@ namespace Microsoft.Identity.Web
 
                 string authority;
 
-                if (mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority))
+                if (IsPreservedAuthority(mergedOptions))
                 {
                     authority = mergedOptions.Authority!;
                     builder.WithOidcAuthority(authority);
@@ -1865,6 +1865,13 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        /// <summary>
+        /// Whether the application is built with the configured Authority as-is (MSAL WithOidcAuthority), rather than
+        /// from Instance and TenantId.
+        /// </summary>
+        internal static bool IsPreservedAuthority(MergedOptions mergedOptions) =>
+            mergedOptions.PreserveAuthority && !string.IsNullOrEmpty(mergedOptions.Authority);
+
         private async ValueTask<AuthenticationResult?> GetAuthenticationResultForWebApiToCallDownstreamApiAsync(
            IConfidentialClientApplication application,
            string? tenantId,
@@ -1950,7 +1957,10 @@ namespace Microsoft.Identity.Web
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(userTenant))
+                    // A preserved authority is used as-is (WithOidcAuthority) and has no tenant to override: MSAL would
+                    // turn the request-level tenant into an AAD authority and throw authority_type_mismatch. So the
+                    // user's home tenant is applied only to applications built from Instance and TenantId.
+                    if (!string.IsNullOrEmpty(userTenant) && !IsPreservedAuthority(mergedOptions))
                     {
                         builder.WithTenantId(userTenant);
                     }
