@@ -89,6 +89,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationOptionsName = authenticationScheme,
                 CancellationToken = cancellationToken,
                 Claims = tokenAcquisitionOptions.Claims,
+                ClaimsFromClient = tokenAcquisitionOptions.ClaimsFromClient,
                 CorrelationId = tokenAcquisitionOptions.CorrelationId,
                 ExtraQueryParameters = tokenAcquisitionOptions.ExtraQueryParameters,
                 ForceRefresh = tokenAcquisitionOptions.ForceRefresh,

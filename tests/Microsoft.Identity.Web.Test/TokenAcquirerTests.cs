@@ -385,6 +385,44 @@ namespace Microsoft.Identity.Web.Test
             Assert.Equal(userAssignedClientId, capturedOptions.ManagedIdentity!.UserAssignedClientId);
         }
 
+        [Fact]
+        public async Task GetTokenForAppAsync_PreservesClientAndServerClaimsInEffectiveOptions()
+        {
+            // Arrange
+            const string claimsFromClient = """{"access_token":{"client_originated":{"essential":true}}}""";
+            const string serverClaims = """{"access_token":{"server_challenge":{"essential":true}}}""";
+            var authResult = CreateMockAuthenticationResult();
+            TokenAcquisitionOptions? capturedOptions = null;
+
+            _tokenAcquisition.GetAuthenticationResultForAppAsync(
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<TokenAcquisitionOptions>())
+                .Returns(callInfo =>
+                {
+                    capturedOptions = callInfo.ArgAt<TokenAcquisitionOptions>(3);
+                    return Task.FromResult(authResult);
+                });
+
+            var tokenAcquirer = new TokenAcquirer(_tokenAcquisition, _authenticationScheme);
+
+            // Act
+            await ((ITokenAcquirer)tokenAcquirer).GetTokenForAppAsync(
+                _scope,
+                new AcquireTokenOptions
+                {
+                    Claims = serverClaims,
+                    ClaimsFromClient = claimsFromClient,
+                },
+                CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(capturedOptions);
+            Assert.Equal(serverClaims, capturedOptions!.Claims);
+            Assert.Equal(claimsFromClient, capturedOptions.ClaimsFromClient);
+        }
+
         private AuthenticationResult CreateMockAuthenticationResult(X509Certificate2? bindingCertificate = null)
         {
             var authResult = new AuthenticationResult(
