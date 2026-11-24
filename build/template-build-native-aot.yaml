@@ -1,0 +1,32 @@
+# Initial Native AOT scaffold: build/publish only, no tests, signing or distribution.
+# Include this steps template once per RID on a matching OS/architecture runner.
+# The caller installs .NET SDK 10 and the target Native AOT toolchain, and authenticates
+# the repository's configured package feed before invoking the template.
+parameters:
+- name: RuntimeIdentifier
+  type: string
+  values:
+  - win-x64
+  - win-arm64
+  - linux-x64
+  - linux-arm64
+- name: SourceRoot
+  type: string
+  default: '$(Build.SourcesDirectory)'
+- name: OutputRoot
+  type: string
+  default: '$(Build.ArtifactStagingDirectory)'
+
+steps:
+- pwsh: |
+    $ErrorActionPreference = 'Stop'
+    $rid = '${{ parameters.RuntimeIdentifier }}'
+    $architecture = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+    if (($rid.StartsWith('win-')) -ne $IsWindows -or -not $rid.EndsWith("-$architecture")) {
+        throw 'Use a runner matching the requested Native AOT OS and architecture.'
+    }
+    $project = Join-Path '${{ parameters.SourceRoot }}' 'src/Microsoft.Identity.Web.NativeAOT/Microsoft.Identity.Web.NativeAOT.csproj'
+    $output = Join-Path '${{ parameters.OutputRoot }}' "native-aot/$rid"
+    & dotnet publish $project -c Release -f net10.0 -r $rid -p:TargetFrameworks=net10.0 -o $output
+    if ($LASTEXITCODE -ne 0) { throw 'Native AOT publish failed.' }
+  displayName: 'Build/publish Native AOT (${{ parameters.RuntimeIdentifier }})'

@@ -1,0 +1,145 @@
+#nullable enable
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.AccessToken -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ClaimsChallenge -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ErrorCategory -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ExpiresOnUnixTimeMilliseconds -> long
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.HasExpiresOn -> uint
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.HasTokenEndpointHttpStatus -> uint
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.NativeAcquireTokenResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ProviderError -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.ProviderSubError -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.TokenEndpointHttpStatus -> int
+Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult.TokenType -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions
+Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions.ClientId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions.NativeAgentIdentityOptions() -> void
+Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions.UserObjectId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions.UserPrincipalName -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.ErrorCategory -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.HasOperationId -> uint
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.NativeAsyncSubmissionResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeAsyncSubmissionResult.OperationId -> ulong
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderInput
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderInput.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderInput.NativeAuthorizationHeaderInput() -> void
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderInput.Overrides -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.AuthorizationHeader -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.BindingCertificate -> nint
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.LongRunningWebApiSessionKey -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.MetadataJson -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.NativeAuthorizationHeaderResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeAuthorizationHeaderResult.Token -> Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult
+Microsoft.Identity.Web.NativeAOT.NativeControlResult
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.ErrorCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.NativeControlResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.AcceptHeader -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.Body -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.BodyLength -> uint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.ContentType -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.Method -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.NativeDownstreamApiInput() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.Overrides -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.RelativePath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.AgentIdentity -> Microsoft.Identity.Web.NativeAOT.NativeAgentIdentityOptions*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.AuthenticationOptionsName -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.AzureRegion -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Claims -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientAssertion -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientAssertionClaims -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientAssertionFmiPath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientCertificate -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.DownstreamApiOptions -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ExtraBodyParameters -> Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ExtraHeadersParameters -> Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ExtraQueryParameters -> Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.FmiPath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ForceRefresh -> bool
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.HomeAccountId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.LongRunningWebApiSessionKey -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ManagedIdentity -> Microsoft.Identity.Web.NativeAOT.NativeManagedIdentityOptions*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.NativeDownstreamApiOptionsOverrides() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Password -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.PopClaim -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.PoPConfiguration -> Microsoft.Identity.Web.NativeAOT.NativePoPOptions*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.PopPublicKey -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ProtocolScheme -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Scopes -> byte**
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ScopesCount -> uint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Tenant -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.TimeoutMilliseconds -> uint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.UserFlow -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Username -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.Body -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.BodyLength -> uint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.ContentType -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.HasHttpResponseStatus -> uint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.HttpResponseStatusCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.MetadataJson -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.NativeDownstreamApiResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.Token -> Microsoft.Identity.Web.NativeAOT.NativeAcquireTokenResult
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.WwwAuthenticate -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions.ExtraHeaderParameters -> Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions.ExtraQueryParameters -> Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions.GraphAuthentication -> bool
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamRequestOptions.NativeDownstreamRequestOptions() -> void
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Cancelled = 6 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Configuration = 1 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Credential = 2 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.DownstreamApi = 11 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.InteractionRequired = 5 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Internal = 8 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.InvalidRequest = 10 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.None = 0 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.NotConfigured = 9 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.TokenEndpoint = 4 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Transport = 3 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeErrorCategory.Unsupported = 7 -> Microsoft.Identity.Web.NativeAOT.NativeErrorCategory
+Microsoft.Identity.Web.NativeAOT.NativeLoggingCallbackContext
+Microsoft.Identity.Web.NativeAOT.NativeLoggingCallbackContext.Level -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLoggingCallbackContext.Message -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeLoggingCallbackContext.NativeLoggingCallbackContext() -> void
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Critical = 5 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Debug = 1 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Error = 4 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Information = 2 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.None = 6 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Trace = 0 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Warning = 3 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeManagedIdentityOptions
+Microsoft.Identity.Web.NativeAOT.NativeManagedIdentityOptions.NativeManagedIdentityOptions() -> void
+Microsoft.Identity.Web.NativeAOT.NativeManagedIdentityOptions.UserAssignedClientId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.HttpHost -> byte*
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.HttpMethod -> byte*
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.HttpPath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.NativePoPOptions() -> void
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.Nonce -> byte*
+Microsoft.Identity.Web.NativeAOT.NativePoPOptions.SignHttpRequest -> bool
+Microsoft.Identity.Web.NativeAOT.NativeRequestContext
+Microsoft.Identity.Web.NativeAOT.NativeRequestContext.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeRequestContext.NativeRequestContext() -> void
+Microsoft.Identity.Web.NativeAOT.NativeRequestContext.UserAssertion -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeStringPair
+Microsoft.Identity.Web.NativeAOT.NativeStringPair.Name -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeStringPair.NativeStringPair() -> void
+Microsoft.Identity.Web.NativeAOT.NativeStringPair.Value -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeStringParameters
+Microsoft.Identity.Web.NativeAOT.NativeStringParameters.Count -> uint
+Microsoft.Identity.Web.NativeAOT.NativeStringParameters.Entries -> Microsoft.Identity.Web.NativeAOT.NativeStringPair*
+Microsoft.Identity.Web.NativeAOT.NativeStringParameters.NativeStringParameters() -> void

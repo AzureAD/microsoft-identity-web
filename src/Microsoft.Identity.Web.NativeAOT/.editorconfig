@@ -1,0 +1,5 @@
+[*.cs]
+# RS0051: Report internal APIs missing from the InternalAPI shipped/unshipped files.
+dotnet_diagnostic.RS0051.severity = warning
+# RS0052: Report InternalAPI entries whose corresponding internal APIs no longer exist.
+dotnet_diagnostic.RS0052.severity = warning

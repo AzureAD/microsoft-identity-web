@@ -33,6 +33,9 @@ stages:
       - template: build/template-install-dependencies.yaml
       - template: build/template-build.yaml
       - template: build/template-test-unit.yaml
+      - template: build/template-build-native-aot.yaml
+        parameters:
+          RuntimeIdentifier: 'win-x64'
       - task: BuildQualityChecks@10
         displayName: 'Check Warnings'
         inputs:
