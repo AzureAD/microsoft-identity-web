@@ -41,6 +41,7 @@ namespace Microsoft.Identity.Web
                 AuthenticationOptionsName = AuthenticationOptionsName,
                 CorrelationId = CorrelationId,
                 ExtraQueryParameters = ExtraQueryParameters,
+                ExtraParameters = OptionsDictionaryCloner.Clone(ExtraParameters),
                 ForceRefresh = ForceRefresh,
                 Claims = Claims,
                 PoPConfiguration = PoPConfiguration,
@@ -49,6 +50,8 @@ namespace Microsoft.Identity.Web
                 CancellationToken = CancellationToken,
                 LongRunningWebApiSessionKey = LongRunningWebApiSessionKey,
                 ManagedIdentity = ManagedIdentity,
+                RequestOverMtls = RequestOverMtls,
+                MinimumTokenBindingStrength = MinimumTokenBindingStrength,
                 FmiPath = FmiPath,
                 CachePartitionKeys = CachePartitionKeys != null
                     ? new Dictionary<string, string>(CachePartitionKeys)

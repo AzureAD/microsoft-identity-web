@@ -505,6 +505,73 @@ public class CustomApiClient
 }
 ```
 
+## Direct managed identity: transport and minimum binding strength
+
+For direct managed identity app tokens, the shared `AcquireTokenOptions` exposes
+`RequestOverMtls` and `MinimumTokenBindingStrength`. Neither has an explicit initializer:
+when omitted, their values are `false` and `MtlsBindingStrength.None`.
+These options require the revised Abstractions #279 contract; the proposed 12.8.1
+dependency must be published before normal restore succeeds.
+
+To require KeyGuard-backed PoP:
+
+```json
+{
+  "DownstreamApi": {
+    "ProtocolScheme": "MTLS_POP",
+    "RequestAppToken": true,
+    "Scopes": [ "https://vault.azure.net/.default" ],
+    "AcquireTokenOptions": {
+      "ManagedIdentity": { "UserAssignedClientId": "" },
+      "MinimumTokenBindingStrength": "KeyGuard"
+    }
+  }
+}
+```
+
+An empty client ID selects system-assigned identity; set it for user-assigned identity.
+Install `Microsoft.Identity.Web.KeyAttestation` and register
+`services.AddMicrosoftIdentityWebKeyAttestation()` before building the service provider
+when requiring KeyGuard.
+
+| Minimum | Numeric value | Behavior |
+|---|---|---|
+| `None` | `0` | No minimum requirement; does not disable PoP or attestation. |
+| `Software` | `1` | Requires at least software-backed binding. |
+| `KeyGuard` | `3` | Requires KeyGuard capability and key attestation. |
+
+Value `2` is reserved. The minimum does not select a particular key or request a downgrade:
+`Software` permits KeyGuard. IdWeb maps it to MSAL's `PoPOptions.MinStrength`; MSAL
+rejects an insufficient host with `min_strength_not_met`. KeyGuard also requires a
+registered attestation provider. Provider and acquisition failures propagate without
+retrying with weaker binding or a bearer token.
+
+Registered attestation support is used for both managed identity mTLS modes, including
+requests with no minimum. There is no separate per-request attestation-disable switch.
+MSAL partitions cached tokens by mTLS mode, attestation support, and PoP minimum strength,
+so a weaker-policy cache entry cannot satisfy a stricter request.
+
+To acquire an unbound bearer token over mTLS instead:
+
+```json
+{
+  "ProtocolScheme": "Bearer",
+  "RequestAppToken": true,
+  "AcquireTokenOptions": {
+    "ManagedIdentity": { "UserAssignedClientId": "" },
+    "RequestOverMtls": true
+  }
+}
+```
+
+This protects the token-acquisition connection, not the returned bearer token's use.
+Do not combine `RequestOverMtls` with `MTLS_POP`. A non-`None` minimum is rejected for
+bearer tokens, non-managed-identity acquisition, and user-token flows. These controls
+do not change FIC/signed-assertion or certificate-based token-binding behavior.
+
+See the [managed identity mTLS sample](../../tests/DevApps/daemon-app/daemon-app-msi-mtls/README.md)
+for host prerequisites and a runnable configuration.
+
 ## Federated Identity Credentials (FIC) with token binding
 
 Token binding also composes with **Federated Identity Credentials**, where the
@@ -520,7 +587,7 @@ Two binding-capable assertion sources are supported:
 - `CustomSignedAssertion` from the OIDC IdP provider
   (`Microsoft.Identity.Web.OidcFIC`, `AddOidcFic()`)
 
-Managed identity mTLS PoP uses `WithMtlsProofOfPossession()` without key
+The managed identity leg of a FIC flow uses `WithMtlsProofOfPossession()` without key
 attestation by default. To also apply `WithAttestationSupport()` on supported
 hosts, install the optional `Microsoft.Identity.Web.KeyAttestation` package and
 register it:
