@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Xunit;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 namespace Microsoft.Identity.Web.Test
 {
     public class DefaultMicrosoftIdentityAuthDelegatingHandlerFactoryTests
@@ -49,3 +50,4 @@ namespace Microsoft.Identity.Web.Test
         }
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete
