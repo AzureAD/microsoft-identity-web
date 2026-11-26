@@ -239,12 +239,20 @@ namespace Microsoft.Identity.Web
                     });
             }
 
-            // If deselected, clear the values so they can be reloaded.
+            // A directly supplied certificate has no built-in source from which to reload it.
             if (action == CerticateObserverAction.Deselected)
             {
-                certificateDescription.Certificate = null;
                 certificateDescription.CachedValue = null;
+                if (!IsCallerProvidedCertificate(certificateDescription))
+                {
+                    certificateDescription.Certificate = null;
+                }
             }
+        }
+
+        private static bool IsCallerProvidedCertificate(CredentialDescription certificateDescription)
+        {
+            return certificateDescription.SourceType == CredentialSource.Certificate;
         }
     }
 }

@@ -267,10 +267,13 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
 
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
-                    exMsal);
+                _logger.LogWarning(
+                    LoggingEventId.TokenAcquisitionError,
+                    exMsal,
+                    "[MsIdWeb] Certificate error detected. Retrying with next certificate (attempt {Attempt}/{MaxAttempts}). {MsalErrorMessage}",
+                    retryCount + 1,
+                    MaxCertificateRetries,
+                    exMsal.Message);
 
                 if (selectedCertificate != null && description != null)
                 {
@@ -286,7 +289,9 @@ namespace Microsoft.Identity.Web
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
-                return await AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount + 1).ConfigureAwait(false);
+                return await RetryWithOriginalExceptionAsync(
+                    () => AddAccountToCacheFromAuthorizationCodeInternalAsync(authCodeRedemptionParameters, retryCount + 1),
+                    exMsal).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -495,10 +500,13 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
 
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
-                    exMsal);
+                _logger.LogWarning(
+                    LoggingEventId.TokenAcquisitionError,
+                    exMsal,
+                    "[MsIdWeb] Certificate error detected. Retrying with next certificate (attempt {Attempt}/{MaxAttempts}). {MsalErrorMessage}",
+                    retryCount + 1,
+                    MaxCertificateRetries,
+                    exMsal.Message);
 
                 if (selectedCertificate != null && description != null)
                 {
@@ -514,14 +522,16 @@ namespace Microsoft.Identity.Web
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
-                return await GetAuthenticationResultForUserInternalAsync(
-                    scopes,
-                    authenticationScheme,
-                    tenantId,
-                    userFlow,
-                    user,
-                    tokenAcquisitionOptions,
-                    retryCount + 1).ConfigureAwait(false);
+                return await RetryWithOriginalExceptionAsync(
+                    () => GetAuthenticationResultForUserInternalAsync(
+                        scopes,
+                        authenticationScheme,
+                        tenantId,
+                        userFlow,
+                        user,
+                        tokenAcquisitionOptions,
+                        retryCount + 1),
+                    exMsal).ConfigureAwait(false);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -1204,10 +1214,13 @@ namespace Microsoft.Identity.Web
                     throw;
                 }
 
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    $"Certificate error detected. Retrying with next certificate (attempt {retryCount + 1}/{MaxCertificateRetries}). {exMsal.Message}",
-                    exMsal);
+                _logger.LogWarning(
+                    LoggingEventId.TokenAcquisitionError,
+                    exMsal,
+                    "[MsIdWeb] Certificate error detected. Retrying with next certificate (attempt {Attempt}/{MaxAttempts}). {MsalErrorMessage}",
+                    retryCount + 1,
+                    MaxCertificateRetries,
+                    exMsal.Message);
 
                 if (selectedCertificate != null && description != null)
                 {
@@ -1226,12 +1239,14 @@ namespace Microsoft.Identity.Web
                 _applicationsByAuthorityClientId[applicationKey] = null;
 
                 // Retry with incremented counter
-                return await GetAuthenticationResultForAppInternalAsync(
-                    scope,
-                    authenticationScheme,
-                    tenant,
-                    tokenAcquisitionOptions,
-                    retryCount + 1);
+                return await RetryWithOriginalExceptionAsync(
+                    () => GetAuthenticationResultForAppInternalAsync(
+                        scope,
+                        authenticationScheme,
+                        tenant,
+                        tokenAcquisitionOptions,
+                        retryCount + 1),
+                    exMsal).ConfigureAwait(false);
             }
             catch (MsalException ex)
             {
@@ -1532,6 +1547,26 @@ namespace Microsoft.Identity.Web
             }
         }
 
+        private static async Task<T> RetryWithOriginalExceptionAsync<T>(
+            Func<Task<T>> retry,
+            MsalServiceException originalException)
+        {
+            try
+            {
+                return await retry().ConfigureAwait(false);
+            }
+            catch (ArgumentException ex) when (
+                ex.ParamName == "clientCredentials" &&
+                ex.Message.StartsWith(IDWebErrorMessage.ClientCertificatesHaveExpiredOrCannotBeLoaded, StringComparison.Ordinal))
+            {
+                Exception innerException = ex.InnerException is null
+                    ? originalException
+                    : new AggregateException(originalException, ex.InnerException);
+
+                throw new ArgumentException(ex.Message, ex.ParamName, innerException);
+            }
+        }
+
         private bool ShouldRetry(
             MsalServiceException exMsal,
             X509Certificate2? certificate,
@@ -1829,10 +1864,11 @@ namespace Microsoft.Identity.Web
             }
             catch (Exception ex)
             {
-                Logger.TokenAcquisitionError(
-                    _logger,
-                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message,
-                    ex);
+                _logger.LogWarning(
+                    LoggingEventId.TokenAcquisitionError,
+                    ex,
+                    "[MsIdWeb] {ErrorMessage}",
+                    IDWebErrorMessage.ExceptionAcquiringTokenForConfidentialClient + ex.Message);
                 throw;
             }
         }
