@@ -243,11 +243,16 @@ namespace Microsoft.Identity.Web
             if (action == CerticateObserverAction.Deselected)
             {
                 certificateDescription.CachedValue = null;
-                if (certificateDescription.SourceType != CredentialSource.Certificate)
+                if (!IsCallerProvidedCertificate(certificateDescription))
                 {
                     certificateDescription.Certificate = null;
                 }
             }
+        }
+
+        private static bool IsCallerProvidedCertificate(CredentialDescription certificateDescription)
+        {
+            return certificateDescription.SourceType == CredentialSource.Certificate;
         }
     }
 }
