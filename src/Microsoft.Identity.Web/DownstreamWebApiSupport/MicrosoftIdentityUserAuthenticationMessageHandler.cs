@@ -13,6 +13,7 @@ namespace Microsoft.Identity.Web
     /// <summary>
     /// A DelegatingHandler implementation that add an authorization header with a token on behalf of the current user.
     /// </summary>
+    [Obsolete("Use MicrosoftIdentityMessageHandler instead. See https://github.com/AzureAD/microsoft-identity-web/blob/master/docs/calling-downstream-apis/custom-apis.md#microsoftidentitymessagehandler---for-httpclient-integration for details.", false)]
     public class MicrosoftIdentityUserAuthenticationMessageHandler : MicrosoftIdentityAuthenticationBaseMessageHandler
     {
         private readonly IOptionsMonitor<MicrosoftIdentityOptions> _microsoftIdentityOptions;

@@ -16,6 +16,7 @@ using Microsoft.Identity.Web.Test.Common;
 using NSubstitute;
 using Xunit;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 namespace Microsoft.Identity.Web.Test
 {
     public class MicrosoftIdentityAuthenticationMessageHandlerTests
@@ -270,3 +271,4 @@ namespace Microsoft.Identity.Web.Test
         }
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete
