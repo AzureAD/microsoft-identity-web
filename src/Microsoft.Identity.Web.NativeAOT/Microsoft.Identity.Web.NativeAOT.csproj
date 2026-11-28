@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <PublishAot>true</PublishAot>
+    <NativeLib>Shared</NativeLib>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Identity.Web.TokenAcquisition\Microsoft.Identity.Web.TokenAcquisition.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.DownstreamApi\Microsoft.Identity.Web.DownstreamApi.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.AgentIdentities\Microsoft.Identity.Web.AgentIdentities.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.GraphServiceClient\Microsoft.Identity.Web.GraphServiceClient.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.OidcFIC\Microsoft.Identity.Web.OidcFIC.csproj" />
+    <ProjectReference Include="..\Microsoft.Identity.Web.KeyAttestation\Microsoft.Identity.Web.KeyAttestation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsDependencyInjectionVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="$(NetTenRuntimeVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="$(NetTenRuntimeVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+    <AdditionalFiles Include="InternalAPI.Shipped.txt" />
+    <AdditionalFiles Include="InternalAPI.Unshipped.txt" />
+  </ItemGroup>
+</Project>

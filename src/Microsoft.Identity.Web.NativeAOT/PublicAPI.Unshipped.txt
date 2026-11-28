@@ -1,0 +1,110 @@
+#nullable enable
+Microsoft.Identity.Web.NativeAOT.Entrypoint
+Microsoft.Identity.Web.NativeAOT.NativeControlResult
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.ErrorCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeControlResult.NativeControlResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.AcceptHeader -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.ContentType -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.InputBody -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.NativeDownstreamApiInput() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput.Overrides -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.AzureRegion -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClaimsJson -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ClientAssertionClaims -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.FmiPath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ForceRefresh.get -> bool
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ForceRefresh.set -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.LongRunningWebApiSessionKey -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ManagedIdentityBase64encodedCertificate -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ManagedIdentityClientId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.NativeDownstreamApiOptionsOverrides() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.RelativePath -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved1 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved2 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved3 -> byte**
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved4 -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved5 -> byte**
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved6 -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved7 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Reserved8 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Scopes -> byte**
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.ScopesCount -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.SignedClientAssertion -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides.Tenant -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.DownstreamApiResult -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.HttpResponseStatusCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.NativeDownstreamApiResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult.WWWAuthenticate -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput.NativeDownstreamAuthorizationHeaderInput() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput.Overrides -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiOptionsOverrides
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.AuthorizationHeader -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.BindingCertificate -> nint
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.FailureDetails -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.HttpResponseStatusCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.LongRunningWebApiSessionKey -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.Metadata -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.NativeDownstreamAuthorizationHeaderResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult.WWWAuthenticate -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Critical = 5 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Debug = 1 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Error = 4 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Information = 2 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.None = 6 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Trace = 0 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogLevel.Warning = 3 -> Microsoft.Identity.Web.NativeAOT.NativeLogLevel
+Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext
+Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext.Level -> int
+Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext.Message -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext.NativeLogMessageCallbackContext() -> void
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.CorrelationId -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.ErrorDescription -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.HttpResponseStatusCode -> int
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.NativeValidationResult() -> void
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved1 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved10 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved11 -> uint
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved12 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved13 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved14 -> uint
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved15 -> byte**
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved16 -> uint
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved2 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved3 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved4 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved5 -> uint
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved6 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved7 -> uint
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved8 -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.Reserved9 -> void*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.SubjectToken -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.SubjectTokenType -> byte*
+Microsoft.Identity.Web.NativeAOT.NativeValidationResult.WWWAuthenticate -> byte*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthAssignLogMessageCallback(delegate* unmanaged<Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext*, void*, void> callback, void* context) -> Microsoft.Identity.Web.NativeAOT.NativeControlResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthCallDownstreamApi(Microsoft.Identity.Web.NativeAOT.NativeValidationResult* validationResult, Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName) -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthCallDownstreamApiAsync(Microsoft.Identity.Web.NativeAOT.NativeValidationResult* validationResult, Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName, delegate* unmanaged<Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult*, void*, void> callback, void* callerContext) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthCallDownstreamApiUnauthenticated(Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName) -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthCallDownstreamApiUnauthenticatedAsync(Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName, delegate* unmanaged<Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult*, void*, void> callback, void* callerContext) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthConfigure(byte* configurationJson, byte* sectionName) -> Microsoft.Identity.Web.NativeAOT.NativeControlResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthFreeControlResult(Microsoft.Identity.Web.NativeAOT.NativeControlResult* controlResult) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthFreeDownstreamApiResult(Microsoft.Identity.Web.NativeAOT.NativeDownstreamApiResult* downstreamApiResult) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthFreeDownstreamAuthorizationHeaderResult(Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult* authorizationHeaderResult) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthFreeLogMessageCallbackContext(Microsoft.Identity.Web.NativeAOT.NativeLogMessageCallbackContext* callbackContext) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthGetAuthorizationHeader(Microsoft.Identity.Web.NativeAOT.NativeValidationResult* validationResult, Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName) -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthGetAuthorizationHeaderAsync(Microsoft.Identity.Web.NativeAOT.NativeValidationResult* validationResult, Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName, delegate* unmanaged<Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult*, void*, void> callback, void* callerContext) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthGetAuthorizationHeaderUnauthenticated(Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName) -> Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult*
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthGetAuthorizationHeaderUnauthenticatedAsync(Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName, delegate* unmanaged<Microsoft.Identity.Web.NativeAOT.NativeDownstreamAuthorizationHeaderResult*, void*, void> callback, void* callerContext) -> void
+static Microsoft.Identity.Web.NativeAOT.Entrypoint.EntraAuthUnassignLogMessageCallback() -> Microsoft.Identity.Web.NativeAOT.NativeControlResult*

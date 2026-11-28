@@ -1,0 +1,8 @@
+#nullable enable
+Microsoft.Identity.Web.NativeAOT.Entrypoint
+Microsoft.Identity.Web.NativeAOT.NativeEnvironment
+Microsoft.Identity.Web.NativeAOT.NativeEnvironment.NativeEnvironment() -> void
+Microsoft.Identity.Web.NativeAOT.NativeEnvironment.Dispose() -> void
+Microsoft.Identity.Web.NativeAOT.NativeRuntime
+Microsoft.Identity.Web.NativeAOT.NativeRuntime.NativeRuntime() -> void
+Microsoft.Identity.Web.NativeAOT.NativeRuntime.Configure() -> void
