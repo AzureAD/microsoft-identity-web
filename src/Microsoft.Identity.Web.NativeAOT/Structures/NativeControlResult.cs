@@ -12,7 +12,7 @@ namespace Microsoft.Identity.Web.NativeAOT;
 public unsafe struct NativeControlResult
 {
     /// <summary>
-    /// Control outcome: zero succeeds, one indicates an invalid operation and two an internal failure.
+    /// Control outcome: zero succeeds, 100 indicates a configuration error and 200 a logging callback error.
     /// </summary>
     public int ErrorCode;
 

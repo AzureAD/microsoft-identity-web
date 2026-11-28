@@ -6,17 +6,24 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Identity.Web.NativeAOT;
 
-internal static unsafe partial class Entrypoint
+public static unsafe partial class Entrypoint
 {
+    private const int CallbackErrorCode = 200;
     private static readonly NativeRuntime s_runtime = new();
 
+    /// <summary>
+    /// Entry point for configuring the native acquisition environment.
+    /// </summary>
+    /// <param name="configurationJson">Borrowed zero-terminated UTF-8 JSON configuration.</param>
+    /// <param name="sectionName">Borrowed zero-terminated UTF-8 configuration section name.</param>
+    /// <returns>An owned control result released with <see cref="EntraAuthFreeControlResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthConfigure))]
-    private static NativeControlResult* EntraAuthConfigure(byte* configurationJson, byte* sectionName)
+    public static NativeControlResult* EntraAuthConfigure(byte* configurationJson, byte* sectionName)
     {
         try
         {
             s_runtime.Configure();
-            return AllocateControl(success: true);
+            return AllocateControl(errorCode: 0, errorDescription: default);
         }
         catch (Exception exception)
         {
@@ -25,38 +32,41 @@ internal static unsafe partial class Entrypoint
         }
     }
 
+    /// <summary>
+    /// Entry point for assigning a native logging callback.
+    /// </summary>
+    /// <param name="callback">Host callback receiving ownership of each log message context.</param>
+    /// <param name="context">Opaque host context supplied to the logging callback.</param>
+    /// <returns>An owned control result released with <see cref="EntraAuthFreeControlResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthAssignLogMessageCallback))]
-    private static NativeControlResult* EntraAuthAssignLogMessageCallback(
-        delegate* unmanaged<NativeLoggingCallbackContext*, void*, void> callback, void* context)
+    public static NativeControlResult* EntraAuthAssignLogMessageCallback(
+        delegate* unmanaged<NativeLogMessageCallbackContext*, void*, void> callback, void* context)
     {
-        return AllocateControl(success: false);
+        return AllocateControl(CallbackErrorCode, "Not implemented."u8);
     }
 
+    /// <summary>
+    /// Entry point for unassigning the native logging callback.
+    /// </summary>
+    /// <returns>An owned control result released with <see cref="EntraAuthFreeControlResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthUnassignLogMessageCallback))]
-    private static NativeControlResult* EntraAuthUnassignLogMessageCallback()
+    public static NativeControlResult* EntraAuthUnassignLogMessageCallback()
     {
-        return AllocateControl(success: false);
+        return AllocateControl(CallbackErrorCode, "Not implemented."u8);
     }
 
-    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthCancelOperation))]
-    private static NativeControlResult* EntraAuthCancelOperation(ulong operationId)
-    {
-        return AllocateControl(success: false);
-    }
-
-    private static NativeControlResult* AllocateControl(bool success)
+    private static NativeControlResult* AllocateControl(int errorCode, ReadOnlySpan<byte> errorDescription)
     {
         try
         {
-            ReadOnlySpan<byte> message = "Not implemented."u8;
-            int size = sizeof(NativeControlResult) + (success ? 0 : message.Length + 1);
+            int size = sizeof(NativeControlResult) + (errorDescription.IsEmpty ? 0 : errorDescription.Length + 1);
             var result = (NativeControlResult*)Marshal.AllocCoTaskMem(size);
             new Span<byte>(result, size).Clear();
-            result->ErrorCode = success ? 0 : 2;
-            if (!success)
+            result->ErrorCode = errorCode;
+            if (!errorDescription.IsEmpty)
             {
                 result->ErrorDescription = (byte*)(result + 1);
-                message.CopyTo(new Span<byte>(result->ErrorDescription, message.Length));
+                errorDescription.CopyTo(new Span<byte>(result->ErrorDescription, errorDescription.Length));
             }
 
             return result;

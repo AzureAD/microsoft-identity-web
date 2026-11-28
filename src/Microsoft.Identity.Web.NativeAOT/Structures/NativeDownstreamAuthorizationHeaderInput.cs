@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web.NativeAOT;
 /// Borrowed UTF-8 header request with correlation and embedded acquisition overrides.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct NativeAuthorizationHeaderInput
+public unsafe struct NativeDownstreamAuthorizationHeaderInput
 {
     /// <summary>
     /// Optional caller correlation GUID; NULL/blank inherits valid host context, while invalid nonblank values generate an ID.

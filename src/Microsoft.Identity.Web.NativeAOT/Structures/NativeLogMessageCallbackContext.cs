@@ -9,7 +9,7 @@ namespace Microsoft.Identity.Web.NativeAOT;
 /// Owned native log message transferred to a host callback.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct NativeLoggingCallbackContext
+public unsafe struct NativeLogMessageCallbackContext
 {
     /// <summary>
     /// Redacted zero-terminated UTF-8 diagnostic text stored in the context allocation.
@@ -17,7 +17,7 @@ public unsafe struct NativeLoggingCallbackContext
     public byte* Message;
 
     /// <summary>
-    /// Diagnostic severity; <see cref="NativeLogLevel.None"/> is never emitted.
+    /// Numeric diagnostic severity matching <see cref="NativeLogLevel"/>; <see cref="NativeLogLevel.None"/> is never emitted.
     /// </summary>
-    public NativeLogLevel Level;
+    public int Level;
 }

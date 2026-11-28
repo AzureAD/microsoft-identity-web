@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Microsoft.Identity.Web.NativeAOT;
 
 /// <summary>
-/// Borrowed HTTPS request with UTF-8 strings and an optional binary body for a named downstream service.
+/// Borrowed HTTPS request with UTF-8 strings and an optional text body for a named downstream service.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct NativeDownstreamApiInput
@@ -22,29 +22,14 @@ public unsafe struct NativeDownstreamApiInput
     public byte* ContentType;
 
     /// <summary>
-    /// Borrowed binary request bytes, limited to 1 MiB.
+    /// Optional borrowed zero-terminated UTF-8 request body, limited to 1 MiB; NULL omits the body.
     /// </summary>
-    public byte* Body;
-
-    /// <summary>
-    /// Body byte count; must be zero when the body pointer is NULL.
-    /// </summary>
-    public uint BodyLength;
+    public byte* InputBody;
 
     /// <summary>
     /// Optional Accept header value.
     /// </summary>
     public byte* AcceptHeader;
-
-    /// <summary>
-    /// Optional path override constrained to the configured HTTPS origin.
-    /// </summary>
-    public byte* RelativePath;
-
-    /// <summary>
-    /// Optional HTTP method override; otherwise the configured method or GET.
-    /// </summary>
-    public byte* Method;
 
     /// <summary>
     /// Token and acquisition overrides shared with authorization-header inputs.

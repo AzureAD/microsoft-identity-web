@@ -6,36 +6,46 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Identity.Web.NativeAOT;
 
-internal static unsafe partial class Entrypoint
+public static unsafe partial class Entrypoint
 {
-    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeAuthorizationHeaderResult))]
-    private static void EntraAuthFreeAuthorizationHeaderResult(NativeAuthorizationHeaderResult* result)
+    /// <summary>
+    /// Releases an owned authorization header result; a null pointer is permitted.
+    /// </summary>
+    /// <param name="authorizationHeaderResult">Owned result to release exactly once.</param>
+    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeDownstreamAuthorizationHeaderResult))]
+    public static void EntraAuthFreeDownstreamAuthorizationHeaderResult(NativeDownstreamAuthorizationHeaderResult* authorizationHeaderResult)
     {
-        FreeResult(result);
+        FreeResult(authorizationHeaderResult);
     }
 
+    /// <summary>
+    /// Releases an owned downstream call result; a null pointer is permitted.
+    /// </summary>
+    /// <param name="downstreamApiResult">Owned result to release exactly once.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeDownstreamApiResult))]
-    private static void EntraAuthFreeDownstreamApiResult(NativeDownstreamApiResult* result)
+    public static void EntraAuthFreeDownstreamApiResult(NativeDownstreamApiResult* downstreamApiResult)
     {
-        FreeResult(result);
+        FreeResult(downstreamApiResult);
     }
 
-    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeAsyncSubmissionResult))]
-    private static void EntraAuthFreeAsyncSubmissionResult(NativeAsyncSubmissionResult* result)
-    {
-        FreeResult(result);
-    }
-
+    /// <summary>
+    /// Releases an owned control result; a null pointer is permitted.
+    /// </summary>
+    /// <param name="controlResult">Owned result to release exactly once.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeControlResult))]
-    private static void EntraAuthFreeControlResult(NativeControlResult* result)
+    public static void EntraAuthFreeControlResult(NativeControlResult* controlResult)
     {
-        FreeResult(result);
+        FreeResult(controlResult);
     }
 
-    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeLoggingCallbackContext))]
-    private static void EntraAuthFreeLoggingCallbackContext(NativeLoggingCallbackContext* result)
+    /// <summary>
+    /// Releases an owned log message context; a null pointer is permitted.
+    /// </summary>
+    /// <param name="callbackContext">Owned context to release exactly once.</param>
+    [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthFreeLogMessageCallbackContext))]
+    public static void EntraAuthFreeLogMessageCallbackContext(NativeLogMessageCallbackContext* callbackContext)
     {
-        FreeResult(result);
+        FreeResult(callbackContext);
     }
 
     private static void FreeResult<T>(T* result) where T : unmanaged

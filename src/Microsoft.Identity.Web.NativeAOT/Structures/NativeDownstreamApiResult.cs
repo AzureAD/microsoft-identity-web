@@ -12,42 +12,27 @@ namespace Microsoft.Identity.Web.NativeAOT;
 public unsafe struct NativeDownstreamApiResult
 {
     /// <summary>
-    /// Complete operation outcome and token acquisition metadata.
-    /// </summary>
-    public NativeAcquireTokenResult Token;
-
-    /// <summary>
-    /// One when a downstream HTTP status was observed; otherwise zero.
-    /// </summary>
-    public uint HasHttpResponseStatus;
-
-    /// <summary>
-    /// Downstream status code, valid only when its availability flag is one.
+    /// Operation HTTP status for the host response; available even when no downstream response was received.
     /// </summary>
     public int HttpResponseStatusCode;
 
     /// <summary>
-    /// Binary response bytes, limited to 16 MiB; not zero-terminated.
+    /// Correlation GUID for the operation.
     /// </summary>
-    public byte* Body;
+    public byte* CorrelationId;
 
     /// <summary>
-    /// Number of available response bytes.
+    /// Optional managed exception type/message or downstream error body; may contain sensitive data.
     /// </summary>
-    public uint BodyLength;
+    public byte* ErrorDescription;
 
     /// <summary>
-    /// Optional zero-terminated UTF-8 response media type.
+    /// Optional UTF-8 WWW-Authenticate header for an acquisition challenge or downstream response.
     /// </summary>
-    public byte* ContentType;
+    public byte* WWWAuthenticate;
 
     /// <summary>
-    /// Optional untrusted UTF-8 downstream authentication challenge.
+    /// Optional zero-terminated UTF-8 response body, limited to 16 MiB.
     /// </summary>
-    public byte* WwwAuthenticate;
-
-    /// <summary>
-    /// Optional UTF-8 acquisition and HTTP response metadata JSON; may contain secrets, never log.
-    /// </summary>
-    public byte* MetadataJson;
+    public byte* DownstreamApiResult;
 }

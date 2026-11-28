@@ -6,76 +6,176 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Identity.Web.NativeAOT;
 
-internal static unsafe partial class Entrypoint
+/// <summary>
+/// Unmanaged entry points for acquisition, downstream calls, configuration and result ownership.
+/// </summary>
+/// <remarks>
+/// These methods cannot be called directly from managed code. Invoke them from native code
+/// or through unmanaged function pointers.
+/// </remarks>
+public static unsafe partial class Entrypoint
 {
     // Inputs are deliberately not read until acquisition is implemented.
+    /// <summary>
+    /// Entry point for authorization header acquisition with a host-supplied user context.
+    /// </summary>
+    /// <param name="validationResult">Borrowed host authentication context containing the subject token.</param>
+    /// <param name="downstreamApiInput">Borrowed per-request header acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <returns>An owned result released with <see cref="EntraAuthFreeDownstreamAuthorizationHeaderResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthGetAuthorizationHeader))]
-    private static NativeAuthorizationHeaderResult* EntraAuthGetAuthorizationHeader(
-        NativeRequestContext* context, NativeAuthorizationHeaderInput* input, byte* downstreamApiName)
+    public static NativeDownstreamAuthorizationHeaderResult* EntraAuthGetAuthorizationHeader(
+        NativeValidationResult* validationResult, NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName)
     {
-        return AllocateResult<NativeAuthorizationHeaderResult>();
+        return AllocateHeaderResult();
     }
 
+    /// <summary>
+    /// Entry point for authorization header acquisition without a user context.
+    /// </summary>
+    /// <param name="downstreamApiInput">Borrowed per-request header acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <returns>An owned result released with <see cref="EntraAuthFreeDownstreamAuthorizationHeaderResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthGetAuthorizationHeaderUnauthenticated))]
-    private static NativeAuthorizationHeaderResult* EntraAuthGetAuthorizationHeaderUnauthenticated(
-        NativeAuthorizationHeaderInput* input, byte* downstreamApiName)
+    public static NativeDownstreamAuthorizationHeaderResult* EntraAuthGetAuthorizationHeaderUnauthenticated(
+        NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName)
     {
-        return AllocateResult<NativeAuthorizationHeaderResult>();
+        return AllocateHeaderResult();
     }
 
+    /// <summary>
+    /// Entry point for a downstream call with a host-supplied user context.
+    /// </summary>
+    /// <param name="validationResult">Borrowed host authentication context containing the subject token.</param>
+    /// <param name="downstreamApiInput">Borrowed per-request HTTP input and acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <returns>An owned result released with <see cref="EntraAuthFreeDownstreamApiResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthCallDownstreamApi))]
-    private static NativeDownstreamApiResult* EntraAuthCallDownstreamApi(
-        NativeRequestContext* context, NativeDownstreamApiInput* input, byte* downstreamApiName)
+    public static NativeDownstreamApiResult* EntraAuthCallDownstreamApi(
+        NativeValidationResult* validationResult, NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName)
     {
-        return AllocateResult<NativeDownstreamApiResult>();
+        return AllocateDownstreamResult();
     }
 
+    /// <summary>
+    /// Entry point for a downstream call without a user context.
+    /// </summary>
+    /// <param name="downstreamApiInput">Borrowed per-request HTTP input and acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <returns>An owned result released with <see cref="EntraAuthFreeDownstreamApiResult"/>.</returns>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthCallDownstreamApiUnauthenticated))]
-    private static NativeDownstreamApiResult* EntraAuthCallDownstreamApiUnauthenticated(
-        NativeDownstreamApiInput* input, byte* downstreamApiName)
+    public static NativeDownstreamApiResult* EntraAuthCallDownstreamApiUnauthenticated(
+        NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName)
     {
-        return AllocateResult<NativeDownstreamApiResult>();
+        return AllocateDownstreamResult();
     }
 
+    /// <summary>
+    /// Entry point for callback-based header acquisition with a host-supplied user context.
+    /// </summary>
+    /// <param name="validationResult">Borrowed host authentication context containing the subject token.</param>
+    /// <param name="downstreamApiInput">Borrowed per-request header acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <param name="callback">Required completion callback receiving ownership of the result; may run inline.</param>
+    /// <param name="callerContext">Opaque host context passed unchanged to the callback.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthGetAuthorizationHeaderAsync))]
-    private static NativeAsyncSubmissionResult* EntraAuthGetAuthorizationHeaderAsync(
-        NativeRequestContext* context, NativeAuthorizationHeaderInput* input, byte* downstreamApiName,
-        delegate* unmanaged<NativeAuthorizationHeaderResult*, ulong, void*, void> callback, void* callerContext)
+    public static void EntraAuthGetAuthorizationHeaderAsync(
+        NativeValidationResult* validationResult, NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName,
+        delegate* unmanaged<NativeDownstreamAuthorizationHeaderResult*, void*, void> callback, void* callerContext)
     {
-        return AllocateResult<NativeAsyncSubmissionResult>();
+        Complete(callback, AllocateHeaderResult(), callerContext);
     }
 
+    /// <summary>
+    /// Entry point for callback-based header acquisition without a user context.
+    /// </summary>
+    /// <param name="downstreamApiInput">Borrowed per-request header acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <param name="callback">Required completion callback receiving ownership of the result; may run inline.</param>
+    /// <param name="callerContext">Opaque host context passed unchanged to the callback.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthGetAuthorizationHeaderUnauthenticatedAsync))]
-    private static NativeAsyncSubmissionResult* EntraAuthGetAuthorizationHeaderUnauthenticatedAsync(
-        NativeAuthorizationHeaderInput* input, byte* downstreamApiName,
-        delegate* unmanaged<NativeAuthorizationHeaderResult*, ulong, void*, void> callback, void* callerContext)
+    public static void EntraAuthGetAuthorizationHeaderUnauthenticatedAsync(
+        NativeDownstreamAuthorizationHeaderInput* downstreamApiInput, byte* downstreamApiName,
+        delegate* unmanaged<NativeDownstreamAuthorizationHeaderResult*, void*, void> callback, void* callerContext)
     {
-        return AllocateResult<NativeAsyncSubmissionResult>();
+        Complete(callback, AllocateHeaderResult(), callerContext);
     }
 
+    /// <summary>
+    /// Entry point for a callback-based downstream call with a host-supplied user context.
+    /// </summary>
+    /// <param name="validationResult">Borrowed host authentication context containing the subject token.</param>
+    /// <param name="downstreamApiInput">Borrowed per-request HTTP input and acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <param name="callback">Required completion callback receiving ownership of the result; may run inline.</param>
+    /// <param name="callerContext">Opaque host context passed unchanged to the callback.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthCallDownstreamApiAsync))]
-    private static NativeAsyncSubmissionResult* EntraAuthCallDownstreamApiAsync(
-        NativeRequestContext* context, NativeDownstreamApiInput* input, byte* downstreamApiName,
-        delegate* unmanaged<NativeDownstreamApiResult*, ulong, void*, void> callback, void* callerContext)
+    public static void EntraAuthCallDownstreamApiAsync(
+        NativeValidationResult* validationResult, NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName,
+        delegate* unmanaged<NativeDownstreamApiResult*, void*, void> callback, void* callerContext)
     {
-        return AllocateResult<NativeAsyncSubmissionResult>();
+        Complete(callback, AllocateDownstreamResult(), callerContext);
     }
 
+    /// <summary>
+    /// Entry point for a callback-based downstream call without a user context.
+    /// </summary>
+    /// <param name="downstreamApiInput">Borrowed per-request HTTP input and acquisition overrides.</param>
+    /// <param name="downstreamApiName">Borrowed zero-terminated UTF-8 service name.</param>
+    /// <param name="callback">Required completion callback receiving ownership of the result; may run inline.</param>
+    /// <param name="callerContext">Opaque host context passed unchanged to the callback.</param>
     [UnmanagedCallersOnly(EntryPoint = nameof(EntraAuthCallDownstreamApiUnauthenticatedAsync))]
-    private static NativeAsyncSubmissionResult* EntraAuthCallDownstreamApiUnauthenticatedAsync(
-        NativeDownstreamApiInput* input, byte* downstreamApiName,
-        delegate* unmanaged<NativeDownstreamApiResult*, ulong, void*, void> callback, void* callerContext)
+    public static void EntraAuthCallDownstreamApiUnauthenticatedAsync(
+        NativeDownstreamApiInput* downstreamApiInput, byte* downstreamApiName,
+        delegate* unmanaged<NativeDownstreamApiResult*, void*, void> callback, void* callerContext)
     {
-        return AllocateResult<NativeAsyncSubmissionResult>();
+        Complete(callback, AllocateDownstreamResult(), callerContext);
     }
 
-    private static T* AllocateResult<T>() where T : unmanaged
+    private static NativeDownstreamAuthorizationHeaderResult* AllocateHeaderResult()
+    {
+        NativeDownstreamAuthorizationHeaderResult* result = AllocateResult<NativeDownstreamAuthorizationHeaderResult>("Not implemented."u8);
+        result->HttpResponseStatusCode = 501;
+        result->ErrorDescription = (byte*)(result + 1);
+        return result;
+    }
+
+    private static NativeDownstreamApiResult* AllocateDownstreamResult()
+    {
+        NativeDownstreamApiResult* result = AllocateResult<NativeDownstreamApiResult>("Not implemented."u8);
+        result->HttpResponseStatusCode = 501;
+        result->ErrorDescription = (byte*)(result + 1);
+        return result;
+    }
+
+    private static void Complete<T>(delegate* unmanaged<T*, void*, void> callback, T* result, void* callerContext)
+        where T : unmanaged
+    {
+        if (callback is null)
+        {
+            FreeResult(result);
+            Environment.FailFast("A Native AOT completion callback is required.");
+            return;
+        }
+
+        try
+        {
+            callback(result, callerContext);
+        }
+        catch (Exception exception)
+        {
+            Environment.FailFast("Native AOT completion callback failed.", exception);
+        }
+    }
+
+    private static T* AllocateResult<T>(ReadOnlySpan<byte> errorDescription) where T : unmanaged
     {
         try
         {
-            var result = (T*)Marshal.AllocCoTaskMem(sizeof(T));
-            new Span<byte>(result, sizeof(T)).Clear();
-            *(NativeErrorCategory*)result = NativeErrorCategory.Unsupported;
+            int size = sizeof(T) + errorDescription.Length + 1;
+            var result = (T*)Marshal.AllocCoTaskMem(size);
+            new Span<byte>(result, size).Clear();
+            errorDescription.CopyTo(new Span<byte>(result + 1, errorDescription.Length));
             return result;
         }
         catch (Exception exception)

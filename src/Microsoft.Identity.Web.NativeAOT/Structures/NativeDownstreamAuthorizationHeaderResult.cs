@@ -10,12 +10,27 @@ namespace Microsoft.Identity.Web.NativeAOT;
 /// Owned header outcome; UTF-8 strings share the result allocation, but any certificate is separately owned.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct NativeAuthorizationHeaderResult
+public unsafe struct NativeDownstreamAuthorizationHeaderResult
 {
     /// <summary>
-    /// Operation outcome and token acquisition metadata, not independently allocated.
+    /// Operation HTTP status for the host response, not an observed token-endpoint status.
     /// </summary>
-    public NativeAcquireTokenResult Token;
+    public int HttpResponseStatusCode;
+
+    /// <summary>
+    /// Correlation GUID for the operation.
+    /// </summary>
+    public byte* CorrelationId;
+
+    /// <summary>
+    /// Optional managed exception type/message; may contain sensitive provider data.
+    /// </summary>
+    public byte* ErrorDescription;
+
+    /// <summary>
+    /// Optional UTF-8 WWW-Authenticate header for forwarding an acquisition claims challenge upstream.
+    /// </summary>
+    public byte* WWWAuthenticate;
 
     /// <summary>
     /// Authorization header on success; otherwise NULL. Contains a secret, never log.
@@ -33,7 +48,12 @@ public unsafe struct NativeAuthorizationHeaderResult
     public byte* LongRunningWebApiSessionKey;
 
     /// <summary>
-    /// Optional acquisition metadata JSON; may contain secrets, never log.
+    /// Optional acquisition metadata JSON; format is not contractual and may contain secrets, never log.
     /// </summary>
-    public byte* MetadataJson;
+    public byte* Metadata;
+
+    /// <summary>
+    /// Optional UTF-8 failure diagnostics JSON; format is not contractual and may contain sensitive data.
+    /// </summary>
+    public byte* FailureDetails;
 }
